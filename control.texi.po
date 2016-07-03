@@ -1,0 +1,2685 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2016-07-03 12:18+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: chapter
+#: control.texi.orig:6 control.texi.orig:7
+#, no-wrap
+msgid "Control Structures"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:8
+#, no-wrap
+msgid "special forms for control structures"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:9
+#, no-wrap
+msgid "control structures"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:16
+msgid ""
+"A Lisp program consists of a set of @dfn{expressions}, or @dfn{forms} "
+"(@pxref{Forms}).  We control the order of execution of these forms by "
+"enclosing them in @dfn{control structures}.  Control structures are special "
+"forms which control when, whether, or how many times to execute the forms "
+"they contain."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:17
+#, no-wrap
+msgid "textual order"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:26
+msgid ""
+"The simplest order of execution is sequential execution: first form @var{a}, "
+"then form @var{b}, and so on.  This is what happens when you write several "
+"forms in succession in the body of a function, or at top level in a file of "
+"Lisp code---the forms are executed in the order written.  We call this "
+"@dfn{textual order}.  For example, if a function body consists of two forms "
+"@var{a} and @var{b}, evaluation of the function evaluates first @var{a} and "
+"then @var{b}.  The result of evaluating @var{b} becomes the value of the "
+"function."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:29
+msgid ""
+"Explicit control structures make possible an order of execution other than "
+"sequential."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:36
+msgid ""
+"Emacs Lisp provides several kinds of control structure, including other "
+"varieties of sequencing, conditionals, iteration, and (controlled)  "
+"jumps---all discussed below.  The built-in control structures are special "
+"forms since their subforms are not necessarily evaluated or not evaluated "
+"sequentially.  You can use macros to define your own control structure "
+"constructs (@pxref{Macros})."
+msgstr ""
+
+#. type: section
+#: control.texi.orig:43 control.texi.orig:45 control.texi.orig:46
+#, no-wrap
+msgid "Sequencing"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:43
+msgid "Evaluation in textual order."
+msgstr ""
+
+#. type: section
+#: control.texi.orig:43 control.texi.orig:144 control.texi.orig:145
+#, no-wrap
+msgid "Conditionals"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:43
+msgid "@code{if}, @code{cond}, @code{when}, @code{unless}."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:43 control.texi.orig:404
+#, no-wrap
+msgid "Combining Conditions"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:43
+msgid "@code{and}, @code{or}, @code{not}."
+msgstr ""
+
+#. type: section
+#: control.texi.orig:43 control.texi.orig:529 control.texi.orig:530
+#, no-wrap
+msgid "Iteration"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:43
+msgid "@code{while} loops."
+msgstr ""
+
+#. type: section
+#: control.texi.orig:43 control.texi.orig:619 control.texi.orig:620
+#, no-wrap
+msgid "Nonlocal Exits"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:43
+msgid "Jumping out of a sequence."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:47
+#, no-wrap
+msgid "sequencing"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:48
+#, no-wrap
+msgid "sequential execution"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:55
+msgid ""
+"Evaluating forms in the order they appear is the most common way control "
+"passes from one form to another.  In some contexts, such as in a function "
+"body, this happens automatically.  Elsewhere you must use a control "
+"structure construct to do this: @code{progn}, the simplest control construct "
+"of Lisp."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:57
+msgid "A @code{progn} special form looks like this:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:61
+#, no-wrap
+msgid "(progn @var{a} @var{b} @var{c} @dots{})\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:69
+msgid ""
+"and it says to execute the forms @var{a}, @var{b}, @var{c}, and so on, in "
+"that order.  These forms are called the @dfn{body} of the @code{progn} "
+"form.  The value of the last form in the body becomes the value of the "
+"entire @code{progn}.  @code{(progn)} returns @code{nil}."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:70
+#, no-wrap
+msgid "implicit @code{progn}"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:81
+msgid ""
+"In the early days of Lisp, @code{progn} was the only way to execute two or "
+"more forms in succession and use the value of the last of them.  But "
+"programmers found they often needed to use a @code{progn} in the body of a "
+"function, where (at that time) only one form was allowed.  So the body of a "
+"function was made into an ``implicit @code{progn}'': several forms are "
+"allowed just as in the body of an actual @code{progn}.  Many other control "
+"structures likewise contain an implicit @code{progn}.  As a result, "
+"@code{progn} is not used as much as it was many years ago.  It is needed now "
+"most often inside an @code{unwind-protect}, @code{and}, @code{or}, or in the "
+"@var{then}-part of an @code{if}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:82
+#, no-wrap
+msgid "progn forms@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:85
+msgid ""
+"This special form evaluates all of the @var{forms}, in textual order, "
+"returning the result of the final form."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:95
+#, no-wrap
+msgid ""
+"(progn (print \"The first form\")\n"
+"       (print \"The second form\")\n"
+"       (print \"The third form\"))\n"
+"     @print{} \"The first form\"\n"
+"     @print{} \"The second form\"\n"
+"     @print{} \"The third form\"\n"
+"@result{} \"The third form\"\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:101
+msgid ""
+"Two other constructs likewise evaluate a series of forms but return "
+"different values:"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:102
+#, no-wrap
+msgid "prog1 form1 forms@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:105
+msgid ""
+"This special form evaluates @var{form1} and all of the @var{forms}, in "
+"textual order, returning the result of @var{form1}."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:115
+#, no-wrap
+msgid ""
+"(prog1 (print \"The first form\")\n"
+"       (print \"The second form\")\n"
+"       (print \"The third form\"))\n"
+"     @print{} \"The first form\"\n"
+"     @print{} \"The second form\"\n"
+"     @print{} \"The third form\"\n"
+"@result{} \"The first form\"\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:120
+msgid ""
+"Here is a way to remove the first element from a list in the variable "
+"@code{x}, then return the value of that former element:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:123
+#, no-wrap
+msgid "(prog1 (car x) (setq x (cdr x)))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:126
+#, no-wrap
+msgid "prog2 form1 form2 forms@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:130
+msgid ""
+"This special form evaluates @var{form1}, @var{form2}, and all of the "
+"following @var{forms}, in textual order, returning the result of "
+"@var{form2}."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:140
+#, no-wrap
+msgid ""
+"(prog2 (print \"The first form\")\n"
+"       (print \"The second form\")\n"
+"       (print \"The third form\"))\n"
+"     @print{} \"The first form\"\n"
+"     @print{} \"The second form\"\n"
+"     @print{} \"The third form\"\n"
+"@result{} \"The second form\"\n"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:146
+#, no-wrap
+msgid "conditional evaluation"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:152
+msgid ""
+"Conditional control structures choose among alternatives.  Emacs Lisp has "
+"four conditional forms: @code{if}, which is much the same as in other "
+"languages; @code{when} and @code{unless}, which are variants of @code{if}; "
+"and @code{cond}, which is a generalized case statement."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:153
+#, no-wrap
+msgid "if condition then-form else-forms@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:160
+msgid ""
+"@code{if} chooses between the @var{then-form} and the @var{else-forms} based "
+"on the value of @var{condition}.  If the evaluated @var{condition} is "
+"non-@code{nil}, @var{then-form} is evaluated and the result returned.  "
+"Otherwise, the @var{else-forms} are evaluated in textual order, and the "
+"value of the last one is returned.  (The @var{else} part of @code{if} is an "
+"example of an implicit @code{progn}.  @xref{Sequencing}.)"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:163
+msgid ""
+"If @var{condition} has the value @code{nil}, and no @var{else-forms} are "
+"given, @code{if} returns @code{nil}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:167
+msgid ""
+"@code{if} is a special form because the branch that is not selected is never "
+"evaluated---it is ignored.  Thus, in this example, @code{true} is not "
+"printed because @code{print} is never called:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:174
+#, no-wrap
+msgid ""
+"(if nil\n"
+"    (print 'true)\n"
+"  'very-false)\n"
+"@result{} very-false\n"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:178
+#, no-wrap
+msgid "when condition then-forms@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:181
+msgid ""
+"This is a variant of @code{if} where there are no @var{else-forms}, and "
+"possibly several @var{then-forms}.  In particular,"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:184
+#, no-wrap
+msgid "(when @var{condition} @var{a} @var{b} @var{c})\n"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:188 control.texi.orig:203
+msgid "is entirely equivalent to"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:191
+#, no-wrap
+msgid "(if @var{condition} (progn @var{a} @var{b} @var{c}) nil)\n"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:194
+#, no-wrap
+msgid "unless condition forms@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:196
+msgid "This is a variant of @code{if} where there is no @var{then-form}:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:199
+#, no-wrap
+msgid "(unless @var{condition} @var{a} @var{b} @var{c})\n"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:207
+#, no-wrap
+msgid ""
+"(if @var{condition} nil\n"
+"   @var{a} @var{b} @var{c})\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:210
+#, no-wrap
+msgid "cond clause@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:215
+msgid ""
+"@code{cond} chooses among an arbitrary number of alternatives.  Each "
+"@var{clause} in the @code{cond} must be a list.  The @sc{car} of this list "
+"is the @var{condition}; the remaining elements, if any, the "
+"@var{body-forms}.  Thus, a clause looks like this:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:218
+#, no-wrap
+msgid "(@var{condition} @var{body-forms}@dots{})\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:225
+msgid ""
+"@code{cond} tries the clauses in textual order, by evaluating the "
+"@var{condition} of each clause.  If the value of @var{condition} is "
+"non-@code{nil}, the clause ``succeeds''; then @code{cond} evaluates its "
+"@var{body-forms}, and returns the value of the last of @var{body-forms}.  "
+"Any remaining clauses are ignored."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:228
+msgid ""
+"If the value of @var{condition} is @code{nil}, the clause ``fails'', so the "
+"@code{cond} moves on to the following clause, trying its @var{condition}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:230
+msgid "A clause may also look like this:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:233
+#, no-wrap
+msgid "(@var{condition})\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:238
+msgid ""
+"Then, if @var{condition} is non-@code{nil} when tested, the @code{cond} form "
+"returns the value of @var{condition}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:241
+msgid ""
+"If every @var{condition} evaluates to @code{nil}, so that every clause "
+"fails, @code{cond} returns @code{nil}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:245
+msgid ""
+"The following example has four clauses, which test for the cases where the "
+"value of @code{x} is a number, string, buffer and symbol, respectively:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:254
+#, no-wrap
+msgid ""
+"(cond ((numberp x) x)\n"
+"      ((stringp x) x)\n"
+"      ((bufferp x)\n"
+"       (setq temporary-hack x) ; @r{multiple body-forms}\n"
+"       (buffer-name x))        ; @r{in one clause}\n"
+"      ((symbolp x) (symbol-value x)))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:263
+msgid ""
+"Often we want to execute the last clause whenever none of the previous "
+"clauses was successful.  To do this, we use @code{t} as the @var{condition} "
+"of the last clause, like this: @code{(t @var{body-forms})}.  The form "
+"@code{t} evaluates to @code{t}, which is never @code{nil}, so this clause "
+"never fails, provided the @code{cond} gets to it at all.  For example:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:270
+#, no-wrap
+msgid ""
+"(setq a 5)\n"
+"(cond ((eq a 'hack) 'foo)\n"
+"      (t \"default\"))\n"
+"@result{} \"default\"\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:276
+msgid ""
+"This @code{cond} expression returns @code{foo} if the value of @code{a} is "
+"@code{hack}, and returns the string @code{\"default\"} otherwise."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:281
+msgid ""
+"Any conditional construct can be expressed with @code{cond} or with "
+"@code{if}.  Therefore, the choice between them is a matter of style.  For "
+"example:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:287
+#, no-wrap
+msgid ""
+"(if @var{a} @var{b} @var{c})\n"
+"@equiv{}\n"
+"(cond (@var{a} @var{b}) (t @var{c}))\n"
+msgstr ""
+
+#. type: subsection
+#: control.texi.orig:292 control.texi.orig:294 control.texi.orig:295
+#, no-wrap
+msgid "Pattern matching case statement"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:296
+#, no-wrap
+msgid "pcase"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:297
+#, no-wrap
+msgid "pattern matching"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:301
+msgid ""
+"To compare a particular value against various possible cases, the macro "
+"@code{pcase} can come handy.  It takes the following form:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:304
+#, no-wrap
+msgid "(pcase @var{exp} @var{branch}1 @var{branch}2 @var{branch}3 @dots{})\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:308
+msgid ""
+"where each @var{branch} takes the form @code{(@var{upattern} "
+"@var{body-forms}@dots{})}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:313
+msgid ""
+"It will first evaluate @var{exp} and then compare the value against each "
+"@var{upattern} to see which @var{branch} to use, after which it will run the "
+"corresponding @var{body-forms}.  A common use case is to distinguish between "
+"a few different constant values:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:321
+#, no-wrap
+msgid ""
+"(pcase (get-return-code x)\n"
+"  (`success       (message \"Done!\"))\n"
+"  (`would-block   (message \"Sorry, can't do it now\"))\n"
+"  (`read-only     (message \"The shmliblick is read-only\"))\n"
+"  (`access-denied (message \"You do not have the needed rights\"))\n"
+"  (code           (message \"Unknown return code %S\" code)))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:325
+msgid ""
+"In the last clause, @code{code} is a variable that gets bound to the value "
+"that was returned by @code{(get-return-code x)}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:329
+msgid ""
+"To give a more complex example, a simple interpreter for a little expression "
+"language could look like (note that this example requires lexical binding):"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:340
+#, no-wrap
+msgid ""
+"(defun evaluate (exp env)\n"
+"  (pcase exp\n"
+"    (`(add ,x ,y)       (+ (evaluate x env) (evaluate y env)))\n"
+"    (`(call ,fun ,arg)  (funcall (evaluate fun env) (evaluate arg env)))\n"
+"    (`(fn ,arg ,body)   (lambda (val)\n"
+"                          (evaluate body (cons (cons arg val) env))))\n"
+"    ((pred numberp)     exp)\n"
+"    ((pred symbolp)     (cdr (assq exp env)))\n"
+"    (_                  (error \"Unknown expression %S\" exp))))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:347
+msgid ""
+"Where @code{`(add ,x ,y)} is a pattern that checks that @code{exp} is a "
+"three element list starting with the symbol @code{add}, then extracts the "
+"second and third elements and binds them to the variables @code{x} and "
+"@code{y}.  @code{(pred numberp)} is a pattern that simply checks that "
+"@code{exp} is a number, and @code{_} is the catch-all pattern that matches "
+"anything."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:349
+msgid "Here are some sample programs including their evaluation results:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:355
+#, no-wrap
+msgid ""
+"(evaluate '(add 1 2) nil)                 ;=> 3\n"
+"(evaluate '(add x y) '((x . 1) (y . 2)))  ;=> 3\n"
+"(evaluate '(call (fn x (add 1 x)) 2) nil) ;=> 3\n"
+"(evaluate '(sub 1 2) nil)                 ;=> error\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:360
+msgid ""
+"There are two kinds of patterns involved in @code{pcase}, called "
+"@emph{U-patterns} and @emph{Q-patterns}.  The @var{upattern} mentioned above "
+"are U-patterns and can take the following forms:"
+msgstr ""
+
+#. type: item
+#: control.texi.orig:362
+#, no-wrap
+msgid "`@var{qpattern}"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:369
+msgid ""
+"This is one of the most common form of patterns.  The intention is to mimic "
+"the backquote macro: this pattern matches those values that could have been "
+"built by such a backquote expression.  Since we're pattern matching rather "
+"than building a value, the unquote does not indicate where to plug an "
+"expression, but instead it lets one specify a U-pattern that should match "
+"the value at that location."
+msgstr ""
+
+#. type: table
+#: control.texi.orig:371
+msgid "More specifically, a Q-pattern can take the following forms:"
+msgstr ""
+
+#. type: item
+#: control.texi.orig:372
+#, no-wrap
+msgid "(@var{qpattern1} . @var{qpattern2})"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:375
+msgid ""
+"This pattern matches any cons cell whose @code{car} matches @var{qpattern1} "
+"and whose @code{cdr} matches @var{pattern2}."
+msgstr ""
+
+#. type: var{#1}
+#: control.texi.orig:375
+#, no-wrap
+msgid "atom"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:377
+msgid "This pattern matches any atom @code{equal} to @var{atom}."
+msgstr ""
+
+#. type: item
+#: control.texi.orig:377
+#, no-wrap
+msgid ",@var{upattern}"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:379
+msgid "This pattern matches any object that matches the @var{upattern}."
+msgstr ""
+
+#. type: var{#1}
+#: control.texi.orig:381
+#, no-wrap
+msgid "symbol"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:385
+msgid ""
+"A mere symbol in a U-pattern matches anything, and additionally let-binds "
+"this symbol to the value that it matched, so that you can later refer to it, "
+"either in the @var{body-forms} or also later in the pattern."
+msgstr ""
+
+#. type: item
+#: control.texi.orig:385
+#, no-wrap
+msgid "_"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:388
+msgid ""
+"This so-called @emph{don't care} pattern matches anything, like the previous "
+"one, but unlike symbol patterns it does not bind any variable."
+msgstr ""
+
+#. type: item
+#: control.texi.orig:388
+#, no-wrap
+msgid "(pred @var{pred})"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:391
+msgid ""
+"This pattern matches if the function @var{pred} returns non-@code{nil} when "
+"called with the object being matched."
+msgstr ""
+
+#. type: item
+#: control.texi.orig:391
+#, no-wrap
+msgid "(or @var{upattern1} @var{upattern2}@dots{})"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:394
+msgid ""
+"This pattern matches as soon as one of the argument patterns succeeds.  All "
+"argument patterns should let-bind the same variables."
+msgstr ""
+
+#. type: item
+#: control.texi.orig:394
+#, no-wrap
+msgid "(and @var{upattern1} @var{upattern2}@dots{})"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:396
+msgid "This pattern matches only if all the argument patterns succeed."
+msgstr ""
+
+#. type: item
+#: control.texi.orig:396
+#, no-wrap
+msgid "(guard @var{exp})"
+msgstr ""
+
+#. type: table
+#: control.texi.orig:402
+msgid ""
+"This pattern ignores the object being examined and simply succeeds if "
+"@var{exp} evaluates to non-@code{nil} and fails otherwise.  It is typically "
+"used inside an @code{and} pattern.  For example, @code{(and x (guard (< x "
+"10)))} is a pattern which matches any number smaller than 10 and let-binds "
+"it to the variable @code{x}."
+msgstr ""
+
+#. type: section
+#: control.texi.orig:405
+#, no-wrap
+msgid "Constructs for Combining Conditions"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:406
+#, no-wrap
+msgid "combining conditions"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:412
+msgid ""
+"This section describes three constructs that are often used together with "
+"@code{if} and @code{cond} to express complicated conditions.  The constructs "
+"@code{and} and @code{or} can also be used individually as kinds of multiple "
+"conditional constructs."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:413
+#, no-wrap
+msgid "not condition"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:418
+msgid ""
+"This function tests for the falsehood of @var{condition}.  It returns "
+"@code{t} if @var{condition} is @code{nil}, and @code{nil} otherwise.  The "
+"function @code{not} is identical to @code{null}, and we recommend using the "
+"name @code{null} if you are testing for an empty list."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:420
+#, no-wrap
+msgid "and conditions@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:424
+msgid ""
+"The @code{and} special form tests whether all the @var{conditions} are "
+"true.  It works by evaluating the @var{conditions} one by one in the order "
+"written."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:429
+msgid ""
+"If any of the @var{conditions} evaluates to @code{nil}, then the result of "
+"the @code{and} must be @code{nil} regardless of the remaining "
+"@var{conditions}; so @code{and} returns @code{nil} right away, ignoring the "
+"remaining @var{conditions}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:435
+msgid ""
+"If all the @var{conditions} turn out non-@code{nil}, then the value of the "
+"last of them becomes the value of the @code{and} form.  Just @code{(and)}, "
+"with no @var{conditions}, returns @code{t}, appropriate because all the "
+"@var{conditions} turned out non-@code{nil}.  (Think about it; which one did "
+"not?)"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:440
+msgid ""
+"Here is an example.  The first condition returns the integer 1, which is not "
+"@code{nil}.  Similarly, the second condition returns the integer 2, which is "
+"not @code{nil}.  The third condition is @code{nil}, so the remaining "
+"condition is never evaluated."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:447
+#, no-wrap
+msgid ""
+"(and (print 1) (print 2) nil (print 3))\n"
+"     @print{} 1\n"
+"     @print{} 2\n"
+"@result{} nil\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:451
+msgid "Here is a more realistic example of using @code{and}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:456
+#, no-wrap
+msgid ""
+"(if (and (consp foo) (eq (car foo) 'x))\n"
+"    (message \"foo is a list starting with x\"))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:462
+msgid ""
+"Note that @code{(car foo)} is not executed if @code{(consp foo)} returns "
+"@code{nil}, thus avoiding an error."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:465
+msgid ""
+"@code{and} expressions can also be written using either @code{if} or "
+"@code{cond}.  Here's how:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:473
+#, no-wrap
+msgid ""
+"(and @var{arg1} @var{arg2} @var{arg3})\n"
+"@equiv{}\n"
+"(if @var{arg1} (if @var{arg2} @var{arg3}))\n"
+"@equiv{}\n"
+"(cond (@var{arg1} (cond (@var{arg2} @var{arg3}))))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:477
+#, no-wrap
+msgid "or conditions@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:481
+msgid ""
+"The @code{or} special form tests whether at least one of the "
+"@var{conditions} is true.  It works by evaluating all the @var{conditions} "
+"one by one in the order written."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:486
+msgid ""
+"If any of the @var{conditions} evaluates to a non-@code{nil} value, then the "
+"result of the @code{or} must be non-@code{nil}; so @code{or} returns right "
+"away, ignoring the remaining @var{conditions}.  The value it returns is the "
+"non-@code{nil} value of the condition just evaluated."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:492
+msgid ""
+"If all the @var{conditions} turn out @code{nil}, then the @code{or} "
+"expression returns @code{nil}.  Just @code{(or)}, with no @var{conditions}, "
+"returns @code{nil}, appropriate because all the @var{conditions} turned out "
+"@code{nil}.  (Think about it; which one did not?)"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:495
+msgid ""
+"For example, this expression tests whether @code{x} is either @code{nil} or "
+"the integer zero:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:498
+#, no-wrap
+msgid "(or (eq x nil) (eq x 0))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:502
+msgid ""
+"Like the @code{and} construct, @code{or} can be written in terms of "
+"@code{cond}.  For example:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:510
+#, no-wrap
+msgid ""
+"(or @var{arg1} @var{arg2} @var{arg3})\n"
+"@equiv{}\n"
+"(cond (@var{arg1})\n"
+"      (@var{arg2})\n"
+"      (@var{arg3}))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:514
+msgid "You could almost write @code{or} in terms of @code{if}, but not quite:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:520
+#, no-wrap
+msgid ""
+"(if @var{arg1} @var{arg1}\n"
+"  (if @var{arg2} @var{arg2}\n"
+"    @var{arg3}))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:527
+msgid ""
+"This is not completely equivalent because it can evaluate @var{arg1} or "
+"@var{arg2} twice.  By contrast, @code{(or @var{arg1} @var{arg2} @var{arg3})} "
+"never evaluates any argument more than once."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:531
+#, no-wrap
+msgid "iteration"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:532
+#, no-wrap
+msgid "recursion"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:538
+msgid ""
+"Iteration means executing part of a program repetitively.  For example, you "
+"might want to repeat some computation once for each element of a list, or "
+"once for each integer from 0 to @var{n}.  You can do this in Emacs Lisp with "
+"the special form @code{while}:"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:539
+#, no-wrap
+msgid "while condition forms@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:545
+msgid ""
+"@code{while} first evaluates @var{condition}.  If the result is "
+"non-@code{nil}, it evaluates @var{forms} in textual order.  Then it "
+"reevaluates @var{condition}, and if the result is non-@code{nil}, it "
+"evaluates @var{forms} again.  This process repeats until @var{condition} "
+"evaluates to @code{nil}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:549
+msgid ""
+"There is no limit on the number of iterations that may occur.  The loop will "
+"continue until either @var{condition} evaluates to @code{nil} or until an "
+"error or @code{throw} jumps out of it (@pxref{Nonlocal Exits})."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:551
+msgid "The value of a @code{while} form is always @code{nil}."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:556
+#, no-wrap
+msgid ""
+"(setq num 0)\n"
+"     @result{} 0\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:566
+#, no-wrap
+msgid ""
+"(while (< num 4)\n"
+"  (princ (format \"Iteration %d.\" num))\n"
+"  (setq num (1+ num)))\n"
+"     @print{} Iteration 0.\n"
+"     @print{} Iteration 1.\n"
+"     @print{} Iteration 2.\n"
+"     @print{} Iteration 3.\n"
+"     @result{} nil\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:573
+msgid ""
+"To write a ``repeat...until'' loop, which will execute something on each "
+"iteration and then do the end-test, put the body followed by the end-test in "
+"a @code{progn} as the first argument of @code{while}, as shown here:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:579
+#, no-wrap
+msgid ""
+"(while (progn\n"
+"         (forward-line 1)\n"
+"         (not (looking-at \"^$\"))))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:586
+msgid ""
+"This moves forward one line and continues moving by lines until it reaches "
+"an empty line.  It is peculiar in that the @code{while} has no body, just "
+"the end test (which also does the real work of moving point)."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:590
+msgid ""
+"The @code{dolist} and @code{dotimes} macros provide convenient ways to write "
+"two common kinds of loops."
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:591
+#, no-wrap
+msgid "dolist (var list [result]) body@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:597
+msgid ""
+"This construct executes @var{body} once for each element of @var{list}, "
+"binding the variable @var{var} locally to hold the current element.  Then it "
+"returns the value of evaluating @var{result}, or @code{nil} if @var{result} "
+"is omitted.  For example, here is how you could use @code{dolist} to define "
+"the @code{reverse} function:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:603
+#, no-wrap
+msgid ""
+"(defun reverse (list)\n"
+"  (let (value)\n"
+"    (dolist (elt list value)\n"
+"      (setq value (cons elt value)))))\n"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:606
+#, no-wrap
+msgid "dotimes (var count [result]) body@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:612
+msgid ""
+"This construct executes @var{body} once for each integer from 0 (inclusive) "
+"to @var{count} (exclusive), binding the variable @var{var} to the integer "
+"for the current iteration.  Then it returns the value of evaluating "
+"@var{result}, or @code{nil} if @var{result} is omitted.  Here is an example "
+"of using @code{dotimes} to do something 100 times:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:616
+#, no-wrap
+msgid ""
+"(dotimes (i 100)\n"
+"  (insert \"I will not obey absurd orders\\n\"))\n"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:621
+#, no-wrap
+msgid "nonlocal exits"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:628
+msgid ""
+"A @dfn{nonlocal exit} is a transfer of control from one point in a program "
+"to another remote point.  Nonlocal exits can occur in Emacs Lisp as a result "
+"of errors; you can also use them under explicit control.  Nonlocal exits "
+"unbind all variable bindings made by the constructs being exited."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:634 control.texi.orig:636
+#, no-wrap
+msgid "Catch and Throw"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:634
+msgid "Nonlocal exits for the program's own purposes."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:634 control.texi.orig:735
+#, no-wrap
+msgid "Examples of Catch"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:634
+msgid "Showing how such nonlocal exits can be written."
+msgstr ""
+
+#. type: subsection
+#: control.texi.orig:634 control.texi.orig:810 control.texi.orig:811
+#, no-wrap
+msgid "Errors"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:634
+msgid "How errors are signaled and handled."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:634 control.texi.orig:1368
+#, no-wrap
+msgid "Cleanups"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:634
+msgid "Arranging to run a cleanup form if an error happens."
+msgstr ""
+
+#. type: subsection
+#: control.texi.orig:637
+#, no-wrap
+msgid "Explicit Nonlocal Exits: @code{catch} and @code{throw}"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:645
+msgid ""
+"Most control constructs affect only the flow of control within the construct "
+"itself.  The function @code{throw} is the exception to this rule of normal "
+"program execution: it performs a nonlocal exit on request.  (There are other "
+"exceptions, but they are for error handling only.)  @code{throw} is used "
+"inside a @code{catch}, and jumps back to that @code{catch}.  For example:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:651
+#, no-wrap
+msgid ""
+"(defun foo-outer ()\n"
+"  (catch 'foo\n"
+"    (foo-inner)))\n"
+"\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:657
+#, no-wrap
+msgid ""
+"(defun foo-inner ()\n"
+"  @dots{}\n"
+"  (if x\n"
+"      (throw 'foo t))\n"
+"  @dots{})\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:665
+msgid ""
+"The @code{throw} form, if executed, transfers control straight back to the "
+"corresponding @code{catch}, which returns immediately.  The code following "
+"the @code{throw} is not executed.  The second argument of @code{throw} is "
+"used as the return value of the @code{catch}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:674
+msgid ""
+"The function @code{throw} finds the matching @code{catch} based on the first "
+"argument: it searches for a @code{catch} whose first argument is @code{eq} "
+"to the one specified in the @code{throw}.  If there is more than one "
+"applicable @code{catch}, the innermost one takes precedence.  Thus, in the "
+"above example, the @code{throw} specifies @code{foo}, and the @code{catch} "
+"in @code{foo-outer} specifies the same symbol, so that @code{catch} is the "
+"applicable one (assuming there is no other matching @code{catch} in "
+"between)."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:684
+msgid ""
+"Executing @code{throw} exits all Lisp constructs up to the matching "
+"@code{catch}, including function calls.  When binding constructs such as "
+"@code{let} or function calls are exited in this way, the bindings are "
+"unbound, just as they are when these constructs exit normally (@pxref{Local "
+"Variables}).  Likewise, @code{throw} restores the buffer and position saved "
+"by @code{save-excursion} (@pxref{Excursions}), and the narrowing status "
+"saved by @code{save-restriction}.  It also runs any cleanups established "
+"with the @code{unwind-protect} special form when it exits that form "
+"(@pxref{Cleanups})."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:692
+msgid ""
+"The @code{throw} need not appear lexically within the @code{catch} that it "
+"jumps to.  It can equally well be called from another function called within "
+"the @code{catch}.  As long as the @code{throw} takes place chronologically "
+"after entry to the @code{catch}, and chronologically before exit from it, it "
+"has access to that @code{catch}.  This is why @code{throw} can be used in "
+"commands such as @code{exit-recursive-edit} that throw back to the editor "
+"command loop (@pxref{Recursive Editing})."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:693
+#, no-wrap
+msgid "CL note---only @code{throw} in Emacs"
+msgstr ""
+
+#. type: quotation
+#: control.texi.orig:700
+msgid ""
+"@b{Common Lisp note:} Most other versions of Lisp, including Common Lisp, "
+"have several ways of transferring control nonsequentially: @code{return}, "
+"@code{return-from}, and @code{go}, for example.  Emacs Lisp has only "
+"@code{throw}.  The @file{cl-lib} library provides versions of some of "
+"these.  @xref{Blocks and Exits,,,cl,Common Lisp Extensions}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:702
+#, no-wrap
+msgid "catch tag body@dots{}"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:703
+#, no-wrap
+msgid "tag on run time stack"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:708
+msgid ""
+"@code{catch} establishes a return point for the @code{throw} function.  The "
+"return point is distinguished from other such return points by @var{tag}, "
+"which may be any Lisp object except @code{nil}.  The argument @var{tag} is "
+"evaluated normally before the return point is established."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:713
+msgid ""
+"With the return point in effect, @code{catch} evaluates the forms of the "
+"@var{body} in textual order.  If the forms execute normally (without error "
+"or nonlocal exit) the value of the last body form is returned from the "
+"@code{catch}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:718
+msgid ""
+"If a @code{throw} is executed during the execution of @var{body}, specifying "
+"the same value @var{tag}, the @code{catch} form exits immediately; the value "
+"it returns is whatever was specified as the second argument of @code{throw}."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:720
+#, no-wrap
+msgid "throw tag value"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:726
+msgid ""
+"The purpose of @code{throw} is to return from a return point previously "
+"established with @code{catch}.  The argument @var{tag} is used to choose "
+"among the various existing return points; it must be @code{eq} to the value "
+"specified in the @code{catch}.  If multiple return points match @var{tag}, "
+"the innermost one is used."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:729
+msgid ""
+"The argument @var{value} is used as the value to return from that "
+"@code{catch}."
+msgstr ""
+
+#. type: kindex
+#: control.texi.orig:730
+#, no-wrap
+msgid "no-catch"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:733
+msgid ""
+"If no return point is in effect with tag @var{tag}, then a @code{no-catch} "
+"error is signaled with data @code{(@var{tag} @var{value})}."
+msgstr ""
+
+#. type: subsection
+#: control.texi.orig:736
+#, no-wrap
+msgid "Examples of @code{catch} and @code{throw}"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:742
+msgid ""
+"One way to use @code{catch} and @code{throw} is to exit from a doubly nested "
+"loop.  (In most languages, this would be done with a ``goto''.)  Here we "
+"compute @code{(foo @var{i} @var{j})} for @var{i} and @var{j} varying from 0 "
+"to 9:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:755
+#, no-wrap
+msgid ""
+"(defun search-foo ()\n"
+"  (catch 'loop\n"
+"    (let ((i 0))\n"
+"      (while (< i 10)\n"
+"        (let ((j 0))\n"
+"          (while (< j 10)\n"
+"            (if (foo i j)\n"
+"                (throw 'loop (list i j)))\n"
+"            (setq j (1+ j))))\n"
+"        (setq i (1+ i))))))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:763
+msgid ""
+"If @code{foo} ever returns non-@code{nil}, we stop immediately and return a "
+"list of @var{i} and @var{j}.  If @code{foo} always returns @code{nil}, the "
+"@code{catch} returns normally, and the value is @code{nil}, since that is "
+"the result of the @code{while}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:767
+msgid ""
+"Here are two tricky examples, slightly different, showing two return points "
+"at once.  First, two return points with the same tag, @code{hack}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:774
+#, no-wrap
+msgid ""
+"(defun catch2 (tag)\n"
+"  (catch tag\n"
+"    (throw 'hack 'yes)))\n"
+"@result{} catch2\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:782
+#, no-wrap
+msgid ""
+"(catch 'hack\n"
+"  (print (catch2 'hack))\n"
+"  'no)\n"
+"@print{} yes\n"
+"@result{} no\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:791
+msgid ""
+"Since both return points have tags that match the @code{throw}, it goes to "
+"the inner one, the one established in @code{catch2}.  Therefore, "
+"@code{catch2} returns normally with value @code{yes}, and this value is "
+"printed.  Finally the second body form in the outer @code{catch}, which is "
+"@code{'no}, is evaluated and returned from the outer @code{catch}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:793
+msgid "Now let's change the argument given to @code{catch2}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:800
+#, no-wrap
+msgid ""
+"(catch 'hack\n"
+"  (print (catch2 'quux))\n"
+"  'no)\n"
+"@result{} yes\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:809
+msgid ""
+"We still have two return points, but this time only the outer one has the "
+"tag @code{hack}; the inner one has the tag @code{quux} instead.  Therefore, "
+"@code{throw} makes the outer @code{catch} return the value @code{yes}.  The "
+"function @code{print} is never called, and the body-form @code{'no} is never "
+"evaluated."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:812
+#, no-wrap
+msgid "errors"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:816
+msgid ""
+"When Emacs Lisp attempts to evaluate a form that, for some reason, cannot be "
+"evaluated, it @dfn{signals} an @dfn{error}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:821
+msgid ""
+"When an error is signaled, Emacs's default reaction is to print an error "
+"message and terminate execution of the current command.  This is the right "
+"thing to do in most cases, such as if you type @kbd{C-f} at the end of the "
+"buffer."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:831
+msgid ""
+"In complicated programs, simple termination may not be what you want.  For "
+"example, the program may have made temporary changes in data structures, or "
+"created temporary buffers that should be deleted before the program is "
+"finished.  In such cases, you would use @code{unwind-protect} to establish "
+"@dfn{cleanup expressions} to be evaluated in case of error.  "
+"(@xref{Cleanups}.)  Occasionally, you may wish the program to continue "
+"execution despite an error in a subroutine.  In these cases, you would use "
+"@code{condition-case} to establish @dfn{error handlers} to recover control "
+"in case of error."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:835
+msgid ""
+"Resist the temptation to use error handling to transfer control from one "
+"part of the program to another; use @code{catch} and @code{throw} instead.  "
+"@xref{Catch and Throw}."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:841 control.texi.orig:843
+#, no-wrap
+msgid "Signaling Errors"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:841
+msgid "How to report an error."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:841 control.texi.orig:962
+#, no-wrap
+msgid "Processing of Errors"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:841
+msgid "What Emacs does when you report an error."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:841 control.texi.orig:999
+#, no-wrap
+msgid "Handling Errors"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:841
+msgid "How you can trap errors and continue execution."
+msgstr ""
+
+#. type: node
+#: control.texi.orig:841 control.texi.orig:1270
+#, no-wrap
+msgid "Error Symbols"
+msgstr ""
+
+#. type: menuentry
+#: control.texi.orig:841
+msgid "How errors are classified for trapping them."
+msgstr ""
+
+#. type: subsubsection
+#: control.texi.orig:844
+#, no-wrap
+msgid "How to Signal an Error"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:845
+#, no-wrap
+msgid "signaling errors"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:852
+msgid ""
+"@dfn{Signaling} an error means beginning error processing.  Error processing "
+"normally aborts all or part of the running program and returns to a point "
+"that is set up to handle the error (@pxref{Processing of Errors}).  Here we "
+"describe how to signal an error."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:858
+msgid ""
+"Most errors are signaled ``automatically'' within Lisp primitives which you "
+"call for other purposes, such as if you try to take the @sc{car} of an "
+"integer or move forward a character at the end of the buffer.  You can also "
+"signal errors explicitly with the functions @code{error} and @code{signal}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:862
+msgid ""
+"Quitting, which happens when the user types @kbd{C-g}, is not considered an "
+"error, but it is handled almost like an error.  @xref{Quitting}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:868
+msgid ""
+"Every error specifies an error message, one way or another.  The message "
+"should state what is wrong (``File does not exist''), not how things ought "
+"to be (``File must exist'').  The convention in Emacs Lisp is that error "
+"messages should start with a capital letter, but should not end with any "
+"sort of punctuation."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:869
+#, no-wrap
+msgid "error format-string &rest args"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:873
+msgid ""
+"This function signals an error with an error message constructed by applying "
+"@code{format} (@pxref{Formatting Strings}) to @var{format-string} and "
+"@var{args}."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:875
+msgid "These examples show typical uses of @code{error}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:880
+#, no-wrap
+msgid ""
+"(error \"That is an error -- try something else\")\n"
+"     @error{} That is an error -- try something else\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:885
+#, no-wrap
+msgid ""
+"(error \"You have committed %d errors\" 10)\n"
+"     @error{} You have committed 10 errors\n"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:891
+msgid ""
+"@code{error} works by calling @code{signal} with two arguments: the error "
+"symbol @code{error}, and a list containing the string returned by "
+"@code{format}."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:896
+msgid ""
+"@strong{Warning:} If you want to use your own string as an error message "
+"verbatim, don't just write @code{(error @var{string})}.  If @var{string} "
+"contains @samp{%}, it will be interpreted as a format specifier, with "
+"undesirable results.  Instead, use @code{(error \"%s\" @var{string})}."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:898
+#, no-wrap
+msgid "signal error-symbol data"
+msgstr ""
+
+#. type: anchor{#1}
+#: control.texi.orig:903
+msgid "Definition of signal"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:903
+msgid ""
+"This function signals an error named by @var{error-symbol}.  The argument "
+"@var{data} is a list of additional Lisp objects relevant to the "
+"circumstances of the error."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:908
+msgid ""
+"The argument @var{error-symbol} must be an @dfn{error symbol}---a symbol "
+"defined with @code{define-error}.  This is how Emacs Lisp classifies "
+"different sorts of errors. @xref{Error Symbols}, for a description of error "
+"symbols, error conditions and condition names."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:916
+msgid ""
+"If the error is not handled, the two arguments are used in printing the "
+"error message.  Normally, this error message is provided by the "
+"@code{error-message} property of @var{error-symbol}.  If @var{data} is "
+"non-@code{nil}, this is followed by a colon and a comma separated list of "
+"the unevaluated elements of @var{data}.  For @code{error}, the error message "
+"is the @sc{car} of @var{data} (that must be a string).  Subcategories of "
+"@code{file-error} are handled specially."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:921
+msgid ""
+"The number and significance of the objects in @var{data} depends on "
+"@var{error-symbol}.  For example, with a @code{wrong-type-argument} error, "
+"there should be two objects in the list: a predicate that describes the type "
+"that was expected, and the object that failed to fit that type."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:926
+msgid ""
+"Both @var{error-symbol} and @var{data} are available to any error handlers "
+"that handle the error: @code{condition-case} binds a local variable to a "
+"list of the form @code{(@var{error-symbol} .@: @var{data})} (@pxref{Handling "
+"Errors})."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:929
+msgid "The function @code{signal} never returns."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:934
+#, no-wrap
+msgid ""
+"(signal 'wrong-number-of-arguments '(x y))\n"
+"     @error{} Wrong number of arguments: x, y\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:939
+#, no-wrap
+msgid ""
+"(signal 'no-such-error '(\"My unknown error condition\"))\n"
+"     @error{} peculiar error: \"My unknown error condition\"\n"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:943
+#, no-wrap
+msgid "user errors, signaling"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:944
+#, no-wrap
+msgid "user-error format-string &rest args"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:954
+msgid ""
+"This function behaves exactly like @code{error}, except that it uses the "
+"error symbol @code{user-error} rather than @code{error}.  As the name "
+"suggests, this is intended to report errors on the part of the user, rather "
+"than errors in the code itself.  For example, if you try to use the command "
+"@code{Info-history-back} (@kbd{l}) to move back beyond the start of your "
+"Info browsing history, Emacs signals a @code{user-error}.  Such errors do "
+"not cause entry to the debugger, even when @code{debug-on-error} is "
+"non-@code{nil}.  @xref{Error Debugging}."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:956
+#, no-wrap
+msgid "CL note---no continuable errors"
+msgstr ""
+
+#. type: quotation
+#: control.texi.orig:960
+msgid ""
+"@b{Common Lisp note:} Emacs Lisp has nothing like the Common Lisp concept of "
+"continuable errors."
+msgstr ""
+
+#. type: subsubsection
+#: control.texi.orig:963
+#, no-wrap
+msgid "How Emacs Processes Errors"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:964
+#, no-wrap
+msgid "processing of errors"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:974
+msgid ""
+"When an error is signaled, @code{signal} searches for an active "
+"@dfn{handler} for the error.  A handler is a sequence of Lisp expressions "
+"designated to be executed if an error happens in part of the Lisp program.  "
+"If the error has an applicable handler, the handler is executed, and control "
+"resumes following the handler.  The handler executes in the environment of "
+"the @code{condition-case} that established it; all functions called within "
+"that @code{condition-case} have already been exited, and the handler cannot "
+"return to them."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:981
+msgid ""
+"If there is no applicable handler for the error, it terminates the current "
+"command and returns control to the editor command loop.  (The command loop "
+"has an implicit handler for all kinds of errors.)  The command loop's "
+"handler uses the error symbol and associated data to print an error "
+"message.  You can use the variable @code{command-error-function} to control "
+"how this is done:"
+msgstr ""
+
+#. type: defvar
+#: control.texi.orig:982
+#, no-wrap
+msgid "command-error-function"
+msgstr ""
+
+#. type: defvar
+#: control.texi.orig:990
+msgid ""
+"This variable, if non-@code{nil}, specifies a function to use to handle "
+"errors that return control to the Emacs command loop.  The function should "
+"take three arguments: @var{data}, a list of the same form that "
+"@code{condition-case} would bind to its variable; @var{context}, a string "
+"describing the situation in which the error occurred, or (more often) "
+"@code{nil}; and @var{caller}, the Lisp function which called the primitive "
+"that signaled the error."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:992
+#, no-wrap
+msgid "@code{debug-on-error} use"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:998
+msgid ""
+"An error that has no explicit handler may call the Lisp debugger.  The "
+"debugger is enabled if the variable @code{debug-on-error} (@pxref{Error "
+"Debugging}) is non-@code{nil}.  Unlike error handlers, the debugger runs in "
+"the environment of the error, so that you can examine values of variables "
+"precisely as they were at the time of the error."
+msgstr ""
+
+#. type: subsubsection
+#: control.texi.orig:1000
+#, no-wrap
+msgid "Writing Code to Handle Errors"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1001
+#, no-wrap
+msgid "error handler"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1002
+#, no-wrap
+msgid "handling errors"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1009
+msgid ""
+"The usual effect of signaling an error is to terminate the command that is "
+"running and return immediately to the Emacs editor command loop.  You can "
+"arrange to trap errors occurring in a part of your program by establishing "
+"an error handler, with the special form @code{condition-case}.  A simple "
+"example looks like this:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1015
+#, no-wrap
+msgid ""
+"(condition-case nil\n"
+"    (delete-file filename)\n"
+"  (error nil))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1022
+msgid ""
+"This deletes the file named @var{filename}, catching any error and returning "
+"@code{nil} if an error occurs.  (You can use the macro @code{ignore-errors} "
+"for a simple case like this; see below.)"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1028
+msgid ""
+"The @code{condition-case} construct is often used to trap errors that are "
+"predictable, such as failure to open a file in a call to "
+"@code{insert-file-contents}.  It is also used to trap errors that are "
+"totally unpredictable, such as when the program evaluates an expression read "
+"from the user."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1039
+msgid ""
+"The second argument of @code{condition-case} is called the @dfn{protected "
+"form}.  (In the example above, the protected form is a call to "
+"@code{delete-file}.)  The error handlers go into effect when this form "
+"begins execution and are deactivated when this form returns.  They remain in "
+"effect for all the intervening time.  In particular, they are in effect "
+"during the execution of functions called by this form, in their subroutines, "
+"and so on.  This is a good thing, since, strictly speaking, errors can be "
+"signaled only by Lisp primitives (including @code{signal} and @code{error}) "
+"called by the protected form, not by the protected form itself."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1047
+msgid ""
+"The arguments after the protected form are handlers.  Each handler lists one "
+"or more @dfn{condition names} (which are symbols) to specify which errors it "
+"will handle.  The error symbol specified when an error is signaled also "
+"defines a list of condition names.  A handler applies to an error if they "
+"have any condition names in common.  In the example above, there is one "
+"handler, and it specifies one condition name, @code{error}, which covers all "
+"errors."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1052
+msgid ""
+"The search for an applicable handler checks all the established handlers "
+"starting with the most recently established one.  Thus, if two nested "
+"@code{condition-case} forms offer to handle the same error, the inner of the "
+"two gets to handle it."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1056
+msgid ""
+"If an error is handled by some @code{condition-case} form, this ordinarily "
+"prevents the debugger from being run, even if @code{debug-on-error} says "
+"this error should invoke the debugger."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1062
+msgid ""
+"If you want to be able to debug errors that are caught by a "
+"@code{condition-case}, set the variable @code{debug-on-signal} to a "
+"non-@code{nil} value.  You can also specify that a particular handler should "
+"let the debugger run first, by writing @code{debug} among the conditions, "
+"like this:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1068
+#, no-wrap
+msgid ""
+"(condition-case nil\n"
+"    (delete-file filename)\n"
+"  ((debug error) nil))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1076
+msgid ""
+"The effect of @code{debug} here is only to prevent @code{condition-case} "
+"from suppressing the call to the debugger.  Any given error will invoke the "
+"debugger only if @code{debug-on-error} and the other usual filtering "
+"mechanisms say it should.  @xref{Error Debugging}."
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1077
+#, no-wrap
+msgid "condition-case-unless-debug var protected-form handlers@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1082
+msgid ""
+"The macro @code{condition-case-unless-debug} provides another way to handle "
+"debugging of such forms.  It behaves exactly like @code{condition-case}, "
+"unless the variable @code{debug-on-error} is non-@code{nil}, in which case "
+"it does not handle any errors at all."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1090
+msgid ""
+"Once Emacs decides that a certain handler handles the error, it returns "
+"control to that handler.  To do so, Emacs unbinds all variable bindings made "
+"by binding constructs that are being exited, and executes the cleanups of "
+"all @code{unwind-protect} forms that are being exited.  Once control arrives "
+"at the handler, the body of the handler executes normally."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1097
+msgid ""
+"After execution of the handler body, execution returns from the "
+"@code{condition-case} form.  Because the protected form is exited completely "
+"before execution of the handler, the handler cannot resume execution at the "
+"point of the error, nor can it examine variable bindings that were made "
+"within the protected form.  All it can do is clean up and proceed."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1104
+msgid ""
+"Error signaling and handling have some resemblance to @code{throw} and "
+"@code{catch} (@pxref{Catch and Throw}), but they are entirely separate "
+"facilities.  An error cannot be caught by a @code{catch}, and a @code{throw} "
+"cannot be handled by an error handler (though using @code{throw} when there "
+"is no suitable @code{catch} signals an error that can be handled)."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1105
+#, no-wrap
+msgid "condition-case var protected-form handlers@dots{}"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1112
+msgid ""
+"This special form establishes the error handlers @var{handlers} around the "
+"execution of @var{protected-form}.  If @var{protected-form} executes without "
+"error, the value it returns becomes the value of the @code{condition-case} "
+"form; in this case, the @code{condition-case} has no effect.  The "
+"@code{condition-case} form makes a difference when an error occurs during "
+"@var{protected-form}."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1119
+msgid ""
+"Each of the @var{handlers} is a list of the form @code{(@var{conditions} "
+"@var{body}@dots{})}.  Here @var{conditions} is an error condition name to be "
+"handled, or a list of condition names (which can include @code{debug} to "
+"allow the debugger to run before the handler); @var{body} is one or more "
+"Lisp expressions to be executed when this handler handles an error.  Here "
+"are examples of handlers:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1123
+#, no-wrap
+msgid ""
+"(error nil)\n"
+"\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1125
+#, no-wrap
+msgid ""
+"(arith-error (message \"Division by zero\"))\n"
+"\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1129
+#, no-wrap
+msgid ""
+"((arith-error file-error)\n"
+" (message\n"
+"  \"Either division by zero or failure to open a file\"))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1139
+msgid ""
+"Each error that occurs has an @dfn{error symbol} that describes what kind of "
+"error it is, and which describes also a list of condition names "
+"(@pxref{Error Symbols}).  Emacs searches all the active "
+"@code{condition-case} forms for a handler that specifies one or more of "
+"these condition names; the innermost matching @code{condition-case} handles "
+"the error.  Within this @code{condition-case}, the first applicable handler "
+"handles the error."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1143
+msgid ""
+"After executing the body of the handler, the @code{condition-case} returns "
+"normally, using the value of the last form in the handler body as the "
+"overall value."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1144
+#, no-wrap
+msgid "error description"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1154
+msgid ""
+"The argument @var{var} is a variable.  @code{condition-case} does not bind "
+"this variable when executing the @var{protected-form}, only when it handles "
+"an error.  At that time, it binds @var{var} locally to an @dfn{error "
+"description}, which is a list giving the particulars of the error.  The "
+"error description has the form @code{(@var{error-symbol} . @var{data})}.  "
+"The handler can refer to this list to decide what to do.  For example, if "
+"the error is for failure opening a file, the file name is the second element "
+"of @var{data}---the third element of the error description."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1157
+msgid ""
+"If @var{var} is @code{nil}, that means no variable is bound.  Then the error "
+"symbol and associated data are not available to the handler."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1158
+#, no-wrap
+msgid "rethrow a signal"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1162
+msgid ""
+"Sometimes it is necessary to re-throw a signal caught by "
+"@code{condition-case}, for some outer-level handler to catch.  Here's how to "
+"do that:"
+msgstr ""
+
+#. type: example
+#: control.texi.orig:1165
+#, no-wrap
+msgid "  (signal (car err) (cdr err))\n"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1171
+msgid ""
+"where @code{err} is the error description variable, the first argument to "
+"@code{condition-case} whose error condition you want to re-throw.  "
+"@xref{Definition of signal}."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:1173
+#, no-wrap
+msgid "error-message-string error-descriptor"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:1177
+msgid ""
+"This function returns the error message string for a given error "
+"descriptor.  It is useful if you want to handle an error by printing the "
+"usual error message for that error.  @xref{Definition of signal}."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1179
+#, no-wrap
+msgid "@code{arith-error} example"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1183
+msgid ""
+"Here is an example of using @code{condition-case} to handle the error that "
+"results from dividing by zero.  The handler displays the error message (but "
+"without a beep), then returns a very large number."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1190
+#, no-wrap
+msgid ""
+"(defun safe-divide (dividend divisor)\n"
+"  (condition-case err\n"
+"      ;; @r{Protected form.}\n"
+"      (/ dividend divisor)\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1198
+#, no-wrap
+msgid ""
+"    ;; @r{The handler.}\n"
+"    (arith-error                        ; @r{Condition.}\n"
+"     ;; @r{Display the usual message for this error.}\n"
+"     (message \"%s\" (error-message-string err))\n"
+"     1000000)))\n"
+"@result{} safe-divide\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1204
+#, no-wrap
+msgid ""
+"(safe-divide 5 0)\n"
+"     @print{} Arithmetic error: (arith-error)\n"
+"@result{} 1000000\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1211
+msgid ""
+"The handler specifies condition name @code{arith-error} so that it will "
+"handle only division-by-zero errors.  Other kinds of errors will not be "
+"handled (by this @code{condition-case}).  Thus:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1216
+#, no-wrap
+msgid ""
+"(safe-divide nil 3)\n"
+"     @error{} Wrong type argument: number-or-marker-p, nil\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1221
+msgid ""
+"Here is a @code{condition-case} that catches all kinds of errors, including "
+"those from @code{error}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1226
+#, no-wrap
+msgid ""
+"(setq baz 34)\n"
+"     @result{} 34\n"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1239
+#, no-wrap
+msgid ""
+"(condition-case err\n"
+"    (if (eq baz 35)\n"
+"        t\n"
+"      ;; @r{This is a call to the function @code{error}.}\n"
+"      (error \"Rats!  The variable %s was %s, not 35\" 'baz baz))\n"
+"  ;; @r{This is the handler; it is not a form.}\n"
+"  (error (princ (format \"The error was: %s\" err))\n"
+"         2))\n"
+"@print{} The error was: (error \"Rats!  The variable baz was 34, not 35\")\n"
+"@result{} 2\n"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1242
+#, no-wrap
+msgid "ignore-errors body@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1247
+msgid ""
+"This construct executes @var{body}, ignoring any errors that occur during "
+"its execution.  If the execution is without error, @code{ignore-errors} "
+"returns the value of the last form in @var{body}; otherwise, it returns "
+"@code{nil}."
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1250
+msgid ""
+"Here's the example at the beginning of this subsection rewritten using "
+"@code{ignore-errors}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1255
+#, no-wrap
+msgid ""
+"  (ignore-errors\n"
+"   (delete-file filename))\n"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1259
+#, no-wrap
+msgid "with-demoted-errors format body@dots{}"
+msgstr ""
+
+#. type: defmac
+#: control.texi.orig:1268
+msgid ""
+"This macro is like a milder version of @code{ignore-errors}.  Rather than "
+"suppressing errors altogether, it converts them into messages.  It uses the "
+"string @var{format} to format the message.  @var{format} should contain a "
+"single @samp{%}-sequence; e.g., @code{\"Error: %S\"}.  Use "
+"@code{with-demoted-errors} around code that is not expected to signal "
+"errors, but should be robust if one does occur.  Note that this macro uses "
+"@code{condition-case-unless-debug} rather than @code{condition-case}."
+msgstr ""
+
+#. type: subsubsection
+#: control.texi.orig:1271
+#, no-wrap
+msgid "Error Symbols and Condition Names"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1272
+#, no-wrap
+msgid "error symbol"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1273
+#, no-wrap
+msgid "error name"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1274
+#, no-wrap
+msgid "condition name"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1275
+#, no-wrap
+msgid "user-defined error"
+msgstr ""
+
+#. type: kindex
+#: control.texi.orig:1276
+#, no-wrap
+msgid "error-conditions"
+msgstr ""
+
+#. type: kindex
+#: control.texi.orig:1277
+#, no-wrap
+msgid "define-error"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1283
+msgid ""
+"When you signal an error, you specify an @dfn{error symbol} to specify the "
+"kind of error you have in mind.  Each error has one and only one error "
+"symbol to categorize it.  This is the finest classification of errors "
+"defined by the Emacs Lisp language."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1293
+msgid ""
+"These narrow classifications are grouped into a hierarchy of wider classes "
+"called @dfn{error conditions}, identified by @dfn{condition names}.  The "
+"narrowest such classes belong to the error symbols themselves: each error "
+"symbol is also a condition name.  There are also condition names for more "
+"extensive classes, up to the condition name @code{error} which takes in all "
+"kinds of errors (but not @code{quit}).  Thus, each error has one or more "
+"condition names: @code{error}, the error symbol if that is distinct from "
+"@code{error}, and perhaps some intermediate classifications."
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:1294
+#, no-wrap
+msgid "define-error name message &optional parent"
+msgstr ""
+
+#. type: defun
+#: control.texi.orig:1301
+msgid ""
+"In order for a symbol to be an error symbol, it must be defined with "
+"@code{define-error} which takes a parent condition (defaults to "
+"@code{error}).  This parent defines the conditions that this kind of error "
+"belongs to.  The transitive set of parents always includes the error symbol "
+"itself, and the symbol @code{error}.  Because quitting is not considered an "
+"error, the set of parents of @code{quit} is just @code{(quit)}."
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1303
+#, no-wrap
+msgid "peculiar error"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1308
+msgid ""
+"In addition to its parents, the error symbol has a @var{message} which is a "
+"string to be printed when that error is signaled but not handled.  If that "
+"message is not valid, the error message @samp{peculiar error} is used.  "
+"@xref{Definition of signal}."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1312
+msgid ""
+"Internally, the set of parents is stored in the @code{error-conditions} "
+"property of the error symbol and the message is stored in the "
+"@code{error-message} property of the error symbol."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1314
+msgid "Here is how we define a new error symbol, @code{new-error}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1318
+#, no-wrap
+msgid "(define-error 'new-error \"A new error\" 'my-own-errors)\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1326
+msgid ""
+"This error has several condition names: @code{new-error}, the narrowest "
+"classification; @code{my-own-errors}, which we imagine is a wider "
+"classification; and all the conditions of @code{my-own-errors} which should "
+"include @code{error}, which is the widest of all."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1329
+msgid ""
+"The error string should start with a capital letter but it should not end "
+"with a period.  This is for consistency with the rest of Emacs."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1333
+msgid ""
+"Naturally, Emacs will never signal @code{new-error} on its own; only an "
+"explicit call to @code{signal} (@pxref{Definition of signal}) in your code "
+"can do this:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1338
+#, no-wrap
+msgid ""
+"(signal 'new-error '(x y))\n"
+"     @error{} A new error: x, y\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1344
+msgid ""
+"This error can be handled through any of its condition names.  This example "
+"handles @code{new-error} and any other errors in the class "
+"@code{my-own-errors}:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1350
+#, no-wrap
+msgid ""
+"(condition-case foo\n"
+"    (bar nil t)\n"
+"  (my-own-errors nil))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1358
+msgid ""
+"The significant way that errors are classified is by their condition "
+"names---the names used to match errors with handlers.  An error symbol "
+"serves only as a convenient way to specify the intended error message and "
+"list of condition names.  It would be cumbersome to give @code{signal} a "
+"list of condition names rather than one error symbol."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1364
+msgid ""
+"By contrast, using only error symbols without condition names would "
+"seriously decrease the power of @code{condition-case}.  Condition names make "
+"it possible to categorize errors at various levels of generality when you "
+"write an error handler.  Using error symbols alone would eliminate all but "
+"the narrowest level of classification."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1367
+msgid ""
+"@xref{Standard Errors}, for a list of the main error symbols and their "
+"conditions."
+msgstr ""
+
+#. type: subsection
+#: control.texi.orig:1369
+#, no-wrap
+msgid "Cleaning Up from Nonlocal Exits"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1370
+#, no-wrap
+msgid "nonlocal exits, cleaning up"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1378
+msgid ""
+"The @code{unwind-protect} construct is essential whenever you temporarily "
+"put a data structure in an inconsistent state; it permits you to make the "
+"data consistent again in the event of an error or throw.  (Another more "
+"specific cleanup construct that is used only for changes in buffer contents "
+"is the atomic change group; @ref{Atomic Changes}.)"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1379
+#, no-wrap
+msgid "unwind-protect body-form cleanup-forms@dots{}"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1380
+#, no-wrap
+msgid "cleanup forms"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1381
+#, no-wrap
+msgid "protected forms"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1382
+#, no-wrap
+msgid "error cleanup"
+msgstr ""
+
+#. type: cindex
+#: control.texi.orig:1383
+#, no-wrap
+msgid "unwinding"
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1390
+msgid ""
+"@code{unwind-protect} executes @var{body-form} with a guarantee that the "
+"@var{cleanup-forms} will be evaluated if control leaves @var{body-form}, no "
+"matter how that happens.  @var{body-form} may complete normally, or execute "
+"a @code{throw} out of the @code{unwind-protect}, or cause an error; in all "
+"cases, the @var{cleanup-forms} will be evaluated."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1395
+msgid ""
+"If @var{body-form} finishes normally, @code{unwind-protect} returns the "
+"value of @var{body-form}, after it evaluates the @var{cleanup-forms}.  If "
+"@var{body-form} does not finish, @code{unwind-protect} does not return any "
+"value in the normal sense."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1402
+msgid ""
+"Only @var{body-form} is protected by the @code{unwind-protect}.  If any of "
+"the @var{cleanup-forms} themselves exits nonlocally (via a @code{throw} or "
+"an error), @code{unwind-protect} is @emph{not} guaranteed to evaluate the "
+"rest of them.  If the failure of one of the @var{cleanup-forms} has the "
+"potential to cause trouble, then protect it with another "
+"@code{unwind-protect} around that form."
+msgstr ""
+
+#. type: defspec
+#: control.texi.orig:1407
+msgid ""
+"The number of currently active @code{unwind-protect} forms counts, together "
+"with the number of local variable bindings, against the limit "
+"@code{max-specpdl-size} (@pxref{Definition of max-specpdl-size,, Local "
+"Variables})."
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1411
+msgid ""
+"For example, here we make an invisible buffer for temporary use, and make "
+"sure to kill it before finishing:"
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1419
+#, no-wrap
+msgid ""
+"(let ((buffer (get-buffer-create \" *temp*\")))\n"
+"  (with-current-buffer buffer\n"
+"    (unwind-protect\n"
+"        @var{body-form}\n"
+"      (kill-buffer buffer))))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1430
+msgid ""
+"You might think that we could just as well write @code{(kill-buffer "
+"(current-buffer))} and dispense with the variable @code{buffer}.  However, "
+"the way shown above is safer, if @var{body-form} happens to get an error "
+"after switching to a different buffer! (Alternatively, you could write a "
+"@code{save-current-buffer} around @var{body-form}, to ensure that the "
+"temporary buffer becomes current again in time to kill it.)"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1435
+msgid ""
+"Emacs includes a standard macro called @code{with-temp-buffer} which expands "
+"into more or less the code shown above (@pxref{Definition of "
+"with-temp-buffer,, Current Buffer}).  Several of the macros defined in this "
+"manual use @code{unwind-protect} in this way."
+msgstr ""
+
+#. type: findex
+#: control.texi.orig:1436
+#, no-wrap
+msgid "ftp-login"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1444
+msgid ""
+"Here is an actual example derived from an FTP package.  It creates a process "
+"(@pxref{Processes}) to try to establish a connection to a remote machine.  "
+"As the function @code{ftp-login} is highly susceptible to numerous problems "
+"that the writer of the function cannot anticipate, it is protected with a "
+"form that guarantees deletion of the process in the event of failure.  "
+"Otherwise, Emacs might fill up with useless subprocesses."
+msgstr ""
+
+#. type: group
+#: control.texi.orig:1455
+#, no-wrap
+msgid ""
+"(let ((win nil))\n"
+"  (unwind-protect\n"
+"      (progn\n"
+"        (setq process (ftp-setup-buffer host file))\n"
+"        (if (setq win (ftp-login process host user password))\n"
+"            (message \"Logged in\")\n"
+"          (error \"Ftp login failed\")))\n"
+"    (or win (and process (delete-process process)))))\n"
+msgstr ""
+
+#. type: Plain text
+#: control.texi.orig:1462
+msgid ""
+"This example has a small bug: if the user types @kbd{C-g} to quit, and the "
+"quit happens immediately after the function @code{ftp-setup-buffer} returns "
+"but before the variable @code{process} is set, the process will not be "
+"killed.  There is no easy way to fix this bug, but at least it is very "
+"unlikely."
+msgstr ""
