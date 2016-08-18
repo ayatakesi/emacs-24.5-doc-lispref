@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-07-21 22:14+0900\n"
-"PO-Revision-Date: 2016-08-18 12:22+0900\n"
+"PO-Revision-Date: 2016-08-19 02:44+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -958,7 +958,7 @@ msgid ""
 "void, @var{value} is not evaluated, and @var{symbol}'s value is left "
 "unchanged.  If @var{value} is omitted, the value of @var{symbol} is not "
 "changed in any case."
-msgstr ""
+msgstr "@var{value}が指定されていて@var{symbol}がvoid(たとえばこのシンボルがダイナミックにバインドされた値を持たないとき。@ref{Void Variables}を参照してください)、@var{value}が評価されて、その結果が@var{symbol}にセットされます。しかし@var{symbol}がvoidでな場合、@var{value}は評価されず、@var{symbol}の値は変更されません。@var{value}が省略された場合、いかなる場合も@var{symbol}の値は変更されません。"
 
 #. type: defspec
 #: variables.texi.orig:430
@@ -967,7 +967,7 @@ msgid ""
 "@code{defvar} acts on the default value, which is buffer-independent, rather "
 "than the buffer-local binding.  It sets the default value if the default "
 "value is void.  @xref{Buffer-Local Variables}."
-msgstr ""
+msgstr "@var{symbol}がカレントバッファー内でバッファーローカルなバインディングをもつ場合、@code{defvar}はデフォルト値に作用します。デフォルト値はバッファーローカルなバインディングではなく、バッファーにたいして独立しています。デフォルト値がvoidのときはデフォルト値をセットします。@ref{Buffer-Local Variables}を参照してください。"
 
 #. type: defspec
 #: variables.texi.orig:435
@@ -976,7 +976,7 @@ msgid ""
 "occurs in a @code{let} form with lexical binding enabled), then "
 "@code{defvar} sets the dynamic value.  The lexical binding remains in effect "
 "until its binding construct exits.  @xref{Variable Scoping}."
-msgstr ""
+msgstr "すでに@var{symbol}がレキシカルにバインドされている場合(たとえばレキシカルバインドが有効な状態で@code{let}フォーム内に@code{defvar}があるような場合)、@code{defvar}はダイナミックな値をセットします。バインディング構造を抜けるまで、レキシカルバインディングは効果をもちます。@ref{Variable Scoping}を参照してください。"
 
 #. type: defspec
 #: variables.texi.orig:440
@@ -985,7 +985,7 @@ msgid ""
 "Lisp mode (@code{eval-defun}), a special feature of @code{eval-defun} "
 "arranges to set the variable unconditionally, without testing whether its "
 "value is void."
-msgstr ""
+msgstr "Emacs Lispモード(@code{eval-defun})でトップレベルの@code{defvar}を評価するとき、@code{eval-defun}の特別な機能は、その値がvoidであるかテストすることなく、その変数を無条件にセットします。"
 
 #. type: defspec
 #: variables.texi.orig:444
@@ -993,14 +993,14 @@ msgid ""
 "If the @var{doc-string} argument is supplied, it specifies the documentation "
 "string for the variable (stored in the symbol's "
 "@code{variable-documentation} property).  @xref{Documentation}."
-msgstr ""
+msgstr "引数@var{doc-string}が与えられた場合、それは変数にたいするドキュメント文字列を指定します(そのシンボルの@code{variable-documentation}プロパティーに格納されます)。@ref{Documentation}を参照してください。"
 
 #. type: defspec
 #: variables.texi.orig:447
 msgid ""
 "Here are some examples.  This form defines @code{foo} but does not "
 "initialize it:"
-msgstr ""
+msgstr "以下にいくつか例を示します。これは@code{foo}を定義しますが、初期化は行いません:"
 
 #. type: group
 #: variables.texi.orig:452
@@ -1009,13 +1009,15 @@ msgid ""
 "(defvar foo)\n"
 "     @result{} foo\n"
 msgstr ""
+"(defvar foo)\n"
+"     @result{} foo\n"
 
 #. type: defspec
 #: variables.texi.orig:457
 msgid ""
 "This example initializes the value of @code{bar} to @code{23}, and gives it "
 "a documentation string:"
-msgstr ""
+msgstr "この例は@code{bar}の値を@code{23}に初期化して、ドキュメント文字列を与えます:"
 
 #. type: group
 #: variables.texi.orig:463
@@ -1025,13 +1027,16 @@ msgid ""
 "  \"The normal weight of a bar.\")\n"
 "     @result{} bar\n"
 msgstr ""
+"(defvar bar 23\n"
+"  \"The normal weight of a bar.\")\n"
+"     @result{} bar\n"
 
 #. type: defspec
 #: variables.texi.orig:468
 msgid ""
 "The @code{defvar} form returns @var{symbol}, but it is normally used at top "
 "level in a file where its value does not matter."
-msgstr ""
+msgstr "@code{defvar}フォームは@var{symbol}をreturnしますが、通常これは値が問題にならないファイル内のトップレベルで使用されます。"
 
 #. type: defspec
 #: variables.texi.orig:471
