@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-08-30 00:48+0900\n"
-"PO-Revision-Date: 2016-09-08 17:31+0900\n"
+"PO-Revision-Date: 2016-09-08 21:17+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -2730,20 +2730,20 @@ msgstr "そのような指定で関数がインタラクティブに呼び出さ
 #: functions.texi.orig:1317
 #, no-wrap
 msgid "advising named functions"
-msgstr ""
+msgstr "advising named functions"
 
 #. type: Plain text
 #: functions.texi.orig:1321
 msgid ""
 "A common use of advice is for named functions and macros.  You could just "
 "use @code{add-function} as in:"
-msgstr ""
+msgstr "アドバイスの一般的な使い方は、名前つき関数やマクロにたいして使用する方法です。これは単に@code{add-function}を使用して以下のように行うことができます:"
 
 #. type: example
 #: functions.texi.orig:1324
 #, no-wrap
 msgid "(add-function :around (symbol-function '@var{fun}) #'his-tracing-function)\n"
-msgstr ""
+msgstr "(add-function :around (symbol-function '@var{fun}) #'his-tracing-function)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1333
@@ -2755,7 +2755,7 @@ msgid ""
 "functions, they let @code{describe-function} preserve the original docstring "
 "as well as document the added advice, and they let you add and remove "
 "advices before a function is even defined."
-msgstr ""
+msgstr "しかし、かわりに@code{advice-add}と@code{advice-remove}を使うべきです。この別の関数セットは名前つき関数に適用されるアドバイス断片を操作するためのもので、@code{add-function}と比較して以下の追加機能があります。まず、これらはマクロおよびオートロードされた関数を扱う方法を知っています。次に、@code{describe-function}にたいして、追加されたアドバイスと同様に、元のドキュメント文字列を維持します。さらに、関数が定義される前でも、アドバイスの追加と削除ができます。"
 
 #. type: Plain text
 #: functions.texi.orig:1341
@@ -2767,7 +2767,7 @@ msgid ""
 "changed by advice.  Advice can also cause confusion in debugging, if the "
 "person doing the debugging does not notice or remember that the function has "
 "been modified by advice."
-msgstr ""
+msgstr "既存の関数を関数全体を再定義せずに、既存の呼び出しを変更するために、@code{advice-add}は有用になります。しかし、その関数の既存の呼び出し元は、古い振る舞いを前提としているかもしれず、アドバイスによりその振る舞いが変更されたときに正しく機能しないかもしれないので、これはソースのバグにもなり得ます。アドバイスはデバッグを難しくする可能性もあります。デバッグを行う人は、その関数がアドバイスにより変更されたことに気づかなかったり、失念しているかもしれません。"
 
 #. type: Plain text
 #: functions.texi.orig:1351
@@ -2780,7 +2780,7 @@ msgid ""
 "(@pxref{Remapping Commands}).  In particular, Emacs's own source files "
 "should not put advice on functions in Emacs.  (There are currently a few "
 "exceptions to this convention, but we aim to correct them.)"
-msgstr ""
+msgstr "これらの理由により、他の方法で関数の振る舞いを変更できない場合のために、アドバイスの使用は控えるべきです。フックを通じて同じことが行えるなら、フック(@ref{Hooks}を参照してください)の使用が望ましい方法です。特定のキーが行う何かを変更したいだけなら、新しいコマンドを記述して、古いコマンドのキーバインドを新しいコマンドに再マップ(@ref{Remapping Commands}を参照してください)するのが、おそらくより良い方法です。特に、Emacs自身のソースファイルは、Emacs内の関数をアドバイスするべきではありません(現在のところこの慣習には数少ない例外がありますが、わたしたちはこれを改善しようと思っています)。"
 
 #. type: Plain text
 #: functions.texi.orig:1356
@@ -2789,7 +2789,7 @@ msgid ""
 "be advised, in much the same way as functions.  Of course, this will not "
 "affect code that has already been macro-expanded, so you need to make sure "
 "the advice is installed before the macro is expanded."
-msgstr ""
+msgstr "スペシャルフォーム(@ref{Special Forms}を参照してください)はアドバイスできませんが、マクロは関数と同じ方法でアドバイスできます。もちろん、これはすでにマクロ展開されたコードには影響しないため、マクロ展開前にアドバイスが確実にインストールされる必要があります。"
 
 #. type: Plain text
 #: functions.texi.orig:1364
@@ -2801,13 +2801,13 @@ msgid ""
 "C, and such calls ignore advice; hence, one ends up in a confusing situation "
 "where some calls (occurring from Lisp code) obey the advice and other calls "
 "(from C code) do not."
-msgstr ""
+msgstr "プリミティブ(@ref{What Is a Function}を参照してください)にアドバイスするのは可能ですが、2つの理由により通常は行うべきでは@emph{ありません}。1つ目の理由は、いくつかのプリミティブはアドバイスのメカニズム内で使用されているため、それらにたいしてアドバイスを行うと無限再帰が発生するからです。2つ目の理由は、多くのプリミティブがCから直接呼び出されていて、そのような呼び出しはアドバイスを無視するからです。したがって、プリミティブにたいしてアドバイスの使用を控えることは、ある呼び出しはアドバイスにしたがい(Lispコードから呼びだされたため)、他の呼び出しではアドバイスにしたがわない(Cコードから呼び出されたため)という混乱した状況を解決します。"
 
 #. type: defun
 #: functions.texi.orig:1365
 #, no-wrap
 msgid "advice-add symbol where function &optional props"
-msgstr ""
+msgstr "advice-add symbol where function &optional props"
 
 #. type: defun
 #: functions.texi.orig:1369
@@ -2815,26 +2815,26 @@ msgid ""
 "Add the advice @var{function} to the named function @var{symbol}.  "
 "@var{where} and @var{props} have the same meaning as for @code{add-function} "
 "(@pxref{Core Advising Primitives})."
-msgstr ""
+msgstr "名前つき関数@var{symbol}に、アドバイス@var{function}を追加します。@var{where}と@var{props}は、@code{add-function}(@ref{Core Advising Primitives}を参照してください)のときと同じ意味をもちます。"
 
 #. type: defun
 #: functions.texi.orig:1371
 #, no-wrap
 msgid "advice-remove symbol function"
-msgstr ""
+msgstr "advice-remove symbol function"
 
 #. type: defun
 #: functions.texi.orig:1374
 msgid ""
 "Remove the advice @var{function} from the named function @var{symbol}.  "
 "@var{function} can also be the @code{name} of an advice."
-msgstr ""
+msgstr "名前つき関数@var{symbol}からアドバイス@var{function}を取り除きます。@var{function}にアドバイスの@code{name}を指定することもできます。"
 
 #. type: defun
 #: functions.texi.orig:1376
 #, no-wrap
 msgid "advice-member-p function symbol"
-msgstr ""
+msgstr "advice-member-p function symbol"
 
 #. type: defun
 #: functions.texi.orig:1380
@@ -2842,13 +2842,13 @@ msgid ""
 "Return non-@code{nil} if the advice @var{function} is already in the named "
 "function @var{symbol}.  @var{function} can also be the @code{name} of an "
 "advice."
-msgstr ""
+msgstr "名前つき関数@var{symbol}内にすでにアドバイス@var{function}がある場合は、非@code{nil}をreturnします。@var{function}にアドバイスの@code{name}を指定することもできます。"
 
 #. type: defun
 #: functions.texi.orig:1382
 #, no-wrap
 msgid "advice-mapc function symbol"
-msgstr ""
+msgstr "advice-mapc function symbol"
 
 #. type: defun
 #: functions.texi.orig:1386
@@ -2856,13 +2856,13 @@ msgid ""
 "Call @var{function} for every advice that was added to the named function "
 "@var{symbol}.  @var{function} is called with two arguments: the advice "
 "function and its properties."
-msgstr ""
+msgstr "名前つき関数@var{symbol}にすでに追加されたすべての関数にたいして、@var{function}を呼び出します。@var{function}は2つの引数、アドバイス関数と、そのプロパティーで呼び出されます。"
 
 #. type: subsection
 #: functions.texi.orig:1389
 #, no-wrap
 msgid "Ways to compose advices"
-msgstr ""
+msgstr "Ways to compose advices"
 
 #. type: Plain text
 #: functions.texi.orig:1394
@@ -2870,13 +2870,13 @@ msgid ""
 "Here are the different possible values for the @var{where} argument of "
 "@code{add-function} and @code{advice-add}, specifying how the advice "
 "@var{function} and the original function should be composed."
-msgstr ""
+msgstr "以下は@code{add-function}および@code{advice-add}の@var{where}引数に可能な値で、そのアドバイス@var{function}と元の関数が構成されるべき方法を指定します。"
 
 #. type: item
 #: functions.texi.orig:1396
 #, no-wrap
 msgid ":before"
-msgstr ""
+msgstr ":before"
 
 #. type: table
 #: functions.texi.orig:1401
@@ -2885,13 +2885,13 @@ msgid ""
 "same arguments, and the return value of the composition is the return value "
 "of the old function.  More specifically, the composition of the two "
 "functions behaves like:"
-msgstr ""
+msgstr "古い関数の前に@var{function}を呼び出します。関数は両方とも同じ引数を受け取り、2つの関数の結合のreturn値は、古い関数のreturn値です。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1403
 #, no-wrap
 msgid "(lambda (&rest r) (apply @var{function} r) (apply @var{oldfun} r))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (apply @var{function} r) (apply @var{oldfun} r))\n"
 
 #. type: table
 #: functions.texi.orig:1407
@@ -2899,13 +2899,13 @@ msgid ""
 "@code{(add-function :before @var{funvar} @var{function})} is comparable for "
 "single-function hooks to @code{(add-hook '@var{hookvar} @var{function})} for "
 "normal hooks."
-msgstr ""
+msgstr "@code{(add-function :before @var{funvar} @var{function})}は、ノーマルフックにたいする@code{(add-hook '@var{hookvar} @var{function})}のような、1関数のフックと同等です。"
 
 #. type: item
 #: functions.texi.orig:1408
 #, no-wrap
 msgid ":after"
-msgstr ""
+msgstr ":after"
 
 #. type: table
 #: functions.texi.orig:1413
@@ -2914,13 +2914,13 @@ msgid ""
 "arguments, and the return value of the composition is the return value of "
 "the old function.  More specifically, the composition of the two functions "
 "behaves like:"
-msgstr ""
+msgstr "古い関数の後に@var{function}を呼び出します。関数は両方とも同じ引数を受け取り、2つの関数の結合のreturn値は、古い関数のreturn値です。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1415
 #, no-wrap
 msgid "(lambda (&rest r) (prog1 (apply @var{oldfun} r) (apply @var{function} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (prog1 (apply @var{oldfun} r) (apply @var{function} r)))\n"
 
 #. type: table
 #: functions.texi.orig:1419
@@ -2928,13 +2928,13 @@ msgid ""
 "@code{(add-function :after @var{funvar} @var{function})} is comparable for "
 "single-function hooks to @code{(add-hook '@var{hookvar} @var{function} "
 "'append)} for normal hooks."
-msgstr ""
+msgstr "@code{(add-function :after @var{funvar} @var{function})}は、ノーマルフックにたいする@code{(add-hook '@var{hookvar} @var{function} 'append)}のような、1関数のフックと同等です。"
 
 #. type: item
 #: functions.texi.orig:1420
 #, no-wrap
 msgid ":override"
-msgstr ""
+msgstr ":override"
 
 #. type: table
 #: functions.texi.orig:1423
@@ -2942,13 +2942,13 @@ msgid ""
 "This completely replaces the old function with the new one.  The old "
 "function can of course be recovered if you later call "
 "@code{remove-function}."
-msgstr ""
+msgstr "これは古い関数を新しい関数に完全に置き換えます。もちろん、@code{remove-function}を呼び出した後に、古い関数は復元されます。"
 
 #. type: item
 #: functions.texi.orig:1424
 #, no-wrap
 msgid ":around"
-msgstr ""
+msgstr ":around"
 
 #. type: table
 #: functions.texi.orig:1431
@@ -2959,19 +2959,19 @@ msgid ""
 "arguments, or many times, or within a let-binding, or you can sometimes "
 "delegate the work to the old function and sometimes override it completely.  "
 "More specifically, the composition of the two functions behaves like:"
-msgstr ""
+msgstr "古い関数のかわりに@var{function}を呼び出しますが、古い関数は@var{function}の追加の引数になります。これはもっとも柔軟な結合です。たとえば、古い関数を異なる引数で呼び出したり、複数回呼び出したり、letバインディングで呼び出したり、あるときは古い関数に処理を委譲し、またあるときは完全にオーバーライドすることが可能になります。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1433
 #, no-wrap
 msgid "(lambda (&rest r) (apply @var{function} @var{oldfun} r))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (apply @var{function} @var{oldfun} r))\n"
 
 #. type: item
 #: functions.texi.orig:1435
 #, no-wrap
 msgid ":before-while"
-msgstr ""
+msgstr ":before-while"
 
 #. type: table
 #: functions.texi.orig:1441
@@ -2981,13 +2981,13 @@ msgid ""
 "arguments, and the return value of the composition is the return value of "
 "the old function.  More specifically, the composition of the two functions "
 "behaves like:"
-msgstr ""
+msgstr "古い関数の前に@var{function}を呼び出し、@var{function}が@code{nil}をreturnした場合は古い関数を呼び出しません。関数は両方とも同じ引数を受け取り、2つの関数の結合のreturn値は、古い関数のreturn値です。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1443
 #, no-wrap
 msgid "(lambda (&rest r) (and (apply @var{function} r) (apply @var{oldfun} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (and (apply @var{function} r) (apply @var{oldfun} r)))\n"
 
 #. type: table
 #: functions.texi.orig:1447
@@ -2996,13 +2996,13 @@ msgid ""
 "comparable for single-function hooks to @code{(add-hook '@var{hookvar} "
 "@var{function})} when @var{hookvar} is run via "
 "@code{run-hook-with-args-until-failure}."
-msgstr ""
+msgstr "@code{(add-function :before-while @var{funvar} @var{function})}は、@code{run-hook-with-args-until-failure}を通じて@var{hookvar}が実行されたときの@code{(add-hook '@var{hookvar} @var{function})}のような、1関数のフックと同等です。"
 
 #. type: item
 #: functions.texi.orig:1448
 #, no-wrap
 msgid ":before-until"
-msgstr ""
+msgstr ":before-until"
 
 #. type: table
 #: functions.texi.orig:1452
@@ -3010,13 +3010,13 @@ msgid ""
 "Call @var{function} before the old function and only call the old function "
 "if @var{function} returns @code{nil}.  More specifically, the composition of "
 "the two functions behaves like:"
-msgstr ""
+msgstr "古い関数の前に@var{function}を呼び出し、@var{function}が@code{nil}をreturnした場合だけ古い関数を呼び出します。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1454
 #, no-wrap
 msgid "(lambda (&rest r) (or (apply @var{function} r) (apply @var{oldfun} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (or (apply @var{function} r) (apply @var{oldfun} r)))\n"
 
 #. type: table
 #: functions.texi.orig:1458
@@ -3025,13 +3025,13 @@ msgid ""
 "comparable for single-function hooks to @code{(add-hook '@var{hookvar} "
 "@var{function})} when @var{hookvar} is run via "
 "@code{run-hook-with-args-until-success}."
-msgstr ""
+msgstr "@code{(add-function :before-until @var{funvar} @var{function})} は、@code{run-hook-with-args-until-success}を通じて@var{hookvar}が実行されたときの@code{(add-hook '@var{hookvar} @var{function})}のような、1関数のフックと同等です。"
 
 #. type: item
 #: functions.texi.orig:1459
 #, no-wrap
 msgid ":after-while"
-msgstr ""
+msgstr ":after-while"
 
 #. type: table
 #: functions.texi.orig:1464
@@ -3040,13 +3040,13 @@ msgid ""
 "returned non-@code{nil}.  Both functions receive the same arguments, and the "
 "return value of the composition is the return value of @var{function}.  More "
 "specifically, the composition of the two functions behaves like:"
-msgstr ""
+msgstr "古い関数が非@code{nil}をreturnした場合だけ、古い関数の後に@var{function}を呼び出します。関数は両方とも同じ引数を受け取り、2つの関数の結合のreturn値は、@var{function}のreturn値です。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1466
 #, no-wrap
 msgid "(lambda (&rest r) (and (apply @var{oldfun} r) (apply @var{function} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (and (apply @var{oldfun} r) (apply @var{function} r)))\n"
 
 #. type: table
 #: functions.texi.orig:1471
@@ -3055,13 +3055,13 @@ msgid ""
 "for single-function hooks to @code{(add-hook '@var{hookvar} @var{function} "
 "'append)} when @var{hookvar} is run via "
 "@code{run-hook-with-args-until-failure}."
-msgstr ""
+msgstr "@code{(add-function :after-while @var{funvar} @var{function})}は、@code{run-hook-with-args-until-failure}を通じて@var{hookvar}が実行されたときの@code{(add-hook '@var{hookvar} @var{function} 'append)}のような、1関数のフックと同等です。"
 
 #. type: item
 #: functions.texi.orig:1472
 #, no-wrap
 msgid ":after-until"
-msgstr ""
+msgstr ":after-until"
 
 #. type: table
 #: functions.texi.orig:1476
@@ -3069,13 +3069,13 @@ msgid ""
 "Call @var{function} after the old function and only if the old function "
 "returned @code{nil}.  More specifically, the composition of the two "
 "functions behaves like:"
-msgstr ""
+msgstr "古い関数が@code{nil}をreturnした場合だけ、古い関数の後に@var{function}を呼び出します。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1478
 #, no-wrap
 msgid "(lambda (&rest r) (or  (apply @var{oldfun} r) (apply @var{function} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (or  (apply @var{oldfun} r) (apply @var{function} r)))\n"
 
 #. type: table
 #: functions.texi.orig:1483
@@ -3084,13 +3084,13 @@ msgid ""
 "for single-function hooks to @code{(add-hook '@var{hookvar} @var{function} "
 "'append)} when @var{hookvar} is run via "
 "@code{run-hook-with-args-until-success}."
-msgstr ""
+msgstr "@code{(add-function :after-until @var{funvar} @var{function})}は、@code{run-hook-with-args-until-success}を通じて@var{hookvar}が実行されたときの@code{(add-hook '@var{hookvar} @var{function} 'append)}のような、1関数のフックと同等です。"
 
 #. type: item
 #: functions.texi.orig:1484
 #, no-wrap
 msgid ":filter-args"
-msgstr ""
+msgstr ":filter-args"
 
 #. type: table
 #: functions.texi.orig:1488
@@ -3098,32 +3098,32 @@ msgid ""
 "Call @var{function} first and use the result (which should be a list) as the "
 "new arguments to pass to the old function.  More specifically, the "
 "composition of the two functions behaves like:"
-msgstr ""
+msgstr "最初に@var{function}を呼び出し、その結果(リスト)を新たな引数として古い関数に渡します。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1490
 #, no-wrap
 msgid "(lambda (&rest r) (apply @var{oldfun} (funcall @var{function} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (apply @var{oldfun} (funcall @var{function} r)))\n"
 
 #. type: item
 #: functions.texi.orig:1492
 #, no-wrap
 msgid ":filter-return"
-msgstr ""
+msgstr ":filter-return"
 
 #. type: table
 #: functions.texi.orig:1495
 msgid ""
 "Call the old function first and pass the result to @var{function}.  More "
 "specifically, the composition of the two functions behaves like:"
-msgstr ""
+msgstr "最初に古い関数を呼び出し、その結果を@var{function}に渡します。より正確に言うと、2つの関数の結合は、以下のように振る舞います:"
 
 #. type: example
 #: functions.texi.orig:1497
 #, no-wrap
 msgid "(lambda (&rest r) (funcall @var{function} (apply @var{oldfun} r)))\n"
-msgstr ""
+msgstr "(lambda (&rest r) (funcall @var{function} (apply @var{oldfun} r)))\n"
 
 #. type: subsection
 #: functions.texi.orig:1502
