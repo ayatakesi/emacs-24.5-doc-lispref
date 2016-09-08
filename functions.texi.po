@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-08-30 00:48+0900\n"
-"PO-Revision-Date: 2016-09-07 22:50+0900\n"
+"PO-Revision-Date: 2016-09-08 09:35+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -1392,7 +1392,7 @@ msgid ""
 "Defining functions is only half the battle.  Functions don't do anything "
 "until you @dfn{call} them, i.e., tell them to run.  Calling a function is "
 "also known as @dfn{invocation}."
-msgstr ""
+msgstr "関数を定義しただけでは、半分しか終わっていません。関数はそれを@dfn{呼び出す(call)} --- たとえば実行(run)するまでは、何も行いません。関数のcallは、@dfn{invocation}としても知られています。"
 
 #. type: Plain text
 #: functions.texi.orig:639
@@ -1401,7 +1401,7 @@ msgid ""
 "example, evaluating the list @code{(concat \"a\" \"b\")} calls the function "
 "@code{concat} with arguments @code{\"a\"} and @code{\"b\"}.  "
 "@xref{Evaluation}, for a description of evaluation."
-msgstr ""
+msgstr "関数を呼び出すもっとも一般的な方法は、リストの評価による方法です。たとえば、リスト@code{(concat \"a\" \"b\")}を評価することにより、関数@code{concat}が引数@code{\"a\"}と@code{\"b\"}で呼び出されます。評価については、@ref{Evaluation}を参照してください。"
 
 #. type: Plain text
 #: functions.texi.orig:646
@@ -1412,20 +1412,20 @@ msgid ""
 "compute at run time which function to call.  To do that, use the function "
 "@code{funcall}.  When you also need to determine at run time how many "
 "arguments to pass, use @code{apply}."
-msgstr ""
+msgstr "プログラム内で式としてリストを記述するときは、プログラム内にテキストで、どの関数を呼び出すか、いくつの引数を与えるかを指定します。通常は、これが行いたいことです。どの関数を呼び出すかを、実行時に計算する必要がある場合もあります。これを行うには、関数@code{funcall}を使用します。実行時にいくつの引数を渡すか決定する必要があるときは、@code{apply}を使用します。"
 
 #. type: defun
 #: functions.texi.orig:647
 #, no-wrap
 msgid "funcall function &rest arguments"
-msgstr ""
+msgstr "funcall function &rest arguments"
 
 #. type: defun
 #: functions.texi.orig:650
 msgid ""
 "@code{funcall} calls @var{function} with @var{arguments}, and returns "
 "whatever @var{function} returns."
-msgstr ""
+msgstr "@code{funcall}は、関数@var{function}を引数@var{arguments}で呼び出し、@var{function}がreturnした値をreturnします。"
 
 #. type: defun
 #: functions.texi.orig:660
@@ -1438,7 +1438,7 @@ msgid ""
 "evaluated a second time in the act of calling @var{function}; the operation "
 "of @code{funcall} is like the normal procedure for calling a function, once "
 "its arguments have already been evaluated."
-msgstr ""
+msgstr "@code{funcall}は関数なので、@var{function}を含むすべての引数は、@code{funcall}の呼び出し前に評価されます。これは、呼び出される関数を得るための任意の式を使用できることを意味します。これはまた、@code{funcall}が@var{arguments}に記述した式ではなく、その値だけを見ることを意味します。これらの値は@var{function}呼び出し中では、2回目は評価@emph{されません}。@code{funcall}の処理は、関数の通常の呼び出し手続きと似ており、すでに評価された引数は評価されません。"
 
 #. type: defun
 #: functions.texi.orig:666
@@ -1448,7 +1448,7 @@ msgid ""
 "only when given the ``unevaluated'' argument expressions.  @code{funcall} "
 "cannot provide these because, as we saw above, it never knows them in the "
 "first place."
-msgstr ""
+msgstr "引数@var{function}は、Lisp関数、またはプリミティブ関数でなければなりません。つまりスペシャルフォームやマクロは、``評価されていない''引数式を与えられたときだけ意味があるので、指定することはできません。上述したように、@code{funcall}は最初に指定された評価前の引数を提供することはできません。"
 
 #. type: group
 #: functions.texi.orig:671 functions.texi.orig:706
@@ -1457,6 +1457,8 @@ msgid ""
 "(setq f 'list)\n"
 "     @result{} list\n"
 msgstr ""
+"(setq f 'list)\n"
+"     @result{} list\n"
 
 #. type: group
 #: functions.texi.orig:675
@@ -1465,6 +1467,8 @@ msgid ""
 "(funcall f 'x 'y 'z)\n"
 "     @result{} (x y z)\n"
 msgstr ""
+"(funcall f 'x 'y 'z)\n"
+"     @result{} (x y z)\n"
 
 #. type: group
 #: functions.texi.orig:679
@@ -1473,6 +1477,8 @@ msgid ""
 "(funcall f 'x 'y '(z))\n"
 "     @result{} (x y (z))\n"
 msgstr ""
+"(funcall f 'x 'y '(z))\n"
+"     @result{} (x y (z))\n"
 
 #. type: group
 #: functions.texi.orig:683
@@ -1481,17 +1487,19 @@ msgid ""
 "(funcall 'and t nil)\n"
 "@error{} Invalid function: #<subr and>\n"
 msgstr ""
+"(funcall 'and t nil)\n"
+"@error{} Invalid function: #<subr and>\n"
 
 #. type: defun
 #: functions.texi.orig:687
 msgid "Compare these examples with the examples of @code{apply}."
-msgstr ""
+msgstr "これらの例を、@code{apply}の例と比較してみてください。"
 
 #. type: defun
 #: functions.texi.orig:689
 #, no-wrap
 msgid "apply function &rest arguments"
-msgstr ""
+msgstr "apply function &rest arguments"
 
 #. type: defun
 #: functions.texi.orig:696
@@ -1501,7 +1509,7 @@ msgid ""
 "list of objects, which are passed to @var{function} as separate arguments, "
 "rather than a single list.  We say that @code{apply} @dfn{spreads} this list "
 "so that each individual element becomes an argument."
-msgstr ""
+msgstr "@code{apply}は、関数@var{function}を引数@var{arguments}で呼び出します。これは@code{funcall}と同様ですが、1つ違いがあります。@var{arguments}の最後はオブジェクトのリストです。これは1つのリストではなく、個別の引数として@var{function}に渡されます。わたしたちはこれを、@code{apply}がこのリストを@dfn{展開(spread)}(個々の要素が引数となるので)する、と言います。"
 
 #. type: defun
 #: functions.texi.orig:701
@@ -1509,7 +1517,7 @@ msgid ""
 "@code{apply} returns the result of calling @var{function}.  As with "
 "@code{funcall}, @var{function} must either be a Lisp function or a primitive "
 "function; special forms and macros do not make sense in @code{apply}."
-msgstr ""
+msgstr "@code{apply}は、@var{function}を呼び出した結果をreturnします。@code{funcall}と同様、@var{function}はLisp関数かプリミティブ関数でなければなりません。つまりスペシャルフォームやマクロは、@code{apply}では意味をもちません。"
 
 #. type: group
 #: functions.texi.orig:710
@@ -1518,6 +1526,8 @@ msgid ""
 "(apply f 'x 'y 'z)\n"
 "@error{} Wrong type argument: listp, z\n"
 msgstr ""
+"(apply f 'x 'y 'z)\n"
+"@error{} Wrong type argument: listp, z\n"
 
 #. type: group
 #: functions.texi.orig:714
@@ -1526,6 +1536,8 @@ msgid ""
 "(apply '+ 1 2 '(3 4))\n"
 "     @result{} 10\n"
 msgstr ""
+"(apply '+ 1 2 '(3 4))\n"
+"     @result{} 10\n"
 
 #. type: group
 #: functions.texi.orig:718
@@ -1534,6 +1546,8 @@ msgid ""
 "(apply '+ '(1 2 3 4))\n"
 "     @result{} 10\n"
 msgstr ""
+"(apply '+ '(1 2 3 4))\n"
+"     @result{} 10\n"
 
 #. type: group
 #: functions.texi.orig:723
@@ -1542,25 +1556,27 @@ msgid ""
 "(apply 'append '((a b c) nil (x y z) nil))\n"
 "     @result{} (a b c x y z)\n"
 msgstr ""
+"(apply 'append '((a b c) nil (x y z) nil))\n"
+"     @result{} (a b c x y z)\n"
 
 #. type: defun
 #: functions.texi.orig:728
 msgid ""
 "For an interesting example of using @code{apply}, see @ref{Definition of "
 "mapcar}."
-msgstr ""
+msgstr "@code{apply}を使用した興味深い例は、@ref{Definition of mapcar}を参照してください。"
 
 #. type: cindex
 #: functions.texi.orig:730
 #, no-wrap
 msgid "partial application of functions"
-msgstr ""
+msgstr "partial application of functions"
 
 #. type: cindex
 #: functions.texi.orig:731
 #, no-wrap
 msgid "currying"
-msgstr ""
+msgstr "currying"
 
 #. type: Plain text
 #: functions.texi.orig:743
@@ -1574,18 +1590,18 @@ msgid ""
 "functions, each one with a single argument.}.  The result is a new function "
 "that accepts the rest of arguments and calls the original function with all "
 "the arguments combined."
-msgstr ""
+msgstr "ある関数にたいして、その関数のある引数を特定の値に固定し、他の引数は実際に呼びだされたときの値にできれば便利なことがあります。関数のいくつかの引数を固定することは、その関数の@dfn{部分適用(partial application)}と呼ばれます@footnote{これは@dfn{カリー化(currying)}と関連しますが、異なる機能です。カーリングは、複数の引数をとる関数を、関数チェーンとして呼び出せるような、１つの引数を取る個々の関数に変換するような方法です。}。結果は、残りの引数をとる新たな関数で、すべての引数を合わせて元の関数を呼び出します。"
 
 #. type: Plain text
 #: functions.texi.orig:745
 msgid "Here's how to do partial application in Emacs Lisp:"
-msgstr ""
+msgstr "Emacs Lispで部分適用を行う方法を示します:"
 
 #. type: defun
 #: functions.texi.orig:746
 #, no-wrap
 msgid "apply-partially func &rest args"
-msgstr ""
+msgstr "apply-partially func &rest args"
 
 #. type: defun
 #: functions.texi.orig:753
@@ -1596,14 +1612,14 @@ msgid ""
 "accepts @var{n} arguments, then a call to @code{apply-partially} with "
 "@w{@code{@var{m} < @var{n}}} arguments will produce a new function of "
 "@w{@code{@var{n} - @var{m}}} arguments."
-msgstr ""
+msgstr "この関数は、新たな関数をreturnします。この新しい関数は、呼びだされたときに@var{args}と、呼び出し時に指定された追加の引数から成る引数リストで@var{func}を呼び出す関数です。@var{func}に@var{n}個の引数を指定できる場合、@w{@code{@var{m} < @var{n}}}個の引数で@code{apply-partially}を呼び出すと、@w{@code{@var{n} - @var{m}}}個の新たな関数を生成します。"
 
 #. type: defun
 #: functions.texi.orig:757
 msgid ""
 "Here's how we could define the built-in function @code{1+}, if it didn't "
 "exist, using @code{apply-partially} and @code{+}, another built-in function:"
-msgstr ""
+msgstr "以下は、@code{apply-partially}と他のビルトイン関数@code{+},を使用して、(もし存在しないなら)ビルトイン関数@code{1+}を定義する例です:"
 
 #. type: group
 #: functions.texi.orig:762
@@ -1612,6 +1628,8 @@ msgid ""
 "(defalias '1+ (apply-partially '+ 1)\n"
 "  \"Increment argument by one.\")\n"
 msgstr ""
+"(defalias '1+ (apply-partially '+ 1)\n"
+"  \"Increment argument by one.\")\n"
 
 #. type: group
 #: functions.texi.orig:766
@@ -1620,12 +1638,14 @@ msgid ""
 "(1+ 10)\n"
 "     @result{} 11\n"
 msgstr ""
+"(1+ 10)\n"
+"     @result{} 11\n"
 
 #. type: cindex
 #: functions.texi.orig:770
 #, no-wrap
 msgid "functionals"
-msgstr ""
+msgstr "functionals"
 
 #. type: Plain text
 #: functions.texi.orig:775
@@ -1634,36 +1654,36 @@ msgid ""
 "them in data structures (especially in hook variables and property lists) "
 "and call them using @code{funcall} or @code{apply}.  Functions that accept "
 "function arguments are often called @dfn{functionals}."
-msgstr ""
+msgstr "引数として関数をとったり、データ構造(特にフック変数やプロパティーリスト)から関数を探す関数はLispでは一般的で、それらは@code{funcall}や@code{apply}を使用してそれらの関数を呼び出します。引数として関数をとる関数は、@dfn{ファンクショナル(functional)}と呼ばれるときもあります。"
 
 #. type: Plain text
 #: functions.texi.orig:779
 msgid ""
 "Sometimes, when you call a functional, it is useful to supply a no-op "
 "function as the argument.  Here are two different kinds of no-op function:"
-msgstr ""
+msgstr "ファンクショナルを呼び出すとき、引数としてno-op関数(何も行わない関数)を指定できると便利なときがあります。以下に２つの異なるno-op関数を示します:"
 
 #. type: defun
 #: functions.texi.orig:780
 #, no-wrap
 msgid "identity arg"
-msgstr ""
+msgstr "identity arg"
 
 #. type: defun
 #: functions.texi.orig:782
 msgid "This function returns @var{arg} and has no side effects."
-msgstr ""
+msgstr "この関数は@var{arg}をreturnします。副作用はありません。"
 
 #. type: defun
 #: functions.texi.orig:784
 #, no-wrap
 msgid "ignore &rest args"
-msgstr ""
+msgstr "ignore &rest args"
 
 #. type: defun
 #: functions.texi.orig:786
 msgid "This function ignores any arguments and returns @code{nil}."
-msgstr ""
+msgstr "この関数は任意の引数を無視して、@code{nil}をreturnします。"
 
 #. type: Plain text
 #: functions.texi.orig:792
@@ -1672,7 +1692,7 @@ msgid ""
 "interactively (usually by a key sequence).  It is possible to invoke such a "
 "command exactly as though it was called interactively, by using the "
 "@code{call-interactively} function.  @xref{Interactive Call}."
-msgstr ""
+msgstr "いくつかの関数はユーザーに可視な@dfn{コマンド}で、これらは(通常はキーシーケンスを介して)対話的に呼び出すことができます。そのようなコマンドは、@code{call-interactively}関数を使用することにより、対話的に呼びだされたときと同様に呼び出すことができます。@ref{Interactive Call}を参照してください。"
 
 #. type: cindex
 #: functions.texi.orig:795
