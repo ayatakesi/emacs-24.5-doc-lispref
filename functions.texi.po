@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-08-30 00:48+0900\n"
-"PO-Revision-Date: 2016-09-08 10:56+0900\n"
+"PO-Revision-Date: 2016-09-08 17:31+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -1719,27 +1719,25 @@ msgid ""
 "sparse array whose nominal range of indices is very large.  To map over a "
 "char-table in a way that deals properly with its sparse nature, use the "
 "function @code{map-char-table} (@pxref{Char-Tables})."
-msgstr ""
-"これらのマップ関数は、char-tablesには\n"
-"These mapping functions do not allow char-tables because a char-table is a sparse array whose nominal range of indices is very large.  To map over a char-table in a way that deals properly with its sparse nature, use the function @code{map-char-table} (@pxref{Char-Tables})."
+msgstr "これらのマップ関数は、文字テーブル(char-table)には適用されません。なぜなら文字テーブルは非常に広い範囲の疎な配列だからです。疎な配列であるという性質に適う方法で文字いテーブルにマッピングするには、関数@code{map-char-table}を使用します(@ref{Char-Tables}を参照してください)。"
 
 #. type: defun
 #: functions.texi.orig:811
 #, no-wrap
 msgid "mapcar function sequence"
-msgstr ""
+msgstr "mapcar function sequence"
 
 #. type: anchor{#1}
 #: functions.texi.orig:815
 msgid "Definition of mapcar"
-msgstr ""
+msgstr "Definition of mapcar"
 
 #. type: defun
 #: functions.texi.orig:815
 msgid ""
 "@code{mapcar} applies @var{function} to each element of @var{sequence} in "
 "turn, and returns a list of the results."
-msgstr ""
+msgstr "@code{mapcar}は、関数@var{function}を@var{sequence}の各要素にたいして順番に適用し、その結果をリストでreturnします。"
 
 #. type: defun
 #: functions.texi.orig:820
@@ -1748,7 +1746,7 @@ msgid ""
 "that is, a list, a vector, a bool-vector, or a string.  The result is always "
 "a list.  The length of the result is the same as the length of "
 "@var{sequence}.  For example:"
-msgstr ""
+msgstr "引数@var{sequence}には、文字テーブルを除く任意の種類のシーケンス --- つまりリスト、ベクター、ブールベクター、文字列を指定できます。結果は常にリストになります。結果の長さは、@var{sequence}の長さと同じです。たとえば:"
 
 #. type: group
 #: functions.texi.orig:829
@@ -1761,6 +1759,12 @@ msgid ""
 "(mapcar 'string \"abc\")\n"
 "     @result{} (\"a\" \"b\" \"c\")\n"
 msgstr ""
+"(mapcar 'car '((a b) (c d) (e f)))\n"
+"     @result{} (a c e)\n"
+"(mapcar '1+ [1 2 3])\n"
+"     @result{} (2 3 4)\n"
+"(mapcar 'string \"abc\")\n"
+"     @result{} (\"a\" \"b\" \"c\")\n"
 
 #. type: group
 #: functions.texi.orig:834
@@ -1769,6 +1773,8 @@ msgid ""
 ";; @r{Call each function in @code{my-hooks}.}\n"
 "(mapcar 'funcall my-hooks)\n"
 msgstr ""
+";; @r{@code{my-hooks}内の各関数を呼び出す。}\n"
+"(mapcar 'funcall my-hooks)\n"
 
 #. type: group
 #: functions.texi.orig:847
@@ -1785,6 +1791,16 @@ msgid ""
 "                   ;; @r{Recurse for rest of elements.}\n"
 "                   (mapcar 'cdr args)))))\n"
 msgstr ""
+"(defun mapcar* (function &rest args)\n"
+"  \"Apply FUNCTION to successive cars of all ARGS.\n"
+"Return the list of results.\"\n"
+"  ;; @r{リストが消費されていなければ、}\n"
+"  (if (not (memq nil args))\n"
+"      ;; @r{@sc{car}に関数を適用する。}\n"
+"      (cons (apply function (mapcar 'car args))\n"
+"            (apply 'mapcar* function\n"
+"                   ;; @r{残りの要素のための再帰。}\n"
+"                   (mapcar 'cdr args)))))\n"
 
 #. type: group
 #: functions.texi.orig:852
@@ -1793,12 +1809,14 @@ msgid ""
 "(mapcar* 'cons '(a b c) '(1 2 3 4))\n"
 "     @result{} ((a . 1) (b . 2) (c . 3))\n"
 msgstr ""
+"(mapcar* 'cons '(a b c) '(1 2 3 4))\n"
+"     @result{} ((a . 1) (b . 2) (c . 3))\n"
 
 #. type: defun
 #: functions.texi.orig:856
 #, no-wrap
 msgid "mapc function sequence"
-msgstr ""
+msgstr "mapc function sequence"
 
 #. type: defun
 #: functions.texi.orig:860
@@ -1806,13 +1824,13 @@ msgid ""
 "@code{mapc} is like @code{mapcar} except that @var{function} is used for "
 "side-effects only---the values it returns are ignored, not collected into a "
 "list.  @code{mapc} always returns @var{sequence}."
-msgstr ""
+msgstr "@code{mapc}は@code{mapcar}と似ていますが、@var{function}は副作用のためだけに使用されます --- つまり@var{function}がreturnする値は無視され、リストに収集されません。@code{mapc}は常に@var{sequence}をreturnします。"
 
 #. type: defun
 #: functions.texi.orig:862
 #, no-wrap
 msgid "mapconcat function sequence separator"
-msgstr ""
+msgstr "mapconcat function sequence separator"
 
 #. type: defun
 #: functions.texi.orig:868
@@ -1822,7 +1840,7 @@ msgid ""
 "result strings, @code{mapconcat} inserts the string @var{separator}.  "
 "Usually @var{separator} contains a space or comma or other suitable "
 "punctuation."
-msgstr ""
+msgstr "@code{mapconcat}は関数@var{function}を@var{sequence}の各要素に適用します。結果は結合された文字列になります。結果文字列の間に、@code{mapconcat}は文字列@var{separator}を挿入します。@var{separator}には通常、スペースやカンマ、あるいはその他の適切な区切り文字が含まれます。"
 
 #. type: defun
 #: functions.texi.orig:873
@@ -1831,7 +1849,7 @@ msgid ""
 "and return a string.  The argument @var{sequence} can be any kind of "
 "sequence except a char-table; that is, a list, a vector, a bool-vector, or a "
 "string."
-msgstr ""
+msgstr "引数@var{function}はははは、1つの引数を取り文字列をreturnする関数でなければなりません。引数@var{sequence}には、文字テーブルを除く、任意の種類のシーケンス --- つまりリスト、ベクター、ブールベクター、文字列を指定できます。"
 
 #. type: group
 #: functions.texi.orig:880
@@ -1842,6 +1860,10 @@ msgid ""
 "           \" \")\n"
 "     @result{} \"The cat in the hat\"\n"
 msgstr ""
+"(mapconcat 'symbol-name\n"
+"           '(The cat in the hat)\n"
+"           \" \")\n"
+"     @result{} \"The cat in the hat\"\n"
 
 #. type: group
 #: functions.texi.orig:887
@@ -1852,12 +1874,16 @@ msgid ""
 "           \"\")\n"
 "     @result{} \"IBM.9111\"\n"
 msgstr ""
+"(mapconcat (function (lambda (x) (format \"%c\" (1+ x))))\n"
+"           \"HAL-8000\"\n"
+"           \"\")\n"
+"     @result{} \"IBM.9111\"\n"
 
 #. type: cindex
 #: functions.texi.orig:893
 #, no-wrap
 msgid "anonymous function"
-msgstr ""
+msgstr "anonymous function"
 
 #. type: Plain text
 #: functions.texi.orig:904
@@ -1870,7 +1896,7 @@ msgid ""
 "@var{function} argument to @code{mapcar}, which applies that function to "
 "each element of a list (@pxref{Mapping Functions}).  @xref{describe-symbols "
 "example}, for a realistic example of this."
-msgstr ""
+msgstr "関数は通常、@code{defun}により定義され、同時に名前が与えられますが、明示的にラムダ式を使う --- @dfn{無名関数(anonymous function)}のほうが便利なときもあります。無名関数は、名前つき関数が有効な場所なら、どこでも有効です。無名関数は変数や関数の引数に割り当てられることがよくあります。たとえば、ある関数をリストの各要素に適用する@code{mapcar}の@var{function}引数に渡すかもしれません(@ref{Mapping Functions}を参照してください)。現実的な例は、@ref{describe-symbols example}を参照してください。"
 
 #. type: Plain text
 #: functions.texi.orig:909
@@ -1879,13 +1905,13 @@ msgid ""
 "function, you can in principle use any method to construct the list.  But "
 "typically you should use the @code{lambda} macro, or the @code{function} "
 "special form, or the @code{#'} read syntax:"
-msgstr ""
+msgstr "無名関数として使用するためのラムダ式を定義するとき、原則的にはリストを構築する任意の手法を使用できます。しかし通常は、マクロ@code{lambda}、スペシャルフォーム@code{function}、または入力構文@code{#'}を使用するべきです。"
 
 #. type: defmac
 #: functions.texi.orig:910
 #, no-wrap
 msgid "lambda args [doc] [interactive] body@dots{}"
-msgstr ""
+msgstr "lambda args [doc] [interactive] body@dots{}"
 
 #. type: defmac
 #: functions.texi.orig:914
@@ -1893,14 +1919,14 @@ msgid ""
 "This macro returns an anonymous function with argument list @var{args}, "
 "documentation string @var{doc} (if any), interactive spec @var{interactive} "
 "(if any), and body forms given by @var{body}."
-msgstr ""
+msgstr "このマクロは引数リスト@var{args}、(もしあれば)ドキュメント文字列@var{doc}、(もしあれば)インタラクティブ指定@var{interactive}、および@var{body}で与えられるbodyフォームをもつ無名関数をreturnします。"
 
 #. type: defmac
 #: functions.texi.orig:918
 msgid ""
 "In effect, this macro makes @code{lambda} forms ``self-quoting'': evaluating "
 "a form whose @sc{car} is @code{lambda} yields the form itself:"
-msgstr ""
+msgstr "実際にはこのマクロは@code{lambda}フォームを``自己クォート(self-quoting)''します。つまり@sc{car}が@code{lambda}であるようなフォームは、そのフォーム自身を得ます。"
 
 #. type: example
 #: functions.texi.orig:922
@@ -1909,6 +1935,8 @@ msgid ""
 "(lambda (x) (* x x))\n"
 "     @result{} (lambda (x) (* x x))\n"
 msgstr ""
+"(lambda (x) (* x x))\n"
+"     @result{} (lambda (x) (* x x))\n"
 
 #. type: defmac
 #: functions.texi.orig:927
@@ -1916,19 +1944,19 @@ msgid ""
 "The @code{lambda} form has one other effect: it tells the Emacs evaluator "
 "and byte-compiler that its argument is a function, by using @code{function} "
 "as a subroutine (see below)."
-msgstr ""
+msgstr "@code{lambda}フォームは別に、1つの効果をもちます。このマクロは、@code{function}(以下参照)をサブルーチンとして使用することにより、Emacs評価機能(Emacs evaluator)とバイトコンパイラーに、その引数が関数であることを告げます。"
 
 #. type: defspec
 #: functions.texi.orig:929
 #, no-wrap
 msgid "function function-object"
-msgstr ""
+msgstr "function function-object"
 
 #. type: cindex
 #: functions.texi.orig:930
 #, no-wrap
 msgid "function quoting"
-msgstr ""
+msgstr "function quoting"
 
 #. type: defspec
 #: functions.texi.orig:937
@@ -1939,34 +1967,34 @@ msgid ""
 "byte-compiler that @var{function-object} is intended to be used as a "
 "function.  Assuming @var{function-object} is a valid lambda expression, this "
 "has two effects:"
-msgstr ""
+msgstr "このスペシャルフォームは、評価を行わずに、@var{function-object}をreturnします。この点では、@code{quote}(@ref{Quoting}を参照してください)と似ています。しかし@code{quote}とは異なり、Emacs評価機能とバイトコンパイラーに、これを関数として使用する意図を告げる役割をもちます。@var{function-object}が有効なラムダ式と仮定すると、これは２つの効果をもちます:"
 
 #. type: itemize
 #: functions.texi.orig:942
 msgid ""
 "When the code is byte-compiled, @var{function-object} is compiled into a "
 "byte-code function object (@pxref{Byte Compilation})."
-msgstr ""
+msgstr "そのコードがバイトコンパイルされているとき、@var{function-object}はバイトコード関数オブジェクトにコンパイルされます(@ref{Byte Compilation}を参照してください)。"
 
 #. type: itemize
 #: functions.texi.orig:946
 msgid ""
 "When lexical binding is enabled, @var{function-object} is converted into a "
 "closure.  @xref{Closures}."
-msgstr ""
+msgstr "レキシカルバインドが有効な場合、@var{function-object}はクロージャーに変換されます。@ref{Closures}を参照してください。"
 
 #. type: cindex
 #: functions.texi.orig:949
 #, no-wrap
 msgid "@samp{#'} syntax"
-msgstr ""
+msgstr "@samp{#'} syntax"
 
 #. type: Plain text
 #: functions.texi.orig:952
 msgid ""
 "The read syntax @code{#'} is a short-hand for using @code{function}.  The "
 "following forms are all equivalent:"
-msgstr ""
+msgstr "入力構文@code{#'}は、@code{function}の使用の略記です。以下のフォームは等価です:"
 
 #. type: example
 #: functions.texi.orig:957
@@ -1976,6 +2004,9 @@ msgid ""
 "(function (lambda (x) (* x x)))\n"
 "#'(lambda (x) (* x x))\n"
 msgstr ""
+"(lambda (x) (* x x))\n"
+"(function (lambda (x) (* x x)))\n"
+"#'(lambda (x) (* x x))\n"
 
 #. type: Plain text
 #: functions.texi.orig:963
@@ -1984,7 +2015,7 @@ msgid ""
 "takes a function as its third argument, followed by a @code{double-property} "
 "function that makes use of @code{change-property} by passing it an anonymous "
 "function:"
-msgstr ""
+msgstr "以下の例では、3つ目の引数に関数をとる、@code{change-property}関数を定義し、その後の@code{change-property}で、無名関数を渡してこれを使用しています:"
 
 #. type: group
 #: functions.texi.orig:969
@@ -1994,6 +2025,9 @@ msgid ""
 "  (let ((value (get symbol prop)))\n"
 "    (put symbol prop (funcall function value))))\n"
 msgstr ""
+"(defun change-property (symbol prop function)\n"
+"  (let ((value (get symbol prop)))\n"
+"    (put symbol prop (funcall function value))))\n"
 
 #. type: group
 #: functions.texi.orig:974
@@ -2002,11 +2036,13 @@ msgid ""
 "(defun double-property (symbol prop)\n"
 "  (change-property symbol prop (lambda (x) (* 2 x))))\n"
 msgstr ""
+"(defun double-property (symbol prop)\n"
+"  (change-property symbol prop (lambda (x) (* 2 x))))\n"
 
 #. type: Plain text
 #: functions.texi.orig:979
 msgid "Note that we do not quote the @code{lambda} form."
-msgstr ""
+msgstr "@code{lambda}フォームをクォートしていないことに注意してください。"
 
 #. type: Plain text
 #: functions.texi.orig:983
@@ -2014,7 +2050,7 @@ msgid ""
 "If you compile the above code, the anonymous function is also compiled.  "
 "This would not happen if, say, you had constructed the anonymous function by "
 "quoting it as a list:"
-msgstr ""
+msgstr " 上記のコードをコンパイルした場合は、無名関数もコンパイルされます。リストをクォートすることにより無名関数を構築した場合、コンパイルはされません。"
 
 #. type: group
 #: functions.texi.orig:989
@@ -2023,6 +2059,8 @@ msgid ""
 "(defun double-property (symbol prop)\n"
 "  (change-property symbol prop '(lambda (x) (* 2 x))))\n"
 msgstr ""
+"(defun double-property (symbol prop)\n"
+"  (change-property symbol prop '(lambda (x) (* 2 x))))\n"
 
 #. type: Plain text
 #: functions.texi.orig:997
@@ -2031,13 +2069,13 @@ msgid ""
 "compiled code.  The byte-compiler cannot assume this list is a function, "
 "even though it looks like one, since it does not know that "
 "@code{change-property} intends to use it as a function."
-msgstr ""
+msgstr "この場合、無名関数はコンパイルされたコード内のラムダ式に保持されます。バイトコンパイラーは、@code{change-property}が関数としての使用を意図していることを知ることができないので、たとえこの関数が関数のように見えるとしても、このリストが関数であると決め込むことはできません。"
 
 #. type: section
 #: functions.texi.orig:999
 #, no-wrap
 msgid "Accessing Function Cell Contents"
-msgstr ""
+msgstr "Accessing Function Cell Contents"
 
 #. type: Plain text
 #: functions.texi.orig:1004
@@ -2045,33 +2083,33 @@ msgid ""
 "The @dfn{function definition} of a symbol is the object stored in the "
 "function cell of the symbol.  The functions described here access, test, and "
 "set the function cell of symbols."
-msgstr ""
+msgstr "あるシンボルの@dfn{関数定義(function definition)}とは、そのシンボルの関数セルに格納されたオブジェクトのことです。ここでは、シンボルの関数セルにアクセス、テスト、セットする関数を説明します。"
 
 #. type: Plain text
 #: functions.texi.orig:1007
 msgid ""
 "See also the function @code{indirect-function}.  @xref{Definition of "
 "indirect-function}."
-msgstr ""
+msgstr "@ref{Definition of indirect-function}の、関数@code{indirect-function}も参照してください。"
 
 #. type: defun
 #: functions.texi.orig:1008
 #, no-wrap
 msgid "symbol-function symbol"
-msgstr ""
+msgstr "symbol-function symbol"
 
 #. type: kindex
 #: functions.texi.orig:1009
 #, no-wrap
 msgid "void-function"
-msgstr ""
+msgstr "void-function"
 
 #. type: defun
 #: functions.texi.orig:1012
 msgid ""
 "This returns the object in the function cell of @var{symbol}.  It does not "
 "check that the returned object is a legitimate function."
-msgstr ""
+msgstr "これは@var{symbol}の関数セル内のオブジェクトをreturnします。これは、returnされたオブジェクトが本物のの関数であるかチェックしません。"
 
 #. type: defun
 #: functions.texi.orig:1016
@@ -2079,7 +2117,7 @@ msgid ""
 "If the function cell is void, the return value is @code{nil}.  To "
 "distinguish between a function cell that is void and one set to @code{nil}, "
 "use @code{fboundp} (see below)."
-msgstr ""
+msgstr "関数セルがvoidの場合、return値は@code{nil}です。関数セルがvoidのときと、@code{nil}がセットされているときを区別するには、@code{fboundp}(以下参照)を使用します。"
 
 #. type: group
 #: functions.texi.orig:1022
@@ -2089,6 +2127,9 @@ msgid ""
 "(symbol-function 'bar)\n"
 "     @result{} (lambda (n) (+ n 2))\n"
 msgstr ""
+"(defun bar (n) (+ n 2))\n"
+"(symbol-function 'bar)\n"
+"     @result{} (lambda (n) (+ n 2))\n"
 
 #. type: group
 #: functions.texi.orig:1026
@@ -2097,6 +2138,8 @@ msgid ""
 "(fset 'baz 'bar)\n"
 "     @result{} bar\n"
 msgstr ""
+"(fset 'baz 'bar)\n"
+"     @result{} bar\n"
 
 #. type: group
 #: functions.texi.orig:1030
@@ -2105,12 +2148,14 @@ msgid ""
 "(symbol-function 'baz)\n"
 "     @result{} bar\n"
 msgstr ""
+"(symbol-function 'baz)\n"
+"     @result{} bar\n"
 
 #. type: cindex
 #: functions.texi.orig:1034
 #, no-wrap
 msgid "void function cell"
-msgstr ""
+msgstr "void function cell"
 
 #. type: Plain text
 #: functions.texi.orig:1039
@@ -2119,7 +2164,7 @@ msgid ""
 "symbol's function cell is @dfn{void}.  In other words, the function cell "
 "does not have any Lisp object in it.  If you try to call the symbol as a "
 "function, Emacs signals a @code{void-function} error."
-msgstr ""
+msgstr "シンボルに何の関数定義も与えていない場合、そのシンボルの関数セルは@dfn{void}だと言います。別の言い方をすると、その関数セルは、どんなLispオブジェクトも保持しません。そのシンボルを関数として呼びだそうとすると、Emacsは@code{void-function}エラーをシグナルします。"
 
 #. type: Plain text
 #: functions.texi.orig:1045
@@ -2129,7 +2174,7 @@ msgid ""
 "a function cell just as any other object can be (and they can be valid "
 "functions if you define them in turn with @code{defun}).  A void function "
 "cell contains no object whatsoever."
-msgstr ""
+msgstr "voidは、@code{nil}やシンボル@code{void}とは異なることに注意してください。シンボル@code{nil}および@code{void}はLispオブジェクトであり、他のオブジェクトと同様、関数セルに格納することができます(これらのシンボルは@code{defun}を使用して有効な関数に成ることができます)。voidである関数セルは、どのようなオブジェクトも含みません。"
 
 #. type: Plain text
 #: functions.texi.orig:1049
@@ -2137,13 +2182,13 @@ msgid ""
 "You can test the voidness of a symbol's function definition with "
 "@code{fboundp}.  After you have given a symbol a function definition, you "
 "can make it void once more using @code{fmakunbound}."
-msgstr ""
+msgstr "@code{fboundp}を使用して、任意のシンボルの関数定義がvoidかどうかテストすることができます。シンボルに関数定義を与えた後は、@code{fmakunbound}をつかえば、再びvoidにすることができます。"
 
 #. type: defun
 #: functions.texi.orig:1050
 #, no-wrap
 msgid "fboundp symbol"
-msgstr ""
+msgstr "fboundp symbol"
 
 #. type: defun
 #: functions.texi.orig:1054
@@ -2151,13 +2196,13 @@ msgid ""
 "This function returns @code{t} if the symbol has an object in its function "
 "cell, @code{nil} otherwise.  It does not check that the object is a "
 "legitimate function."
-msgstr ""
+msgstr "この関数は、そのシンボルが関数セルにオブジェクトをもっていれば@code{t}、それ以外は@code{nil}をreturnします。これは、そのオブジェクトが本物の関数であるかチェックしません。"
 
 #. type: defun
 #: functions.texi.orig:1056
 #, no-wrap
 msgid "fmakunbound symbol"
-msgstr ""
+msgstr "fmakunbound symbol"
 
 #. type: defun
 #: functions.texi.orig:1061
@@ -2166,7 +2211,7 @@ msgid ""
 "attempt to access this cell will cause a @code{void-function} error.  It "
 "returns @var{symbol}.  (See also @code{makunbound}, in @ref{Void "
 "Variables}.)"
-msgstr ""
+msgstr "この関数は@var{symbol}の関数セルをvoidにします。そのため、これ以降に関数セルにアクセスしようと試みると、@code{void-function}エラーが発生します。これは@var{symbol}をreturnします(@ref{Void Variables}の@code{makunbound}も参照してください)。"
 
 #. type: group
 #: functions.texi.orig:1067
@@ -2176,6 +2221,9 @@ msgid ""
 "(foo 1)\n"
 "     @result{}1\n"
 msgstr ""
+"(defun foo (x) x)\n"
+"(foo 1)\n"
+"     @result{}1\n"
 
 #. type: group
 #: functions.texi.orig:1071
@@ -2184,6 +2232,8 @@ msgid ""
 "(fmakunbound 'foo)\n"
 "     @result{} foo\n"
 msgstr ""
+"(fmakunbound 'foo)\n"
+"     @result{} foo\n"
 
 #. type: group
 #: functions.texi.orig:1075
@@ -2192,12 +2242,14 @@ msgid ""
 "(foo 1)\n"
 "@error{} Symbol's function definition is void: foo\n"
 msgstr ""
+"(foo 1)\n"
+"@error{} Symbol's function definition is void: foo\n"
 
 #. type: defun
 #: functions.texi.orig:1079
 #, no-wrap
 msgid "fset symbol definition"
-msgstr ""
+msgstr "fset symbol definition"
 
 #. type: defun
 #: functions.texi.orig:1085
@@ -2206,7 +2258,7 @@ msgid ""
 "The result is @var{definition}.  Normally @var{definition} should be a "
 "function or the name of a function, but this is not checked.  The argument "
 "@var{symbol} is an ordinary evaluated argument."
-msgstr ""
+msgstr "この関数は@var{symbol}の関数セルに、@var{definition}を格納します。結果は@var{definition}です。@var{definition}は通常、関数または関数の名前であるべきですが、これはチェックされません。引数@var{symbol}は、通常のどおり評価される引数です。"
 
 #. type: defun
 #: functions.texi.orig:1090
@@ -2216,7 +2268,7 @@ msgid ""
 "(@pxref{Advising Functions}).  You can also use it to give a symbol a "
 "function definition that is not a function, e.g., a keyboard macro "
 "(@pxref{Keyboard Macros}):"
-msgstr ""
+msgstr "この関数は主に、関数を定義したり変更すして構成を行う、@code{defun}や@code{advice-add}のようなものからサブルーチンとして使用されます。シンボルにたいして、たとえばキーボードマクロ(@ref{Keyboard Macros}を参照してください)のような、関数ではない関数定義与えるためにも使用することができます:"
 
 #. type: example
 #: functions.texi.orig:1095
@@ -2226,13 +2278,16 @@ msgid ""
 "(fset 'kill-two-lines \"\\^u2\\^k\")\n"
 "     @result{} \"\\^u2\\^k\"\n"
 msgstr ""
+";; @r{名前つきのキーボードマクロを定義する。}\n"
+"(fset 'kill-two-lines \"\\^u2\\^k\")\n"
+"     @result{} \"\\^u2\\^k\"\n"
 
 #. type: defun
 #: functions.texi.orig:1100
 msgid ""
 "It you wish to use @code{fset} to make an alternate name for a function, "
 "consider using @code{defalias} instead.  @xref{Definition of defalias}."
-msgstr ""
+msgstr "関数にたいして別の名前を作成するために@code{fset}を使いたい場合は、かわりに@code{defalias}の使用を考慮してください。@ref{Definition of defalias}を参照してください。"
 
 #. type: Plain text
 #: functions.texi.orig:1112
@@ -2243,7 +2298,7 @@ msgid ""
 "that you create using the @code{lambda} macro or the @code{function} special "
 "form or the @code{#'} syntax (@pxref{Anonymous Functions}), is automatically "
 "converted into a @dfn{closure}."
-msgstr ""
+msgstr "@ref{Variable Scoping}で説明したように、Emacsはオプションで変数のレキシカルバインディングを有効にできます。レキシカルバインディングが有効な場合、あなたが(たとえば@code{defun}などで)作成した任意の名前つき関数、同様に@code{lambda}マクロ、@code{function}スペシャルフォーム、@code{#'}構文を使用して作成した任意の無名関数(@ref{Anonymous Functions}を参照してください)は、自動的に@dfn{クロージャー(closure)}に変換されます。"
 
 #. type: Plain text
 #: functions.texi.orig:1120
@@ -2254,12 +2309,12 @@ msgid ""
 "lexical environment.  In all other respects, closures behave much like "
 "ordinary functions; in particular, they can be called in the same way as "
 "ordinary functions."
-msgstr ""
+msgstr "クロージャーとは、その関数が定ぎされたどときに存在したレキシカル環境の記録もあわせもつ関数です。クロージャーが呼び出されたとき、定義内のレキシカル変数の参照には、その保持されたレキシカル環境を使用されます。他のすべての点では、クロージャーは通常の関数と同様に振る舞います。特に、クロージャーは通常の関数と同じ方法で呼び出すことができます。"
 
 #. type: Plain text
 #: functions.texi.orig:1122
 msgid "@xref{Lexical Binding}, for an example of using a closure."
-msgstr ""
+msgstr "クロージャー使用する例は、@ref{Lexical Binding}を参照してください。"
 
 #. type: Plain text
 #: functions.texi.orig:1127
@@ -2268,7 +2323,7 @@ msgid ""
 "symbol @code{closure} as the first element, a list representing the lexical "
 "environment as the second element, and the argument list and body forms as "
 "the remaining elements:"
-msgstr ""
+msgstr "現在のところ、Emacs Lispのクロージャーオブジェクトは、1つ目の要素にシンボル@code{closure}をもつリストとして表現されます。そのリストは2つ目の要素としてレキシカル環境を表し、残りの要素で引数リストとbodyフォームを表します:"
 
 #. type: example
 #: functions.texi.orig:1132
@@ -2278,6 +2333,9 @@ msgid ""
 "(lambda (x) (* x x))\n"
 "     @result{} (closure (t) (x) (* x x))\n"
 msgstr ""
+";; @r{レキシカルバインディングが有効。}\n"
+"(lambda (x) (* x x))\n"
+"     @result{} (closure (t) (x) (* x x))\n"
 
 #. type: Plain text
 #: functions.texi.orig:1139
@@ -2286,25 +2344,25 @@ msgid ""
 "the rest of the Lisp world is considered an internal implementation detail.  "
 "For this reason, we recommend against directly examining or altering the "
 "structure of closure objects."
-msgstr ""
+msgstr "しかし実際には、クロージャーの内部構造は、内部的な実装の詳細と判断される残りのLisp界を``晒け出す''ものだと言えます。この理由により、クロージャーオブジェクトの構造を直接調べたり変更することは推奨しません。"
 
 #. type: section
 #: functions.texi.orig:1141
 #, no-wrap
 msgid "Advising Emacs Lisp Functions"
-msgstr ""
+msgstr "Advising Emacs Lisp Functions"
 
 #. type: cindex
 #: functions.texi.orig:1142
 #, no-wrap
 msgid "advising functions"
-msgstr ""
+msgstr "advising functions"
 
 #. type: cindex
 #: functions.texi.orig:1143
 #, no-wrap
 msgid "piece of advice"
-msgstr ""
+msgstr "piece of advice"
 
 #. type: Plain text
 #: functions.texi.orig:1152
@@ -2316,7 +2374,7 @@ msgid ""
 "named functions, @code{setq} for hook variables, or "
 "@code{set-process-filter} for process filters, but those are often too "
 "blunt, completely throwing away the previous value."
-msgstr ""
+msgstr "他のライブラリーの関数定義を変更する必要があるとき、または@code{@var{foo}-function}oのようなフックやプロセスフィルター(process filter)、または関数を値としてもつ任意の変数またはオブジェクトを変更する必要があるときには、名前つきの関数には@code{fset}か@code{defun}、フック変数には@code{setq}、プロセスフィルターには@code{set-process-filter}のように、適切なセッター関数(setter function)を使用することができます。しかし、これらが以前の値を完全に破棄してしまうのが好ましくない場合もあります。"
 
 #. type: Plain text
 #: functions.texi.orig:1156
@@ -2324,7 +2382,7 @@ msgid ""
 "The @dfn{advice} feature lets you add to the existing definition of a "
 "function, by @dfn{advising the function}.  This is a cleaner method than "
 "redefining the whole function."
-msgstr ""
+msgstr "@dfn{アドバイス(advice)}機能により、@dfn{関数にアドバイス}することにより、既存の関数定義に機能を追加できます。これは関数全体を再定義するより明解な手法です。"
 
 #. type: Plain text
 #: functions.texi.orig:1162
@@ -2335,14 +2393,14 @@ msgid ""
 "@code{remove-function}) and another set layered on top of it for named "
 "functions (with the main primitives being @code{advice-add} and "
 "@code{advice-remove})."
-msgstr ""
+msgstr "Emacsのアドバイスシステムは2つのプリミティブセットを提供します。コアとなるセットは、変数やオブジェクトのフィールドに保持された関数値にたいするものです(対応するプリミティブは@code{add-function}と@code{remove-function}です)。もう1つのセットは、名前つき関数の最上位のレイヤーとなるものです(主要なプリミティブは@code{advice-add}と@code{advice-remove}です)。"
 
 #. type: Plain text
 #: functions.texi.orig:1165
 msgid ""
 "For example, in order to trace the calls to the process filter of a process "
 "@var{proc}, you could use:"
-msgstr ""
+msgstr "たとえば、プロセス@var{proc}のプロセスフィルターの呼び出しをトレースするためには、以下を使用できます:"
 
 #. type: example
 #: functions.texi.orig:1169
@@ -2352,12 +2410,15 @@ msgid ""
 "  (message \"Proc %S received %S\" proc string))\n"
 "\n"
 msgstr ""
+"(defun my-tracing-function (proc string)\n"
+"  (message \"Proc %S received %S\" proc string))\n"
+"\n"
 
 #. type: example
 #: functions.texi.orig:1171
 #, no-wrap
 msgid "(add-function :before (process-filter @var{proc}) #'my-tracing-function)\n"
-msgstr ""
+msgstr "(add-function :before (process-filter @var{proc}) #'my-tracing-function)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1177
@@ -2367,20 +2428,20 @@ msgid ""
 "filter.  @code{my-tracing-function} receives the same arguments as the "
 "original function.  When you're done with it, you can revert to the untraced "
 "behavior with:"
-msgstr ""
+msgstr "これにより、そのプロセスの出力は、元のプロセスフィルターに渡される前に、@code{my-tracing-function}に渡されるようになります。@code{my-tracing-function}は元の関数と同じ引数を受け取ります。これを行った場合、以下のようにしてトレースを行わない振る舞いにリバートすることができます。"
 
 #. type: example
 #: functions.texi.orig:1180
 #, no-wrap
 msgid "(remove-function (process-filter @var{proc}) #'my-tracing-function)\n"
-msgstr ""
+msgstr "(remove-function (process-filter @var{proc}) #'my-tracing-function)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1184
 msgid ""
 "Similarly, if you want to trace the execution of the function named "
 "@code{display-buffer}, you could use:"
-msgstr ""
+msgstr "同様に、@code{display-buffer}という名前つきの関数の実行をトレースしたい場合は、以下を使用できます:"
 
 #. type: example
 #: functions.texi.orig:1191
@@ -2393,12 +2454,18 @@ msgid ""
 "    res))\n"
 "\n"
 msgstr ""
+"(defun his-tracing-function (orig-fun &rest args)\n"
+"  (message \"display-buffer called with args %S\" args)\n"
+"  (let ((res (apply orig-fun args)))\n"
+"    (message \"display-buffer returned %S\" res)\n"
+"    res))\n"
+"\n"
 
 #. type: example
 #: functions.texi.orig:1193
 #, no-wrap
 msgid "(advice-add 'display-buffer :around #'his-tracing-function)\n"
-msgstr ""
+msgstr "(advice-add 'display-buffer :around #'his-tracing-function)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1200
@@ -2408,13 +2475,13 @@ msgid ""
 "arguments)  as argument, so it can call it if and when it needs to.  When "
 "you're tired of seeing this output, you can revert to the untraced behavior "
 "with:"
-msgstr ""
+msgstr "ここで、@code{his-tracing-function}は元の関数のかわりに呼び出され、元の関数(加えてその関数の引数)を引数として受け取るので、必要な場合はそれを呼び出すことができます。出力を確認し終えたら、以下のようにしてトレースしない振る舞いにリバートできます:"
 
 #. type: example
 #: functions.texi.orig:1203
 #, no-wrap
 msgid "(advice-remove 'display-buffer #'his-tracing-function)\n"
-msgstr ""
+msgstr "(advice-remove 'display-buffer #'his-tracing-function)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1208
@@ -2422,76 +2489,76 @@ msgid ""
 "The arguments @code{:before} and @code{:around} used in the above examples "
 "specify how the two functions are composed, since there are many different "
 "ways to do it.  The added function is also called an @emph{advice}."
-msgstr ""
+msgstr "上記の例で使用されている引数@code{:before}と@code{:around}は、2つの関数が構成される方法を指定します(これを行うには多くの方法があるからです)。追加された関数も、@emph{アドバイス(advice)}と呼ばれます。"
 
 #. type: node
 #: functions.texi.orig:1214 functions.texi.orig:1216
 #, no-wrap
 msgid "Core Advising Primitives"
-msgstr ""
+msgstr "Core Advising Primitives"
 
 #. type: menuentry
 #: functions.texi.orig:1214
 msgid "Primitives to manipulate advice."
-msgstr ""
+msgstr "アドバイスを扱うプリミティブ。"
 
 #. type: subsection
 #: functions.texi.orig:1214 functions.texi.orig:1315 functions.texi.orig:1316
 #, no-wrap
 msgid "Advising Named Functions"
-msgstr ""
+msgstr "Advising Named Functions"
 
 #. type: menuentry
 #: functions.texi.orig:1214
 msgid "Advising named functions."
-msgstr ""
+msgstr "名前つき関数のアドバイス。"
 
 #. type: node
 #: functions.texi.orig:1214 functions.texi.orig:1388
 #, no-wrap
 msgid "Advice combinators"
-msgstr ""
+msgstr "Advice combinators"
 
 #. type: menuentry
 #: functions.texi.orig:1214
 msgid "Ways to compose advices."
-msgstr ""
+msgstr "アドバイスを構成する方法。"
 
 #. type: node
 #: functions.texi.orig:1214 functions.texi.orig:1501
 #, no-wrap
 msgid "Porting old advices"
-msgstr ""
+msgstr "Porting old advices"
 
 #. type: menuentry
 #: functions.texi.orig:1214
 msgid "Adapting code using the old defadvice."
-msgstr ""
+msgstr "古いdefadviceを使用したコードの改良。"
 
 #. type: subsection
 #: functions.texi.orig:1217
 #, no-wrap
 msgid "Primitives to manipulate advices"
-msgstr ""
+msgstr "Primitives to manipulate advices"
 
 #. type: cindex
 #: functions.texi.orig:1218
 #, no-wrap
 msgid "advice, add and remove"
-msgstr ""
+msgstr "advice, add and remove"
 
 #. type: defmac
 #: functions.texi.orig:1220
 #, no-wrap
 msgid "add-function where place function &optional props"
-msgstr ""
+msgstr "add-function where place function &optional props"
 
 #. type: defmac
 #: functions.texi.orig:1223
 msgid ""
 "This macro is the handy way to add the advice @var{function} to the function "
 "stored in @var{place} (@pxref{Generalized Variables})."
-msgstr ""
+msgstr "このマクロは@var{place}(@ref{Generalized Variables}を参照してください)に格納された関数に、アドバイス@var{function}を追加する手軽な方法です。"
 
 #. type: defmac
 #: functions.texi.orig:1228
@@ -2500,7 +2567,7 @@ msgid ""
 "function, e.g. whether @var{function} should be called before, or after the "
 "original function.  @xref{Advice combinators}, for the list of available "
 "ways to compose the two functions."
-msgstr ""
+msgstr "@var{where}は、既存の関数のどこに --- たとえば元の関数の前、または後に --- @var{function}が構成されるかを決定します。2つの関数を構成するために利用可能な方法のリストは、@ref{Advice combinators}を参照してください。"
 
 #. type: defmac
 #: functions.texi.orig:1237
@@ -2513,7 +2580,7 @@ msgid ""
 "is an expression which returns the variable name, then @var{function} will "
 "only be added in the current buffer.  Finally, if you want to modify a "
 "lexical variable, you will have to use @code{(var @var{variable})}."
-msgstr ""
+msgstr "(通常は名前が@code{-function}で終わる)変数を変更するときには、@var{function}がグローバルに使用されるか、あるいはカレントバッファーだけに使用されるか選ぶことができます。@var{place}が単にシンボルの場合、@var{function}は@var{place}のグローバル値に追加されます。@var{place}が@code{(local @var{symbol})}というフォームの場合、@var{symbol}はその変数の名前をreturnする式なので、@var{function}はカレントバッファーだけに追加されます。最後に、レキシカル変数を変更したい場合には、@code{(var @var{variable})}を使用する必要があるでしょう。"
 
 #. type: defmac
 #: functions.texi.orig:1241
@@ -2521,13 +2588,13 @@ msgid ""
 "Every function added with @code{add-function} can be accompanied by an "
 "association list of properties @var{props}.  Currently only two of those "
 "properties have a special meaning:"
-msgstr ""
+msgstr "@code{add-function}で追加されたすべての関数は、自動的にプロパティー@var{props}の関連リストに加えることができます。現在のところ、特別な意味をもつのは2つのプロパティーだけです:"
 
 #. type: item
 #: functions.texi.orig:1243
 #, no-wrap
 msgid "name"
-msgstr ""
+msgstr "name"
 
 #. type: table
 #: functions.texi.orig:1247
@@ -2535,13 +2602,13 @@ msgid ""
 "This gives a name to the advice, which @code{remove-function} can use to "
 "identify which function to remove.  Typically used when @var{function} is an "
 "anonymous function."
-msgstr ""
+msgstr "これはアドバイスの名前を与えます。この名前は、@code{remove-function}が取り除く関数を識別するのに使用できます。これは通常、@var{function}が無名関数のときに使用されます。"
 
 #. type: item
 #: functions.texi.orig:1248
 #, no-wrap
 msgid "depth"
-msgstr ""
+msgstr "depth"
 
 #. type: table
 #: functions.texi.orig:1254
@@ -2551,7 +2618,7 @@ msgid ""
 "advice should be kept as deep as possible, whereas a depth of -100 indicates "
 "that it should stay as the outermost advice.  When two advices specify the "
 "same depth, the most recently added advice will be outermost."
-msgstr ""
+msgstr "これは複数のアドバイスが与えられたときに、どのようにアドバイスを順番づけるかを指定します。depthのデフォルト0です。depthが100のとき、このアドバイスは可能な限りの深さを保持すべきことを意味し、-100のときは最外のアドバイスに留めることを意味します。同じdepthで2つのアドバイスが指定された場合、もっとも最近に追加されたアドバイスが最外になります。"
 
 #. type: table
 #: functions.texi.orig:1265
@@ -2566,7 +2633,7 @@ msgid ""
 "will only override the original function and other advices will apply to it, "
 "whereas an outermost @code{:override} advice will override not only the "
 "original function but all other advices applied to it as well."
-msgstr ""
+msgstr "@code{:before}アドバイスにたいしては、最外(outermost)になるということは、このアドバイスが他のアドバイスの前、つまり1番目に実行されることを意味し、最内(innermost)とは元の関数が実行される直前、すなわちこのアドバイスと元の関数の間に実行されるアドバイスは存在しないことを意味します。同様に@code{:after}アドバイスにたいしては、最内とは元の関数の直後、つまりこの元の関数とアドバイスの間に実行される他のアドバイスは存在せず、最外とは他のすべてのアドバイスが実行された後にこのアドバイスが実行されることを意味します。@code{:override}の最内アドバイスは、元の関数だけをオーバーライドし、他のアドバイスは適用されませんが、@code{:override}の最外アドバイスは元の関数だけではなく。その他すべての適用済みのアドバイスををオーバーライドします。"
 
 #. type: defmac
 #: functions.texi.orig:1275
@@ -2579,7 +2646,7 @@ msgid ""
 "spec of the combined function will be a call to that function with as sole "
 "argument the interactive spec of the original function.  To interpret the "
 "spec received as argument, use @code{advice-eval-interactive-spec}."
-msgstr ""
+msgstr "@var{function}がインタラクティブでない場合、欠オグされた関数は、(もしあれば)元の関数のインタラクティブ指定(interactive spec)を継承します。それ以外は、結合された関数はインタラクティブになり、@var{function}のインタラクティブ指定を使用します。1つ例外があります。@var{function}のインタラクティブ指定が、(式や文字列ではない)関数の場合、元の関数のインタラクティブ指定を唯一の引数として、その関数を呼び出して、それが結合された関数のインタラクティブ指定になります。引数として受け取ったインタラクティブ指定を解釈するためには、@code{advice-eval-interactive-spec}を使用します。"
 
 #. type: defmac
 #: functions.texi.orig:1281
@@ -2589,13 +2656,13 @@ msgid ""
 "function rather than that of @var{function}.  In many cases, it makes no "
 "difference since they are identical, but it does matter for @code{:around}, "
 "@code{:filter-args}, and @code{filter-return}, where @var{function}."
-msgstr ""
+msgstr "注意: @var{function}のインタラクティブ指定は結合された関数に適用され、@var{function}ではなく、結合された関数の呼び出し規約に従うべきです。多くの場合、これらは等しいので差異は生じませんが、@var{function}の@code{:around}、@code{:filter-args}、@code{filter-return}では、重要になります。"
 
 #. type: defmac
 #: functions.texi.orig:1283
 #, no-wrap
 msgid "remove-function place function"
-msgstr ""
+msgstr "remove-function place function"
 
 #. type: defmac
 #: functions.texi.orig:1287
@@ -2603,7 +2670,7 @@ msgid ""
 "This macro removes @var{function} from the function stored in @var{place}.  "
 "This only works if @var{function} was added to @var{place} using "
 "@code{add-function}."
-msgstr ""
+msgstr "このマクロは@var{place}に格納された関数から、@var{function}を取り除きます。これは、@code{add-function}を使用して、@var{function}が@var{place}に追加されたときだけ機能します。"
 
 #. type: defmac
 #: functions.texi.orig:1293
@@ -2613,13 +2680,13 @@ msgid ""
 "additionally compared also with the @code{name} property of the functions "
 "added to @var{place}, which can be more reliable than comparing lambda "
 "expressions using @code{equal}."
-msgstr ""
+msgstr "@var{function}は、@var{place}に追加された関数にたいして、ラムダ式にたいしても機能するように、@code{equal}を使用して比較を試みます。これは追加で@var{place}に追加された関数の@code{name}プロパティーも比較します。これは@code{equal}を使用してラムダ式を比較するより信頼性があります。"
 
 #. type: defun
 #: functions.texi.orig:1295
 #, no-wrap
 msgid "advice-function-member-p advice function-def"
-msgstr ""
+msgstr "advice-function-member-p advice function-def"
 
 #. type: defun
 #: functions.texi.orig:1299
@@ -2627,13 +2694,13 @@ msgid ""
 "Return non-@code{nil} if @var{advice} is already in @var{function-def}.  "
 "Like for @code{remove-function} above, instead of @var{advice} being the "
 "actual function, it can also be the @code{name} of the piece of advice."
-msgstr ""
+msgstr "@var{advice}がすでに@var{function-def}内にある場合は、非@code{nil}をreturnします。上記の@code{remove-function}と同様、実際の関数@var{advice}のかわりに、アドバイス断片(piece of advice)の@code{name}も使用できます。"
 
 #. type: defun
 #: functions.texi.orig:1301
 #, no-wrap
 msgid "advice-function-mapc f function-def"
-msgstr ""
+msgstr "advice-function-mapc f function-def"
 
 #. type: defun
 #: functions.texi.orig:1305
@@ -2641,13 +2708,13 @@ msgid ""
 "Call the function @var{f} for every advice that was added to "
 "@var{function-def}.  @var{f} is called with two arguments: the advice "
 "function and its properties."
-msgstr ""
+msgstr "@var{function-def}に追加されたすべてのアドバイスに対して、関数@var{f}を呼び出します。@var{f}は2つの引数 --- アドバイス関数と、それのプロパティーで呼びだされます。"
 
 #. type: defun
 #: functions.texi.orig:1307
 #, no-wrap
 msgid "advice-eval-interactive-spec spec"
-msgstr ""
+msgstr "advice-eval-interactive-spec spec"
 
 #. type: defun
 #: functions.texi.orig:1313
@@ -2657,7 +2724,7 @@ msgid ""
 "arguments that was built.  E.g. @code{(advice-eval-interactive-spec "
 "\"r\\nP\")} will return a list of three elements, containing the boundaries "
 "of the region and the current prefix argument."
-msgstr ""
+msgstr "そのような指定で関数がインタラクティブに呼び出されたように、インタラクティブ指定@var{spec}を評価して、構築された引数のリストに対応するリストをreturnします。たとえば、@code{(advice-eval-interactive-spec \"r\\nP\")}は、リージョンの境界、カレントプレフィクス引数を含む、3つの要素からなるリストをreturnします。"
 
 #. type: cindex
 #: functions.texi.orig:1317
