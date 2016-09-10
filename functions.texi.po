@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-08-30 00:48+0900\n"
-"PO-Revision-Date: 2016-09-08 21:17+0900\n"
+"PO-Revision-Date: 2016-09-11 00:59+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -3129,13 +3129,13 @@ msgstr "(lambda (&rest r) (funcall @var{function} (apply @var{oldfun} r)))\n"
 #: functions.texi.orig:1502
 #, no-wrap
 msgid "Adapting code using the old defadvice"
-msgstr ""
+msgstr "Adapting code using the old defadvice"
 
 #. type: cindex
 #: functions.texi.orig:1503
 #, no-wrap
 msgid "old advices, porting"
-msgstr ""
+msgstr "old advices, porting"
 
 #. type: Plain text
 #: functions.texi.orig:1508
@@ -3143,12 +3143,12 @@ msgid ""
 "A lot of code uses the old @code{defadvice} mechanism, which is largely made "
 "obsolete by the new @code{advice-add}, whose implementation and semantics is "
 "significantly simpler."
-msgstr ""
+msgstr "多くのコードは古い@code{defadvice}メカニズムを使用しており、これらの大半は@code{advice-add}により陳腐化しました。@code{advice-add}の実装と意味は、とてもシンプルです。"
 
 #. type: Plain text
 #: functions.texi.orig:1510
 msgid "An old advice such as:"
-msgstr ""
+msgstr "古いアドバイスは以下のようなものです:"
 
 #. type: example
 #: functions.texi.orig:1520
@@ -3163,11 +3163,19 @@ msgid ""
 "        (beginning-of-line)\n"
 "        (newline))))\n"
 msgstr ""
+"(defadvice previous-line (before next-line-at-end\n"
+"                                 (&optional arg try-vscroll))\n"
+"  \"Insert an empty line when moving up from the top line.\"\n"
+"  (if (and next-line-add-newlines (= arg 1)\n"
+"           (save-excursion (beginning-of-line) (bobp)))\n"
+"      (progn\n"
+"        (beginning-of-line)\n"
+"        (newline))))\n"
 
 #. type: Plain text
 #: functions.texi.orig:1523
 msgid "could be translated in the new advice mechanism into a plain function:"
-msgstr ""
+msgstr "新しいアドバイスメカニズムを使用すれば、これを通常の関数に変換できます:"
 
 #. type: example
 #: functions.texi.orig:1532
@@ -3181,30 +3189,37 @@ msgid ""
 "        (beginning-of-line)\n"
 "        (newline))))\n"
 msgstr ""
+"(defun previous-line--next-line-at-end (&optional arg try-vscroll)\n"
+"  \"Insert an empty line when moving up from the top line.\"\n"
+"  (if (and next-line-add-newlines (= arg 1)\n"
+"           (save-excursion (beginning-of-line) (bobp)))\n"
+"      (progn\n"
+"        (beginning-of-line)\n"
+"        (newline))))\n"
 
 #. type: Plain text
 #: functions.texi.orig:1536
 msgid ""
 "Obviously, this does not actually modify @code{previous-line}.  For that the "
 "old advice needed:"
-msgstr ""
+msgstr "これが実際の@code{previous-line}を変更しないことは明確です。古いアドバイスには、以下が必要です:"
 
 #. type: example
 #: functions.texi.orig:1538
 #, no-wrap
 msgid "(ad-activate 'previous-line)\n"
-msgstr ""
+msgstr "(ad-activate 'previous-line)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1540
 msgid "whereas the new advice mechanism needs:"
-msgstr ""
+msgstr "一方、新しいアドバイスメカニズムでは、以下が必要です:"
 
 #. type: example
 #: functions.texi.orig:1542
 #, no-wrap
 msgid "(advice-add 'previous-line :before #'previous-line--next-line-at-end)\n"
-msgstr ""
+msgstr "(advice-add 'previous-line :before #'previous-line--next-line-at-end)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1549
@@ -3215,12 +3230,12 @@ msgid ""
 "@emph{disable} that advice with @code{ad-enable-advice} and "
 "@code{ad-disable-advice}.  The new mechanism does away with this "
 "distinction."
-msgstr ""
+msgstr "@code{ad-activate}はグローバルな効果をもつことに注意してください。これは、指定された関数にたいして、アドバイスのすべての断片を有効にします。特定のアドバイスだけをアクティブ、または非アクティブにしたい場合、@code{ad-enable-advice}、または@code{ad-disable-advice}により、@emph{有効}または@emph{無効}にする必要があります。新しいメカニズムではこの区別はなくなりました。"
 
 #. type: Plain text
 #: functions.texi.orig:1551
 msgid "An around advice such as:"
-msgstr ""
+msgstr "以下のようなaroundのアドバイスがあるとします:"
 
 #. type: example
 #: functions.texi.orig:1558
@@ -3232,11 +3247,16 @@ msgid ""
 "    ad-do-it))\n"
 "(ad-activate 'foo)\n"
 msgstr ""
+"(defadvice foo (around foo-around)\n"
+"  \"Ignore case in `foo'.\"\n"
+"  (let ((case-fold-search t))\n"
+"    ad-do-it))\n"
+"(ad-activate 'foo)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1561
 msgid "could translate into:"
-msgstr ""
+msgstr "これは以下のように変換できます:"
 
 #. type: example
 #: functions.texi.orig:1568
@@ -3248,6 +3268,11 @@ msgid ""
 "    (apply orig-fun args)))\n"
 "(advice-add 'foo :around #'foo--foo-around)\n"
 msgstr ""
+"(defun foo--foo-around (orig-fun &rest args)\n"
+"  \"Ignore case in `foo'.\"\n"
+"  (let ((case-fold-search t))\n"
+"    (apply orig-fun args)))\n"
+"(advice-add 'foo :around #'foo--foo-around)\n"
 
 #. type: Plain text
 #: functions.texi.orig:1578
@@ -3260,7 +3285,7 @@ msgid ""
 "advice has no effect on the arguments seen by the original function.  When "
 "porting a @code{before} advice which relied on this behavior, you'll need to "
 "turn it into a new @code{:around} or @code{:filter-args} advice instead."
-msgstr ""
+msgstr "アドバイスの@emph{クラス}について、新たな@code{:before}は、古い@code{before}は完全に等価ではないことに注意してください。なぜなら古いアドバイス内では、(たとえば@code{ad-set-arg}を使って)その関数の引数を変更できそれは元の関数が参照する引数値に影響します。しかし新しい@code{:before}は、@code{setq}を通じてアドバイス内の引数をし、その変更は元の関数からの参照に影響しません。この振る舞いにもとづいて@code{before}アドバイスを移行するときは、代わりにそれを新たなアドバイス@code{:around}または@code{:filter-args}に変更する必要があるでしょう。"
 
 #. type: Plain text
 #: functions.texi.orig:1583
@@ -3269,19 +3294,19 @@ msgid ""
 "changing @code{ad-return-value}, whereas a new @code{:after} advice cannot, "
 "so when porting such an old @code{after} advice, you'll need to turn it into "
 "a new @code{:around} or @code{:filter-return} advice instead."
-msgstr ""
+msgstr "同様に、古い@code{after}アドバイスは、@code{ad-return-value}を変更することによりreturn値を変更できますが、新しい@code{:after}は変更できないので、そのような@code{after}を移行するときは、かわりにそれらを新しいアドバイス@code{:around}または@code{:filter-return}に変更する必要があるでしょう。"
 
 #. type: section
 #: functions.texi.orig:1585
 #, no-wrap
 msgid "Declaring Functions Obsolete"
-msgstr ""
+msgstr "Declaring Functions Obsolete"
 
 #. type: cindex
 #: functions.texi.orig:1586
 #, no-wrap
 msgid "obsolete functions"
-msgstr ""
+msgstr "obsolete functions"
 
 #. type: Plain text
 #: functions.texi.orig:1594
@@ -3291,7 +3316,7 @@ msgid ""
 "function is obsolete whenever it byte-compiles code containing that "
 "function, and whenever it displays the documentation for that function.  In "
 "all other respects, an obsolete function behaves like any other function."
-msgstr ""
+msgstr "名前つき関数を@dfn{陳腐化している(obsolete)}とマークすることができます。これは、その関数が将来のある時点で削除されるかもしれないことを意味します。陳腐化しているとマークされた関数を含むコードをバイトコンパイルしたとき、Ｅｍａｃｓは警告を発します。また、その関数のヘルプドキュメントは表示されなくなります。他の点においては、陳腐化した関数は他の任意の関数と同様に振る舞います。"
 
 #. type: Plain text
 #: functions.texi.orig:1599
@@ -3300,7 +3325,7 @@ msgid ""
 "(obsolete @dots{}))} form in the function's @code{defun} definition.  "
 "@xref{Declare Form}.  Alternatively, you can use the @code{make-obsolete} "
 "function, described below."
-msgstr ""
+msgstr "関数を陳腐化しているとマークするもっとも簡単な方法は、その関数の@code{defun}定義に@code{(declare (obsolete @dots{}))}を配置することです。@ref{Declare Form}を参照してください。かわりに、以下で説明している@code{make-obsolete}関数を使うこともできます。"
 
 #. type: Plain text
 #: functions.texi.orig:1605
@@ -3309,13 +3334,13 @@ msgid ""
 "@code{make-obsolete}; this has the same effects as for a function.  An alias "
 "for a function or macro can also be marked as obsolete; this makes the alias "
 "itself obsolete, not the function or macro which it resolves to."
-msgstr ""
+msgstr "@code{make-obsolete}を使用して、マクロ(@ref{Macros}を参照してください)を陳腐化しているとマークすることもできます。これは関数のときと同じ効果をもちます。関数またはマクロにたいするエイリアスも、陳腐化しているとマークできます。これはエイリアス自身をマークし、名前解決される関数またはマクロにたいしてではありません。"
 
 #. type: defun
 #: functions.texi.orig:1606
 #, no-wrap
 msgid "make-obsolete obsolete-name current-name &optional when"
-msgstr ""
+msgstr "make-obsolete obsolete-name current-name &optional when"
 
 #. type: defun
 #: functions.texi.orig:1610
@@ -3323,7 +3348,7 @@ msgid ""
 "This function marks @var{obsolete-name} as obsolete.  @var{obsolete-name} "
 "should be a symbol naming a function or macro, or an alias for a function or "
 "macro."
-msgstr ""
+msgstr "この関数は、@var{obsolete-name}を陳腐化しているとマークします。@var{obsolete-name}には関数またはマクロを名前づけるシンボル、、または関数やマクロにたいするエイリアスを指定します。"
 
 #. type: defun
 #: functions.texi.orig:1619
@@ -3335,20 +3360,20 @@ msgid ""
 "string, which serves as the warning message.  The message should begin in "
 "lower case, and end with a period.  It can also be @code{nil}, in which case "
 "the warning message provides no additional details."
-msgstr ""
+msgstr "@var{current-name}がシンボルの場合は、@var{obsolete-name}のかわりに@var{current-name}の使用を促す警告メッセージになります。@var{current-name}は、@var{obsolete-name}にたいするエイリアスである必要はありません。似たような機能をもつ、別の関数かもしれません。@var{current-name}には、警告メッセージとなる文字列も指定できます。メッセージは小文字で始まりピリオドで終えるべきです。@code{nil}も指定でき、この場合には警告メッセージに追加の詳細は提供されません。"
 
 #. type: defun
 #: functions.texi.orig:1622
 msgid ""
 "If provided, @var{when} should be a string indicating when the function was "
 "first made obsolete---for example, a date or a release number."
-msgstr ""
+msgstr "@var{when}が与えられた場合、それは最初にその関数が陳腐化する時期を示す文字列 --- たとえば火付けやリリース番号を指定します。"
 
 #. type: defmac
 #: functions.texi.orig:1624
 #, no-wrap
 msgid "define-obsolete-function-alias obsolete-name current-name &optional when doc"
-msgstr ""
+msgstr "define-obsolete-function-alias obsolete-name current-name &optional when doc"
 
 #. type: defmac
 #: functions.texi.orig:1628
@@ -3356,7 +3381,7 @@ msgid ""
 "This convenience macro marks the function @var{obsolete-name} obsolete and "
 "also defines it as an alias for the function @var{current-name}.  It is "
 "equivalent to the following:"
-msgstr ""
+msgstr "この便利なマクロは関数@var{obsolete-name}を陳腐化しているとマークするとともに、それを関数@var{current-name}のエイリアスにします。これは以下と等価です:"
 
 #. type: example
 #: functions.texi.orig:1632
@@ -3365,19 +3390,21 @@ msgid ""
 "(defalias @var{obsolete-name} @var{current-name} @var{doc})\n"
 "(make-obsolete @var{obsolete-name} @var{current-name} @var{when})\n"
 msgstr ""
+"(defalias @var{obsolete-name} @var{current-name} @var{doc})\n"
+"(make-obsolete @var{obsolete-name} @var{current-name} @var{when})\n"
 
 #. type: Plain text
 #: functions.texi.orig:1637
 msgid ""
 "In addition, you can mark a certain a particular calling convention for a "
 "function as obsolete:"
-msgstr ""
+msgstr "加えて、陳腐化した関数にたいする特定の呼び出し規約をマークできます。"
 
 #. type: defun
 #: functions.texi.orig:1638
 #, no-wrap
 msgid "set-advertised-calling-convention function signature when"
-msgstr ""
+msgstr "set-advertised-calling-convention function signature when"
 
 #. type: defun
 #: functions.texi.orig:1646
@@ -3388,27 +3415,27 @@ msgid ""
 "@var{function} any other way (however, it will still allow the code to be "
 "byte compiled).  @var{when} should be a string indicating when the variable "
 "was first made obsolete (usually a version number string)."
-msgstr ""
+msgstr "この関数は、@var{function}を呼び出す正しい方法として、引数リスト@var{signature}を指定します。これにより、Emacs Lispプログラムが他の方法で@var{function}を呼び出している場合には、Emacsのバイトコンパイラーが警告を発します(それでもコードはバイトコンパイルされます)。@var{when}には、その変数が最初に陳腐化するときを示す文字列(通常はバージョン番号)を指定します。"
 
 #. type: defun
 #: functions.texi.orig:1649
 msgid ""
 "For instance, in old versions of Emacs the @code{sit-for} function accepted "
 "three arguments, like this"
-msgstr ""
+msgstr "たとえば、古いバージョンのEmacsでは、@code{sit-for}には以下のように3つの引数を指定していました"
 
 #. type: example
 #: functions.texi.orig:1652
 #, no-wrap
 msgid "  (sit-for seconds milliseconds nodisp)\n"
-msgstr ""
+msgstr "  (sit-for seconds milliseconds nodisp)\n"
 
 #. type: defun
 #: functions.texi.orig:1657
 msgid ""
 "However, calling @code{sit-for} this way is considered obsolete "
 "(@pxref{Waiting}).  The old calling convention is deprecated like this:"
-msgstr ""
+msgstr "しかしこの方法による@code{sit-for}の呼び出しは陳腐化していると判断されます(@ref{Waiting}を参照してください)。以下のように、古い呼び出し規約は推奨されません:"
 
 #. type: example
 #: functions.texi.orig:1661
@@ -3417,12 +3444,14 @@ msgid ""
 "(set-advertised-calling-convention\n"
 "  'sit-for '(seconds &optional nodisp) \"22.1\")\n"
 msgstr ""
+"(set-advertised-calling-convention\n"
+"  'sit-for '(seconds &optional nodisp) \"22.1\")\n"
 
 #. type: cindex
 #: functions.texi.orig:1666
 #, no-wrap
 msgid "inline functions"
-msgstr ""
+msgstr "inline functions"
 
 #. type: Plain text
 #: functions.texi.orig:1673
@@ -3432,20 +3461,20 @@ msgid ""
 "(@pxref{Byte Compilation}), the function's definition is expanded into the "
 "caller.  To define an inline function, use @code{defsubst} instead of "
 "@code{defun}."
-msgstr ""
+msgstr "@dfn{インライン関数(inline function)}は関数と同様に機能しますが、1つ例外があります。その関数の呼び出しがバイトコンパイルされると(@ref{Byte Compilation}を参照してください)、その関数の定義が呼び出し元に展開されます。インライン関数を定義するには、@code{defun}のかわりに@code{defsubst}を使用します。"
 
 #. type: defmac
 #: functions.texi.orig:1674
 #, no-wrap
 msgid "defsubst name args [doc] [declare] [interactive] body@dots{}"
-msgstr ""
+msgstr "defsubst name args [doc] [declare] [interactive] body@dots{}"
 
 #. type: defmac
 #: functions.texi.orig:1677
 msgid ""
 "This macro defines an inline function.  Its syntax is exactly the same as "
 "@code{defun} (@pxref{Defining Functions})."
-msgstr ""
+msgstr "このマクロはインライン関数を定義します。マクロの構文は@code{defun}とまったく同じです(@ref{Defining Functions}を参照してください)。"
 
 #. type: Plain text
 #: functions.texi.orig:1683
@@ -3454,7 +3483,7 @@ msgid ""
 "also has disadvantages.  For one thing, it reduces flexibility; if you "
 "change the definition of the function, calls already inlined still use the "
 "old definition until you recompile them."
-msgstr ""
+msgstr "関数をインラインにすることにより、その関数の呼び出しが高速になる場合があります。しかし欠点もあります。1つは柔軟性の減少です。その関数の定義を変更した場合、すでにインライン化された呼び出しは、リコンパイルを行うまで古い定義を使用します。"
 
 #. type: Plain text
 #: functions.texi.orig:1688
@@ -3463,7 +3492,7 @@ msgid ""
 "size of compiled code both in files and in memory.  Since the speed "
 "advantage of inline functions is greatest for small functions, you generally "
 "should not make large functions inline."
-msgstr ""
+msgstr "もう1つの欠点は、大きな関数をインライン化することにより、コンパイルされたコードのファイル上およびメモリー上のサイズが増大することです。スピード面でのインライン化の有利性は小さい関数にたいして顕著なので、一般的に大きな関数をインライン化するべきではありません。"
 
 #. type: Plain text
 #: functions.texi.orig:1695
@@ -3474,7 +3503,7 @@ msgid ""
 "you should not make a function inline, even if it's small, unless its speed "
 "is really crucial, and you've timed the code to verify that using "
 "@code{defun} actually has performance problems."
-msgstr ""
+msgstr "インライン関数は、デバッグ、トレース、アドバイス(@ref{Advising Functions}を参照してください)に際してうまく機能しません。デバッグの容易さと関数の再定義の柔軟さはEmacsの重要な機能なので、スピードがとても重要であり、@code{defun}の使用が実際に性能の面で問題となるのか検証するためにすでにコードをチューニングしたのでなければ、たとえその関数が小さくてもインライン化するべきでは ありません。"
 
 #. type: Plain text
 #: functions.texi.orig:1705
@@ -3487,14 +3516,14 @@ msgid ""
 "replace @code{defun} with @code{defsubst}.  Since each argument of an inline "
 "function is evaluated exactly once, you needn't worry about how many times "
 "the body uses the arguments, as you do for macros."
-msgstr ""
+msgstr "インライン関数が実行するのと同じコードに展開されるマクロ(@ref{Macros}を参照してください)を定義することは可能です。しかし式内でのマクロの直接の使用には制限があります --- @code{apply}、@code{mapcar}などでマクロを呼び出すことはできません。通常の関数からマクロへの変換には、そのための余分な作業が必要になります。通常の関数をインライン関数に変換するのは簡単です。@code{defun}を@code{defsubst}に置き換えるだけです。インライン関数の引数はそれぞれ正確に1回評価されるので、マクロのときのように、bodyで引数を何回使用するか心配する必要はありません。"
 
 #. type: Plain text
 #: functions.texi.orig:1708
 msgid ""
 "After an inline function is defined, its inline expansion can be performed "
 "later on in the same file, just like macros."
-msgstr ""
+msgstr "インライン関数を定義した後、そのインライン展開はマクロ同様、同じファイル内の後の部分で処理されます。"
 
 #. type: section
 #: functions.texi.orig:1710
