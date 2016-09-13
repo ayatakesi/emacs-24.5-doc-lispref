@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-09-12 22:53+0900\n"
-"PO-Revision-Date: 2016-09-13 15:30+0900\n"
+"PO-Revision-Date: 2016-09-13 17:17+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -1074,7 +1074,7 @@ msgid ""
 "variable until after those others have been handled.  Use @code{:set-after} "
 "if setting this variable won't work properly unless those other variables "
 "already have their intended values."
-msgstr ""
+msgstr "保存されたカスタマイズに合わせて変数をセッティングするときは、その前に変数@var{variables}確実にセット --- つまり、これら他のものが処理される後までセッティングを遅延 --- してください。これら他の変数が意図された値をもっていない場合に、この変数のセッティングが正しく機能しないときは、@code{:set-after}を使用してください。"
 
 #. type: Plain text
 #: customize.texi.orig:448
@@ -1083,7 +1083,7 @@ msgid ""
 "``turns on'' a certain feature.  This causes Emacs to load the feature, if "
 "it is not already loaded, whenever the option is set.  @xref{Common "
 "Keywords}.  Here is an example, from the library @file{saveplace.el}:"
-msgstr ""
+msgstr "特定の機能を``オンに切り替える''オプションにたいしては、@code{:require}キーワードを指定すると便利です。これは、その機能がまだロードされていないときは、そのオプションがセットされるとEmacsがその機能をロードするようにします。@ref{Common Keywords}を参照してください。以下はライブラリー@file{saveplace.el}の例です:"
 
 #. type: example
 #: customize.texi.orig:455
@@ -1095,6 +1095,11 @@ msgid ""
 "  :require 'saveplace\n"
 "  :group 'save-place)\n"
 msgstr ""
+"(defcustom save-place nil\n"
+"  \"Non-nil means automatically save place in each file...\"\n"
+"  :type 'boolean\n"
+"  :require 'saveplace\n"
+"  :group 'save-place)\n"
 
 #. type: Plain text
 #: customize.texi.orig:465
@@ -1107,7 +1112,7 @@ msgid ""
 "@code{emacs-lisp-mode-hook}, you might want to add that to the list of "
 "reasonable values for @code{emacs-lisp-mode-hook}, but not by editing its "
 "definition.  You can do it thus:"
-msgstr ""
+msgstr "あるカスタマイズアイテムが、@code{:options}がサポートする@code{hook}や@code{alist}のような型をもつ場合は、@code{custom-add-frequent-value}を呼び出すことにより、@code{defcustom}宣言の外部から、別途値を追加できます。たとえば@code{emacs-lisp-mode-hook}から呼び出されることを意図した関数@code{my-lisp-mode-initialization}を定義する場合は、@code{emacs-lisp-mode-hook}にたいする正当な値として、その定義を編集することなく、その関数をリストに追加したいと思うかもしれません。これは以下のようにして行うことができます:"
 
 #. type: example
 #: customize.texi.orig:469
@@ -1116,26 +1121,28 @@ msgid ""
 "(custom-add-frequent-value 'emacs-lisp-mode-hook\n"
 "   'my-lisp-mode-initialization)\n"
 msgstr ""
+"(custom-add-frequent-value 'emacs-lisp-mode-hook\n"
+"   'my-lisp-mode-initialization)\n"
 
 #. type: defun
 #: customize.texi.orig:471
 #, no-wrap
 msgid "custom-add-frequent-value symbol value"
-msgstr ""
+msgstr "custom-add-frequent-value symbol value"
 
 #. type: defun
 #: customize.texi.orig:474
 msgid ""
 "For the customization option @var{symbol}, add @var{value} to the list of "
 "reasonable values."
-msgstr ""
+msgstr "カスタマイズオプション@var{symbol}にたいして正当な値のリストに@var{value}を追加します。"
 
 #. type: defun
 #: customize.texi.orig:477
 msgid ""
 "The precise effect of adding a value depends on the customization type of "
 "@var{symbol}."
-msgstr ""
+msgstr "追加による正確な効果は、@var{symbol}のカスタマイズ型に依存します。"
 
 #. type: Plain text
 #: customize.texi.orig:486
@@ -1147,13 +1154,13 @@ msgid ""
 "customization buffer, but not saved.  @xref{Symbol Properties}.  These "
 "properties are lists, the car of which is an expression that evaluates to "
 "the value."
-msgstr ""
+msgstr "内部的には、@code{defcustom}は、標準値にたいする式を記録するためにシンボルプロパティー@code{standard-value}を、カスタマイズバッファーでユーザーによりセットされたが保存されていない値を記録するために@code{saved-value}を使用します。@ref{Symbol Properties}を参照してください。これらのプロパティーは、carがその値を評価する式であるようなリストです。"
 
 #. type: defun
 #: customize.texi.orig:487
 #, no-wrap
 msgid "custom-reevaluate-setting symbol"
-msgstr ""
+msgstr "custom-reevaluate-setting symbol"
 
 #. type: defun
 #: customize.texi.orig:493
@@ -1163,7 +1170,7 @@ msgid ""
 "customized, this function re-evaluates the saved value instead.  Then it "
 "sets the user option to that value (using the option's @code{:set} property "
 "if that is defined)."
-msgstr ""
+msgstr "この関数は、@code{defcustom}を通じて宣言されたユーザーオプション@var{symbol}の標準値を再評価します。変数がカスタマイズされた場合、この関数はかわりに保存された値を再評価します。それからこの関数はユーザーオプションをその値に(もし定義されていればそのオプションの@code{:set}プロパティーを使用して)セットします。"
 
 #. type: defun
 #: customize.texi.orig:499
@@ -1173,13 +1180,13 @@ msgid ""
 "function for some user options that were defined in pre-loaded Emacs Lisp "
 "files, but whose initial values depend on information available only at "
 "run-time."
-msgstr ""
+msgstr "これは値が正しく計算される前に定義されたカスタマイズ可能オプションにたいして有用です。たとえばstartupの間、Emacsは事前ロードされたEmacs Lispファイルで定義されたユーザーオプションにたいしてこの関数を呼び出しますが、これらの初期値は実行時だけ利用可能な情報に依存します。"
 
 #. type: defun
 #: customize.texi.orig:501
 #, no-wrap
 msgid "custom-variable-p arg"
-msgstr ""
+msgstr "custom-variable-p arg"
 
 #. type: defun
 #: customize.texi.orig:507
@@ -1189,7 +1196,7 @@ msgid ""
 "@code{standard-value} or @code{custom-autoload} property (usually meaning it "
 "was declared with @code{defcustom}), or an alias for another customizable "
 "variable."
-msgstr ""
+msgstr "この関数は、@var{arg}がカスタマイズ可能変数の場合は、非@code{nil}をreturnします。カスタマイズ可能変数とは、@code{standard-value}か@code{custom-autoload}プロパティーをもつ(通常は@code{defcustom}で宣言されたことを意味する)変数、または別のカスタマイズ可能変数にたいするエイリアスのことです。"
 
 #. type: cindex
 #: customize.texi.orig:512
