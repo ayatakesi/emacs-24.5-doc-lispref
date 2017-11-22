@@ -1,3 +1,8 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
 @c -*-texinfo-*-
 @c This is part of the GNU Emacs Lisp Reference Manual.
 @c Copyright (C) 1990-1995, 1998-1999, 2001-2015 Free Software
@@ -8,101 +13,69 @@
 @cindex lists
 @cindex element (of list)
 
-  A @dfn{list} represents a sequence of zero or more elements (which may
-be any Lisp objects).  The important difference between lists and
-vectors is that two or more lists can share part of their structure; in
-addition, you can insert or delete elements in a list without copying
-the whole list.
+  @dfn{リスト(list)}は0個以上の要素(任意のLispオブジェクト)のシーケンスを表します。リストとベクターの重要な違いは、、2つ以上のリストが、構造の一部を共有できることです。加えて、リスト全体をコピーすることなく、要素の挿入、削除ができます。
 
 @menu
-* Cons Cells::          How lists are made out of cons cells.
-* List-related Predicates::        Is this object a list?  Comparing two lists.
-* List Elements::       Extracting the pieces of a list.
-* Building Lists::      Creating list structure.
-* List Variables::      Modifying lists stored in variables.
-* Modifying Lists::     Storing new pieces into an existing list.
-* Sets And Lists::      A list can represent a finite mathematical set.
-* Association Lists::   A list can represent a finite relation or mapping.
-* Property Lists::      A list of paired elements.
+* Cons Cells::               コンスセルからリストが作られる方法。
+* List-related Predicates::  このオブジェクトはリストか? 
+                               2つのリストを比較する。
+* List Elements::            リストの一部を抽出する。
+* Building Lists::           リスト構造の作成。
+* List Variables::           変数に保存されたリストにたいする変更。
+* Modifying Lists::          既存のリストに新しい要素を保存する。
+* Sets And Lists::           リストは有限な数学集合を表現できます。
+* Association Lists::        リストは有限な関係またはマッピングを表現できます。
+* Property Lists::           要素ペアのリスト
 @end menu
 
 @node Cons Cells
 @section Lists and Cons Cells
 @cindex lists and cons cells
 
-  Lists in Lisp are not a primitive data type; they are built up from
-@dfn{cons cells} (@pxref{Cons Cell Type}).  A cons cell is a data
-object that represents an ordered pair.  That is, it has two slots,
-and each slot @dfn{holds}, or @dfn{refers to}, some Lisp object.  One
-slot is known as the @sc{car}, and the other is known as the @sc{cdr}.
-(These names are traditional; see @ref{Cons Cell Type}.)  @sc{cdr} is
-pronounced ``could-er''.
+  Lispでのリストは基本データ型ではありません。リストは@dfn{コンスセル(cons cells)}から構築されます(@ref{Cons Cell
+Type}を参照してください)。コンスセルは、順序つきペアを表現するデータオブジェクトです。つまり、コンスセルは2つのスロットをもち、それぞれのスロットはLispオブジェクトを@dfn{保持(holds)}、または@dfn{参照(refers
+to)}します。1つのスロットは@sc{car}、もう1つは@sc{cdr}です(これらの名前は歴史的なものです。@ref{Cons Cell
+Type}を参照してください)。@sc{cdr}は``could-er(クダー)''と発音されます。
 
-  We say that ``the @sc{car} of this cons cell is'' whatever object
-its @sc{car} slot currently holds, and likewise for the @sc{cdr}.
+  わたしたちは、コンスセルの@sc{car}スロットに現在保持されているオブジェクトが何であれ、``このコンスセルの@sc{car}は、...''のような言い方をします。これは@sc{cdr}の場合も同様です。
 
-  A list is a series of cons cells ``chained together'', so that each
-cell refers to the next one.  There is one cons cell for each element
-of the list.  By convention, the @sc{car}s of the cons cells hold the
-elements of the list, and the @sc{cdr}s are used to chain the list
-(this asymmetry between @sc{car} and @sc{cdr} is entirely a matter of
-convention; at the level of cons cells, the @sc{car} and @sc{cdr}
-slots have similar properties).  Hence, the @sc{cdr} slot of each cons
-cell in a list refers to the following cons cell.
+  リストとは、``互いにつながった(chained
+together)''一連のコンスセルであり、各セルは次のセルを参照します。リストの各要素にたいして、それぞれ1つのコンスセルがあります。慣例により、コンスセルの@sc{car}はリストの要素を保持し、@sc{cdr}はリストをチェーンするのに使用されます(@sc{car}と@sc{cdr}の間の非対称性は完全に慣例的なものです。コンスセルのレベルでは、@sc{car}スロットと@sc{cdr}スロットは同じようなプロパティーをもちます)。したがって、リスト内の各コンスセルの@sc{cdr}スロットは、次のコンスセルを参照します。
 
 @cindex true list
-  Also by convention, the @sc{cdr} of the last cons cell in a list is
-@code{nil}.  We call such a @code{nil}-terminated structure a
-@dfn{true list}.  In Emacs Lisp, the symbol @code{nil} is both a
-symbol and a list with no elements.  For convenience, the symbol
-@code{nil} is considered to have @code{nil} as its @sc{cdr} (and also
-as its @sc{car}).
+  これも慣例的なものですが、リスト内の最後のコンスセルの@sc{cdr}は@code{nil}です。わたしたちは、このような@code{nil}で終端された構造を、@dfn{真リスト(true
+list)}と呼びます。Emacs
+Lispでは、シンボル@code{nil}は、シンボルであり、要素なしのリストでもあります。便宜上、シンボル@code{nil}は、その@sc{cdr}(および@sc{car})に@code{nil}をもつと考えます。
 
-  Hence, the @sc{cdr} of a true list is always a true list.  The
-@sc{cdr} of a nonempty true list is a true list containing all the
-elements except the first.
+  したがって真リストの@sc{cdr}は、常に真リストです。空でない真リストの@sc{cdr}は、1番目の要素以外を含む真リストです。
 
 @cindex dotted list
 @cindex circular list
-  If the @sc{cdr} of a list's last cons cell is some value other than
-@code{nil}, we call the structure a @dfn{dotted list}, since its
-printed representation would use dotted pair notation (@pxref{Dotted
-Pair Notation}).  There is one other possibility: some cons cell's
-@sc{cdr} could point to one of the previous cons cells in the list.
-We call that structure a @dfn{circular list}.
+  リストの最後のコンスセルの@sc{cdr}が@code{nil}以外の何らかの値の場合、このリストのプリント表現はドットペア表記(dotted pair
+notation。@ref{Dotted Pair
+Notation}を参照してください)を使用するので、わたしたちはこの構造を@dfn{ドットリスト(dotted
+list)}と呼びます。他の可能性もあります。あるコンスセルの@sc{cdr}が、そのリストのそれより前にある要素を指すかもしれません。わたしたちは、この構造を@dfn{循環リスト(circular
+list)}と呼びます。
 
-  For some purposes, it does not matter whether a list is true,
-circular or dotted.  If a program doesn't look far enough down the
-list to see the @sc{cdr} of the final cons cell, it won't care.
-However, some functions that operate on lists demand true lists and
-signal errors if given a dotted list.  Most functions that try to find
-the end of a list enter infinite loops if given a circular list.
+  ある目的にたいしては、そのリストが真リストか、循環リストなのか、ドットリストなのかが問題にならない場合もあります。そのプログラムが、リストを充分に下って最後のコンスセルの@sc{cdr}を確認しようとしないなら、これは問題になりません。しかし、リストを処理するの関数のいくつかは、真リストを要求し、ドットリストの場合はエラーをシグナルします。リストの最後を探そうと試みる関数のほとんどは、循環リストを与えると無限ループに突入します。
 
 @cindex list structure
-  Because most cons cells are used as part of lists, we refer to any
-structure made out of cons cells as a @dfn{list structure}.
+  ほとんどのコンスセルはリストの一部として使用されるので、わたしたちはコンスセルで構成される任意の構造を、@dfn{リスト構造(list
+structure)}と呼びます。
 
 @node List-related Predicates
 @section Predicates on Lists
 @cindex predicates for lists
 @cindex list predicates
 
-  The following predicates test whether a Lisp object is an atom,
-whether it is a cons cell or is a list, or whether it is the
-distinguished object @code{nil}.  (Many of these predicates can be
-defined in terms of the others, but they are used so often that it is
-worth having them.)
+  以下の述語は、あるLispオブジェクトがアトムなのか、コンスセルなのか、それともリストなのか、またはオブジェクトが@code{nil}かどうかテストします(これらの述語の多くは、他の述語で定義することもできますが、多用されるので、定義する価値があるのです)。
 
 @defun consp object
-This function returns @code{t} if @var{object} is a cons cell, @code{nil}
-otherwise.  @code{nil} is not a cons cell, although it @emph{is} a list.
+この関数は、@var{object}がコンスセルの場合は@code{t}、それ以外は@code{nil}をreturnします。たとえ@code{nil}はリスト@emph{です}が、コンスセルではありません。
 @end defun
 
 @defun atom object
-This function returns @code{t} if @var{object} is an atom, @code{nil}
-otherwise.  All objects except cons cells are atoms.  The symbol
-@code{nil} is an atom and is also a list; it is the only Lisp object
-that is both.
+この関数は、@var{object}がアトムの場合は@code{t}、それ以外は@code{nil}をreturnします。シンボル@code{nil}はアトムであり、リストでもあります。そのようなLispオブジェクトは@code{nil}だけです。
 
 @example
 (atom @var{object}) @equiv{} (not (consp @var{object}))
@@ -110,8 +83,7 @@ that is both.
 @end defun
 
 @defun listp object
-This function returns @code{t} if @var{object} is a cons cell or
-@code{nil}.  Otherwise, it returns @code{nil}.
+この関数は、@var{object}がコンスセルか@code{nil}の場合は@code{t}をreturnします。それ以外は@code{nil}をreturnします。
 
 @example
 @group
@@ -126,8 +98,7 @@ This function returns @code{t} if @var{object} is a cons cell or
 @end defun
 
 @defun nlistp object
-This function is the opposite of @code{listp}: it returns @code{t} if
-@var{object} is not a list.  Otherwise, it returns @code{nil}.
+この関数は@code{listp}の反対です。@var{object}がリストでない場合は@code{t}をreturnします。それ以外は@code{nil}をreturnします。
 
 @example
 (listp @var{object}) @equiv{} (not (nlistp @var{object}))
@@ -135,11 +106,8 @@ This function is the opposite of @code{listp}: it returns @code{t} if
 @end defun
 
 @defun null object
-This function returns @code{t} if @var{object} is @code{nil}, and
-returns @code{nil} otherwise.  This function is identical to @code{not},
-but as a matter of clarity we use @code{null} when @var{object} is
-considered a list and @code{not} when it is considered a truth value
-(see @code{not} in @ref{Combining Conditions}).
+この関数は、@var{object}が@code{nil}の場合は@code{t}、それ以外は@code{nil}をreturnします。この関数は@code{not}と等価ですが、明解にするために、@var{object}をリストだと考えるときは@code{null}、真偽値だと考えるときは@code{not}を使用します(@ref{Combining
+Conditions}の@code{not}を参照してください)。
 
 @example
 @group
@@ -159,13 +127,9 @@ considered a list and @code{not} when it is considered a truth value
 @cindex list elements
 
 @defun car cons-cell
-This function returns the value referred to by the first slot of the
-cons cell @var{cons-cell}.  In other words, it returns the @sc{car} of
-@var{cons-cell}.
+この関数は、コンスセル@var{cons-cell}の1番目のスロットにより参照される値をreturnします。他の言い方をすると、この関数は@var{cons-cell}の@sc{car}をreturnします。
 
-As a special case, if @var{cons-cell} is @code{nil}, this function
-returns @code{nil}.  Therefore, any list is a valid argument.  An
-error is signaled if the argument is not a cons cell or @code{nil}.
+特別なケースとして、@var{cons-cell}が@code{nil}の場合、この関数は@code{nil}をreturnします。したがって、リストはすべて引数として有効です。引数がコンスセルでも@code{nil}でもない場合、エラーがシグナルされます。
 
 @example
 @group
@@ -180,13 +144,9 @@ error is signaled if the argument is not a cons cell or @code{nil}.
 @end defun
 
 @defun cdr cons-cell
-This function returns the value referred to by the second slot of the
-cons cell @var{cons-cell}.  In other words, it returns the @sc{cdr} of
-@var{cons-cell}.
+この関数は、コンスセル@var{cons-cell}の2番目のスロットにより参照される値をreturnします。他の言い方をすると、この関数は@var{cons-cell}の@sc{cdr}をreturnします。
 
-As a special case, if @var{cons-cell} is @code{nil}, this function
-returns @code{nil}; therefore, any list is a valid argument.  An error
-is signaled if the argument is not a cons cell or @code{nil}.
+特別なケースとして、@var{cons-cell}が@code{nil}の場合、この関数は@code{nil}をreturnします。したがって、リストはすべて引数として有効です。引数がコンスセルでも@code{nil}でもない場合、エラーがシグナルされます。
 
 @example
 @group
@@ -201,10 +161,7 @@ is signaled if the argument is not a cons cell or @code{nil}.
 @end defun
 
 @defun car-safe object
-This function lets you take the @sc{car} of a cons cell while avoiding
-errors for other data types.  It returns the @sc{car} of @var{object} if
-@var{object} is a cons cell, @code{nil} otherwise.  This is in contrast
-to @code{car}, which signals an error if @var{object} is not a list.
+この関数により、他のデータ型によるエラーを起こさずに、コンスセルの@sc{car}を取得できます。この関数は、@var{object}がコンスセルの場合は@var{object}の@sc{car}、それ以外は@code{nil}をreturnします。この関数は、@var{object}がリスとでないときはエラーをシグナルする@code{car}とは対象的です。
 
 @example
 @group
@@ -219,11 +176,7 @@ to @code{car}, which signals an error if @var{object} is not a list.
 @end defun
 
 @defun cdr-safe object
-This function lets you take the @sc{cdr} of a cons cell while
-avoiding errors for other data types.  It returns the @sc{cdr} of
-@var{object} if @var{object} is a cons cell, @code{nil} otherwise.
-This is in contrast to @code{cdr}, which signals an error if
-@var{object} is not a list.
+この関数により、他のデータ型によるエラーを起こさずに、コンスセルの@sc{cdr}を取得できます。この関数は、@var{object}がコンスセルの場合は@var{object}の@sc{cdr}、それ以外は@code{nil}をreturnします。この関数は、@var{object}がリスとでないときはエラーをシグナルする@code{cdr}とは対象的です。
 
 @example
 @group
@@ -238,15 +191,10 @@ This is in contrast to @code{cdr}, which signals an error if
 @end defun
 
 @defmac pop listname
-This macro provides a convenient way to examine the @sc{car} of a
-list, and take it off the list, all at once.  It operates on the list
-stored in @var{listname}.  It removes the first element from the list,
-saves the @sc{cdr} into @var{listname}, then returns the removed
-element.
+このマクロはリストの@sc{car}を調べて、それをリストから取り去るのを1度に行なう便利な方法を提供します。この関数は@var{listname}に格納されたリストにたいして処理を行ないます。この関数はリストから1番目の要素を削除して、@sc{cdr}を@var{listname}に保存し、その後で削除した要素をreturnします。
 
-In the simplest case, @var{listname} is an unquoted symbol naming a
-list; in that case, this macro is equivalent to @w{@code{(prog1
-(car listname) (setq listname (cdr listname)))}}.
+1番単純なケースは、リストに名前をつけるためのクォートされていないシンボルの場合です。この場合、このマクロは@w{@code{(prog1 (car
+listname) (setq listname (cdr listname)))}}と等価です。
 
 @example
 x
@@ -257,20 +205,16 @@ x
      @result{} (b c)
 @end example
 
-More generally, @var{listname} can be a generalized variable.  In that
-case, this macro saves into @var{listname} using @code{setf}.
-@xref{Generalized Variables}.
+より一般的なのは、@var{listname}が汎変数(generalized
+variable)の場合です。この場合、このマクロは@code{setf}を使用して@var{listname}に保存します。@ref{Generalized
+Variables}を参照してください。
 
-For the @code{push} macro, which adds an element to a list,
-@xref{List Variables}.
+リストに要素を追加する@code{push}マクロについては、@ref{List Variables}を参照してください。
 @end defmac
 
 @defun nth n list
 @anchor{Definition of nth}
-This function returns the @var{n}th element of @var{list}.  Elements
-are numbered starting with zero, so the @sc{car} of @var{list} is
-element number zero.  If the length of @var{list} is @var{n} or less,
-the value is @code{nil}.
+この関数は、@var{list}の@var{n}番目の要素をreturnします。要素は0から数えられるので、@var{list}の@sc{car}は要素0になります。@var{list}の長さが@var{n}以下の場合、値は@code{nil}です。
 
 @c Behavior for -ve n undefined since 2013/08; see bug#15059.
 @ignore
@@ -290,20 +234,15 @@ If @var{n} is negative, @code{nth} returns the first element of @var{list}.
 @end group
 @end example
 
-The function @code{elt} is similar, but applies to any kind of sequence.
-For historical reasons, it takes its arguments in the opposite order.
-@xref{Sequence Functions}.
+関数@code{elt}は似ていますが、これは任意の種類のシーケンスに適用されます。歴史的な理由により、この関数は逆の順序で引数を受け取ります。@ref{Sequence
+Functions}を参照してください。
 @end defun
 
 @defun nthcdr n list
-This function returns the @var{n}th @sc{cdr} of @var{list}.  In other
-words, it skips past the first @var{n} links of @var{list} and returns
-what follows.
+この関数は、@var{list}の@var{n}番目の@sc{cdr}をreturnします。他の言い方をすると、この関数は@var{list}の最初の@var{n}個のリンクをスキップしてから、それ以降をreturnします。
 
 @c "or negative" removed 2013/08; see bug#15059.
-If @var{n} is zero, @code{nthcdr} returns all of
-@var{list}.  If the length of @var{list} is @var{n} or less,
-@code{nthcdr} returns @code{nil}.
+@var{n}が0の場合、@code{nthcdr}は@var{list}全体をreturnします。@var{list}の長さが@var{n}以下の場合、@code{nthcdr}は@code{nil}をreturnします。
 
 @example
 @group
@@ -322,58 +261,45 @@ If @var{n} is zero, @code{nthcdr} returns all of
 @end defun
 
 @defun last list &optional n
-This function returns the last link of @var{list}.  The @code{car} of
-this link is the list's last element.  If @var{list} is null,
-@code{nil} is returned.  If @var{n} is non-@code{nil}, the
-@var{n}th-to-last link is returned instead, or the whole of @var{list}
-if @var{n} is bigger than @var{list}'s length.
+この関数は、@var{list}の最後のリンクをreturnします。このリンクの@code{car}は、このリストの最後の要素です。@var{list}がnullの場合、@code{nil}がreturnされます。@var{n}が非@code{nil}の場合、@var{n}番目から最後までのリンクがreturnされます。@var{n}が@var{list}の長さより大きい場合は、@var{list}全体がreturnされます。
 @end defun
 
 @defun safe-length list
 @anchor{Definition of safe-length}
-This function returns the length of @var{list}, with no risk of either
-an error or an infinite loop.  It generally returns the number of
-distinct cons cells in the list.  However, for circular lists,
-the value is just an upper bound; it is often too large.
+この関数は、エラーや無限ループの危険なしで、@var{list}の長さをreturnします。この関数は一般的に、リスト内のコンスセルの個数をreturnします。しかし循環リストでは、単に上限値が値となるため、非常に大きくなる場合があります。
 
-If @var{list} is not @code{nil} or a cons cell, @code{safe-length}
-returns 0.
+@var{list}が@code{nil}でもコンスセルでもない場合、@code{safe-length}は0をreturnします。
 @end defun
 
-  The most common way to compute the length of a list, when you are not
-worried that it may be circular, is with @code{length}.  @xref{Sequence
-Functions}.
+  循環リストを考慮しなくてもよい場合に、リストの長さを計算するもっとも一般的な方法は、@code{length}を使うことです。@ref{Sequence
+Functions}を参照してください。
 
 @defun caar cons-cell
-This is the same as @code{(car (car @var{cons-cell}))}.
+これは、@code{(car (car @var{cons-cell}))}と同じです。
 @end defun
 
 @defun cadr cons-cell
-This is the same as @code{(car (cdr @var{cons-cell}))}
-or @code{(nth 1 @var{cons-cell})}.
+これは、@code{(car (cdr @var{cons-cell}))}または@code{(nth 1
+@var{cons-cell})}と同じです。
 @end defun
 
 @defun cdar cons-cell
-This is the same as @code{(cdr (car @var{cons-cell}))}.
+これは、@code{(cdr (car @var{cons-cell}))}と同じです。
 @end defun
 
 @defun cddr cons-cell
-This is the same as @code{(cdr (cdr @var{cons-cell}))}
-or @code{(nthcdr 2 @var{cons-cell})}.
+これは、@code{(cdr (cdr @var{cons-cell}))}または@code{(nthcdr 2
+@var{cons-cell})}と同じです。
 @end defun
 
 @defun butlast x &optional n
-This function returns the list @var{x} with the last element,
-or the last @var{n} elements, removed.  If @var{n} is greater
-than zero it makes a copy of the list so as not to damage the
-original list.  In general, @code{(append (butlast @var{x} @var{n})
-(last @var{x} @var{n}))} will return a list equal to @var{x}.
+この関数は、リスト@var{x}から、最後の要素、または最後の@var{n}個の要素を削除してreturnします。@var{n}が0より大きい場合、この関数はリストのコピーを作成するので、元のリストに影響はありません。一般的に、@code{(append
+(butlast @var{x} @var{n})  (last @var{x}
+@var{n}))}は、@var{x}と等しいリストをreturnします。
 @end defun
 
 @defun nbutlast x &optional n
-This is a version of @code{butlast} that works by destructively
-modifying the @code{cdr} of the appropriate element, rather than
-making a copy of the list.
+この関数は、リストのコピーを作成するのではなく、@code{cdr}を適切な要素に変更することにより破壊的に機能するバージョンの@code{butlast}です。
 @end defun
 
 @node Building Lists
@@ -381,17 +307,10 @@ making a copy of the list.
 @cindex cons cells
 @cindex building lists
 
-  Many functions build lists, as lists reside at the very heart of Lisp.
-@code{cons} is the fundamental list-building function; however, it is
-interesting to note that @code{list} is used more times in the source
-code for Emacs than @code{cons}.
+  リストはLispの核にあるので、リストを構築する多くの関数があります。@code{cons}はリストを構築する基本的な関数です。しかしEmacsのソースコードでは、@code{cons}より@code{list}のほうが多く使用されているのは興味深いことです。
 
 @defun cons object1 object2
-This function is the most basic function for building new list
-structure.  It creates a new cons cell, making @var{object1} the
-@sc{car}, and @var{object2} the @sc{cdr}.  It then returns the new
-cons cell.  The arguments @var{object1} and @var{object2} may be any
-Lisp objects, but most often @var{object2} is a list.
+この関数は、新しいリスト構造を構築するための、もっとも基本的な関数です。この関数は、@var{object1}を@sc{car}、@var{object2}を@sc{cdr}とする、新しいコンスセルを作成して、それから新しいコンスセルをreturnします。引数@var{object1}と@var{object2}は、任意のLispオブジェクトを指定できますが、ほとんどの場合、@var{object2}はリストです。
 
 @example
 @group
@@ -409,31 +328,21 @@ Lisp objects, but most often @var{object2} is a list.
 @end example
 
 @cindex consing
-@code{cons} is often used to add a single element to the front of a
-list.  This is called @dfn{consing the element onto the list}.
-@footnote{There is no strictly equivalent way to add an element to
-the end of a list.  You can use @code{(append @var{listname} (list
-@var{newelt}))}, which creates a whole new list by copying @var{listname}
-and adding @var{newelt} to its end.  Or you can use @code{(nconc
-@var{listname} (list @var{newelt}))}, which modifies @var{listname}
-by following all the @sc{cdr}s and then replacing the terminating
-@code{nil}.  Compare this to adding an element to the beginning of a
-list with @code{cons}, which neither copies nor modifies the list.}
-For example:
+リストの先頭に1つの要素を追加するために、@code{cons}がよく使用されます。これは、@dfn{リストに要素をコンスする}と言います。@footnote{リストの最後に要素を追加するための、これと完全に同等な方法はありません。@var{listname}をコピーすることにより、新しいリストを作成してから、@var{newelt}をそのリストの最後に追加する、@code{(append
+@var{listname} (list
+@var{newelt}))}を使用することができます。すべての@sc{cdr}を辿って、終端の@code{nil}を置き換える、@code{(nconc
+@var{listname} (list
+@var{newelt}))}を使用することもできます。コピーも変更も行なわずに、リストの先頭に要素を追加する@code{cons}と比較してみてください。}たとえば:
 
 @example
 (setq list (cons newelt list))
 @end example
 
-Note that there is no conflict between the variable named @code{list}
-used in this example and the function named @code{list} described below;
-any symbol can serve both purposes.
+この例で使用されている@code{list}という名前の変数と、以下で説明する@code{list}という名前の関数は、競合しないことに注意してください。任意のシンボルは、両方の役割を果たすことができます。
 @end defun
 
 @defun list &rest objects
-This function creates a list with @var{objects} as its elements.  The
-resulting list is always @code{nil}-terminated.  If no @var{objects}
-are given, the empty list is returned.
+この関数は、@var{objects}を要素とするリストを作成します。結果となるリストは、常に@code{nil}終端されます。@var{objects}を指定しない場合、空リストがreturnされます。
 
 @example
 @group
@@ -452,9 +361,8 @@ are given, the empty list is returned.
 @end defun
 
 @defun make-list length object
-This function creates a list of @var{length} elements, in which each
-element is @var{object}.  Compare @code{make-list} with
-@code{make-string} (@pxref{Creating Strings}).
+この関数は、各要素が@var{object}の、@var{length}個の要素からなるリストを作成します。@code{make-list}と@code{make-string}(@ref{Creating
+Strings}を参照してください)を比較してみてください。
 
 @example
 @group
@@ -476,23 +384,12 @@ element is @var{object}.  Compare @code{make-list} with
 
 @defun append &rest sequences
 @cindex copying lists
-This function returns a list containing all the elements of
-@var{sequences}.  The @var{sequences} may be lists, vectors,
-bool-vectors, or strings, but the last one should usually be a list.
-All arguments except the last one are copied, so none of the arguments
-is altered.  (See @code{nconc} in @ref{Rearrangement}, for a way to join
-lists with no copying.)
+この関数は、@var{sequences}のすべての要素を服務リストをreturnします。@var{sequences}には、リスト、ベクター、ブールベクター、文字列も指定できますが、通常は最後にリストを指定するべきです。最後の引数を除くすべての引数はコピーされるので、変更される引数はありません(コピーを行なわずにリストを結合する方法については、@ref{Rearrangement}の@code{nconc}を参照してください)。
 
-More generally, the final argument to @code{append} may be any Lisp
-object.  The final argument is not copied or converted; it becomes the
-@sc{cdr} of the last cons cell in the new list.  If the final argument
-is itself a list, then its elements become in effect elements of the
-result list.  If the final element is not a list, the result is a
-dotted list since its final @sc{cdr} is not @code{nil} as required
-in a true list.
+より一般的には、@code{append}にたいする最後の引数は、任意のLispオブジェクトかもしれません。最後の引数は、コピーまたは変換されません。最後の引数は、新しいリストの最後のコンスセルの@sc{cdr}になります。最後の引数もリストならば、このリストの要素は、実質的には結果リストの要素になります。最後の要素がリストでない場合、最後の@sc{cdr}が(真リストで要求される)@code{nil}ではないので、結果はドットリストになります。
 @end defun
 
-  Here is an example of using @code{append}:
+  以下は@code{append}を使用した例です:
 
 @example
 @group
@@ -514,11 +411,9 @@ more-trees
 @end group
 @end example
 
-  You can see how @code{append} works by looking at a box diagram.  The
-variable @code{trees} is set to the list @code{(pine oak)} and then the
-variable @code{more-trees} is set to the list @code{(maple birch pine
-oak)}.  However, the variable @code{trees} continues to refer to the
-original list:
+  @code{append}がどのように機能するか、ボックスダイアグラムで見ることができます。変数@code{trees}はリスト@code{(pine
+oak)}にセットされ、それから変数@code{more-trees}にリスト@code{(maple birch pine
+oak)}がセットされます。しかし変数@code{trees}は継続して元のリストを参照します:
 
 @smallexample
 @group
@@ -533,9 +428,7 @@ more-trees                trees
 @end group
 @end smallexample
 
-  An empty sequence contributes nothing to the value returned by
-@code{append}.  As a consequence of this, a final @code{nil} argument
-forces a copy of the previous argument:
+  空のシーケンスは、@code{append}によりreturnされる値に寄与しません。この結果、最後の引数に@code{nil}を指定すると、それより前の引数のコピーを強制することになります。
 
 @example
 @group
@@ -557,10 +450,10 @@ wood
 @end example
 
 @noindent
-This once was the usual way to copy a list, before the function
-@code{copy-sequence} was invented.  @xref{Sequences Arrays Vectors}.
+これは関数@code{copy-sequence}が導入される以前は、リストをコピーする通常の方法でした。@ref{Sequences Arrays
+Vectors}を参照してください。
 
-  Here we show the use of vectors and strings as arguments to @code{append}:
+  以下は、@code{append}の引数としてベクターと文字列を使用する例です:
 
 @example
 @group
@@ -569,8 +462,8 @@ This once was the usual way to copy a list, before the function
 @end group
 @end example
 
-  With the help of @code{apply} (@pxref{Calling Functions}), we can append
-all the lists in a list of lists:
+  @code{apply} (@ref{Calling
+Functions}を参照してください)の助けを借りることにより、リストのリストの中の、すべてのリストをappendできます。
 
 @example
 @group
@@ -579,7 +472,7 @@ all the lists in a list of lists:
 @end group
 @end example
 
-  If no @var{sequences} are given, @code{nil} is returned:
+  @var{sequences}が与えられない場合、@code{nil}がreturnされます:
 
 @example
 @group
@@ -588,7 +481,7 @@ all the lists in a list of lists:
 @end group
 @end example
 
-  Here are some examples where the final argument is not a list:
+  以下は、最後の引数がリストでない場合の例です:
 
 @example
 (append '(x y) 'z)
@@ -598,15 +491,10 @@ all the lists in a list of lists:
 @end example
 
 @noindent
-The second example shows that when the final argument is a sequence but
-not a list, the sequence's elements do not become elements of the
-resulting list.  Instead, the sequence becomes the final @sc{cdr}, like
-any other non-list final argument.
+2番目の例は、最後の引数はシーケンスですがリスとではない場合で、このシーケンスの要素は、結果リストの要素にはなりません。かわりに、最後の引数がリストでないときと同様、シーケンスが最後の@sc{cdr}になります。
 
 @defun reverse list
-This function creates a new list whose elements are the elements of
-@var{list}, but in reverse order.  The original argument @var{list} is
-@emph{not} altered.
+この関数は、要素は@var{list}の要素ですが、順序が逆の新しいリストを作成します。元の引数@var{list}は、変更@emph{されません}。
 
 @example
 @group
@@ -623,45 +511,23 @@ x
 @end defun
 
 @defun copy-tree tree &optional vecp
-This function returns a copy of the tree @code{tree}.  If @var{tree} is a
-cons cell, this makes a new cons cell with the same @sc{car} and
-@sc{cdr}, then recursively copies the @sc{car} and @sc{cdr} in the
-same way.
+この関数はツリー@code{tree}のコピーをreturnします。@var{tree}がコンスセルの場合、同じ@sc{car}と@sc{cdr}をもつ新しいコンスセルを作成してから、同じ方法により@sc{car}と@sc{cdr}を再帰的にコピーします。
 
-Normally, when @var{tree} is anything other than a cons cell,
-@code{copy-tree} simply returns @var{tree}.  However, if @var{vecp} is
-non-@code{nil}, it copies vectors too (and operates recursively on
-their elements).
+通常、@var{tree}がコンスセル以外の場合、@code{copy-tree}は単に@var{tree}をreturnします。しかし、@var{vecp}が非@code{nil}の場合、この関数はベクターでもコピーします(そしてベクターの要素を再帰的に処理します)。
 @end defun
 
 @defun number-sequence from &optional to separation
-This returns a list of numbers starting with @var{from} and
-incrementing by @var{separation}, and ending at or just before
-@var{to}.  @var{separation} can be positive or negative and defaults
-to 1.  If @var{to} is @code{nil} or numerically equal to @var{from},
-the value is the one-element list @code{(@var{from})}.  If @var{to} is
-less than @var{from} with a positive @var{separation}, or greater than
-@var{from} with a negative @var{separation}, the value is @code{nil}
-because those arguments specify an empty sequence.
+これは、@var{from}から@var{separation}づつインクリメントして、@var{to}の直前で終わる、数字のリストをreturnします。@var{separation}には正または負の数を指定でき、デフォルトは1です。@var{to}が@code{nil}、または数的に@var{from}と等しい場合、値は1要素のリスト@code{(@var{from})}になります。@var{separation}が正で@var{to}が@var{from}より小さい場合、または@var{separation}が負で@var{to}が@var{from}より大きい場合、これらの引数は空のシーケンスを指示することになるので、値は@code{nil}になります。
 
-If @var{separation} is 0 and @var{to} is neither @code{nil} nor
-numerically equal to @var{from}, @code{number-sequence} signals an
-error, since those arguments specify an infinite sequence.
+@var{separation}が0で、@var{to}が@code{nil}でもなく、数的に@var{from}とも等しくない場合、これらの引数は無限シーケンスを指示することになるので、エラーがシグナルされます。
 
-All arguments are numbers.
-Floating-point arguments can be tricky, because floating-point
-arithmetic is inexact.  For instance, depending on the machine, it may
-quite well happen that @code{(number-sequence 0.4 0.6 0.2)} returns
-the one element list @code{(0.4)}, whereas
-@code{(number-sequence 0.4 0.8 0.2)} returns a list with three
-elements.  The @var{n}th element of the list is computed by the exact
-formula @code{(+ @var{from} (* @var{n} @var{separation}))}.  Thus, if
-one wants to make sure that @var{to} is included in the list, one can
-pass an expression of this exact type for @var{to}.  Alternatively,
-one can replace @var{to} with a slightly larger value (or a slightly
-more negative value if @var{separation} is negative).
+引数はすべて数字です。浮動少数の計算は正確ではないので、浮動少数の引数には用心する必要があります。たとえばマシンに依存して、@code{(number-sequence
+0.4 0.8 0.2)}が3要素のリストをreturnするのに、@code{(number-sequence 0.4 0.6
+0.2)}が1要素のリスト@code{(0.4)}をreturnすることがよく起こります。リストの@var{n}番目の要素は、厳密に@code{(+
+@var{from} (* @var{n}
+@var{separation}))}という式により計算されます。したがって、リストに確実に@var{to}が含まれるようにするには、この式に適切な型の@var{to}を渡すことができます。別の方法として、@var{to}を少しだけ大きな値(@var{separation}が負の場合は、少しだけ小さな値)に置き換えることもできます。
 
-Some examples:
+いくつか例を示します:
 
 @example
 (number-sequence 4 9)
@@ -686,15 +552,11 @@ Some examples:
 @cindex modify a list
 @cindex list modification
 
-  These functions, and one macro, provide convenient ways
-to modify a list which is stored in a variable.
+  これらの関数、および1つのマクロは、変数に格納されたリストを変更する便利な方法を提供します。
 
 @defmac push element listname
-This macro creates a new list whose @sc{car} is @var{element} and
-whose @sc{cdr} is the list specified by @var{listname}, and saves that
-list in @var{listname}.  In the simplest case, @var{listname} is an
-unquoted symbol naming a list, and this macro is equivalent
-to @w{@code{(setq @var{listname} (cons @var{element} @var{listname}))}}.
+このマクロは、@sc{car}が@var{element}で、@sc{cdr}が@var{listname}で指定されたリストであるような新しいリストを作成して、そのリストを@var{listname}に保存します。単純なのは、@var{listname}はリストに名前をつけるクォートされていないシンボルのときで、この場合マクロは@w{@code{(setq
+@var{listname} (cons @var{element} @var{listname}))}}と等価です。
 
 @example
 (setq l '(a b))
@@ -705,53 +567,40 @@ l
      @result{} (c a b)
 @end example
 
-More generally, @code{listname} can be a generalized variable.  In
-that case, this macro does the equivalent of @w{@code{(setf
-@var{listname} (cons @var{element} @var{listname}))}}.
-@xref{Generalized Variables}.
+より一般的なのは、@code{listname}が汎変数の場合です。この場合、このマクロは@w{@code{(setf @var{listname}
+(cons @var{element} @var{listname}))}}と等価です。@ref{Generalized
+Variables}を参照してください。
 
-For the @code{pop} macro, which removes the first element from a list,
-@xref{List Elements}.
+リストから1番目の要素を取り出す@code{pop}マクロについては、@ref{List Elements}を参照してください。
 @end defmac
 
-  Two functions modify lists that are the values of variables.
+  以下の2つの関数は、変数の値であるリストを変更します。
 
 @defun add-to-list symbol element &optional append compare-fn
-This function sets the variable @var{symbol} by consing @var{element}
-onto the old value, if @var{element} is not already a member of that
-value.  It returns the resulting list, whether updated or not.  The
-value of @var{symbol} had better be a list already before the call.
-@code{add-to-list} uses @var{compare-fn} to compare @var{element}
-against existing list members; if @var{compare-fn} is @code{nil}, it
-uses @code{equal}.
+この関数は、@var{element}が@var{symbol}の値のメンバーでない場合は、@var{symbol}に@var{element}をコンスすることにより、変数@var{symbol}をセットします。この関数は、リストが更新されているかに関わらず、結果のリストをreturnします@var{symbol}の値は、呼び出し前にすでにリストであることが望ましいです。@var{element}がリストの既存メンバーか比較するために、@code{add-to-list}は@var{compare-fn}を使用します。@var{compare-fn}が@code{nil}の場合は、@code{equal}を使用します。
 
-Normally, if @var{element} is added, it is added to the front of
-@var{symbol}, but if the optional argument @var{append} is
-non-@code{nil}, it is added at the end.
+@var{element}が追加される場合は通常、@var{symbol}の前に追加されますが、オプションの引数@var{append}が非@code{nil}の場合は、最後に追加されます。
 
-The argument @var{symbol} is not implicitly quoted; @code{add-to-list}
-is an ordinary function, like @code{set} and unlike @code{setq}.  Quote
-the argument yourself if that is what you want.
+引数@var{symbol}は、暗黙にクォートされません。@code{setq}とは異なり、@code{add-to-list}は@code{set}のような通常の関数です。クォートしたい場合は自分で引数をクォートします。
 @end defun
 
-Here's a scenario showing how to use @code{add-to-list}:
+以下は@code{add-to-list}を使用する方法をシナリオで示します:
 
 @example
 (setq foo '(a b))
      @result{} (a b)
 
-(add-to-list 'foo 'c)     ;; @r{Add @code{c}.}
+(add-to-list 'foo 'c)     ;; @r{@code{c}を追加。}
      @result{} (c a b)
 
-(add-to-list 'foo 'b)     ;; @r{No effect.}
+(add-to-list 'foo 'b)     ;; @r{効果なし。}
      @result{} (c a b)
 
-foo                       ;; @r{@code{foo} was changed.}
+foo                       ;; @r{@code{foo}が変更された。}
      @result{} (c a b)
 @end example
 
-  An equivalent expression for @code{(add-to-list '@var{var}
-@var{value})} is this:
+  以下は@code{(add-to-list '@var{var} @var{value})}と等価な式です:
 
 @example
 (or (member @var{value} @var{var})
@@ -759,57 +608,44 @@ foo                       ;; @r{@code{foo} was changed.}
 @end example
 
 @defun add-to-ordered-list symbol element &optional order
-This function sets the variable @var{symbol} by inserting
-@var{element} into the old value, which must be a list, at the
-position specified by @var{order}.  If @var{element} is already a
-member of the list, its position in the list is adjusted according
-to @var{order}.  Membership is tested using @code{eq}.
-This function returns the resulting list, whether updated or not.
+この関数は、古い値(リストでなければなりません)の@var{order}で指定された位置に、@var{element}を挿入することにより、変数@var{symbol}をセットします。@var{element}がすでにこのリストのメンバーである場合、リスト内の要素の位置は@var{order}にしたがって調整されます。メンバーかどうかは、@code{eq}を使用してテストされます。この関数は、更新されているかどうかに関わらず、結果のリストをreturnします。
 
-The @var{order} is typically a number (integer or float), and the
-elements of the list are sorted in non-decreasing numerical order.
+@var{order}は通常、数字(正数か浮動小数)で、リストの要素は、その数字の昇順で並べられます。
 
-@var{order} may also be omitted or @code{nil}.  Then the numeric order
-of @var{element} stays unchanged if it already has one; otherwise,
-@var{element} has no numeric order.  Elements without a numeric list
-order are placed at the end of the list, in no particular order.
+@var{order}を省略または@code{nil}にすることもできます。これにより、リストに@var{element}がすでに存在する場合、@var{element}の数字順序は変更されません。それ以外では、@var{element}は数字順序をもちません。リストの数字順序をもたない要素は、リストの最後に配され、特別な順序はつきません。
 
-Any other value for @var{order} removes the numeric order of @var{element}
-if it already has one; otherwise, it is equivalent to @code{nil}.
+@var{order}に他の値を指定した場合、@var{element}がすでに数字順序をもつときは数字順序が削除されます。それ以外は、@code{nil}と同じです。
 
-The argument @var{symbol} is not implicitly quoted;
-@code{add-to-ordered-list} is an ordinary function, like @code{set}
-and unlike @code{setq}.  Quote the argument yourself if necessary.
+引数@var{symbol}は、暗黙にクォートされません。@code{add-to-ordered-list}は、@code{setq}などとは異なり、@code{set}のような通常の関数です。必要な場合は引数を自分でクォートしてください。
 
-The ordering information is stored in a hash table on @var{symbol}'s
-@code{list-order} property.
+順序の情報は、@var{symbol}の@code{list-order}プロパティーのハッシュテーブルに保存されます。
 @end defun
 
-Here's a scenario showing how to use @code{add-to-ordered-list}:
+以下に@code{add-to-ordered-list}を使用する方法をシナリオで示します:
 
 @example
 (setq foo '())
      @result{} nil
 
-(add-to-ordered-list 'foo 'a 1)     ;; @r{Add @code{a}.}
+(add-to-ordered-list 'foo 'a 1)     ;; @r{@code{a}を追加。}
      @result{} (a)
 
-(add-to-ordered-list 'foo 'c 3)     ;; @r{Add @code{c}.}
+(add-to-ordered-list 'foo 'c 3)     ;; @r{@code{c}を追加。}
      @result{} (a c)
 
-(add-to-ordered-list 'foo 'b 2)     ;; @r{Add @code{b}.}
+(add-to-ordered-list 'foo 'b 2)     ;; @r{@code{b}を追加。}
      @result{} (a b c)
 
-(add-to-ordered-list 'foo 'b 4)     ;; @r{Move @code{b}.}
+(add-to-ordered-list 'foo 'b 4)     ;; @r{@code{b}を移動。}
      @result{} (a c b)
 
-(add-to-ordered-list 'foo 'd)       ;; @r{Append @code{d}.}
+(add-to-ordered-list 'foo 'd)       ;; @r{@code{d}を後に追加。}
      @result{} (a c b d)
 
-(add-to-ordered-list 'foo 'e)       ;; @r{Add @code{e}}.
+(add-to-ordered-list 'foo 'e)       ;; @r{@code{e}を追加。}
      @result{} (a c b e d)
 
-foo                       ;; @r{@code{foo} was changed.}
+foo                       ;; @r{@code{foo}が変更された。}
      @result{} (a c b e d)
 @end example
 
@@ -817,26 +653,21 @@ foo                       ;; @r{@code{foo} was changed.}
 @section Modifying Existing List Structure
 @cindex destructive list operations
 
-  You can modify the @sc{car} and @sc{cdr} contents of a cons cell with the
-primitives @code{setcar} and @code{setcdr}.  We call these ``destructive''
-operations because they change existing list structure.
+  基本関数@code{setcar}および@code{setcdr}により、コンスセルの@sc{car}および@sc{cdr}の内容を変更できます。わたしたちは、これらが既存のリスト構造を変更することから、これらを``破壊的''処理と呼びます。
 
 @cindex CL note---@code{rplaca} vs @code{setcar}
 @quotation
 @findex rplaca
 @findex rplacd
-@b{Common Lisp note:} Common Lisp uses functions @code{rplaca} and
-@code{rplacd} to alter list structure; they change structure the same
-way as @code{setcar} and @code{setcdr}, but the Common Lisp functions
-return the cons cell while @code{setcar} and @code{setcdr} return the
-new @sc{car} or @sc{cdr}.
+@b{Common Lispに関する注意: }Common
+Lispはリスト構造の変更に@code{rplaca}および@code{rplacd}を使用します。これらは@code{setcar}や@code{setcdr}と同じ方法でリスト構造を変更しますが、@code{setcar}と@code{setcdr}は新しい@sc{car}または@sc{cdr}をreturnするのにたいし、Common
+Lispの関数はコンスセルをreturnします。
 @end quotation
 
 @menu
-* Setcar::          Replacing an element in a list.
-* Setcdr::          Replacing part of the list backbone.
-                      This can be used to remove or add elements.
-* Rearrangement::   Reordering the elements in a list; combining lists.
+* Setcar::                   リスト内の要素の置き換え。
+* Setcdr::                   リストの根幹部分の置き換え。これは要素の追加や削除に使用されます。
+* Rearrangement::            リスト内の要素の再配置、リストの合成。
 @end menu
 
 @node Setcar
@@ -844,15 +675,10 @@ new @sc{car} or @sc{cdr}.
 @cindex replace list element
 @cindex list, replace element
 
-  Changing the @sc{car} of a cons cell is done with @code{setcar}.  When
-used on a list, @code{setcar} replaces one element of a list with a
-different element.
+  コンスセルの@sc{car}の変更は、@code{setcar}により行なわれます。リストにたいして使用された場合、@code{setcar}はリストの1つの要素を、他の要素に置き換えます。
 
 @defun setcar cons object
-This function stores @var{object} as the new @sc{car} of @var{cons},
-replacing its previous @sc{car}.  In other words, it changes the
-@sc{car} slot of @var{cons} to refer to @var{object}.  It returns the
-value @var{object}.  For example:
+この関数は、以前の@sc{car}を置き換えて、@var{cons}の新しい@sc{car}に@var{object}を格納します。他の言い方をすると、この関数は@var{cons}の@sc{car}スロットを、@var{object}を参照するように変更します。この関数は値@var{object}をreturnします。たとえば:
 
 @example
 @group
@@ -870,13 +696,11 @@ x
 @end example
 @end defun
 
-  When a cons cell is part of the shared structure of several lists,
-storing a new @sc{car} into the cons changes one element of each of
-these lists.  Here is an example:
+  コンスセルが、複数のリストが共有された構造の一部の場合、コンスに新しい@sc{car}を格納することにより、これら共有されたリストの各1つの要素を変更します。以下は例です:
 
 @example
 @group
-;; @r{Create two lists that are partly shared.}
+;; @r{部分的に共有された2つのリストを作成。}
 (setq x1 '(a b c))
      @result{} (a b c)
 (setq x2 (cons 'z (cdr x1)))
@@ -884,29 +708,27 @@ these lists.  Here is an example:
 @end group
 
 @group
-;; @r{Replace the @sc{car} of a shared link.}
+;; @r{共有されたリンクの@sc{car}を置き換え。}
 (setcar (cdr x1) 'foo)
      @result{} foo
-x1                           ; @r{Both lists are changed.}
+x1                           ; @r{両方のリストが変更された。}
      @result{} (a foo c)
 x2
      @result{} (z foo c)
 @end group
 
 @group
-;; @r{Replace the @sc{car} of a link that is not shared.}
+;; @r{共有されていないリンクの@sc{car}を置き換え。}
 (setcar x1 'baz)
      @result{} baz
-x1                           ; @r{Only one list is changed.}
+x1                           ; @r{1つのリストだけが変更された。}
      @result{} (baz foo c)
 x2
      @result{} (z foo c)
 @end group
 @end example
 
-  Here is a graphical depiction of the shared structure of the two lists
-in the variables @code{x1} and @code{x2}, showing why replacing @code{b}
-changes them both:
+  なぜ@code{b}を置き換えると両方が変更されるのかを説明するために、変数@code{x1}と@code{x2}の2つのリストによる共有構造を視覚化してみましょう:
 
 @example
 @group
@@ -926,7 +748,7 @@ x2--> |   |   |--
 @end group
 @end example
 
-  Here is an alternative form of box diagram, showing the same relationship:
+  同じ関係を別のボックス図で示すと、以下のようになります:
 
 @example
 @group
@@ -950,20 +772,13 @@ x2:              |
 @subsection Altering the CDR of a List
 @cindex replace part of list
 
-  The lowest-level primitive for modifying a @sc{cdr} is @code{setcdr}:
+  @sc{cdr}を変更するもっとも低レベルの基本関数は、@code{setcdr}です:
 
 @defun setcdr cons object
-This function stores @var{object} as the new @sc{cdr} of @var{cons},
-replacing its previous @sc{cdr}.  In other words, it changes the
-@sc{cdr} slot of @var{cons} to refer to @var{object}.  It returns the
-value @var{object}.
+この関数は前の@sc{cdr}を置き換えて、@var{cons}の新しい@sc{cdr}に@var{object}を格納します。他の言い方をすると、この関数は@var{cons}の@sc{cdr}を、@var{object}を参照するように変更します。この関数は値@var{object}をreturnします。
 @end defun
 
-  Here is an example of replacing the @sc{cdr} of a list with a
-different list.  All but the first element of the list are removed in
-favor of a different sequence of elements.  The first element is
-unchanged, because it resides in the @sc{car} of the list, and is not
-reached via the @sc{cdr}.
+  以下はリストの@sc{cdr}を、他のリストに置き換える例です。1番目の要素以外のすべての要素は、別のシーケンスまたは要素のために取り除かれます。1番目の要素はリストの@sc{car}なので変更されず、@sc{cdr}を通じて到達することもできないからです。
 
 @example
 @group
@@ -980,10 +795,8 @@ x
 @end group
 @end example
 
-  You can delete elements from the middle of a list by altering the
-@sc{cdr}s of the cons cells in the list.  For example, here we delete
-the second element, @code{b}, from the list @code{(a b c)}, by changing
-the @sc{cdr} of the first cons cell:
+  リスト内のコンスセルの@sc{cdr}を変更することにより、リストの途中から要素を削除できます。たとえば以下では、1番目のコンスセルの@sc{cdr}を変更することにより、2番目の要素@code{b}を、リスト@code{(a
+b c)}から削除します。
 
 @example
 @group
@@ -996,7 +809,7 @@ x1
 @end group
 @end example
 
-  Here is the result in box notation:
+  以下に結果をボックス表記で示します:
 
 @smallexample
 @group
@@ -1011,11 +824,9 @@ x1
 @end smallexample
 
 @noindent
-The second cons cell, which previously held the element @code{b}, still
-exists and its @sc{car} is still @code{b}, but it no longer forms part
-of this list.
+以前は要素@code{b}を保持していた2番目のコンスセルは、依然として存在して、その@sc{car}も@code{b}のままですが、すでにこのリストの一部を形成していません。
 
-  It is equally easy to insert a new element by changing @sc{cdr}s:
+  @sc{cdr}を変更して、新しい要素を挿入するのも、同じくらい簡単です:
 
 @example
 @group
@@ -1028,7 +839,7 @@ x1
 @end group
 @end example
 
-  Here is this result in box notation:
+  以下に結果をボックス表記で示します:
 
 @smallexample
 @group
@@ -1054,29 +865,20 @@ x1
 @cindex reordering, of elements in lists
 @cindex modification of lists
 
-  Here are some functions that rearrange lists ``destructively'' by
-modifying the @sc{cdr}s of their component cons cells.  We call these
-functions ``destructive'' because they chew up the original lists passed
-to them as arguments, relinking their cons cells to form a new list that
-is the returned value.
+  以下では、リストの構成要素であるコンスセルの@sc{cdr}を変更することにより、リストを``破壊的''に再配置する関数をいくつか示します。これらの関数が``破壊的''だという理由は、これらの関数が引数として渡された元のリストを処理して、return値となる新しいリストを形成するために、リストのコンスセルを再リンクするからです。
 
 @ifnottex
-  See @code{delq}, in @ref{Sets And Lists}, for another function
-that modifies cons cells.
+  コンスセルを変更する他の関数については、@ref{Sets And Lists}の@code{delq}を参照してください。
 @end ifnottex
 @iftex
-   The function @code{delq} in the following section is another example
-of destructive list manipulation.
+   以降のセクションで説明する関数@code{delq}は、破壊的にリストを操作する、別の例です。
 @end iftex
 
 @defun nconc &rest lists
 @cindex concatenating lists
 @cindex joining lists
-This function returns a list containing all the elements of @var{lists}.
-Unlike @code{append} (@pxref{Building Lists}), the @var{lists} are
-@emph{not} copied.  Instead, the last @sc{cdr} of each of the
-@var{lists} is changed to refer to the following list.  The last of the
-@var{lists} is not altered.  For example:
+この関数は、@var{lists}の要素すべてを含むリストをreturnします。@code{append} (@ref{Building
+Lists}を参照してください)とは異なり、@var{lists}はコピー@emph{されません}。かわりに@var{lists}の各リストの最後の@sc{cdr}が、次のリストを参照するように変更されます。@var{lists}の最後のリストは、変更されません。たとえば:
 
 @example
 @group
@@ -1093,10 +895,8 @@ x
 @end group
 @end example
 
-   Since the last argument of @code{nconc} is not itself modified, it is
-reasonable to use a constant list, such as @code{'(4 5)}, as in the
-above example.  For the same reason, the last argument need not be a
-list:
+   @code{nconc}の最後の引数は変更されないので、上記の例のように、@code{'(4
+5)}のような定数リストを使用するのが理に適っています。また、同じ理由により、最後の引数がリスとである必要はありません。
 
 @example
 @group
@@ -1113,16 +913,15 @@ x
 @end group
 @end example
 
-However, the other arguments (all but the last) must be lists.
+しかし、(最後を除くすべての)他の引数はリストでなければなりません。
 
-A common pitfall is to use a quoted constant list as a non-last
-argument to @code{nconc}.  If you do this, your program will change
-each time you run it!  Here is what happens:
+一般的な落とし穴としては、@code{nconc}にたいしてクォートされたリスト定数を、最後以外の引数として使用したときです。これを行なう場合、実行するごとにプログラムはリスト定数を変更するでしょう!
+何が起こるのかを以下に示します:
 
 @smallexample
 @group
-(defun add-foo (x)            ; @r{We want this function to add}
-  (nconc '(foo) x))           ;   @r{@code{foo} to the front of its arg.}
+(defun add-foo (x)            ; @r{この関数では@code{foo}}
+  (nconc '(foo) x))           ;   @r{を引数の前に追加させたい。}
 @end group
 
 @group
@@ -1131,11 +930,11 @@ each time you run it!  Here is what happens:
 @end group
 
 @group
-(setq xx (add-foo '(1 2)))    ; @r{It seems to work.}
+(setq xx (add-foo '(1 2)))    ; @r{動いているように見える。}
      @result{} (foo 1 2)
 @end group
 @group
-(setq xy (add-foo '(3 4)))    ; @r{What happened?}
+(setq xy (add-foo '(3 4)))    ; @r{何が起きているのか?}
      @result{} (foo 1 2 3 4)
 @end group
 @group
@@ -1152,13 +951,9 @@ each time you run it!  Here is what happens:
 
 @defun nreverse list
 @cindex reversing a list
-  This function reverses the order of the elements of @var{list}.
-Unlike @code{reverse}, @code{nreverse} alters its argument by reversing
-the @sc{cdr}s in the cons cells forming the list.  The cons cell that
-used to be the last one in @var{list} becomes the first cons cell of the
-value.
+  この関数は、@var{list}の要素の順番を逆転します。@code{reverse}とは異なり、@code{nreverse}はリストを形成する@sc{cdr}内のコンスセルを逆転することにより、引数を変更します。@var{list}の最後に使用されているコンスセルは、最初のコンスセルになります。
 
-  For example:
+  たとえば:
 
 @example
 @group
@@ -1172,25 +967,23 @@ x
      @result{} (c b a)
 @end group
 @group
-;; @r{The cons cell that was first is now last.}
+;; @r{最初のコンスセルが最後になった。}
 x
      @result{} (a)
 @end group
 @end example
 
-  To avoid confusion, we usually store the result of @code{nreverse}
-back in the same variable which held the original list:
+  わたしたちは通常、混乱を避けるために、@code{nreverse}の結果を、元のリストを保持していたのと同じ変数に格納します:
 
 @example
 (setq x (nreverse x))
 @end example
 
-  Here is the @code{nreverse} of our favorite example, @code{(a b c)},
-presented graphically:
+  以下は、@code{(a b c)}を視覚的に表した、@code{nreverse}の例です:
 
 @smallexample
 @group
-@r{Original list head:}                       @r{Reversed list:}
+@r{元のリストの先頭:}                         @r{逆転されたリスト:}
  -------------        -------------        ------------
 | car  | cdr  |      | car  | cdr  |      | car | cdr  |
 |   a  |  nil |<--   |   b  |   o  |<--   |   c |   o  |
@@ -1205,38 +998,20 @@ presented graphically:
 @defun sort list predicate
 @cindex stable sort
 @cindex sorting lists
-This function sorts @var{list} stably, though destructively, and
-returns the sorted list.  It compares elements using @var{predicate}.  A
-stable sort is one in which elements with equal sort keys maintain their
-relative order before and after the sort.  Stability is important when
-successive sorts are used to order elements according to different
-criteria.
+この関数は、@var{list}を安定的(しかし破壊的)にソートして、ソートされたリストをreturnします。この関数は@var{predicate}を使用して要素を比較します。安定ソート(stable
+sort)では、同じソートキーをもつ要素が、ソートの前後で相対的に同じ順序が維持されます。安定性は、異なる条件によりソートするために要素を並び替えるために、連続したソートが使用されるときに重要です。
 
-The argument @var{predicate} must be a function that accepts two
-arguments.  It is called with two elements of @var{list}.  To get an
-increasing order sort, the @var{predicate} should return non-@code{nil} if the
-first element is ``less than'' the second, or @code{nil} if not.
+引数@var{predicate}は、2つの引数をとる関数でなければなりません。この関数は@var{list}の2つの要素を引数として呼び出されます。昇順のソートを得るための@var{predicate}は、1番目の引数が、2番目の引数より``小さい''ときは非@code{nil}、それ以外は@code{nil}をreturnするようにします。
 
-The comparison function @var{predicate} must give reliable results for
-any given pair of arguments, at least within a single call to
-@code{sort}.  It must be @dfn{antisymmetric}; that is, if @var{a} is
-less than @var{b}, @var{b} must not be less than @var{a}.  It must be
-@dfn{transitive}---that is, if @var{a} is less than @var{b}, and @var{b}
-is less than @var{c}, then @var{a} must be less than @var{c}.  If you
-use a comparison function which does not meet these requirements, the
-result of @code{sort} is unpredictable.
+比較関数@var{predicate}は、少なくとも単独の@code{sort}呼び出しにおいて、任意の与えられた引数にたいして信頼できる結果を与えなければありません。比較関数は@dfn{非対称的(antisymmetric)}
+--- つまり@var{a}が@var{b}より小さいとき、@var{b}は@var{a}より小さくない ---
+でなければなりません。比較関数は@dfn{推移的(transitive)} ---
+つまり@var{a}が@var{b}より小さく、@var{b}が@var{c}より小さい場合、@var{c}は@var{a}より小さい ---
+でなければなりません。これらの要求を満たさない比較関数を使用した場合、@code{sort}の結果は予測できません。
 
-The destructive aspect of @code{sort} is that it rearranges the cons
-cells forming @var{list} by changing @sc{cdr}s.  A nondestructive sort
-function would create new cons cells to store the elements in their
-sorted order.  If you wish to make a sorted copy without destroying the
-original, copy it first with @code{copy-sequence} and then sort.
+@code{sort}の破壊的な側面は、@sc{cdr}を変更することにより、@var{list}を形成するコンスセルを再配置することです。非破壊的なソート関数の場合は、ソートされた要素を格納するために、あたらしいコンスセルを作成します。元のリストを破壊せずにソートされたコピーを作成したい場合は、@code{copy-sequence}で最初にコピーしてから、それをソートします。
 
-Sorting does not change the @sc{car}s of the cons cells in @var{list};
-the cons cell that originally contained the element @code{a} in
-@var{list} still has @code{a} in its @sc{car} after sorting, but it now
-appears in a different position in the list due to the change of
-@sc{cdr}s.  For example:
+ソートは@var{list}内のコンスセルの@sc{car}は変更しません。@var{list}内で@sc{car}に要素@code{a}を保持していたコンスセル、ソート後にも@code{a}を保持しますが、@sc{cdr}は変更されるので、ソート後の位置は異なります。たとえば:
 
 @example
 @group
@@ -1254,20 +1029,16 @@ nums
 @end example
 
 @noindent
-@strong{Warning}: Note that the list in @code{nums} no longer contains
-0; this is the same cons cell that it was before, but it is no longer
-the first one in the list.  Don't assume a variable that formerly held
-the argument now holds the entire sorted list!  Instead, save the result
-of @code{sort} and use that.  Most often we store the result back into
-the variable that held the original list:
+@strong{警告}:
+@code{nums}のリストには0が含まれていないことに注意してください。これは前と同じコンスセルですが、リストの1番目ではなくなります。引数を保持するように形成された変数が、ソートされたリストでも保持されると仮定しないでください!
+かわりに@code{sort}の結果を保存して、それを使用してください。元のリストを保持していた変数に、結果を書き戻すことはよく行なわれます。
 
 @example
 (setq nums (sort nums '<))
 @end example
 
-@xref{Sorting}, for more functions that perform sorting.
-See @code{documentation} in @ref{Accessing Documentation}, for a
-useful example of @code{sort}.
+ソート処理を行なう他の関数については、@ref{Sorting}を参照してください。@code{sort}の有用な例は、@ref{Accessing
+Documentation}の@code{documentation}を参照してください。
 @end defun
 
 @node Sets And Lists
@@ -1275,30 +1046,20 @@ useful example of @code{sort}.
 @cindex lists as sets
 @cindex sets
 
-  A list can represent an unordered mathematical set---simply consider a
-value an element of a set if it appears in the list, and ignore the
-order of the list.  To form the union of two sets, use @code{append} (as
-long as you don't mind having duplicate elements).  You can remove
-@code{equal} duplicates using @code{delete-dups}.  Other useful
-functions for sets include @code{memq} and @code{delq}, and their
-@code{equal} versions, @code{member} and @code{delete}.
+  リストは順序なしの数学的集合 --- リスト内に要素があれば集合の要素の値とされ、リスト内の順序は無視される ---
+を表すことができます。2つの集合を結合(union)するには、(重複する要素を気にしない場合は)@code{append}を使用します。@code{equal}である重複を取り除くには、@code{delete-dups}を使用します。集合にたいする他の有用な関数には、@code{memq}や@code{delq}、およびこれらの@code{equal}バージョンである@code{member}と@code{delete}が含まれます。
 
 @cindex CL note---lack @code{union}, @code{intersection}
 @quotation
-@b{Common Lisp note:} Common Lisp has functions @code{union} (which
-avoids duplicate elements) and @code{intersection} for set operations.
-Although standard GNU Emacs Lisp does not have them, the @file{cl-lib}
-library provides versions.
-@xref{Lists as Sets,,, cl, Common Lisp Extensions}.
+@b{Common Lispに関する注意:} 集合を処理するために、Common
+Lispには(要素の重複がない)関数@code{union}があります。これらの関数は標準のGNU Emacs
+Lispにはありませんが、@file{cl-lib}はこれらを提供します。@ref{Lists as Sets,,, cl, Common Lisp
+Extensions}を参照してください。
 @end quotation
 
 @defun memq object list
 @cindex membership in a list
-This function tests to see whether @var{object} is a member of
-@var{list}.  If it is, @code{memq} returns a list starting with the
-first occurrence of @var{object}.  Otherwise, it returns @code{nil}.
-The letter @samp{q} in @code{memq} says that it uses @code{eq} to
-compare @var{object} against the elements of the list.  For example:
+この関数は、@var{object}が@var{list}のメンバーかどうかをテストします。メンバーの場合、@code{memq}は@var{object}で最初に見つかった要素から開始されるリストをreturnします。メンバーでない場合は、@code{nil}をreturnします。@code{memq}の文字@samp{q}は、この関数が@var{object}とリスト内の要素の比較に、@code{eq}を使用することを示します。たとえば:
 
 @example
 @group
@@ -1306,7 +1067,7 @@ compare @var{object} against the elements of the list.  For example:
      @result{} (b c b a)
 @end group
 @group
-(memq '(2) '((1) (2)))    ; @r{@code{(2)} and @code{(2)} are not @code{eq}.}
+(memq '(2) '((1) (2)))    ; @r{@code{(2)}と@code{(2)}は@code{eq}ではない。}
      @result{} nil
 @end group
 @end example
@@ -1314,20 +1075,12 @@ compare @var{object} against the elements of the list.  For example:
 
 @defun delq object list
 @cindex deleting list elements
-This function destructively removes all elements @code{eq} to
-@var{object} from @var{list}, and returns the resulting list.  The
-letter @samp{q} in @code{delq} says that it uses @code{eq} to compare
-@var{object} against the elements of the list, like @code{memq} and
-@code{remq}.
+この関数@var{list}からは@var{object}と@code{eq}なすべての要素を破壊的に取り除いて、結果のリストをreturnします。@code{delq}の文字@samp{q}は、この関数が@var{object}とリスト内の要素の比較に、@code{eq}を使用することを示します(@code{memq}や@code{remq}と同様)。
 
-Typically, when you invoke @code{delq}, you should use the return
-value by assigning it to the variable which held the original list.
-The reason for this is explained below.
+@code{delq}を呼び出すときは通常、元のリストを保持していた変数にreturn値を割り当てて使用する必要があります(理由は以下参照)。
 @end defun
 
-The @code{delq} function deletes elements from the front of the list
-by simply advancing down the list, and returning a sublist that starts
-after those elements.  For example:
+@code{delq}関数がリストの銭湯にある要素を削除する場合は、単にリストを読み進めて、この要素の後から開始される部分リストをreturnします。つまり:
 
 @example
 @group
@@ -1336,8 +1089,7 @@ after those elements.  For example:
 @end example
 
 @noindent
-When an element to be deleted appears in the middle of the list,
-removing it involves changing the @sc{cdr}s (@pxref{Setcdr}).
+リストの途中にある要素を削除するときは、必要な@sc{cdr}(@ref{Setcdr}を参照してください)を変更することにより削除します。
 
 @example
 @group
@@ -1362,20 +1114,15 @@ sample-list
 @end group
 @end example
 
-Note that @code{(delq 'c sample-list)} modifies @code{sample-list} to
-splice out the third element, but @code{(delq 'a sample-list)} does not
-splice anything---it just returns a shorter list.  Don't assume that a
-variable which formerly held the argument @var{list} now has fewer
-elements, or that it still holds the original list!  Instead, save the
-result of @code{delq} and use that.  Most often we store the result back
-into the variable that held the original list:
+@code{(delq 'a sample-list)}は何も取り除きませんが(これは単に短いリストをreturnします)、@code{(delq 'c
+sample-list)}は3番目の要素を取り除いて、@code{sample-list}を変更することに注意してください。引数@var{list}を保持するように形成された変数が、実行後にもっと少ない要素になる、または元のリストを保持すると仮定しないでください!
+かわりに@code{delq}の結果を保存して、それを使用してください。元のリストを保持していた変数に、結果を書き戻すことはよく行なわれます。
 
 @example
 (setq flowers (delq 'rose flowers))
 @end example
 
-In the following example, the @code{(4)} that @code{delq} attempts to match
-and the @code{(4)} in the @code{sample-list} are not @code{eq}:
+以下の例では、@code{delq}が比較しようとしている@code{(4)}と、@code{sample-list}内の@code{(4)}は、@code{eq}ではありません:
 
 @example
 @group
@@ -1384,14 +1131,10 @@ and the @code{(4)} in the @code{sample-list} are not @code{eq}:
 @end group
 @end example
 
-If you want to delete elements that are @code{equal} to a given value,
-use @code{delete} (see below).
+与えられた値と@code{equal}な要素を削除したい場合は、@code{delete}(以下参照)を使用してください。
 
 @defun remq object list
-This function returns a copy of @var{list}, with all elements removed
-which are @code{eq} to @var{object}.  The letter @samp{q} in @code{remq}
-says that it uses @code{eq} to compare @var{object} against the elements
-of @code{list}.
+この関数は、@var{object}と@code{eq}なすべての要素が除かれた、@var{list}のコピーをreturnします。@code{remq}の文字@samp{q}は、この関数が@var{object}とリスト内の要素の比較に、@code{eq}を使用することを示します。
 
 @example
 @group
@@ -1410,37 +1153,29 @@ sample-list
 @end defun
 
 @defun memql object list
-The function @code{memql} tests to see whether @var{object} is a member
-of @var{list}, comparing members with @var{object} using @code{eql},
-so floating-point elements are compared by value.
-If @var{object} is a member, @code{memql} returns a list starting with
-its first occurrence in @var{list}.  Otherwise, it returns @code{nil}.
+関数@code{memql}は、@code{eql}(浮動少数の要素は値で比較される)を使用してメンバーと@code{eql}を比較することにより、@var{object}が@var{list}のメンバーかどうかをテストします。@var{object}がメンバーの場合、@code{memql}は@var{list}内で最初に見つかった要素から開始されるリストをreturnします。それ以外は@code{nil}をreturnします。
 
-Compare this with @code{memq}:
+これを@code{memq}と比較してみましょう:
 
 @example
 @group
-(memql 1.2 '(1.1 1.2 1.3))  ; @r{@code{1.2} and @code{1.2} are @code{eql}.}
+(memql 1.2 '(1.1 1.2 1.3))  ; @r{@code{1.2}と@code{1.2}は@code{eql}。}
      @result{} (1.2 1.3)
 @end group
 @group
-(memq 1.2 '(1.1 1.2 1.3))  ; @r{@code{1.2} and @code{1.2} are not @code{eq}.}
+(memq 1.2 '(1.1 1.2 1.3))  ; @r{@code{1.2}と@code{1.2}は@code{eq}ではない。}
      @result{} nil
 @end group
 @end example
 @end defun
 
-The following three functions are like @code{memq}, @code{delq} and
-@code{remq}, but use @code{equal} rather than @code{eq} to compare
-elements.  @xref{Equality Predicates}.
+以下の3つの関数は@code{memq}、@code{delq}、@code{remq}と似ていますが、要素の比較に@code{eq}ではなく、@code{equal}を使用します。@ref{Equality
+Predicates}を参照してください。
 
 @defun member object list
-The function @code{member} tests to see whether @var{object} is a member
-of @var{list}, comparing members with @var{object} using @code{equal}.
-If @var{object} is a member, @code{member} returns a list starting with
-its first occurrence in @var{list}.  Otherwise, it returns @code{nil}.
+関数@code{member}は、メンバーと@var{object}を@code{equal}を使用して比較して、@var{object}が@var{list}のメンバーかどうかをテストします。@var{object}がメンバーの場合、@code{member}は@var{list}で最初に見つかったところから開始されるリストをreturnします。それ以外は@code{nil}を参照してください。
 
-Compare this with @code{memq}:
+これを@code{memq}と比較してみましょう:
 
 @example
 @group
@@ -1448,11 +1183,11 @@ Compare this with @code{memq}:
      @result{} ((2))
 @end group
 @group
-(memq '(2) '((1) (2)))    ; @r{@code{(2)} and @code{(2)} are not @code{eq}.}
+(memq '(2) '((1) (2)))    ; @r{@code{(2)}と@code{(2)}は@code{eq}ではない。}
      @result{} nil
 @end group
 @group
-;; @r{Two strings with the same contents are @code{equal}.}
+;; @r{同じ内容の2つの文字列は@code{equal}。}
 (member "foo" '("foo" "bar"))
      @result{} ("foo" "bar")
 @end group
@@ -1460,21 +1195,13 @@ Compare this with @code{memq}:
 @end defun
 
 @defun delete object sequence
-This function removes all elements @code{equal} to @var{object} from
-@var{sequence}, and returns the resulting sequence.
+この関数は、@var{sequence}から@var{object}と@code{equal}な要素を取り除いて、結果のシーケンスをreturnします。
 
-If @var{sequence} is a list, @code{delete} is to @code{delq} as
-@code{member} is to @code{memq}: it uses @code{equal} to compare
-elements with @var{object}, like @code{member}; when it finds an
-element that matches, it cuts the element out just as @code{delq}
-would.  As with @code{delq}, you should typically use the return value
-by assigning it to the variable which held the original list.
+@var{sequence}がリストの場合、@code{delete}が@code{delq}に対応するように、@code{member}は@code{memq}に対応します。つまり、この関数は@code{member}と同様、要素と@var{object}の比較に@code{equal}を使用します。マッチする要素が見つかったら、@code{delq}が行なうように、その要素を取り除きます。@code{delq}と同様、通常は元のリストを保持していた変数にreturn値を割り当てて使用します。
 
-If @code{sequence} is a vector or string, @code{delete} returns a copy
-of @code{sequence} with all elements @code{equal} to @code{object}
-removed.
+@code{sequence}がベクターまたは文字列の場合、@code{delete}は@code{object}と@code{equal}なすべての要素を取り除いた、@code{sequence}のコピーをreturnします。
 
-For example:
+たとえば:
 
 @example
 @group
@@ -1483,8 +1210,8 @@ For example:
      @result{} ((1))
 l
      @result{} ((2) (1))
-;; @r{If you want to change @code{l} reliably,}
-;; @r{write @code{(setq l (delete '(2) l))}.}
+;; @r{@code{l}の変更に信頼性を要するときは}
+;; @r{@code{(setq l (delete '(2) l))}と記述する。}
 @end group
 @group
 (setq l '((2) (1) (2)))
@@ -1492,8 +1219,8 @@ l
      @result{} ((2) (2))
 l
      @result{} ((2) (2))
-;; @r{In this case, it makes no difference whether you set @code{l},}
-;; @r{but you should do so for the sake of the other case.}
+;; @r{このケースでは@code{l}のセットの有無に違いはない}
+;; @r{しかし他のケースに倣ってセットするべき。}
 @end group
 @group
 (delete '(2) [(2) (1) (2)])
@@ -1503,9 +1230,7 @@ l
 @end defun
 
 @defun remove object sequence
-This function is the non-destructive counterpart of @code{delete}.  It
-returns a copy of @code{sequence}, a list, vector, or string, with
-elements @code{equal} to @code{object} removed.  For example:
+この関数は、@code{delete}に対応する非破壊的な関数です。この関数は、@code{object}と@code{equal}な要素を取り除いた、@code{sequence}(リスト、ベクター、文字列)のコピーをreturnします。たとえば:
 
 @example
 @group
@@ -1520,47 +1245,33 @@ elements @code{equal} to @code{object} removed.  For example:
 @end defun
 
 @quotation
-@b{Common Lisp note:} The functions @code{member}, @code{delete} and
-@code{remove} in GNU Emacs Lisp are derived from Maclisp, not Common
-Lisp.  The Common Lisp versions do not use @code{equal} to compare
-elements.
+@b{Common Lispに関する注意:} GNU Emacs
+Lispの関数@code{member}、@code{delete}、@code{remove}は、Common
+Lispではなく、Maclispを継承しています。Common Lispでは、比較に@code{equal}を使用しません。
 @end quotation
 
 @defun member-ignore-case object list
-This function is like @code{member}, except that @var{object} should
-be a string and that it ignores differences in letter-case and text
-representation: upper-case and lower-case letters are treated as
-equal, and unibyte strings are converted to multibyte prior to
-comparison.
+この関数は、@code{member}と同様ですが、@var{object}が文字列で、大文字小文字とテキスト表現の違いを無視します。文字の大文字と小文字は等しいものとして扱われ、比較に先立ちユニバイト文字列はマルチバイト文字列に変換されます。
 @end defun
 
 @defun delete-dups list
-This function destructively removes all @code{equal} duplicates from
-@var{list}, stores the result in @var{list} and returns it.  Of
-several @code{equal} occurrences of an element in @var{list},
-@code{delete-dups} keeps the first one.
+この関数は、@var{list}からすべての@code{equal}な重複を、破壊的に取り除いて。、結果を@var{list}に保管して、それをreturnします。@var{list}内の要素に@code{equal}な要素がいくつかある場合、@code{delete-dups}は最初の要素を残します。
 @end defun
 
-  See also the function @code{add-to-list}, in @ref{List Variables},
-for a way to add an element to a list stored in a variable and used as a
-set.
+  変数に格納されたリストに要素を追加したり、それを集合として使用する方法については、@ref{List
+Variables}の関数@code{add-to-list}も参照してください。
 
 @node Association Lists
 @section Association Lists
 @cindex association list
 @cindex alist
 
-  An @dfn{association list}, or @dfn{alist} for short, records a mapping
-from keys to values.  It is a list of cons cells called
-@dfn{associations}: the @sc{car} of each cons cell is the @dfn{key}, and the
-@sc{cdr} is the @dfn{associated value}.@footnote{This usage of ``key''
-is not related to the term ``key sequence''; it means a value used to
-look up an item in a table.  In this case, the table is the alist, and
-the alist associations are the items.}
+  @dfn{連想配列(association
+list。短くはalist)}は、キーと値のマッピングを記録します。これは@dfn{連想(associations)}と呼ばれるコンスセルのリストです。各コンスセルにおいて、@sc{car}は@dfn{キー(key)}で、@sc{cdr}は@dfn{連想値(associated
+value)}になります。@footnote{ここでの``キー(key)''の使い方は、用語``キーシーケンス(key
+sequence)''とは関係ありません。キーはテーブルにあるアイテムを探すために使用される値という意味です。この場合、テーブルはalistでありalistはアイテムに関連付けられます。}
 
-  Here is an example of an alist.  The key @code{pine} is associated with
-the value @code{cones}; the key @code{oak} is associated with
-@code{acorns}; and the key @code{maple} is associated with @code{seeds}.
+  以下はalistの例です。キー@code{pine}は、値@code{cones}に関連付けられます。キー@code{oak}は、@code{acorns}に関連付けられます。キー@code{maple}は、@code{seeds}に関連付けられます。
 
 @example
 @group
@@ -1570,59 +1281,36 @@ the value @code{cones}; the key @code{oak} is associated with
 @end group
 @end example
 
-  Both the values and the keys in an alist may be any Lisp objects.
-For example, in the following alist, the symbol @code{a} is
-associated with the number @code{1}, and the string @code{"b"} is
-associated with the @emph{list} @code{(2 3)}, which is the @sc{cdr} of
-the alist element:
+  alist内の値とキーには、任意のLispオブジェクトを指定できます。たとえば以下のalist0では、シンボル@code{a}は数字@code{1}に、文字列@code{"b"}は@emph{リスト}@code{(2
+3)}(alist要素の@sc{cdr})に関連付けられます。
 
 @example
 ((a . 1) ("b" 2 3))
 @end example
 
-  Sometimes it is better to design an alist to store the associated
-value in the @sc{car} of the @sc{cdr} of the element.  Here is an
-example of such an alist:
+  要素の@sc{cdr}の@sc{car}に連想値を格納するようにalistデザインするほうがよい場合があります。以下は、そのようなalistです。
 
 @example
 ((rose red) (lily white) (buttercup yellow))
 @end example
 
 @noindent
-Here we regard @code{red} as the value associated with @code{rose}.  One
-advantage of this kind of alist is that you can store other related
-information---even a list of other items---in the @sc{cdr} of the
-@sc{cdr}.  One disadvantage is that you cannot use @code{rassq} (see
-below) to find the element containing a given value.  When neither of
-these considerations is important, the choice is a matter of taste, as
-long as you are consistent about it for any given alist.
+この例では、@code{red}が@code{rose}に関連付けられる値だと考えます。この種のalistの利点は、@sc{cdr}の@sc{cdr}の中に、他の関連する情報
+--- 他のアイテムのリストでさえ ---
+を格納することができることです。不利な点は、与えられた値を含む要素を見つけるために@code{rassq}(以下参照)を使用できないことです。これらを検討することが重要でない場合には、任意の与えられたalistにたいして一貫している限り、選択は好みの問題といえます。
 
-  The same alist shown above could be regarded as having the
-associated value in the @sc{cdr} of the element; the value associated
-with @code{rose} would be the list @code{(red)}.
+  上記で示したのと同じalistは、要素の@sc{cdr}に連想値をもつと考えることができます。この場合、@code{rose}に関連付けられる値は、リスト@code{(red)}になるでしょう。
 
-  Association lists are often used to record information that you might
-otherwise keep on a stack, since new associations may be added easily to
-the front of the list.  When searching an association list for an
-association with a given key, the first one found is returned, if there
-is more than one.
+  連想リストは、新しい連想を簡単にリストの先頭に追加できるので、スタックに保持したいような情報を記録するのによく使用されます。連想リストから与えられたキーにたいする連想を検索する場合、それが複数ある場合は、最初に見つかったものがreturnされます。
 
-  In Emacs Lisp, it is @emph{not} an error if an element of an
-association list is not a cons cell.  The alist search functions simply
-ignore such elements.  Many other versions of Lisp signal errors in such
-cases.
+  Emacs
+Lispでは、連想リストがコンスセルではない場合、それはエラーでは@emph{ありません}。alist検索関数は、単にそのような要素を無視します。多くの他のバージョンのLいspでは、このような場合はエラーをシグナルします。
 
-  Note that property lists are similar to association lists in several
-respects.  A property list behaves like an association list in which
-each key can occur only once.  @xref{Property Lists}, for a comparison
-of property lists and association lists.
+  いくつかの観点において、プロパティーリストは連想リストと似ていることに注意してください。それぞれのキーが1度だけ出現するような場合、プロパティーリストは連想リストと同様に振る舞います。プロパティーリストと連想リストの比較については、@ref{Property
+Lists}を参照してください。
 
 @defun assoc key alist
-This function returns the first association for @var{key} in
-@var{alist}, comparing @var{key} against the alist elements using
-@code{equal} (@pxref{Equality Predicates}).  It returns @code{nil} if no
-association in @var{alist} has a @sc{car} @code{equal} to @var{key}.
-For example:
+この関数は、alist要素にたいして@var{key}を比較するのに@code{equal}を使用して、@var{alist}内から@var{key}をもつ最初の連想をreturnします。@sc{car}が@var{key}と@code{equal}の連想が@var{alist}にない場合、この関数は@code{nil}をreturnします。たとえば:
 
 @smallexample
 (setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
@@ -1635,7 +1323,7 @@ For example:
      @result{} nil
 @end smallexample
 
-Here is another example, in which the keys and values are not symbols:
+以下はキーと値がシンボルでない場合の例です:
 
 @smallexample
 (setq needles-per-cluster
@@ -1650,28 +1338,19 @@ Here is another example, in which the keys and values are not symbols:
 @end smallexample
 @end defun
 
-  The function @code{assoc-string} is much like @code{assoc} except
-that it ignores certain differences between strings.  @xref{Text
-Comparison}.
+  関数@code{assoc-string}は@code{assoc}と似ていますが、文字列間の特定の違いを無視する点が異なります。@ref{Text
+Comparison}を参照してください。
 
 @defun rassoc value alist
-This function returns the first association with value @var{value} in
-@var{alist}.  It returns @code{nil} if no association in @var{alist} has
-a @sc{cdr} @code{equal} to @var{value}.
+この関数は、@var{alist}の中から、値@var{value}をもつ最初の連想をreturnします。@sc{cdr}が@var{value}と@code{equal}の連想が@var{alist}にない場合、この関数は@code{nil}をreturnします。
 
-@code{rassoc} is like @code{assoc} except that it compares the @sc{cdr} of
-each @var{alist} association instead of the @sc{car}.  You can think of
-this as ``reverse @code{assoc}'', finding the key for a given value.
+@code{rassoc}は@code{assoc}と似ていますが、@sc{car}ではなく、@var{alist}の連想の@sc{cdr}を比較します。この関数を、与えられた値に対応するキーを探す、``reverse
+@code{assoc}''と考えることができます。
 @end defun
 
 @defun assq key alist
-This function is like @code{assoc} in that it returns the first
-association for @var{key} in @var{alist}, but it makes the comparison
-using @code{eq} instead of @code{equal}.  @code{assq} returns @code{nil}
-if no association in @var{alist} has a @sc{car} @code{eq} to @var{key}.
-This function is used more often than @code{assoc}, since @code{eq} is
-faster than @code{equal} and most alists use symbols as keys.
-@xref{Equality Predicates}.
+この関数は、@var{alist}から@var{key}をもつ最初の連想をreturnする点は@code{assoc}と同様ですが、比較に@code{equal}ではなく@code{eq}を使用します。@sc{car}が@var{key}と@code{eq}な連想が@var{alist}内に存在しない場合、@code{assq}は@code{nil}をreturnします。@code{eq}は@code{equal}より早く、ほとんどのalistはキーにシンボルを使用するので、この関数は@code{assoc}より多用されます。@ref{Equality
+Predicates}を参照してください。
 
 @smallexample
 (setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
@@ -1680,8 +1359,7 @@ faster than @code{equal} and most alists use symbols as keys.
      @result{} (pine . cones)
 @end smallexample
 
-On the other hand, @code{assq} is not usually useful in alists where the
-keys may not be symbols:
+反対に、キーがシンボルではないalistでは通常、@code{assq}は有用ではありません:
 
 @smallexample
 (setq leaves
@@ -1696,15 +1374,12 @@ keys may not be symbols:
 @end defun
 
 @defun rassq value alist
-This function returns the first association with value @var{value} in
-@var{alist}.  It returns @code{nil} if no association in @var{alist} has
-a @sc{cdr} @code{eq} to @var{value}.
+この関数は、@var{alist}内から値@var{value}をもつ最初の連想をreturnします。@var{alist}内に@sc{cdr}が@var{value}と@code{eq}な連想が存在しない場合は、@code{nil}をreturnします。
 
-@code{rassq} is like @code{assq} except that it compares the @sc{cdr} of
-each @var{alist} association instead of the @sc{car}.  You can think of
-this as ``reverse @code{assq}'', finding the key for a given value.
+@code{rassq}は@code{assq}と似ていますが、@sc{car}ではなく、@var{alist}の各連想の@sc{cdr}を比較します。この関数を、与えられた値に対応するキーを探す、``reverse
+@code{assq}''と考えることができます。
 
-For example:
+たとえば:
 
 @smallexample
 (setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
@@ -1715,8 +1390,7 @@ For example:
      @result{} nil
 @end smallexample
 
-@code{rassq} cannot search for a value stored in the @sc{car}
-of the @sc{cdr} of an element:
+@code{rassq}は、要素の@sc{cdr}の@sc{car}に保管された値の検索はできません:
 
 @smallexample
 (setq colors '((rose red) (lily white) (buttercup yellow)))
@@ -1725,9 +1399,8 @@ of the @sc{cdr} of an element:
      @result{} nil
 @end smallexample
 
-In this case, the @sc{cdr} of the association @code{(lily white)} is not
-the symbol @code{white}, but rather the list @code{(white)}.  This
-becomes clearer if the association is written in dotted pair notation:
+この場合、連想@code{(lily
+white)}の@sc{cdr}は@code{white}ではなく、リスト@code{(white)}です。これは連想をドットペア表記で記述すると明確になります:
 
 @smallexample
 (lily white) @equiv{} (lily . (white))
@@ -1735,29 +1408,19 @@ becomes clearer if the association is written in dotted pair notation:
 @end defun
 
 @defun assoc-default key alist &optional test default
-This function searches @var{alist} for a match for @var{key}.  For each
-element of @var{alist}, it compares the element (if it is an atom) or
-the element's @sc{car} (if it is a cons) against @var{key}, by calling
-@var{test} with two arguments: the element or its @sc{car}, and
-@var{key}.  The arguments are passed in that order so that you can get
-useful results using @code{string-match} with an alist that contains
-regular expressions (@pxref{Regexp Search}).  If @var{test} is omitted
-or @code{nil}, @code{equal} is used for comparison.
+この関数は、@var{key}にたいするマッチを@var{alist}から検索します。@var{alist}の各要素にたいして、この関数は、@var{key}と要素(アトムの場合)、または要素の@sc{car}(コンスの場合)を比較します。比較は@var{test}に2つの引数
+--- 要素(または要素の@sc{car})と@var{key} ---
+を与えて呼び出すことにより行なわれます。引数はこの順番で渡されるので、正規表現(@ref{Regexp
+Search}を参照してください)を含むalistでは、@code{string-match}を使用することにより有益な結果を得ることができます。@var{test}が省略されているか@code{nil}の場合は、比較に@code{equal}が使用されます。
 
-If an alist element matches @var{key} by this criterion,
-then @code{assoc-default} returns a value based on this element.
-If the element is a cons, then the value is the element's @sc{cdr}.
-Otherwise, the return value is @var{default}.
+alistの要素がこの条件により@var{key}とマッチした場合、@code{assoc-default}はこの要素の値をreturnします。要素がコンスの場合、値は要素の@sc{cdr}です。それ以外の場合、return値は@var{default}です。
 
-If no alist element matches @var{key}, @code{assoc-default} returns
-@code{nil}.
+@var{key}にマッチする要素がalistに存在しない場合、@code{assoc-default}は@code{nil}をreturnします。
 @end defun
 
 @defun copy-alist alist
 @cindex copying alists
-This function returns a two-level deep copy of @var{alist}: it creates a
-new copy of each association, so that you can alter the associations of
-the new alist without changing the old one.
+この関数は、深さ2がレベルの@var{alist}のコピーをreturnします。この関数は各連想の新しいコピーを作成するので、元のalistを変更せずに、新しいalistを変更できます。
 
 @smallexample
 @group
@@ -1792,8 +1455,7 @@ the new alist without changing the old one.
 @end group
 @end smallexample
 
-  This example shows how @code{copy-alist} makes it possible to change
-the associations of one copy without affecting the other:
+  以下の例は、どのようにして@code{copy-alist}が他に影響を与えずにコピーの連想を変更可能なのかを示します:
 
 @smallexample
 @group
@@ -1805,12 +1467,7 @@ the associations of one copy without affecting the other:
 @end defun
 
 @defun assq-delete-all key alist
-This function deletes from @var{alist} all the elements whose @sc{car}
-is @code{eq} to @var{key}, much as if you used @code{delq} to delete
-each such element one by one.  It returns the shortened alist, and
-often modifies the original list structure of @var{alist}.  For
-correct results, use the return value of @code{assq-delete-all} rather
-than looking at the saved value of @var{alist}.
+この関数は、@var{alist}から、(@code{delq}を使用した場合は、そのような要素を1つずつ削除するのにたいして)@sc{car}が@var{key}と@code{eq}な要素すべてを削除します。この関数は短くなったalistをreturnし、@var{alist}の元のリスト構造を変更することもよくあります。正しい結果を得るために、@var{alist}に保存された値ではなく、@code{assq-delete-all}のreturn値を使用してください。
 
 @example
 (setq alist '((foo 1) (bar 2) (foo 3) (lose 4)))
@@ -1823,12 +1480,7 @@ alist
 @end defun
 
 @defun rassq-delete-all value alist
-This function deletes from @var{alist} all the elements whose @sc{cdr}
-is @code{eq} to @var{value}.  It returns the shortened alist, and
-often modifies the original list structure of @var{alist}.
-@code{rassq-delete-all} is like @code{assq-delete-all} except that it
-compares the @sc{cdr} of each @var{alist} association instead of the
-@sc{car}.
+この関数は、@var{alist}から@sc{cdr}が@var{value}と@code{eq}なすべての要素を削除します。この関数は短くなったリストをreturnし、@var{alist}の元のリスト構造を変更することもよくあります。@code{rassq-delete-all}は@code{assq-delete-all}と似ていますが、@sc{car}ではなく@var{alist}の各連想の@sc{cdr}を比較します。
 @end defun
 
 @node Property Lists
@@ -1836,36 +1488,26 @@ compares the @sc{cdr} of each @var{alist} association instead of the
 @cindex property list
 @cindex plist
 
-  A @dfn{property list} (@dfn{plist} for short) is a list of paired
-elements.  Each of the pairs associates a property name (usually a
-symbol) with a property or value.  Here is an example of a property
-list:
+  @dfn{プロパティーリスト(property
+list。短くはplist)}は、ペアになった要素のリストです。各ペアはプロパティー名(通常はシンボル)とプロパティー値を対応づけます。以下はプロパティーリストの例です:
 
 @example
 (pine cones numbers (1 2 3) color "blue")
 @end example
 
 @noindent
-This property list associates @code{pine} with @code{cones},
-@code{numbers} with @code{(1 2 3)}, and @code{color} with
-@code{"blue"}.  The property names and values can be any Lisp objects,
-but the names are usually symbols (as they are in this example).
+このプロパティーリストは、@code{pine}を@code{cones}、@code{numbers}を@code{(1 2
+3)}、@code{color}を@code{"blue"}に関連づけます。プロパティー名とプロパティー値には任意のLispオブジェクトを指定できますが、通常プロパティー名は(この例のように)シンボルです。
 
-  Property lists are used in several contexts.  For instance, the
-function @code{put-text-property} takes an argument which is a
-property list, specifying text properties and associated values which
-are to be applied to text in a string or buffer.  @xref{Text
-Properties}.
+  いくつかのコンテキストでプロパティーリストが使用されます。たとえば、関数@code{put-text-property}はプロパティーリストを引数にとり、文字列またはバッファー内のテキストにたいして、テキストプロパティーと、テキストに適用するプロパティー値を指定します。@ref{Text
+Properties}を参照してください。
 
-  Another prominent use of property lists is for storing symbol
-properties.  Every symbol possesses a list of properties, used to
-record miscellaneous information about the symbol; these properties
-are stored in the form of a property list.  @xref{Symbol Properties}.
+  プロパティーリストが頻繁に使用される他の例は、シンボルプロパティーの保管です。すべてのシンボルは、シンボルに関する様々な情報を記録するために、プロパティーのリストを処理します。これらのプロパティーはプロパティーリストの形式で保管されます。@ref{Symbol
+Properties}を参照してください。
 
 @menu
-* Plists and Alists::           Comparison of the advantages of property
-                                  lists and association lists.
-* Plist Access::                Accessing property lists stored elsewhere.
+* Plists and Alists::        プロパティーリストと連想リストの利点の比較。
+* Plist Access::             他の場所に保管されたプロパティーリストへのアクセス。
 @end menu
 
 @node Plists and Alists
@@ -1874,48 +1516,22 @@ are stored in the form of a property list.  @xref{Symbol Properties}.
 @cindex alist vs. plist
 
 @cindex property lists vs association lists
-  Association lists (@pxref{Association Lists}) are very similar to
-property lists.  In contrast to association lists, the order of the
-pairs in the property list is not significant, since the property
-names must be distinct.
+  連想リスト(@ref{Association
+Lists}を参照してください)は、プロパティーリストとよく似ています。連想リストとは対照的に、プロパティー名は一意でなければならないので、プロパティーリスト内でペアの順序に意味はありません。
 
-  Property lists are better than association lists for attaching
-information to various Lisp function names or variables.  If your
-program keeps all such information in one association list, it will
-typically need to search that entire list each time it checks for an
-association for a particular Lisp function name or variable, which
-could be slow.  By contrast, if you keep the same information in the
-property lists of the function names or variables themselves, each
-search will scan only the length of one property list, which is
-usually short.  This is why the documentation for a variable is
-recorded in a property named @code{variable-documentation}.  The byte
-compiler likewise uses properties to record those functions needing
-special treatment.
+  様々なLisp関数や変数に情報を付加するためには、連想リストよりプロパティーリストの方が適しています。プログラムでこのような情報すべてを1つの連想リストに保持する場合、特定のLisp関数や変数にたいする連想をチェックする度に、リスト全体を検索する必要が生じ、それにより遅くなる可能性があります。対照的に、関数名や変数自体のプロパティーリストに同じ情報を保持すれば、検索ごとにそのプロパティーリストの長さだけを検索するようになり、通常はこちらの方が短い時間で済みます。変数のドキュメントが@code{variable-documentation}という名前のプロパティーに記録されているのは、これが理由です。同様にバイトコンパイラーも、特別に扱う必要がある関数を記録するためにプロパティーを使用します。
 
-  However, association lists have their own advantages.  Depending on
-your application, it may be faster to add an association to the front of
-an association list than to update a property.  All properties for a
-symbol are stored in the same property list, so there is a possibility
-of a conflict between different uses of a property name.  (For this
-reason, it is a good idea to choose property names that are probably
-unique, such as by beginning the property name with the program's usual
-name-prefix for variables and functions.)  An association list may be
-used like a stack where associations are pushed on the front of the list
-and later discarded; this is not possible with a property list.
+  連想リストにも独自の利点があります。アプリケーションに依存しますが、プロパティーを更新するより、連想リストの先頭に連想を追加する方が速いでしょう。シンボルにたいするすべてのプロパティーは同じプロパティーリストに保管されるので、プロパティー名を異なる用途のために使用すると衝突の可能性があります(この理由により、そのプログラムで通常の変数や関数の名前につけるプレフィクスをプロパティー名の先頭につけることにより、一意と思われるプロパティー名を選ぶのはよいアイデアです)。連想リストは、連想をリストの先頭にpushし、後にある連想は無視されるので、スタックと同様に使用できます。これはプロパティーリストでは不可能です。
 
 @node Plist Access
 @subsection Property Lists Outside Symbols
 @cindex plist access
 @cindex accessing plist properties
 
-  The following functions can be used to manipulate property lists.
-They all compare property names using @code{eq}.
+  以下の関数はプロパティーリストを操作するために使用されます。これらの関数はすべて、プロパティー名の比較に@code{eq}を使用します。
 
 @defun plist-get plist property
-This returns the value of the @var{property} property stored in the
-property list @var{plist}.  It accepts a malformed @var{plist}
-argument.  If @var{property} is not found in the @var{plist}, it
-returns @code{nil}.  For example,
+この関数は、プロパティーリスト@var{plist}に保管された、プロパティー@var{property}の値をreturnします。この関数には、変形された(malformed)@var{plist}引数を指定できます。@var{plist}で@var{property}が見つからなかった場合、この関数は@code{nil}をreturnします。たとえば、
 
 @example
 (plist-get '(foo 4) 'foo)
@@ -1930,11 +1546,7 @@ returns @code{nil}.  For example,
 @end defun
 
 @defun plist-put plist property value
-This stores @var{value} as the value of the @var{property} property in
-the property list @var{plist}.  It may modify @var{plist} destructively,
-or it may construct a new list structure without altering the old.  The
-function returns the modified property list, so you can store that back
-in the place where you got @var{plist}.  For example,
+この関数は、プロパティーリスト@var{plist}に、プロパティー@var{property}の値として、@var{value}を保管します。この関数は@var{plist}を破壊的に変更するかもしれず、元のリスト構造を変更せずに新しいリストを構築することもあります。この関数は変更されたプロパティーリストをreturnするので、@var{plist}を取得した場所に書き戻すことができます。たとえば、
 
 @example
 (setq my-plist '(bar t foo 4))
@@ -1947,19 +1559,13 @@ in the place where you got @var{plist}.  For example,
 @end defun
 
 @defun lax-plist-get plist property
-Like @code{plist-get} except that it compares properties
-using @code{equal} instead of @code{eq}.
+@code{plist-get}と同様ですが、プロパティーの比較に@code{eq}ではなく@code{equal}を使用します。
 @end defun
 
 @defun lax-plist-put plist property value
-Like @code{plist-put} except that it compares properties
-using @code{equal} instead of @code{eq}.
+@code{plist-put}と同様ですが、プロパティーの比較に@code{eq}ではなく@code{equal}を使用します。
 @end defun
 
 @defun plist-member plist property
-This returns non-@code{nil} if @var{plist} contains the given
-@var{property}.  Unlike @code{plist-get}, this allows you to distinguish
-between a missing property and a property with the value @code{nil}.
-The value is actually the tail of @var{plist} whose @code{car} is
-@var{property}.
+この関数は与えられた@var{property}が@var{plist}に含まれる場合は、非@code{nil}をreturnします。@code{plist-get}とは異なり、この関数は存在しないプロパティーと、値が@code{nil}のプロパティーを区別できます。実際にreturnされる値は、@code{car}が@var{property}で始まる、@var{plist}の後尾部分です。
 @end defun

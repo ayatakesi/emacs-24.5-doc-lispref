@@ -3,6 +3,6 @@ html:	elisp.html
 %.texi : %.texi.po
 	po4a-translate -f texinfo -k 0 -M utf8 -m $@.orig -p $@.po -l $@; 
 
-elisp.html :  functions.texi.po macros.texi.po customize.texi
+elisp.html :  control.texi functions.texi lists.texi objects.texi symbols.texi customize.texi hash.texi macros.texi sequences.texi variables.texi eval.texi intro.texi numbers.texi strings.texi
 	texi2any --set-customization-variable TEXI2HTML=1 elisp.texi
 

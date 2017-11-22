@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-09-12 22:53+0900\n"
-"PO-Revision-Date: 2017-11-20 06:42+0900\n"
+"PO-Revision-Date: 2017-11-22 14:21+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -1918,7 +1918,7 @@ msgid ""
 "including the @code{:tag} keyword in the alternatives.  For example, if an "
 "integer stands for a number of spaces, while a string is text to use "
 "verbatim, you might write the customization type this way,"
-msgstr ""
+msgstr "通常この選択からメニューの文字列が自動的に決定されます。しかし候補の中に@code{:tag}キーワードを含めることにより、メニューにたいして異なる文字列を指定できます。たとえば、空白の数を意味する整数と、その通りに使用したいテキストにたいする文字列の場合は、以下のような方法でカスタマイズ型を記述したいかもしれません"
 
 #. type: example
 #: customize.texi.orig:820
@@ -1927,11 +1927,13 @@ msgid ""
 "(choice (integer :tag \"Number of spaces\")\n"
 "        (string :tag \"Literal text\"))\n"
 msgstr ""
+"(choice (integer :tag \"Number of spaces\")\n"
+"        (string :tag \"Literal text\"))\n"
 
 #. type: table
 #: customize.texi.orig:824
 msgid "so that the menu offers @samp{Number of spaces} and @samp{Literal text}."
-msgstr ""
+msgstr "この場合メニューは、@samp{Number of spaces}と@samp{Literal text}を提示します。"
 
 #. type: table
 #: customize.texi.orig:828
@@ -1939,7 +1941,7 @@ msgid ""
 "In any alternative for which @code{nil} is not a valid value, other than a "
 "@code{const}, you should specify a valid default for that alternative using "
 "the @code{:value} keyword.  @xref{Type Keywords}."
-msgstr ""
+msgstr "@code{const}以外の@code{nil}が有効な値ではない候補には、@code{:value}キーワードを使用して、有効なデフォルト値を指定するべきです。@ref{Type Keywords}を参照してください。"
 
 #. type: table
 #: customize.texi.orig:833
@@ -1948,7 +1950,7 @@ msgid ""
 "will choose the first alternative that the value fits.  This means you "
 "should always list the most specific types first, and the most general "
 "last.  Here's an example of proper usage:"
-msgstr ""
+msgstr "複数の候補によりいくつかの値が提供される場合、カスタマイズは適合する値をもつ最初の候補を選択します。これは常に、もっとも特有な型を最初に、もっとも一般的な型を最後にリストすべきことを意味します。以下は適切な使い方の例です:"
 
 #. type: example
 #: customize.texi.orig:837
@@ -1957,19 +1959,21 @@ msgid ""
 "(choice (const :tag \"Off\" nil)\n"
 "        symbol (sexp :tag \"Other\"))\n"
 msgstr ""
+"(choice (const :tag \"Off\" nil)\n"
+"        symbol (sexp :tag \"Other\"))\n"
 
 #. type: table
 #: customize.texi.orig:842
 msgid ""
 "This way, the special value @code{nil} is not treated like other symbols, "
 "and symbols are not treated like other Lisp expressions."
-msgstr ""
+msgstr "この使い方では、特別な値@code{nil}はその他のシンボルとは別に扱われ、シンボルは他のLisp式とは別に扱われます。"
 
 #. type: item
 #: customize.texi.orig:843
 #, no-wrap
 msgid "(radio @var{element-types}@dots{})"
-msgstr ""
+msgstr "(radio @var{element-types}@dots{})"
 
 #. type: table
 #: customize.texi.orig:849
@@ -1979,32 +1983,32 @@ msgid ""
 "displaying documentation for the choices when applicable and so is often a "
 "good choice for a choice between constant functions (@code{function-item} "
 "customization types)."
-msgstr ""
+msgstr "これは@code{choice}と似ていますが、選択はメニューではなく、`ラジオボタン'で表示されます。これは該当する選択にたいしてドキュメントが表示できる利点があるので、関数定数(@code{function-item}カスタマイズ型)の選択に適す場合があります。"
 
 #. type: item
 #: customize.texi.orig:850
 #, no-wrap
 msgid "(const @var{value})"
-msgstr ""
+msgstr "(const @var{value})"
 
 #. type: table
 #: customize.texi.orig:852
 msgid "The value must be @var{value}---nothing else is allowed."
-msgstr ""
+msgstr "値は@var{value}でなければならず、他は許されません。"
 
 #. type: table
 #: customize.texi.orig:856
 msgid ""
 "The main use of @code{const} is inside of @code{choice}.  For example, "
 "@code{(choice integer (const nil))} allows either an integer or @code{nil}."
-msgstr ""
+msgstr "@code{const}は主に@code{choice}の中で使用されます。たとえば、@code{(choice integer (const nil))}では、整数か@code{nil}が選択できます。"
 
 #. type: table
 #: customize.texi.orig:859
 msgid ""
 "@code{:tag} is often used with @code{const}, inside of @code{choice}.  For "
 "example,"
-msgstr ""
+msgstr "@code{choice}の中では、@code{:tag}とともに@code{const}が使用される場合があります。たとえば、"
 
 #. type: example
 #: customize.texi.orig:864
@@ -2014,33 +2018,36 @@ msgid ""
 "        (const :tag \"No\" nil)\n"
 "        (const :tag \"Ask\" foo))\n"
 msgstr ""
+"(choice (const :tag \"Yes\" t)\n"
+"        (const :tag \"No\" nil)\n"
+"        (const :tag \"Ask\" foo))\n"
 
 #. type: table
 #: customize.texi.orig:869
 msgid ""
 "describes a variable for which @code{t} means yes, @code{nil} means no, and "
 "@code{foo} means ``ask''."
-msgstr ""
+msgstr "これは@code{t}がyes、@code{nil}がno、@code{foo}が``ask''を意味することを示します。"
 
 #. type: item
 #: customize.texi.orig:870
 #, no-wrap
 msgid "(other @var{value})"
-msgstr ""
+msgstr "(other @var{value})"
 
 #. type: table
 #: customize.texi.orig:873
 msgid ""
 "This alternative can match any Lisp value, but if the user chooses this "
 "alternative, that selects the value @var{value}."
-msgstr ""
+msgstr "この候補は任意のLisp値にマッチできますが、ユーザーがこの候補を選択した場合は、値@var{value}が選択されます。"
 
 #. type: table
 #: customize.texi.orig:876
 msgid ""
 "The main use of @code{other} is as the last element of @code{choice}.  For "
 "example,"
-msgstr ""
+msgstr "@code{other}は主に@code{choice}の最後の要素に使用されます。たとえば、"
 
 #. type: example
 #: customize.texi.orig:881
@@ -2050,6 +2057,9 @@ msgid ""
 "        (const :tag \"No\" nil)\n"
 "        (other :tag \"Ask\" foo))\n"
 msgstr ""
+"(choice (const :tag \"Yes\" t)\n"
+"        (const :tag \"No\" nil)\n"
+"        (other :tag \"Ask\" foo))\n"
 
 #. type: table
 #: customize.texi.orig:889
@@ -2059,13 +2069,13 @@ msgid ""
 "of alternatives, that specifies the value @code{foo}; but any other value "
 "(not @code{t}, @code{nil} or @code{foo}) displays as @samp{Ask}, just like "
 "@code{foo}."
-msgstr ""
+msgstr "これは@code{t}がyes、@code{nil}がno、それ以外は``ask''を意味することを示します。ユーザーが候補メニューから@samp{Ask}を選択した場合は、値@code{foo}が指定されます。しかし、その他の値(@code{t}、@code{nil}、@code{foo}を除く)では、@code{foo}と同様に@samp{Ask}が表示されます。"
 
 #. type: item
 #: customize.texi.orig:890
 #, no-wrap
 msgid "(function-item @var{function})"
-msgstr ""
+msgstr "(function-item @var{function})"
 
 #. type: table
 #: customize.texi.orig:895
@@ -2074,13 +2084,13 @@ msgid ""
 "the documentation string as well as the function name.  The documentation "
 "string is either the one you specify with @code{:doc}, or @var{function}'s "
 "own documentation string."
-msgstr ""
+msgstr "@code{const}と同様ですが、値が関数のときに使用されます。これはドキュメント文字列も関数名と同じように表示します。ドキュメント文字列は、@code{:doc}で指定した文字列か、@var{function}自身のドキュメント文字列です。"
 
 #. type: item
 #: customize.texi.orig:896
 #, no-wrap
 msgid "(variable-item @var{variable})"
-msgstr ""
+msgstr "(variable-item @var{variable})"
 
 #. type: table
 #: customize.texi.orig:901
@@ -2089,20 +2099,20 @@ msgid ""
 "displays the documentation string as well as the variable name.  The "
 "documentation string is either the one you specify with @code{:doc}, or "
 "@var{variable}'s own documentation string."
-msgstr ""
+msgstr "@code{const}と同様ですが、値が変数名のときに使用されます。これはドキュメント文字列も変数名と同じように表示します。ドキュメント文字列は、@code{:doc}で指定した文字列か、@var{variable}自身のドキュメント文字列です。"
 
 #. type: item
 #: customize.texi.orig:902
 #, no-wrap
 msgid "(set @var{types}@dots{})"
-msgstr ""
+msgstr "(set @var{types}@dots{})"
 
 #. type: table
 #: customize.texi.orig:905
 msgid ""
 "The value must be a list, and each element of the list must match one of the "
 "@var{types} specified."
-msgstr ""
+msgstr "値はリストでなければならず、指定された@var{types}の1つにマッチしなければなりません。"
 
 #. type: table
 #: customize.texi.orig:913
@@ -2114,25 +2124,25 @@ msgid ""
 "and/or one symbol in the list; it does not allow multiple integers or "
 "multiple symbols.  As a result, it is rare to use nonspecific types such as "
 "@code{integer} in a @code{set}."
-msgstr ""
+msgstr "これはカスタマイズバッファーではチェックリストとして表示されるので、@var{types}はそれぞれ対応する要素を1つ、あるいは要素をもちません。同じ1つの@var{types}にマッチするような、異なる2つの要素を指定することはできません。たとえば、@code{(set integer symbol)}は、リスト内で1つの整数、および/または1つのシンボルが許され、複数の整数や複数のシンボルは許されません。結果として、@code{set}内で@code{integer}のような特定的ではない型を使用するのは稀です。"
 
 #. type: table
 #: customize.texi.orig:916
 msgid ""
 "Most often, the @var{types} in a @code{set} are @code{const} types, as shown "
 "here:"
-msgstr ""
+msgstr "以下のように、@code{const}型は@code{set}内の@var{types}でよく使用されます:"
 
 #. type: example
 #: customize.texi.orig:919
 #, no-wrap
 msgid "(set (const :bold) (const :italic))\n"
-msgstr ""
+msgstr "(set (const :bold) (const :italic))\n"
 
 #. type: table
 #: customize.texi.orig:922
 msgid "Sometimes they describe possible elements in an alist:"
-msgstr ""
+msgstr "alist内で利用できる要素を示すために使用されることもあります:"
 
 #. type: example
 #: customize.texi.orig:926
@@ -2141,19 +2151,21 @@ msgid ""
 "(set (cons :tag \"Height\" (const height) integer)\n"
 "     (cons :tag \"Width\" (const width) integer))\n"
 msgstr ""
+"(set (cons :tag \"Height\" (const height) integer)\n"
+"     (cons :tag \"Width\" (const width) integer))\n"
 
 #. type: table
 #: customize.texi.orig:931
 msgid ""
 "That lets the user specify a height value optionally and a width value "
 "optionally."
-msgstr ""
+msgstr "これによりユーザーにオプションでheightとwidthの値を指定させることができます。"
 
 #. type: item
 #: customize.texi.orig:932
 #, no-wrap
 msgid "(repeat @var{element-type})"
-msgstr ""
+msgstr "(repeat @var{element-type})"
 
 #. type: table
 #: customize.texi.orig:937
@@ -2162,13 +2174,13 @@ msgid ""
 "@var{element-type}.  This appears in the customization buffer as a list of "
 "elements, with @samp{[INS]} and @samp{[DEL]} buttons for adding more "
 "elements or removing elements."
-msgstr ""
+msgstr "値はリストでなければならず、リストの各要素は型@var{element-type}に適合しなければなりません。カスタマイズバッファーでは要素のリストとして表示され、@samp{[INS]}および@samp{[DEL]}ボタンにより、要素の追加や削除が行われます。"
 
 #. type: item
 #: customize.texi.orig:938
 #, no-wrap
 msgid "(restricted-sexp :match-alternatives @var{criteria})"
-msgstr ""
+msgstr "(restricted-sexp :match-alternatives @var{criteria})"
 
 #. type: table
 #: customize.texi.orig:943
@@ -2176,7 +2188,7 @@ msgid ""
 "This is the most general composite type construct.  The value may be any "
 "Lisp object that satisfies one of @var{criteria}.  @var{criteria} should be "
 "a list, and each element should be one of these possibilities:"
-msgstr ""
+msgstr "これはもっとも汎用的な複合型の構築方法です。値は@var{criteria}を満足する任意のLispオブジェクトです。@var{criteria}はリストで、リストの各要素は以下のうちの1つを満たす必要があります:"
 
 #. type: itemize
 #: customize.texi.orig:950
@@ -2185,19 +2197,19 @@ msgid ""
 "and returns either @code{nil} or non-@code{nil} according to the argument.  "
 "Using a predicate in the list says that objects for which the predicate "
 "returns non-@code{nil} are acceptable."
-msgstr ""
+msgstr "述語 --- つまり、副作用をもたず引数は1つ、その引数に応じて@code{nil}か非@code{nil}のどちらかをリターンする関数。リスト内での述語の使用により、その述語が非@code{nil}をリターンするようなオブジェクトが許されることを意味する。"
 
 #. type: itemize
 #: customize.texi.orig:954
 msgid ""
 "A quoted constant---that is, @code{'@var{object}}.  This sort of element in "
 "the list says that @var{object} itself is an acceptable value."
-msgstr ""
+msgstr "クォートされた定数 --- つまり、@code{'@var{object}}。リスト内でこの要素は、@var{object}自身が容認される値であることを示す。"
 
 #. type: table
 #: customize.texi.orig:957
 msgid "For example,"
-msgstr ""
+msgstr "たとえば、"
 
 #. type: example
 #: customize.texi.orig:961
@@ -2206,69 +2218,71 @@ msgid ""
 "(restricted-sexp :match-alternatives\n"
 "                 (integerp 't 'nil))\n"
 msgstr ""
+"(restricted-sexp :match-alternatives\n"
+"                 (integerp 't 'nil))\n"
 
 #. type: table
 #: customize.texi.orig:965
 msgid "allows integers, @code{t} and @code{nil} as legitimate values."
-msgstr ""
+msgstr "これは整数、@code{t}、@code{nil}を正当な値として受け入れます。"
 
 #. type: table
 #: customize.texi.orig:968
 msgid ""
 "The customization buffer shows all legitimate values using their read "
 "syntax, and the user edits them textually."
-msgstr ""
+msgstr "カスタマイズバッファーは適切な値をそれらの入力構文ですべて表示し、ユーザーはこれらをテキストとして編集できます。"
 
 #. type: Plain text
 #: customize.texi.orig:972
 msgid ""
 "Here is a table of the keywords you can use in keyword-value pairs in a "
 "composite type:"
-msgstr ""
+msgstr "以下は複合型でキーワード/値ペアーとして使用できるキーワードのテーブルです:"
 
 #. type: item
 #: customize.texi.orig:974 customize.texi.orig:1127
 #, no-wrap
 msgid ":tag @var{tag}"
-msgstr ""
+msgstr ":tag @var{tag}"
 
 #. type: table
 #: customize.texi.orig:978
 msgid ""
 "Use @var{tag} as the name of this alternative, for user communication "
 "purposes.  This is useful for a type that appears inside of a @code{choice}."
-msgstr ""
+msgstr "@var{tag}は、ユーザーとのコミュニケーションのために、その候補の名前として使用される。@code{choice}内に出現する型にたいして有用。"
 
 #. type: item
 #: customize.texi.orig:979
 #, no-wrap
 msgid ":match-alternatives @var{criteria}"
-msgstr ""
+msgstr ":match-alternatives @var{criteria}"
 
 #. type: kindex
 #: customize.texi.orig:980
 #, no-wrap
 msgid "match-alternatives@r{, customization keyword}"
-msgstr ""
+msgstr "match-alternatives@r{, customization keyword}"
 
 #. type: table
 #: customize.texi.orig:983
 msgid ""
 "Use @var{criteria} to match possible values.  This is used only in "
 "@code{restricted-sexp}."
-msgstr ""
+msgstr "@var{criteria}は可能な値とのマッチに使用される。これは@code{restricted-sexp}内でのみ有用。"
 
 #. type: item
 #: customize.texi.orig:984
 #, no-wrap
 msgid ":args @var{argument-list}"
-msgstr ""
+msgstr ":args @var{argument-list}"
 
 #. type: kindex
 #: customize.texi.orig:985
 #, no-wrap
 msgid "args@r{, customization keyword}"
-msgstr ""
+msgstr "args@r{, customization keyword}"
 
 #. type: table
 #: customize.texi.orig:991
@@ -2278,7 +2292,7 @@ msgid ""
 "@code{(const foo)}.  You rarely need to write @code{:args} explicitly, "
 "because normally the arguments are recognized automatically as whatever "
 "follows the last keyword-value pair."
-msgstr ""
+msgstr "型構築の引数として@var{argument-list}の要素を使用します。たとえば、@code{(const :args (foo))}は@code{(const foo)}と等価です。明示的に@code{:args}とく記述する必要があるのは稀です。なぜなら、最後のキーワード/値ペアーの後に続くものは何であれ、引数として認識されるからです。"
 
 #. type: Plain text
 #: customize.texi.orig:1001

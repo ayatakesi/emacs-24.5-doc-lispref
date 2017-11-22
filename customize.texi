@@ -559,11 +559,7 @@ string)}では整数か文字列が許されます。
 
 カスタマイズバッファーでは、ユーザーはメニューを使用して候補を選択して、それらの候補にたいして通常の方法で値を編集できます。
 
-Normally the strings in this menu are determined automatically from the
-choices; however, you can specify different strings for the menu by
-including the @code{:tag} keyword in the alternatives.  For example, if an
-integer stands for a number of spaces, while a string is text to use
-verbatim, you might write the customization type this way,
+通常この選択からメニューの文字列が自動的に決定されます。しかし候補の中に@code{:tag}キーワードを含めることにより、メニューにたいして異なる文字列を指定できます。たとえば、空白の数を意味する整数と、その通りに使用したいテキストにたいする文字列の場合は、以下のような方法でカスタマイズ型を記述したいかもしれません
 
 @example
 (choice (integer :tag "Number of spaces")
@@ -571,16 +567,12 @@ verbatim, you might write the customization type this way,
 @end example
 
 @noindent
-so that the menu offers @samp{Number of spaces} and @samp{Literal text}.
+この場合メニューは、@samp{Number of spaces}と@samp{Literal text}を提示します。
 
-In any alternative for which @code{nil} is not a valid value, other than a
-@code{const}, you should specify a valid default for that alternative using
-the @code{:value} keyword.  @xref{Type Keywords}.
+@code{const}以外の@code{nil}が有効な値ではない候補には、@code{:value}キーワードを使用して、有効なデフォルト値を指定するべきです。@ref{Type
+Keywords}を参照してください。
 
-If some values are covered by more than one of the alternatives, customize
-will choose the first alternative that the value fits.  This means you
-should always list the most specific types first, and the most general
-last.  Here's an example of proper usage:
+複数の候補によりいくつかの値が提供される場合、カスタマイズは適合する値をもつ最初の候補を選択します。これは常に、もっとも特有な型を最初に、もっとも一般的な型を最後にリストすべきことを意味します。以下は適切な使い方の例です:
 
 @example
 (choice (const :tag "Off" nil)
@@ -588,24 +580,18 @@ last.  Here's an example of proper usage:
 @end example
 
 @noindent
-This way, the special value @code{nil} is not treated like other symbols,
-and symbols are not treated like other Lisp expressions.
+この使い方では、特別な値@code{nil}はその他のシンボルとは別に扱われ、シンボルは他のLisp式とは別に扱われます。
 
 @item (radio @var{element-types}@dots{})
-This is similar to @code{choice}, except that the choices are displayed
-using `radio buttons' rather than a menu.  This has the advantage of
-displaying documentation for the choices when applicable and so is often a
-good choice for a choice between constant functions (@code{function-item}
-customization types).
+これは@code{choice}と似ていますが、選択はメニューではなく、`ラジオボタン'で表示されます。これは該当する選択にたいしてドキュメントが表示できる利点があるので、関数定数(@code{function-item}カスタマイズ型)の選択に適す場合があります。
 
 @item (const @var{value})
-The value must be @var{value}---nothing else is allowed.
+値は@var{value}でなければならず、他は許されません。
 
-The main use of @code{const} is inside of @code{choice}.  For example,
-@code{(choice integer (const nil))} allows either an integer or @code{nil}.
+@code{const}は主に@code{choice}の中で使用されます。たとえば、@code{(choice integer (const
+nil))}では、整数か@code{nil}が選択できます。
 
-@code{:tag} is often used with @code{const}, inside of @code{choice}.  For
-example,
+@code{choice}の中では、@code{:tag}とともに@code{const}が使用される場合があります。たとえば、
 
 @example
 (choice (const :tag "Yes" t)
@@ -614,15 +600,12 @@ example,
 @end example
 
 @noindent
-describes a variable for which @code{t} means yes, @code{nil} means no, and
-@code{foo} means ``ask''.
+これは@code{t}がyes、@code{nil}がno、@code{foo}が``ask''を意味することを示します。
 
 @item (other @var{value})
-This alternative can match any Lisp value, but if the user chooses this
-alternative, that selects the value @var{value}.
+この候補は任意のLisp値にマッチできますが、ユーザーがこの候補を選択した場合は、値@var{value}が選択されます。
 
-The main use of @code{other} is as the last element of @code{choice}.  For
-example,
+@code{other}は主に@code{choice}の最後の要素に使用されます。たとえば、
 
 @example
 (choice (const :tag "Yes" t)
@@ -631,44 +614,28 @@ example,
 @end example
 
 @noindent
-describes a variable for which @code{t} means yes, @code{nil} means no, and
-anything else means ``ask''.  If the user chooses @samp{Ask} from the menu
-of alternatives, that specifies the value @code{foo}; but any other value
-(not @code{t}, @code{nil} or @code{foo}) displays as @samp{Ask}, just like
-@code{foo}.
+これは@code{t}がyes、@code{nil}がno、それ以外は``ask''を意味することを示します。ユーザーが候補メニューから@samp{Ask}を選択した場合は、値@code{foo}が指定されます。しかし、その他の値(@code{t}、@code{nil}、@code{foo}を除く)では、@code{foo}と同様に@samp{Ask}が表示されます。
 
 @item (function-item @var{function})
-Like @code{const}, but used for values which are functions.  This displays
-the documentation string as well as the function name.  The documentation
-string is either the one you specify with @code{:doc}, or @var{function}'s
-own documentation string.
+@code{const}と同様ですが、値が関数のときに使用されます。これはドキュメント文字列も関数名と同じように表示します。ドキュメント文字列は、@code{:doc}で指定した文字列か、@var{function}自身のドキュメント文字列です。
 
 @item (variable-item @var{variable})
-Like @code{const}, but used for values which are variable names.  This
-displays the documentation string as well as the variable name.  The
-documentation string is either the one you specify with @code{:doc}, or
-@var{variable}'s own documentation string.
+@code{const}と同様ですが、値が変数名のときに使用されます。これはドキュメント文字列も変数名と同じように表示します。ドキュメント文字列は、@code{:doc}で指定した文字列か、@var{variable}自身のドキュメント文字列です。
 
 @item (set @var{types}@dots{})
-The value must be a list, and each element of the list must match one of the
-@var{types} specified.
+値はリストでなければならず、指定された@var{types}の1つにマッチしなければなりません。
 
-This appears in the customization buffer as a checklist, so that each of
-@var{types} may have either one corresponding element or none.  It is not
-possible to specify two different elements that match the same one of
-@var{types}.  For example, @code{(set integer symbol)} allows one integer
-and/or one symbol in the list; it does not allow multiple integers or
-multiple symbols.  As a result, it is rare to use nonspecific types such as
-@code{integer} in a @code{set}.
+これはカスタマイズバッファーではチェックリストとして表示されるので、@var{types}はそれぞれ対応する要素を1つ、あるいは要素をもちません。同じ1つの@var{types}にマッチするような、異なる2つの要素を指定することはできません。たとえば、@code{(set
+integer
+symbol)}は、リスト内で1つの整数、および/または1つのシンボルが許され、複数の整数や複数のシンボルは許されません。結果として、@code{set}内で@code{integer}のような特定的ではない型を使用するのは稀です。
 
-Most often, the @var{types} in a @code{set} are @code{const} types, as shown
-here:
+以下のように、@code{const}型は@code{set}内の@var{types}でよく使用されます:
 
 @example
 (set (const :bold) (const :italic))
 @end example
 
-Sometimes they describe possible elements in an alist:
+alist内で利用できる要素を示すために使用されることもあります:
 
 @example
 (set (cons :tag "Height" (const height) integer)
@@ -676,33 +643,25 @@ Sometimes they describe possible elements in an alist:
 @end example
 
 @noindent
-That lets the user specify a height value optionally and a width value
-optionally.
+これによりユーザーにオプションでheightとwidthの値を指定させることができます。
 
 @item (repeat @var{element-type})
-The value must be a list and each element of the list must fit the type
-@var{element-type}.  This appears in the customization buffer as a list of
-elements, with @samp{[INS]} and @samp{[DEL]} buttons for adding more
-elements or removing elements.
+値はリストでなければならず、リストの各要素は型@var{element-type}に適合しなければなりません。カスタマイズバッファーでは要素のリストとして表示され、@samp{[INS]}および@samp{[DEL]}ボタンにより、要素の追加や削除が行われます。
 
 @item (restricted-sexp :match-alternatives @var{criteria})
-This is the most general composite type construct.  The value may be any
-Lisp object that satisfies one of @var{criteria}.  @var{criteria} should be
-a list, and each element should be one of these possibilities:
+これはもっとも汎用的な複合型の構築方法です。値は@var{criteria}を満足する任意のLispオブジェクトです。@var{criteria}はリストで、リストの各要素は以下のうちの1つを満たす必要があります:
 
 @itemize @bullet
 @item
-A predicate---that is, a function of one argument that has no side effects,
-and returns either @code{nil} or non-@code{nil} according to the argument.
-Using a predicate in the list says that objects for which the predicate
-returns non-@code{nil} are acceptable.
+述語 ---
+つまり、副作用をもたず引数は1つ、その引数に応じて@code{nil}か非@code{nil}のどちらかをリターンする関数。リスト内での述語の使用により、その述語が非@code{nil}をリターンするようなオブジェクトが許されることを意味する。
 
 @item
-A quoted constant---that is, @code{'@var{object}}.  This sort of element in
-the list says that @var{object} itself is an acceptable value.
+クォートされた定数 ---
+つまり、@code{'@var{object}}。リスト内でこの要素は、@var{object}自身が容認される値であることを示す。
 @end itemize
 
-For example,
+たとえば、
 
 @example
 (restricted-sexp :match-alternatives
@@ -710,32 +669,26 @@ For example,
 @end example
 
 @noindent
-allows integers, @code{t} and @code{nil} as legitimate values.
+これは整数、@code{t}、@code{nil}を正当な値として受け入れます。
 
-The customization buffer shows all legitimate values using their read
-syntax, and the user edits them textually.
+カスタマイズバッファーは適切な値をそれらの入力構文ですべて表示し、ユーザーはこれらをテキストとして編集できます。
 @end table
 
-  Here is a table of the keywords you can use in keyword-value pairs in a
-composite type:
+  以下は複合型でキーワード/値ペアーとして使用できるキーワードのテーブルです:
 
 @table @code
 @item :tag @var{tag}
-Use @var{tag} as the name of this alternative, for user communication
-purposes.  This is useful for a type that appears inside of a @code{choice}.
+@var{tag}は、ユーザーとのコミュニケーションのために、その候補の名前として使用される。@code{choice}内に出現する型にたいして有用。
 
 @item :match-alternatives @var{criteria}
 @kindex match-alternatives@r{, customization keyword}
-Use @var{criteria} to match possible values.  This is used only in
-@code{restricted-sexp}.
+@var{criteria}は可能な値とのマッチに使用される。これは@code{restricted-sexp}内でのみ有用。
 
 @item :args @var{argument-list}
 @kindex args@r{, customization keyword}
-Use the elements of @var{argument-list} as the arguments of the type
-construct.  For instance, @code{(const :args (foo))} is equivalent to
-@code{(const foo)}.  You rarely need to write @code{:args} explicitly,
-because normally the arguments are recognized automatically as whatever
-follows the last keyword-value pair.
+型構築の引数として@var{argument-list}の要素を使用します。たとえば、@code{(const :args
+(foo))}は@code{(const
+foo)}と等価です。明示的に@code{:args}とく記述する必要があるのは稀です。なぜなら、最後のキーワード/値ペアーの後に続くものは何であれ、引数として認識されるからです。
 @end table
 
 @node Splicing into Lists
