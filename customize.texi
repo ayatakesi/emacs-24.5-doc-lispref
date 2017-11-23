@@ -682,7 +682,7 @@ alist内で利用できる要素を示すために使用されることもあり
 
 @item :match-alternatives @var{criteria}
 @kindex match-alternatives@r{, customization keyword}
-@var{criteria}は可能な値とのマッチに使用される。これは@code{restricted-sexp}内でのみ有用。
+@var{criteria}は可能な値とのマッチに使用されます。@code{restricted-sexp}内でのみ有用です。
 
 @item :args @var{argument-list}
 @kindex args@r{, customization keyword}
@@ -731,115 +731,86 @@ bar)}のような値にマッチします。
 @item :value @var{default}
 デフォルト値を提供する。
 
-If @code{nil} is not a valid value for the alternative, then it is essential
-to specify a valid default with @code{:value}.
+その候補にたいして@code{nil}が有効な値でない場合は、@code{:value}に有効なデフォルトを指定することが必須になります。
 
-If you use this for a type that appears as an alternative inside of
-@code{choice}; it specifies the default value to use, at first, if and when
-the user selects this alternative with the menu in the customization buffer.
+@code{choice}の内部の候補として出現する型にたいしてこれを使用する場合、ユーザーがカスタマイズバッファー内のメニューによりこの候補を選択したときに、使用するデフォルト値を最初に指定します。
 
-Of course, if the actual value of the option fits this alternative, it will
-appear showing the actual value, not @var{default}.
+もちろんオプションの実際の値がこの候補に適合する場合は、@var{default}ではなく実際の値が表示されます。
 
 @item :format @var{format-string}
 @kindex format@r{, customization keyword}
-This string will be inserted in the buffer to represent the value
-corresponding to the type.  The following @samp{%} escapes are available for
-use in @var{format-string}:
+この文字列は、その型に対応する値を説明するために、バッファーに挿入されます。@var{format-string}内では、以下の@samp{%}エスケープが利用できます:
 
 @table @samp
 @item %[@var{button}%]
-Display the text @var{button} marked as a button.  The @code{:action}
-attribute specifies what the button will do if the user invokes it; its
-value is a function which takes two arguments---the widget which the button
-appears in, and the event.
+ボタンとしてマークされたテキスト@var{button}を表示する。@code{:action}属性は、ユーザーがそれを呼び出したときに、そのボタンが何を行うか指定する。この属性の値は２つの引数
+--- ボタンが表示されるのでウィジェットとイベント --- をとる関数。
 
-There is no way to specify two different buttons with different actions.
+異なるアクションを行う2つの異なるボタンを指定する方法はない。
 
 @item %@{@var{sample}%@}
-Show @var{sample} in a special face specified by @code{:sample-face}.
+@code{:sample-face}により指定された、スペシャルフェイス内の@var{sample}を表示する。
 
 @item %v
-Substitute the item's value.  How the value is represented depends on the
-kind of item, and (for variables) on the customization type.
+そのアイテムの値を代替えする。その値がどのように表示されるかはアイテムの種類と、(カスタマイズ型にたいしては)カスタマイズ型にに依存する。
 
 @item %d
-Substitute the item's documentation string.
+そのアイテムのドキュメント文字列を代替えする。
 
 @item %h
-Like @samp{%d}, but if the documentation string is more than one line, add a
-button to control whether to show all of it or just the first line.
+@samp{%d}と同様ふぁが、ドキュメント文字列が複数行の場合に、ドキュメント文字列全体か最初の行だけかを制御するボタンを追加する。
 
 @item %t
-Substitute the tag here.  You specify the tag with the @code{:tag} keyword.
+その位置でタグに置き換える。@code{:tag}キーワードでタグを指定する。
 
 @item %%
-Display a literal @samp{%}.
+リテラル@samp{%}を表示する。
 @end table
 
 @item :action @var{action}
 @kindex action@r{, customization keyword}
-Perform @var{action} if the user clicks on a button.
+ユーザーがボタンをクリックした場合は@var{action}を実行します。
 
 @item :button-face @var{face}
 @kindex button-face@r{, customization keyword}
-Use the face @var{face} (a face name or a list of face names) for button
-text displayed with @samp{%[@dots{}%]}.
+@samp{%[@dots{}%]}で表示されたボタンテキストにたいして、フェイス@var{face}(フェイス名、またはフェイス名のリスト)を使用します。
 
 @item :button-prefix @var{prefix}
 @itemx :button-suffix @var{suffix}
 @kindex button-prefix@r{, customization keyword}
 @kindex button-suffix@r{, customization keyword}
-These specify the text to display before and after a button.  Each can be:
+これらはボタンの前、または後に表示されるテキストを指定します。以下が指定できます:
 
 @table @asis
 @item @code{nil}
-No text is inserted.
+テキストは挿入されない。
 
-@item a string
-The string is inserted literally.
+@item 文字列
+その文字列がリテラルに挿入される。
 
-@item a symbol
-The symbol's value is used.
+@item シンボル
+そのシンボルの値が使用される。
 @end table
 
 @item :tag @var{tag}
-Use @var{tag} (a string) as the tag for the value (or part of the value)
-that corresponds to this type.
+この型に対応する値(または値の一部)にたいするタグとして@var{tag}(文字列)を使用する。
 
 @item :doc @var{doc}
 @kindex doc@r{, customization keyword}
-Use @var{doc} as the documentation string for this value (or part of the
-value) that corresponds to this type.  In order for this to work, you must
-specify a value for @code{:format}, and use @samp{%d} or @samp{%h} in that
-value.
+この型に対応する値(または値の一部)にたいするドキュメント文字列として@var{doc}を使用する。これが機能するためには、@code{:format}にたいする値を指定し、その値にたいして@samp{%d}か@samp{%h}を使用しなければならない。
 
-The usual reason to specify a documentation string for a type is to provide
-more information about the meanings of alternatives inside a @code{:choice}
-type or the parts of some other composite type.
+ある型にたいしてドキュメント文字列を指定するのは、@code{:choice}内の候補の型や、他の複合型の一部について情報を提供するのが通常の理由である。
 
 @item :help-echo @var{motion-doc}
 @kindex help-echo@r{, customization keyword}
-When you move to this item with @code{widget-forward} or
-@code{widget-backward}, it will display the string @var{motion-doc} in the
-echo area.  In addition, @var{motion-doc} is used as the mouse
-@code{help-echo} string and may actually be a function or form evaluated to
-yield a help string.  If it is a function, it is called with one argument,
-the widget.
+@code{widget-forward}や@code{widget-backward}でこのアイテムに移動したときに、エコーエリアに文字列@var{motion-doc}を表示する。さらに、マウスの@code{help-echo}文字列として@var{motion-doc}が使用され、これは実際にはヘルプ文字列を生成するために評価される関数またはフォームかもしれない。もし関数の場合、これは1つの引数(そのウィジェット)で呼び出される。
 
 @item :match @var{function}
 @kindex match@r{, customization keyword}
-Specify how to decide whether a value matches the type.  The corresponding
-value, @var{function}, should be a function that accepts two arguments, a
-widget and a value; it should return non-@code{nil} if the value is
-acceptable.
+値がその型にマッチするか判断する方法を指定する。対応する値@var{function}は、2つの引数(ウィジェットと値)をとる関数で、値が適切なら非@code{nil}をリターンすること。
 
 @item :validate @var{function}
-Specify a validation function for input.  @var{function} takes a widget as
-an argument, and should return @code{nil} if the widget's current value is
-valid for the widget.  Otherwise, it should return the widget containing the
-invalid data, and set that widget's @code{:error} property to a string
-explaining the error.
+入力にたいして検証を行う関数を指定する。@var{function}は引数としてウィジェットをとり、そのウィジェットのカレント値がウィジェットにたいして有効なら@code{nil}をリターンすること。それ以外は無効なデータを含むウィジェットをリターンして、そのウィジェットの@code{:error}プロパティに、そのエラーを説明する文字列をセットすること。
 
 @ignore
 @item :indent @var{columns}
