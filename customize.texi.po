@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2016-09-12 22:53+0900\n"
-"PO-Revision-Date: 2017-11-23 23:24+0900\n"
+"PO-Revision-Date: 2017-11-26 08:55+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -2714,43 +2714,43 @@ msgstr "入力にたいして検証を行う関数を指定する。@var{functio
 #: customize.texi.orig:1166
 #, no-wrap
 msgid ":indent @var{columns}"
-msgstr ""
+msgstr ":indent @var{columns}"
 
 #. type: item
 #: customize.texi.orig:1172
 #, no-wrap
 msgid ":offset @var{extra}"
-msgstr ""
+msgstr ":offset @var{extra}"
 
 #. type: item
 #: customize.texi.orig:1177
 #, no-wrap
 msgid ":extra-offset @var{n}"
-msgstr ""
+msgstr ":extra-offset @var{n}"
 
 #. type: item
 #: customize.texi.orig:1181
 #, no-wrap
 msgid ":notify @var{function}"
-msgstr ""
+msgstr ":notify @var{function}"
 
 #. type: item
 #: customize.texi.orig:1187
 #, no-wrap
 msgid ":menu-tag @var{tag-string}"
-msgstr ""
+msgstr ":menu-tag @var{tag-string}"
 
 #. type: item
 #: customize.texi.orig:1191
 #, no-wrap
 msgid ":menu-tag-get"
-msgstr ""
+msgstr ":menu-tag-get"
 
 #. type: item
 #: customize.texi.orig:1197
 #, no-wrap
 msgid ":tab-order"
-msgstr ""
+msgstr ":tab-order"
 
 #. type: enumerate
 #: customize.texi.orig:1205
@@ -2758,7 +2758,7 @@ msgstr ""
 msgid ""
 "Widgets with tabbing order @code{-1} are ignored.\n"
 "\n"
-msgstr ""
+msgstr "Widgets with tabbing order @code{-1} are ignored.\n\n"
 
 #. type: enumerate
 #: customize.texi.orig:1210
@@ -2769,6 +2769,10 @@ msgid ""
 "whichever comes first.\n"
 "\n"
 msgstr ""
+"(Unimplemented) When on a widget with tabbing order @var{n}, go to the\n"
+"next widget in the buffer with tabbing order @var{n+1} or @code{nil},\n"
+"whichever comes first.\n"
+"\n"
 
 #. type: enumerate
 #: customize.texi.orig:1214
@@ -2777,30 +2781,32 @@ msgid ""
 "When on a widget with no tabbing order specified, go to the next widget\n"
 "in the buffer with a positive tabbing order, or @code{nil}\n"
 msgstr ""
+"When on a widget with no tabbing order specified, go to the next widget\n"
+"in the buffer with a positive tabbing order, or @code{nil}\n"
 
 #. type: item
 #: customize.texi.orig:1216
 #, no-wrap
 msgid ":parent"
-msgstr ""
+msgstr ":parent"
 
 #. type: item
 #: customize.texi.orig:1220
 #, no-wrap
 msgid ":sibling-args"
-msgstr ""
+msgstr ":sibling-args"
 
 #. type: cindex
 #: customize.texi.orig:1230
 #, no-wrap
 msgid "customization types, define new"
-msgstr ""
+msgstr "customization types, define new"
 
 #. type: cindex
 #: customize.texi.orig:1231
 #, no-wrap
 msgid "define new customization types"
-msgstr ""
+msgstr "define new customization types"
 
 #. type: Plain text
 #: customize.texi.orig:1241
@@ -2813,7 +2819,7 @@ msgid ""
 "name each @code{defcustom}.  The other case is when a user option's value is "
 "a recursive data structure.  To make it possible for a datatype to refer to "
 "itself, it needs to have a name."
-msgstr ""
+msgstr "前のセクションでは、@code{defcustom}にたいして型の詳細な仕様を作成する方法を説明しました。そのような型仕様に名前を与えたい場合があるかもしれません。理解しやすいケースとしては、多くのユーザーオプションに同じ型を使用する場合などです。各オプションにたいして仕様を繰り返すより、その型に名前を与えて、@code{defcustom}それぞれにその名前を使用することができます。他にもユーザーオプションの値が再帰的なデータ構造のケースがあります。あるデータ型がそれ自身を参照できるようにするためには、それが名前をもつ必要があります。"
 
 #. type: Plain text
 #: customize.texi.orig:1248
@@ -2824,7 +2830,7 @@ msgid ""
 "Emacs Widget Library}, for that.  Instead we are going to demonstrate the "
 "minimal functionality needed for defining new customize types by a simple "
 "example."
-msgstr ""
+msgstr "カスタマイズ型はウィジェットとして実装されているめ、新しいカスタマイズ型を定義するには、新たにウィジェット型を定義します。ここではウィジェットインターフェイスの詳細は説明しません。@ref{Top, , Introduction, widget, The Emacs Widget Library}を参照してください。　かわりに、シンプルな例を用いて、カスタマイズ型を新たに定義するのに必要となる、最小限の機能について説明します。"
 
 #. type: example
 #: customize.texi.orig:1259
@@ -2841,6 +2847,16 @@ msgid ""
 "                       binary-tree-of-string)))\n"
 "\n"
 msgstr ""
+"(define-widget 'binary-tree-of-string 'lazy\n"
+"  \"A binary tree made of cons-cells and strings.\"\n"
+"  :offset 4\n"
+"  :tag \"Node\"\n"
+"  :type '(choice (string :tag \"Leaf\" :value \"\")\n"
+"                 (cons :tag \"Interior\"\n"
+"                       :value (\"\" . \"\")\n"
+"                       binary-tree-of-string\n"
+"                       binary-tree-of-string)))\n"
+"\n"
 
 #. type: example
 #: customize.texi.orig:1263
@@ -2850,6 +2866,9 @@ msgid ""
 "  \"Sample variable holding a binary tree of strings.\"\n"
 "  :type 'binary-tree-of-string)\n"
 msgstr ""
+"(defcustom foo-bar \"\"\n"
+"  \"Sample variable holding a binary tree of strings.\"\n"
+"  :type 'binary-tree-of-string)\n"
 
 #. type: Plain text
 #: customize.texi.orig:1276
@@ -2864,7 +2883,7 @@ msgid ""
 "third argument is a documentation string for the new widget.  You will be "
 "able to see that string with the @kbd{M-x widget-browse @key{RET} "
 "binary-tree-of-string @key{RET}} command."
-msgstr ""
+msgstr "新しいウィジェットを定義するための関数は、@code{define-widget}と呼ばれます。1つ目の引数は、新たなウィジェット型にしたいシンボルです。2つ目の引数は既存のウィジェットを表すシンボルで、新しいウィジェットではこの既存のウィジェットと異なる部分を定義することになります。新たなカスタマイズ型を定義する目的にたいしては、@code{lazy}ウィジェットが最適です。なぜならこれは、@code{defcustom}にたいするキーワード引数と同じ構文、同じ名前でキーワード引数@code{:type}を受け取るからです。3つ目の引数は、新しいウィジェットにたいするドキュメント文字列です。この文字列は、@kbd{M-x widget-browse @key{RET} binary-tree-of-string @key{RET}}コマンドで参照することができるようになります。"
 
 #. type: Plain text
 #: customize.texi.orig:1287
@@ -2878,14 +2897,14 @@ msgid ""
 "to name the widget in the user interface, and the @code{:offset} argument is "
 "there to ensure that child nodes are indented four spaces relative to the "
 "parent node, making the tree structure apparent in the customization buffer."
-msgstr ""
+msgstr "これらの必須の引数の後にキーワード引数が続きます。もっとも重要なのは@code{:type}で、これはこのウィジェットにマッチさせたいデータ型を表します。上記の例では@code{binary-tree-of-string}は文字列、またはcarとcdrが@code{binary-tree-of-string}であるようなコンスセルです。この定義中でのウィジェット型への参照に注意してください。@code{:tag}属性はユーザーインターフェイスでウィジェット名となる文字列、@code{:offset}引数はカスタマイズバッファーでのツリー構造の外観で，子ノードと関連する親ノードの間に4つのスペースを確保します。"
 
 #. type: Plain text
 #: customize.texi.orig:1290
 msgid ""
 "The @code{defcustom} shows how the new widget can be used as an ordinary "
 "customization type."
-msgstr ""
+msgstr "@code{defcustom}は、通常のカスタマイズ型に使用される方法で新しいウィジェットを表示します。"
 
 #. type: Plain text
 #: customize.texi.orig:1298
@@ -2897,7 +2916,7 @@ msgid ""
 "is itself recursive, this conversion is an infinite recursion.  The "
 "@code{lazy} widget prevents the recursion: it convert its @code{:type} "
 "argument only when needed."
-msgstr ""
+msgstr "@code{lazy}という名前の由来は、他のウィジェットの場合、それらがバッファーでインスタンス化されるとき、他の合成されたウィジェットが下位のウィジェットを内部形式に変換するからです。この変換は再帰的なので、下位のウィジェットは、@emph{それら自身}の下位ウィジェットへと変換されます。データ構造自体が再帰的な場合、この変換は無限再帰(infinite recursion)となります。@code{lazy}ウィジェットは、@code{:type}引数を必要なときだけ変換することにより、この再帰を防ぎます。"
 
 #. type: cindex
 #: customize.texi.orig:1301
