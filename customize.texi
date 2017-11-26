@@ -917,56 +917,39 @@ recursion)となります。@code{lazy}ウィジェットは、@code{:type}引�
 @section Applying Customizations
 @cindex applying customizations
 
-The following functions are responsible for installing the user's
-customization settings for variables and faces, respectively.  When the user
-invokes @samp{Save for future sessions} in the Customize interface, that
-takes effect by writing a @code{custom-set-variables} and/or a
-@code{custom-set-faces} form into the custom file, to be evaluated the next
-time Emacs starts.
+以下の関数には、変数とフェイスにたいして、そのユーザーのカスタマイズ設定をインストールる役目があります。それらの関数は、ユーザーがカスタマイズインターフェイスで@samp{Save
+for future
+sessions}を呼び出したときに、次回のEmacs起動時に評価されるように@code{custom-set-variables}フォーム、および/または@code{custom-set-faces}フォームを
+がカスタムファイルに書き込まれることによって効果をもちます。
 
 @defun custom-set-variables &rest args
-This function installs the variable customizations specified by @var{args}.
-Each argument in @var{args} should have the form
+この関数は@var{args}により指定された変数のカスタマイズをインストールします。@var{args}内の引数はそれぞれ、以下のようなフォームです
 
 @example
 (@var{var} @var{expression} [@var{now} [@var{request} [@var{comment}]]])
 @end example
 
 @noindent
-@var{var} is a variable name (a symbol), and @var{expression} is an
-expression which evaluates to the desired customized value.
+@var{var}は変数名(シンボル)、@var{expression}はカスタマイズされた値に評価される式です。
 
-If the @code{defcustom} form for @var{var} has been evaluated prior to this
-@code{custom-set-variables} call, @var{expression} is immediately evaluated,
-and the variable's value is set to the result.  Otherwise, @var{expression}
-is stored into the variable's @code{saved-value} property, to be evaluated
-when the relevant @code{defcustom} is called (usually when the library
-defining that variable is loaded into Emacs).
+この@code{custom-set-variables}呼び出しより前に@var{var}にたいして@code{defcustom}フォームが評価された場合は、即座に@var{expression}が評価され、その変数の値にその結果がセットされます。それ以外は、その変数の@code{saved-value}プロパティに@var{expression}が格納され、これに関係する@code{defcustom}が呼び出されたとき(通常はその変数を定義するライブラリーがEmacsにロードされたとき)に評価されます。
 
-The @var{now}, @var{request}, and @var{comment} entries are for internal use
-only, and may be omitted.  @var{now}, if non-@code{nil}, means to set the
-variable's value now, even if the variable's @code{defcustom} form has not
-been evaluated.  @var{request} is a list of features to be loaded
-immediately (@pxref{Named Features}).  @var{comment} is a string describing
-the customization.
+@var{now}、@var{request}、@var{comment}エントリーは内部的な使用に限られており、省略されるかもしれません。@var{now}は、もし非@code{nil}の場合には、たとえその変数の@code{defcustom}フォームが評価されていなくても、その変数の値がそのときセットされます。@var{request}は即座にロードされる機能のリストです(@ref{Named
+Features}を参照)。@var{comment}はそのカスタマイズを説明する文字列です。
 @end defun
 
 @defun custom-set-faces &rest args
-This function installs the face customizations specified by @var{args}.
-Each argument in @var{args} should have the form
+この関数は@var{args}により指定されたフェイスのカスタマイズをインストールします。@var{args}内の引数はそれぞれ、以下のようなフォームです
 
 @example
 (@var{face} @var{spec} [@var{now} [@var{comment}]])
 @end example
 
 @noindent
-@var{face} is a face name (a symbol), and @var{spec} is the customized face
-specification for that face (@pxref{Defining Faces}).
+@var{face}はフェイス名(シンボル)、@var{spec}はそのフェイスにたいするカスタマイズされたフェイス仕様です(@ref{Defining
+Faces}を参照)。
 
-The @var{now} and @var{comment} entries are for internal use only, and may
-be omitted.  @var{now}, if non-@code{nil}, means to install the face
-specification now, even if the @code{defface} form has not been evaluated.
-@var{comment} is a string describing the customization.
+@var{now}、@var{request}、@var{comment}エントリーは内部的な使用に限られており、省略されるかもしれません。@var{now}は、もし非@code{nil}の場合には、たとえ@code{defface}フォームが評価されていなくても、そのフェイス仕様がそのときセットされます。@var{comment}はそのカスタマイズを説明する文字列です。
 @end defun
 
 @node Custom Themes
