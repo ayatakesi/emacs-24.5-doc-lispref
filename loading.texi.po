@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-11-27 04:20+0000\n"
-"PO-Revision-Date: 2017-11-27 17:34+0900\n"
+"PO-Revision-Date: 2018-01-06 03:34+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -198,20 +198,20 @@ msgid ""
 "definition (@pxref{Autoload}).  @code{require} loads a file if it isn't "
 "already loaded (@pxref{Named Features}).  Ultimately, all these facilities "
 "call the @code{load} function to do the work."
-msgstr ""
+msgstr "Emacs Lispにはロードのためのインターフェイスがいくつかあります。たとえば、@code{autoload}はファイル内で定義された関数にたいしてプレースホルダーとなるオブジェクトを作成します。この関数はオートロードされる関数を呼び出すために、ファイルからその関数の実際の定義の取得を試みます(@ref{Autoload}を参照)。@code{require}は、ファイルがまだロードされていない場合にファイルをロードします(@ref{Named Features}を参照)。これらすべての関数は、処理を行うために最終的に@code{load}を呼び出します。"
 
 #. type: defun
 #: loading.texi.orig:58
 #, no-wrap
 msgid "load filename &optional missing-ok nomessage nosuffix must-suffix"
-msgstr ""
+msgstr "load filename &optional missing-ok nomessage nosuffix must-suffix"
 
 #. type: defun
 #: loading.texi.orig:61
 msgid ""
 "This function finds and opens a file of Lisp code, evaluates all the forms "
 "in it, and closes the file."
-msgstr ""
+msgstr "この関数はLispコードのファイルを見つけてオープンし、その中のすべてのフォームを評価して、そのファイルをクローズします。"
 
 #. type: defun
 #: loading.texi.orig:73
@@ -226,7 +226,7 @@ msgid ""
 "@code{load} function is not clever about looking at @var{filename}.  In the "
 "perverse case of a file named @file{foo.el.el}, evaluation of @code{(load "
 "\"foo.el\")} will indeed find it.)"
-msgstr ""
+msgstr "ファイルを見つけるために、まず@code{load}は@file{@var{filename}.elc}という名前、つまり@var{filename}に拡張子@samp{.elc}を足した名前のファイルを探します。このようなファイルが存在したら、それをロードします。その名前のファイルが存在しない場合、@code{load}は@file{@var{filename}.el}という名前のファイルを探します。このファイルが存在したら、それをロードします。最後に、もしこれらの名前がどちらも見つからなかった場合、@code{load}は何も付け足さない@var{filename}という名前のファイルを探して、それが存在したらロードします。(@code{load}関数に@var{filename}を認識する賢さはありません。@file{foo.el.el}のような正しくない名前のファイルの場合も、@code{(load \"foo.el\")}の評価によりそれを見つけてしまいます。)"
 
 #. type: defun
 #: loading.texi.orig:81
@@ -237,7 +237,7 @@ msgid ""
 "exists.  It looks for compressed versions by appending each of the suffixes "
 "in @code{jka-compr-load-suffixes} to the file name.  The value of this "
 "variable must be a list of strings. Its standard value is @code{(\".gz\")}."
-msgstr ""
+msgstr "Auto Compressionモードが有効(残念ながらデフォルトでは有効ですが)の場合、@code{load}は他のファイル名を試みる前に圧縮されたバージョンのファイル名を探すので、ファイルを見つけることができません。圧縮されたファイルが存在したら、それを解凍してロードします。@code{load}はファイル名に@code{jka-compr-load-suffixes}内の各サフィックスを足して、圧縮されたバージョンを探します。この変数の値は、文字列のリストでなければなりません。標準的な値は@code{(\".gz\")}です。"
 
 #. type: defun
 #: loading.texi.orig:90
@@ -249,7 +249,7 @@ msgid ""
 "@code{jka-compr-load-suffixes} to find compressed versions.  By specifying "
 "the precise file name and using @code{t} for @var{nosuffix}, you can prevent "
 "file names like @file{foo.el.el} from being tried."
-msgstr ""
+msgstr "オプション引数@var{nosuffix}が非@code{nil}の場合@code{load}はサフィックス@samp{.elc}と@samp{.el}を試みません。この場合、ロードしたいファイルの正確な名前を指定しなければなりません。ただしAuto Compressionモードが有効な場合には、@code{load}は圧縮されたバージョンを探すために、@code{jka-compr-load-suffixes}を使用します。正確なファイル名の指定と、、@var{nosuffix}にたいして@code{t}を使用することにより、@file{foo.el.el}のような名前のファイルにたいするロードの試みを抑止できます。"
 
 #. type: defun
 #: loading.texi.orig:95
@@ -258,7 +258,7 @@ msgid ""
 "@code{load} insists that the file name used must end in either @samp{.el} or "
 "@samp{.elc} (possibly extended with a compression suffix), unless it "
 "contains an explicit directory name."
-msgstr ""
+msgstr "オプション引数@var{must-suffix}が非@code{nil}の場合、@code{load}はロードに使用されるファイルの名前に明示的にディレクトリー名が含まれていなければ、ファイル名が@samp{.el}か@samp{.elc}で終わること(あるいは圧縮による拡張子が付加されているかもしれません)を要求します。"
 
 #. type: defun
 #: loading.texi.orig:99
@@ -266,7 +266,7 @@ msgid ""
 "If the option @code{load-prefer-newer} is non-@code{nil}, then when "
 "searching suffixes, @code{load} selects whichever version of a file "
 "(@samp{.elc}, @samp{.el}, etc.) has been modified most recently."
-msgstr ""
+msgstr "オプション@code{load-prefer-newer}が非@code{nil}の場合、@code{load}はサフィックスを検索するとき、どのファイルであっても(@samp{.elc}、@samp{.el}など)、もっとも最近変更されたファイルのバージョンを選択します。"
 
 #. type: defun
 #: loading.texi.orig:109
@@ -280,7 +280,7 @@ msgid ""
 "@code{load} tries all three possible suffixes in the first directory in "
 "@code{load-path}, then all three suffixes in the second directory, and so "
 "on.  @xref{Library Search}."
-msgstr ""
+msgstr "@var{filename}が@file{foo}や@file{baz/foo.bar}のような相対ファイル名の場合、@code{load}は変数@code{load-path}を使用してそのファイルを探します。これは@code{load-path}内にリストされた各ディレクトリーに@var{filename}を追加して、最初に見つかったら名前のマッチするファイルをロードします。デフォルトディレクトリーを意味する@code{nil}が@code{load-path}で措定されたときだけ、カレントデフォルトディレクトリーを試みます。@code{load}は@code{load-path}内の最初のディレクトリーで利用可能な3つのサフィックスすべてを試行してから、2つ目のディレクトリーで３つのサフィックスすべてを試行する、というようにファイルを探します。@ref{Library Search}を参照してください。"
 
 #. type: defun
 #: loading.texi.orig:113
@@ -288,7 +288,7 @@ msgid ""
 "Whatever the name under which the file is eventually found, and the "
 "directory where Emacs found it, Emacs sets the value of the variable "
 "@code{load-file-name} to that file's name."
-msgstr ""
+msgstr "最終的に見つかったファイル、およびEmacsがそのファイルを見つけたディレクトリーが何であれ、Emacsはそのファイル名を変数@code{load-file-name}の値にセットします。"
 
 #. type: defun
 #: loading.texi.orig:117
@@ -296,7 +296,7 @@ msgid ""
 "If you get a warning that @file{foo.elc} is older than @file{foo.el}, it "
 "means you should consider recompiling @file{foo.el}.  @xref{Byte "
 "Compilation}."
-msgstr ""
+msgstr "@file{foo.elc}が@file{foo.el}より古いと警告された場合、それは@file{foo.el}のリコンパイルを考慮すべきことを意味します。@ref{Byte Compilation}を参照してください"
 
 #. type: defun
 #: loading.texi.orig:121
@@ -304,13 +304,13 @@ msgid ""
 "When loading a source file (not compiled), @code{load} performs character "
 "set translation just as Emacs would do when visiting the file.  @xref{Coding "
 "Systems}."
-msgstr ""
+msgstr "(コンパイルされていない)ソースファイルをロードしたとき、Emacsがファイルをvisitしたときと同じように@code{load}は文字セットの変換を行います。@ref{Coding Systems}を参照してください。"
 
 #. type: cindex
 #: loading.texi.orig:124
 #, no-wrap
 msgid "eager macro expansion"
-msgstr ""
+msgstr "eager macro expansion"
 
 #. type: defun
 #: loading.texi.orig:140
@@ -329,20 +329,20 @@ msgid ""
 "not happen.  Loading a compiled file does not cause macroexpansion, because "
 "this should already have happened during compilation.  @xref{Compiling "
 "Macros}."
-msgstr ""
+msgstr "コンパイルされていないファイルをロードするとき、Emacsはそのファイルに含まれる任意のマクロ(@ref{Macros}を参照)を展開します。わたしたちはこれを@dfn{eagerマクロ展開(eager macro expansion)}と呼んでいます。(関連するコードを実行するまで展開を延期するのではなく)これを行うことにより、コンパイルされていないコード実行のスピードが明らかに向上します。このマクロ展開は、循環参照により行うことができないときもあります。これの一番簡単な例は、ロードしようとしているファイルが他のファイルで定義されているマクロを参照しているが、そのファイルはロードしようとしているファイルを必要としている場合です。これは一般的には無害です。Emacsは問題の詳細を与えるために警告(@samp{Eager macro-expansion skipped due to cycle@dots{}})をプリントしますが、単にその時点ではマクロを展開せずに、そのファイルはロードされます。あなたはこの問題が発生しないように、コードをリストラクチャーしたいと思うかもしれません。コンパイル済みファイルでは、マクロ展開はコンパイル時に行われるので、ロード時のマクロ展開は行われません。@ref{Compiling Macros}を参照してください。"
 
 #. type: defun
 #: loading.texi.orig:144
 msgid ""
 "Messages like @samp{Loading foo...} and @samp{Loading foo...done} appear in "
 "the echo area during loading unless @var{nomessage} is non-@code{nil}."
-msgstr ""
+msgstr "@var{nomessage}が非@code{nil}でない場合は、ロードの間、エコーエリアに@samp{Loading foo...}や@samp{Loading foo...done}のようなメッセージが表示されます。"
 
 #. type: cindex
 #: loading.texi.orig:145
 #, no-wrap
 msgid "load errors"
-msgstr ""
+msgstr "load errors"
 
 #. type: defun
 #: loading.texi.orig:149
@@ -350,13 +350,13 @@ msgid ""
 "Any unhandled errors while loading a file terminate loading.  If the load "
 "was done for the sake of @code{autoload}, any function definitions made "
 "during the loading are undone."
-msgstr ""
+msgstr "ファイルをロードする間のハンドルされないエラーは、ロードを終了させます。@code{autoload}のためのロードの場合、ロードの間に定義された任意の関数定義は元に戻されます。"
 
 #. type: kindex
 #: loading.texi.orig:150
 #, no-wrap
 msgid "file-error"
-msgstr ""
+msgstr "file-error"
 
 #. type: defun
 #: loading.texi.orig:155
@@ -365,7 +365,7 @@ msgid ""
 "error @code{file-error} (with @samp{Cannot open load file @var{filename}}).  "
 "But if @var{missing-ok} is non-@code{nil}, then @code{load} just returns "
 "@code{nil}."
-msgstr ""
+msgstr "@code{load}がロードするファイルを見つけられなかった場合、通常は(@samp{Cannot open load file @var{filename}}のメッセージとともに)エラー@code{file-error}がシグナルされます。しかし@var{missing-ok}が非@code{nil}の場合、@code{load}は単に@code{nil}をリターンします。"
 
 #. type: defun
 #: loading.texi.orig:159
@@ -373,18 +373,18 @@ msgid ""
 "You can use the variable @code{load-read-function} to specify a function for "
 "@code{load} to use instead of @code{read} for reading expressions.  See "
 "below."
-msgstr ""
+msgstr "式の読み取りにたいして@code{load}が@code{read}のかわりに使用する関数を指定するために、変数@code{load-read-function}を使用できます。以下を参照してください。"
 
 #. type: defun
 #: loading.texi.orig:161
 msgid "@code{load} returns @code{t} if the file loads successfully."
-msgstr ""
+msgstr "ファイルが正常にロードされた場合、@code{load}は@code{t}をリターンします。"
 
 #. type: deffn
 #: loading.texi.orig:163
 #, no-wrap
 msgid "Command load-file filename"
-msgstr ""
+msgstr "Command load-file filename"
 
 #. type: deffn
 #: loading.texi.orig:170
@@ -394,13 +394,13 @@ msgid ""
 "not use @code{load-path}, and does not append suffixes.  However, it does "
 "look for compressed versions (if Auto Compression Mode is enabled).  Use "
 "this command if you wish to specify precisely the file name to load."
-msgstr ""
+msgstr "このコマンドは、ファイル@var{filename}をロードします。@var{filename}が相対ファイル名の場合は、カレントデフォルトディレクトリーとみなされます。このコマンドは、@code{load-path}を使用せず、サフィックスの追加もしません。しかし、(Auto Compressionモードが有効な場合は)圧縮されたバージョンの検索を行います。ロードするファイル名を正確に指定したい場合は、このコマンドを使用してください。"
 
 #. type: deffn
 #: loading.texi.orig:172
 #, no-wrap
 msgid "Command load-library library"
-msgstr ""
+msgstr "Command load-library library"
 
 #. type: deffn
 #: loading.texi.orig:176
@@ -408,26 +408,26 @@ msgid ""
 "This command loads the library named @var{library}.  It is equivalent to "
 "@code{load}, except for the way it reads its argument interactively.  "
 "@xref{Lisp Libraries,,,emacs, The GNU Emacs Manual}."
-msgstr ""
+msgstr "このコマンドは@var{library}という名前のライブラリーをロードします。このコマンドは、引数を読み取る方法がインタラクティブであることを除き、@code{load}と同じです。@ref{Lisp Libraries,,,emacs, The GNU Emacs Manual}を参照してください。"
 
 #. type: defvar
 #: loading.texi.orig:178
 #, no-wrap
 msgid "load-in-progress"
-msgstr ""
+msgstr "load-in-progress"
 
 #. type: defvar
 #: loading.texi.orig:181
 msgid ""
 "This variable is non-@code{nil} if Emacs is in the process of loading a "
 "file, and it is @code{nil} otherwise."
-msgstr ""
+msgstr "この変数は、Emacsがファイルをロード中のときは非@code{nil}、それ以外は@code{nil}です。"
 
 #. type: defvar
 #: loading.texi.orig:183
 #, no-wrap
 msgid "load-file-name"
-msgstr ""
+msgstr "load-file-name"
 
 #. type: defvar
 #: loading.texi.orig:187
@@ -435,18 +435,18 @@ msgid ""
 "When Emacs is in the process of loading a file, this variable's value is the "
 "name of that file, as Emacs found it during the search described earlier in "
 "this section."
-msgstr ""
+msgstr "このセクションの最初に説明した検索でEmacsがファイルを見つけて、そのファイルをロード中のとき、この変数の値はそのファイルの名前です。"
 
 #. type: defvar
 #: loading.texi.orig:189
 #, no-wrap
 msgid "load-read-function"
-msgstr ""
+msgstr "load-read-function"
 
 #. type: anchor{#1}
 #: loading.texi.orig:195
 msgid "Definition of load-read-function"
-msgstr ""
+msgstr "Definition of load-read-function"
 
 #. type: defvar
 #: loading.texi.orig:195
@@ -454,14 +454,14 @@ msgid ""
 "This variable specifies an alternate expression-reading function for "
 "@code{load} and @code{eval-region} to use instead of @code{read}.  The "
 "function should accept one argument, just as @code{read} does."
-msgstr ""
+msgstr "この変数は、@code{load}と@code{eval-region}が式の読み取るために、@code{read}のかわりに使用する関数を指定します。指定する関数は@code{read}と同様、引数が1つの関数です。"
 
 #. type: defvar
 #: loading.texi.orig:198
 msgid ""
 "Normally, the variable's value is @code{nil}, which means those functions "
 "should use @code{read}."
-msgstr ""
+msgstr "通常、この変数の値は@code{nil}で、これはそれらの関数が@code{read}を使用すべきことを意味します。"
 
 #. type: defvar
 #: loading.texi.orig:202
@@ -469,27 +469,27 @@ msgid ""
 "Instead of using this variable, it is cleaner to use another, newer feature: "
 "to pass the function as the @var{read-function} argument to "
 "@code{eval-region}.  @xref{Definition of eval-region,, Eval}."
-msgstr ""
+msgstr "この変数を使用するかわりに、別の新たな方法を使用するほうが明確です。@code{eval-region}の@var{read-function}引数に、その関数を渡す方法です。@ref{Definition of eval-region,, Eval}を参照してください。"
 
 #. type: Plain text
 #: loading.texi.orig:206
 msgid ""
 "For information about how @code{load} is used in building Emacs, see "
 "@ref{Building Emacs}."
-msgstr ""
+msgstr "Emacsのビルドで@code{load}がどのように使用されているかについての情報は、@ref{Building Emacs}を参照してください。"
 
 #. type: Plain text
 #: loading.texi.orig:211
 msgid ""
 "We now describe some technical details about the exact suffixes that "
 "@code{load} tries."
-msgstr ""
+msgstr "ここでは、@code{load}が試行するサフィックスについて、技術的な詳細を説明します。"
 
 #. type: defvar
 #: loading.texi.orig:212
 #, no-wrap
 msgid "load-suffixes"
-msgstr ""
+msgstr "load-suffixes"
 
 #. type: defvar
 #: loading.texi.orig:218
@@ -499,13 +499,13 @@ msgid ""
 "suffixes in order when it appends Lisp suffixes to the specified file name.  "
 "The standard value is @code{(\".elc\" \".el\")} which produces the behavior "
 "described in the previous section."
-msgstr ""
+msgstr "これは(ソースまたはコンパイル済みの)Emacs Lispファイルを示すサフィックスのリストです。空の文字列が含まれるべきではありません。@code{load}は、指定されたファイル名にLispファイルのサフィックスを追加するときに、これらのサフィックスを使用します。標準的な値は@code{(\".elc\" \".el\")}で、これは前のセクションで説明した振る舞いとなります。"
 
 #. type: defvar
 #: loading.texi.orig:220
 #, no-wrap
 msgid "load-file-rep-suffixes"
-msgstr ""
+msgstr "load-file-rep-suffixes"
 
 #. type: defvar
 #: loading.texi.orig:225
@@ -514,7 +514,7 @@ msgid ""
 "This list should normally start with the empty string.  When @code{load} "
 "searches for a file it appends the suffixes in this list, in order, to the "
 "file name, before searching for another file."
-msgstr ""
+msgstr "これは同じファイルにたいする異なる表現を示すサフィックスのリストです。このリストは空の文字列から開始されるべきです。@code{load}はファイルを検索するときは、他のファイルを検索する前にこのリストのサフィックスを順番にファイル名に追加します。"
 
 #. type: defvar
 #: loading.texi.orig:234
@@ -527,13 +527,13 @@ msgid ""
 "@code{jka-compr-load-suffixes} is @code{(\".gz\")}, the standard value of "
 "@code{load-file-rep-suffixes} if Auto Compression mode is enabled is "
 "@code{(\"\" \".gz\")}."
-msgstr ""
+msgstr "Auto Compressionモードを有効にすることにより@code{jka-compr-load-suffixes}のサフィックスがこのリストに追加され、無効にすると再びリストから取り除かれます。@code{load-file-rep-suffixes}の標準的な値は、Auto Compressionモードが無効な場合は@code{(\"\")}です。@code{jka-compr-load-suffixes}の標準的な値が@code{(\".gz\")}であることを考慮すると、Auto Compressionモードが有効な場合の@code{load-file-rep-suffixes}の標準的な値は@code{(\"\" \".gz\")}です。"
 
 #. type: defun
 #: loading.texi.orig:236
 #, no-wrap
 msgid "get-load-suffixes"
-msgstr ""
+msgstr "get-load-suffixes"
 
 #. type: defun
 #: loading.texi.orig:245
@@ -546,7 +546,7 @@ msgid ""
 "returns @code{(\".elc\" \".elc.gz\" \".el\" \".el.gz\")} if Auto Compression "
 "mode is enabled and @code{(\".elc\" \".el\")} if Auto Compression mode is "
 "disabled."
-msgstr ""
+msgstr "この関数は、@var{must-suffix}引数が非@code{nil}のときは、@code{load}が試みるべきすべてのサフィックスを順番にしたがったリストでリターンします。この関数は@code{load-suffixes}と@code{load-file-rep-suffixes}の両方を考慮に入れます。@code{load-suffixes}、@code{jka-compr-load-suffixes}、@code{load-file-rep-suffixes}がすべて標準的な値の場合、この関数はAuto Compressionモードが有効なら@code{(\".elc\" \".elc.gz\" \".el\" \".el.gz\")}、無効なら@code{(\".elc\" \".el\")}をリターンします。"
 
 #. type: Plain text
 #: loading.texi.orig:252
@@ -555,13 +555,13 @@ msgid ""
 "@code{(get-load-suffixes)} and then those in @code{load-file-rep-suffixes}.  "
 "If @var{nosuffix} is non-@code{nil}, it skips the former group, and if "
 "@var{must-suffix} is non-@code{nil}, it skips the latter group."
-msgstr ""
+msgstr "まとめると、@code{load}は通常まず@code{(get-load-suffixes)}の値のサフィックスを試み、つぎに@code{load-file-rep-suffixes}を試みます。@var{nosuffix}が非@code{nil}の場合は前者がスキップされ、@var{must-suffix}が非@code{nil}の場合は後者がスキップされます。"
 
 #. type: defopt
 #: loading.texi.orig:253
 #, no-wrap
 msgid "load-prefer-newer"
-msgstr ""
+msgstr "load-prefer-newer"
 
 #. type: defopt
 #: loading.texi.orig:257
@@ -569,32 +569,32 @@ msgid ""
 "If this option is non-@code{nil}, then rather than stopping at the first "
 "suffix that exists, @code{load} tests them all, and uses whichever file is "
 "the newest."
-msgstr ""
+msgstr "このオプションが非@code{nil}の場合は、ファイルが見つかった最初のサフィックスで停止せずに、@code{load}はすべてのサフィックスをテストして、一番新しいファイルを使用します。"
 
 #. type: cindex
 #: loading.texi.orig:261
 #, no-wrap
 msgid "library search"
-msgstr ""
+msgstr "library search"
 
 #. type: cindex
 #: loading.texi.orig:262
 #, no-wrap
 msgid "find library"
-msgstr ""
+msgstr "find library"
 
 #. type: Plain text
 #: loading.texi.orig:266
 msgid ""
 "When Emacs loads a Lisp library, it searches for the library in a list of "
 "directories specified by the variable @code{load-path}."
-msgstr ""
+msgstr "EmacsがLispライブラリーをロードするときは、変数@code{load-path}.<により指定されるディレクトリー内のライブラリーを検索します。"
 
 #. type: defvar
 #: loading.texi.orig:267
 #, no-wrap
 msgid "load-path"
-msgstr ""
+msgstr "load-path"
 
 #. type: defvar
 #: loading.texi.orig:272
@@ -602,7 +602,7 @@ msgid ""
 "The value of this variable is a list of directories to search when loading "
 "files with @code{load}.  Each element is a string (which must be a directory "
 "name) or @code{nil} (which stands for the current working directory)."
-msgstr ""
+msgstr "この変数の値は、@code{load}でファイルをロードするとき検索するディレクトリーのリストです。リストの各要素は文字列(ディレクトリー名でなければなりません)、または@code{nil}(カレントワーキングディレクトリーを意味します)です。"
 
 #. type: Plain text
 #: loading.texi.orig:278
@@ -610,13 +610,13 @@ msgid ""
 "When Emacs starts up, it sets up the value of @code{load-path} in several "
 "steps.  First, it initializes @code{load-path} using default locations set "
 "when Emacs was compiled.  Normally, this is a directory something like"
-msgstr ""
+msgstr "Emacsは起動時にいくつかのステップにより@code{load-path}の値をセットアップします。最初に、Emacsがコンパイルされたときのデフォルトロケーションセット(default locations set)を使用して、@code{load-path}を初期化します。通常これは以下のようなディレクトリーです"
 
 #. type: example
 #: loading.texi.orig:281
 #, no-wrap
 msgid "\"/usr/local/share/emacs/@var{version}/lisp\"\n"
-msgstr ""
+msgstr "\"/usr/local/share/emacs/@var{version}/lisp\"\n"
 
 #. type: Plain text
 #: loading.texi.orig:287
@@ -625,7 +625,7 @@ msgid ""
 "installation prefix appropriate for your Emacs.)  These directories contain "
 "the standard Lisp files that come with Emacs.  If Emacs cannot find them, it "
 "will not start correctly."
-msgstr ""
+msgstr "(以下の例では、あなたがインストールしたEmacsのインストールプレフィクスに合うように@file{/usr/local}を置き換えてください。)これらのディレクトリーには、Emacsとともにインストールされた、標準的なLispファイルが含まれます。Emacsがこれらを見つけられない場合は、正常に起動しないでしょう。"
 
 #. type: Plain text
 #: loading.texi.orig:297
@@ -636,13 +636,13 @@ msgid ""
 "the sources from which it was built.  If you built Emacs in a separate "
 "directory from the sources, it also adds the lisp directories from the build "
 "directory.  (In all cases, elements are represented as absolute file names.)"
-msgstr ""
+msgstr "Emacsをビルドしたディレクトリーから起動した場合 −−− つまり正式にインストールされた実行形式ではないEmacsを起動した場合 ---　、Emacsはビルドされたディレクトリーのソースの@file{lisp}ディレクトリーを使用して@code{load-path}を初期化します。ソースとは別のディレクトリーでEmacsをビルドした場合は、ビルドしたディレクトリーの@file{lisp}ディレクトリーも追加します。(どちらの場合も、要素は絶対ファイル名になります。)"
 
 #. type: cindex
 #: loading.texi.orig:298
 #, no-wrap
 msgid "site-lisp directories"
-msgstr ""
+msgstr "site-lisp directories"
 
 #. type: Plain text
 #: loading.texi.orig:303
@@ -651,24 +651,24 @@ msgid ""
 "two more @file{site-lisp} directories to the front of @code{load-path}.  "
 "These are intended for locally installed Lisp files, and are normally of the "
 "form:"
-msgstr ""
+msgstr "@option{--no-site-lisp}オプションでEmacsを起動した場合を除き、@code{load-path}の先頭に2つのさらに@file{site-lisp}を追加します。これらはローカルにインストールされたLispファイで、通常は:"
 
 #. type: example
 #: loading.texi.orig:306
 #, no-wrap
 msgid "\"/usr/local/share/emacs/@var{version}/site-lisp\"\n"
-msgstr ""
+msgstr "\"/usr/local/share/emacs/@var{version}/site-lisp\"\n"
 
 #. type: Plain text
 #: loading.texi.orig:310
 msgid "and"
-msgstr ""
+msgstr "と"
 
 #. type: example
 #: loading.texi.orig:313
 #, no-wrap
 msgid "\"/usr/local/share/emacs/site-lisp\"\n"
-msgstr ""
+msgstr "\"/usr/local/share/emacs/site-lisp\"\n"
 
 #. type: Plain text
 #: loading.texi.orig:322
@@ -679,13 +679,13 @@ msgid ""
 "@file{site-lisp} directories from the source and build directories, if they "
 "exist.  Normally these directories do not contain @file{site-lisp} "
 "directories.)"
-msgstr ""
+msgstr "の形式です。1つ目は特定のバージョンのEmacsにたいしてローカルにインストールされたものです。2つ目はインストールされたすべてのバージョンのEmacsが使用することを意図してローカルにインストールされたものです。(インストールされたものでないEmacsが実行された場合は、もし存在すればソースディレクトリーとビルドディレクトリーの@file{site-lisp}ディレクトリーも追加します。これらのディレクトリーは通常、@file{site-lisp}ディレクトリーを含みません。)"
 
 #. type: cindex
 #: loading.texi.orig:323
 #, no-wrap
 msgid "@env{EMACSLOADPATH} environment variable"
-msgstr ""
+msgstr "@env{EMACSLOADPATH} environment variable"
 
 #. type: Plain text
 #: loading.texi.orig:327
@@ -693,7 +693,7 @@ msgid ""
 "If the environment variable @env{EMACSLOADPATH} is set, it modifies the "
 "above initialization procedure.  Emacs initializes @code{load-path} based on "
 "the value of the environment variable."
-msgstr ""
+msgstr "環境変数@env{EMACSLOADPATH}がセットされている場合は、上述の初期化プロセスが変更されます。Emacsは、この環境変数の値にもとづいて@code{load-path}を初期化します。"
 
 #. type: Plain text
 #: loading.texi.orig:331
@@ -701,20 +701,20 @@ msgid ""
 "The syntax of @env{EMACSLOADPATH} is the same as used for @code{PATH}; "
 "directory names are separated by @samp{:} (or @samp{;}, on some operating "
 "systems)."
-msgstr ""
+msgstr "@env{EMACSLOADPATH}の構文は、@code{PATH}で使用される構文と同様です。ディレクトリー名は@samp{:}(オペレーティングシステムによっては@samp{;})で区切られます。"
 
 #. type: Plain text
 #: loading.texi.orig:337
 msgid ""
 "Here is an example of how to set @env{EMACSLOADPATH} variable (from a "
 "@command{sh}-style shell):"
-msgstr ""
+msgstr "以下は、(@command{sh}スタイルのシェルから)@env{EMACSLOADPATH}変数をセットする例です:"
 
 #. type: example
 #: loading.texi.orig:340
 #, no-wrap
 msgid "export EMACSLOADPATH=/home/foo/.emacs.d/lisp:\n"
-msgstr ""
+msgstr "export EMACSLOADPATH=/home/foo/.emacs.d/lisp:\n"
 
 #. type: Plain text
 #: loading.texi.orig:351
@@ -728,7 +728,7 @@ msgid ""
 "files, else Emacs will not function.  (Another way to modify "
 "@code{load-path} is to use the @option{-L} command-line option when starting "
 "Emacs; see below.)"
-msgstr ""
+msgstr "環境変数の値内の空の要素は、(上記例のような)末尾、先頭、中間にあるかに関わらず、標準の初期化処理により決定される@code{load-path}のデフォルト値に置き換えられます。そのような空要素が存在しない場合には、@env{EMACSLOADPATH}により@code{load-path}全体が指定されます。空要素、または標準のLispファイルを含むディレクトリーへの明示的なパスのどちらかを含めなければなりません。さもないとEmacsが関数を見つけられなくなります。(@code{load-path}を変更する他の方法は、Emacs起動時にコマンドラインオプション@option{-L}を使用する方法です。以下参照。)"
 
 #. type: Plain text
 #: loading.texi.orig:361
@@ -742,7 +742,7 @@ msgid ""
 "subdirectories whose names do not start with a letter or digit, and "
 "subdirectories named @file{RCS} or @file{CVS}, and subdirectories containing "
 "a file named @file{.nosearch}."
-msgstr ""
+msgstr "@code{load-path}内の各ディレクトリーにたいし、Emacsはそのディレクトリーがファイル@file{subdirs.el}を含むか確認し、もしあればそれをロードします。@file{subdirs.el}ファイルは、@code{load-path}のディレクトリーみたいして任意のサブディレクトリーを追加するためのコードが含まれており、Emacsがビルド/インストールされたとき作成されます。サブディレクトリーと複数階層下のレベルのサブディレクトリーの両方が、直接追加されます。ただし、名前の最初が英数字でないディレクトリー、名前が@file{RCS}または@file{CVS}のディレクトリー、名前が@file{.nosearch}というファイルを含むディレクトリーは除外されます。"
 
 #. type: Plain text
 #: loading.texi.orig:366
@@ -751,20 +751,20 @@ msgid ""
 "@option{-L} command-line option (@pxref{Action Arguments,,,emacs, The GNU "
 "Emacs Manual}).  It also adds the directories where optional packages are "
 "installed, if any (@pxref{Packaging Basics})."
-msgstr ""
+msgstr "Emacsは次に、コマンドラインオプション@option{-L}(@ref{Action Arguments,,,emacs, The GNU Emacs Manual}を参照)で指定したロードディレクトリーを追加します。もしあれば、オプションパッケージ(@ref{Packaging Basics}を参照)がインストールされた場所も追加します。"
 
 #. type: Plain text
 #: loading.texi.orig:369
 msgid ""
 "It is common to add code to one's init file (@pxref{Init File}) to add one "
 "or more directories to @code{load-path}.  For example:"
-msgstr ""
+msgstr "initファイル(@ref{Init File}を参照)で、@code{load-path}に1つ以上のディレクトリーを追加するコードを記述するのは一般的に行なわれています。たとえば:"
 
 #. type: example
 #: loading.texi.orig:372
 #, no-wrap
 msgid "(push \"~/.emacs.d/lisp\" load-path)\n"
-msgstr ""
+msgstr "(push \"~/.emacs.d/lisp\" load-path)\n"
 
 #. type: Plain text
 #: loading.texi.orig:378
@@ -773,13 +773,13 @@ msgid ""
 "@file{site-load.el} or @file{site-init.el} file to customize the dumped "
 "Emacs (@pxref{Building Emacs}), any changes to @code{load-path} that these "
 "files make will be lost after dumping."
-msgstr ""
+msgstr "Emacsのダンプには、@code{load-path}の特別な値を使用します。ダンプされたEmacsをカスタマイズするために@file{site-load.el}または@file{site-init.el}を使用する場合、これらのファイルが行った@code{load-path}にたいする変更はすべて、ダンプ後失われます。"
 
 #. type: deffn
 #: loading.texi.orig:379
 #, no-wrap
 msgid "Command locate-library library &optional nosuffix path interactive-call"
-msgstr ""
+msgstr "Command locate-library library &optional nosuffix path interactive-call"
 
 #. type: deffn
 #: loading.texi.orig:385
@@ -788,14 +788,14 @@ msgid ""
 "searches for the library in the same way @code{load} does, and the argument "
 "@var{nosuffix} has the same meaning as in @code{load}: don't add suffixes "
 "@samp{.elc} or @samp{.el} to the specified name @var{library}."
-msgstr ""
+msgstr "このコマンドは、ライブラリー@var{library}の正確なファイル名を探します。@code{load}と同じ方法でライブラリーを検索し、引数@var{nosuffix}も@code{load}の場合と同じ意味です。@var{library}に指定する名前には、サフィックス@samp{.elc}または@samp{.el}を追加しないでください。"
 
 #. type: deffn
 #: loading.texi.orig:388
 msgid ""
 "If the @var{path} is non-@code{nil}, that list of directories is used "
 "instead of @code{load-path}."
-msgstr ""
+msgstr "@var{path}が非@code{nil}の場合は、@code{load-path}のかわりにディレクトリーのリストが使用されます。"
 
 #. type: deffn
 #: loading.texi.orig:393
@@ -804,19 +804,19 @@ msgid ""
 "name as a string.  When the user runs @code{locate-library} interactively, "
 "the argument @var{interactive-call} is @code{t}, and this tells "
 "@code{locate-library} to display the file name in the echo area."
-msgstr ""
+msgstr "@code{locate-library}がプログラムから呼び出されたときは、ファイル名を文字列としてリターンします。ユーザーがインタラクティブに@code{locate-library}を実行したときは、引数@var{interactive-call}が@code{t}となり、これは@code{locate-library}にたいしてファイル名をエコーエリアに表示するよう指示します。"
 
 #. type: cindex
 #: loading.texi.orig:395
 #, no-wrap
 msgid "shadowed Lisp files"
-msgstr ""
+msgstr "shadowed Lisp files"
 
 #. type: deffn
 #: loading.texi.orig:396
 #, no-wrap
 msgid "Command list-load-path-shadows &optional stringp"
-msgstr ""
+msgstr "Command list-load-path-shadows &optional stringp"
 
 #. type: deffn
 #: loading.texi.orig:401
@@ -825,18 +825,18 @@ msgid ""
 "file is one that will not normally be loaded, despite being in a directory "
 "on @code{load-path}, due to the existence of another similarly-named file in "
 "a directory earlier on @code{load-path}."
-msgstr ""
+msgstr "このコマンドは、@dfn{シャドー(shadowed)}されたEmacs Lispファイルを表示します。シャドーされたファイルとは、@code{load-path}のディレクトリーに存在するにも関わらず、@code{load-path}のディレクトリーリスト内で前の位置にある他のディレクトリーに同じ名前のファイルが存在するため、通常はロードされないファイルのことです。"
 
 #. type: deffn
 #: loading.texi.orig:403
 msgid "For instance, suppose @code{load-path} is set to"
-msgstr ""
+msgstr "たとえば、以下のように@code{load-path}がセットされていたとします"
 
 #. type: example
 #: loading.texi.orig:406
 #, no-wrap
 msgid "  (\"/opt/emacs/site-lisp\" \"/usr/share/emacs/23.3/lisp\")\n"
-msgstr ""
+msgstr "  (\"/opt/emacs/site-lisp\" \"/usr/share/emacs/23.3/lisp\")\n"
 
 #. type: deffn
 #: loading.texi.orig:413
@@ -844,7 +844,7 @@ msgid ""
 "and that both these directories contain a file named @file{foo.el}.  Then "
 "@code{(require 'foo)} never loads the file in the second directory.  Such a "
 "situation might indicate a problem in the way Emacs was installed."
-msgstr ""
+msgstr "そして、両方のディレクトリーに@file{foo.el}という名前のファイルがあるとします。この場合、@code{(require 'foo)}は決して2つ目のディレクトリーのファイルをロードしません。このような状況は、Emacsがインストールされた方法に問題があることを示唆します。"
 
 #. type: deffn
 #: loading.texi.orig:418
@@ -853,25 +853,25 @@ msgid ""
 "files, instead of displaying them in a buffer.  If the optional argument "
 "@code{stringp} is non-@code{nil}, it instead returns the shadowed files as a "
 "string."
-msgstr ""
+msgstr "Lispから呼び出された場合、この関数はバッファー内に表示するかわりに、シャドーされたファイルリストのメッセージをプリントします。オプション引数@code{stringp}が非@code{nil}の場合は、かわりにシャドーされたファイルを文字列としてリターンします。"
 
 #. type: section
 #: loading.texi.orig:421
 #, no-wrap
 msgid "Loading Non-@acronym{ASCII} Characters"
-msgstr ""
+msgstr "Loading Non-@acronym{ASCII} Characters"
 
 #. type: cindex
 #: loading.texi.orig:422
 #, no-wrap
 msgid "loading, and non-ASCII characters"
-msgstr ""
+msgstr "loading, and non-ASCII characters"
 
 #. type: cindex
 #: loading.texi.orig:423
 #, no-wrap
 msgid "non-ASCII characters in loaded files"
-msgstr ""
+msgstr "non-ASCII characters in loaded files"
 
 #. type: Plain text
 #: loading.texi.orig:435
@@ -885,7 +885,7 @@ msgid ""
 "strings.  If a file containing Latin-1 characters (for example) is read "
 "without decoding, the text of the program will be unibyte text, and its "
 "string constants will be unibyte strings.  @xref{Coding Systems}."
-msgstr ""
+msgstr "Emacs Lispプログラムが非@acronym{ASCII}文字の文字列定数を含むとき、Emacsではそれらをユニバイト文字列またはマルチバイト文字列のどちらかで表現される場合があります。どちらの表現が使用されるかは、そのファイルがどのようにEmacsに読み込まれたかに依存します。マルチバイト表現へのデコーディングとともに読み込まれた場合、Lispプログラム内のテキストはマルチバイトのテキストとなり、ファイル内の文字列定数はマルチバイト文字列になります。(たとえば)Latin-1文字を含むファイルをデコーディングなしで読み込んだ場合、そのプログラムのテキストはユニバイトのテキストとなり、ファイル内の文字列定数はユニバイト文字列になります。@ref{Coding Systems}を参照してください。"
 
 #. type: Plain text
 #: loading.texi.orig:445
@@ -898,13 +898,13 @@ msgid ""
 "With that designator, the file will unconditionally be interpreted as "
 "unibyte.  This can matter when making keybindings to non-@acronym{ASCII} "
 "characters written as @code{?v@var{literal}}."
-msgstr ""
+msgstr "マルチバイト文字列がユニバイトバッファーに挿入されるときは自動的にユニバイトに変換されるため、大部分のEmacs Lispプログラムにおいて、マルチバイト文字列が非@acronym{ASCII}文字列であるという事実を意識させないようにすべきです。しかしこれが行われことにより違いが生じる場合には、ローカル変数セクションに@samp{coding: raw-text}と記述することにより、特定のLispファイルを強制的にユニバイトとして解釈させることができます。この識別子により、そのファイルは無条件でユニバイトとして解釈されます。これは、@code{?v@var{literal}}で記述された非@acronym{ASCII}文字にキーバインドするとき重要になります。"
 
 #. type: cindex
 #: loading.texi.orig:448
 #, no-wrap
 msgid "autoload"
-msgstr ""
+msgstr "autoload"
 
 #. type: Plain text
 #: loading.texi.orig:457
@@ -916,7 +916,7 @@ msgid ""
 "if it had been loaded all along.  Autoloading can also be triggered by "
 "looking up the documentation of the function or macro (@pxref{Documentation "
 "Basics})."
-msgstr ""
+msgstr "@dfn{オートロード(autoload: 自動ロード)}の機能により、定義されているファイルをロードすることなく、関数やマクロの存在を登録できます。関数の最初の呼び出しで、実際の定義およびその他の関連するコードをインストールするために適切なライブラリーを自動的にロードし、すべてがすでにロードされていたかのように、実際の定義を実行します。関数やマクロのドキュメントを参照することによっても、オートロードが発生します(@ref{Documentation Basics}を参照)。"
 
 #. type: Plain text
 #: loading.texi.orig:467
@@ -930,13 +930,13 @@ msgid ""
 "own, but they serve as a guide for the command @code{update-file-autoloads}, "
 "which constructs calls to @code{autoload} and arranges to execute them when "
 "Emacs is built."
-msgstr ""
+msgstr "オートロードされた関数をセットアップするには、2つの方法があります。それは@code{autoload}を呼び出す方法と、ソースの実際の定義の前に、特別な``マジック''コメントを記述する方法です。@code{autoload}はオートロードのための低レベルのプリミティブです。任意のLispプログラムが、任意のときに@code{autoload}を呼び出すことができます。Emacsととみにインストールされるパッケージにとって、マジックコメントは関数をオートロードできるようににするための一番便利な方法です。コメント自身は何も行いませんが、コマンド@code{update-file-autoloads}にたいするガイドを努めます。このコマンドは@code{autoload}の呼び出しを構築し、Emacsビルド時に実行されるようアレンジします。"
 
 #. type: defun
 #: loading.texi.orig:468
 #, no-wrap
 msgid "autoload function filename &optional docstring interactive type"
-msgstr ""
+msgstr "autoload function filename &optional docstring interactive type"
 
 #. type: defun
 #: loading.texi.orig:472
@@ -944,7 +944,7 @@ msgid ""
 "This function defines the function (or macro) named @var{function} so as to "
 "load automatically from @var{filename}.  The string @var{filename} specifies "
 "the file to load to get the real definition of @var{function}."
-msgstr ""
+msgstr "この関数は、@var{filename}から自動的にロードされるように、@var{function}という名前の関数(またはマクロ)を定義します。文字列@var{filename}のは、@var{function}の実際の定義を取得するファイルを指定します。"
 
 #. type: defun
 #: loading.texi.orig:478
@@ -954,7 +954,7 @@ msgid ""
 "suffixes, and it will not load from a file whose name is just @var{filename} "
 "with no added suffix.  (The variable @code{load-suffixes} specifies the "
 "exact required suffixes.)"
-msgstr ""
+msgstr "@var{filename}がディレクトリー名とサフィックス@code{.el}と@code{.elc}のどちらも含まない場合、この関数はこれらの強制的にサフィックスを追加します。つまりサフィックスが追加されないただの@var{filename}という名前のファイルはロードされません。(変数@code{load-suffixes}により要求される正確なサフィックスが指定されます。)"
 
 #. type: defun
 #: loading.texi.orig:486
@@ -965,7 +965,7 @@ msgid ""
 "definition.  Normally, this should be identical to the documentation string "
 "in the function definition itself.  If it isn't, the function definition's "
 "documentation string takes effect when it is loaded."
-msgstr ""
+msgstr "引数@var{docstring}は、その関数のドキュメント文字列です。@code{autoload}の呼び出しでドキュメント文字列を指定することにより、その関数の実際の定義をロードせずにドキュメントを見ることが可能になります。この引数の値は通常、関数定義のドキュメント文字列と等しくあるべきです。もし等しくない場合は、その関数のドキュメント文字列がロード時に有効になります。"
 
 #. type: defun
 #: loading.texi.orig:493
@@ -976,7 +976,7 @@ msgid ""
 "specification is not given here; it's not needed unless the user actually "
 "calls @var{function}, and when that happens, it's time to load the real "
 "definition."
-msgstr ""
+msgstr "@var{interactive}が非@code{nil}の場合、その関数はインタラクティブに呼び出すことが可能になります。これにより、@var{function}の実際の定義をロードせずに、@kbd{M-x}による補完が機能するようになります。。ここでは、完全なインタラクティブ指定は与えられません。完全な指定はユーザーが実際に@var{function}を呼び出すまで必要ありません。実際にユーザーが呼び出したときに、実際の定義がロードされます。"
 
 #. type: defun
 #: loading.texi.orig:499
@@ -986,7 +986,7 @@ msgid ""
 "@var{type} as @code{keymap} if @var{function} is really a keymap.  Various "
 "parts of Emacs need to know this information without loading the real "
 "definition."
-msgstr ""
+msgstr "普通の関数と同様、マクロおよびキーマップをオートロードできます。@var{function}が実際にはマクロの場合は@var{type}に@code{macro}を指定し、キーマップの場合には@var{type}に@code{keymap}を指定します。Emacsのさまざまな部分は、実際の定義をロードせずに、これらの情報を知る必要があるのです。"
 
 #. type: defun
 #: loading.texi.orig:506
@@ -997,13 +997,13 @@ msgid ""
 "a Lisp program gets the keymap from the value of a variable and calls "
 "@code{define-key}; not even if the variable name is the same symbol "
 "@var{function}."
-msgstr ""
+msgstr "オートロードされたキーマップは、あるプレフィクスキーがシンボル@var{function}にバインドされているときにキーを探す間に、自動的にロードされます。そのキーマップにたいする他の類のアクセスでは、オートロードは発生しません。特に、Lispプログラムが変数の値からそのキーマップを取得して@code{define-key}を呼び出した場合には、たとえその変数の名前がシンボル@var{function}と同じであっても、オートロードは起こりません。"
 
 #. type: cindex
 #: loading.texi.orig:507
 #, no-wrap
 msgid "function cell in autoload"
-msgstr ""
+msgstr "function cell in autoload"
 
 #. type: defun
 #: loading.texi.orig:513
@@ -1013,18 +1013,18 @@ msgid ""
 "Otherwise, it constructs an autoload object (@pxref{Autoload Type}), and "
 "stores it as the function definition for @var{function}.  The autoload "
 "object has this form:"
-msgstr ""
+msgstr "@var{function}が非voidのオートロードされたオブジェクトではない関数定義をもつ場合、その関数は何も行わず@code{nil}をリターンします。それ以外は、オートロードされたオブジェクト(@ref{Autoload Type}を参照)を作成して、それを@var{function}にたいする関数定義として格納します。オートロードされたオブジェクトは、以下の形式をもちます:"
 
 #. type: example
 #: loading.texi.orig:516
 #, no-wrap
 msgid "(autoload @var{filename} @var{docstring} @var{interactive} @var{type})\n"
-msgstr ""
+msgstr "(autoload @var{filename} @var{docstring} @var{interactive} @var{type})\n"
 
 #. type: defun
 #: loading.texi.orig:519
 msgid "For example,"
-msgstr ""
+msgstr "たとえば、"
 
 #. type: group
 #: loading.texi.orig:524
@@ -1033,6 +1033,8 @@ msgid ""
 "(symbol-function 'run-prolog)\n"
 "     @result{} (autoload \"prolog\" 169681 t nil)\n"
 msgstr ""
+"(symbol-function 'run-prolog)\n"
+"     @result{} (autoload \"prolog\" 169681 t nil)\n"
 
 #. type: defun
 #: loading.texi.orig:533
@@ -1041,13 +1043,13 @@ msgid ""
 "refers to the documentation string in the @file{emacs/etc/DOC} file "
 "(@pxref{Documentation Basics}), @code{t} means the function is interactive, "
 "and @code{nil} that it is not a macro or a keymap."
-msgstr ""
+msgstr "このような場合、@code{\"prolog\"}はロードするファイルの名前、169681は@file{emacs/etc/DOC}ファイル(@ref{Documentation Basics}を参照)内のドキュメント文字列への参照で、@code{t}はその関数がインタラクティブであり、@code{nil}はそれがマクロやキーマップでないことを意味します。"
 
 #. type: defun
 #: loading.texi.orig:535
 #, no-wrap
 msgid "autoloadp object"
-msgstr ""
+msgstr "autoloadp object"
 
 #. type: defun
 #: loading.texi.orig:539
@@ -1055,19 +1057,19 @@ msgid ""
 "This function returns non-@code{nil} if @var{object} is an autoload object.  "
 "For example, to check if @code{run-prolog} is defined as an autoloaded "
 "function, evaluate"
-msgstr ""
+msgstr "この関数は、@var{object}がオートロードされたオブジェクトの場合、非@code{nil}をリターンします。たとえば、@code{run-prolog}がオートロードされたオブジェクトかチェックするには、以下を評価します"
 
 #. type: smallexample
 #: loading.texi.orig:542
 #, no-wrap
 msgid "(autoloadp (symbol-function 'run-prolog))\n"
-msgstr ""
+msgstr "(autoloadp (symbol-function 'run-prolog))\n"
 
 #. type: cindex
 #: loading.texi.orig:545
 #, no-wrap
 msgid "autoload errors"
-msgstr ""
+msgstr "autoload errors"
 
 #. type: Plain text
 #: loading.texi.orig:555
@@ -1081,7 +1083,7 @@ msgid ""
 "functions in the file might be defined by the aborted load, but fail to work "
 "properly for the lack of certain subroutines not loaded successfully because "
 "they come later in the file."
-msgstr ""
+msgstr "オートロードされたファイルは、通常は他の定義を含み、1つ以上の機能を必要あるいは提供するかもしれません。(内容の評価でのエラーにより)そのファイルが完全にロードされていない場合、そのロードの間に行われた関数定義や@code{provide}の呼び出しはアンドゥされます。これは、このファイルからオートロードされる関数にたいして再度呼び出しを試みたときに、そのファイルを確実に再ロードさせるためです。このようにしないと、そのファイル内のいくつかの関数はアボートしたロードにより定義されていて、それらはロードされなかった修正後のファイルで提供される正しいサブルーチンを欠くため、正しく機能しないからです。"
 
 #. type: Plain text
 #: loading.texi.orig:559
@@ -1089,31 +1091,31 @@ msgid ""
 "If the autoloaded file fails to define the desired Lisp function or macro, "
 "then an error is signaled with data @code{\"Autoloading failed to define "
 "function @var{function-name}\"}."
-msgstr ""
+msgstr "オートロードされたファイルが意図したLisp関数、またはマクロの定義に失敗した場合には、データ@code{\"Autoloading failed to define function @var{function-name}\"}とともにエラーがシグナルされます。"
 
 #. type: findex
 #: loading.texi.orig:560
 #, no-wrap
 msgid "update-file-autoloads"
-msgstr ""
+msgstr "update-file-autoloads"
 
 #. type: findex
 #: loading.texi.orig:561
 #, no-wrap
 msgid "update-directory-autoloads"
-msgstr ""
+msgstr "update-directory-autoloads"
 
 #. type: cindex
 #: loading.texi.orig:562
 #, no-wrap
 msgid "magic autoload comment"
-msgstr ""
+msgstr "magic autoload comment"
 
 #. type: anchor{#1}
 #: loading.texi.orig:563 loading.texi.orig:576
 #, no-wrap
 msgid "autoload cookie"
-msgstr ""
+msgstr "autoload cookie"
 
 #. type: Plain text
 #: loading.texi.orig:576
@@ -1128,7 +1130,7 @@ msgid ""
 "@file{loaddefs.el} and thus calls @code{autoload}.  @kbd{M-x "
 "update-directory-autoloads} is even more powerful; it updates autoloads for "
 "all files in the current directory."
-msgstr ""
+msgstr "オートロードのマジックコメント(@dfn{autoload cookie}とも呼ばれる)は、オートロード可能なソースファイル内の実際の定義の直前にある、@samp{;;;###autoload}だけの行から構成されます。コマンド@kbd{M-x update-file-autoloads}は、対応する@code{autoload}呼び出しを@file{loaddefs.el}内に書き込みます。(autoload cookieとなる文字列と、@code{update-file-autoloads}により生成されるファイルの名前は、上述のデフォルトから変更可能です。以下を参照。) Emacsのビルドでは@file{loaddefs.el}をロードするために@code{autoload}を呼び出します。@kbd{M-x update-directory-autoloads}は、より強力です。このコマンドはカレントディレクトリー内のすべてのファイルにたいするオートロードを更新します。"
 
 #. type: Plain text
 #: loading.texi.orig:583
@@ -1138,13 +1140,13 @@ msgid ""
 "is one of the forms which the autoload facility handles specially (e.g., by "
 "conversion into an @code{autoload} call).  The forms which are not copied "
 "verbatim are the following:"
-msgstr ""
+msgstr "このマジックコメントは、任意の種類のフォームを、@file{loaddefs.el}内にコピーできます。このマジックコメントに続くフォームは、そのままコピーされます。しかしオートロード機能が特別に処理するフォームの場合は@emph{除外}されます(たとえば@code{autoload}内への変換)。以下は、そのままコピーされないフォームです:"
 
 #. type: item
 #: loading.texi.orig:585
 #, no-wrap
 msgid "Definitions for function or function-like objects:"
-msgstr ""
+msgstr "関数、または関数のようなオブジェクトにたいする定義:"
 
 #. type: table
 #: loading.texi.orig:590
@@ -1153,13 +1155,13 @@ msgid ""
 "@code{cl-defmacro} (@pxref{Argument Lists,,,cl,Common Lisp Extensions}), and "
 "@code{define-overloadable-function} (see the commentary in "
 "@file{mode-local.el})."
-msgstr ""
+msgstr "@code{defun}と@code{defmacro}。@code{cl-defun}と@code{cl-defmacro}(@ref{Argument Lists,,,cl,Common Lisp Extensions}を参照)、および@code{define-overloadable-function} (@file{mode-local.el}内のコメントを参照)も該当"
 
 #. type: item
 #: loading.texi.orig:591
 #, no-wrap
 msgid "Definitions for major or minor modes:"
-msgstr ""
+msgstr "メジャーモードおよびマイナーモードにたいする定義:"
 
 #. type: table
 #: loading.texi.orig:597
@@ -1168,13 +1170,13 @@ msgid ""
 "@code{define-generic-mode}, @code{define-derived-mode}, "
 "@code{easy-mmode-define-minor-mode}, @code{easy-mmode-define-global-mode}, "
 "@code{define-compilation-mode}, and @code{define-global-minor-mode}."
-msgstr ""
+msgstr "@code{define-minor-mode}、@code{define-globalized-minor-mode}、@code{define-generic-mode}、@code{define-derived-mode}、@code{easy-mmode-define-minor-mode}、@code{easy-mmode-define-global-mode}、@code{define-compilation-mode}、@code{define-global-minor-mode}。"
 
 #. type: item
 #: loading.texi.orig:598
 #, no-wrap
 msgid "Other definition types:"
-msgstr ""
+msgstr "その他のタイプの定義:"
 
 #. type: table
 #: loading.texi.orig:602
@@ -1182,7 +1184,7 @@ msgid ""
 "@code{defcustom}, @code{defgroup}, @code{defclass} "
 "(@pxref{Top,EIEIO,,eieio,EIEIO}), and @code{define-skeleton} (see the "
 "commentary in @file{skeleton.el})."
-msgstr ""
+msgstr "@code{defcustom}、@code{defgroup}、@code{defclass} (@ref{Top,EIEIO,,eieio,EIEIO}を参照)、および@code{define-skeleton} (@file{skeleton.el}内のコメントを参照)。"
 
 #. type: Plain text
 #: loading.texi.orig:610
@@ -1193,14 +1195,14 @@ msgid ""
 "a comment, it does nothing when you load the source file; but @kbd{M-x "
 "update-file-autoloads} copies it to @file{loaddefs.el}, where it is executed "
 "while building Emacs."
-msgstr ""
+msgstr "ビルド時に、そのファイル自身をロードするときにフォームを@emph{実行しないように}、マジックコメントを使用することもできます。これを行なうには、マジックコメントと同じ行にフォームを記述します。これはコメントなので、ソースファイルをロードするとき何も行いません。ただし@kbd{M-x update-file-autoloads}は、Emacsビルド時に実行されたものは、@kbd{M-x update-file-autoloads}にコピーします。"
 
 #. type: Plain text
 #: loading.texi.orig:613
 msgid ""
 "The following example shows how @code{doctor} is prepared for autoloading "
 "with a magic comment:"
-msgstr ""
+msgstr "以下は、マジックコメントによるオートロードのために@code{doctor}を準備する例です:"
 
 #. type: example
 #: loading.texi.orig:621
@@ -1213,11 +1215,17 @@ msgid ""
 "  (switch-to-buffer \"*doctor*\")\n"
 "  (doctor-mode))\n"
 msgstr ""
+";;;###autoload\n"
+"(defun doctor ()\n"
+"  \"Switch to *doctor* buffer and start giving psychotherapy.\"\n"
+"  (interactive)\n"
+"  (switch-to-buffer \"*doctor*\")\n"
+"  (doctor-mode))\n"
 
 #. type: Plain text
 #: loading.texi.orig:625
 msgid "Here's what that produces in @file{loaddefs.el}:"
-msgstr ""
+msgstr "これにより、以下が@file{loaddefs.el}内に書き込まれます:"
 
 #. type: example
 #: loading.texi.orig:629
@@ -1227,18 +1235,21 @@ msgid ""
 "Switch to *doctor* buffer and start giving psychotherapy.\n"
 "\n"
 msgstr ""
+"(autoload (quote doctor) \"doctor\" \"\\\n"
+"Switch to *doctor* buffer and start giving psychotherapy.\n"
+"\n"
 
 #. type: example
 #: loading.texi.orig:631
 #, no-wrap
 msgid "\\(fn)\" t nil)\n"
-msgstr ""
+msgstr "\\(fn)\" t nil)\n"
 
 #. type: cindex
 #: loading.texi.orig:634
 #, no-wrap
 msgid "@code{fn} in function's documentation string"
-msgstr ""
+msgstr "@code{fn} in function's documentation string"
 
 #. type: Plain text
 #: loading.texi.orig:643
@@ -1250,7 +1261,7 @@ msgid ""
 "commentary in @file{lib-src/make-docfile.c}.  @samp{(fn)} in the usage part "
 "of the documentation string is replaced with the function's name when the "
 "various help functions (@pxref{Help Functions}) display it."
-msgstr ""
+msgstr "ダブルクォートの直後のバックスラッシュまたは改行は、@file{loaddefs.el}のようなプリロードされた未コンパイルだけに使用される慣習です。これは、@code{make-docfile}にたいして、ドキュメント文字列を@file{etc/DOC}ファイルに配するよう指示します。@ref{Building Emacs}を参照してください。また、@file{lib-src/make-docfile.c}内のコメントも参照してください。ドキュメント文字列の使い方(usage part)の中の@samp{(fn)}は、種々のヘルプ関数(@ref{Help Functions}を参照)が表示するとき、その関数の名前に置き換えられます。"
 
 #. type: Plain text
 #: loading.texi.orig:649
@@ -1260,7 +1271,7 @@ msgid ""
 "magic autoload comment would copy the whole definition into "
 "@code{loaddefs.el}.  That is not desirable.  You can put the desired "
 "@code{autoload} call into @code{loaddefs.el} instead by writing this:"
-msgstr ""
+msgstr "関数定義手法として既知ではなく、認められてもいないような、通常とは異なるマクロにより関数定義を記述した場合、通常のオートロードのマジックコメントの使用により、定義全体が@code{loaddefs.el}内にコピーされるでしょう。これは期待した動作ではありません。かわりに以下を記述することにより、意図した@code{autoload}呼び出しを@code{loaddefs.el}内に配することができます。"
 
 #. type: example
 #: loading.texi.orig:654
@@ -1270,6 +1281,9 @@ msgid ""
 "(mydefunmacro foo\n"
 "  ...)\n"
 msgstr ""
+";;;###autoload (autoload 'foo \"myfile\")\n"
+"(mydefunmacro foo\n"
+"  ...)\n"
 
 #. type: Plain text
 #: loading.texi.orig:660
@@ -1278,13 +1292,13 @@ msgid ""
 "corresponding autoload calls written into a file whose name is different "
 "from the default @file{loaddefs.el}.  Emacs provides two variables to "
 "control this:"
-msgstr ""
+msgstr "autoload cookieとして、デフォルト以外の文字列を使用して、デフォルトの@file{loaddefs.el}とは異なるファイル内に、対応するオートロード呼び出しを記述できます。これを制御するために、Emacsは2つの変数を提供します:"
 
 #. type: defvar
 #: loading.texi.orig:661
 #, no-wrap
 msgid "generate-autoload-cookie"
-msgstr ""
+msgstr "generate-autoload-cookie"
 
 #. type: defvar
 #: loading.texi.orig:666
@@ -1293,13 +1307,13 @@ msgid ""
 "comment.  @kbd{M-x update-file-autoloads} copies the Lisp form that follows "
 "the cookie into the autoload file it generates.  The default value of this "
 "variable is @code{\";;;###autoload\"}."
-msgstr ""
+msgstr "この変数の値は、Lispコメントの文法に準じた文字列です。@kbd{M-x update-file-autoloads}は、そのcookieの後のLispフォームを、cookieが生成したオートロードファイル内にコピーします。この変数のデフォルト値は、@code{\";;;###autoload\"}です。"
 
 #. type: defvar
 #: loading.texi.orig:668
 #, no-wrap
 msgid "generated-autoload-file"
-msgstr ""
+msgstr "generated-autoload-file"
 
 #. type: defvar
 #: loading.texi.orig:674
@@ -1309,20 +1323,20 @@ msgid ""
 "that, e.g., in the ``Local Variables'' section of a @file{.el} file "
 "(@pxref{File Local Variables}).  The autoload file is assumed to contain a "
 "trailer starting with a formfeed character."
-msgstr ""
+msgstr "この変数の値は、オートロード呼び出しが書き込まれるEmacs Lispファイルを命名します。デフォルト値は@file{loaddefs.el}ですが、(たとえば@file{.el}ファイル内のセクション``Local Variables''))をオーバーライドできます。オートロードファイルは、フォームフィード文字で開始される終端を含んでいると仮定されます。"
 
 #. type: Plain text
 #: loading.texi.orig:678
 msgid ""
 "The following function may be used to explicitly load the library specified "
 "by an autoload object:"
-msgstr ""
+msgstr "以下の関数は、オートロードオブジェクトにより指定されたライブラリーを明示的にロードするために使用されるかもしれません:"
 
 #. type: defun
 #: loading.texi.orig:679
 #, no-wrap
 msgid "autoload-do-load autoload &optional name macro-only"
-msgstr ""
+msgstr "autoload-do-load autoload &optional name macro-only"
 
 #. type: defun
 #: loading.texi.orig:687
@@ -1333,13 +1347,13 @@ msgid ""
 "return value of this function is the symbol's new function value.  If the "
 "value of the optional argument @var{macro-only} is @code{macro}, this "
 "function avoids loading a function, only a macro."
-msgstr ""
+msgstr "この関数はオートロードオブジェクト@var{autoload}により指定されたロードを処理します。オプション引数@var{name}に非@code{nil}を指定する場合は、関数値が@var{autoload}となるシンボルを指定します。この場合、この関数のリターン値は、そのシンボルの新しい関数値になります。オプション引数@var{macro-only}の値が@code{macro}の場合、この関数は関数ではなくマクロのロードだけを有効にします。"
 
 #. type: cindex
 #: loading.texi.orig:691
 #, no-wrap
 msgid "repeated loading"
-msgstr ""
+msgstr "repeated loading"
 
 #. type: Plain text
 #: loading.texi.orig:697
@@ -1348,7 +1362,7 @@ msgid ""
 "after you have rewritten and reinstalled a function definition by editing it "
 "in a buffer, you may wish to return to the original version; you can do this "
 "by reloading the file it came from."
-msgstr ""
+msgstr "1つのEmacsセッション内で、ファイルを複数回ロードできます。たとえば、バッファーで関数定義を編集して再インストールした後に、元のバージョンに戻したいときがあるかもしれません。これは、元のファイルをリロードすることにより行なうことができます。"
 
 #. type: Plain text
 #: loading.texi.orig:706
@@ -1361,7 +1375,7 @@ msgid ""
 "newer, non-compiled file! If that happens, the message displayed when "
 "loading the file includes, @samp{(compiled; note, source is newer)}, to "
 "remind you to recompile it."
-msgstr ""
+msgstr "ファイルをロードまたはリロードするとき、@code{load}および@code{load-library}関数は未コンパイルのファイルではなく、バイトコンパイルされた同名のファイルを自動的にロードすることに留意してください。ファイルを再記述して保存後に再インストールする場合には、新しいバージョンをバイトコンパイルする必要があります。さもないと、Emacsは新しいソースではなく、古いバイトコンパイルされたファイルをロードしてしまうでしょう! その場合には、ファイルロード時に表示されるメッセージに、そのファイルのリコンパイルを促す@samp{(compiled; note, source is newer)}というメッセージが含まれます。"
 
 #. type: Plain text
 #: loading.texi.orig:712
@@ -1371,31 +1385,31 @@ msgid ""
 "variable should be reinitialized when you reload the library; @code{defvar} "
 "does not change the value if the variable is already initialized.  "
 "(@xref{Defining Variables}.)"
-msgstr ""
+msgstr "Lispライブラリーファイル内にフォームを記述するときは、そのファイルが複数回ロードされるかもしれないことに留意してください。たとえば、そのライブラリーをリロードするときには、各変数が最初期化されるべきかどうか考慮してください。。変数がすでに初期化されている場合、@code{defvar}はその変数の値を変更しません(@ref{Defining Variables}を参照)。"
 
 #. type: Plain text
 #: loading.texi.orig:714
 msgid "The simplest way to add an element to an alist is like this:"
-msgstr ""
+msgstr "alistに要素を追加するもっともシンプルな方法は、以下のようなものでしょう:"
 
 #. type: example
 #: loading.texi.orig:717
 #, no-wrap
 msgid "(push '(leif-mode \" Leif\") minor-mode-alist)\n"
-msgstr ""
+msgstr "(push '(leif-mode \" Leif\") minor-mode-alist)\n"
 
 #. type: Plain text
 #: loading.texi.orig:722
 msgid ""
 "But this would add multiple elements if the library is reloaded.  To avoid "
 "the problem, use @code{add-to-list} (@pxref{List Variables}):"
-msgstr ""
+msgstr "しかし、これはそのライブラリーがリロードされた場合は、複数の要素を追加してしまうでしょう。この問題を避けるには、@code{add-to-list}(@ref{List Variables}を参照)を使用します:"
 
 #. type: example
 #: loading.texi.orig:725
 #, no-wrap
 msgid "(add-to-list 'minor-mode-alist '(leif-mode \" Leif\"))\n"
-msgstr ""
+msgstr "(add-to-list 'minor-mode-alist '(leif-mode \" Leif\"))\n"
 
 #. type: Plain text
 #: loading.texi.orig:732
@@ -1405,7 +1419,7 @@ msgid ""
 "you can use @code{featurep} earlier in the file to test whether the "
 "@code{provide} call has been executed before (@pxref{Named Features}).  "
 "Alternatively, you could use something like this:"
-msgstr ""
+msgstr "時には、ライブラリーが既にロード済みか、明示的にテストしたいときがあるでしょう。そのライブラリーが@code{provide}を使用して名前付きフィーチャ(named feature)を提供する場合は、@code{featurep}を使用して前に@code{provide}が実行されているかテストすることができます。かわりに、以下のようにすることもできます:"
 
 #. type: example
 #: loading.texi.orig:735
@@ -1413,7 +1427,7 @@ msgstr ""
 msgid ""
 "(defvar foo-was-loaded nil)\n"
 "\n"
-msgstr ""
+msgstr "(defvar foo-was-loaded nil)\n\n"
 
 #. type: example
 #: loading.texi.orig:739
@@ -1423,30 +1437,33 @@ msgid ""
 "  @var{execute-first-time-only}\n"
 "  (setq foo-was-loaded t))\n"
 msgstr ""
+"(unless foo-was-loaded\n"
+"  @var{execute-first-time-only}\n"
+"  (setq foo-was-loaded t))\n"
 
 #. type: section
 #: loading.texi.orig:744
 #, no-wrap
 msgid "Features"
-msgstr ""
+msgstr "Features"
 
 #. type: defvar
 #: loading.texi.orig:745 loading.texi.orig:903
 #, no-wrap
 msgid "features"
-msgstr ""
+msgstr "features"
 
 #. type: cindex
 #: loading.texi.orig:746
 #, no-wrap
 msgid "requiring features"
-msgstr ""
+msgstr "requiring features"
 
 #. type: cindex
 #: loading.texi.orig:747
 #, no-wrap
 msgid "providing features"
-msgstr ""
+msgstr "providing features"
 
 #. type: Plain text
 #: loading.texi.orig:754
@@ -1455,7 +1472,7 @@ msgid ""
 "loading files automatically.  They work in terms of named @dfn{features}.  "
 "Autoloading is triggered by calling a specific function, but a feature is "
 "loaded the first time another program asks for it by name."
-msgstr ""
+msgstr "@code{provide}と@code{require}は、@code{autoload}にかわるファイルを自動的にロードする関数です。これらは名前付きの@dfn{フィーチャ(feature: 機能)}という面で機能します。オートロードは特定の関数の呼び出しをトリガーにしますが、フィーチャーは最初は他のプログラムが名前により問い合わせたときにロードされます。"
 
 #. type: Plain text
 #: loading.texi.orig:760
@@ -1465,13 +1482,13 @@ msgid ""
 "feature.  Another program that uses them may ensure they are defined by "
 "@dfn{requiring} the feature.  This loads the file of definitions if it "
 "hasn't been loaded already."
-msgstr ""
+msgstr "フィーチャ名とは、関数、変数などのコレクションを表すシンボルです。これらを定義するファイルは、そのフィーチャを@dfn{プロバイド(provide: 提供)}すべきです。これらのフィーチャを使用する他のプログラムは、その機能を@dfn{リクワイア(require: 要求)}することにより、それらが定義されているか確認できるでしょう。これは、定義がまだロードされていなければ、定義ファイルをロードします。"
 
 #. type: cindex
 #: loading.texi.orig:761
 #, no-wrap
 msgid "load error with require"
-msgstr ""
+msgstr "load error with require"
 
 #. type: Plain text
 #: loading.texi.orig:768
@@ -1482,14 +1499,14 @@ msgid ""
 "already.  If not, it loads the feature from the appropriate file.  This file "
 "should call @code{provide} at the top level to add the feature to "
 "@code{features}; if it fails to do so, @code{require} signals an error."
-msgstr ""
+msgstr "フィーチャをリクワイアするには、フィーチャ名を引数として@code{require}を呼び出します。@code{require}は、意図する機能がすでにプロバイドされているか確認するために、グローバル変数@code{features}を調べます。もしプロバイドされていなければ、適切なファイルからそのフィーチャをロードします。このファイルは、そのフィーチャを@code{features}に追加するために、トップレベルで@code{provide}を呼び出すべきです。これに失敗すると、@code{require}はエラーをシグナルします。"
 
 #. type: Plain text
 #: loading.texi.orig:771
 msgid ""
 "For example, in @file{idlwave.el}, the definition for "
 "@code{idlwave-complete-filename} includes the following code:"
-msgstr ""
+msgstr "たとえば、@file{idlwave.el}内の@code{idlwave-complete-filename}にたいする定義には、以下のコードが含まれます:"
 
 #. type: example
 #: loading.texi.orig:780
@@ -1503,6 +1520,13 @@ msgid ""
 "          ...)\n"
 "       (comint-dynamic-complete-filename)))\n"
 msgstr ""
+"(defun idlwave-complete-filename ()\n"
+"  \"Use the comint stuff to complete a file name.\"\n"
+"   (require 'comint)\n"
+"   (let* ((comint-file-name-chars \"~/A-Za-z0-9+@@:_.$#%=@{@}\\\\-\")\n"
+"          (comint-completion-addsuffix nil)\n"
+"          ...)\n"
+"       (comint-dynamic-complete-filename)))\n"
 
 #. type: Plain text
 #: loading.texi.orig:792
@@ -1515,31 +1539,31 @@ msgid ""
 "statement be outside the body of the @code{let}.  Loading a library while "
 "its variables are let-bound can have unintended consequences, namely the "
 "variables becoming unbound after the let exits.)"
-msgstr ""
+msgstr "式@code{(require 'comint)}は、@file{comint.el}がまだロードされていなければ、@code{comint-dynamic-complete-filename}が確実に定義されるように、そのファイルをロードします。フィーチャは通常、それらを提供するファイルにしたがって命名されるため、@code{require}にファイル名を与える必要はありません。(@code{require}命令文が@code{let}のボディーの外側にあるのが重要なことに注意してください。変数がletバインドされているライブラリーをロードすることにより、意図せぬ結果、つまりletをexitした後にその変数がアンバインドされます。)"
 
 #. type: Plain text
 #: loading.texi.orig:794
 msgid "The @file{comint.el} file contains the following top-level expression:"
-msgstr ""
+msgstr "@file{comint.el}には以下のトップレベル式が含まれます:"
 
 #. type: example
 #: loading.texi.orig:797
 #, no-wrap
 msgid "(provide 'comint)\n"
-msgstr ""
+msgstr "(provide 'comint)\n"
 
 #. type: Plain text
 #: loading.texi.orig:803
 msgid ""
 "This adds @code{comint} to the global @code{features} list, so that "
 "@code{(require 'comint)} will henceforth know that nothing needs to be done."
-msgstr ""
+msgstr "これは@code{comint}はグローバルなリスト@code{features}に追加するので、@code{(require 'comint)}は今後何も行う必要がないことを知ることができます。"
 
 #. type: cindex
 #: loading.texi.orig:804
 #, no-wrap
 msgid "byte-compiling @code{require}"
-msgstr ""
+msgstr "byte-compiling @code{require}"
 
 #. type: Plain text
 #: loading.texi.orig:811
@@ -1549,7 +1573,7 @@ msgid ""
 "it.  This is in case the required package contains macros that the byte "
 "compiler must know about.  It also avoids byte compiler warnings for "
 "functions and variables defined in the file loaded with @code{require}."
-msgstr ""
+msgstr "ファイルのトップレベル@code{require}が使用されたときは、それをロードしたときと同様、そのファイルをバイトコンパイル(@ref{Byte Compilation}を参照)したときにも効果が表れます。これはリクワイアされたパッケージがマクロを含み、バイトコンパイラーがそれを知らなければならない場合です。これは@code{require}によりロードされるファイルで定義される関数と変数にたいするバイトコンパイラーの警告も無効にします。"
 
 #. type: Plain text
 #: loading.texi.orig:817
@@ -1559,7 +1583,7 @@ msgid ""
 "file of definitions is loaded before it is byte-compiled by including a "
 "@code{provide} followed by a @code{require} for the same feature, as in the "
 "following example."
-msgstr ""
+msgstr "バイトコンパイルの間にトップレベルの@code{require}が評価されるとしても、@code{provide}呼び出しは評価されません。したがって、以下の例のように@code{provide}の後に同じ機能にたいする@code{require}を含めることにより、バイトコンパイル前に定義しているファイルを確実にロードできます。"
 
 #. type: group
 #: loading.texi.orig:823
@@ -1569,6 +1593,9 @@ msgid ""
 "                       ;   @r{evaluated by @code{load}.}\n"
 "(require 'my-feature)  ; @r{Evaluated by byte compiler.}\n"
 msgstr ""
+"(provide 'my-feature)  ; @r{バイトコンパイラーには無視され、}\n"
+"                       ;   @r{@code{load}には評価される。}\n"
+"(require 'my-feature)  ; @r{バイトコンパイラーにより評価される。}\n"
 
 #. type: Plain text
 #: loading.texi.orig:831
@@ -1577,13 +1604,13 @@ msgid ""
 "by loading the file in question.  Loading the file does execute the "
 "@code{provide} call, so the subsequent @code{require} call does nothing when "
 "the file is loaded."
-msgstr ""
+msgstr "コンパイラーは@code{provide}を無視して、その後に対象のファイルをロードすることにより@code{require}が処理されます。ファイルのロードは@code{provide}呼び出しを実行するので、後続の@code{require}はファイルがロードされているときは何も行いません。"
 
 #. type: defun
 #: loading.texi.orig:832
 #, no-wrap
 msgid "provide feature &optional subfeatures"
-msgstr ""
+msgstr "provide feature &optional subfeatures"
 
 #. type: defun
 #: loading.texi.orig:837
@@ -1591,7 +1618,7 @@ msgid ""
 "This function announces that @var{feature} is now loaded, or being loaded, "
 "into the current Emacs session.  This means that the facilities associated "
 "with @var{feature} are or will be available for other Lisp programs."
-msgstr ""
+msgstr "この関数は、カレントEmacsセッションに@var{feature}がロードされた、あるいはロードされつつあることをアナウンスします。これは、@var{feature}に関連する機能が他のLispプログラムから利用可能できる、あるいは利用可能になることを意味します。"
 
 #. type: defun
 #: loading.texi.orig:843
@@ -1601,7 +1628,7 @@ msgid ""
 "any @code{eval-after-load} code waiting for it (@pxref{Hooks for Loading}).  "
 "The argument @var{feature} must be a symbol.  @code{provide} returns "
 "@var{feature}."
-msgstr ""
+msgstr "@code{provide}を呼び出すことによる直接的な効果は、まだ@var{feature}が@var{features}内に存在しない場合はリストの先頭に追加して、それを必要としている@code{eval-after-load}コードを呼び出します(@ref{Hooks for Loading}を参照)。引数@var{feature}はシンボルでなければなりません。@code{provide}は@var{feature}をリターンします。"
 
 #. type: defun
 #: loading.texi.orig:853
@@ -1614,7 +1641,7 @@ msgid ""
 "functionalities of the package, which might or might not be loaded, or might "
 "or might not be present in a given version.  @xref{Network Feature Testing}, "
 "for an example."
-msgstr ""
+msgstr "@var{subfeatures}が与えられた場合、それは@var{feature}の当該バージョンによりプロバイドされる特定のサブフィーチャのセットを示すシンボルのリストであるべきです。@code{featurep}を使用して、サブフィーチャの存在をテストできます。あるパッケージの、ロードされるか、あるいはそのバージョンに存在するか不明なさまざまな部分や機能に名前を与えて使いやすくするには、そのパッケージが複雑すぎるときにサブフィーチャを使用するというのがサブフィーチャというアイデアです。例としては、@ref{Network Feature Testing}を参照してください。"
 
 #. type: example
 #: loading.texi.orig:857
@@ -1624,6 +1651,9 @@ msgid ""
 "     @result{} (bar bish)\n"
 "\n"
 msgstr ""
+"features\n"
+"     @result{} (bar bish)\n"
+"\n"
 
 #. type: example
 #: loading.texi.orig:862
@@ -1634,6 +1664,10 @@ msgid ""
 "features\n"
 "     @result{} (foo bar bish)\n"
 msgstr ""
+"(provide 'foo)\n"
+"     @result{} foo\n"
+"features\n"
+"     @result{} (foo bar bish)\n"
 
 #. type: defun
 #: loading.texi.orig:868
@@ -1642,13 +1676,13 @@ msgid ""
 "in the evaluation of its contents, any function definitions or "
 "@code{provide} calls that occurred during the load are undone.  "
 "@xref{Autoload}."
-msgstr ""
+msgstr "オートロードによりあるファイルがロードされて、その内容の評価エラーによりストップいたとき、そのロードの間に発生した関数定義や@code{provide}呼び出しはアンドゥされます。@ref{Autoload}を参照してください。"
 
 #. type: defun
 #: loading.texi.orig:870
 #, no-wrap
 msgid "require feature &optional filename noerror"
-msgstr ""
+msgstr "require feature &optional filename noerror"
 
 #. type: defun
 #: loading.texi.orig:874
@@ -1656,7 +1690,7 @@ msgid ""
 "This function checks whether @var{feature} is present in the current Emacs "
 "session (using @code{(featurep @var{feature})}; see below).  The argument "
 "@var{feature} must be a symbol."
-msgstr ""
+msgstr "この関数はカレントEmacsセッションにおいて、@var{feature}が存在するかどうかを、(@code{(featurep @var{feature})}を使用して。以下を参照)をチェックします。引数@var{feature}はシンボルでなければなりません。"
 
 #. type: defun
 #: loading.texi.orig:883
@@ -1668,7 +1702,7 @@ msgid ""
 "@samp{.elc} suffix (possibly extended with a compression suffix); a file "
 "whose name is just @var{feature} won't be used.  (The variable "
 "@code{load-suffixes} specifies the exact required Lisp suffixes.)"
-msgstr ""
+msgstr "そのフィーチャが存在しない場合、@code{require}は@code{load}により@var{filename}をロードします。@var{filename}が与えられなかった場合は、シンボル@var{feature}の名前がロードするファイル名のベースとして使用されます。しかしこの場合、@code{require}は@var{feature}を探すためにサフィックス@samp{.el}および@samp{.elc}の追加を強制します(圧縮ファイルのサフィックスに拡張されるかもしれません)。名前がただの@var{feature}というファイルは使用されません。(変数@code{load-suffixes}は要求されるLispサフィックスを正確に指定します。)"
 
 #. type: defun
 #: loading.texi.orig:888
@@ -1676,7 +1710,7 @@ msgid ""
 "If @var{noerror} is non-@code{nil}, that suppresses errors from actual "
 "loading of the file.  In that case, @code{require} returns @code{nil} if "
 "loading the file fails.  Normally, @code{require} returns @var{feature}."
-msgstr ""
+msgstr "@var{noerror}が非@code{nil}の場合は、ファイルの実際のロードにおけるエラーを抑止します。この場合、そのファイルのロードが失敗すると、@code{require}は@code{nil}をリターンします。通常では、@code{require}は@var{feature}をリターンします。"
 
 #. type: defun
 #: loading.texi.orig:892
@@ -1684,13 +1718,13 @@ msgid ""
 "If loading the file succeeds but does not provide @var{feature}, "
 "@code{require} signals an error, @samp{Required feature @var{feature} was "
 "not provided}."
-msgstr ""
+msgstr "ファイルのロードは成功したが@var{feature}をプロバイドしていない場合、@code{require}は@samp{Required feature @var{feature} was not provided}のようにエラーをシグナルします。"
 
 #. type: defun
 #: loading.texi.orig:894
 #, no-wrap
 msgid "featurep feature &optional subfeature"
-msgstr ""
+msgstr "featurep feature &optional subfeature"
 
 #. type: defun
 #: loading.texi.orig:901
@@ -1701,7 +1735,7 @@ msgid ""
 "returns @code{t} only if that subfeature is provided as well (i.e., if "
 "@var{subfeature} is a member of the @code{subfeature} property of the "
 "@var{feature} symbol.)"
-msgstr ""
+msgstr "この関数は、カレントEmacsセッション@var{feature}がプロバイドされている場合(たとえば@var{feature}@code{features}のメンバーの場合)は@code{t}をリターンします。@var{subfeature}が非@code{nil}の場合、この関数はサブフィーチャも同様にプロバイドされているとき(たとえば@var{subfeature}がシンボル@var{feature}のプロパティ@code{subfeature}のメンバーのとき)だけ@code{t}をリターンします。"
 
 #. type: defvar
 #: loading.texi.orig:908
@@ -1710,31 +1744,31 @@ msgid ""
 "in the current Emacs session.  Each symbol was put in this list with a call "
 "to @code{provide}.  The order of the elements in the @code{features} list is "
 "not significant."
-msgstr ""
+msgstr "この変数の値はシンボルのリストで、このシンボルはカレントEmacsセッションにロードされたフィーチャです。シンボルはそれぞれ@code{provide}を呼び出すことにより、このリストにputされたものです。リスト@code{features}内の要素の順番に意味はありません。"
 
 #. type: section
 #: loading.texi.orig:911
 #, no-wrap
 msgid "Which File Defined a Certain Symbol"
-msgstr ""
+msgstr "Which File Defined a Certain Symbol"
 
 #. type: cindex
 #: loading.texi.orig:912
 #, no-wrap
 msgid "symbol, where defined"
-msgstr ""
+msgstr "symbol, where defined"
 
 #. type: cindex
 #: loading.texi.orig:913
 #, no-wrap
 msgid "where was a symbol defined"
-msgstr ""
+msgstr "where was a symbol defined"
 
 #. type: defun
 #: loading.texi.orig:915
 #, no-wrap
 msgid "symbol-file symbol &optional type"
-msgstr ""
+msgstr "symbol-file symbol &optional type"
 
 #. type: defun
 #: loading.texi.orig:921
@@ -1743,7 +1777,7 @@ msgid ""
 "@var{type} is @code{nil}, then any kind of definition is acceptable.  If "
 "@var{type} is @code{defun}, @code{defvar}, or @code{defface}, that specifies "
 "function definition, variable definition, or face definition only."
-msgstr ""
+msgstr "この関数は、@var{symbol}を定義しているファイルの名前をリターンします。@var{type}が@code{nil}の場合は、どのようなタイプの定義も受け入れられます。@var{type}が@code{defun}の場合は関数定義、@code{defvar}は変数定義、@code{defface}はフェイス定義だけを指定します。"
 
 #. type: defun
 #: loading.texi.orig:926
@@ -1752,20 +1786,20 @@ msgid ""
 "the definition is not associated with any file.  If @var{symbol} specifies "
 "an autoloaded function, the value can be a relative file name without "
 "extension."
-msgstr ""
+msgstr "値は通常、絶対ファイル名です。定義がどのファイルにも関係しないときは、@code{nil}になることもあります。@var{symbol}がオートロード関数を指定する場合、値が拡張子なしの相対ファイル名になることもあります。"
 
 #. type: Plain text
 #: loading.texi.orig:930
 msgid ""
 "The basis for @code{symbol-file} is the data in the variable "
 "@code{load-history}."
-msgstr ""
+msgstr "@code{symbol-file}は変数@code{load-history}.<の値にもとづいています。"
 
 #. type: defvar
 #: loading.texi.orig:931
 #, no-wrap
 msgid "load-history"
-msgstr ""
+msgstr "load-history"
 
 #. type: defvar
 #: loading.texi.orig:935
@@ -1773,7 +1807,7 @@ msgid ""
 "The value of this variable is an alist that associates the names of loaded "
 "library files with the names of the functions and variables they defined, as "
 "well as the features they provided or required."
-msgstr ""
+msgstr "この変数の値は、ロードされたライブラリーファイルの名前を、それらが定義する関数と変数の名前、およびそれらがプロバイドまたはリクワイアするフィーチャに関連付けるalistです。"
 
 #. type: defvar
 #: loading.texi.orig:940
@@ -1782,35 +1816,35 @@ msgid ""
 "that are preloaded at startup).  It is a list whose @sc{car} is the absolute "
 "file name of the library (a string).  The rest of the list elements have "
 "these forms:"
-msgstr ""
+msgstr "このalist内の各要素は、1つのロード済みライブラリー(スタートアップ時にプリロードされたライブラリーを含む)を記述します。要素は@sc{car}がライブラリーの絶対ファイル名(文字列)のリストです。残りのリスト要素は、以下の形式です:"
 
 #. type: var{#1}
 #: loading.texi.orig:942
 #, no-wrap
 msgid "var"
-msgstr ""
+msgstr "var"
 
 #. type: table
 #: loading.texi.orig:944
 msgid "The symbol @var{var} was defined as a variable."
-msgstr ""
+msgstr "シンボル@var{var}が変数として定義された。"
 
 #. type: item
 #: loading.texi.orig:944
 #, no-wrap
 msgid "(defun . @var{fun})"
-msgstr ""
+msgstr "(defun . @var{fun})"
 
 #. type: table
 #: loading.texi.orig:946
 msgid "The function @var{fun} was defined."
-msgstr ""
+msgstr "関数@var{fun}が定義された。"
 
 #. type: item
 #: loading.texi.orig:946
 #, no-wrap
 msgid "(t . @var{fun})"
-msgstr ""
+msgstr "(t . @var{fun})"
 
 #. type: table
 #: loading.texi.orig:951
@@ -1818,51 +1852,51 @@ msgid ""
 "The function @var{fun} was previously an autoload before this library "
 "redefined it as a function.  The following element is always @code{(defun "
 ". @var{fun})}, which represents defining @var{fun} as a function."
-msgstr ""
+msgstr "関数@var{fun}は、このライブラリーがそれを関数として再定義する前はオートロードとして定義されていた。後続の要素は常に@code{(defun . @var{fun})}で、これは@var{fun}を関数として定義する。"
 
 #. type: item
 #: loading.texi.orig:951
 #, no-wrap
 msgid "(autoload . @var{fun})"
-msgstr ""
+msgstr "(autoload . @var{fun})"
 
 #. type: table
 #: loading.texi.orig:953
 msgid "The function @var{fun} was defined as an autoload."
-msgstr ""
+msgstr "関数@var{fun}はオートロードとして定義された。"
 
 #. type: item
 #: loading.texi.orig:953
 #, no-wrap
 msgid "(defface . @var{face})"
-msgstr ""
+msgstr "(defface . @var{face})"
 
 #. type: table
 #: loading.texi.orig:955
 msgid "The face @var{face} was defined."
-msgstr ""
+msgstr "フェイス@var{face}が定義された。"
 
 #. type: item
 #: loading.texi.orig:955
 #, no-wrap
 msgid "(require . @var{feature})"
-msgstr ""
+msgstr "(require . @var{feature})"
 
 #. type: table
 #: loading.texi.orig:957
 msgid "The feature @var{feature} was required."
-msgstr ""
+msgstr "フィーチャ@var{feature}がリクワイアされた。"
 
 #. type: item
 #: loading.texi.orig:957
 #, no-wrap
 msgid "(provide . @var{feature})"
-msgstr ""
+msgstr "(provide . @var{feature})"
 
 #. type: table
 #: loading.texi.orig:959
 msgid "The feature @var{feature} was provided."
-msgstr ""
+msgstr "フィーチャ@var{feature}がプロバイドされた。"
 
 #. type: defvar
 #: loading.texi.orig:964
@@ -1870,7 +1904,7 @@ msgid ""
 "The value of @code{load-history} may have one element whose @sc{car} is "
 "@code{nil}.  This element describes definitions made with @code{eval-buffer} "
 "on a buffer that is not visiting a file."
-msgstr ""
+msgstr "@code{load-history}の値には、@sc{car}が@code{nil}の要素が1つ含まれるかもしれません。この要素は、ファイルをvisitしていないバッファーでの@code{eval-buffer}で作成された定義を記述します。"
 
 #. type: Plain text
 #: loading.texi.orig:969
@@ -1878,13 +1912,13 @@ msgid ""
 "The command @code{eval-region} updates @code{load-history}, but does so by "
 "adding the symbols defined to the element for the file being visited, rather "
 "than replacing that element.  @xref{Eval}."
-msgstr ""
+msgstr "コマンド@code{eval-region}は@code{load-history}を更新しますが、要素を置き換えずに、visitされているファイルの要素にたいして定義されたシンボルを追加します。@ref{Eval}を参照してください。"
 
 #. type: cindex
 #: loading.texi.orig:972
 #, no-wrap
 msgid "unloading packages"
-msgstr ""
+msgstr "unloading packages"
 
 #. type: Plain text
 #: loading.texi.orig:978
@@ -1892,13 +1926,13 @@ msgid ""
 "You can discard the functions and variables loaded by a library to reclaim "
 "memory for other Lisp objects.  To do this, use the function "
 "@code{unload-feature}:"
-msgstr ""
+msgstr "他のLispオブジェクト用にメモリーを回収するために、ライブラリーによりロードされた関数や変数を破棄することができます。これを行うには、関数@code{unload-feature}を使用します:"
 
 #. type: deffn
 #: loading.texi.orig:979
 #, no-wrap
 msgid "Command unload-feature feature &optional force"
-msgstr ""
+msgstr "Command unload-feature feature &optional force"
 
 #. type: deffn
 #: loading.texi.orig:986
@@ -1909,7 +1943,7 @@ msgid ""
 "@code{defconst}, @code{defvar}, and @code{defcustom}.  It then restores any "
 "autoloads formerly associated with those symbols.  (Loading saves these in "
 "the @code{autoload} property of the symbol.)"
-msgstr ""
+msgstr "このコマンドはフィーチャ@var{feature}をプロバイドしていたライブラリーをアンロードします。そのライブラリー内の@code{defun}、@code{defalias}、@code{defsubst}、@code{defmacro}、@code{defconst}、@code{defvar}、@code{defcustom}により定義されたすべての関数、マクロ、変数は未定義になります。その後、それらのシンボルにたいして事前に関連付けられていたオートロードをリストアします。(ロードはシンボルの@code{autoload}プロパティにこれらを保存しています。)"
 
 #. type: deffn
 #: loading.texi.orig:995
@@ -1921,7 +1955,7 @@ msgid ""
 "@code{unload-feature-special-hooks}, as well as @code{auto-mode-alist}.  "
 "This is to prevent Emacs from ceasing to function because important hooks "
 "refer to functions that are no longer defined."
-msgstr ""
+msgstr "以前の定義をリストアする前に、特定のフックからそのライブラリー内の関数を取り除くために、@code{unload-feature}は@code{remove-hook}を実行します。これらのフックには、名前が@samp{-hook}(または廃止されたサフィックス@samp{-hooks})で終わる変数、加えて@code{unload-feature-special-hooks}、同様に@code{auto-mode-alist}にリストされた変数も含まれます。これは、重要なフックがすでに定義されていない関数を参照をすることにより、Emacsの機能が停止することを防ぐためです。"
 
 #. type: deffn
 #: loading.texi.orig:999
@@ -1929,13 +1963,13 @@ msgid ""
 "Standard unloading activities also undoes ELP profiling of functions in that "
 "library, unprovides any features provided by the library, and cancels timers "
 "held in variables defined by the library."
-msgstr ""
+msgstr "標準的なアンロードアクティビティは、そのライブラリー内の関数のELPプロファイリングを取り消し、そのライブラリーによりプロバイドされたフィーチャを取り消し、そのライブラリーで定義された変数に保持されたタイマーも取り消します。"
 
 #. type: vindex
 #: loading.texi.orig:1000
 #, no-wrap
 msgid "@var{feature}-unload-function"
-msgstr ""
+msgstr "@var{feature}-unload-function"
 
 #. type: deffn
 #: loading.texi.orig:1008
@@ -1947,7 +1981,7 @@ msgid ""
 "unload the library.  If it returns @code{nil}, @code{unload-feature} "
 "proceeds to take the normal unload actions.  Otherwise it considers the job "
 "to be done."
-msgstr ""
+msgstr "これらの基準が機能不全を防ぐのに十分でない場合、ライブラリーは@code{@var{feature}-unload-function}という名前の明示的なアンローダーを定義できます。そのシンボルが関数として定義された場合、@code{unload-feature}は何かを行う前にまず引数なしでそれを呼び出します。これはライブラリーをアンロードしるために適切なすべてのことを行うことができます。これが@code{nil}をリターンした場合、@code{unload-feature}は通常のアンロードアクションを処理します。それ以外は、アンロード処理は完了したとみなします。"
 
 #. type: deffn
 #: loading.texi.orig:1014
@@ -1957,52 +1991,52 @@ msgid ""
 "@var{a} contains a @code{require} for @var{b}.)  If the optional argument "
 "@var{force} is non-@code{nil}, dependencies are ignored and you can unload "
 "any library."
-msgstr ""
+msgstr "@code{unload-feature}は通常、他のライブラリーが依存するライブラリーのアンロードを拒絶します。(ライブラリー@var{b}にたいする@code{require}がライブラリー@var{a}に含まれる場合、@var{a}は@var{b}に依存します。)オプション引数@var{force}が非@code{nil}の場合、依存関係は無視され、どのようなライブラリーもアンロードできます。"
 
 #. type: Plain text
 #: loading.texi.orig:1018
 msgid ""
 "The @code{unload-feature} function is written in Lisp; its actions are based "
 "on the variable @code{load-history}."
-msgstr ""
+msgstr "@code{unload-feature}関数はLispで記述されており、その動作は変数@code{load-history}にもとづきます。"
 
 #. type: defvar
 #: loading.texi.orig:1019
 #, no-wrap
 msgid "unload-feature-special-hooks"
-msgstr ""
+msgstr "unload-feature-special-hooks"
 
 #. type: defvar
 #: loading.texi.orig:1022
 msgid ""
 "This variable holds a list of hooks to be scanned before unloading a "
 "library, to remove functions defined in the library."
-msgstr ""
+msgstr "この変数には、ライブラリー内で定義された関数を取り除くために、ライブラリーをアンロードする前にスキャンされるフックのリストが保持されています。"
 
 #. type: cindex
 #: loading.texi.orig:1026
 #, no-wrap
 msgid "loading hooks"
-msgstr ""
+msgstr "loading hooks"
 
 #. type: cindex
 #: loading.texi.orig:1027
 #, no-wrap
 msgid "hooks for loading"
-msgstr ""
+msgstr "hooks for loading"
 
 #. type: Plain text
 #: loading.texi.orig:1031
 msgid ""
 "You can ask for code to be executed each time Emacs loads a library, by "
 "using the variable @code{after-load-functions}:"
-msgstr ""
+msgstr "変数@code{after-load-functions}を使用することにより、Emacsがライブラリーをロードするたびにコードを実行させることができます:"
 
 #. type: defvar
 #: loading.texi.orig:1032
 #, no-wrap
 msgid "after-load-functions"
-msgstr ""
+msgstr "after-load-functions"
 
 #. type: defvar
 #: loading.texi.orig:1036
@@ -2010,20 +2044,20 @@ msgid ""
 "This abnormal hook is run after loading a file.  Each function in the hook "
 "is called with a single argument, the absolute filename of the file that was "
 "just loaded."
-msgstr ""
+msgstr "このアブノーマルフック(abnormal hook)は、ファイルをロードした後に実行されます。フック内の各関数は1つの引数(ロードされたファイルの絶対ファイル名)で呼び出されます。"
 
 #. type: Plain text
 #: loading.texi.orig:1040
 msgid ""
 "If you want code to be executed when a @emph{particular} library is loaded, "
 "use the macro @code{with-eval-after-load}:"
-msgstr ""
+msgstr "@emph{特定}のライブラリーがロードされた後にコードを実行したい場合は、マクロ@code{with-eval-after-load}を使用します:"
 
 #. type: defmac
 #: loading.texi.orig:1041
 #, no-wrap
 msgid "with-eval-after-load library body@dots{}"
-msgstr ""
+msgstr "with-eval-after-load library body@dots{}"
 
 #. type: defmac
 #: loading.texi.orig:1045
@@ -2031,20 +2065,20 @@ msgid ""
 "This macro arranges to evaluate @var{body} at the end of loading the file "
 "@var{library}, each time @var{library} is loaded.  If @var{library} is "
 "already loaded, it evaluates @var{body} right away."
-msgstr ""
+msgstr "このマクロは@var{library}がロードされるたびに、ファイル@var{library}のロードの最後で@var{body}が評価されるよう準備します。@var{library}がすでにロード済みの場合は、即座に@var{body}を評価します。"
 
 #. type: defmac
 #: loading.texi.orig:1048
 msgid ""
 "You don't need to give a directory or extension in the file name "
 "@var{library}.  Normally, you just give a bare file name, like this:"
-msgstr ""
+msgstr "ファイル名@var{library}にディレクトリーや拡張子を与える必要はありません。通常は以下のようにファイル名だけを与えます:"
 
 #. type: example
 #: loading.texi.orig:1051
 #, no-wrap
 msgid "(with-eval-after-load \"edebug\" (def-edebug-spec c-point t))\n"
-msgstr ""
+msgstr "(with-eval-after-load \"edebug\" (def-edebug-spec c-point t))\n"
 
 #. type: defmac
 #: loading.texi.orig:1060
@@ -2055,13 +2089,13 @@ msgid ""
 "name components will match.  In the following example, @file{my_inst.elc} or "
 "@file{my_inst.elc.gz} in some directory @code{..../foo/bar} will trigger the "
 "evaluation, but not @file{my_inst.el}:"
-msgstr ""
+msgstr "どのファイルが評価をトリガーできるか制限するには、ディレクトリーか拡張子、またはしの両方を@var{library}に含めます。実際のファイル名(たとえばすべてのシンボリックリンク名は除外される)が、与えられた名前すべてにマッチするファイルだけが、マッチします。以下の例では、どこかのディレクトリー@code{..../foo/bar}にある@file{my_inst.elc}や@file{my_inst.elc.gz}は評価をトリガーしますが、@file{my_inst.el}は異なります。:"
 
 #. type: example
 #: loading.texi.orig:1063
 #, no-wrap
 msgid "(with-eval-after-load \"foo/bar/my_inst.elc\" @dots{})\n"
-msgstr ""
+msgstr "(with-eval-after-load \"foo/bar/my_inst.elc\" @dots{})\n"
 
 #. type: defmac
 #: loading.texi.orig:1068
@@ -2069,14 +2103,14 @@ msgid ""
 "@var{library} can also be a feature (i.e., a symbol), in which case "
 "@var{body} is evaluated at the end of any file where @code{(provide "
 "@var{library})} is called."
-msgstr ""
+msgstr "@var{library}はフィーチャ(たとえばシンボル)でもよく、その場合@code{(provide @var{library})}を呼び出す任意のファイルの最後に@var{body}が評価されます。"
 
 #. type: defmac
 #: loading.texi.orig:1071
 msgid ""
 "An error in @var{body} does not undo the load, but does prevent execution of "
 "the rest of @var{body}."
-msgstr ""
+msgstr "@var{body}内のエラーはロードをアンドゥしませんが、@var{body}の残りの実行を妨げます。"
 
 #. type: Plain text
 #: loading.texi.orig:1078
@@ -2087,4 +2121,4 @@ msgid ""
 "immediately---there is no need to wait until the library is loaded.  If you "
 "need to call functions defined by that library, you should load the library, "
 "preferably with @code{require} (@pxref{Named Features})."
-msgstr ""
+msgstr "上手く設計されたLispプログラムは通常、@code{eval-after-load}を使用するべきではありません。(外部からの使用を意図した)他のライブラリーで定義された変数を調べたりセットする必要がある場合、それは即座に行うことができます −−− そのライブラリーがロードされるのを待つ必要はありません。そのライブラリーで定義された関数を呼び出す必要がある場合は、そのライブラリーをロードすべきで、それには@code{require}(@ref{Named Features}を参照)が適しています。"
