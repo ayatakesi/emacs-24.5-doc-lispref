@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs 24.5\n"
 "POT-Creation-Date: 2018-01-06 03:51+0900\n"
-"PO-Revision-Date: 2018-01-07 01:42+0900\n"
+"PO-Revision-Date: 2018-01-07 04:14+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -547,13 +547,13 @@ msgstr "$ emacs -batch -f batch-byte-compile *.el\n"
 #: compile.texi.orig:240
 #, no-wrap
 msgid "Documentation Strings and Compilation"
-msgstr ""
+msgstr "Documentation Strings and Compilation"
 
 #. type: cindex
 #: compile.texi.orig:241
 #, no-wrap
 msgid "dynamic loading of documentation"
-msgstr ""
+msgstr "dynamic loading of documentation"
 
 #. type: Plain text
 #: compile.texi.orig:248
@@ -563,7 +563,7 @@ msgid ""
 "documentation string is ``dynamically'' loaded from the byte-compiled file "
 "only when needed.  This saves memory, and speeds up loading by skipping the "
 "processing of the documentation strings."
-msgstr ""
+msgstr "Emacsがバイトコンパイルされたファイルから関数や変数をロードする際、通常はメモリー内にそれらのドキュメント文字列をロードしません。それぞれのドキュメント文字列は、必要なときだけバイトコンパイルされたファイルから``ダイナミック(dynamic: 動的)''にロードされます。ドキュメント文字列の処理をスキップすることにより、メモリーが節約され、ロードが高速になります。"
 
 #. type: Plain text
 #: compile.texi.orig:255
@@ -574,7 +574,7 @@ msgid ""
 "a problem normally only occurs if you build Emacs yourself, and happen to "
 "edit and/or recompile the Lisp source files.  To solve it, just reload each "
 "file after recompilation."
-msgstr ""
+msgstr "この機能には欠点があります。コンパイル済みのファイルを削除、移動、または(新しいバージョンのコンパイル等で)変更した場合、Emacsは前にロードされた関数や変数のドキュメント文字列にアクセスできなくなるでしょう。このような問題は通常、あなた自身がEmacsをビルドした場合に、そのLispファイルを編集、および/またはリコンパイルしたときだけ発生します。この問題は、リコンパイル後にそれぞれのファイルをリロードするだけで解決します。"
 
 #. type: Plain text
 #: compile.texi.orig:259
@@ -582,20 +582,20 @@ msgid ""
 "Dynamic loading of documentation strings from byte-compiled files is "
 "determined, at compile time, for each byte-compiled file.  It can be "
 "disabled via the option @code{byte-compile-dynamic-docstrings}."
-msgstr ""
+msgstr "バイトコンパイルされたファイルからのドキュメント文字列のダイナミックロードは、バイトコンパイルされたファイルごとに、コンパイル時に決定されます。これはオプション@code{byte-compile-dynamic-docstrings}により、無効にできます。"
 
 #. type: defopt
 #: compile.texi.orig:260
 #, no-wrap
 msgid "byte-compile-dynamic-docstrings"
-msgstr ""
+msgstr "byte-compile-dynamic-docstrings"
 
 #. type: defopt
 #: compile.texi.orig:263
 msgid ""
 "If this is non-@code{nil}, the byte compiler generates compiled files that "
 "are set up for dynamic loading of documentation strings."
-msgstr ""
+msgstr "これが非@code{nil}の場合、バイトコンパイラーはドキュメント文字列をダイナミックロードするようセットアップしたコンパイル済みファイルを生成します。"
 
 #. type: defopt
 #: compile.texi.orig:267
@@ -603,32 +603,32 @@ msgid ""
 "To disable the dynamic loading feature for a specific file, set this option "
 "to @code{nil} in its header line (@pxref{File Variables, , Local Variables "
 "in Files, emacs, The GNU Emacs Manual}), like this:"
-msgstr ""
+msgstr "特定のファイルでダイナミックロード機能を無効にするには、以下のようにヘッダー行(@ref{File Variables, , Local Variables in Files, emacs, The GNU Emacs Manual}を参照)で、このオプションに@code{nil}をセットします。"
 
 #. type: smallexample
 #: compile.texi.orig:270
 #, no-wrap
 msgid "-*-byte-compile-dynamic-docstrings: nil;-*-\n"
-msgstr ""
+msgstr "-*-byte-compile-dynamic-docstrings: nil;-*-\n"
 
 #. type: defopt
 #: compile.texi.orig:275
 msgid ""
 "This is useful mainly if you expect to change the file, and you want Emacs "
 "sessions that have already loaded it to keep working when the file changes."
-msgstr ""
+msgstr "これは主に、あるファイルを変更しようとしていて、そのファイルをすでにロード済みのEmacsセッションがファイルを変更した際にも正しく機能し続けることを望む場合に有用です。"
 
 #. type: samp{#1}
 #: compile.texi.orig:277
 #, no-wrap
 msgid "#@@@var{count}"
-msgstr ""
+msgstr "#@@@var{count}"
 
 #. type: samp{#1}
 #: compile.texi.orig:278
 #, no-wrap
 msgid "#$"
-msgstr ""
+msgstr "#$"
 
 #. type: Plain text
 #: compile.texi.orig:286
@@ -639,7 +639,7 @@ msgid ""
 "characters.  It also uses the @samp{#$} construct, which stands for ``the "
 "name of this file, as a string''.  Do not use these constructs in Lisp "
 "source files; they are not designed to be clear to humans reading the file."
-msgstr ""
+msgstr "内部的には、ドキュメント文字列のダイナミックロードは、特殊なLispリーダー構成@samp{#@@@var{count}}とともにコンパイル済みファイルに書き込むことにより達成されます。この構成は、次の@var{count}文字をスキップします。さらに@samp{#$}構成も使用され、これは``このファイルの名前(文字列)''を意味します。これらの構成をLispソースファイル内で使用しないでください。これらは人間がファイルを読む際に明確であるようデザインされていません。"
 
 #. type: section
 #: compile.texi.orig:288
