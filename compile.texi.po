@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs 24.5\n"
 "POT-Creation-Date: 2018-01-06 03:51+0900\n"
-"PO-Revision-Date: 2018-01-06 07:36+0900\n"
+"PO-Revision-Date: 2018-01-07 01:42+0900\n"
 "Last-Translator: Takeshi Ayanokoji <takeshi.ayanokoji@gmail.com>\n"
 "Language-Team: Japanese <takeshi.ayanokoji@gmail.com>\n"
 "Language: ja\n"
@@ -247,13 +247,13 @@ msgstr "この例では、インタープリターによる実行には10秒を�
 #: compile.texi.orig:83
 #, no-wrap
 msgid "Byte-Compilation Functions"
-msgstr ""
+msgstr "Byte-Compilation Functions"
 
 #. type: cindex
 #: compile.texi.orig:84
 #, no-wrap
 msgid "compilation functions"
-msgstr ""
+msgstr "compilation functions"
 
 #. type: Plain text
 #: compile.texi.orig:90
@@ -262,7 +262,7 @@ msgid ""
 "@code{byte-compile} function.  You can compile a whole file with "
 "@code{byte-compile-file}, or several files with "
 "@code{byte-recompile-directory} or @code{batch-byte-compile}."
-msgstr ""
+msgstr "@code{byte-compile}により、関数やマクロを個別にバイトコンパイルできます。@code{byte-compile-file}でファイル全体、@code{byte-recompile-directory}または@code{batch-byte-compile}で複数ファイルをコンパイルできます。"
 
 #. type: Plain text
 #: compile.texi.orig:95
@@ -271,13 +271,13 @@ msgid ""
 "(@pxref{Compiler Errors}, for details).  These messages are recorded in a "
 "buffer called @file{*Compile-Log*}, which uses Compilation mode.  "
 "@xref{Compilation Mode,,,emacs, The GNU Emacs Manual}."
-msgstr ""
+msgstr "バイトコンパイラーが警告、および/またはエラーメッセージを生成することもあります(詳細は@ref{Compiler Errors}を参照)。これらのメッセージはCompilationモードが使用する@file{*Compile-Log*}と呼ばれるバッファーに記録されます。@ref{Compilation Mode,,,emacs, The GNU Emacs Manual}を参照してください。"
 
 #. type: cindex
 #: compile.texi.orig:96
 #, no-wrap
 msgid "macro compilation"
-msgstr ""
+msgstr "macro compilation"
 
 #. type: Plain text
 #: compile.texi.orig:109
@@ -293,7 +293,7 @@ msgid ""
 "files when someone @emph{runs} the compiled program, write "
 "@code{eval-when-compile} around the @code{require} calls (@pxref{Eval During "
 "Compile}).  For more details, @xref{Compiling Macros}."
-msgstr ""
+msgstr "バイトコンパイルを意図したファイル内にマクロ呼び出しを記述する際は、注意が必要です。マクロ呼び出しはコンパイル時に展開されるので、そのマクロはEmacsにロードされる必要があります(さもないとバイトコンパイラーは正しく処理しないでしょう)。これを処理する通常の方法は、必要なマクロ定義を含むファイルを@code{require}フォームで指定することです。バイトコンパイラーは通常、コンパイルするコードを評価しませんが、@code{require}フォームは指定されたライブラリーをロードすることにより特別に扱われます。誰かがコンパイルされたプログラムを@emph{実行}する際に、マクロ定義ファイルのロードを回避するには、@code{require}呼び出しの周囲に@code{eval-when-compile}を記述します(@ref{Eval During Compile}を参照)。詳細は@ref{Compiling Macros}を参照してください。"
 
 #. type: Plain text
 #: compile.texi.orig:113
@@ -301,13 +301,13 @@ msgid ""
 "Inline (@code{defsubst}) functions are less troublesome; if you compile a "
 "call to such a function before its definition is known, the call will still "
 "work right, it will just run slower."
-msgstr ""
+msgstr "インライン(@code{defsubst})の関数は、これほど面倒ではありません。定義が判明する前にそのような関数呼び出しをコンパイルした場合でも、その呼び出しは低速になるだけで、正しく機能するでしょう。"
 
 #. type: defun
 #: compile.texi.orig:114
 #, no-wrap
 msgid "byte-compile symbol"
-msgstr ""
+msgstr "byte-compile symbol"
 
 #. type: defun
 #: compile.texi.orig:121
@@ -318,7 +318,7 @@ msgid ""
 "@code{byte-compile} does not handle function indirection.  The return value "
 "is the byte-code function object which is the compiled definition of "
 "@var{symbol} (@pxref{Byte-Code Objects})."
-msgstr ""
+msgstr "この関数は@var{symbol}の関数定義をバイトコンパイルして、以前の定義をコンパイルされた定義に置き換えます。@var{symbol}の関数定義は、その関数にたいする実際のコードでなければなりません。@code{byte-compile}はインダイレクト関数を処理しません。リターン値は、@var{symbol}のコンパイルされた定義であるバイトコード関数ブジェクトです(@ref{Byte-Code Objects}を参照)。"
 
 #. type: group
 #: compile.texi.orig:129
@@ -330,6 +330,11 @@ msgid ""
 "    (* integer (factorial (1- integer)))))\n"
 "@result{} factorial\n"
 msgstr ""
+"(defun factorial (integer)\n"
+"  \"INTEGERの階乗を計算する。\"\n"
+"  (if (= 1 integer) 1\n"
+"    (* integer (factorial (1- integer)))))\n"
+"@result{} factorial\n"
 
 #. type: group
 #: compile.texi.orig:138
@@ -342,6 +347,12 @@ msgid ""
 "  [integer 1 * factorial]\n"
 "  4 \"Compute factorial of INTEGER.\"]\n"
 msgstr ""
+"(byte-compile 'factorial)\n"
+"@result{}\n"
+"#[(integer)\n"
+"  \"^H\\301U\\203^H^@@\\301\\207\\302^H\\303^HS!\\\"\\207\"\n"
+"  [integer 1 * factorial]\n"
+"  4 \"Compute factorial of INTEGER.\"]\n"
 
 #. type: defun
 #: compile.texi.orig:146
@@ -351,7 +362,7 @@ msgid ""
 "``compile the symbol's definition again'', since the original (non-compiled) "
 "code has already been replaced in the symbol's function cell by the "
 "byte-compiled code."
-msgstr ""
+msgstr "@var{symbol}の定義がバイトコード関数オブジェクトの場合、@code{byte-compile}は何も行わず@code{nil}をリターンします。そのシンボルの関数セル内の(コンパイルされていない)オリジナルのコードはすでにバイトコンパイルされたコードに置き換えられているので、``シンボルの定義の再コンパイル''はしません。"
 
 #. type: defun
 #: compile.texi.orig:150
@@ -359,13 +370,13 @@ msgid ""
 "The argument to @code{byte-compile} can also be a @code{lambda} expression.  "
 "In that case, the function returns the corresponding compiled code but does "
 "not store it anywhere."
-msgstr ""
+msgstr "@code{byte-compile}の引数として@code{lambda}式も指定できます。この場合、関数は対応するコンパイル済みコードをリターンしますが、それはどこにも格納されません。"
 
 #. type: deffn
 #: compile.texi.orig:152
 #, no-wrap
 msgid "Command compile-defun &optional arg"
-msgstr ""
+msgstr "Command compile-defun &optional arg"
 
 #. type: deffn
 #: compile.texi.orig:157
@@ -373,7 +384,7 @@ msgid ""
 "This command reads the defun containing point, compiles it, and evaluates "
 "the result.  If you use this on a defun that is actually a function "
 "definition, the effect is to install a compiled version of that function."
-msgstr ""
+msgstr "このコマンドはポイントを含むdefunを読み取りそれをコンパイルして、結果を評価します。実際に関数定義であるようなdefunでこれを使用した場合は、その関数のコンパイル済みバージョンをインストールする効果があります。"
 
 #. type: deffn
 #: compile.texi.orig:161
@@ -381,13 +392,13 @@ msgid ""
 "@code{compile-defun} normally displays the result of evaluation in the echo "
 "area, but if @var{arg} is non-@code{nil}, it inserts the result in the "
 "current buffer after the form it compiled."
-msgstr ""
+msgstr "@code{compile-defun}は通常、評価した結果をエコーエリアに表示しますが、@var{arg}が非@code{nil}の場合は、そのフォームをコンパイルした後にカレントバッファーに結果を挿入します。"
 
 #. type: deffn
 #: compile.texi.orig:163
 #, no-wrap
 msgid "Command byte-compile-file filename &optional load"
-msgstr ""
+msgstr "Command byte-compile-file filename &optional load"
 
 #. type: deffn
 #: compile.texi.orig:168
@@ -396,7 +407,7 @@ msgid ""
 "of byte-code.  The output file's name is made by changing the @samp{.el} "
 "suffix into @samp{.elc}; if @var{filename} does not end in @samp{.el}, it "
 "adds @samp{.elc} to the end of @var{filename}."
-msgstr ""
+msgstr "この関数は@var{filename}という名前のLispコードファイルを、バイトコードのファイルにコンパイルします。出力となるファイルの名前は、サフィックス@samp{.el}を@samp{.elc}に変更することにより作成されます。@var{filename}が@samp{.el}で終了しない場合は、@samp{.elc}を@var{filename}の最後に付け足します。\n"
 
 #. type: deffn
 #: compile.texi.orig:175
@@ -406,21 +417,21 @@ msgid ""
 "is written out.  Other forms are batched together, then each batch is "
 "compiled, and written so that its compiled code will be executed when the "
 "file is read.  All comments are discarded when the input file is read."
-msgstr ""
+msgstr "コンパイルは入力ファイルから1つのフォームを逐次読み取ることにより機能します。フォームが関数またはマクロの場合は、コンパイル済みの関数またはマクロが書き込まれます。それ以外のフォームはまとめられて、まとめられたものごとにコンパイルされ、そのファイルが読まれたとき実行されるようにコンパイルされたコードが書き込まれます。入力ファイルを読み取る際、すべてのコメントは無視されます。"
 
 #. type: deffn
 #: compile.texi.orig:178
 msgid ""
 "This command returns @code{t} if there were no errors and @code{nil} "
 "otherwise.  When called interactively, it prompts for the file name."
-msgstr ""
+msgstr "このコマンドはエラーのないときは@code{t}、それ以外は@code{nil}をリターンします。インタラクティブに呼び出されたときは、ファイル名の入力をもとめます。"
 
 #. type: deffn
 #: compile.texi.orig:181
 msgid ""
 "If @var{load} is non-@code{nil}, this command loads the compiled file after "
 "compiling it.  Interactively, @var{load} is the prefix argument."
-msgstr ""
+msgstr "@var{load}が非@code{nil}の場合、このコマンドはコンパイルした後にコンパイルされたファイルをロードします。インタラクティブに呼び出された場合、@var{load}はプレフィクス引数です。"
 
 #. type: group
 #: compile.texi.orig:186
@@ -429,6 +440,8 @@ msgid ""
 "$ ls -l push*\n"
 "-rw-r--r-- 1 lewis lewis 791 Oct  5 20:31 push.el\n"
 msgstr ""
+"$ ls -l push*\n"
+"-rw-r--r-- 1 lewis lewis 791 Oct  5 20:31 push.el\n"
 
 #. type: group
 #: compile.texi.orig:191
@@ -437,6 +450,8 @@ msgid ""
 "(byte-compile-file \"~/emacs/push.el\")\n"
 "     @result{} t\n"
 msgstr ""
+"(byte-compile-file \"~/emacs/push.el\")\n"
+"     @result{} t\n"
 
 #. type: group
 #: compile.texi.orig:197
@@ -446,18 +461,21 @@ msgid ""
 "-rw-r--r-- 1 lewis lewis 791 Oct  5 20:31 push.el\n"
 "-rw-rw-rw- 1 lewis lewis 638 Oct  8 20:25 push.elc\n"
 msgstr ""
+"$ ls -l push*\n"
+"-rw-r--r-- 1 lewis lewis 791 Oct  5 20:31 push.el\n"
+"-rw-rw-rw- 1 lewis lewis 638 Oct  8 20:25 push.elc\n"
 
 #. type: deffn
 #: compile.texi.orig:201
 #, no-wrap
 msgid "Command byte-recompile-directory directory &optional flag force"
-msgstr ""
+msgstr "Command byte-recompile-directory directory &optional flag force"
 
 #. type: cindex
 #: compile.texi.orig:202
 #, no-wrap
 msgid "library compilation"
-msgstr ""
+msgstr "library compilation"
 
 #. type: deffn
 #: compile.texi.orig:207
@@ -465,7 +483,7 @@ msgid ""
 "This command recompiles every @samp{.el} file in @var{directory} (or its "
 "subdirectories) that needs recompilation.  A file needs recompilation if a "
 "@samp{.elc} file exists but is older than the @samp{.el} file."
-msgstr ""
+msgstr "このコマンドは、@var{directory}(またはそのサブディレクトリー)内の、リコンパイルを要するすべての@samp{.el}ファイルをリコンパイルします。@samp{.elc}ファイルが存在し、それが@samp{.el}より古いファイルは、リコンパイルが必要です。"
 
 #. type: deffn
 #: compile.texi.orig:213
@@ -475,32 +493,32 @@ msgid ""
 "@var{flag} is 0, it compiles them.  If it is neither @code{nil} nor 0, it "
 "asks the user whether to compile each such file, and asks about each "
 "subdirectory as well."
-msgstr ""
+msgstr "@samp{.el}ファイルに対応する@samp{.elc}ファイルが存在しない場合、何を行うかを@var{flag}で指定します。@code{nil}の場合、このコマンドはこれらのファイルを無視します。@var{flag}が0のときは、それらをコンパイルします。@code{nil}と0以外の場合は、それらのファイルをコンパイルするかユーザーに尋ね、同様にそれぞれのサブディレクトリーについても尋ねます。"
 
 #. type: deffn
 #: compile.texi.orig:216
 msgid ""
 "Interactively, @code{byte-recompile-directory} prompts for @var{directory} "
 "and @var{flag} is the prefix argument."
-msgstr ""
+msgstr "インタラクティブに呼び出された場合、@code{byte-recompile-directory}は@var{directory}の入力を求め、@var{flag}はプレフィクス引数になります。"
 
 #. type: deffn
 #: compile.texi.orig:219
 msgid ""
 "If @var{force} is non-@code{nil}, this command recompiles every @samp{.el} "
 "file that has a @samp{.elc} file."
-msgstr ""
+msgstr "@var{force}が非@code{nil}の場合、このコマンドは@samp{.elc}ファイルのあるすべての@samp{.el}ファイルをリコンパイルします。"
 
 #. type: deffn
 #: compile.texi.orig:221
 msgid "The returned value is unpredictable."
-msgstr ""
+msgstr "リターン値は不定です。"
 
 #. type: defun
 #: compile.texi.orig:223
 #, no-wrap
 msgid "batch-byte-compile &optional noforce"
-msgstr ""
+msgstr "batch-byte-compile &optional noforce"
 
 #. type: defun
 #: compile.texi.orig:230
@@ -510,20 +528,20 @@ msgid ""
 "Emacs, as it kills Emacs on completion.  An error in one file does not "
 "prevent processing of subsequent files, but no output file will be generated "
 "for it, and the Emacs process will terminate with a nonzero status code."
-msgstr ""
+msgstr "この関数は、コマンドラインで指定されたファイルにたいして、@code{byte-compile-file}を実行します。この関数は処理が完了するとEmacsをkillするので、Emacsのバッチ実行だけで使用しなければなりません。1つのファイルでエラーが発生しても、それにより後続のファイルにたいする処理が妨げられることはありませんが、そのファイルにたいする出力ファイルは生成されず、Emacsプロセスは0以外のステータスコードで終了します。"
 
 #. type: defun
 #: compile.texi.orig:233
 msgid ""
 "If @var{noforce} is non-@code{nil}, this function does not recompile files "
 "that have an up-to-date @samp{.elc} file."
-msgstr ""
+msgstr "@var{noforce}が非@code{nil}の場合、この関数は最新の@samp{.elc}ファイルがあるファイルをリコンパイルしません。"
 
 #. type: example
 #: compile.texi.orig:236
 #, no-wrap
 msgid "$ emacs -batch -f batch-byte-compile *.el\n"
-msgstr ""
+msgstr "$ emacs -batch -f batch-byte-compile *.el\n"
 
 #. type: section
 #: compile.texi.orig:240

@@ -77,45 +77,26 @@ interpreter)}により評価されます。
 @section Byte-Compilation Functions
 @cindex compilation functions
 
-  You can byte-compile an individual function or macro definition with the
-@code{byte-compile} function.  You can compile a whole file with
-@code{byte-compile-file}, or several files with
-@code{byte-recompile-directory} or @code{batch-byte-compile}.
+  @code{byte-compile}により、関数やマクロを個別にバイトコンパイルできます。@code{byte-compile-file}でファイル全体、@code{byte-recompile-directory}または@code{batch-byte-compile}で複数ファイルをコンパイルできます。
 
-  Sometimes, the byte compiler produces warning and/or error messages
-(@pxref{Compiler Errors}, for details).  These messages are recorded in a
-buffer called @file{*Compile-Log*}, which uses Compilation mode.
-@xref{Compilation Mode,,,emacs, The GNU Emacs Manual}.
+  バイトコンパイラーが警告、および/またはエラーメッセージを生成することもあります(詳細は@ref{Compiler
+Errors}を参照)。これらのメッセージはCompilationモードが使用する@file{*Compile-Log*}と呼ばれるバッファーに記録されます。@ref{Compilation
+Mode,,,emacs, The GNU Emacs Manual}を参照してください。
 
 @cindex macro compilation
-  Be careful when writing macro calls in files that you intend to
-byte-compile.  Since macro calls are expanded when they are compiled, the
-macros need to be loaded into Emacs or the byte compiler will not do the
-right thing.  The usual way to handle this is with @code{require} forms
-which specify the files containing the needed macro definitions
-(@pxref{Named Features}).  Normally, the byte compiler does not evaluate the
-code that it is compiling, but it handles @code{require} forms specially, by
-loading the specified libraries.  To avoid loading the macro definition
-files when someone @emph{runs} the compiled program, write
-@code{eval-when-compile} around the @code{require} calls (@pxref{Eval During
-Compile}).  For more details, @xref{Compiling Macros}.
+  バイトコンパイルを意図したファイル内にマクロ呼び出しを記述する際は、注意が必要です。マクロ呼び出しはコンパイル時に展開されるので、そのマクロはEmacsにロードされる必要があります(さもないとバイトコンパイラーは正しく処理しないでしょう)。これを処理する通常の方法は、必要なマクロ定義を含むファイルを@code{require}フォームで指定することです。バイトコンパイラーは通常、コンパイルするコードを評価しませんが、@code{require}フォームは指定されたライブラリーをロードすることにより特別に扱われます。誰かがコンパイルされたプログラムを@emph{実行}する際に、マクロ定義ファイルのロードを回避するには、@code{require}呼び出しの周囲に@code{eval-when-compile}を記述します(@ref{Eval
+During Compile}を参照)。詳細は@ref{Compiling Macros}を参照してください。
 
-  Inline (@code{defsubst}) functions are less troublesome; if you compile a
-call to such a function before its definition is known, the call will still
-work right, it will just run slower.
+  インライン(@code{defsubst})の関数は、これほど面倒ではありません。定義が判明する前にそのような関数呼び出しをコンパイルした場合でも、その呼び出しは低速になるだけで、正しく機能するでしょう。
 
 @defun byte-compile symbol
-This function byte-compiles the function definition of @var{symbol},
-replacing the previous definition with the compiled one.  The function
-definition of @var{symbol} must be the actual code for the function;
-@code{byte-compile} does not handle function indirection.  The return value
-is the byte-code function object which is the compiled definition of
-@var{symbol} (@pxref{Byte-Code Objects}).
+この関数は@var{symbol}の関数定義をバイトコンパイルして、以前の定義をコンパイルされた定義に置き換えます。@var{symbol}の関数定義は、その関数にたいする実際のコードでなければなりません。@code{byte-compile}はインダイレクト関数を処理しません。リターン値は、@var{symbol}のコンパイルされた定義であるバイトコード関数ブジェクトです(@ref{Byte-Code
+Objects}を参照)。
 
 @example
 @group
 (defun factorial (integer)
-  "Compute factorial of INTEGER."
+  "INTEGERの階乗を計算する。"
   (if (= 1 integer) 1
     (* integer (factorial (1- integer)))))
 @result{} factorial
@@ -131,44 +112,25 @@ is the byte-code function object which is the compiled definition of
 @end group
 @end example
 
-If @var{symbol}'s definition is a byte-code function object,
-@code{byte-compile} does nothing and returns @code{nil}.  It does not
-``compile the symbol's definition again'', since the original (non-compiled)
-code has already been replaced in the symbol's function cell by the
-byte-compiled code.
+@var{symbol}の定義がバイトコード関数オブジェクトの場合、@code{byte-compile}は何も行わず@code{nil}をリターンします。そのシンボルの関数セル内の(コンパイルされていない)オリジナルのコードはすでにバイトコンパイルされたコードに置き換えられているので、``シンボルの定義の再コンパイル''はしません。
 
-The argument to @code{byte-compile} can also be a @code{lambda} expression.
-In that case, the function returns the corresponding compiled code but does
-not store it anywhere.
+@code{byte-compile}の引数として@code{lambda}式も指定できます。この場合、関数は対応するコンパイル済みコードをリターンしますが、それはどこにも格納されません。
 @end defun
 
 @deffn Command compile-defun &optional arg
-This command reads the defun containing point, compiles it, and evaluates
-the result.  If you use this on a defun that is actually a function
-definition, the effect is to install a compiled version of that function.
+このコマンドはポイントを含むdefunを読み取りそれをコンパイルして、結果を評価します。実際に関数定義であるようなdefunでこれを使用した場合は、その関数のコンパイル済みバージョンをインストールする効果があります。
 
-@code{compile-defun} normally displays the result of evaluation in the echo
-area, but if @var{arg} is non-@code{nil}, it inserts the result in the
-current buffer after the form it compiled.
+@code{compile-defun}は通常、評価した結果をエコーエリアに表示しますが、@var{arg}が非@code{nil}の場合は、そのフォームをコンパイルした後にカレントバッファーに結果を挿入します。
 @end deffn
 
 @deffn Command byte-compile-file filename &optional load
-This function compiles a file of Lisp code named @var{filename} into a file
-of byte-code.  The output file's name is made by changing the @samp{.el}
-suffix into @samp{.elc}; if @var{filename} does not end in @samp{.el}, it
-adds @samp{.elc} to the end of @var{filename}.
+この関数は@var{filename}という名前のLispコードファイルを、バイトコードのファイルにコンパイルします。出力となるファイルの名前は、サフィックス@samp{.el}を@samp{.elc}に変更することにより作成されます。@var{filename}が@samp{.el}で終了しない場合は、@samp{.elc}を@var{filename}の最後に付け足します。
 
-Compilation works by reading the input file one form at a time.  If it is a
-definition of a function or macro, the compiled function or macro definition
-is written out.  Other forms are batched together, then each batch is
-compiled, and written so that its compiled code will be executed when the
-file is read.  All comments are discarded when the input file is read.
+コンパイルは入力ファイルから1つのフォームを逐次読み取ることにより機能します。フォームが関数またはマクロの場合は、コンパイル済みの関数またはマクロが書き込まれます。それ以外のフォームはまとめられて、まとめられたものごとにコンパイルされ、そのファイルが読まれたとき実行されるようにコンパイルされたコードが書き込まれます。入力ファイルを読み取る際、すべてのコメントは無視されます。
 
-This command returns @code{t} if there were no errors and @code{nil}
-otherwise.  When called interactively, it prompts for the file name.
+このコマンドはエラーのないときは@code{t}、それ以外は@code{nil}をリターンします。インタラクティブに呼び出されたときは、ファイル名の入力をもとめます。
 
-If @var{load} is non-@code{nil}, this command loads the compiled file after
-compiling it.  Interactively, @var{load} is the prefix argument.
+@var{load}が非@code{nil}の場合、このコマンドはコンパイルした後にコンパイルされたファイルをロードします。インタラクティブに呼び出された場合、@var{load}はプレフィクス引数です。
 
 @example
 @group
@@ -191,34 +153,21 @@ $ ls -l push*
 
 @deffn Command byte-recompile-directory directory &optional flag force
 @cindex library compilation
-This command recompiles every @samp{.el} file in @var{directory} (or its
-subdirectories) that needs recompilation.  A file needs recompilation if a
-@samp{.elc} file exists but is older than the @samp{.el} file.
+このコマンドは、@var{directory}(またはそのサブディレクトリー)内の、リコンパイルを要するすべての@samp{.el}ファイルをリコンパイルします。@samp{.elc}ファイルが存在し、それが@samp{.el}より古いファイルは、リコンパイルが必要です。
 
-When a @samp{.el} file has no corresponding @samp{.elc} file, @var{flag}
-says what to do.  If it is @code{nil}, this command ignores these files.  If
-@var{flag} is 0, it compiles them.  If it is neither @code{nil} nor 0, it
-asks the user whether to compile each such file, and asks about each
-subdirectory as well.
+@samp{.el}ファイルに対応する@samp{.elc}ファイルが存在しない場合、何を行うかを@var{flag}で指定します。@code{nil}の場合、このコマンドはこれらのファイルを無視します。@var{flag}が0のときは、それらをコンパイルします。@code{nil}と0以外の場合は、それらのファイルをコンパイルするかユーザーに尋ね、同様にそれぞれのサブディレクトリーについても尋ねます。
 
-Interactively, @code{byte-recompile-directory} prompts for @var{directory}
-and @var{flag} is the prefix argument.
+インタラクティブに呼び出された場合、@code{byte-recompile-directory}は@var{directory}の入力を求め、@var{flag}はプレフィクス引数になります。
 
-If @var{force} is non-@code{nil}, this command recompiles every @samp{.el}
-file that has a @samp{.elc} file.
+@var{force}が非@code{nil}の場合、このコマンドは@samp{.elc}ファイルのあるすべての@samp{.el}ファイルをリコンパイルします。
 
-The returned value is unpredictable.
+リターン値は不定です。
 @end deffn
 
 @defun batch-byte-compile &optional noforce
-This function runs @code{byte-compile-file} on files specified on the
-command line.  This function must be used only in a batch execution of
-Emacs, as it kills Emacs on completion.  An error in one file does not
-prevent processing of subsequent files, but no output file will be generated
-for it, and the Emacs process will terminate with a nonzero status code.
+この関数は、コマンドラインで指定されたファイルにたいして、@code{byte-compile-file}を実行します。この関数は処理が完了するとEmacsをkillするので、Emacsのバッチ実行だけで使用しなければなりません。1つのファイルでエラーが発生しても、それにより後続のファイルにたいする処理が妨げられることはありませんが、そのファイルにたいする出力ファイルは生成されず、Emacsプロセスは0以外のステータスコードで終了します。
 
-If @var{noforce} is non-@code{nil}, this function does not recompile files
-that have an up-to-date @samp{.elc} file.
+@var{noforce}が非@code{nil}の場合、この関数は最新の@samp{.elc}ファイルがあるファイルをリコンパイルしません。
 
 @example
 $ emacs -batch -f batch-byte-compile *.el
