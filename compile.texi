@@ -208,59 +208,36 @@ Manual}を参照)で、このオプションに@code{nil}をセットします�
 
 @cindex dynamic loading of functions
 @cindex lazy loading
-  When you compile a file, you can optionally enable the @dfn{dynamic function
-loading} feature (also known as @dfn{lazy loading}).  With dynamic function
-loading, loading the file doesn't fully read the function definitions in the
-file.  Instead, each function definition contains a place-holder which
-refers to the file.  The first time each function is called, it reads the
-full definition from the file, to replace the place-holder.
+  ファイルをコンパイルするとき、オプションで@dfn{ダイナミック関数ロード(dynamic function
+loading)}機能(@dfn{laxyロード(lazy
+loading)とも呼ばれる})を有効にできます。ダイナミック関数ロードでは、ファイルのロードでファイル内の関数定義は完全には読み込まれません。かわりに、各関数定義にはそのファイルを参照するプレースホルダーが含まれます。それぞれ関数が最初に呼び出されるときに、そのプレースホルダーを置き換えるために、ファイルから完全な定義が読み込まれます。
 
-  The advantage of dynamic function loading is that loading the file becomes
-much faster.  This is a good thing for a file which contains many separate
-user-callable functions, if using one of them does not imply you will
-probably also use the rest.  A specialized mode which provides many keyboard
-commands often has that usage pattern: a user may invoke the mode, but use
-only a few of the commands it provides.
+  ダイナミック関数ロードの利点は、ファイルのロードがより高速になることです。ユーザーが呼び出せる関数を多く含むファイルにとって、それらの関数のうち1つを使用したら、おそらく残りの関数も使用するというのでなければ、これは利点です。多くのキーボードコマンドを提供する特化したモードは、このパターンの使い方をする場合があります。ユーザーはそのモードを呼び出すかもしれませんが、使用するのはそのモードが提供するコマンドのわずか一部です。
 
-  The dynamic loading feature has certain disadvantages:
+  ダイナミックロード機能には、いくつか不利な点があります:
 
 @itemize @bullet
 @item
-If you delete or move the compiled file after loading it, Emacs can no
-longer load the remaining function definitions not already loaded.
+ロード後にコンパイル済みファイルを削除や移動した場合、Emacsはまだロードされていない残りの関数定義をロードできなくなる。
 
 @item
-If you alter the compiled file (such as by compiling a new version), then
-trying to load any function not already loaded will usually yield nonsense
-results.
+(新しいバージョンのコンパイル等で)コンパイル済みファイルを変更した場合、まだロードされていない関数のロードを試みると、通常は無意味な結果となる。
 @end itemize
 
-  These problems will never happen in normal circumstances with installed
-Emacs files.  But they are quite likely to happen with Lisp files that you
-are changing.  The easiest way to prevent these problems is to reload the
-new compiled file immediately after each recompilation.
+  このような問題は、通常の状況でインストールされたEmacsファイルでは決して発生しません。しかし、あなたが変更したLispファイルでは発生し得ます。それぞれのファイルをリコンパイルしたらすぐに、新たなコンパイル済みファイルをリロードするのが、これらの問題を回避する一番簡単な方法です。
 
-  The byte compiler uses the dynamic function loading feature if the variable
-@code{byte-compile-dynamic} is non-@code{nil} at compilation time.  Do not
-set this variable globally, since dynamic loading is desirable only for
-certain files.  Instead, enable the feature for specific source files with
-file-local variable bindings.  For example, you could do it by writing this
-text in the source file's first line:
+  コンパイル時に変数@code{byte-compile-dynamic}が非@code{nil}の場合、バイトコンパイラーはダイナミック関数ロード機能を使用します。ダイナミックロードが望ましいのは特定のファイルにたいしてだけなので、この変数をグローバルにセットしないでください。そのかわりに、特定のソースファイルのファイルローカル変数で、この機能を有効にしてください。たとえば、ソースファイルの最初の行に以下のテキストを記述することにより、これを行うことができます:
 
 @example
 -*-byte-compile-dynamic: t;-*-
 @end example
 
 @defvar byte-compile-dynamic
-If this is non-@code{nil}, the byte compiler generates compiled files that
-are set up for dynamic function loading.
+これが非@code{nil}の場合、バイトコンパイラーはダイナミック関数ロードのためにセットアップされたコンパイル済みファイルを生成します。
 @end defvar
 
 @defun fetch-bytecode function
-If @var{function} is a byte-code function object, this immediately finishes
-loading the byte code of @var{function} from its byte-compiled file, if it
-is not fully loaded already.  Otherwise, it does nothing.  It always returns
-@var{function}.
+@var{function}がバイトコード関数オブジェクトの場合、それがまだ完全にロードされていなければ、バイトコンパイル済みのファイルからの@var{function}のバイトコードのロードを終了します。それ以外は、何も行いません。この関数は、常に@var{function}をリターンします。
 @end defun
 
 @node Eval During Compile
