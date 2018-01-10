@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-09 14:40+0900\n"
-"PO-Revision-Date: 2018-01-10 14:32+0900\n"
+"PO-Revision-Date: 2018-01-10 18:20+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -184,7 +184,7 @@ msgid ""
 "recursive edit, all the usual editing facilities of Emacs are available; you "
 "can even run programs that will enter the debugger recursively.  "
 "@xref{Recursive Editing}."
-msgstr "普通の@dfn{Lispデバッガ}は、フォーム評価のサスペンド機能を提供します。評価がサスペンド(一般的には@dfn{break}の状態として知られる)されている間、実行時スタックを調べたり、ローカル変数やグローバル変数の値を調べたり変更することができます。breakは再帰編集(recursive edit)なので、Emacsの通常の編集機能が利用可能です。デバッガに再入するようにプログラムを実行することさえ可能です。@ref{Recursive Editing}を参照してください。"
+msgstr "普通の@dfn{Lispデバッガ}は、フォーム評価のサスペンド機能を提供します。評価がサスペンド(一般的には@dfn{break}の状態として知られる)されている間、実行時スタックを調べたり、ローカル変数やグローバル変数の値を調べたり変更することができます。breakは再帰編集(recursive edit)なので、Emacsの通常の編集機能が利用可能です。デバッガにエンターするようにプログラムを実行することさえ可能です。@ref{Recursive Editing}を参照してください。"
 
 #. type: node
 #: debugging.texi.orig:77 debugging.texi.orig:79
@@ -195,7 +195,7 @@ msgstr "Error Debugging"
 #. type: menuentry
 #: debugging.texi.orig:77
 msgid "Entering the debugger when an error happens."
-msgstr "エラー発生時にデバッグする。"
+msgstr "エラー発生時にデバッガにエンターする。"
 
 #. type: node
 #: debugging.texi.orig:77 debugging.texi.orig:186
@@ -217,7 +217,7 @@ msgstr "Function Debugging"
 #. type: menuentry
 #: debugging.texi.orig:77
 msgid "Entering it when a certain function is called."
-msgstr "特定の関数が呼び出されたときにデバッグする。"
+msgstr "特定の関数が呼び出されたときにデバッガにエンターする。"
 
 #. type: node
 #: debugging.texi.orig:77 debugging.texi.orig:286
@@ -228,7 +228,7 @@ msgstr "Explicit Debug"
 #. type: menuentry
 #: debugging.texi.orig:77
 msgid "Entering it at a certain point in the program."
-msgstr "プログラム内の特定箇所でデバッグする。"
+msgstr "プログラム内の特定箇所でデバッガにエンターする。"
 
 #. type: node
 #: debugging.texi.orig:77 debugging.texi.orig:309
@@ -278,26 +278,26 @@ msgstr "デバッガのサブルーチン、およびグローバル変数。"
 #: debugging.texi.orig:80
 #, no-wrap
 msgid "Entering the Debugger on an Error"
-msgstr ""
+msgstr "Entering the Debugger on an Error"
 
 #. type: cindex
 #: debugging.texi.orig:81
 #, no-wrap
 msgid "error debugging"
-msgstr ""
+msgstr "error debugging"
 
 #. type: cindex
 #: debugging.texi.orig:82
 #, no-wrap
 msgid "debugging errors"
-msgstr ""
+msgstr "debugging errors"
 
 #. type: Plain text
 #: debugging.texi.orig:87
 msgid ""
 "The most important time to enter the debugger is when a Lisp error happens.  "
 "This allows you to investigate the immediate causes of the error."
-msgstr ""
+msgstr "デバッガに入る一番重要なタイミングは、Lispエラーが発生したときです。デバッガでは、エラーの直接原因を調査できます。"
 
 #. type: Plain text
 #: debugging.texi.orig:95
@@ -308,13 +308,13 @@ msgid ""
 "time this happens.  So if you want errors to enter the debugger, set the "
 "variable @code{debug-on-error} to non-@code{nil}.  (The command "
 "@code{toggle-debug-on-error} provides an easy way to do this.)"
-msgstr ""
+msgstr "しかしデバッガへのエンターは、エラーによる通常の結末ではありません。多くのコマンドは不適切に呼び出されたときにLispエラーをシグナルするので、通常の編集の間にこれが発生するたびデバッガにエンターするのは、とても不便でしょう。したがって、エラーの際にデバッガにエンターしたい場合は、変数@code{debug-on-error}に非@code{nil}をセットします。(コマンド@code{toggle-debug-on-error}は、これを簡単に行う方法を提供します。)"
 
 #. type: defopt
 #: debugging.texi.orig:96
 #, no-wrap
 msgid "debug-on-error"
-msgstr ""
+msgstr "debug-on-error"
 
 #. type: defopt
 #: debugging.texi.orig:102
@@ -324,7 +324,7 @@ msgid ""
 "of errors call the debugger, except those listed in "
 "@code{debug-ignored-errors} (see below).  If it is @code{nil}, none call the "
 "debugger."
-msgstr ""
+msgstr "この変数はエラーがシグナルされ、それがハンドルされていないときに、デバッガが呼び出されるかどうかを決定します。@code{debug-on-error}が@code{t}の場合は、@code{debug-ignored-errors}(以下を参照)にリストされているエラーを除く、すべての種類のエラーがデバッガを呼び出します。@code{nil}の場合は、デバッガを呼び出しません。"
 
 #. type: defopt
 #: debugging.texi.orig:109
@@ -335,14 +335,14 @@ msgid ""
 "example, if you set @code{debug-on-error} to the list "
 "@code{(void-variable)}, the debugger is only called for errors about a "
 "variable that has no value."
-msgstr ""
+msgstr "値にはエラー条件(@ref{Signaling Errors}を参照)のリストも指定できます。その場合、このリスト内のエラー条件だけにより、デバッガが呼び出されます(@code{debug-ignored-errors}にもリストされているエラー条件は除外されます)。たとえば、@code{debug-on-error}をリスト@code{(void-variable)}にセットした場合には、値をもたない変数に関するエラーにたいしてだけデバッガが呼び出されます。"
 
 #. type: defopt
 #: debugging.texi.orig:112
 msgid ""
 "Note that @code{eval-expression-debug-on-error} overrides this variable in "
 "some cases; see below."
-msgstr ""
+msgstr "@code{eval-expression-debug-on-error}がこの変数をオーバーライドする場合がいくつかあることに注意してください(以下を参照)。"
 
 #. type: defopt
 #: debugging.texi.orig:116
@@ -350,13 +350,13 @@ msgid ""
 "When this variable is non-@code{nil}, Emacs does not create an error handler "
 "around process filter functions and sentinels.  Therefore, errors in these "
 "functions also invoke the debugger.  @xref{Processes}."
-msgstr ""
+msgstr "この変数が非@code{nil}のとき、Emacsはプロセスフィルター関数と番兵(sentinel)の周囲にエラーハンドラーを作成しません。したがって、これらの関数内でのエラーは、デバッガを呼び出します。@ref{Processes}を参照してください。"
 
 #. type: defopt
 #: debugging.texi.orig:118
 #, no-wrap
 msgid "debug-ignored-errors"
-msgstr ""
+msgstr "debug-ignored-errors"
 
 #. type: defopt
 #: debugging.texi.orig:125
@@ -366,7 +366,7 @@ msgid ""
 "error condition symbols and/or regular expressions.  If the error has any of "
 "those condition symbols, or if the error message matches any of the regular "
 "expressions, then that error does not enter the debugger."
-msgstr ""
+msgstr "この変数は、@code{debug-on-error}の値に関わらず、デバッガにエンターすべきでないエラーを指定します。変数の値はエラー条件のシンボル、および/または正規表現のリストです。エラーがこれら条件シンボルのいずれか、またはエラーメッセージが正規表現のいずれかにマッチする場合、そのエラーはデバッガにエンターしません。"
 
 #. type: defopt
 #: debugging.texi.orig:132
@@ -377,13 +377,13 @@ msgid ""
 "fails with an error that matches this list, you may try changing this list "
 "to debug the error.  The easiest way is usually to set "
 "@code{debug-ignored-errors} to @code{nil}."
-msgstr ""
+msgstr "この変数の通常の値には@code{user-error}と、同様に編集中にしばしば発生するがLispプログラムのバグによるものはほとんどない、いくつかのエラーが含まれます。しかし、``ほとんどない''は``絶対ない''ではありません。あなたのプログラムがこのリストにマッチするエラーにより機能しない場合は、そのエラーをデバッグするために、このリストの変更を試みるのもよいでしょう。通常は@code{debug-ignored-errors}を@code{nil}にセットしておくのが、もっとも簡単な方法です。"
 
 #. type: defopt
 #: debugging.texi.orig:134
 #, no-wrap
 msgid "eval-expression-debug-on-error"
-msgstr ""
+msgstr "eval-expression-debug-on-error"
 
 #. type: defopt
 #: debugging.texi.orig:139
@@ -392,20 +392,20 @@ msgid ""
 "command @code{eval-expression} causes @code{debug-on-error} to be "
 "temporarily bound to to @code{t}.  @xref{Lisp Eval,, Evaluating Emacs-Lisp "
 "Expressions, emacs, The GNU Emacs Manual}."
-msgstr ""
+msgstr "この変数が非@code{nil}値(デフォルト)の場合は、コマンド@code{eval-expression}の実行により、一時的に@code{debug-on-error}が@code{t}がバインドされます。@ref{Lisp Eval,, Evaluating Emacs-Lisp Expressions, emacs, The GNU Emacs Manual}を参照してください。"
 
 #. type: defopt
 #: debugging.texi.orig:142
 msgid ""
 "If @code{eval-expression-debug-on-error} is @code{nil}, then the value of "
 "@code{debug-on-error} is not changed during @code{eval-expression}."
-msgstr ""
+msgstr "@code{eval-expression-debug-on-error}が@code{nil}の場合は、@code{eval-expression}の間も@code{debug-on-error}の値は変更されません。"
 
 #. type: defvar
 #: debugging.texi.orig:144
 #, no-wrap
 msgid "debug-on-signal"
-msgstr ""
+msgstr "debug-on-signal"
 
 #. type: defvar
 #: debugging.texi.orig:148
@@ -413,7 +413,7 @@ msgid ""
 "Normally, errors caught by @code{condition-case} never invoke the debugger.  "
 "The @code{condition-case} gets a chance to handle the error before the "
 "debugger gets a chance."
-msgstr ""
+msgstr "@code{condition-case}によりキャッチされたエラーは通常、決してデバッガを呼び出しません。@code{condition-case}は、デバッガがそのエラーをハンドルする前に、エラーをハンドルする機会を得ます。"
 
 #. type: defvar
 #: debugging.texi.orig:154
@@ -423,7 +423,7 @@ msgid ""
 "@code{condition-case}.  (To invoke the debugger, the error must still "
 "fulfill the criteria specified by @code{debug-on-error} and "
 "@code{debug-ignored-errors}.)"
-msgstr ""
+msgstr "@code{debug-on-signal}を非@code{nil}値に変更した場合は、@code{condition-case}の存在如何に関わらず、すべてのエラーにおいてデバッガが最初に機会を得ます。(デバッガを呼び出すためには、依然としてそのエラーが@code{debug-on-error}と@code{debug-ignored-errors}で指定された条件を満たさなければなりません。)"
 
 #. type: defvar
 #: debugging.texi.orig:161
@@ -433,13 +433,13 @@ msgid ""
 "affairs, and you may not even realize that errors happen there.  If you need "
 "to debug code wrapped in @code{condition-case}, consider using "
 "@code{condition-case-unless-debug} (@pxref{Handling Errors})."
-msgstr ""
+msgstr "@strong{警告:} この変数を非@code{nil}にセットすると、芳しくない効果があるかもしれません。Emacsのさまざまな部分で処理の通常の過程としてエラーがキャッチされており、そのエラーが発生したことに気づかないことさえあるかもしれません。@code{condition-case}でラップされたコードをデバッグする必要がある場合は、@code{condition-case-unless-debug}(@pxref{Handling Errors}を参照)の使用を考慮してください。"
 
 #. type: defopt
 #: debugging.texi.orig:163
 #, no-wrap
 msgid "debug-on-event"
-msgstr ""
+msgstr "debug-on-event"
 
 #. type: defopt
 #: debugging.texi.orig:170
@@ -450,19 +450,19 @@ msgid ""
 "values correspond to the signals @code{SIGUSR1} and @code{SIGUSR2} (this is "
 "the default).  This can be helpful when @code{inhibit-quit} is set and Emacs "
 "is not otherwise responding."
-msgstr ""
+msgstr "@code{debug-on-event}をスペシャルイベント(@ref{Special Events}を参照)にセットした場合は、Emacsは@code{special-event-map}をバイパスして、このイベントを受け取ると即座にデバッガへのエンターを試みます。現在のところサポートされる値は、シグナル@code{SIGUSR1}および@code{SIGUSR2}に対応する値だけです(これがデフォルトです)。これは@code{inhibit-quit}がセットされていて、それ以外はEmacsが応答しない場合に有用かもしれません。"
 
 #. type: cindex
 #: debugging.texi.orig:172
 #, no-wrap
 msgid "message, finding what causes a particular message"
-msgstr ""
+msgstr "message, finding what causes a particular message"
 
 #. type: defvar
 #: debugging.texi.orig:173
 #, no-wrap
 msgid "debug-on-message"
-msgstr ""
+msgstr "debug-on-message"
 
 #. type: defvar
 #: debugging.texi.orig:178
@@ -471,7 +471,7 @@ msgid ""
 "the debugger if it displays a matching message in the echo area.  For "
 "example, this can be useful when trying to find the cause of a particular "
 "message."
-msgstr ""
+msgstr "@code{debug-on-message}に正規表現をセットした場合には、それにマッチするメッセージがエコーエリアに表示されると、Emacsはデバッガにエンターします。たとえば、これは特定のメッセージの原因を探すのに有用かもしれません。"
 
 #. type: Plain text
 #: debugging.texi.orig:185
@@ -480,7 +480,7 @@ msgid ""
 "option @samp{--debug-init}.  This binds @code{debug-on-error} to @code{t} "
 "while loading the init file, and bypasses the @code{condition-case} which "
 "normally catches errors in the init file."
-msgstr ""
+msgstr "initファイルロード中に発生したエラーをデバッグするには、オプション@samp{--debug-init}を使用します。これはinitファイルロードの間に@code{debug-on-error}を@code{t}にバインドして、通常はinitファイル内のエラーをキャッチする@code{condition-case}をバイパスします。"
 
 #. type: subsection
 #: debugging.texi.orig:187

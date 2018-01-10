@@ -59,14 +59,14 @@ Input}を参照)と、@code{open-termscript}関数(@ref{Terminal Output})があ�
 @cindex break
 
   普通の@dfn{Lispデバッガ}は、フォーム評価のサスペンド機能を提供します。評価がサスペンド(一般的には@dfn{break}の状態として知られる)されている間、実行時スタックを調べたり、ローカル変数やグローバル変数の値を調べたり変更することができます。breakは再帰編集(recursive
-edit)なので、Emacsの通常の編集機能が利用可能です。デバッガに再入するようにプログラムを実行することさえ可能です。@ref{Recursive
+edit)なので、Emacsの通常の編集機能が利用可能です。デバッガにエンターするようにプログラムを実行することさえ可能です。@ref{Recursive
 Editing}を参照してください。
 
 @menu
-* Error Debugging::          エラー発生時にデバッグする。
+* Error Debugging::          エラー発生時にデバッガにエンターする。
 * Infinite Loops::           exitしないプログラムの停止デバッグ。
-* Function Debugging::       特定の関数が呼び出されたときにデバッグする。
-* Explicit Debug::           プログラム内の特定箇所でデバッグする。
+* Function Debugging::       特定の関数が呼び出されたときにデバッガにエンターする。
+* Explicit Debug::           プログラム内の特定箇所でデバッガにエンターする。
 * Using Debugger::           デバッガが行なうこと: 
                                そこで何を目にするか。
 * Debugger Commands::        デバッガで使用するコマンド。
@@ -79,102 +79,56 @@ Editing}を参照してください。
 @cindex error debugging
 @cindex debugging errors
 
-  The most important time to enter the debugger is when a Lisp error happens.
-This allows you to investigate the immediate causes of the error.
+  デバッガに入る一番重要なタイミングは、Lispエラーが発生したときです。デバッガでは、エラーの直接原因を調査できます。
 
-  However, entry to the debugger is not a normal consequence of an error.
-Many commands signal Lisp errors when invoked inappropriately, and during
-ordinary editing it would be very inconvenient to enter the debugger each
-time this happens.  So if you want errors to enter the debugger, set the
-variable @code{debug-on-error} to non-@code{nil}.  (The command
-@code{toggle-debug-on-error} provides an easy way to do this.)
+  しかしデバッガへのエンターは、エラーによる通常の結末ではありません。多くのコマンドは不適切に呼び出されたときにLispエラーをシグナルするので、通常の編集の間にこれが発生するたびデバッガにエンターするのは、とても不便でしょう。したがって、エラーの際にデバッガにエンターしたい場合は、変数@code{debug-on-error}に非@code{nil}をセットします。(コマンド@code{toggle-debug-on-error}は、これを簡単に行う方法を提供します。)
 
 @defopt debug-on-error
-This variable determines whether the debugger is called when an error is
-signaled and not handled.  If @code{debug-on-error} is @code{t}, all kinds
-of errors call the debugger, except those listed in
-@code{debug-ignored-errors} (see below).  If it is @code{nil}, none call the
-debugger.
+この変数はエラーがシグナルされ、それがハンドルされていないときに、デバッガが呼び出されるかどうかを決定します。@code{debug-on-error}が@code{t}の場合は、@code{debug-ignored-errors}(以下を参照)にリストされているエラーを除く、すべての種類のエラーがデバッガを呼び出します。@code{nil}の場合は、デバッガを呼び出しません。
 
-The value can also be a list of error conditions (@pxref{Signaling
-Errors}).  Then the debugger is called only for error conditions in this
-list (except those also listed in @code{debug-ignored-errors}).  For
-example, if you set @code{debug-on-error} to the list
-@code{(void-variable)}, the debugger is only called for errors about a
-variable that has no value.
+値にはエラー条件(@ref{Signaling
+Errors}を参照)のリストも指定できます。その場合、このリスト内のエラー条件だけにより、デバッガが呼び出されます(@code{debug-ignored-errors}にもリストされているエラー条件は除外されます)。たとえば、@code{debug-on-error}をリスト@code{(void-variable)}にセットした場合には、値をもたない変数に関するエラーにたいしてだけデバッガが呼び出されます。
 
-Note that @code{eval-expression-debug-on-error} overrides this variable in
-some cases; see below.
+@code{eval-expression-debug-on-error}がこの変数をオーバーライドする場合がいくつかあることに注意してください(以下を参照)。
 
-When this variable is non-@code{nil}, Emacs does not create an error handler
-around process filter functions and sentinels.  Therefore, errors in these
-functions also invoke the debugger.  @xref{Processes}.
+この変数が非@code{nil}のとき、Emacsはプロセスフィルター関数と番兵(sentinel)の周囲にエラーハンドラーを作成しません。したがって、これらの関数内でのエラーは、デバッガを呼び出します。@ref{Processes}を参照してください。
 @end defopt
 
 @defopt debug-ignored-errors
-This variable specifies errors which should not enter the debugger,
-regardless of the value of @code{debug-on-error}.  Its value is a list of
-error condition symbols and/or regular expressions.  If the error has any of
-those condition symbols, or if the error message matches any of the regular
-expressions, then that error does not enter the debugger.
+この変数は、@code{debug-on-error}の値に関わらず、デバッガにエンターすべきでないエラーを指定します。変数の値はエラー条件のシンボル、および/または正規表現のリストです。エラーがこれら条件シンボルのいずれか、またはエラーメッセージが正規表現のいずれかにマッチする場合、そのエラーはデバッガにエンターしません。
 
-The normal value of this variable includes @code{user-error}, as well as
-several errors that happen often during editing but rarely result from bugs
-in Lisp programs.  However, ``rarely'' is not ``never''; if your program
-fails with an error that matches this list, you may try changing this list
-to debug the error.  The easiest way is usually to set
-@code{debug-ignored-errors} to @code{nil}.
+この変数の通常の値には@code{user-error}と、同様に編集中にしばしば発生するがLispプログラムのバグによるものはほとんどない、いくつかのエラーが含まれます。しかし、``ほとんどない''は``絶対ない''ではありません。あなたのプログラムがこのリストにマッチするエラーにより機能しない場合は、そのエラーをデバッグするために、このリストの変更を試みるのもよいでしょう。通常は@code{debug-ignored-errors}を@code{nil}にセットしておくのが、もっとも簡単な方法です。
 @end defopt
 
 @defopt eval-expression-debug-on-error
-If this variable has a non-@code{nil} value (the default), running the
-command @code{eval-expression} causes @code{debug-on-error} to be
-temporarily bound to to @code{t}.  @xref{Lisp Eval,, Evaluating Emacs-Lisp
-Expressions, emacs, The GNU Emacs Manual}.
+この変数が非@code{nil}値(デフォルト)の場合は、コマンド@code{eval-expression}の実行により、一時的に@code{debug-on-error}が@code{t}がバインドされます。@ref{Lisp
+Eval,, Evaluating Emacs-Lisp Expressions, emacs, The GNU Emacs
+Manual}を参照してください。
 
-If @code{eval-expression-debug-on-error} is @code{nil}, then the value of
-@code{debug-on-error} is not changed during @code{eval-expression}.
+@code{eval-expression-debug-on-error}が@code{nil}の場合は、@code{eval-expression}の間も@code{debug-on-error}の値は変更されません。
 @end defopt
 
 @defvar debug-on-signal
-Normally, errors caught by @code{condition-case} never invoke the debugger.
-The @code{condition-case} gets a chance to handle the error before the
-debugger gets a chance.
+@code{condition-case}によりキャッチされたエラーは通常、決してデバッガを呼び出しません。@code{condition-case}は、デバッガがそのエラーをハンドルする前に、エラーをハンドルする機会を得ます。
 
-If you change @code{debug-on-signal} to a non-@code{nil} value, the debugger
-gets the first chance at every error, regardless of the presence of
-@code{condition-case}.  (To invoke the debugger, the error must still
-fulfill the criteria specified by @code{debug-on-error} and
-@code{debug-ignored-errors}.)
+@code{debug-on-signal}を非@code{nil}値に変更した場合は、@code{condition-case}の存在如何に関わらず、すべてのエラーにおいてデバッガが最初に機会を得ます。(デバッガを呼び出すためには、依然としてそのエラーが@code{debug-on-error}と@code{debug-ignored-errors}で指定された条件を満たさなければなりません。)
 
-@strong{Warning:} Setting this variable to non-@code{nil} may have annoying
-effects.  Various parts of Emacs catch errors in the normal course of
-affairs, and you may not even realize that errors happen there.  If you need
-to debug code wrapped in @code{condition-case}, consider using
-@code{condition-case-unless-debug} (@pxref{Handling Errors}).
+@strong{警告:}
+この変数を非@code{nil}にセットすると、芳しくない効果があるかもしれません。Emacsのさまざまな部分で処理の通常の過程としてエラーがキャッチされており、そのエラーが発生したことに気づかないことさえあるかもしれません。@code{condition-case}でラップされたコードをデバッグする必要がある場合は、@code{condition-case-unless-debug}(@pxref{Handling
+Errors}を参照)の使用を考慮してください。
 @end defvar
 
 @defopt debug-on-event
-If you set @code{debug-on-event} to a special event (@pxref{Special
-Events}), Emacs will try to enter the debugger as soon as it receives this
-event, bypassing @code{special-event-map}.  At present, the only supported
-values correspond to the signals @code{SIGUSR1} and @code{SIGUSR2} (this is
-the default).  This can be helpful when @code{inhibit-quit} is set and Emacs
-is not otherwise responding.
+@code{debug-on-event}をスペシャルイベント(@ref{Special
+Events}を参照)にセットした場合は、Emacsは@code{special-event-map}をバイパスして、このイベントを受け取ると即座にデバッガへのエンターを試みます。現在のところサポートされる値は、シグナル@code{SIGUSR1}および@code{SIGUSR2}に対応する値だけです(これがデフォルトです)。これは@code{inhibit-quit}がセットされていて、それ以外はEmacsが応答しない場合に有用かもしれません。
 @end defopt
 
 @cindex message, finding what causes a particular message
 @defvar debug-on-message
-If you set @code{debug-on-message} to a regular expression, Emacs will enter
-the debugger if it displays a matching message in the echo area.  For
-example, this can be useful when trying to find the cause of a particular
-message.
+@code{debug-on-message}に正規表現をセットした場合には、それにマッチするメッセージがエコーエリアに表示されると、Emacsはデバッガにエンターします。たとえば、これは特定のメッセージの原因を探すのに有用かもしれません。
 @end defvar
 
-  To debug an error that happens during loading of the init file, use the
-option @samp{--debug-init}.  This binds @code{debug-on-error} to @code{t}
-while loading the init file, and bypasses the @code{condition-case} which
-normally catches errors in the init file.
+  initファイルロード中に発生したエラーをデバッグするには、オプション@samp{--debug-init}を使用します。これはinitファイルロードの間に@code{debug-on-error}を@code{t}にバインドして、通常はinitファイル内のエラーをキャッチする@code{condition-case}をバイパスします。
 
 @node Infinite Loops
 @subsection Debugging Infinite Loops
