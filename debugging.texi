@@ -137,27 +137,14 @@ Events}を参照)にセットした場合は、Emacsは@code{special-event-map}�
 @cindex quitting from infinite loop
 @cindex stopping an infinite loop
 
-  When a program loops infinitely and fails to return, your first problem is
-to stop the loop.  On most operating systems, you can do this with
-@kbd{C-g}, which causes a @dfn{quit}.  @xref{Quitting}.
+  プログラムが無限にループしてリターンできないとき、最初の問題はそのループをいかに停止するかです。ほとんどのオペレーティングシステムでは、(@dfn{quit}させる)@kbd{C-g}でこれを行うことができます。@ref{Quitting}を参照してください。
 
-  Ordinary quitting gives no information about why the program was looping.
-To get more information, you can set the variable @code{debug-on-quit} to
-non-@code{nil}.  Once you have the debugger running in the middle of the
-infinite loop, you can proceed from the debugger using the stepping
-commands.  If you step through the entire loop, you may get enough
-information to solve the problem.
+  普通のquitでは、なぜそのプログラムがループしたかについての情報は与えられません。変数@code{debug-on-quit}に非@code{nil}をセットすることにより、より多くの情報を得ることができます。無限ループの途中でデバッガを実行すれば、デバッガからステップコマンドで先へ進むことができます。ループ全体をステップで追えば、問題を解決するために十分な情報が得られるでしょう。
 
-  Quitting with @kbd{C-g} is not considered an error, and
-@code{debug-on-error} has no effect on the handling of @kbd{C-g}.  Likewise,
-@code{debug-on-quit} has no effect on errors.
+  @kbd{C-g}によるquitはエラーとは判断されないので、@kbd{C-g}のハンドルに@code{debug-on-error}は効果がありません。同じように、@code{debug-on-quit}はエラーにたいして効果がありません。
 
 @defopt debug-on-quit
-This variable determines whether the debugger is called when @code{quit} is
-signaled and not handled.  If @code{debug-on-quit} is non-@code{nil}, then
-the debugger is called whenever you quit (that is, type @kbd{C-g}).  If
-@code{debug-on-quit} is @code{nil} (the default), then the debugger is not
-called when you quit.
+この変数は、@code{quit}がシグナルされ、それがハンドルされていないときに、デバッガを呼び出すかどうかを決定します。@code{debug-on-quit}が非@code{nil}の場合は、quit(つまり@kbd{C-g}をタイプ)したときは常にデバッガが呼び出されます。@code{debug-on-quit}が@code{nil}(デフォルト)の場合は、quitしてもデバッガは呼び出されません。
 @end defopt
 
 @node Function Debugging
