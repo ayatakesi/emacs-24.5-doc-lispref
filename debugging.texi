@@ -152,31 +152,16 @@ Events}を参照)にセットした場合は、Emacsは@code{special-event-map}�
 @cindex function call debugging
 @cindex debugging specific functions
 
-  To investigate a problem that happens in the middle of a program, one useful
-technique is to enter the debugger whenever a certain function is called.
-You can do this to the function in which the problem occurs, and then step
-through the function, or you can do this to a function called shortly before
-the problem, step quickly over the call to that function, and then step
-through its caller.
+  プログラムの途中で発生する問題を調べるための有用なテクニックの1つは、特定の関数が呼び出されたときデバッガにエンターする方法です。問題が発生した関数にこれを行い、その関数をステップで追ったり、問題箇所の少し手前の関数呼び出しでこれを行い、その関数をステップオーバーしてその後をステップで追うことができます。
 
 @deffn Command debug-on-entry function-name
-This function requests @var{function-name} to invoke the debugger each time
-it is called.
+この関数は、@var{function-name}が呼び出されるたびにデバッガの呼び出しを要求します。
 
-Any function or macro defined as Lisp code may be set to break on entry,
-regardless of whether it is interpreted code or compiled code.  If the
-function is a command, it will enter the debugger when called from Lisp and
-when called interactively (after the reading of the arguments).  You can
-also set debug-on-entry for primitive functions (i.e., those written in C)
-this way, but it only takes effect when the primitive is called from Lisp
-code.  Debug-on-entry is not allowed for special forms.
+Lispコードで定義された任意の関数およびマクロは、インタープリターに解釈されたコードかコンパイル済みのコードかに関わらず、エントリーにbreakをセットできます。その関数がコマンドの場合は、Lispから呼び出されたときと、インタラクティブに呼び出されたとき、デバッガにエンターします。(たとえばCで記述された)プリミティブ関数にも、この方法で@code{debug-on-entry}をセットできますが、そのプリミティブがLispコードから呼び出されたときだけ効果があります。@code{debug-on-entry}はスペシャルフォームにはセットできません。
 
-When @code{debug-on-entry} is called interactively, it prompts for
-@var{function-name} in the minibuffer.  If the function is already set up to
-invoke the debugger on entry, @code{debug-on-entry} does nothing.
-@code{debug-on-entry} always returns @var{function-name}.
+@code{debug-on-entry}がインタラクティブに呼び出されたときは、ミニバッファーで@var{function-name}の入力を求めます。その関数がすでにエントリーでデバッガを呼び出すようにセットアップされていた場合、@code{debug-on-entry}は何も行いません。@code{debug-on-entry}は常に@var{function-name}をリターンします。
 
-Here's an example to illustrate use of this function:
+以下は、この関数の使い方を説明するための例です:
 
 @example
 @group
@@ -208,12 +193,7 @@ Debugger entered--entering a function:
 @end deffn
 
 @deffn Command cancel-debug-on-entry &optional function-name
-This function undoes the effect of @code{debug-on-entry} on
-@var{function-name}.  When called interactively, it prompts for
-@var{function-name} in the minibuffer.  If @var{function-name} is omitted or
-@code{nil}, it cancels break-on-entry for all functions.  Calling
-@code{cancel-debug-on-entry} does nothing to a function which is not
-currently set up to break on entry.
+この関数は@var{function-name}にたいする@code{debug-on-entry}の効果をアンドゥします。インタラクティブに呼び出されたときは、ミニバッファーで@var{function-name}の入力を求めます。@var{function-name}が省略された、あるいは@code{nil}の場合は、すべての関数にたいするエントリー時のbreakをキャンセルします。エントリー時にbreakするようセットアップされていない関数に@code{cancel-debug-on-entry}を呼び出したときは、何も行いません。
 @end deffn
 
 @node Explicit Debug
