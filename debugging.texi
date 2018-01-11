@@ -270,7 +270,7 @@ frame)}となります。デバッガコマンドのいくつかは、カレン�
 @kbd{C-g}によりデバッガにエンターしたが、実際はデバッグではなくquitしたいときは、@kbd{q}コマンドを使用する。
 
 @item r
-デバッガから値をリターンする。ミニバッファーで式を読み取り〜それを評価することにより、値が計算される。
+デバッガから値をリターンする。ミニバッファーで式を読み取り、それを評価することにより、値が計算される。
 
 @kbd{d}コマンドは、(@kbd{b}によるリクエスト、または@kbd{d}によるそのフレームへのエンターによる)Lisp呼び出しフレームからのexitでデバッガが呼び出されたときに有用です。@kbd{r}コマンドで指定された値は、そのフレームの値として使用されます。これは、@code{debug}を呼び出して、そのリターン値を使用するときも有用です。それ以外は、@kbd{r}は@kbd{c}と同じ効果をもｙい、指定されたリターン値は問題になりません。
 
@@ -287,65 +287,41 @@ frame)}となります。デバッガコマンドのいくつかは、カレン�
 @subsection Invoking the Debugger
 @cindex invoking lisp debugger
 
-  Here we describe in full detail the function @code{debug} that is used to
-invoke the debugger.
+  以下では、デバッガを呼び出すために使用される関数@code{debug}の完全な詳細を説明します。
 
 @deffn Command debug &rest debugger-args
-This function enters the debugger.  It switches buffers to a buffer named
-@file{*Backtrace*} (or @file{*Backtrace*<2>} if it is the second recursive
-entry to the debugger, etc.), and fills it with information about the stack
-of Lisp function calls.  It then enters a recursive edit, showing the
-backtrace buffer in Debugger mode.
+この関数は、デバッガにエンターします。この関数は@file{*Backtrace*}(デバッガへの2回目以降の再帰エントリーでは@file{*Backtrace*<2>、...})という名前のバッファーにバッファーを切り替えて、Lisp関数呼び出しについての情報を書き込みます。それから再帰編集にエンターして、Debuggerモードでbacktraceバッファーを表示します。
 
-The Debugger mode @kbd{c}, @kbd{d}, @kbd{j}, and @kbd{r} commands exit the
-recursive edit; then @code{debug} switches back to the previous buffer and
-returns to whatever called @code{debug}.  This is the only way the function
-@code{debug} can return to its caller.
+Debuggerモードのコマンド@kbd{c}、@kbd{d}、@kbd{j}、@kbd{r}は再帰編集をexitします。その後、@code{debug}は以前のバッファーに戻って、@code{debug}を呼び出したものが何であれ、そこにリターンします。これは関数@code{debug}が呼び出し元にリターン可能な唯一の方法です。
 
-The use of the @var{debugger-args} is that @code{debug} displays the rest of
-its arguments at the top of the @file{*Backtrace*} buffer, so that the user
-can see them.  Except as described below, this is the @emph{only} way these
-arguments are used.
+@var{debugger-args}を使用すると、@code{debug}は@file{*Backtrace*}の最上部に残りの引数を表示するもで、ユーザーがそれらを確認できます。以下で説明する場合を除き、これは、これらの引数を使用する@emph{唯一}の方法です。
 
-However, certain values for first argument to @code{debug} have a special
-significance.  (Normally, these values are used only by the internals of
-Emacs, and not by programmers calling @code{debug}.)  Here is a table of
-these special values:
+しかし@code{debug}への1つ目の引数にたいする値は、特別な意味をもちます。(これらの値は通常、@code{debug}を呼び出すプログラマーではなく、Emacs内部でのみ使用されます。)
+以下はこれら特別な値のテーブルです:
 
 @table @code
 @item lambda
 @cindex @code{lambda} in debug
-A first argument of @code{lambda} means @code{debug} was called because of
-entry to a function when @code{debug-on-next-call} was non-@code{nil}.  The
-debugger displays @samp{Debugger entered--entering a function:} as a line of
-text at the top of the buffer.
+1つ目の引数ga@code{lambda}の場合、それは@code{debug-on-next-call}が非@code{nil}のときに関数にエントリーしたことにより@code{debug}が呼び出されたことを意味する。デバッガはバッファーのトップのテキスト行に@samp{Debugger
+entered--entering a function:}と表示する。
 
 @item debug
-@code{debug} as first argument means @code{debug} was called because of
-entry to a function that was set to debug on entry.  The debugger displays
-the string @samp{Debugger entered--entering a function:}, just as in the
-@code{lambda} case.  It also marks the stack frame for that function so that
-it will invoke the debugger when exited.
+1つ目の引数が@code{debug}の場合、それはエントリー時にデバッグされるようにセットされた関数にエントリーしたことにより@code{debug}が呼び出されたことを意味する。デバッガは@code{lambda}のときと同様、@samp{Debugger
+entered--entering a
+function:}を表示します。これはその関数のスタックフレームもマークするので、exit時にデバッガが呼び出される。
 
 @item t
-When the first argument is @code{t}, this indicates a call to @code{debug}
-due to evaluation of a function call form when @code{debug-on-next-call} is
-non-@code{nil}.  The debugger displays @samp{Debugger entered--beginning
-evaluation of function call form:} as the top line in the buffer.
+1つ目の引数が@code{t}の場合、それは@code{debug-on-next-call}が非@code{nil}のときに関数呼び出しの評価により@code{debug}が呼び出されたことを示す。デバッガはバッファーのトップの行に@samp{Debugger
+entered--beginning evaluation of function call form:}と表示する。
 
 @item exit
-When the first argument is @code{exit}, it indicates the exit of a stack
-frame previously marked to invoke the debugger on exit.  The second argument
-given to @code{debug} in this case is the value being returned from the
-frame.  The debugger displays @samp{Debugger entered--returning value:} in
-the top line of the buffer, followed by the value being returned.
+1つ目の引数が@code{exit}のときは、exit時にデバッガを呼び出すよう以前にマークされたスタックフレームをexitしたことを示す。この場合は、@code{debug}に与えられた2つ目の引数が、そのフレームからリターンされた値になる。デバッガはバッファーのトップの行に@samp{Debugger
+entered--returning value:}とリターンされた値を表示する。
 
 @item error
 @cindex @code{error} in debug
-When the first argument is @code{error}, the debugger indicates that it is
-being entered because an error or @code{quit} was signaled and not handled,
-by displaying @samp{Debugger entered--Lisp error:} followed by the error
-signaled and any arguments to @code{signal}.  For example,
+1つ目の引数が@code{error}のときは、ハンドルされていないエラーまたは@code{quit}がシグナルされてデバッガにエンターした場合で、デバッガは@samp{Debugger
+entered--Lisp error:}とその後にシグナルされたエラーおよび@code{signal}への引数を表示して、それを示す。たとえば、
 
 @example
 @group
@@ -362,16 +338,11 @@ Debugger entered--Lisp error: (arith-error)
 @end group
 @end example
 
-If an error was signaled, presumably the variable @code{debug-on-error} is
-non-@code{nil}.  If @code{quit} was signaled, then presumably the variable
-@code{debug-on-quit} is non-@code{nil}.
+エラーがシグナルされた場合はおそらく、変数@code{debug-on-error}は非@code{nil}で、@code{quit}がシグナルされた場合はおそらく、変数@code{debug-on-quit}は非@code{nil}である。
 
 @item nil
-Use @code{nil} as the first of the @var{debugger-args} when you want to
-enter the debugger explicitly.  The rest of the @var{debugger-args} are
-printed on the top line of the buffer.  You can use this feature to display
-messages---for example, to remind yourself of the conditions under which
-@code{debug} is called.
+明示的にデバッガにエンターしたいときは、@var{debugger-args}の1つ目の引数に@code{nil}を使用する。残りの@var{debugger-args}は、バッファーのトップの行にプリントされる。メッセージ
+--- たとえば@code{debug}が呼び出された条件を思い出すためのリマインダー --- の表示にこの機能を使用できる。
 @end table
 @end deffn
 
