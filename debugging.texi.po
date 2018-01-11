@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-09 14:40+0900\n"
-"PO-Revision-Date: 2018-01-11 20:41+0900\n"
+"PO-Revision-Date: 2018-01-12 04:24+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -690,7 +690,7 @@ msgid ""
 "@code{nil}, it cancels break-on-entry for all functions.  Calling "
 "@code{cancel-debug-on-entry} does nothing to a function which is not "
 "currently set up to break on entry."
-msgstr "この関数は@var{function-name}にたいする@code{debug-on-entry}の効果をアンドゥします。インタラクティブに呼び出されたときは、ミニバッファーで@var{function-name}の入力を求めます。@var{function-name}が省略された、あるいは@code{nil}の場合は、すべての関数にたいするエントリー時のbreakをキャンセルします。エントリー時にbreakするようセットアップされていない関数に@code{cancel-debug-on-entry}を呼び出したときは、何も行いません。"
+msgstr "この関数は@var{function-name}にたいする@code{debug-on-entry}の効果をアンドゥします。インタラクティブに呼び出されたときは、ミニバッファーで@var{function-name}の入力を求めます。@var{function-name}が省略された、あるいは@code{nil}の場合は、すべての関数にたいするbreak-on-entryをキャンセルします。エントリー時にbreakするようセットアップされていない関数に@code{cancel-debug-on-entry}を呼び出したときは、何も行いません。"
 
 #. type: subsection
 #: debugging.texi.orig:287
@@ -934,7 +934,7 @@ msgid ""
 "Flag the current frame like @kbd{b}.  Then continue execution like @kbd{c}, "
 "but temporarily disable break-on-entry for all functions that are set up to "
 "do so by @code{debug-on-entry}."
-msgstr "@kbd{b}と同じようにカレントフレームにフラグをつける。その後、@kbd{c}のように実行を継続するが、@code{debug-on-entry}によりセットアップされたすべての関数にたいするエントリー時のbreakを一時的に無効にする。"
+msgstr "@kbd{b}と同じようにカレントフレームにフラグをつける。その後、@kbd{c}のように実行を継続するが、@code{debug-on-entry}によりセットアップされたすべての関数にたいするbreak-on-entryを一時的に無効にする。"
 
 #. type: item
 #: debugging.texi.orig:417
@@ -1240,20 +1240,20 @@ msgstr "明示的にデバッガにエンターしたいときは、@var{debugge
 #: debugging.texi.orig:557
 #, no-wrap
 msgid "Internals of the Debugger"
-msgstr ""
+msgstr "Internals of the Debugger"
 
 #. type: Plain text
 #: debugging.texi.orig:561
 msgid ""
 "This section describes functions and variables used internally by the "
 "debugger."
-msgstr ""
+msgstr "このセクションでは、デバッガ内部で使用される関数と変数について説明します。"
 
 #. type: defvar
 #: debugging.texi.orig:562
 #, no-wrap
 msgid "debugger"
-msgstr ""
+msgstr "debugger"
 
 #. type: defvar
 #: debugging.texi.orig:568
@@ -1262,7 +1262,7 @@ msgid ""
 "Its value must be a function of any number of arguments, or, more typically, "
 "the name of a function.  This function should invoke some kind of debugger.  "
 "The default value of the variable is @code{debug}."
-msgstr ""
+msgstr "この関数の値は、デバッガを呼び出す関数呼び出しです。値には任意個の引数をとる関数、より具体的には関数の名前でなければなりません。この関数は何らかのデバッガを呼び出すべきです。この変数のデフォルト値は@code{debug}です。"
 
 #. type: defvar
 #: debugging.texi.orig:572
@@ -1270,25 +1270,25 @@ msgid ""
 "The first argument that Lisp hands to the function indicates why it was "
 "called.  The convention for arguments is detailed in the description of "
 "@code{debug} (@pxref{Invoking the Debugger})."
-msgstr ""
+msgstr "関数にたいしてLispが渡す1つ目の引数は、その関数がなぜ呼び出されたかを示します。引数の慣習は、@code{debug}(@ref{Invoking the Debugger})に詳解されています。"
 
 #. type: deffn
 #: debugging.texi.orig:574
 #, no-wrap
 msgid "Command backtrace"
-msgstr ""
+msgstr "Command backtrace"
 
 #. type: cindex
 #: debugging.texi.orig:575
 #, no-wrap
 msgid "run time stack"
-msgstr ""
+msgstr "run time stack"
 
 #. type: cindex
 #: debugging.texi.orig:576
 #, no-wrap
 msgid "call stack"
-msgstr ""
+msgstr "call stack"
 
 #. type: deffn
 #: debugging.texi.orig:582
@@ -1298,7 +1298,7 @@ msgid ""
 "buffer.  It is written in C, since it must have access to the stack to "
 "determine which function calls are active.  The return value is always "
 "@code{nil}."
-msgstr ""
+msgstr "この関数は現在アクティブなLisp関数呼び出しのトレースをプリントします。この関数は@code{debug}が@file{*Backtrace*}バッファーに書き込む内容を得るために使用されます。どの関数呼び出しがアクティブか判断するためにスタックにアクセスしなければならないので、この関数はCで記述されています。リターン値は、常に@code{nil}です。"
 
 #. type: deffn
 #: debugging.texi.orig:587
@@ -1306,7 +1306,7 @@ msgid ""
 "In the following example, a Lisp expression calls @code{backtrace} "
 "explicitly.  This prints the backtrace to the stream @code{standard-output}, "
 "which, in this case, is the buffer @samp{backtrace-output}."
-msgstr ""
+msgstr "以下の例では、Lisp式で明示的に@code{backtrace}を呼び出しています。これはストリーム@code{standard-output}(この場合はバッファー@samp{backtrace-output})にbacktraceをプリントします。"
 
 #. type: deffn
 #: debugging.texi.orig:592
@@ -1315,7 +1315,7 @@ msgid ""
 "values of the function's arguments if they are all known; if they are still "
 "being computed, the line says so.  The arguments of special forms are "
 "elided."
-msgstr ""
+msgstr "backtraceの各行は、1つの関数呼び出しを表します。関数の引数が既知の場合は行に値が表示され、まだ計算中の場合は行にその旨が示されます。スペシャルフォームの引数は無視されます。"
 
 #. type: group
 #: debugging.texi.orig:601
@@ -1329,12 +1329,19 @@ msgid ""
 "                         (list 'testing (backtrace))))))))\n"
 "\n"
 msgstr ""
+"(with-output-to-temp-buffer \"backtrace-output\"\n"
+"  (let ((var 1))\n"
+"    (save-excursion\n"
+"      (setq var (eval '(progn\n"
+"                         (1+ var)\n"
+"                         (list 'testing (backtrace))))))))\n"
+"\n"
 
 #. type: group
 #: debugging.texi.orig:603
 #, no-wrap
 msgid "     @result{} (testing nil)\n"
-msgstr ""
+msgstr "     @result{} (testing nil)\n"
 
 #. type: group
 #: debugging.texi.orig:609
@@ -1344,6 +1351,9 @@ msgid ""
 "  backtrace()\n"
 "  (list ...computing arguments...)\n"
 msgstr ""
+"----------- Buffer: backtrace-output ------------\n"
+"  backtrace()\n"
+"  (list ...computing arguments...)\n"
 
 #. type: smallexample
 #: debugging.texi.orig:618
@@ -1358,6 +1368,14 @@ msgid ""
 "  eval((with-output-to-temp-buffer ...))\n"
 "  eval-last-sexp-1(nil)\n"
 msgstr ""
+"  (progn ...)\n"
+"  eval((progn (1+ var) (list (quote testing) (backtrace))))\n"
+"  (setq ...)\n"
+"  (save-excursion ...)\n"
+"  (let ...)\n"
+"  (with-output-to-temp-buffer ...)\n"
+"  eval((with-output-to-temp-buffer ...))\n"
+"  eval-last-sexp-1(nil)\n"
 
 #. type: group
 #: debugging.texi.orig:622
@@ -1367,30 +1385,33 @@ msgid ""
 "  call-interactively(eval-last-sexp)\n"
 "----------- Buffer: backtrace-output ------------\n"
 msgstr ""
+"  eval-last-sexp(nil)\n"
+"  call-interactively(eval-last-sexp)\n"
+"----------- Buffer: backtrace-output ------------\n"
 
 #. type: defvar
 #: debugging.texi.orig:626
 #, no-wrap
 msgid "debug-on-next-call"
-msgstr ""
+msgstr "debug-on-next-call"
 
 #. type: cindex
 #: debugging.texi.orig:627
 #, no-wrap
 msgid "@code{eval}, and debugging"
-msgstr ""
+msgstr "@code{eval}, and debugging"
 
 #. type: cindex
 #: debugging.texi.orig:628
 #, no-wrap
 msgid "@code{apply}, and debugging"
-msgstr ""
+msgstr "@code{apply}, and debugging"
 
 #. type: cindex
 #: debugging.texi.orig:629
 #, no-wrap
 msgid "@code{funcall}, and debugging"
-msgstr ""
+msgstr "@code{funcall}, and debugging"
 
 #. type: defvar
 #: debugging.texi.orig:633
@@ -1398,18 +1419,18 @@ msgid ""
 "If this variable is non-@code{nil}, it says to call the debugger before the "
 "next @code{eval}, @code{apply} or @code{funcall}.  Entering the debugger "
 "sets @code{debug-on-next-call} to @code{nil}."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合、それは次の@code{eval}、@code{apply}、@code{funcall}の前にデバッガを呼び出すよう指定します。デバッガへのエンターにより、@code{debug-on-next-call}は@code{nil}にセットされます。"
 
 #. type: defvar
 #: debugging.texi.orig:635
 msgid "The @kbd{d} command in the debugger works by setting this variable."
-msgstr ""
+msgstr "デバッガの@kbd{d}コマンドは、この変数をセットすることにより機能します。"
 
 #. type: defun
 #: debugging.texi.orig:637
 #, no-wrap
 msgid "backtrace-debug level flag"
-msgstr ""
+msgstr "backtrace-debug level flag"
 
 #. type: defun
 #: debugging.texi.orig:643
@@ -1419,18 +1440,18 @@ msgid ""
 "non-@code{nil}, this will cause the debugger to be entered when that frame "
 "later exits.  Even a nonlocal exit through that frame will enter the "
 "debugger."
-msgstr ""
+msgstr "この関数は、そのスタックフレームの@var{level}下位のスタックフレームのdebug-on-exitフラグに@var{flag}に応じた値をセットします。@var{flag}が非@code{nil}の場合は、後にそのフレームをexitするときデバッガにエンターします。そのフレームを通じた非ローカルexitでも、デバッガにエンターします。"
 
 #. type: defun
 #: debugging.texi.orig:645
 msgid "This function is used only by the debugger."
-msgstr ""
+msgstr "この関数は、デバッガだけに使用されます。"
 
 #. type: defvar
 #: debugging.texi.orig:647
 #, no-wrap
 msgid "command-debug-status"
-msgstr ""
+msgstr "command-debug-status"
 
 #. type: defvar
 #: debugging.texi.orig:653
@@ -1440,20 +1461,20 @@ msgid ""
 "bound to @code{nil}.  The debugger can set this variable to leave "
 "information for future debugger invocations during the same command "
 "invocation."
-msgstr ""
+msgstr "この変数はカレントのインタラクティブコマンドのデバッグ状態を記録します。コマンドがインタラクティブに呼び出されるたびに、この変数は@code{nil}にバインドされます。デバッガは、同じコマンドが呼び出されたときのデバッガ呼び出しに情報を残すために、この変数をセットできます。"
 
 #. type: defvar
 #: debugging.texi.orig:657
 msgid ""
 "The advantage of using this variable rather than an ordinary global variable "
 "is that the data will never carry over to a subsequent command invocation."
-msgstr ""
+msgstr "普通のグローバル変数ではなくこの変数を使用する利点は、そのデータが後続のコマンド呼び出しに決して引き継がれないことです。"
 
 #. type: defun
 #: debugging.texi.orig:659
 #, no-wrap
 msgid "backtrace-frame frame-number"
-msgstr ""
+msgstr "backtrace-frame frame-number"
 
 #. type: defun
 #: debugging.texi.orig:663
@@ -1461,21 +1482,21 @@ msgid ""
 "The function @code{backtrace-frame} is intended for use in Lisp debuggers.  "
 "It returns information about what computation is happening in the stack "
 "frame @var{frame-number} levels down."
-msgstr ""
+msgstr "関数@code{backtrace-frame}は、Lispデバッガ内での使用を意図しています。これは、@var{frame-number}レベル下位のスタックフレームで、何の評価が行われているかに関する情報をリターンします。"
 
 #. type: defun
 #: debugging.texi.orig:666
 msgid ""
 "If that frame has not evaluated the arguments yet, or is a special form, the "
 "value is @code{(nil @var{function} @var{arg-forms}@dots{})}."
-msgstr ""
+msgstr "そのフレームがまだ引数を評価していない場合、またはそのフレームがスペシャルフォームの場合、値は@code{(nil @var{function} @var{arg-forms}@dots{})}です。"
 
 #. type: defun
 #: debugging.texi.orig:670
 msgid ""
 "If that frame has evaluated its arguments and called its function already, "
 "the return value is @code{(t @var{function} @var{arg-values}@dots{})}."
-msgstr ""
+msgstr "そのフレームが引数を評価して関数をすでに呼び出した場合、リターン値は@code{(t @var{function} @var{arg-values}@dots{})}です。"
 
 #. type: defun
 #: debugging.texi.orig:675
@@ -1484,14 +1505,14 @@ msgid ""
 "of the evaluated list, or a @code{lambda} expression in the case of a macro "
 "call.  If the function has a @code{&rest} argument, that is represented as "
 "the tail of the list @var{arg-values}."
-msgstr ""
+msgstr "リターン値の@var{function}は何であれ評価されたリストの@sc{car}として提供されます。マクロ呼び出しの場合は@code{lambda}式になります。その関数に@code{&rest}引数がある場合は、リスト@var{arg-values}の末尾に表されます。"
 
 #. type: defun
 #: debugging.texi.orig:678
 msgid ""
 "If @var{frame-number} is out of range, @code{backtrace-frame} returns "
 "@code{nil}."
-msgstr ""
+msgstr "@var{frame-number}が範囲外の場合、@code{backtrace-frame}は@code{nil}をリターンします。"
 
 #. type: include
 #: debugging.texi.orig:680

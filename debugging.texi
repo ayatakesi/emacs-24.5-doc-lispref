@@ -193,7 +193,7 @@ Debugger entered--entering a function:
 @end deffn
 
 @deffn Command cancel-debug-on-entry &optional function-name
-この関数は@var{function-name}にたいする@code{debug-on-entry}の効果をアンドゥします。インタラクティブに呼び出されたときは、ミニバッファーで@var{function-name}の入力を求めます。@var{function-name}が省略された、あるいは@code{nil}の場合は、すべての関数にたいするエントリー時のbreakをキャンセルします。エントリー時にbreakするようセットアップされていない関数に@code{cancel-debug-on-entry}を呼び出したときは、何も行いません。
+この関数は@var{function-name}にたいする@code{debug-on-entry}の効果をアンドゥします。インタラクティブに呼び出されたときは、ミニバッファーで@var{function-name}の入力を求めます。@var{function-name}が省略された、あるいは@code{nil}の場合は、すべての関数にたいするbreak-on-entryをキャンセルします。エントリー時にbreakするようセットアップされていない関数に@code{cancel-debug-on-entry}を呼び出したときは、何も行いません。
 @end deffn
 
 @node Explicit Debug
@@ -256,7 +256,7 @@ frame)}となります。デバッガコマンドのいくつかは、カレン�
 カレントフレームをexitしたとき、デバッガにエンターしてはならない。これは、そのフレームの@kbd{b}コマンドをキャンセルする。目に見える効果としては、backtraceバッファーの行からスターが削除される。
 
 @item j
-@kbd{b}と同じようにカレントフレームにフラグをつける。その後、@kbd{c}のように実行を継続するが、@code{debug-on-entry}によりセットアップされたすべての関数にたいするエントリー時のbreakを一時的に無効にする。
+@kbd{b}と同じようにカレントフレームにフラグをつける。その後、@kbd{c}のように実行を継続するが、@code{debug-on-entry}によりセットアップされたすべての関数にたいするbreak-on-entryを一時的に無効にする。
 
 @item e
 ミニバッファーのLisp式を読み取り、(関連するlexical環境が適切なら)評価して、エコーエリアに値をプリントする。デバッガは特定の重要な変数とバッファーを処理の一部としてを変更する。@kbd{e}は一時的にデバッガの外部からそれらの値をリストアするので、それらを調べて変更できる。これによりデバッガはより透過的になる。対照的に、デバッガ内で@kbd{M-:}は特別なことを行わず、デバッガ内での変数の値を表示する。
@@ -349,37 +349,23 @@ Debugger entered--Lisp error: (arith-error)
 @node Internals of Debugger
 @subsection Internals of the Debugger
 
-  This section describes functions and variables used internally by the
-debugger.
+  このセクションでは、デバッガ内部で使用される関数と変数について説明します。
 
 @defvar debugger
-The value of this variable is the function to call to invoke the debugger.
-Its value must be a function of any number of arguments, or, more typically,
-the name of a function.  This function should invoke some kind of debugger.
-The default value of the variable is @code{debug}.
+この関数の値は、デバッガを呼び出す関数呼び出しです。値には任意個の引数をとる関数、より具体的には関数の名前でなければなりません。この関数は何らかのデバッガを呼び出すべきです。この変数のデフォルト値は@code{debug}です。
 
-The first argument that Lisp hands to the function indicates why it was
-called.  The convention for arguments is detailed in the description of
-@code{debug} (@pxref{Invoking the Debugger}).
+関数にたいしてLispが渡す1つ目の引数は、その関数がなぜ呼び出されたかを示します。引数の慣習は、@code{debug}(@ref{Invoking
+the Debugger})に詳解されています。
 @end defvar
 
 @deffn Command backtrace
 @cindex run time stack
 @cindex call stack
-This function prints a trace of Lisp function calls currently active.  This
-is the function used by @code{debug} to fill up the @file{*Backtrace*}
-buffer.  It is written in C, since it must have access to the stack to
-determine which function calls are active.  The return value is always
-@code{nil}.
+この関数は現在アクティブなLisp関数呼び出しのトレースをプリントします。この関数は@code{debug}が@file{*Backtrace*}バッファーに書き込む内容を得るために使用されます。どの関数呼び出しがアクティブか判断するためにスタックにアクセスしなければならないので、この関数はCで記述されています。リターン値は、常に@code{nil}です。
 
-In the following example, a Lisp expression calls @code{backtrace}
-explicitly.  This prints the backtrace to the stream @code{standard-output},
-which, in this case, is the buffer @samp{backtrace-output}.
+以下の例では、Lisp式で明示的に@code{backtrace}を呼び出しています。これはストリーム@code{standard-output}(この場合はバッファー@samp{backtrace-output})にbacktraceをプリントします。
 
-Each line of the backtrace represents one function call.  The line shows the
-values of the function's arguments if they are all known; if they are still
-being computed, the line says so.  The arguments of special forms are
-elided.
+backtraceの各行は、1つの関数呼び出しを表します。関数の引数が既知の場合は行に値が表示され、まだ計算中の場合は行にその旨が示されます。スペシャルフォームの引数は無視されます。
 
 @smallexample
 @group
@@ -418,52 +404,35 @@ elided.
 @cindex @code{eval}, and debugging
 @cindex @code{apply}, and debugging
 @cindex @code{funcall}, and debugging
-If this variable is non-@code{nil}, it says to call the debugger before the
-next @code{eval}, @code{apply} or @code{funcall}.  Entering the debugger
-sets @code{debug-on-next-call} to @code{nil}.
+この変数が非@code{nil}の場合、それは次の@code{eval}、@code{apply}、@code{funcall}の前にデバッガを呼び出すよう指定します。デバッガへのエンターにより、@code{debug-on-next-call}は@code{nil}にセットされます。
 
-The @kbd{d} command in the debugger works by setting this variable.
+デバッガの@kbd{d}コマンドは、この変数をセットすることにより機能します。
 @end defvar
 
 @defun backtrace-debug level flag
-This function sets the debug-on-exit flag of the stack frame @var{level}
-levels down the stack, giving it the value @var{flag}.  If @var{flag} is
-non-@code{nil}, this will cause the debugger to be entered when that frame
-later exits.  Even a nonlocal exit through that frame will enter the
-debugger.
+この関数は、そのスタックフレームの@var{level}下位のスタックフレームのdebug-on-exitフラグに@var{flag}に応じた値をセットします。@var{flag}が非@code{nil}の場合は、後にそのフレームをexitするときデバッガにエンターします。そのフレームを通じた非ローカルexitでも、デバッガにエンターします。
 
-This function is used only by the debugger.
+この関数は、デバッガだけに使用されます。
 @end defun
 
 @defvar command-debug-status
-This variable records the debugging status of the current interactive
-command.  Each time a command is called interactively, this variable is
-bound to @code{nil}.  The debugger can set this variable to leave
-information for future debugger invocations during the same command
-invocation.
+この変数はカレントのインタラクティブコマンドのデバッグ状態を記録します。コマンドがインタラクティブに呼び出されるたびに、この変数は@code{nil}にバインドされます。デバッガは、同じコマンドが呼び出されたときのデバッガ呼び出しに情報を残すために、この変数をセットできます。
 
-The advantage of using this variable rather than an ordinary global variable
-is that the data will never carry over to a subsequent command invocation.
+普通のグローバル変数ではなくこの変数を使用する利点は、そのデータが後続のコマンド呼び出しに決して引き継がれないことです。
 @end defvar
 
 @defun backtrace-frame frame-number
-The function @code{backtrace-frame} is intended for use in Lisp debuggers.
-It returns information about what computation is happening in the stack
-frame @var{frame-number} levels down.
+関数@code{backtrace-frame}は、Lispデバッガ内での使用を意図しています。これは、@var{frame-number}レベル下位のスタックフレームで、何の評価が行われているかに関する情報をリターンします。
 
-If that frame has not evaluated the arguments yet, or is a special form, the
-value is @code{(nil @var{function} @var{arg-forms}@dots{})}.
+そのフレームがまだ引数を評価していない場合、またはそのフレームがスペシャルフォームの場合、値は@code{(nil @var{function}
+@var{arg-forms}@dots{})}です。
 
-If that frame has evaluated its arguments and called its function already,
-the return value is @code{(t @var{function} @var{arg-values}@dots{})}.
+そのフレームが引数を評価して関数をすでに呼び出した場合、リターン値は@code{(t @var{function}
+@var{arg-values}@dots{})}です。
 
-In the return value, @var{function} is whatever was supplied as the @sc{car}
-of the evaluated list, or a @code{lambda} expression in the case of a macro
-call.  If the function has a @code{&rest} argument, that is represented as
-the tail of the list @var{arg-values}.
+リターン値の@var{function}は何であれ評価されたリストの@sc{car}として提供されます。マクロ呼び出しの場合は@code{lambda}式になります。その関数に@code{&rest}引数がある場合は、リスト@var{arg-values}の末尾に表されます。
 
-If @var{frame-number} is out of range, @code{backtrace-frame} returns
-@code{nil}.
+@var{frame-number}が範囲外の場合、@code{backtrace-frame}は@code{nil}をリターンします。
 @end defun
 
 @include edebug.texi
