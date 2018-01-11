@@ -201,167 +201,86 @@ Debugger entered--entering a function:
 @cindex debugger, explicit entry
 @cindex force entry to debugger
 
-  You can cause the debugger to be called at a certain point in your program
-by writing the expression @code{(debug)} at that point.  To do this, visit
-the source file, insert the text @samp{(debug)} at the proper place, and
-type @kbd{C-M-x} (@code{eval-defun}, a Lisp mode key binding).
-@strong{Warning:} if you do this for temporary debugging purposes, be sure
-to undo this insertion before you save the file!
+  プログラム内の特定箇所に式@code{(debug)}を記述することにより、その箇所でデバッガが呼び出されるようにできます。これを行うにはソースファイルをvisitして、適切な箇所にテキスト@samp{(debug)}を挿入し、@kbd{C-M-x}(Lispモードでの@code{eval-defun}にたいするキーバインド)をタイプします。@strong{警告:}
+一時的なデバッグ目的のためにこれを行なう場合は、ファイルを保存する前に確実にアンドゥしてください!
 
-  The place where you insert @samp{(debug)} must be a place where an
-additional form can be evaluated and its value ignored.  (If the value of
-@code{(debug)} isn't ignored, it will alter the execution of the program!)
-The most common suitable places are inside a @code{progn} or an implicit
-@code{progn} (@pxref{Sequencing}).
+  @samp{(debug)}を挿入する箇所は、追加フォームが評価されることができ、その値を無視することができる箇所でなければなりません。(@samp{(debug)}の値が無視されない場合が、プログラムの実行が変更されてしまうでしょう!)
+一般的にもっとも適した箇所は、@code{progn}または暗黙的な@code{progn}(@ref{Sequencing}を参照)の内部です。
 
-  If you don't know exactly where in the source code you want to put the debug
-statement, but you want to display a backtrace when a certain message is
-displayed, you can set @code{debug-on-message} to a regular expression
-matching the desired message.
+  デバッグ命令を配したいソースコード中の正確な箇所がわからないが、特定のメッセージが表示されたときにバックトレースを表示したい場合は、意図するメッセージにマッチする正規表現を@code{debug-on-message}にセットできます。
 
 @node Using Debugger
 @subsection Using the Debugger
 
-  When the debugger is entered, it displays the previously selected buffer in
-one window and a buffer named @file{*Backtrace*} in another window.  The
-backtrace buffer contains one line for each level of Lisp function execution
-currently going on.  At the beginning of this buffer is a message describing
-the reason that the debugger was invoked (such as the error message and
-associated data, if it was invoked due to an error).
+  デバッガにエンターすると、その前に選択されていたウィンドウを1つのウィンドウに表示し、他のウィンドウに@file{*Backtrace*}という名前のバッファーを表示します。backtraceバッファーには、現在実行されているLisp関数の各レベルが1行ずつ含まれます。このバッファーの先頭は、デバッガが呼び出された理由を説明するメッセージ(デバッガがエラーにより呼び出された場合はエラーメッセージや関連するデータなど)です。
 
 @vindex debugger-bury-or-kill
-  The backtrace buffer is read-only and uses a special major mode, Debugger
-mode, in which letters are defined as debugger commands.  The usual Emacs
-editing commands are available; thus, you can switch windows to examine the
-buffer that was being edited at the time of the error, switch buffers, visit
-files, or do any other sort of editing.  However, the debugger is a
-recursive editing level (@pxref{Recursive Editing})  and it is wise to go
-back to the backtrace buffer and exit the debugger (with the @kbd{q}
-command) when you are finished with it.  Exiting the debugger gets out of
-the recursive edit and buries the backtrace buffer.  (You can customize what
-the @kbd{q} command does with the backtrace buffer by setting the variable
-@code{debugger-bury-or-kill}.  For example, set it to @code{kill} if you
-prefer to kill the buffer rather than bury it.  Consult the variable's
-documentation for more possibilities.)
+  backtraceバッファーは読み取り専用で、文字キーにデバッガコマンドが定義されたDebuggerモードという特別なメジャーモードを使用します。通常のEmacs編集コマンドが利用できます。したがって、エラー時に編集されていたバッファーを調べるためにウィンドウを切り替えたり、バッファーを切り替えやファイルのvisit、その他一連の編集処理を行なうことができます。しかしデバッガは再帰編集レベル(@ref{Recursive
+Editing}を参照)にあり、編集が終わったらそれはbacktraceバッファーに戻って、(@kbd{q}コマンドで)デバッガをexitできます。デバッガをexitすることにより、再帰編集を抜け出し、backtraceバッファーはバリー(bury:
+覆い隠す)されます。(変数@code{debugger-bury-or-killw}をセットすることにより、backtraceバッファーで@kbd{q}コマンドが何を行うかをカスタマイズできます。たとえば、バッファーをバリーせずにkillしたい場合は、この変数を@code{kill}にセットします。他の値については、変数のドキュメントを調べてください。)
 
-  When the debugger has been entered, the @code{debug-on-error} variable is
-temporarily set according to @code{eval-expression-debug-on-error}.  If the
-latter variable is non-@code{nil}, @code{debug-on-error} will temporarily be
-set to @code{t}.  This means that any further errors that occur while doing
-a debugging session will (by default) trigger another backtrace.  If this is
-not what you want, you can either set @code{eval-expression-debug-on-error}
-to @code{nil}, or set @code{debug-on-error} to @code{nil} in
-@code{debugger-mode-hook}.
+  デバッガにエンターしたとき、@code{eval-expression-debug-on-error}に一致するように変数@code{debug-on-error}が一時的にセットされます。変数@code{eval-expression-debug-on-error}が非@code{nil}の場合、@code{debug-on-error}は一時的に@code{t}にセットされます。これは、デバッグセッション行っている間にさらにエラーが発生すると、(デフォルトでは)他のbacktraceがトリガーされることを意味します。これが望ましくない場合は、@code{debugger-mode-hook}内で@code{eval-expression-debug-on-error}を@code{nil}にセットするか、@code{debug-on-error}を@code{nil}にセットすることができます。
 
 @cindex current stack frame
-  The backtrace buffer shows you the functions that are executing and their
-argument values.  It also allows you to specify a stack frame by moving
-point to the line describing that frame.  (A stack frame is the place where
-the Lisp interpreter records information about a particular invocation of a
-function.)  The frame whose line point is on is considered the @dfn{current
-frame}.  Some of the debugger commands operate on the current frame.  If a
-line starts with a star, that means that exiting that frame will call the
-debugger again.  This is useful for examining the return value of a
-function.
+  backtraceバッファーは、実行されている関数と、その関数の引数の値を示します。しのフレームを示す行にポイントを移動して、スタックフレームを指定することもできます。(スタックフレームとは、Lispインタープリターがある関数への特定の呼び出しを記録する場所のことです。)
+行ポイントがオンのフレームが、@dfn{カレントフレーム(current
+frame)}となります。デバッガコマンドのいくつかは、カレントフレームを処理します。ある行がスター(star)で始まる場合は、そのフレームをexitすることにより再びデバッガが呼び出されることを意味します。これは関数のリターン値を調べるとき有用です。
 
-  If a function name is underlined, that means the debugger knows where its
-source code is located.  You can click with the mouse on that name, or move
-to it and type @key{RET}, to visit the source code.
+  関数名にアンダーラインが引かれている場合は、デバッガがその関数のソースコードも位置を知っていることを意味します。その名前をマウスでクリックするか、そこに移動して@key{RET}をタイプして、ソースコードをvisitできます。
 
-  The debugger itself must be run byte-compiled, since it makes assumptions
-about how many stack frames are used for the debugger itself.  These
-assumptions are false if the debugger is running interpreted.
+  デバッガはデバッガ自身のスタックフレーム数を想定するため、バイトコンパイルされて実行されなければなりません。デバッガがインタープリターに解釈されて実行されているとき、これらの想定は正しくなくなります。
 
 @node Debugger Commands
 @subsection Debugger Commands
 @cindex debugger command list
 
-  The debugger buffer (in Debugger mode) provides special commands in addition
-to the usual Emacs commands.  The most important use of debugger commands is
-for stepping through code, so that you can see how control flows.  The
-debugger can step through the control structures of an interpreted function,
-but cannot do so in a byte-compiled function.  If you would like to step
-through a byte-compiled function, replace it with an interpreted definition
-of the same function.  (To do this, visit the source for the function and
-type @kbd{C-M-x} on its definition.)  You cannot use the Lisp debugger to
-step through a primitive function.
+  (Debuggerモードの)debuggerバッファーでは、通常のEmacsコマンドに加えて、特別なコマンドが提供されます。デバッガでもっとも重要な使い方をするのは、制御フローを見ることができるコードをステップ実行するコマンドです。デバッガはインタープリターにより解釈された制御構造のステップ実行はできますが、バイトコンパイル済みの関数ではできません。バイトコンパイル済み関数をステップ実行したい場合は、同じ関数の解釈された定義に置き換えてください。(これを行なうには、その関数のソースをvisitして、関数の定義で@kbd{C-M-x}とタイプしてください。)
+プリミティブ関数のステップ実行にLispデバッガは使用できません。
 
 @c FIXME: Add @findex for the following commands?  --xfq
-  Here is a list of Debugger mode commands:
+  以下はDebuggerモードのコマンドのリストです:
 
 @table @kbd
 @item c
-Exit the debugger and continue execution.  This resumes execution of the
-program as if the debugger had never been entered (aside from any
-side-effects that you caused by changing variable values or data structures
-while inside the debugger).
+デバッガをexitして、実行を継続する。これはあたかもデバッガにエンターしなかったかのように(デバッガ内で行った変数値やデータ構造の変更などの副作用は除外される)、プログラムの実行を再開する。
 
 @item d
-Continue execution, but enter the debugger the next time any Lisp function
-is called.  This allows you to step through the subexpressions of an
-expression, seeing what values the subexpressions compute, and what else
-they do.
+実行を継続するが、次にLisp関数が何か呼び出されたときはデバッガにエンターする。これにより、ある式の下位の式をステップ実行して、下位の式が計算する値や、行うことを確認できる。
 
-The stack frame made for the function call which enters the debugger in this
-way will be flagged automatically so that the debugger will be called again
-when the frame is exited.  You can use the @kbd{u} command to cancel this
-flag.
+デバッガにエンターした関数呼び出しにたいして、この方法で作成されたスタックフレームには自動的にフラグがつくので、そのフレームをexitすると再びデバッガが呼び出されます。このフラグは、@kbd{u}コマンドを使用してキャンセルできます。
 
 @item b
-Flag the current frame so that the debugger will be entered when the frame
-is exited.  Frames flagged in this way are marked with stars in the
-backtrace buffer.
+カレントフレームにフラグをつけるので、そのフレームをexitするときデバッガにエンターする。この方法でフラグがつけられたフレームは、backtraceバッファーでスターのマークがつく。
 
 @item u
-Don't enter the debugger when the current frame is exited.  This cancels a
-@kbd{b} command on that frame.  The visible effect is to remove the star
-from the line in the backtrace buffer.
+カレントフレームをexitしたとき、デバッガにエンターしてはならない。これは、そのフレームの@kbd{b}コマンドをキャンセルする。目に見える効果としては、backtraceバッファーの行からスターが削除される。
 
 @item j
-Flag the current frame like @kbd{b}.  Then continue execution like @kbd{c},
-but temporarily disable break-on-entry for all functions that are set up to
-do so by @code{debug-on-entry}.
+@kbd{b}と同じようにカレントフレームにフラグをつける。その後、@kbd{c}のように実行を継続するが、@code{debug-on-entry}によりセットアップされたすべての関数にたいするエントリー時のbreakを一時的に無効にする。
 
 @item e
-Read a Lisp expression in the minibuffer, evaluate it (with the relevant
-lexical environment, if applicable), and print the value in the echo area.
-The debugger alters certain important variables, and the current buffer, as
-part of its operation; @kbd{e} temporarily restores their values from
-outside the debugger, so you can examine and change them.  This makes the
-debugger more transparent.  By contrast, @kbd{M-:} does nothing special in
-the debugger; it shows you the variable values within the debugger.
+ミニバッファーのLisp式を読み取り、(関連するlexical環境が適切なら)評価して、エコーエリアに値をプリントする。デバッガは特定の重要な変数とバッファーを処理の一部としてを変更する。@kbd{e}は一時的にデバッガの外部からそれらの値をリストアするので、それらを調べて変更できる。これによりデバッガはより透過的になる。対照的に、デバッガ内で@kbd{M-:}は特別なことを行わず、デバッガ内での変数の値を表示する。
 
 @item R
-Like @kbd{e}, but also save the result of evaluation in the buffer
-@file{*Debugger-record*}.
+@kbd{e}と同様だが、バッファー@file{*Debugger-record*}内の評価の結果も保存する。
 
 @item q
-Terminate the program being debugged; return to top-level Emacs command
-execution.
+デバッグされているプログラムを終了し、Emacsコマンド実行のトップレベルにリターンする。
 
-If the debugger was entered due to a @kbd{C-g} but you really want to quit,
-and not debug, use the @kbd{q} command.
+@kbd{C-g}によりデバッガにエンターしたが、実際はデバッグではなくquitしたいときは、@kbd{q}コマンドを使用する。
 
 @item r
-Return a value from the debugger.  The value is computed by reading an
-expression with the minibuffer and evaluating it.
+デバッガから値をリターンする。ミニバッファーで式を読み取り〜それを評価することにより、値が計算される。
 
-The @kbd{r} command is useful when the debugger was invoked due to exit from
-a Lisp call frame (as requested with @kbd{b} or by entering the frame with
-@kbd{d}); then the value specified in the @kbd{r} command is used as the
-value of that frame.  It is also useful if you call @code{debug} and use its
-return value.  Otherwise, @kbd{r} has the same effect as @kbd{c}, and the
-specified return value does not matter.
+@kbd{d}コマンドは、(@kbd{b}によるリクエスト、または@kbd{d}によるそのフレームへのエンターによる)Lisp呼び出しフレームからのexitでデバッガが呼び出されたときに有用です。@kbd{r}コマンドで指定された値は、そのフレームの値として使用されます。これは、@code{debug}を呼び出して、そのリターン値を使用するときも有用です。それ以外は、@kbd{r}は@kbd{c}と同じ効果をもｙい、指定されたリターン値は問題になりません。
 
-You can't use @kbd{r} when the debugger was entered due to an error.
+エラーによりデバッガにエンターしたときは、@kbd{r}コマンドは使用できません。
 
 @item l
-Display a list of functions that will invoke the debugger when called.  This
-is a list of functions that are set to break on entry by means of
-@code{debug-on-entry}.
+呼び出されたときにデバッガを呼び出す関数をリストします。これは、@code{debug-on-entry}によりエントリー時にbreakするようセットされた関数のリストです。
 
 @item v
-Toggle the display of local variables of the current stack frame.
+カレントスタックフレームのローカル変数の表示を切り替えます。
 @end table
 
 @node Invoking the Debugger
