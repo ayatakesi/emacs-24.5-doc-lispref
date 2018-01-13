@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-12 05:03+0900\n"
-"PO-Revision-Date: 2018-01-13 08:47+0900\n"
+"PO-Revision-Date: 2018-01-14 07:04+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -279,7 +279,7 @@ msgid ""
 "point into the definition of a function or macro and then do @kbd{C-u C-M-x} "
 "(@code{eval-defun} with a prefix argument).  See @ref{Instrumenting}, for "
 "alternative ways to instrument code."
-msgstr ""
+msgstr "EdebugでLispプログラムをデバッグするには、最初にデバッグしたいLispコードを@dfn{インストルメント(instrument: 計装)}しなければなりません。これを行なうもっともシンプルな方法は、関数またはマクロの定義に移動して、@kbd{C-u C-M-x}(プレフィクス引数を指定した@code{eval-defun})を行います。コードをインストルメントする他の手段については、@ref{Instrumenting}を参照してください。"
 
 #. type: Plain text
 #: edebug.texi.orig:97
@@ -290,7 +290,7 @@ msgid ""
 "update the display and continue execution while checking for debugging "
 "commands.  The default execution mode is step, which stops execution.  "
 "@xref{Edebug Execution Modes}."
-msgstr ""
+msgstr "一度関数をインストルメントすると、その関数にたいする任意の呼び出しにより、Edebugがアクティブになります。Edebugがアクティブになると、どのEdebug実行モードを選択したかに依存して、その関数をステップ実行できるように実行がストップされるか、ディスプレイを更新してデバッグコマンドにたいするチェックの間、実行が継続されます。デフォルトの実行モードstepで、これは実行をストップします。@ref{Edebug Execution Modes}を参照してください。"
 
 #. type: Plain text
 #: edebug.texi.orig:101
@@ -298,7 +298,7 @@ msgid ""
 "Within Edebug, you normally view an Emacs buffer showing the source of the "
 "Lisp code you are debugging.  This is referred to as the @dfn{source code "
 "buffer}, and it is temporarily read-only."
-msgstr ""
+msgstr "Edebugでは通常、デバッグしているLispコードをEmacsバッファーで閲覧します。これを@dfn{ソースコードバッファー(source code buffer)}と呼び、バッファーは一時的に読み取り専用になります。"
 
 #. type: Plain text
 #: edebug.texi.orig:105
@@ -306,7 +306,7 @@ msgid ""
 "An arrow in the left fringe indicates the line where the function is "
 "executing.  Point initially shows where within the line the function is "
 "executing, but this ceases to be true if you move point yourself."
-msgstr ""
+msgstr "左フリンジの矢印は、その関数で実行されている行を示します。最初ポイントはその関数の実行されている行にありますが、ポイントを移動するとこれは真ではなくなります。"
 
 #. type: Plain text
 #: edebug.texi.orig:109
@@ -314,7 +314,7 @@ msgid ""
 "If you instrument the definition of @code{fac} (shown below) and then "
 "execute @code{(fac 3)}, here is what you would normally see.  Point is at "
 "the open-parenthesis before @code{if}."
-msgstr ""
+msgstr "以下は、@code{fac}の定義(以下を参照)をインストルメントして@code{(fac 3)}を実行した場合に通常目にするものです。ポイントは、@code{if}の前の開きカッコにあります。"
 
 #. type: example
 #: edebug.texi.orig:115
@@ -325,12 +325,16 @@ msgid ""
 "      (* n (fac (1- n)))\n"
 "    1))\n"
 msgstr ""
+"(defun fac (n)\n"
+"=>@point{}(if (< 0 n)\n"
+"      (* n (fac (1- n)))\n"
+"    1))\n"
 
 #. type: cindex
 #: edebug.texi.orig:117
 #, no-wrap
 msgid "stop points"
-msgstr ""
+msgstr "stop points"
 
 #. type: Plain text
 #: edebug.texi.orig:123
@@ -339,7 +343,7 @@ msgid ""
 "@dfn{stop points}.  These occur both before and after each subexpression "
 "that is a list, and also after each variable reference.  Here we use periods "
 "to show the stop points in the function @code{fac}:"
-msgstr ""
+msgstr "関数内でEdebugが実行をストップできる位置のことを、@dfn{ストップポイント(stop points)}と呼びます。ストップポイントは、リストであるような部分式の前後、および変数参照の後でも発生します。以下は、関数@code{fac}内のストップポイントをピリオドで示したものです:"
 
 #. type: example
 #: edebug.texi.orig:129
@@ -350,6 +354,10 @@ msgid ""
 "      .(* n. .(fac .(1- n.).).).\n"
 "    1).)\n"
 msgstr ""
+"(defun fac (n)\n"
+"  .(if .(< 0 n.).\n"
+"      .(* n. .(fac .(1- n.).).).\n"
+"    1).)\n"
 
 #. type: Plain text
 #: edebug.texi.orig:136
@@ -358,7 +366,7 @@ msgid ""
 "addition to the commands of Emacs Lisp mode.  For example, you can type the "
 "Edebug command @key{SPC} to execute until the next stop point.  If you type "
 "@key{SPC} once after entry to @code{fac}, here is the display you will see:"
-msgstr ""
+msgstr "Emacs Lispモードのコマンドに加えて、ソースコードバッファーでは、Edebugのスペシャルコマンドが利用できます。たとえば、Edebugコマンド@key{SPC}で次のストップポイントまで実行することができます。@code{fac}にエントリーした後に一度@code{fac}とタイプした場合は、以下のように表示されるでしょう:"
 
 #. type: example
 #: edebug.texi.orig:142
@@ -369,13 +377,17 @@ msgid ""
 "      (* n (fac (1- n)))\n"
 "    1))\n"
 msgstr ""
+"(defun fac (n)\n"
+"=>(if @point{}(< 0 n)\n"
+"      (* n (fac (1- n)))\n"
+"    1))\n"
 
 #. type: Plain text
 #: edebug.texi.orig:146
 msgid ""
 "When Edebug stops execution after an expression, it displays the "
 "expression's value in the echo area."
-msgstr ""
+msgstr "式の後でEdebugが実行をストップしたときは、エコーエリアにその式の値が表示されます。"
 
 #. type: Plain text
 #: edebug.texi.orig:151
@@ -384,7 +396,7 @@ msgid ""
 "point, @kbd{g} to execute until a breakpoint is reached, and @kbd{q} to exit "
 "Edebug and return to the top-level command loop.  Type @kbd{?} to display a "
 "list of all Edebug commands."
-msgstr ""
+msgstr "他にも頻繁に使用されるコマンドとして、ストップポイントにbreakpointをセットする@kbd{b}、breakpointに達するまで実行する@kbd{g}、Edebugをexitしてトップレベルのコマンドループにリターンする@kbd{q}があります。また、@kbd{?}とタイプするとすべてのEdebugコマンドがリストされます。"
 
 #. type: subsection
 #: edebug.texi.orig:153

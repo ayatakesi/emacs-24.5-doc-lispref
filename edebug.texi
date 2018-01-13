@@ -80,30 +80,20 @@ Edebug自身のフレームを除外してbacktraceを表示する。
 @node Using Edebug
 @subsection Using Edebug
 
-  To debug a Lisp program with Edebug, you must first @dfn{instrument} the
-Lisp code that you want to debug.  A simple way to do this is to first move
-point into the definition of a function or macro and then do @kbd{C-u C-M-x}
-(@code{eval-defun} with a prefix argument).  See @ref{Instrumenting}, for
-alternative ways to instrument code.
+  EdebugでLispプログラムをデバッグするには、最初にデバッグしたいLispコードを@dfn{インストルメント(instrument:
+計装)}しなければなりません。これを行なうもっともシンプルな方法は、関数またはマクロの定義に移動して、@kbd{C-u
+C-M-x}(プレフィクス引数を指定した@code{eval-defun})を行います。コードをインストルメントする他の手段については、@ref{Instrumenting}を参照してください。
 
-  Once a function is instrumented, any call to the function activates Edebug.
-Depending on which Edebug execution mode you have selected, activating
-Edebug may stop execution and let you step through the function, or it may
-update the display and continue execution while checking for debugging
-commands.  The default execution mode is step, which stops execution.
-@xref{Edebug Execution Modes}.
+  一度関数をインストルメントすると、その関数にたいする任意の呼び出しにより、Edebugがアクティブになります。Edebugがアクティブになると、どのEdebug実行モードを選択したかに依存して、その関数をステップ実行できるように実行がストップされるか、ディスプレイを更新してデバッグコマンドにたいするチェックの間、実行が継続されます。デフォルトの実行モードstepで、これは実行をストップします。@ref{Edebug
+Execution Modes}を参照してください。
 
-  Within Edebug, you normally view an Emacs buffer showing the source of the
-Lisp code you are debugging.  This is referred to as the @dfn{source code
-buffer}, and it is temporarily read-only.
+  Edebugでは通常、デバッグしているLispコードをEmacsバッファーで閲覧します。これを@dfn{ソースコードバッファー(source code
+buffer)}と呼び、バッファーは一時的に読み取り専用になります。
 
-  An arrow in the left fringe indicates the line where the function is
-executing.  Point initially shows where within the line the function is
-executing, but this ceases to be true if you move point yourself.
+  左フリンジの矢印は、その関数で実行されている行を示します。最初ポイントはその関数の実行されている行にありますが、ポイントを移動するとこれは真ではなくなります。
 
-  If you instrument the definition of @code{fac} (shown below) and then
-execute @code{(fac 3)}, here is what you would normally see.  Point is at
-the open-parenthesis before @code{if}.
+  以下は、@code{fac}の定義(以下を参照)をインストルメントして@code{(fac
+3)}を実行した場合に通常目にするものです。ポイントは、@code{if}の前の開きカッコにあります。
 
 @example
 (defun fac (n)
@@ -113,10 +103,8 @@ the open-parenthesis before @code{if}.
 @end example
 
 @cindex stop points
-The places within a function where Edebug can stop execution are called
-@dfn{stop points}.  These occur both before and after each subexpression
-that is a list, and also after each variable reference.  Here we use periods
-to show the stop points in the function @code{fac}:
+関数内でEdebugが実行をストップできる位置のことを、@dfn{ストップポイント(stop
+points)}と呼びます。ストップポイントは、リストであるような部分式の前後、および変数参照の後でも発生します。以下は、関数@code{fac}内のストップポイントをピリオドで示したものです:
 
 @example
 (defun fac (n)
@@ -125,10 +113,8 @@ to show the stop points in the function @code{fac}:
     1).)
 @end example
 
-The special commands of Edebug are available in the source code buffer in
-addition to the commands of Emacs Lisp mode.  For example, you can type the
-Edebug command @key{SPC} to execute until the next stop point.  If you type
-@key{SPC} once after entry to @code{fac}, here is the display you will see:
+Emacs
+Lispモードのコマンドに加えて、ソースコードバッファーでは、Edebugのスペシャルコマンドが利用できます。たとえば、Edebugコマンド@key{SPC}で次のストップポイントまで実行することができます。@code{fac}にエントリーした後に一度@code{fac}とタイプした場合は、以下のように表示されるでしょう:
 
 @example
 (defun fac (n)
@@ -137,13 +123,9 @@ Edebug command @key{SPC} to execute until the next stop point.  If you type
     1))
 @end example
 
-When Edebug stops execution after an expression, it displays the
-expression's value in the echo area.
+式の後でEdebugが実行をストップしたときは、エコーエリアにその式の値が表示されます。
 
-Other frequently used commands are @kbd{b} to set a breakpoint at a stop
-point, @kbd{g} to execute until a breakpoint is reached, and @kbd{q} to exit
-Edebug and return to the top-level command loop.  Type @kbd{?} to display a
-list of all Edebug commands.
+他にも頻繁に使用されるコマンドとして、ストップポイントにbreakpointをセットする@kbd{b}、breakpointに達するまで実行する@kbd{g}、Edebugをexitしてトップレベルのコマンドループにリターンする@kbd{q}があります。また、@kbd{?}とタイプするとすべてのEdebugコマンドがリストされます。
 
 @node Instrumenting
 @subsection Instrumenting for Edebug
