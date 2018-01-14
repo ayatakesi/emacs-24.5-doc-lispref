@@ -131,73 +131,42 @@ Lispモードのコマンドに加えて、ソースコードバッファーで�
 @subsection Instrumenting for Edebug
 @cindex instrumenting for Edebug
 
-  In order to use Edebug to debug Lisp code, you must first @dfn{instrument}
-the code.  Instrumenting code inserts additional code into it, to invoke
-Edebug at the proper places.
+  LispコードのデバッグにEdebugを使用するためには、最初にそのコードを@dfn{インストルメント(instrument:
+計装)}しなければなりません。コードをインストルメントすると、適切な位置でEdebugを呼び出すために追加コードが挿入されます。
 
 @kindex C-M-x
 @findex eval-defun (Edebug)
-  When you invoke command @kbd{C-M-x} (@code{eval-defun}) with a prefix
-argument on a function definition, it instruments the definition before
-evaluating it.  (This does not modify the source code itself.)  If the
-variable @code{edebug-all-defs} is non-@code{nil}, that inverts the meaning
-of the prefix argument: in this case, @kbd{C-M-x} instruments the definition
-@emph{unless} it has a prefix argument.  The default value of
-@code{edebug-all-defs} is @code{nil}.  The command @kbd{M-x edebug-all-defs}
-toggles the value of the variable @code{edebug-all-defs}.
+  関数定義でプレフィクス引数とともにコマンド@kbd{C-M-x}
+(@code{eval-defun})を呼び出すと、それを評価する前にその定義をインストルメントします。(ソースコード自体は変更しません。)
+変数@code{edebug-all-defs}が非@code{nil}の場合は、プレフィクス引数の意味を反転します。この場合、@kbd{C-M-x}はプレフィクス引数が@emph{なければ}その定義をインストルメントします。@code{edebug-all-defs}のデフォルト値は@code{nil}です。コマンド@kbd{M-x
+edebug-all-defs}は、変数@code{edebug-all-defs}の値を切り替えます。
 
 @findex eval-region @r{(Edebug)}
 @findex eval-buffer @r{(Edebug)}
 @findex eval-current-buffer @r{(Edebug)}
-  If @code{edebug-all-defs} is non-@code{nil}, then the commands
-@code{eval-region}, @code{eval-current-buffer}, and @code{eval-buffer} also
-instrument any definitions they evaluate.  Similarly,
-@code{edebug-all-forms} controls whether @code{eval-region} should
-instrument @emph{any} form, even non-defining forms.  This doesn't apply to
-loading or evaluations in the minibuffer.  The command @kbd{M-x
-edebug-all-forms} toggles this option.
+  @code{edebug-all-defs}が非@code{nil}の場合は@code{eval-region}、@code{eval-current-buffer}、@code{eval-buffer}も、それらが評価する定義をインストルメントします。同様に、@code{edebug-all-forms}は、@code{eval-region}が(非定義フォームさえ含む）@emph{あらゆる}フォームをインストルメントすべきかを制御します。これはミニバッファー内でのロードや評価には適用されません。コマンド@kbd{M-x
+edebug-all-forms}は、このオプションを切り替えます。
 
 @findex edebug-eval-top-level-form
 @findex edebug-defun
-  Another command, @kbd{M-x edebug-eval-top-level-form}, is available to
-instrument any top-level form regardless of the values of
-@code{edebug-all-defs} and @code{edebug-all-forms}.  @code{edebug-defun} is
-an alias for @code{edebug-eval-top-level-form}.
+  他にもコマンド@kbd{M-x
+edebug-eval-top-level-form}が利用可能で、これは@code{edebug-all-defs}や@code{edebug-all-forms}の値に関わらず、トップレベルの任意のフォームをインストルメントします。@code{edebug-defun}は@code{edebug-eval-top-level-form}のエイリアスです。
 
-  While Edebug is active, the command @kbd{I}
-(@code{edebug-instrument-callee}) instruments the definition of the function
-or macro called by the list form after point, if it is not already
-instrumented.  This is possible only if Edebug knows where to find the
-source for that function; for this reason, after loading Edebug,
-@code{eval-region} records the position of every definition it evaluates,
-even if not instrumenting it.  See also the @kbd{i} command
-(@pxref{Jumping}), which steps into the call after instrumenting the
-function.
+  Edebugがアクティブのの間、コマンド@kbd{I}(@code{edebug-instrument-callee})は、ポイント後のリストフォームに呼び出される関数およびマクロ定義がまだインストルメントされていなければ、それらをインストルメントします。これは、そのファイルのソースの場所をEdebugが知っている場合だけ可能です。この理由によりEdebugロード後は、たとえ評価する定義をインストルメントしない場合でも、@code{eval-region}は評価するすべての定義の位置を記録します。インストルメント済み関数呼び出しにステップインする@kbd{i}コマンド(@ref{Jumping}を参照)も参照してください。
 
-  Edebug knows how to instrument all the standard special forms,
-@code{interactive} forms with an expression argument, anonymous lambda
-expressions, and other defining forms.  However, Edebug cannot determine on
-its own what a user-defined macro will do with the arguments of a macro
-call, so you must provide that information using Edebug specifications; for
-details, @pxref{Edebug and Macros}.
+  Edebugはすべての標準スペシャルフォーム、式引数をもつ@code{interactive}フォーム、無名ラムダ式、およびその他の定義フォームのインストルメント方法を知っています。しかし、Edebugはユーザー定義マクロが引数にたいして何を行うかを判断できないので、Edebug仕様を使用してその情報を与えなければなりません。詳細は@ref{Edebug
+and Macros}を参照してください。
 
-  When Edebug is about to instrument code for the first time in a session, it
-runs the hook @code{edebug-setup-hook}, then sets it to @code{nil}.  You can
-use this to load Edebug specifications associated with a package you are
-using, but only when you use Edebug.
+  Edebugがセッション内で最初にコードをインストルメントしようとするときは、フック@code{edebug-setup-hook}を実行してから、それに@code{nil}をセットします。使おうとしているパッケージに結びつけてEdebug仕様をロードするためにこれを使用できますが、それはEdebugを使用するときだけ機能します。
 
 @findex eval-expression @r{(Edebug)}
-  To remove instrumentation from a definition, simply re-evaluate its
-definition in a way that does not instrument.  There are two ways of
-evaluating forms that never instrument them: from a file with @code{load},
-and from the minibuffer with @code{eval-expression} (@kbd{M-:}).
+  定義からインストルメントを削除するには、単にインストルメントを行わない方法でその定義を再評価するだけです。フォームを絶対にインストルメントせずに評価するには、2つの方法があります。それはファイルからの@code{load}による評価と、ミニバッファーからの@code{eval-expression}(@kbd{M-:})による評価です。
 
 @c FIXME?  I can't see that it "leaves point at the erroneous code".
-  If Edebug detects a syntax error while instrumenting, it leaves point at the
-erroneous code and signals an @code{invalid-read-syntax} error.
+  Edebugがインストルメント中にシンタックスエラー(syntax error:
+構文エラー)を検知した場合は、間違ったコードの箇所にポイントを残して@code{invalid-read-syntax}エラーをシグナルします。
 
-  @xref{Edebug Eval}, for other evaluation functions available inside of
-Edebug.
+  Edebug内で利用可能な他の評価関数については、@ref{Edebug Eval}を参照してください。
 
 @node Edebug Execution Modes
 @subsection Edebug Execution Modes
