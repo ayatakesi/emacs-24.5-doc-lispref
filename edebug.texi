@@ -172,88 +172,64 @@ and Macros}を参照してください。
 @subsection Edebug Execution Modes
 
 @cindex Edebug execution modes
-Edebug supports several execution modes for running the program you are
-debugging.  We call these alternatives @dfn{Edebug execution modes}; do not
-confuse them with major or minor modes.  The current Edebug execution mode
-determines how far Edebug continues execution before stopping---whether it
-stops at each stop point, or continues to the next breakpoint, for
-example---and how much Edebug displays the progress of the evaluation before
-it stops.
+Edebugは、デバッグするプログラムの実行にたいして、いくつかの実行モードをサポートします。これらの実行モードを、@dfn{Edebug実行モード(Edebug
+execution
+modes)}と呼びます。これらをメジャーモードやマイナーモードと混同しないでください。カレントのEdebug実行モードは、プログラムをストップする前にEdebugがどれだけ実行を継続するか
+--- たとえばストップポイントごとにストップ、あるいは次のbreakpointまで継続など ---
+と、ストップする前にEdebugがどれだけ進捗を表示するかを決定します。
 
-Normally, you specify the Edebug execution mode by typing a command to
-continue the program in a certain mode.  Here is a table of these commands;
-all except for @kbd{S} resume execution of the program, at least for a
-certain distance.
+Edebug実行モードは通常、ある特定のモードでプログラムを継続させるコマンドをタイプすることにより指定します。以下は、それらのコマンドのテーブルです。プログラムの実行を再開@kbd{S}以外は、少なくともある長さの間だけ実行を継続します。
 
 @table @kbd
 @item S
 @c FIXME Does not work. http://debbugs.gnu.org/9764
-Stop: don't execute any more of the program, but wait for more Edebug
-commands (@code{edebug-stop}).
+Stop(ストップ): これ以上プログラムを実行しないで、Edebugのコマンドを待つ(@code{edebug-stop})。
 
 @item @key{SPC}
-Step: stop at the next stop point encountered (@code{edebug-step-mode}).
+Step(ステップ): 次のストップポイントでストップする(@code{edebug-step-mode})。
 
 @item n
-Next: stop at the next stop point encountered after an expression
-(@code{edebug-next-mode}).  Also see @code{edebug-forward-sexp} in
-@ref{Jumping}.
+Next(次へ):
+式の後にある次のストップポイントでストップする(@code{edebug-next-mode})。@ref{Jumping}の@code{edebug-forward-sexp}も参照。
 
 @item t
-Trace: pause (normally one second) at each Edebug stop point
-(@code{edebug-trace-mode}).
+Trace(トレース): Edebugのストップポイントごとに一時停止(通常は1秒)する(@code{edebug-trace-mode})。
 
 @item T
-Rapid trace: update the display at each stop point, but don't actually pause
-(@code{edebug-Trace-fast-mode}).
+Rapid
+trace(高速でトレース):ストップポイントごとに表示を更新するが、実際に一時停止はしない(@code{edebug-Trace-fast-mode})。
 
 @item g
-Go: run until the next breakpoint (@code{edebug-go-mode}).
-@xref{Breakpoints}.
+Go(進む): 次のbreakpointまで実行する(@code{edebug-go-mode})。@ref{Breakpoints}を参照。
 
 @item c
-Continue: pause one second at each breakpoint, and then continue
-(@code{edebug-continue-mode}).
+Continue(継続): breakpointごとに一時停止してから継続する(@code{edebug-continue-mode})。
 
 @item C
-Rapid continue: move point to each breakpoint, but don't pause
-(@code{edebug-Continue-fast-mode}).
+Rapid continue(高速で継続):
+ポイントを各breakpointへ移動するが、一時停止しない(@code{edebug-Continue-fast-mode})。
 
 @item G
-Go non-stop: ignore breakpoints (@code{edebug-Go-nonstop-mode}).  You can
-still stop the program by typing @kbd{S}, or any editing command.
+Go non-stop(ストップせず進む):
+breakpointを無視する(@code{edebug-Go-nonstop-mode})。まだ@kbd{S}、またはその他の編集コマンドでプログラムをストップするのは可能。
 @end table
 
-In general, the execution modes earlier in the above list run the program
-more slowly or stop sooner than the modes later in the list.
+一般的に、上記リストの最初のほうにある実行モードは後のほうの実行モードに比べて、プログラムをより低速に実行、またはすぐにストップさせます。
 
-While executing or tracing, you can interrupt the execution by typing any
-Edebug command.  Edebug stops the program at the next stop point and then
-executes the command you typed.  For example, typing @kbd{t} during
-execution switches to trace mode at the next stop point.  You can use
-@kbd{S} to stop execution without doing anything else.
+実行中、またはトレース中は、任意のEdebugコマンドをタイプすることにより、実行をインタラプト(interrupt:
+中断、割り込み)できます。Edebugは次のストップポイントでプログラムをストップしてから、タイプされたコマンドを実行します。たとえば、実行中に@kbd{t}をタイプすると、次のストップポイントでトレースモードに切り替えます。@kbd{S}を使用すれば、他に何も行わずに実行をストップできます。
 
-If your function happens to read input, a character you type intending to
-interrupt execution may be read by the function instead.  You can avoid such
-unintended results by paying attention to when your program wants input.
+関数でたまたま読み取り入力が発生した場合には、実行のインタラプトを意図してタイプされた文字は、かわりにその関数により読み取られます。そのプログラムが入力を欲するタイミングに注意を払うことで、そのような意図せぬ結果を避けることができます。
 
 @cindex keyboard macros (Edebug)
-Keyboard macros containing the commands in this section do not completely
-work: exiting from Edebug, to resume the program, loses track of the
-keyboard macro.  This is not easy to fix.  Also, defining or executing a
-keyboard macro outside of Edebug does not affect commands inside Edebug.
-This is usually an advantage.  See also the @code{edebug-continue-kbd-macro}
-option in @ref{Edebug Options}.
+このセクションのコマンドを含むキーボードマクロは、完全には機能しません。プログラムを再開するためにEdebugからexitすると、キーボードマクロの追跡記録は失われます。これを処理するのは、簡単ではありません。またEdebug外部でキーボードマクロを定義または実行しても、Edebug内部のコマンドに影響しません。通常これは利点です。@ref{Edebug
+Options}内の@code{edebug-continue-kbd-macro}オプションも参照してください。
 
-When you enter a new Edebug level, the initial execution mode comes from the
-value of the variable @code{edebug-initial-mode} (@pxref{Edebug Options}).
-By default, this specifies step mode.  Note that you may reenter the same
-Edebug level several times if, for example, an instrumented function is
-called several times from one command.
+新たなEdebugレベルにエンターしたとき、初期の実行モードは変数@code{edebug-initial-mode}の値により与えられます(@ref{Edebug
+Options}を参照)。デフォルトでこれはステップモードを指定します。たとえば１つのコマンドからインストルメント済みの関数が複数回呼び出された場合は、同じEdebugレベルに再エンターするかもしれないことに注意してください。
 
 @defopt edebug-sit-for-seconds
-This option specifies how many seconds to wait between execution steps in
-trace mode or continue mode.  The default is 1 second.
+このオプションは、トレースモードおよび継続モードで実行ステップの間を何秒待つか指定します。デフォルトは1秒です。
 @end defopt
 
 @node Jumping
