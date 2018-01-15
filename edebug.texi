@@ -226,80 +226,49 @@ breakpointを無視する(@code{edebug-Go-nonstop-mode})。まだ@kbd{S}、ま�
 Options}内の@code{edebug-continue-kbd-macro}オプションも参照してください。
 
 新たなEdebugレベルにエンターしたとき、初期の実行モードは変数@code{edebug-initial-mode}の値により与えられます(@ref{Edebug
-Options}を参照)。デフォルトでこれはステップモードを指定します。たとえば１つのコマンドからインストルメント済みの関数が複数回呼び出された場合は、同じEdebugレベルに再エンターするかもしれないことに注意してください。
+Options}を参照)。デフォルトでこれはstepモードを指定します。たとえば１つのコマンドからインストルメント済みの関数が複数回呼び出された場合は、同じEdebugレベルに再エンターするかもしれないことに注意してください。
 
 @defopt edebug-sit-for-seconds
-このオプションは、トレースモードおよび継続モードで実行ステップの間を何秒待つか指定します。デフォルトは1秒です。
+このオプションは、traceモードおよびcontinueモードで実行ステップの間を何秒待つか指定します。デフォルトは1秒です。
 @end defopt
 
 @node Jumping
 @subsection Jumping
 
-  The commands described in this section execute until they reach a specified
-location.  All except @kbd{i} make a temporary breakpoint to establish the
-place to stop, then switch to go mode.  Any other breakpoint reached before
-the intended stop point will also stop execution.  @xref{Breakpoints}, for
-the details on breakpoints.
+  このセクションで説明するコマンドは、指定された場所に達するまで実行を続けます。@kbd{i}を除くすべてのコマンドは、ストップ場所を確立するために一時的なbreakpointを作成してから、goモードにスイッチします。意図されたストップポイントの前にある他のストップポイントに達した場合も、実行はストップします。breakpointの詳細は、@ref{Breakpoints}を参照してください。
 
-  These commands may fail to work as expected in case of nonlocal exit, as
-that can bypass the temporary breakpoint where you expected the program to
-stop.
+  これらのコマンドは、非ローカルexitの場合はプログラムのストップを期待する一時的なbreakpointをバイパスできるので、期待どおり機能しないかもしれません。
 
 @table @kbd
 @item h
-Proceed to the stop point near where point is (@code{edebug-goto-here}).
+ポイントがある場所の近くのストップポイントへ実行を進める(@code{edebug-goto-here})。
 
 @item f
-Run the program for one expression (@code{edebug-forward-sexp}).
+プログラムの式を1つ分実行する(@code{edebug-forward-sexp})。
 
 @item o
-Run the program until the end of the containing sexp
-(@code{edebug-step-out}).
+sexpを含む終端までプログラムを実行する(@code{edebug-step-out})。
 
 @item i
-Step into the function or macro called by the form after point
-(@code{edebug-step-in}).
+ポイントの後のフォームから呼び出された関数またはマクロにステップインする(@code{edebug-step-in})。
 @end table
 
-The @kbd{h} command proceeds to the stop point at or after the current
-location of point, using a temporary breakpoint.
+@kbd{h}コマンドは一時的なbreakpointを使用して、ポイントのカレント位置、またはその後のストップポイントまで処理を進めます。
 
-The @kbd{f} command runs the program forward over one expression.  More
-precisely, it sets a temporary breakpoint at the position that
-@code{forward-sexp} would reach, then executes in go mode so that the
-program will stop at breakpoints.
+@kbd{f}コマンドは式を1つ飛び越してプログラムを実家します。より正確には、@code{forward-sexp}により到達できる位置に一時的なbreakpointをセットしてからgoモードで実行するので、プログラムはそのbreakpointでストップすることになります。
 
-With a prefix argument @var{n}, the temporary breakpoint is placed @var{n}
-sexps beyond point.  If the containing list ends before @var{n} more
-elements, then the place to stop is after the containing expression.
+プレフィクス引数@var{n}とともに使用した場合は、ポイントから@var{n}個のsexp(s-expression:
+S式)を超えた場所に一時的なbreakpointをセットします。ポイントを含むリストが@var{n}より少ない要素で終わるような場合は、ストップ箇所はポイントが含まれる式の後になります。
 
-You must check that the position @code{forward-sexp} finds is a place that
-the program will really get to.  In @code{cond}, for example, this may not
-be true.
+@code{forward-sexp}が見つける位置と、プログラムを実際にストップさせたい位置なのかチェックしなければなりません。たとえば@code{cond}内では、これは正しくないかもしれません。
 
-For flexibility, the @kbd{f} command does @code{forward-sexp} starting at
-point, rather than at the stop point.  If you want to execute one expression
-@emph{from the current stop point}, first type @kbd{w} (@code{edebug-where})
-to move point there, and then type @kbd{f}.
+@kbd{f}コマンドは柔軟性を与えるために、@code{forward-sexp}をストップポイントではなく、ポイント位置から開始します。@emph{カレントのストップポイント}から1つの式を実行したい場合は、まずそこにポイントを移動するために@kbd{w}(@code{edebug-where})をタイプして、それから@kbd{f}をタイプしてください。
 
-The @kbd{o} command continues ``out of'' an expression.  It places a
-temporary breakpoint at the end of the sexp containing point.  If the
-containing sexp is a function definition itself, @kbd{o} continues until
-just before the last sexp in the definition.  If that is where you are now,
-it returns from the function and then stops.  In other words, this command
-does not exit the currently executing function unless you are positioned
-after the last sexp.
+@kbd{o}コマンドは、式の``外側''で実行を継続します。これは、ポイントを含む式の最後に一時的なbreakpointを配します。ポイントを含むsexpが関数定義の場合、@kbd{o}はその定義内の最後のsexpの直前まで実行を継続します。もし定義内の最後のsexpの直前にポイントがある場合は、その関数からリターンしてからストップします。他の言い方をすると、このコマンドは最後のsexpの後にポイントがない場合は、カレントで実行中の関数からexitしません。
 
-The @kbd{i} command steps into the function or macro called by the list form
-after point, and stops at its first stop point.  Note that the form need not
-be the one about to be evaluated.  But if the form is a function call about
-to be evaluated, remember to use this command before any of the arguments
-are evaluated, since otherwise it will be too late.
+@kbd{i}コマンドは、ポイントの後のリストフォームに呼び出された関数、またはマクロにステップインします。そのフォームは、評価されようとしているもの1つである必要はないことに注意してください。しかし、そのフォームが評価されようとしている関数呼び出しの場合は、引数が何も評価されないうちにこのコマンドを使用しないと、遅すぎることを覚えておいてください。
 
-The @kbd{i} command instruments the function or macro it's supposed to step
-into, if it isn't instrumented already.  This is convenient, but keep in
-mind that the function or macro remains instrumented unless you explicitly
-arrange to deinstrument it.
+@kbd{i}コマンドは、ステップインしようとしている関数またはマクロがまだインストルメントされていない場合は、それらをインストルメントします。これは便利かもしれませんが、それらを明示的に非インストルメントしない場合、その関数またはマクロはインストルメントされたままになることを覚えておいてください。
 
 @node Edebug Misc
 @subsection Miscellaneous Edebug Commands
