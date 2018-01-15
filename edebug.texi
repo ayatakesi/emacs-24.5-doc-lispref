@@ -273,44 +273,33 @@ S式)を超えた場所に一時的なbreakpointをセットします。ポイ�
 @node Edebug Misc
 @subsection Miscellaneous Edebug Commands
 
-  Some miscellaneous Edebug commands are described here.
+  ここでは、その他のEdebugコマンドを説明します。
 
 @table @kbd
 @item ?
-Display the help message for Edebug (@code{edebug-help}).
+Edebugのヘルプメッセージを表示する(@code{edebug-help})。
 
 @item C-]
-Abort one level back to the previous command level
-(@code{abort-recursive-edit}).
+1レベルを中断して以前のコマンドレベルへ戻る(@code{abort-recursive-edit})。
 
 @item q
-Return to the top level editor command loop (@code{top-level}).  This exits
-all recursive editing levels, including all levels of Edebug activity.
-However, instrumented code protected with @code{unwind-protect} or
-@code{condition-case} forms may resume debugging.
+エディターのトップレベルのコマンドループにリターンする(@code{top-level})。これは、すべてのレベルのEdebugアクティビティを含む、すべての再帰編集レベルをexitする。しかし、フォーム@code{unwind-protect}または@code{condition-case}で保護されたインストルメント済みのコードはデバッグを再開するかもしれない。
 
 @item Q
-Like @kbd{q}, but don't stop even for protected code
-(@code{edebug-top-level-nonstop}).
+@kbd{q}と同様だが、保護されたコードでもストップしない(@code{edebug-top-level-nonstop})。
 
 @item r
-Redisplay the most recently known expression result in the echo area
-(@code{edebug-previous-result}).
+エコーエリアに、もっとも最近の既知のコマンドを再表示する(@code{edebug-previous-result})。
 
 @item d
-Display a backtrace, excluding Edebug's own functions for clarity
-(@code{edebug-backtrace}).
+backtraceを表示するが、明確であるようにEdebug自身の関数は除外される(@code{edebug-backtrace})。
 
-You cannot use debugger commands in the backtrace buffer in Edebug as you
-would in the standard debugger.
+Edebugのbacktraceバッファーでは、標準デバッガ内のようにバッガコマンドは使用できない。
 
-The backtrace buffer is killed automatically when you continue execution.
+実行を継続したとき、backtraceバッファーは自動的にkillされる。
 @end table
 
-You can invoke commands from Edebug that activate Edebug again recursively.
-Whenever Edebug is active, you can quit to the top level with @kbd{q} or
-abort one recursive edit level with @kbd{C-]}.  You can display a backtrace
-of all the pending evaluations with @kbd{d}.
+Edebugから再帰的にEdebugをアクティブにするコマンドを呼び出すことができます。Edebugがアクティブなときは常に、@kbd{q}によトップレベルの終了、または@kbd{C-]}による再帰編集1レベルの中断ができます。@kbd{d}により、すべての未解決な評価のbacktraceを表示できます。
 
 @node Breaks
 @subsection Breaks
