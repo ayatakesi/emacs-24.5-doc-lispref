@@ -342,7 +342,7 @@ breakpoint)}は、プログラムがそこに達するたびに条件をテス�
 
 プレフィクス引数を指定してbreakpointをセットするコマンドを使用することにより、@dfn{一時的}な条件付きbreakpoint、および無条件のbreakpointを作成できます。一時的なbreakpointによりプログラムがストップしたとき、そのbreakpointは自動的に解除されます。
 
-Go-nonstopモードを除き、Edebugは常にbreakpointでストップ、またはpauseします。Go-nonstopモードでは、完全に無視されます。
+Go-nonstopモードを除き、Edebugは常にbreakpointでストップ、またはpauseします。Go-nonstopモードでは、breakpointは完全に無視されます。
 
 breakpointがどこにあるか探すには、@kbd{B}コマンドを使用します。このコマンドは同じ関数内から、ポイント以降にある次のbreakpoint(ポイント以降にbreakpointが存在しない場合は最初のbreakpoint)にポイントを移動します。このコマンドは実行を継続せず、単にバッファー内のポイントを移動します。
 
@@ -351,23 +351,14 @@ breakpointがどこにあるか探すには、@kbd{B}コマンドを使用しま
 
 @cindex stopping on events
 @cindex global break condition
-  A @dfn{global break condition} stops execution when a specified condition is
-satisfied, no matter where that may occur.  Edebug evaluates the global
-break condition at every stop point; if it evaluates to a non-@code{nil}
-value, then execution stops or pauses depending on the execution mode, as if
-a breakpoint had been hit.  If evaluating the condition gets an error,
-execution does not stop.
+  @dfn{グローバルbreak条件(global break
+condition)}は指定された条件が満たされたとき、それがどこで発生したかによらず、実行をストップします。Edebugは、すべてのストップポイントでグローバルbreak条件を評価します。これが非@code{nil}値に評価された場合は、あたかもそのストップポイントにbreakpointがあったかのように、実行をストップまたはpauseします(実行モードによる)。条件の評価でエラーを取得した場合は、実行をストップしません。
 
 @findex edebug-set-global-break-condition
-  The condition expression is stored in @code{edebug-global-break-condition}.
-You can specify a new expression using the @kbd{X} command from the source
-code buffer while Edebug is active, or using @kbd{C-x X X} from any buffer
-at any time, as long as Edebug is loaded
-(@code{edebug-set-global-break-condition}).
+  条件式は@code{edebug-global-break-condition}に格納されます。Edebugがアクティブなときにソースバッファーから@kbd{X}コマンドを使用するか、Edebugがロードされている間は任意のバッファーから任意のタイミングで@kbd{C-x
+X X}(@code{edebug-set-global-break-condition})を使用することにより新たな式を指定できます。
 
-  The global break condition is the simplest way to find where in your code
-some event occurs, but it makes code run much more slowly.  So you should
-reset the condition to @code{nil} when not using it.
+  グローバルbreak条件は、コード内のどこでイベントが発生したかを見つけるもっともシンプルな方法ですが、コードの実行は遅くなります。そのため、使用しないときは条件を@code{nil}にリセットするべきです。
 
 @node Source Breakpoints
 @subsubsection Source Breakpoints
