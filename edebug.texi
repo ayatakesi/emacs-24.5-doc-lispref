@@ -365,12 +365,8 @@ X X}(@code{edebug-set-global-break-condition})を使用することにより新�
 
 @findex edebug
 @cindex source breakpoints
-  All breakpoints in a definition are forgotten each time you reinstrument
-it.  If you wish to make a breakpoint that won't be forgotten, you can write
-a @dfn{source breakpoint}, which is simply a call to the function
-@code{edebug} in your source code.  You can, of course, make such a call
-conditional.  For example, in the @code{fac} function, you can insert the
-first line as shown below, to stop when the argument reaches zero:
+  定義内のすべてのbreakpointは、それをインストルメントするたびに失われます。breakpointが失われないようにしたい場合は、ソースコード内で単に関数@code{edebug}を呼び出す@dfn{ソースbreakpoint(source
+breakpoint)}を記述できます。もちろん、そのような呼び出しを条件付きすることにもできます。たとえば@code{fac}関数内に以下のような行を1行目に挿入して、引数が0になったときストップさせることができます:
 
 @example
 (defun fac (n)
@@ -380,35 +376,22 @@ first line as shown below, to stop when the argument reaches zero:
     1))
 @end example
 
-  When the @code{fac} definition is instrumented and the function is called,
-the call to @code{edebug} acts as a breakpoint.  Depending on the execution
-mode, Edebug stops or pauses there.
+  @code{fac}の定義がインストルメントされて呼び出されたとき、@code{edebug}呼び出しはbreakpointとして振る舞います。実行モードに応じて、Edebugはそこでストップまたはpauseします。
 
 @c This may not be a good idea anymore.
-  If no instrumented code is being executed when @code{edebug} is called, that
-function calls @code{debug}.
+  @code{edebug}が呼び出されたときにインストルメント済みのコードが実行されていなければ、この関数は@code{debug}を呼び出します。
 
 @node Trapping Errors
 @subsection Trapping Errors
 
-  Emacs normally displays an error message when an error is signaled and not
-handled with @code{condition-case}.  While Edebug is active and executing
-instrumented code, it normally responds to all unhandled errors.  You can
-customize this with the options @code{edebug-on-error} and
-@code{edebug-on-quit}; see @ref{Edebug Options}.
+  エラーがシグナルされて、それが@code{condition-case}でハンドルされていないとき、Emacsは通常エラーメッセージを表示します。Edebugがアクティブでインストルメント済みのコードを実行中は、ハンドルされていないエラーには通常Edebugが対応します。オプション@code{edebug-on-error}および@code{edebug-on-quit}で、これをカスタマイズできます。@ref{Edebug
+Options}を参照してください。
 
-  When Edebug responds to an error, it shows the last stop point encountered
-before the error.  This may be the location of a call to a function which
-was not instrumented, and within which the error actually occurred.  For an
-unbound variable error, the last known stop point might be quite distant
-from the offending variable reference.  In that case, you might want to
-display a full backtrace (@pxref{Edebug Misc}).
+  Edebugがエラーに対応するときは、エラー発生箇所の前にある最後のストップポイントを表示します。この場所はインストルメントされていない関数の呼び出しで、その関数内で実際にエラーが発生したのかもしれません。バインドされていない変数に関するエラーの場合は、最後の既知のストップポイントは、その不正な変数参照から遠く離れた場所かもしれません。そのような場合は、完全なbacktraceを表示したいと思うでしょう(@ref{Edebug
+Misc}を参照)。
 
 @c Edebug should be changed for the following: -- dan
-  If you change @code{debug-on-error} or @code{debug-on-quit} while Edebug is
-active, these changes will be forgotten when Edebug becomes inactive.
-Furthermore, during Edebug's recursive edit, these variables are bound to
-the values they had outside of Edebug.
+  Edebugがアクティブの間に@code{debug-on-error}、または@code{debug-on-quit}を変更した場合、それらの変更はEdebugが非アクティブになったとき失われます。さらに、Edebugの再帰編集の間、これらの変数はEdebugの外部でもっていた値にバインドされます。
 
 @node Edebug Views
 @subsection Edebug Views
