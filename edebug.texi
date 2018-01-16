@@ -193,21 +193,21 @@ Next(次へ):
 式の後にある次のストップポイントでストップする(@code{edebug-next-mode})。@ref{Jumping}の@code{edebug-forward-sexp}も参照。
 
 @item t
-Trace(トレース): Edebugのストップポイントごとに一時停止(通常は1秒)する(@code{edebug-trace-mode})。
+Trace(トレース): Edebugのストップポイントごとにpause(通常は1秒)する(@code{edebug-trace-mode})。
 
 @item T
 Rapid
-trace(高速でトレース):ストップポイントごとに表示を更新するが、実際に一時停止はしない(@code{edebug-Trace-fast-mode})。
+trace(高速でトレース):ストップポイントごとに表示を更新するが、実際にpauseはしない(@code{edebug-Trace-fast-mode})。
 
 @item g
 Go(進む): 次のbreakpointまで実行する(@code{edebug-go-mode})。@ref{Breakpoints}を参照。
 
 @item c
-Continue(継続): breakpointごとに一時停止してから継続する(@code{edebug-continue-mode})。
+Continue(継続): breakpointごとにpauseしてから継続する(@code{edebug-continue-mode})。
 
 @item C
 Rapid continue(高速で継続):
-ポイントを各breakpointへ移動するが、一時停止しない(@code{edebug-Continue-fast-mode})。
+ポイントを各breakpointへ移動するが、pauseしない(@code{edebug-Continue-fast-mode})。
 
 @item G
 Go non-stop(ストップせず進む):
@@ -308,7 +308,7 @@ Edebugのstepモードは、次のストップポイントに達したときに�
 
 @menu
 * Breakpoints::              ストップポイントのbreakpoint。
-* Global Break Condition::   eイベントによるbreak。
+* Global Break Condition::   イベントによるbreak。
 * Source Breakpoints::       ソースコードに埋め込まれたbreakpoint。
 @end menu
 
@@ -316,61 +316,35 @@ Edebugのstepモードは、次のストップポイントに達したときに�
 @subsubsection Edebug Breakpoints
 
 @cindex breakpoints (Edebug)
-While using Edebug, you can specify @dfn{breakpoints} in the program you are
-testing: these are places where execution should stop.  You can set a
-breakpoint at any stop point, as defined in @ref{Using Edebug}.  For setting
-and unsetting breakpoints, the stop point that is affected is the first one
-at or after point in the source code buffer.  Here are the Edebug commands
-for breakpoints:
+Edebugを使用しているときは、テスト中のプログラム内に@dfn{breakpoint}を指定できます。breakpointとは、実行がストップされる場所のことです。@ref{Using
+Edebug}で定義されている任意のストップポイントに、breakpointをセットできます。breakpointをセットおよび解除において影響を受けるストップポイントは、ソースコードバッファー内でポイント位置、またはポイント位置の後の最初のストップポイントです。以下はEdebugのbreakpoint用のコマンドです:
 
 @table @kbd
 @item b
-Set a breakpoint at the stop point at or after point
-(@code{edebug-set-breakpoint}).  If you use a prefix argument, the
-breakpoint is temporary---it turns off the first time it stops the program.
+ポイント位置、またはポイント位置の後のストップポイントに、breakpointをセットする(@code{edebug-set-breakpoint})。プレフィクス引数を使用した場合、それは一時的なbreakpointになり、プログラムが最初にそこで停止したとき解除される。
 
 @item u
-Unset the breakpoint (if any) at the stop point at or after point
-(@code{edebug-unset-breakpoint}).
+(もしあれば)ポイント位置、またはポイント位置の後のストップポイントにあるbreakpointを解除(unset)する(@code{edebug-unset-breakpoint})。
 
 @item x @var{condition} @key{RET}
-Set a conditional breakpoint which stops the program only if evaluating
-@var{condition} produces a non-@code{nil} value
-(@code{edebug-set-conditional-breakpoint}).  With a prefix argument, the
-breakpoint is temporary.
+@var{condition}を評価して非@code{nil}値になる場合だけプログラムをストップする、条件付きbreakpointをセットする(@code{edebug-set-conditional-breakpoint})。プレフィクス引数を指定した場合は、一時的なbreakpointになる。
 
 @item B
-Move point to the next breakpoint in the current definition
-(@code{edebug-next-breakpoint}).
+カレント定義内の、次のbreakpointにポイントを移動する(@code{edebug-next-breakpoint})。
 @end table
 
-While in Edebug, you can set a breakpoint with @kbd{b} and unset one with
-@kbd{u}.  First move point to the Edebug stop point of your choice, then
-type @kbd{b} or @kbd{u} to set or unset a breakpoint there.  Unsetting a
-breakpoint where none has been set has no effect.
+Edebug内では、@kbd{b}でbreakpointをセットして、@kbd{u}でそれを解除できます。最初に望ましいストップポイントにポイントを移動してから、そこにbreakpointをセットまたは解除するために@kbd{b}または@kbd{u}をタイプしますbreakpointがない場所でbreakpointを解除しても、影響はありません。
 
-Re-evaluating or reinstrumenting a definition removes all of its previous
-breakpoints.
+ある定義を再評価、または再インストルメントすると、以前のbreakpointはすべて削除されます。
 
-A @dfn{conditional breakpoint} tests a condition each time the program gets
-there.  Any errors that occur as a result of evaluating the condition are
-ignored, as if the result were @code{nil}.  To set a conditional breakpoint,
-use @kbd{x}, and specify the condition expression in the minibuffer.
-Setting a conditional breakpoint at a stop point that has a previously
-established conditional breakpoint puts the previous condition expression in
-the minibuffer so you can edit it.
+@dfn{条件付きbreakpoint(conditional
+breakpoint)}は、プログラムがそこに達するたびに条件をテストします。条件を評価した結果エラーが発生した場合、エラーは無視され結果は@code{nil}になります。条件付きbreakpointをセットするには@kbd{x}を使用して、ミニバッファーで条件式を指定します。以前にセットされた条件付きbreakpointがあるストップポイントに条件付きbreakpointをセットすると、以前の条件式がミニバッファーに配されるので、それを編集できます。
 
-You can make a conditional or unconditional breakpoint @dfn{temporary} by
-using a prefix argument with the command to set the breakpoint.  When a
-temporary breakpoint stops the program, it is automatically unset.
+プレフィクス引数を指定してbreakpointをセットするコマンドを使用することにより、@dfn{一時的}な条件付きbreakpoint、および無条件のbreakpointを作成できます。一時的なbreakpointによりプログラムがストップしたとき、そのbreakpointは自動的に解除されます。
 
-Edebug always stops or pauses at a breakpoint, except when the Edebug mode
-is Go-nonstop.  In that mode, it ignores breakpoints entirely.
+Go-nonstopモードを除き、Edebugは常にbreakpointでストップ、またはpauseします。Go-nonstopモードでは、完全に無視されます。
 
-To find out where your breakpoints are, use the @kbd{B} command, which moves
-point to the next breakpoint following point, within the same function, or
-to the first breakpoint if there are no following breakpoints.  This command
-does not continue execution---it just moves point in the buffer.
+breakpointがどこにあるか探すには、@kbd{B}コマンドを使用します。このコマンドは同じ関数内から、ポイント以降にある次のbreakpoint(ポイント以降にbreakpointが存在しない場合は最初のbreakpoint)にポイントを移動します。このコマンドは実行を継続せず、単にバッファー内のポイントを移動します。
 
 @node Global Break Condition
 @subsubsection Global Break Condition
