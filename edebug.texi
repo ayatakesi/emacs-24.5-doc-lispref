@@ -429,32 +429,23 @@ X w}を使用すれば、ソースコードバッファー内のストップポ�
 @node Edebug Eval
 @subsection Evaluation
 
-  While within Edebug, you can evaluate expressions as if Edebug were not
-running.  Edebug tries to be invisible to the expression's evaluation and
-printing.  Evaluation of expressions that cause side effects will work as
-expected, except for changes to data that Edebug explicitly saves and
-restores.  @xref{The Outside Context}, for details on this process.
+  Edebug内では、まるでEdebugが実行されていないかのように、式を評価できます。式の評価とプリントに際して、Edebugが不可視になるよう試みます。。副作用をもつ式の評価は、Edebugが明示的に保存とリストアを行うデータへの変更を除き、期待したとおり機能するでしょう。このプロセスの詳細は、@ref{The
+Outside Context}を参照してください。
 
 @table @kbd
 @item e @var{exp} @key{RET}
-Evaluate expression @var{exp} in the context outside of Edebug
-(@code{edebug-eval-expression}).  That is, Edebug tries to minimize its
-interference with the evaluation.
+Edebugのコンテキスト外で、式@var{exp}を評価する(@code{edebug-eval-expression})。つまり、Edebugはその式への干渉を最小限にしようと努める。
 
 @item M-: @var{exp} @key{RET}
-Evaluate expression @var{exp} in the context of Edebug itself
-(@code{eval-expression}).
+Edebug自身のコンテキスト内で、式@var{exp}を評価する(@code{eval-expression})。
 
 @item C-x C-e
-Evaluate the expression before point, in the context outside of Edebug
-(@code{edebug-eval-last-sexp}).
+Edebugのコンテキスト外で、ポイントの前の式を評価する(@code{edebug-eval-last-sexp})。
 @end table
 
 @cindex lexical binding (Edebug)
 @c FIXME?  What about lexical-binding = t?
-  Edebug supports evaluation of expressions containing references to lexically
-bound symbols created by the following constructs in @file{cl.el}:
-@code{lexical-let}, @code{macrolet}, and @code{symbol-macrolet}.
+  Edebugは、@file{cl.el}内の構文(@code{lexical-let}、@code{macrolet}、@code{symbol-macrolet})により作成された、レキシカル(lexical)にバインドされたシンボルへの参照を含む式の評価をサポートします。
 
 @node Eval List
 @subsection Evaluation List Buffer
@@ -480,8 +471,7 @@ Evaluate the expression before point, in the outside context, and insert the
 value in the buffer (@code{edebug-eval-print-last-sexp}).
 
 @item C-x C-e
-Evaluate the expression before point, in the context outside of Edebug
-(@code{edebug-eval-last-sexp}).
+Edebugのコンテキスト外で、ポイントの前の式を評価する(@code{edebug-eval-last-sexp})。
 
 @item C-c C-u
 Build a new evaluation list from the contents of the buffer
