@@ -450,73 +450,53 @@ Edebugのコンテキスト外で、ポイントの前の式を評価する(@cod
 @node Eval List
 @subsection Evaluation List Buffer
 
-  You can use the @dfn{evaluation list buffer}, called @file{*edebug*}, to
-evaluate expressions interactively.  You can also set up the @dfn{evaluation
-list} of expressions to be evaluated automatically each time Edebug updates
-the display.
+  式をインタラクティブに評価するために、@file{*edebug*}と呼ばれる@dfn{評価リストバッファー(evaluation list
+buffer)}を使用できます。Edebugがディスプレイを更新するたびに自動的に評価される、式の@dfn{評価リスト(evaluation
+list)}もセットアップできます。
 
 @table @kbd
 @item E
-Switch to the evaluation list buffer @file{*edebug*}
-(@code{edebug-visit-eval-list}).
+評価リストバッファー@file{*edebug*}に切り替える(@code{edebug-visit-eval-list})。
 @end table
 
-  In the @file{*edebug*} buffer you can use the commands of Lisp Interaction
-mode (@pxref{Lisp Interaction,,, emacs, The GNU Emacs Manual}) as well as
-these special commands:
+  @file{*edebug*}バッファーでは、以下の特別なコマンドと同様に、Lisp Interactionモード(@pxref{Lisp
+Interaction,,, emacs, The GNU Emacs Manual})のコマンドも使用できます。
 
 @table @kbd
 @item C-j
-Evaluate the expression before point, in the outside context, and insert the
-value in the buffer (@code{edebug-eval-print-last-sexp}).
+ポイントの前の式をコンテキスト外で評価して、その値をバッファーに挿入する(@code{edebug-eval-print-last-sexp})。
 
 @item C-x C-e
 Edebugのコンテキスト外で、ポイントの前の式を評価する(@code{edebug-eval-last-sexp})。
 
 @item C-c C-u
-Build a new evaluation list from the contents of the buffer
-(@code{edebug-update-eval-list}).
+バッファー内のコンテンツから、新たに評価リストを構築する(@code{edebug-update-eval-list})。
 
 @item C-c C-d
-Delete the evaluation list group that point is in
-(@code{edebug-delete-eval-item}).
+ポイントのある評価リストグループを削除する(@code{edebug-delete-eval-item})。
 
 @item C-c C-w
-Switch back to the source code buffer at the current stop point
-(@code{edebug-where}).
+ソースコードバッファーに切り替えてカレントストップポイントに戻る(@code{edebug-where})。
 @end table
 
-  You can evaluate expressions in the evaluation list window with @kbd{C-j} or
-@kbd{C-x C-e}, just as you would in @file{*scratch*}; but they are evaluated
-in the context outside of Edebug.
+  評価リストウィンドウ内では、@file{*scratch*}にいるときと同様に、@kbd{C-j}や@kbd{C-x
+C-e}で式を評価できますが、それらはEdebugのコンテキスト外で評価されます。
 
-  The expressions you enter interactively (and their results) are lost when
-you continue execution; but you can set up an @dfn{evaluation list}
-consisting of expressions to be evaluated each time execution stops.
+  インタラクティブに入力した式(とその結果)は、実行を継続すると失われます。しかし、実行がストップされるたびに評価されるように、式から構成される@dfn{評価リスト}をセットアップできます。
 
 @cindex evaluation list group
-  To do this, write one or more @dfn{evaluation list groups} in the evaluation
-list buffer.  An evaluation list group consists of one or more Lisp
-expressions.  Groups are separated by comment lines.
+  これを行なうには、評価リストバッファー内で1つ以上の@dfn{評価リストグループ(evaluation list
+group)}を記述します。評価リストグループは、1つ以上のLisp式から構成されます。グループはコメント行で区切られます。
 
-  The command @kbd{C-c C-u} (@code{edebug-update-eval-list}) rebuilds the
-evaluation list, scanning the buffer and using the first expression of each
-group.  (The idea is that the second expression of the group is the value
-previously computed and displayed.)
+  コマンド@kbd{C-c
+C-u}(@code{edebug-update-eval-list})は、バッファーをスキャンして各グループの最初の式を使用して、評価リストを再構築します。(これはグループの2つ目の式は以前に計算、表示されている値だという発想からです。)
 
-  Each entry to Edebug redisplays the evaluation list by inserting each
-expression in the buffer, followed by its current value.  It also inserts
-comment lines so that each expression becomes its own group.  Thus, if you
-type @kbd{C-c C-u} again without changing the buffer text, the evaluation
-list is effectively unchanged.
+  Edebugにエントリーするたびに、評価リストの各式(および式の後に式のカレント値)をバッファーに挿入して再表示します。これはコメント行も挿入するため、各式はそのグループの一員となります。したがって、バッファーのテキストを変更せずに@kbd{C-c
+C-u}とタイプした場合、評価リストは実際には変更されません。
 
-  If an error occurs during an evaluation from the evaluation list, the error
-message is displayed in a string as if it were the result.  Therefore,
-expressions using variables that are not currently valid do not interrupt
-your debugging.
+  評価リストからの評価の間にエラーが発生した場合、それが式の結果であるかのようにエラーメッセージが文字列で表示されます。したがって、カレントで無効な変数を使用する式により、デバッグが中断されることはありません。
 
-  Here is an example of what the evaluation list window looks like after
-several expressions have been added to it:
+  以下は、いくつかの式を評価リストウィンドウに追加したとき、どのように見えるかの例です:
 
 @smallexample
 (current-buffer)
@@ -539,15 +519,12 @@ eval-last-sexp
 ;---------------------------------------------------------------
 @end smallexample
 
-To delete a group, move point into it and type @kbd{C-c C-d}, or simply
-delete the text for the group and update the evaluation list with @kbd{C-c
-C-u}.  To add a new expression to the evaluation list, insert the expression
-at a suitable place, insert a new comment line, then type @kbd{C-c C-u}.
-You need not insert dashes in the comment line---its contents don't matter.
+グループを削除するには、グループ内にポイントを移動して@kbd{C-c C-d}をタイプするか、単にグループのテキストを削除して@kbd{C-c
+C-u}で評価リストを更新します。評価リストに新たな式を追加するには、適切な箇所にその式を挿入し、新たなコメント行を挿入してから@kbd{C-c
+C-u}をタイプします。コメント行にダッシュを挿入する必要はありません --- 内容は関係ないのです。
 
-After selecting @file{*edebug*}, you can return to the source code buffer
-with @kbd{C-c C-w}.  The @file{*edebug*} buffer is killed when you continue
-execution, and recreated next time it is needed.
+@file{*edebug*}を選択した後に、@kbd{C-c
+C-w}でソースコードバッファーにリターンできます。@file{*edebug*}は実行を継続したときkillされ、次回必要なとき再作成されます。
 
 @node Printing in Edebug
 @subsection Printing in Edebug
