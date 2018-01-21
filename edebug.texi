@@ -532,29 +532,23 @@ C-w}でソースコードバッファーにリターンできます。@file{*ede
 @cindex printing (Edebug)
 @cindex printing circular structures
 @pindex cust-print
-  If an expression in your program produces a value containing circular list
-structure, you may get an error when Edebug attempts to print it.
+  プログラム内の式が循環リスト構造(circular list
+structure)を含む値を生成する場合は、Edebugがそれをプリントしようとしたときエラーとなるかもしれません。
 
-  One way to cope with circular structure is to set @code{print-length} or
-@code{print-level} to truncate the printing.  Edebug does this for you; it
-binds @code{print-length} and @code{print-level} to the values of the
-variables @code{edebug-print-length} and @code{edebug-print-level} (so long
-as they have non-@code{nil} values).  @xref{Output Variables}.
+  循環構造への対処の1つに、@code{print-length}および@code{print-level}にプリントの切り詰めをセットする方法があります。Edebugは、変数@code{edebug-print-length}および@code{edebug-print-level}の値(非@code{nil}値をもつ場合)を、これらの変数にバインドします。@ref{Output
+Variables}を参照してください。
 
 @defopt edebug-print-length
-If non-@code{nil}, Edebug binds @code{print-length} to this value while
-printing results.  The default value is @code{50}.
+非@code{nil}の場合は、結果をプリントするときEdebugは@code{print-length}をこの値にバインドする。デフォルト値は@code{50}。
 @end defopt
 
 @defopt edebug-print-level
-If non-@code{nil}, Edebug binds @code{print-level} to this value while
-printing results.  The default value is @code{50}.
+非@code{nil}の場合は、結果をプリントするときEdebugは@code{print-level}をこの値にバインドする。デフォルト値は@code{50}。
 @end defopt
 
-  You can also print circular structures and structures that share elements
-more informatively by binding @code{print-circle} to a non-@code{nil} value.
+  @code{print-circle}を非@code{nil}値にバインドして、循環構造や要素を共有する構造を、より参考になる情報をプリントすることもできます。
 
-  Here is an example of code that creates a circular structure:
+  以下は循環構造を作成するコードの例です:
 
 @example
 (setq a '(x y))
@@ -562,64 +556,42 @@ more informatively by binding @code{print-circle} to a non-@code{nil} value.
 @end example
 
 @noindent
-Custom printing prints this as @samp{Result: #1=(#1# y)}.  The @samp{#1=}
-notation labels the structure that follows it with the label @samp{1}, and
-the @samp{#1#} notation references the previously labeled structure.  This
-notation is used for any shared elements of lists or vectors.
+カスタムプリントはこれを、@samp{Result: #1=(#1#
+y)}のようにプリントします。@samp{#1=}という表記はその後の構造をラベル@samp{1}とラベル付けし、@samp{#1#}表記はその前にラベル付けされた構造を参照しています。この表記は、リストやベクターの任意の共有要素に使用されます。
 
 @defopt edebug-print-circle
-If non-@code{nil}, Edebug binds @code{print-circle} to this value while
-printing results.  The default value is @code{t}.
+非@code{nil}の場合は、結果をプリントするときEdebugは@code{print-circle}をこの値にバインドする。デフォルト値は@code{t}。
 @end defopt
 
-  Other programs can also use custom printing; see @file{cust-print.el} for
-details.
+  他にプログラムもカスタムプリントを使用できます。詳細は@file{cust-print.el}を参照してください。
 
 @node Trace Buffer
 @subsection Trace Buffer
 @cindex trace buffer
 
-  Edebug can record an execution trace, storing it in a buffer named
-@file{*edebug-trace*}.  This is a log of function calls and returns, showing
-the function names and their arguments and values.  To enable trace
-recording, set @code{edebug-trace} to a non-@code{nil} value.
+  Edebugは実行トレースを@file{*edebug-trace*}という名前のバッファーに格納して記録できます。実行トレースとは関数呼び出しよリターンのログのことで、関数名と引数、および値が確認できます。トレースレコードを有効にするには、@code{edebug-trace}を非@code{nil}値にセットしてください。
 
-  Making a trace buffer is not the same thing as using trace execution mode
-(@pxref{Edebug Execution Modes}).
+  トレースバッファーの作成は、実行モードのトレースの使用(@ref{Edebug Execution Modes}を参照)と同じではありません。
 
-  When trace recording is enabled, each function entry and exit adds lines to
-the trace buffer.  A function entry record consists of @samp{::::@{},
-followed by the function name and argument values.  A function exit record
-consists of @samp{::::@}}, followed by the function name and result of the
-function.
+  トレースレコードが有効なときは、関数へのエントリーとexitのたびに、トレースバッファーに行が追加されます。関数エントリーレコードは@samp{::::@{}、および関数名と引数の値により構成されます。関数exitレコードは@samp{::::@}}、および関数名と関数の結果により構成されます。
 
-  The number of @samp{:}s in an entry shows its recursion depth.  You can use
-the braces in the trace buffer to find the matching beginning or end of
-function calls.
+  @samp{:}の数は、関数エントリーの再帰レベルを表します。トレースバッファーでは、関数呼び出しの開始と終了の検索に@samp{@{}と@samp{@}}を使用できます。
 
 @findex edebug-print-trace-before
 @findex edebug-print-trace-after
-  You can customize trace recording for function entry and exit by redefining
-the functions @code{edebug-print-trace-before} and
-@code{edebug-print-trace-after}.
+  
+関数@code{edebug-print-trace-before}および@code{edebug-print-trace-after}を再定義することにより、関数エントリーと関数exitのトレースレコードをカスタマイズできます。
 
 @defmac edebug-tracing string body@dots{}
-This macro requests additional trace information around the execution of the
-@var{body} forms.  The argument @var{string} specifies text to put in the
-trace buffer, after the @samp{@{} or @samp{@}}.  All the arguments are
-evaluated, and @code{edebug-tracing} returns the value of the last form in
-@var{body}.
+このマクロは@var{body}フォーム実行活動にたいする、追加のトレース情報をリクエストする。引数@var{string}は、トレースバッファーに配す@samp{@{}または@samp{@}}の後のテキストを指定する。すべての引数は評価され、@code{edebug-tracing}は@var{body}内の最後のフォームの値をリターンする。
 @end defmac
 
 @defun edebug-trace format-string &rest format-args
-This function inserts text in the trace buffer.  It computes the text with
-@code{(apply 'format @var{format-string} @var{format-args})}.  It also
-appends a newline to separate entries.
+この関数は、トレースバッファーにテキストを挿入する。テキストは、@code{(apply 'format @var{format-string}
+@var{format-args})}により計算される。エントリー間の区切りとして改行も付け加える。
 @end defun
 
-  @code{edebug-tracing} and @code{edebug-trace} insert lines in the trace
-buffer whenever they are called, even if Edebug is not active.  Adding text
-to the trace buffer also scrolls its window to show the last lines inserted.
+  @code{edebug-tracing}および@code{edebug-trace}は、たとえEdebugが非アクティブでも、呼び出されたときは常にトレースバッファーに行を挿入します。トレースバッファーへのテキストの追加により、挿入された最後の行が見えるようにウィンドウもスクロールします。
 
 @node Coverage Testing
 @subsection Coverage Testing
