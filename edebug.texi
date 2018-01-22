@@ -599,52 +599,30 @@ y)}のようにプリントします。@samp{#1=}という表記はその後の�
 @cindex coverage testing (Edebug)
 @cindex frequency counts
 @cindex performance analysis
-  Edebug provides rudimentary coverage testing and display of execution
-frequency.
+  Edebugは基本的なカバレッジテスト(coverage test)と実行頻度(execution frequency)の表示を提供します。
 
-  Coverage testing works by comparing the result of each expression with the
-previous result; each form in the program is considered ``covered'' if it
-has returned two different values since you began testing coverage in the
-current Emacs session.  Thus, to do coverage testing on your program,
-execute it under various conditions and note whether it behaves correctly;
-Edebug will tell you when you have tried enough different conditions that
-each form has returned two different values.
+  カバレッジテストは、すべての式の結果と以前の結果を比較することにより機能します。プログラム内のフォームがそれぞれ、カレントEmacsセッション内でカバレッジテストを開始して以降に、2つの異なる値をリターンした場合、それらのフォームは``カバー''されたと判断します。したがって、プログラムにカバレッジテストを行なうには、そのプログラムをさまざまなコンディション下で実行して、プログラムが正しく振る舞うかに注目します。異なるコンディション下で十分にテストして、すべてのフォームが異なる2つの値をリターンしたとき、Edebugはそのことを告げるでしょう。
 
-  Coverage testing makes execution slower, so it is only done if
-@code{edebug-test-coverage} is non-@code{nil}.  Frequency counting is
-performed for all executions of an instrumented function, even if the
-execution mode is Go-nonstop, and regardless of whether coverage testing is
-enabled.
+  カバレッジテストにより実行速度が低下するので、@code{edebug-test-coverage}が非@code{nil}のときだけカバレッジテストが行なわれます。頻度計数(frequency
+count)は、たとえ実行モードがGo-nonstopでも、カバレッジテストが有効か無効かに関わらず、すべての式にたいして処理されます。
 
 @kindex C-x X =
 @findex edebug-temp-display-freq-count
-  Use @kbd{C-x X =} (@code{edebug-display-freq-count}) to display both the
-coverage information and the frequency counts for a definition.  Just
-@kbd{=} (@code{edebug-temp-display-freq-count}) displays the same
-information temporarily, only until you type another key.
+  定義にたいするカバレッジ情報と頻度数の両方を表示するには、@kbd{C-x X
+=}(@code{edebug-display-freq-count})を使用する。単に@kbd{=}(@code{edebug-temp-display-freq-count})とすると、他のキーをタイプするまでの間だけ、同様な情報を一時的に表示する。
 
 @deffn Command edebug-display-freq-count
-This command displays the frequency count data for each line of the current
-definition.
+このコマンドは、カレント定義の各行の頻度数を表示する。
 
-It inserts frequency counts as comment lines after each line of code.  You
-can undo all insertions with one @code{undo} command.  The counts appear
-under the @samp{(} before an expression or the @samp{)} after an expression,
-or on the last character of a variable.  To simplify the display, a count is
-not shown if it is equal to the count of an earlier expression on the same
-line.
+このコマンドは、コードの各行の下にコメント行として頻度数を挿入する。1回の@code{undo}コマンドで、すべての挿入をアンドゥできる。頻度数は式の前の@samp{(}、または式の後の@samp{)}、または変数の最後の文字の下に表示される。表示をシンプルにするために、同一行にたいして式の以前頻度数と頻度数が同じ場合は表示しない。
 
-The character @samp{=} following the count for an expression says that the
-expression has returned the same value each time it was evaluated.  In other
-words, it is not yet ``covered'' for coverage testing purposes.
+ある式にたいする頻度数の後に文字@samp{=}がある場合、それはその式が評価されるたびに毎回同じ値をリターンしていることを表す。他の言い方をすると、カバレッジテストの目的からは、その式はまだ``カバー''されていないということである。
 
-To clear the frequency count and coverage data for a definition, simply
-reinstrument it with @code{eval-defun}.
+ある定義にたいして頻度数とカバレッジデータを明確にするには、単に@code{eval-defun}で再インストルメントすればよい。
 @end deffn
 
-For example, after evaluating @code{(fac 5)} with a source breakpoint, and
-setting @code{edebug-test-coverage} to @code{t}, when the breakpoint is
-reached, the frequency data looks like this:
+たとえば、ソースのbreakpointで@code{(fac
+5)}を評価した後、@code{edebug-test-coverage}を@code{t}にセットすると、breakpointに達したときの頻度データは以下のようになります:
 
 @example
 (defun fac (n)
@@ -658,10 +636,7 @@ reached, the frequency data looks like this:
 ;#   0
 @end example
 
-The comment lines show that @code{fac} was called 6 times.  The first
-@code{if} statement returned 5 times with the same result each time; the
-same is true of the condition on the second @code{if}.  The recursive call
-of @code{fac} did not return at all.
+コメント行は、@code{fac}が6回呼び出されたことを表しています。最初の@code{if}命令は毎回同じ結果を5回リターンしています。同じ結果という意味では、2つ目の@code{if}の条件にも当てはまります。@code{fac}の再帰呼び出しは、結局リターンしません。
 
 
 @node The Outside Context
