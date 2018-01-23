@@ -653,19 +653,14 @@ Edebugはデバッグ中のプログラムにたいして透過的であろう�
 @node Checking Whether to Stop
 @subsubsection Checking Whether to Stop
 
-Whenever Edebug is entered, it needs to save and restore certain data before
-even deciding whether to make trace information or stop the program.
+Edebugにエンターするときは常に特定のデータの保存とリストアを行なう必要があり、それはトレース情報を作成するか、あるいはプログラムを停止するかを決定する前に行なう必要があります。
 
 @itemize @bullet
 @item
-@code{max-lisp-eval-depth} and @code{max-specpdl-size} are both increased to
-reduce Edebug's impact on the stack.  You could, however, still run out of
-stack space when using Edebug.
+@code{max-lisp-eval-depth}および@code{max-specpdl-size}は、Edebugがスタック与える影響の低減効果を高める。しかしそれでも、Edebug使用時にスタック空間を使い切ってしまうことはあり得る。
 
 @item
-The state of keyboard macro execution is saved and restored.  While Edebug
-is active, @code{executing-kbd-macro} is bound to @code{nil} unless
-@code{edebug-continue-kbd-macro} is non-@code{nil}.
+キーボードマクロの実行状態は保存およびリストアされる。Edebugがアクティブの間、@code{edebug-continue-kbd-macro}が@code{nil}の場合は、@code{executing-kbd-macro}が@code{nil}にバインドされる。
 @end itemize
 
 
@@ -674,53 +669,35 @@ is active, @code{executing-kbd-macro} is bound to @code{nil} unless
 
 @c This paragraph is not filled, because LaLiberte's conversion script
 @c needs an xref to be on just one line.
-When Edebug needs to display something (e.g., in trace mode), it saves the
-current window configuration from ``outside'' Edebug (@pxref{Window
-Configurations}).  When you exit Edebug, it restores the previous window
-configuration.
+(たとえばtraceモードなどで)Edebugが何かを表示する必要があるときは、Edebugの``外部''からカレントウィンドウ構成(@ref{Window
+Configurations}を参照)を保存します。Edebugをexitするときに、以前のウィンドウ構成がリストアされます。
 
-Emacs redisplays only when it pauses.  Usually, when you continue execution,
-the program re-enters Edebug at a breakpoint or after stepping, without
-pausing or reading input in between.  In such cases, Emacs never gets a
-chance to redisplay the ``outside'' configuration.  Consequently, what you
-see is the same window configuration as the last time Edebug was active,
-with no interruption.
+Emacsは、pause時だけ再表示を行います。通常は実行を継続したときに、そのプログラムはbreakpointまたはステップ実行後にEdebugに再エンターし、その間にpauseや入力の読み取りはありません。そのような場合、Emacsが``外部''の構成を再表示する機会は決してありません。結果として、ユーザーが目にするウィンドウ構成は、前回Edebugが中断なしでアクティブだったときのウィンドウ構成と同じになります。
 
-Entry to Edebug for displaying something also saves and restores the
-following data (though some of them are deliberately not restored if an
-error or quit signal occurs).
+何かを表示するためにEdebugにエントリーすることにより、(たとえこれらのうちのいくつかは、エラーやquitがシグナルされたときは、故意にリストアしないデータだとしても)以下のデータも保存およびリストアされます。
 
 @itemize @bullet
 @item
 @cindex current buffer point and mark (Edebug)
-Which buffer is current, and the positions of point and the mark in the
-current buffer, are saved and restored.
+どれがカレントバッファーか、そしてカレントバッファー内のポイントとマークの位置が、保存およびリストアされる。
 
 @item
 @cindex window configuration (Edebug)
-The outside window configuration is saved and restored if
-@code{edebug-save-windows} is non-@code{nil} (@pxref{Edebug Options}).
+@code{edebug-save-windows}が非@code{nil}の場合は、外部のウィンドウ構成が保存およびリストアされる(@ref{Edebug
+Options}を参照)。
 
-The window configuration is not restored on error or quit, but the outside
-selected window @emph{is} reselected even on error or quit in case a
-@code{save-excursion} is active.  If the value of @code{edebug-save-windows}
-is a list, only the listed windows are saved and restored.
+エラーやquitではウィンドウ構成はリストアされないが、@code{save-excursion}がアクティブな場合は、たとえエラーやquitのとき外部の選択されたウィンドウが再選択@emph{される}。@code{edebug-save-windows}の値がリストの場合は、それにリストされたウィンドウだけが保存およびリストアされる。
 
-The window start and horizontal scrolling of the source code buffer are not
-restored, however, so that the display remains coherent within Edebug.
+しかし、ソースコードバッファーのウィンドウの開始位置と水平スクロールはリストアされないので、表示はEdebug内で整合性が保たれたままとなる。
 
 @item
-The value of point in each displayed buffer is saved and restored if
-@code{edebug-save-displayed-buffer-points} is non-@code{nil}.
+@code{edebug-save-displayed-buffer-points}が非@code{nil}の場合、表示されているそれぞれのバッファー内のポイント値は、保存およびリストアされる。
 
 @item
-The variables @code{overlay-arrow-position} and @code{overlay-arrow-string}
-are saved and restored, so you can safely invoke Edebug from the recursive
-edit elsewhere in the same buffer.
+変数@code{overlay-arrow-position}と@code{overlay-arrow-string}は保存およびリストアされるので、同じバッファー内の他の場所の再帰編集から、安全にEdebugを呼び出せる。
 
 @item
-@code{cursor-in-echo-area} is locally bound to @code{nil} so that the cursor
-shows up in the window.
+@code{cursor-in-echo-area}は@code{nil}にローカルにバインドされるので、カーソルはそのウィンドウ内に現れる。
 @end itemize
 
 @node Edebug Recursive Edit
