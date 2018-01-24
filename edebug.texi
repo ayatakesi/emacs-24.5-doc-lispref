@@ -732,31 +732,23 @@ Edebug内では、再帰深さがEdebug外部の再帰深さより1つ深くな�
 @node Edebug and Macros
 @subsection Edebug and Macros
 
-To make Edebug properly instrument expressions that call macros, some extra
-care is needed.  This subsection explains the details.
+Edebugが正しくマクロを呼び出す式をインストルメントするには、いくつかの特定な配慮が必要になります。このサブセクションでは、その詳細を説明します。
 
 @menu
-* Instrumenting Macro Calls::  The basic problem.
-* Specification List::       How to specify complex patterns of evaluation.
-* Backtracking::             What Edebug does when matching fails.
-* Specification Examples::   To help understand specifications.
+* Instrumenting Macro Calls::  基本的な問題点。
+* Specification List::       式の複雑なパターンを指定する方法。
+* Backtracking::             マッチに失敗したときEdebugが行なうこと。
+* Specification Examples::   Edebug仕様を理解するために。
 @end menu
 
 @node Instrumenting Macro Calls
 @subsubsection Instrumenting Macro Calls
 
-  When Edebug instruments an expression that calls a Lisp macro, it needs
-additional information about the macro to do the job properly.  This is
-because there is no a-priori way to tell which subexpressions of the macro
-call are forms to be evaluated.  (Evaluation may occur explicitly in the
-macro body, or when the resulting expansion is evaluated, or any time
-later.)
+  EdebugがLispマクロを呼び出す式をインストルメントするときは、正しくインストルメントを行なうために、そのマクロに関して追加の情報が必要になります。これは、マクロ呼び出しのどの部分式(subexpression)が評価されるフォームなのか推測する方法がないからです。(評価はマクロのbodyで明示的に発生するかもしれないし、展開結果が評価されるとき、または任意のタイミングで行われるかもしれません。)
 
-  Therefore, you must define an Edebug specification for each macro that
-Edebug will encounter, to explain the format of calls to that macro.  To do
-this, add a @code{debug} declaration to the macro definition.  Here is a
-simple example that shows the specification for the @code{for} example macro
-(@pxref{Argument Evaluation}).
+  したがって、Edebugが処理するかもしれないすべてのマクロにたいして、そのマクロの呼び出しフォーマットを説明するための、Edebug仕様(Edebug
+specification)を定義しなければなりません。これを行なうには、マクロ定義に@code{debug}宣言を追加します。以下はマクロ例@code{for}(@ref{Argument
+Evaluation}を参照)にたいする簡単な仕様の例です。
 
 @smallexample
 (defmacro for (var from init to final do &rest body)
@@ -766,64 +758,43 @@ For example, (for i from 1 to 10 do (print i))."
   ...)
 @end smallexample
 
-  The Edebug specification says which parts of a call to the macro are forms
-to be evaluated.  For simple macros, the specification often looks very
-similar to the formal argument list of the macro definition, but
-specifications are much more general than macro arguments.  @xref{Defining
-Macros}, for more explanation of the @code{declare} form.
+  このEdebug仕様は、マクロ呼び出しのどの部分が評価されるフォームなのかを示しています。単純なマクロにたいするEdebug仕様は、そのマクロ定義の正式な引数リストに非常に類似している場合がありますが、Edebug仕様はマクロ引数に比べより汎的です。@code{declare}フォームの詳細は、@ref{Defining
+Macros}を参照してください。
 
 @c See, e.g., http://debbugs.gnu.org/10577
 @c FIXME  Maybe there should be an Edebug option to get it to
 @c automatically load the entire source file containing the function
 @c being instrumented.  That would avoid this.
-  Take care to ensure that the specifications are known to Edebug when you
-instrument code.  If you are instrumenting a function from a file that uses
-@code{eval-when-compile} to require another file containing macro
-definitions, you may need to explicitly load that file.
+  コードをインストルメントするときEdebugに仕様が確実に解るよう注意してください。マクロ定義を含む他のファイルを要求するために@code{eval-when-compile}を使用するファイルから関数をインストルメントする場合は、そのファイルを明示的にロードする必要があるかもしれません。
 
-  You can also define an edebug specification for a macro separately from the
-macro definition with @code{def-edebug-spec}.  Adding @code{debug}
-declarations is preferred, and more convenient, for macro definitions in
-Lisp, but @code{def-edebug-spec} makes it possible to define Edebug
-specifications for special forms implemented in C.
+  @code{def-edebug-spec}によりマクロ定義から個々のマクロにたいしてEdebug仕様を定義することもできます。Lispで記述されたマクロ定義にたいしては@code{debug}宣言を追加するほうが好ましく、その方が便利でもありますが、@code{def-edebug-spec}ではCで実装されたスペシャルフォームにたいしてEdebug仕様を定義することが可能になります。
 
 @defmac def-edebug-spec macro specification
-Specify which expressions of a call to macro @var{macro} are forms to be
-evaluated.  @var{specification} should be the edebug specification.  Neither
-argument is evaluated.
+マクロ@var{macro}呼び出しのどの式が評価される式かを指定する。@var{specification}はEdebug仕様である。どちらの引数も評価されない。
 
-The @var{macro} argument can actually be any symbol, not just a macro name.
+引数@var{macro}は単なるマクロ名ではない、任意の実シンボルを指定できる。
 @end defmac
 
-Here is a table of the possibilities for @var{specification} and how each
-directs processing of arguments.
+以下は@var{specification}に指定できるシンボルと、引数を処理する方法のテーブルです。
 
 @table @asis
 @item @code{t}
-All arguments are instrumented for evaluation.
+すべての引数は評価のためにインストルメントされる。
 
 @item @code{0}
-None of the arguments is instrumented.
+引数はインストルメントされない。
 
-@item a symbol
-The symbol must have an Edebug specification, which is used instead.  This
-indirection is repeated until another kind of specification is found.  This
-allows you to inherit the specification from another macro.
+@item シンボル
+そのシンボルは、かわりに使用されるEdebug仕様をもたなければならない。このインダイレクションは、他の種類の仕様が見つかるまで繰り返される。これにより、他のマクロの仕様を継承できる。
 
-@item a list
-The elements of the list describe the types of the arguments of a calling
-form.  The possible elements of a specification list are described in the
-following sections.
+@item リスト
+リストの要素はフォーム呼び出しの引数の型を記述する。仕様リストに指定できる要素については、以降のセクションを参照。
 @end table
 
-If a macro has no Edebug specification, neither through a @code{debug}
-declaration nor through a @code{def-edebug-spec} call, the variable
-@code{edebug-eval-macro-args} comes into play.
+マクロがEdebug仕様をもたない場合は、@code{debug}宣言および@code{def-edebug-spec}呼び出しのどちらを通じても、変数@code{edebug-eval-macro-args}が効果を発揮する。
 
 @defopt edebug-eval-macro-args
-This controls the way Edebug treats macro arguments with no explicit Edebug
-specification.  If it is @code{nil} (the default), none of the arguments is
-instrumented for evaluation.  Otherwise, all arguments are instrumented.
+これは、Edebugが明示的なEdebug仕様をもたないマクロ引数を扱う方法を制御する。@code{nil}(デフォルト)の場合、引数は評価のためにインストルメントされない。それ以外は、すべての引数がインストルメントされる。
 @end defopt
 
 @node Specification List
