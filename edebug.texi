@@ -579,8 +579,7 @@ y)}のようにプリントします。@samp{#1=}という表記はその後の�
 
 @findex edebug-print-trace-before
 @findex edebug-print-trace-after
-  
-関数@code{edebug-print-trace-before}および@code{edebug-print-trace-after}を再定義することにより、関数エントリーと関数exitのトレースレコードをカスタマイズできます。
+  関数@code{edebug-print-trace-before}および@code{edebug-print-trace-after}を再定義することにより、関数エントリーと関数exitのトレースレコードをカスタマイズできます。
 
 @defmac edebug-tracing string body@dots{}
 このマクロは@var{body}フォーム実行活動にたいする、追加のトレース情報をリクエストする。引数@var{string}は、トレースバッファーに配す@samp{@{}または@samp{@}}の後のテキストを指定する。すべての引数は評価され、@code{edebug-tracing}は@var{body}内の最後のフォームの値をリターンする。
@@ -801,202 +800,139 @@ Macros}を参照してください。
 @subsubsection Specification List
 
 @cindex Edebug specification list
-A @dfn{specification list} is required for an Edebug specification if some
-arguments of a macro call are evaluated while others are not.  Some elements
-in a specification list match one or more arguments, but others modify the
-processing of all following elements.  The latter, called @dfn{specification
-keywords}, are symbols beginning with @samp{&} (such as @code{&optional}).
+あるマクロ呼び出しにおいて、いくつかの引数は評価されるが、それ以外の引数は評価されないような場合には、Edebug仕様のために@dfn{仕様リスト(specification
+list)}が要求されます。仕様リスト内のいくつかの要素は1つ以上の引数にマッチしまづが、それ以外の要素は以降に続くすべての引数の処理を変更します。後者は@dfn{仕様キーワード(specification
+keywords)}と呼ばれ、(@code{&optional}のように)@samp{&}で始まるシンボルです。
 
-A specification list may contain sublists, which match arguments that are
-themselves lists, or it may contain vectors used for grouping.  Sublists and
-groups thus subdivide the specification list into a hierarchy of levels.
-Specification keywords apply only to the remainder of the sublist or group
-they are contained in.
+仕様リストは、それ自身がリストであるような引数にマッチする部分リスト(sublist)、またはグループ化に使用されるベクターを含むかもしれません。したがって部分式とグループは、仕様リストをレベル階層に細分化します。仕様キーワードは、部分式やグループを含むものの残りに適用されます。
 
-When a specification list involves alternatives or repetition, matching it
-against an actual macro call may require backtracking.  For more details,
-@pxref{Backtracking}.
+仕様リストに選択肢や繰り返しが含まれる場合は、実際のマクロの呼び出しにたいしてマッチさせるためにバックトラックが要求されるかもしれません。詳細は、@ref{Backtracking}を参照してください。
 
-Edebug specifications provide the power of regular expression matching, plus
-some context-free grammar constructs: the matching of sublists with balanced
-parentheses, recursive processing of forms, and recursion via indirect
-specifications.
+Edebug仕様は、バランスのとれたカッコで括られた部分式へのマッチ、フォームの再帰処理、インダイレクト仕様を通じた再帰などの、正規表現によるマッチングと、コンテキストに依存しない文法構成を提供します。
 
-Here's a table of the possible elements of a specification list, with their
-meanings (see @ref{Specification Examples}, for the referenced examples):
+以下は仕様リストに使用できる要素と、その意味についてのテーブルです(使用例は@ref{Specification Examples}を参照):
 
 @table @code
 @item sexp
 @c an "expression" is not necessarily intended for evaluation.
-A single unevaluated Lisp object, which is not instrumented.
+評価れない単一のLispオブジェクト。インストルメントされない。
 
 @item form
-A single evaluated expression, which is instrumented.
+評価される単一のLispオブジェクト。インストルメントされる。
 
 @item place
-A generalized variable.  @xref{Generalized Variables}.
+汎変数(generalized variable)。@ref{Generalized Variables}を参照。
 
 @item body
-Short for @code{&rest form}.  See @code{&rest} below.
+@code{&rest form}の省略形。以下の@code{&rest}を参照。
 
 @item function-form
-A function form: either a quoted function symbol, a quoted lambda
-expression, or a form (that should evaluate to a function symbol or lambda
-expression).  This is useful when an argument that's a lambda expression
-might be quoted with @code{quote} rather than @code{function}, since it
-instruments the body of the lambda expression either way.
+関数フォーム。クォートされた関数シンボル、クォートされたラムダ式、または(関数シンボルかラムダ式に評価される)フォームのうちのどれか。これはラムダ式のbodyをいずれかの方法でインストルメントするため、@code{function}よりも@code{quote}でクォートされたラムダ式の引数にたいし有用。
 
 @item lambda-expr
-A lambda expression with no quoting.
+クォートされないラムダ式。
 
 @item &optional
 @c @kindex &optional @r{(Edebug)}
-All following elements in the specification list are optional; as soon as
-one does not match, Edebug stops matching at this level.
+仕様リスト内の後続の要素はオプション。マッチしない要素が出現すると、Edebugはこのレベルのマッチングを停止する。
 
-To make just a few elements optional, followed by non-optional elements, use
-@code{[&optional @var{specs}@dots{}]}.  To specify that several elements
-must all match or none, use @code{&optional [@var{specs}@dots{}]}.  See the
-@code{defun} example.
+後続が非オプションの要素であるような数個の要素をオプションにするだけなら、@code{[&optional
+@var{specs}@dots{}]}を使用する。複数の要素すべてのマッチ、または非マッチを指定するには、@code{&optional
+[@var{specs}@dots{}]}を使用する。@code{defun}の例を参照。
 
 @item &rest
 @c @kindex &rest @r{(Edebug)}
-All following elements in the specification list are repeated zero or more
-times.  In the last repetition, however, it is not a problem if the
-expression runs out before matching all of the elements of the specification
-list.
+仕様リスト内の後続のすべての要素は、0回以上繰り返される。しかし、最後の繰り返しでは、仕様リスト内のすべての要素にたいするマッチングの前に式が終了しても問題はない。
 
-To repeat only a few elements, use @code{[&rest @var{specs}@dots{}]}.  To
-specify several elements that must all match on every repetition, use
-@code{&rest [@var{specs}@dots{}]}.
+数個の要素を繰り返すには、@code{[&rest
+@var{specs}@dots{}]}を使用する。各繰り返しにおいいてすべてマッチしなければならない複数要素を指定するには、@code{&rest
+[@var{specs}@dots{}]}を使用する。
 
 @item &or
 @c @kindex &or @r{(Edebug)}
-Each of the following elements in the specification list is an alternative.
-One of the alternatives must match, or the @code{&or} specification fails.
+仕様リスト内の後続の各要素は選択肢。選択肢の1つがマッチしなければならず、マッチしない場合@code{&or}仕様は失敗する。
 
-Each list element following @code{&or} is a single alternative.  To group
-two or more list elements as a single alternative, enclose them in
-@code{[@dots{}]}.
+@code{&or}に続く各リスト要素は、単一の選択肢。複数のリスト要素を単一の選択肢にグループ化するには、それらを@code{[@dots{}]}で括る。
 
 @item &not
 @c @kindex &not @r{(Edebug)}
-Each of the following elements is matched as alternatives as if by using
-@code{&or}, but if any of them match, the specification fails.  If none of
-them match, nothing is matched, but the @code{&not} specification succeeds.
+後続の各要素は、@code{&or}が使用されたときのように選択肢にマッチするが、要素がマッチした場合に失敗する。どれもマッチする要素がない場合は何もマッチされないが、@code{&not}仕様は成功する。
 
 @c FIXME &key?
 
 @item &define
 @c @kindex &define @r{(Edebug)}
-Indicates that the specification is for a defining form.  The defining form
-itself is not instrumented (that is, Edebug does not stop before and after
-the defining form), but forms inside it typically will be instrumented.  The
-@code{&define} keyword should be the first element in a list specification.
+フォーム定義にたいする仕様であることを示す。フォーム定義自体はインストルメントされない(つまりEdebugはフォーム定義の前後でストップしない)が、フォーム内部は通常はインストルメントされるであろう。@code{&define}キーワードはリスト仕様の最初の要素であること。
 
 @item nil
-This is successful when there are no more arguments to match at the current
-argument list level; otherwise it fails.  See sublist specifications and the
-backquote example.
+カレント引数レベルでマッチさせる引数が存在しない場合は成功し、それ以外は失敗する。部分リスト仕様とバッククォートの例を参照。
 
 @item gate
 @cindex preventing backtracking
-No argument is matched but backtracking through the gate is disabled while
-matching the remainder of the specifications at this level.  This is
-primarily used to generate more specific syntax error messages.  See
-@ref{Backtracking}, for more details.  Also see the @code{let} example.
+引数はマッチされないがgateを通じたバックトラックは、このレベルの使用の残りをマッチングする間は無効にされる。これは主に、特定の構文エラーメッセージを一般的にするために使用される。詳細は@ref{Backtracking}、および@code{let}の例も参照。
 
 @item @var{other-symbol}
 @cindex indirect specifications
-Any other symbol in a specification list may be a predicate or an indirect
-specification.
+仕様リスト内のその他の要素は、述語(predicate)かインダイレクト仕様(indirect specification)である。
 
-If the symbol has an Edebug specification, this @dfn{indirect specification}
-should be either a list specification that is used in place of the symbol,
-or a function that is called to process the arguments.  The specification
-may be defined with @code{def-edebug-spec} just as for macros.  See the
-@code{defun} example.
+シンボルがEdebug仕様をもつ場合、@dfn{インダイレクト仕様(indirect
+specification)}はシンボル位置に使用されるリスト仕様か、引数を処理するための関数のどちらかである。この仕様はマクロにたいする@code{def-edebug-spec}のように定義される。@code{defun}の例を参照。
 
-Otherwise, the symbol should be a predicate.  The predicate is called with
-the argument, and if the predicate returns @code{nil}, the specification
-fails and the argument is not instrumented.
+それ以外の場合、シンボルは述語(predicate)である。述語は引数とともに呼び出され、述語が@code{nil}をリターンした場合、その仕様は失敗して引数はインストルメントされない。
 
-Some suitable predicates include @code{symbolp}, @code{integerp},
-@code{stringp}, @code{vectorp}, and @code{atom}.
+適切な述語としては@code{symbolp}、@code{integerp}、@code{stringp}、@code{vectorp}、@code{atom}が含まれる。
 
 @item [@var{elements}@dots{}]
 @cindex [@dots{}] (Edebug)
-A vector of elements groups the elements into a single @dfn{group
-specification}.  Its meaning has nothing to do with vectors.
+要素のベクターは、要素を単一の@dfn{グループ仕様(group
+specification)}にグループ化する。このグループ仕様は、ベクター自体に何も行わない。
 
 @item "@var{string}"
-The argument should be a symbol named @var{string}.  This specification is
-equivalent to the quoted symbol, @code{'@var{symbol}}, where the name of
-@var{symbol} is the @var{string}, but the string form is preferred.
+引数は@var{string}という名前のシンボルである。この仕様は、@var{symbol}の名前が@var{string}であるクォートされたシンボル@code{'@var{symbol}}と等価だが、文字列形式のほうが好ましい。
 
 @item (vector @var{elements}@dots{})
-The argument should be a vector whose elements must match the @var{elements}
-in the specification.  See the backquote example.
+引数は、要素が仕様内の@var{elements}にマッチするベクターである。バッククォートの例を参照。
 
 @item (@var{elements}@dots{})
-Any other list is a @dfn{sublist specification} and the argument must be a
-list whose elements match the specification @var{elements}.
+他のリストは@dfn{部分リスト仕様(sublist
+specification)}であり、引数は要素が仕様の@var{elements}にマッチするリストでなければならない。
 
 @cindex dotted lists (Edebug)
-A sublist specification may be a dotted list and the corresponding list
-argument may then be a dotted list.  Alternatively, the last @sc{cdr} of a
-dotted list specification may be another sublist specification (via a
-grouping or an indirect specification, e.g., @code{(spec .  [(more
-specs@dots{})])}) whose elements match the non-dotted list arguments.  This
-is useful in recursive specifications such as in the backquote example.
-Also see the description of a @code{nil} specification above for terminating
-such recursion.
+部分リスト仕様はドットリスト(dotted
+list)かもしれず、その場合対応するリスト引数はドットリストである。かわりに、ドットリスト仕様の最後の@sc{cdr}が、(グループ化やインダイレクト仕様による)他の部分リスト仕様かもしれない(たとえば要素が非ドットリストにマッチする@code{(spec
+. [(more
+specs@dots{})])}))。これはバッククォートの例のような再帰仕様に有用。このような再帰を終了させるには、上述の@code{nil}仕様も参照。
 
-Note that a sublist specification written as @code{(specs .  nil)} is
-equivalent to @code{(specs)}, and @code{(specs .
-(sublist-elements@dots{}))} is equivalent to @code{(specs
-sublist-elements@dots{})}.
+@code{(specs .  nil)}のように記述された部分リスト仕様は@code{(specs)}、@code{(specs .
+(sublist-elements@dots{}))}は@code{(specs
+sublist-elements@dots{})}と等価であることに注意。
 @end table
 
 @c Need to document extensions with &symbol and :symbol
 
-Here is a list of additional specifications that may appear only after
-@code{&define}.  See the @code{defun} example.
+以下は@code{&define}の後だけに出現する追加仕様のリストです。@code{defun}の例を参照してください。
 
 @table @code
 @item name
-The argument, a symbol, is the name of the defining form.
+引数(シンボル)は定義フォームの名前。
 
-A defining form is not required to have a name field; and it may have
-multiple name fields.
+定義フォームは名前フィールドをもつ必要はなく、複数の名前フィールドをもつかもしれない。
 
 @item :name
-This construct does not actually match an argument.  The element following
-@code{:name} should be a symbol; it is used as an additional name component
-for the definition.  You can use this to add a unique, static component to
-the name of the definition.  It may be used more than once.
+この構成は引数に実際のマッチは行わない。@code{:name}の後の要素はシンボルであり、その定義の追加の名前要素として使用される。定義名に一意で静的な要素を加えるために、これを使用できる。複数回使用されるかもしれない。
 
 @item arg
-The argument, a symbol, is the name of an argument of the defining form.
-However, lambda-list keywords (symbols starting with @samp{&})  are not
-allowed.
+引数(シンボル)は定義フォームの引数の名前である。しかし、lambda-listキーワード(@samp{&}で始まるシンボル)は許されない。
 
 @item lambda-list
 @cindex lambda-list (Edebug)
-This matches a lambda list---the argument list of a lambda expression.
+これはラムダリスト(ラムダ式の引数リスト)にマッチする。
 
 @item def-body
-The argument is the body of code in a definition.  This is like @code{body},
-described above, but a definition body must be instrumented with a different
-Edebug call that looks up information associated with the definition.  Use
-@code{def-body} for the highest level list of forms within the definition.
+引数は定義内のコードのbodyである。これは上述の@code{body}と似ているが、定義のbodyはその定義に関連する情報を照会する別のEdebug呼び出しでインストルメントされていなければならない。定義内のより高位レベルのフォームリストには、@code{def-body}を使用する。
 
 @item def-form
-The argument is a single, highest-level form in a definition.  This is like
-@code{def-body}, except it is used to match a single form rather than a list
-of forms.  As a special case, @code{def-form} also means that tracing
-information is not output when the form is executed.  See the
-@code{interactive} example.
+引数は、定義内のもっとも高位レベルの単一フォームである。これは@code{def-body}と似ているが、フォームリストではなく単一フォームのマッチに使用される。特別なケースとして、@code{def-form}はフォームが実行されるときトレース情報を出力しないことも意味する。@code{interactive}の例を参照。
 @end table
 
 @node Backtracking
