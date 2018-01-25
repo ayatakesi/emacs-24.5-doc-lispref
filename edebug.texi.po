@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-12 05:03+0900\n"
-"PO-Revision-Date: 2018-01-25 13:52+0900\n"
+"PO-Revision-Date: 2018-01-26 08:50+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3010,19 +3010,19 @@ msgstr "引数は、定義内のもっとも高位レベルの単一フォーム
 #: edebug.texi.orig:1387
 #, no-wrap
 msgid "Backtracking in Specifications"
-msgstr ""
+msgstr "Backtracking in Specifications"
 
 #. type: cindex
 #: edebug.texi.orig:1389
 #, no-wrap
 msgid "backtracking"
-msgstr ""
+msgstr "backtracking"
 
 #. type: cindex
 #: edebug.texi.orig:1390
 #, no-wrap
 msgid "syntax error (Edebug)"
-msgstr ""
+msgstr "syntax error (Edebug)"
 
 #. type: Plain text
 #: edebug.texi.orig:1397
@@ -3032,7 +3032,7 @@ msgid ""
 "place until all alternatives have been exhausted.  Eventually every element "
 "of the argument list must be matched by some element in the specification, "
 "and every required element in the specification must match some argument."
-msgstr ""
+msgstr "あるポイント位置で仕様がマッチに失敗しても、構文エラーがシグナルされるとは限りません。そのかわり@dfn{バックトラック(backtracking)}が開始されます。バックトラックは、すべての選択肢をマッチングするまで行なわれます。最終的に引数リストのすべての要素は仕様内の要素のいずれかとマッチしなければならず、仕様内の必須要素は引数のいずれかとマッチしなければなりません。"
 
 #. type: Plain text
 #: edebug.texi.orig:1408
@@ -3046,7 +3046,7 @@ msgid ""
 "@code{&or}, or at the start of processing a sublist, group, or indirect "
 "specification.  The effect of enabling or disabling backtracking is limited "
 "to the remainder of the level currently being processed and lower levels."
-msgstr ""
+msgstr "構文エラーが検出されてもその時点では報告されず、より高位レベルの選択肢のマッチングが終わった後、実際のエラー箇所から離れたポイント位置でエラーが報告されるかもしれません。しかしエラー発生時にバックトラックが無効なら、エラーは即座に報告されるでしょう。ある状況においては、バックトラックも自動的に再有効化されることに注意してください。@code{&optional}、@code{&rest}、@code{&or}により新たな選択肢が設定されたとき、または部分リスト、グループ、インダイレクト仕様が開始されたときは、バックトラックが自動的に有効になります。バックトラックを有効、または無効にした場合の影響は、現在処理中のレベルの残り要素と、低位レベルに限定されます。"
 
 #. type: Plain text
 #: edebug.texi.orig:1413
@@ -3055,7 +3055,7 @@ msgid ""
 "is, @code{form}, @code{body}, @code{def-form}, and @code{def-body}).  These "
 "specifications will match any form so any error must be in the form itself "
 "rather than at a higher level."
-msgstr ""
+msgstr "何らかのフォーム仕様(すなわち@code{form}、@code{body}、@code{def-form}、@code{def-body})をマッチングする間、バックトラックは無効になっています。これらの仕様は任意のフォームにマッチするので、何らかのエラーが発生するとしたらそれは高位レベルではなく、そのフォーム自体の内部でなければなりません。"
 
 #. type: Plain text
 #: edebug.texi.orig:1420
@@ -3066,7 +3066,7 @@ msgid ""
 "symbol, you can usually work around this constraint by factoring the symbol "
 "out of the alternatives, e.g., @code{[\"foo\" &or [first case] [second case] "
 "...]}."
-msgstr ""
+msgstr "バックトラックはクォートされたシンボルや文字列仕様とのマッチに成功した後にも無効になります。なぜなら通常これは構成が認識されたことを示すからです。しかし、同じシンボルで始まる一連の選択肢構成がある場合は、たとえば@code{[\"foo\" &or [first case] [second case] ...]}のように、通常は選択肢の外部にそのシンボルをファクタリングすることにより、この制約に対処できます。"
 
 #. type: Plain text
 #: edebug.texi.orig:1426
@@ -3076,14 +3076,14 @@ msgid ""
 "backtracking by using the @code{gate} specification.  This is useful when "
 "you know that no higher alternatives could apply.  See the example of the "
 "@code{let} specification."
-msgstr ""
+msgstr "ほとんどのニーズは、バックトラックを自動的に無効にする、これら2つの方法で満足させることができますが、@code{gate}仕様を使用して明示的にバックトラックを無効にするほうが便利なときもあります。これは、高位に適用可能な選択肢が存在しないことが分かっている場合に有用です。@code{let}仕様の例を参照してください。"
 
 #. type: Plain text
 #: edebug.texi.orig:1432
 msgid ""
 "It may be easier to understand Edebug specifications by studying the "
 "examples provided here."
-msgstr ""
+msgstr "以下で提供する例から学ぶことにより、Edebug仕様の理解が容易になるかもしれません。"
 
 #. type: Plain text
 #: edebug.texi.orig:1437
@@ -3092,7 +3092,7 @@ msgid ""
 "the bindings is either a symbol or a sublist with a symbol and optional "
 "expression.  In the specification below, notice the @code{gate} inside of "
 "the sublist to prevent backtracking once a sublist is found."
-msgstr ""
+msgstr "スペシャルフォーム@code{let}は、バインディングとbodyのシーケンスをもちます。各バインディングはそシンボル、またはシンボルとオプションの部分リストです。以下の仕様では、部分リストを見つけたらバックトラックを抑止するために、部分リスト内の@code{gate}があることに注目してください。"
 
 #. type: example
 #: edebug.texi.orig:1452
@@ -3103,6 +3103,10 @@ msgid ""
 "    &or symbolp (gate symbolp &optional form))\n"
 "   body))\n"
 msgstr ""
+"(def-edebug-spec let\n"
+"  ((&rest\n"
+"    &or symbolp (gate symbolp &optional form))\n"
+"   body))\n"
 
 #. type: Plain text
 #: edebug.texi.orig:1460
@@ -3113,7 +3117,7 @@ msgid ""
 "evaluated outside of the function body.  (The specification for "
 "@code{defmacro} is very similar to that for @code{defun}, but allows for the "
 "@code{declare} statement.)"
-msgstr ""
+msgstr "Edebugは@code{defun}および関連する引数リスト、@code{interactive}仕様にたいして以下の仕様を使用します。式の引数はその関数bodyの外部で実際に評価されるので、interactiveフォームは特別に処理する必要があります。(@code{defmacro}にたいする仕様は@code{defun}にたいする仕様と非常に似ていますが、@code{declare}命令文が許されます。)"
 
 #. type: smallexample
 #: edebug.texi.orig:1467
@@ -3126,6 +3130,12 @@ msgid ""
 "           def-body))\n"
 "\n"
 msgstr ""
+"(def-edebug-spec defun\n"
+"  (&define name lambda-list\n"
+"           [&optional stringp]   ; @r{ドキュメント文字列が与えられた場合はマッチする。}\n"
+"           [&optional (\"interactive\" interactive)]\n"
+"           def-body))\n"
+"\n"
 
 #. type: smallexample
 #: edebug.texi.orig:1473
@@ -3138,6 +3148,12 @@ msgid ""
 "    )))\n"
 "\n"
 msgstr ""
+"(def-edebug-spec lambda-list\n"
+"  (([&rest arg]\n"
+"    [&optional [\"&optional\" arg &rest arg]]\n"
+"    &optional [\"&rest\" arg]\n"
+"    )))\n"
+"\n"
 
 #. type: smallexample
 #: edebug.texi.orig:1476
@@ -3146,6 +3162,8 @@ msgid ""
 "(def-edebug-spec interactive\n"
 "  (&optional &or stringp def-form))    ; @r{Notice: @code{def-form}}\n"
 msgstr ""
+"(def-edebug-spec interactive\n"
+"  (&optional &or stringp def-form))    ; @r{Notice: @code{def-form}}\n"
 
 #. type: Plain text
 #: edebug.texi.orig:1484
@@ -3155,7 +3173,7 @@ msgid ""
 "components of a vector may be matched.  (The actual specification defined by "
 "Edebug is a little different, and does not support dotted lists because "
 "doing so causes very deep recursion that could fail.)"
-msgstr ""
+msgstr "以下のバッククォートにたいする仕様は、ドットリストにマッチさせる方法と、@code{nil}を使用して再帰を終了させる方法を説明するための例です。また、ベクターのコンポーネントをマッチさせる方法も示しています。(Edebugにより定義される実際の仕様は少し異なり、ドットリストについては失敗するかもしれない非常に深い再帰を引き起こすためサポートしていません。)"
 
 #. type: smallexample
 #: edebug.texi.orig:1487
@@ -3163,7 +3181,7 @@ msgstr ""
 msgid ""
 "(def-edebug-spec \\` (backquote-form))   ; @r{Alias just for clarity.}\n"
 "\n"
-msgstr ""
+msgstr "(def-edebug-spec \\` (backquote-form))   ; @r{Alias just for clarity.}\n\n"
 
 #. type: smallexample
 #: edebug.texi.orig:1493
@@ -3175,6 +3193,11 @@ msgid ""
 "       (vector &rest backquote-form)\n"
 "       sexp))\n"
 msgstr ""
+"(def-edebug-spec backquote-form\n"
+"  (&or ([&or \",\" \",@@\"] &or (\"quote\" backquote-form) form)\n"
+"       (backquote-form . [&or nil backquote-form])\n"
+"       (vector &rest backquote-form)\n"
+"       sexp))\n"
 
 #. type: subsection
 #: edebug.texi.orig:1496 edebug.texi.orig:1497

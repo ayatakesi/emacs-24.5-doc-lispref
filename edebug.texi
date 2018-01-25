@@ -940,50 +940,24 @@ sublist-elements@dots{})}と等価であることに注意。
 
 @cindex backtracking
 @cindex syntax error (Edebug)
-If a specification fails to match at some point, this does not necessarily
-mean a syntax error will be signaled; instead, @dfn{backtracking} will take
-place until all alternatives have been exhausted.  Eventually every element
-of the argument list must be matched by some element in the specification,
-and every required element in the specification must match some argument.
+あるポイント位置で仕様がマッチに失敗しても、構文エラーがシグナルされるとは限りません。そのかわり@dfn{バックトラック(backtracking)}が開始されます。バックトラックは、すべての選択肢をマッチングするまで行なわれます。最終的に引数リストのすべての要素は仕様内の要素のいずれかとマッチしなければならず、仕様内の必須要素は引数のいずれかとマッチしなければなりません。
 
-When a syntax error is detected, it might not be reported until much later,
-after higher-level alternatives have been exhausted, and with the point
-positioned further from the real error.  But if backtracking is disabled
-when an error occurs, it can be reported immediately.  Note that
-backtracking is also reenabled automatically in several situations; when a
-new alternative is established by @code{&optional}, @code{&rest}, or
-@code{&or}, or at the start of processing a sublist, group, or indirect
-specification.  The effect of enabling or disabling backtracking is limited
-to the remainder of the level currently being processed and lower levels.
+構文エラーが検出されてもその時点では報告されず、より高位レベルの選択肢のマッチングが終わった後、実際のエラー箇所から離れたポイント位置でエラーが報告されるかもしれません。しかしエラー発生時にバックトラックが無効なら、エラーは即座に報告されるでしょう。ある状況においては、バックトラックも自動的に再有効化されることに注意してください。@code{&optional}、@code{&rest}、@code{&or}により新たな選択肢が設定されたとき、または部分リスト、グループ、インダイレクト仕様が開始されたときは、バックトラックが自動的に有効になります。バックトラックを有効、または無効にした場合の影響は、現在処理中のレベルの残り要素と、低位レベルに限定されます。
 
-Backtracking is disabled while matching any of the form specifications (that
-is, @code{form}, @code{body}, @code{def-form}, and @code{def-body}).  These
-specifications will match any form so any error must be in the form itself
-rather than at a higher level.
+何らかのフォーム仕様(すなわち@code{form}、@code{body}、@code{def-form}、@code{def-body})をマッチングする間、バックトラックは無効になっています。これらの仕様は任意のフォームにマッチするので、何らかのエラーが発生するとしたらそれは高位レベルではなく、そのフォーム自体の内部でなければなりません。
 
-Backtracking is also disabled after successfully matching a quoted symbol or
-string specification, since this usually indicates a recognized construct.
-But if you have a set of alternative constructs that all begin with the same
-symbol, you can usually work around this constraint by factoring the symbol
-out of the alternatives, e.g., @code{["foo" &or [first case] [second case]
-...]}.
+バックトラックはクォートされたシンボルや文字列仕様とのマッチに成功した後にも無効になります。なぜなら通常これは構成が認識されたことを示すからです。しかし、同じシンボルで始まる一連の選択肢構成がある場合は、たとえば@code{["foo"
+&or [first case] [second case]
+...]}のように、通常は選択肢の外部にそのシンボルをファクタリングすることにより、この制約に対処できます。
 
-Most needs are satisfied by these two ways that backtracking is
-automatically disabled, but occasionally it is useful to explicitly disable
-backtracking by using the @code{gate} specification.  This is useful when
-you know that no higher alternatives could apply.  See the example of the
-@code{let} specification.
+ほとんどのニーズは、バックトラックを自動的に無効にする、これら2つの方法で満足させることができますが、@code{gate}仕様を使用して明示的にバックトラックを無効にするほうが便利なときもあります。これは、高位に適用可能な選択肢が存在しないことが分かっている場合に有用です。@code{let}仕様の例を参照してください。
 
 @node Specification Examples
 @subsubsection Specification Examples
 
-It may be easier to understand Edebug specifications by studying the
-examples provided here.
+以下で提供する例から学ぶことにより、Edebug仕様の理解が容易になるかもしれません。
 
-A @code{let} special form has a sequence of bindings and a body.  Each of
-the bindings is either a symbol or a sublist with a symbol and optional
-expression.  In the specification below, notice the @code{gate} inside of
-the sublist to prevent backtracking once a sublist is found.
+スペシャルフォーム@code{let}は、バインディングとbodyのシーケンスをもちます。各バインディングはそシンボル、またはシンボルとオプションの部分リストです。以下の仕様では、部分リストを見つけたらバックトラックを抑止するために、部分リスト内の@code{gate}があることに注目してください。
 
 @ignore
 @c FIXME?  The actual definition in edebug.el looks like this (and always
@@ -1001,17 +975,12 @@ the sublist to prevent backtracking once a sublist is found.
    body))
 @end example
 
-Edebug uses the following specifications for @code{defun} and the associated
-argument list and @code{interactive} specifications.  It is necessary to
-handle interactive forms specially since an expression argument is actually
-evaluated outside of the function body.  (The specification for
-@code{defmacro} is very similar to that for @code{defun}, but allows for the
-@code{declare} statement.)
+Edebugは@code{defun}および関連する引数リスト、@code{interactive}仕様にたいして以下の仕様を使用します。式の引数はその関数bodyの外部で実際に評価されるので、interactiveフォームは特別に処理する必要があります。(@code{defmacro}にたいする仕様は@code{defun}にたいする仕様と非常に似ていますが、@code{declare}命令文が許されます。)
 
 @smallexample
 (def-edebug-spec defun
   (&define name lambda-list
-           [&optional stringp]   ; @r{Match the doc string, if present.}
+           [&optional stringp]   ; @r{ドキュメント文字列が与えられた場合はマッチする。}
            [&optional ("interactive" interactive)]
            def-body))
 
@@ -1025,11 +994,7 @@ evaluated outside of the function body.  (The specification for
   (&optional &or stringp def-form))    ; @r{Notice: @code{def-form}}
 @end smallexample
 
-The specification for backquote below illustrates how to match dotted lists
-and use @code{nil} to terminate recursion.  It also illustrates how
-components of a vector may be matched.  (The actual specification defined by
-Edebug is a little different, and does not support dotted lists because
-doing so causes very deep recursion that could fail.)
+以下のバッククォートにたいする仕様は、ドットリストにマッチさせる方法と、@code{nil}を使用して再帰を終了させる方法を説明するための例です。また、ベクターのコンポーネントをマッチさせる方法も示しています。(Edebugにより定義される実際の仕様は少し異なり、ドットリストについては失敗するかもしれない非常に深い再帰を引き起こすためサポートしていません。)
 
 @smallexample
 (def-edebug-spec \` (backquote-form))   ; @r{Alias just for clarity.}
