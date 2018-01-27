@@ -441,32 +441,23 @@ backtraceの各行は、1つの関数呼び出しを表します。関数の引�
 @section Debugging Invalid Lisp Syntax
 @cindex debugging invalid Lisp syntax
 
-  The Lisp reader reports invalid syntax, but cannot say where the real
-problem is.  For example, the error ``End of file during parsing'' in
-evaluating an expression indicates an excess of open parentheses (or square
-brackets).  The reader detects this imbalance at the end of the file, but it
-cannot figure out where the close parenthesis should have been.  Likewise,
-``Invalid read syntax: ")"'' indicates an excess close parenthesis or
-missing open parenthesis, but does not say where the missing parenthesis
-belongs.  How, then, to find what to change?
+  Lispリーダーは無効な構文(invalid
+syntax)について報告はしますが、実際の問題箇所は報告しません。たとえば、ある式を評価中のエラー``End of file during
+parsing(パース中にファイル終端に達した)''は、開カッコまたは開角カッコ(open parenthese or open square
+bracket)が多いことを示しています。Lispリーダーはこの不一致をファイル終端で検出しましたが、本来閉カッコがあるべき箇所を解決することはできません。同様に、``Invalid
+read syntax:
+")"(無効なread構文:”)”)''は開カッコの欠落を示していますが、欠落しているカッコが属すべき場所は告げません。ならば、どうやって変更すべき箇所を探せばよいのでしょうか?
 
-  If the problem is not simply an imbalance of parentheses, a useful technique
-is to try @kbd{C-M-e} at the beginning of each defun, and see if it goes to
-the place where that defun appears to end.  If it does not, there is a
-problem in that defun.
+  問題が単なるカッコの不一致でない場合の便利なテクニックは、各defunの先頭で@kbd{C-M-e}とタイプして、そのdefunの最後と思われる箇所に移動するか確認する方法です。もし移動しなければ、問題はそのdefunの内部にあります。
 
 @cindex unbalanced parentheses
 @cindex parenthesis mismatch, debugging
-  However, unmatched parentheses are the most common syntax errors in Lisp,
-and we can give further advice for those cases.  (In addition, just moving
-point through the code with Show Paren mode enabled might find the
-mismatch.)
+  マッチしないカッコがLispにおいてもっとも一般的な構文エラーなので、これらのケースにたいしてさらにアドバイスすることができます。(Show
+Parenモードを有効にしてコードにポイントを移動するだけで、カッコの不一致を探しやすくなるでしょう。)
 
 @menu
-* Excess Open::              How to find a spurious open paren or missing 
-                               close.
-* Excess Close::             How to find a spurious close paren or missing 
-                               open.
+* Excess Open::              誤った開カッコと閉カッコを探す方法。
+* Excess Close::             誤った閉カッコと開カッコを探す方法。
 @end menu
 
 @node Excess Open
