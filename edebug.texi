@@ -1013,96 +1013,66 @@ Edebugは@code{defun}および関連する引数リスト、@code{interactive}�
 @c Previously defopt'd:
 @c edebug-sit-for-seconds, edebug-print-length, edebug-print-level
 @c edebug-print-circle, edebug-eval-macro-args
-  These options affect the behavior of Edebug:
+  以下のオプションは、Edebugの動作に影響を与えます:
 
 @defopt edebug-setup-hook
-Functions to call before Edebug is used.  Each time it is set to a new
-value, Edebug will call those functions once and then reset
-@code{edebug-setup-hook} to @code{nil}.  You could use this to load up
-Edebug specifications associated with a package you are using, but only when
-you also use Edebug.  @xref{Instrumenting}.
+Edebugが使用される前に呼び出される関数。この関数は毎回新たな値をセットする。Edebugこれらの関数を一度呼び出したら、その後@code{edebug-setup-hook}@code{nil}にリセットする。使用するパッケージに関係するEdebug仕様をロードするために使用ｄきるが、それはEdebugを使用するときだけである。@ref{Instrumenting}を参照。
 @end defopt
 
 @defopt edebug-all-defs
-If this is non-@code{nil}, normal evaluation of defining forms such as
-@code{defun} and @code{defmacro} instruments them for Edebug.  This applies
-to @code{eval-defun}, @code{eval-region}, @code{eval-buffer}, and
-@code{eval-current-buffer}.
+これが非@code{nil}の場合は@code{defun}や@code{defmacro}のような定義フォームの普通に評価すると、Edebug用にインストルメントされる。これは@code{eval-defun}、@code{eval-region}、@code{eval-buffer}、and
+@code{eval-current-buffer}に適用される。
 
-Use the command @kbd{M-x edebug-all-defs} to toggle the value of this
-option.  @xref{Instrumenting}.
+このオプションの切り替えには、コマンド@kbd{M-x edebug-all-defs}を使用する。@ref{Instrumenting}を参照。
 @end defopt
 
 @defopt edebug-all-forms
-If this is non-@code{nil}, the commands @code{eval-defun},
-@code{eval-region}, @code{eval-buffer}, and @code{eval-current-buffer}
-instrument all forms, even those that don't define anything.  This doesn't
-apply to loading or evaluations in the minibuffer.
+これが非@code{nil}の場合@code{eval-defun}、@code{eval-region}、@code{eval-buffer}、@code{eval-current-buffer}は、たとえフォームが何も定義していなくても、すべてのフォームをインストルメントする。これはロードとミニバッファー内の評価には適用されない。
 
-Use the command @kbd{M-x edebug-all-forms} to toggle the value of this
-option.  @xref{Instrumenting}.
+このオプションの切り替えには、コマンド@kbd{M-x edebug-all-forms}を使用する。@ref{Instrumenting}を参照。
 @end defopt
 
 @defopt edebug-save-windows
-If this is non-@code{nil}, Edebug saves and restores the window
-configuration.  That takes some time, so if your program does not care what
-happens to the window configurations, it is better to set this variable to
-@code{nil}.
+これが非@code{nil}の場合、Edebugはウィンドウ構成の保存とリストアを行なう。これにはある程度時間がかかるので、ウィンドウ構成に何が起こってもプログラムに関係しない場合は、この変数を@code{nil}にセットしたほうがよい。
 
-If the value is a list, only the listed windows are saved and restored.
+値がリストの場合は、リストされたウィンドウだけが保存およびリストアされる。
 
-You can use the @kbd{W} command in Edebug to change this variable
-interactively.  @xref{Edebug Display Update}.
+Edebug内では、この変数をインタラクティブに変更するために@kbd{W}コマンドを使用できる。@ref{Edebug Display
+Update}を参照。
 @end defopt
 
 @defopt edebug-save-displayed-buffer-points
-If this is non-@code{nil}, Edebug saves and restores point in all displayed
-buffers.
+これが非@code{nil}の場合、Edebugは表示されているすべてのバッファー内のポイントを保存およびリストアする。
 
-Saving and restoring point in other buffers is necessary if you are
-debugging code that changes the point of a buffer that is displayed in a
-non-selected window.  If Edebug or the user then selects the window, point
-in that buffer will move to the window's value of point.
+選択されていないウィンドウ内に表示されているバッファーのポイントを変更するコードをデバッグしている場合は、他のバッファーのポイントを保存およびリストアする必要がある。その後にEdebugまたはユーザーがそのウィンドウを選択した場合は、そのバッファー内のポイントは、そのウィンドウのポイント値に移動される。
 
-Saving and restoring point in all buffers is expensive, since it requires
-selecting each window twice, so enable this only if you need it.
-@xref{Edebug Display Update}.
+すべてのバッファー内のポイントの保存とリストアは、それぞれのウィンドウを2回選択する必要があり高価な処理のため、必要なときだけ有効にする。@ref{Edebug
+Display Update}を参照。
 @end defopt
 
 @defopt edebug-initial-mode
-If this variable is non-@code{nil}, it specifies the initial execution mode
-for Edebug when it is first activated.  Possible values are @code{step},
-@code{next}, @code{go}, @code{Go-nonstop}, @code{trace}, @code{Trace-fast},
-@code{continue}, and @code{Continue-fast}.
+この変数が非@code{nil}の場合、Edebugが最初にアクティブになったときの、Edebugの最初の実行モードを指定する。指定できる値は@code{step}、@code{next}、@code{go}、@code{Go-nonstop}、@code{trace}、@code{Trace-fast}、@code{continue}、@code{Continue-fast}。
 
-The default value is @code{step}.  @xref{Edebug Execution Modes}.
+デフォルト値は@code{step}。@ref{Edebug Execution Modes}を参照。
 @end defopt
 
 @defopt edebug-trace
-If this is non-@code{nil}, trace each function entry and exit.  Tracing
-output is displayed in a buffer named @file{*edebug-trace*}, one function
-entry or exit per line, indented by the recursion level.
+これが非@code{nil}の場合が、各関数のエントリーとexitをトレースする。トレース出力は、関数のエントリーとexitを行ごとに、再帰レベルにしたがって@file{*edebug-trace*}という名前のバッファーに表示される。
 
-Also see @code{edebug-tracing}, in @ref{Trace Buffer}.
+@ref{Trace Buffer}の@code{edebug-tracing}も参照のこと。
 @end defopt
 
 @defopt edebug-test-coverage
-If non-@code{nil}, Edebug tests coverage of all expressions debugged.
-@xref{Coverage Testing}.
+非@code{nil}の場合、Edebugはデバッグされるすべての式のカバレッジをテストする。@ref{Coverage Testing}を参照。
 @end defopt
 
 @defopt edebug-continue-kbd-macro
-If non-@code{nil}, continue defining or executing any keyboard macro that is
-executing outside of Edebug.  Use this with caution since it is not
-debugged.  @xref{Edebug Execution Modes}.
+非@code{nil}の場合は、Edebug外で実行されている任意のキーボードマクロの定義または実行を継続する。これはデバッグされないので、慎重に使用すること。@ref{Edebug
+Execution Modes}を参照。
 @end defopt
 
 @defopt edebug-unwrap-results
-If non-@code{nil}, Edebug tries to remove any of its own instrumentation
-when showing the results of expressions.  This is relevant when debugging
-macros where the results of expressions are themselves instrumented
-expressions.  As a very artificial example, suppose that the example
-function @code{fac} has been instrumented, and consider a macro of the form:
+非@code{nil}の場合、Edebugは式の結果を表示するときに、その式自体のインストルメント結果の削除を試みる。マクロをデバッグするときは、式の結果自体がインストルメントされた式になるということに関連する。実際的な例ではないが、サンプル例の関数@code{fac}がインストルメントされたとき、そのフォームのマクロを考えてみるとよい。
 
 @c FIXME find a less silly example.
 @smallexample
@@ -1111,31 +1081,24 @@ function @code{fac} has been instrumented, and consider a macro of the form:
       @dots{}))
 @end smallexample
 
-If you instrument the @code{test} macro and step through it, then by default
-the result of the @code{symbol-function} call has numerous
-@code{edebug-after} and @code{edebug-before} forms, which can make it
-difficult to see the ``actual'' result.  If @code{edebug-unwrap-results} is
-non-@code{nil}, Edebug tries to remove these forms from the result.
+@code{test}マクロをインストルメントしてステップ実行すると、デフォルトでは@code{symbol-function}呼び出しは多数の@code{edebug-after}フォームと@code{edebug-before}フォームをもつことになり、それにより``実際の''結果の確認が難しくなり得る。@code{edebug-unwrap-results}が非@code{nil}の場合、Edebugは結果からこれらのフォームの削除を試みる。
 @end defopt
 
 @defopt edebug-on-error
-Edebug binds @code{debug-on-error} to this value, if @code{debug-on-error}
-was previously @code{nil}.  @xref{Trapping Errors}.
+@code{debug-on-error}の以前が@code{nil}の場合、Edebugは@code{debug-on-error}をこの値にバインドする。@ref{Trapping
+Errors}を参照。
 @end defopt
 
 @defopt edebug-on-quit
-Edebug binds @code{debug-on-quit} to this value, if @code{debug-on-quit} was
-previously @code{nil}.  @xref{Trapping Errors}.
+@code{debug-on-quit}の以前の値が@code{nil}の場合、Edebugは@code{debug-on-quit}にこの値をバインドする。@ref{Trapping
+Errors}を参照。
 @end defopt
 
 @c Not necessarily a deeper command level.
 @c A new command is not precisely true, but that is close enough -- dan
-  If you change the values of @code{edebug-on-error} or @code{edebug-on-quit}
-while Edebug is active, their values won't be used until the @emph{next}
-time Edebug is invoked via a new command.
+  Edebugがアクティブな間に@code{edebug-on-error}または@code{edebug-on-quit}の値を変更した場合は、@emph{次回}に新たなコマンドを通じてEdebugが呼び出されるまで、これらの値は使用されない。
 
 @defopt edebug-global-break-condition
-If non-@code{nil}, an expression to test for at every stop point.  If the
-result is non-@code{nil}, then break.  Errors are ignored.  @xref{Global
-Break Condition}.
+非@code{nil}の場合、値はすべてのステップポイントでテストされる式である。式の結果が@code{nil}の場合は、breakする。エラーは無視される。@ref{Global
+Break Condition}を参照。
 @end defopt
