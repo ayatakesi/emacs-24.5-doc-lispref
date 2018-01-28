@@ -498,38 +498,27 @@ C-M-u}をタイプします。
 @findex testcover-start
 @findex testcover-mark-all
 @findex testcover-next-mark
-  You can do coverage testing for a file of Lisp code by loading the
-@code{testcover} library and using the command @kbd{M-x testcover-start
-@key{RET} @var{file} @key{RET}} to instrument the code.  Then test your code
-by calling it one or more times.  Then use the command @kbd{M-x
-testcover-mark-all} to display colored highlights on the code to show where
-coverage is insufficient.  The command @kbd{M-x testcover-next-mark} will
-move point forward to the next highlighted spot.
+  @code{testcover}ライブラリーをロードして、コマンド@kbd{M-x testcover-start @key{RET}
+@var{file}
+@key{RET}}でコードをインストルメントすることにより、Lispコードのファイルにたいしてカバレッジテストを行なうことができます。コードを1回以上呼び出すことにより、テストが行なわれます。コマンド@kbd{M-x
+testcover-mark-all}を使用すれば、カバレッジが不十分な箇所が色付きでハイライト表示されます。コマンド@kbd{M-x
+testcover-next-mark}は、次のハイライトされた箇所へポイントを前方に移動します。
 
-  Normally, a red highlight indicates the form was never completely evaluated;
-a brown highlight means it always evaluated to the same value (meaning there
-has been little testing of what is done with the result).  However, the red
-highlight is skipped for forms that can't possibly complete their
-evaluation, such as @code{error}.  The brown highlight is skipped for forms
-that are expected to always evaluate to the same value, such as @code{(setq
-x 14)}.
+  通常、赤くハイライトされた箇所はそのフォームが完全に評価されたことが一度もないことを示し、茶色でハイライトされた箇所は常に同じ値に評価された(その結果にたいして少ししかテストされていない)ことを意味します。しかし、@code{error}のように完全に評価するのが不可能なフォームにたいしては、赤いハイライトはスキップされます。@code{(setq
+x 14)}のように、常に同じ値に評価されることが期待されるフォームにたいしては、茶色のハイライトスキップされます。
 
-  For difficult cases, you can add do-nothing macros to your code to give
-advice to the test coverage tool.
+  難しいケースでは、テストカバレッジツールにアドバイスを与えるために、コードにdo-nothingマクロを追加することができます。
 
 @defmac 1value form
-Evaluate @var{form} and return its value, but inform coverage testing that
-@var{form}'s value should always be the same.
+@var{form}を評価してその値をリターンするが、テストカバレッジにたいして@var{form}が常に同じ値だという情報を与える。
 @end defmac
 
 @defmac noreturn form
-Evaluate @var{form}, informing coverage testing that @var{form} should never
-return.  If it ever does return, you get a run-time error.
+@var{form}を評価し、@var{form}が決してリターンしないという情報をカバレッジテストに与える。もしリターンした場合は、run-timeエラーとなる。
 @end defmac
 
-  Edebug also has a coverage testing feature (@pxref{Coverage Testing}).
-These features partly duplicate each other, and it would be cleaner to
-combine them.
+  Edebugにもカバレッジテスト機能があります(@ref{Coverage
+Testing}を参照)。これらの機能は部分的に重複しており、組み合わせることで明確になるでしょう。
 
 
 @node Profiling
