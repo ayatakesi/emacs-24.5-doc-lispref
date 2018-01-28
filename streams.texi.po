@@ -1,0 +1,1626 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2018-01-29 07:18+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: node
+#: streams.texi.orig:6
+#, no-wrap
+msgid "Read and Print"
+msgstr ""
+
+#. type: chapter
+#: streams.texi.orig:7
+#, no-wrap
+msgid "Reading and Printing Lisp Objects"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:12
+msgid ""
+"@dfn{Printing} and @dfn{reading} are the operations of converting Lisp "
+"objects to textual form and vice versa.  They use the printed "
+"representations and read syntax described in @ref{Lisp Data Types}."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:16
+msgid ""
+"This chapter describes the Lisp functions for reading and printing.  It also "
+"describes @dfn{streams}, which specify where to get the text (if reading) or "
+"where to put it (if printing)."
+msgstr ""
+
+#. type: node
+#: streams.texi.orig:24 streams.texi.orig:26
+#, no-wrap
+msgid "Streams Intro"
+msgstr ""
+
+#. type: menuentry
+#: streams.texi.orig:24
+msgid "Overview of streams, reading and printing."
+msgstr ""
+
+#. type: section
+#: streams.texi.orig:24 streams.texi.orig:75 streams.texi.orig:76
+#, no-wrap
+msgid "Input Streams"
+msgstr ""
+
+#. type: menuentry
+#: streams.texi.orig:24
+msgid "Various data types that can be used as input streams."
+msgstr ""
+
+#. type: section
+#: streams.texi.orig:24 streams.texi.orig:268 streams.texi.orig:269
+#, no-wrap
+msgid "Input Functions"
+msgstr ""
+
+#. type: menuentry
+#: streams.texi.orig:24
+msgid "Functions to read Lisp objects from text."
+msgstr ""
+
+#. type: section
+#: streams.texi.orig:24 streams.texi.orig:342 streams.texi.orig:343
+#, no-wrap
+msgid "Output Streams"
+msgstr ""
+
+#. type: menuentry
+#: streams.texi.orig:24
+msgid "Various data types that can be used as output streams."
+msgstr ""
+
+#. type: section
+#: streams.texi.orig:24 streams.texi.orig:514 streams.texi.orig:515
+#, no-wrap
+msgid "Output Functions"
+msgstr ""
+
+#. type: menuentry
+#: streams.texi.orig:24
+msgid "Functions to print Lisp objects as text."
+msgstr ""
+
+#. type: node
+#: streams.texi.orig:24 streams.texi.orig:686
+#, no-wrap
+msgid "Output Variables"
+msgstr ""
+
+#. type: menuentry
+#: streams.texi.orig:24
+msgid "Variables that control what the printing functions do."
+msgstr ""
+
+#. type: section
+#: streams.texi.orig:27
+#, no-wrap
+msgid "Introduction to Reading and Printing"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:28
+#, no-wrap
+msgid "Lisp reader"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:29
+#, no-wrap
+msgid "printing"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:30
+#, no-wrap
+msgid "reading"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:38
+msgid ""
+"@dfn{Reading} a Lisp object means parsing a Lisp expression in textual form "
+"and producing a corresponding Lisp object.  This is how Lisp programs get "
+"into Lisp from files of Lisp code.  We call the text the @dfn{read syntax} "
+"of the object.  For example, the text @samp{(a .@: 5)} is the read syntax "
+"for a cons cell whose @sc{car} is @code{a} and whose @sc{cdr} is the number "
+"5."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:43
+msgid ""
+"@dfn{Printing} a Lisp object means producing text that represents that "
+"object---converting the object to its @dfn{printed representation} "
+"(@pxref{Printed Representation}).  Printing the cons cell described above "
+"produces the text @samp{(a .@: 5)}."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:53
+msgid ""
+"Reading and printing are more or less inverse operations: printing the "
+"object that results from reading a given piece of text often produces the "
+"same text, and reading the text that results from printing an object usually "
+"produces a similar-looking object.  For example, printing the symbol "
+"@code{foo} produces the text @samp{foo}, and reading that text returns the "
+"symbol @code{foo}.  Printing a list whose elements are @code{a} and @code{b} "
+"produces the text @samp{(a b)}, and reading that text produces a list (but "
+"not the same list) with elements @code{a} and @code{b}."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:56
+msgid ""
+"However, these two operations are not precisely inverse to each other.  "
+"There are three kinds of exceptions:"
+msgstr ""
+
+#. type: itemize
+#: streams.texi.orig:63
+msgid ""
+"Printing can produce text that cannot be read.  For example, buffers, "
+"windows, frames, subprocesses and markers print as text that starts with "
+"@samp{#}; if you try to read this text, you get an error.  There is no way "
+"to read those data types."
+msgstr ""
+
+#. type: itemize
+#: streams.texi.orig:69
+msgid ""
+"One object can have multiple textual representations.  For example, @samp{1} "
+"and @samp{01} represent the same integer, and @samp{(a b)} and @samp{(a .@: "
+"(b))} represent the same list.  Reading will accept any of the alternatives, "
+"but printing must choose one of them."
+msgstr ""
+
+#. type: itemize
+#: streams.texi.orig:73
+msgid ""
+"Comments can appear at certain points in the middle of an object's read "
+"sequence without affecting the result of reading it."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:77
+#, no-wrap
+msgid "stream (for reading)"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:78
+#, no-wrap
+msgid "input stream"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:84
+msgid ""
+"Most of the Lisp functions for reading text take an @dfn{input stream} as an "
+"argument.  The input stream specifies where or how to get the characters of "
+"the text to be read.  Here are the possible types of input stream:"
+msgstr ""
+
+#. type: var{#1}
+#: streams.texi.orig:86 streams.texi.orig:352
+#, no-wrap
+msgid "buffer"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:87
+#, no-wrap
+msgid "buffer input stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:90
+msgid ""
+"The input characters are read from @var{buffer}, starting with the character "
+"directly after point.  Point advances as characters are read."
+msgstr ""
+
+#. type: var{#1}
+#: streams.texi.orig:91 streams.texi.orig:357
+#, no-wrap
+msgid "marker"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:92
+#, no-wrap
+msgid "marker input stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:97
+msgid ""
+"The input characters are read from the buffer that @var{marker} is in, "
+"starting with the character directly after the marker.  The marker position "
+"advances as characters are read.  The value of point in the buffer has no "
+"effect when the stream is a marker."
+msgstr ""
+
+#. type: var{#1}
+#: streams.texi.orig:98
+#, no-wrap
+msgid "string"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:99
+#, no-wrap
+msgid "string input stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:102
+msgid ""
+"The input characters are taken from @var{string}, starting at the first "
+"character in the string and using as many characters as required."
+msgstr ""
+
+#. type: var{#1}
+#: streams.texi.orig:103 streams.texi.orig:367
+#, no-wrap
+msgid "function"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:104
+#, no-wrap
+msgid "function input stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:107
+msgid ""
+"The input characters are generated by @var{function}, which must support two "
+"kinds of calls:"
+msgstr ""
+
+#. type: itemize
+#: streams.texi.orig:111
+msgid "When it is called with no arguments, it should return the next character."
+msgstr ""
+
+#. type: itemize
+#: streams.texi.orig:119
+msgid ""
+"When it is called with one argument (always a character), @var{function} "
+"should save the argument and arrange to return it on the next call.  This is "
+"called @dfn{unreading} the character; it happens when the Lisp reader reads "
+"one character too many and wants to ``put it back where it came from''.  In "
+"this case, it makes no difference what value @var{function} returns."
+msgstr ""
+
+#. type: code{#1}
+#: streams.texi.orig:121 streams.texi.orig:374
+#, no-wrap
+msgid "t"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:122
+#, no-wrap
+msgid "@code{t} input stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:128
+msgid ""
+"@code{t} used as a stream means that the input is read from the minibuffer.  "
+"In fact, the minibuffer is invoked once and the text given by the user is "
+"made into a string that is then used as the input stream.  If Emacs is "
+"running in batch mode, standard input is used instead of the minibuffer.  "
+"For example,"
+msgstr ""
+
+#. type: example
+#: streams.texi.orig:130
+#, no-wrap
+msgid "(message \"%s\" (read t))\n"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:133
+msgid ""
+"will read a Lisp expression from standard input and print the result to "
+"standard output."
+msgstr ""
+
+#. type: code{#1}
+#: streams.texi.orig:134 streams.texi.orig:378
+#, no-wrap
+msgid "nil"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:135
+#, no-wrap
+msgid "@code{nil} input stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:139
+msgid ""
+"@code{nil} supplied as an input stream means to use the value of "
+"@code{standard-input} instead; that value is the @dfn{default input stream}, "
+"and must be a non-@code{nil} input stream."
+msgstr ""
+
+#. type: var{#1}
+#: streams.texi.orig:140 streams.texi.orig:384
+#, no-wrap
+msgid "symbol"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:143
+msgid ""
+"A symbol as input stream is equivalent to the symbol's function definition "
+"(if any)."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:147
+msgid ""
+"Here is an example of reading from a stream that is a buffer, showing where "
+"point is located before and after:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:153
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This@point{} is the contents of foo.\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:158
+#, no-wrap
+msgid ""
+"(read (get-buffer \"foo\"))\n"
+"     @result{} is\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:162
+#, no-wrap
+msgid ""
+"(read (get-buffer \"foo\"))\n"
+"     @result{} the\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:168
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This is the@point{} contents of foo.\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:174
+msgid ""
+"Note that the first read skips a space.  Reading skips any amount of "
+"whitespace preceding the significant text."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:178
+msgid ""
+"Here is an example of reading from a stream that is a marker, initially "
+"positioned at the beginning of the buffer shown.  The value read is the "
+"symbol @code{This}."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:185
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This is the contents of foo.\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:190
+#, no-wrap
+msgid ""
+"(setq m (set-marker (make-marker) 1 (get-buffer \"foo\")))\n"
+"     @result{} #<marker at 1 in foo>\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:194
+#, no-wrap
+msgid ""
+"(read m)\n"
+"     @result{} This\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:198
+#, no-wrap
+msgid ""
+"m\n"
+"     @result{} #<marker at 5 in foo>   ;; @r{Before the first space.}\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:202
+msgid "Here we read from the contents of a string:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:207
+#, no-wrap
+msgid ""
+"(read \"(When in) the course\")\n"
+"     @result{} (When in)\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:214
+msgid ""
+"The following example reads from the minibuffer.  The prompt is: "
+"@w{@samp{Lisp expression: }}.  (That is always the prompt used when you read "
+"from the stream @code{t}.)  The user's input is shown following the prompt."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:222
+#, no-wrap
+msgid ""
+"(read t)\n"
+"     @result{} 23\n"
+"---------- Buffer: Minibuffer ----------\n"
+"Lisp expression: @kbd{23 @key{RET}}\n"
+"---------- Buffer: Minibuffer ----------\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:230
+msgid ""
+"Finally, here is an example of a stream that is a function, named "
+"@code{useless-stream}.  Before we use the stream, we initialize the variable "
+"@code{useless-list} to a list of characters.  Then each call to the function "
+"@code{useless-stream} obtains the next character in the list or unreads a "
+"character by adding it to the front of the list."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:235
+#, no-wrap
+msgid ""
+"(setq useless-list (append \"XY()\" nil))\n"
+"     @result{} (88 89 40 41)\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:244
+#, no-wrap
+msgid ""
+"(defun useless-stream (&optional unread)\n"
+"  (if unread\n"
+"      (setq useless-list (cons unread useless-list))\n"
+"    (prog1 (car useless-list)\n"
+"           (setq useless-list (cdr useless-list)))))\n"
+"     @result{} useless-stream\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:249
+msgid "Now we read using the stream thus constructed:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:254
+#, no-wrap
+msgid ""
+"(read 'useless-stream)\n"
+"     @result{} XY\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:259
+#, no-wrap
+msgid ""
+"useless-list\n"
+"     @result{} (40 41)\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:267
+msgid ""
+"Note that the open and close parentheses remain in the list.  The Lisp "
+"reader encountered the open parenthesis, decided that it ended the input, "
+"and unread it.  Another attempt to read from the stream at this point would "
+"read @samp{()} and return @code{nil}."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:273
+msgid ""
+"This section describes the Lisp functions and variables that pertain to "
+"reading."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:277
+msgid ""
+"In the functions below, @var{stream} stands for an input stream (see the "
+"previous section).  If @var{stream} is @code{nil} or omitted, it defaults to "
+"the value of @code{standard-input}."
+msgstr ""
+
+#. type: kindex
+#: streams.texi.orig:278
+#, no-wrap
+msgid "end-of-file"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:281
+msgid ""
+"An @code{end-of-file} error is signaled if reading encounters an "
+"unterminated list, vector, or string."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:282
+#, no-wrap
+msgid "read &optional stream"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:285
+msgid ""
+"This function reads one textual Lisp expression from @var{stream}, returning "
+"it as a Lisp object.  This is the basic Lisp input function."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:287
+#, no-wrap
+msgid "read-from-string string &optional start end"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:288
+#, no-wrap
+msgid "string to object"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:293
+msgid ""
+"This function reads the first textual Lisp expression from the text in "
+"@var{string}.  It returns a cons cell whose @sc{car} is that expression, and "
+"whose @sc{cdr} is an integer giving the position of the next remaining "
+"character in the string (i.e., the first one not read)."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:298
+msgid ""
+"If @var{start} is supplied, then reading begins at index @var{start} in the "
+"string (where the first character is at index 0).  If you specify @var{end}, "
+"then reading is forced to stop just before that index, as if the rest of the "
+"string were not there."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:300
+msgid "For example:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:305
+#, no-wrap
+msgid ""
+"(read-from-string \"(setq x 55) (setq y 5)\")\n"
+"     @result{} ((setq x 55) . 11)\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:309
+#, no-wrap
+msgid ""
+"(read-from-string \"\\\"A short string\\\"\")\n"
+"     @result{} (\"A short string\" . 16)\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:315
+#, no-wrap
+msgid ""
+";; @r{Read starting at the first character.}\n"
+"(read-from-string \"(list 112)\" 0)\n"
+"     @result{} ((list 112) . 10)\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:320
+#, no-wrap
+msgid ""
+";; @r{Read starting at the second character.}\n"
+"(read-from-string \"(list 112)\" 1)\n"
+"     @result{} (list . 5)\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:326
+#, no-wrap
+msgid ""
+";; @r{Read starting at the seventh character,}\n"
+";;   @r{and stopping at the ninth.}\n"
+"(read-from-string \"(list 112)\" 6 8)\n"
+"     @result{} (11 . 8)\n"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:330
+#, no-wrap
+msgid "standard-input"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:334
+msgid ""
+"This variable holds the default input stream---the stream that @code{read} "
+"uses when the @var{stream} argument is @code{nil}.  The default is @code{t}, "
+"meaning use the minibuffer."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:336
+#, no-wrap
+msgid "read-circle"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:340
+msgid ""
+"If non-@code{nil}, this variable enables the reading of circular and shared "
+"structures.  @xref{Circular Objects}.  Its default value is @code{t}."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:344
+#, no-wrap
+msgid "stream (for printing)"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:345
+#, no-wrap
+msgid "output stream"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:350
+msgid ""
+"An output stream specifies what to do with the characters produced by "
+"printing.  Most print functions accept an output stream as an optional "
+"argument.  Here are the possible types of output stream:"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:353
+#, no-wrap
+msgid "buffer output stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:356
+msgid ""
+"The output characters are inserted into @var{buffer} at point.  Point "
+"advances as characters are inserted."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:358
+#, no-wrap
+msgid "marker output stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:366
+msgid ""
+"The output characters are inserted into the buffer that @var{marker} points "
+"into, at the marker position.  The marker position advances as characters "
+"are inserted.  The value of point in the buffer has no effect on printing "
+"when the stream is a marker, and this kind of printing does not move point "
+"(except that if the marker points at or before the position of point, point "
+"advances with the surrounding text, as usual)."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:368
+#, no-wrap
+msgid "function output stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:373
+msgid ""
+"The output characters are passed to @var{function}, which is responsible for "
+"storing them away.  It is called with a single character as argument, as "
+"many times as there are characters to be output, and is responsible for "
+"storing the characters wherever you want to put them."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:375
+#, no-wrap
+msgid "@code{t} output stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:377
+msgid "The output characters are displayed in the echo area."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:379
+#, no-wrap
+msgid "@code{nil} output stream"
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:383
+msgid ""
+"@code{nil} specified as an output stream means to use the value of "
+"@code{standard-output} instead; that value is the @dfn{default output "
+"stream}, and must not be @code{nil}."
+msgstr ""
+
+#. type: table
+#: streams.texi.orig:387
+msgid ""
+"A symbol as output stream is equivalent to the symbol's function definition "
+"(if any)."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:392
+msgid ""
+"Many of the valid output streams are also valid as input streams.  The "
+"difference between input and output streams is therefore more a matter of "
+"how you use a Lisp object, than of different types of object."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:397
+msgid ""
+"Here is an example of a buffer used as an output stream.  Point is initially "
+"located as shown immediately before the @samp{h} in @samp{the}.  At the end, "
+"point is located directly before that same @samp{h}."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:398
+#, no-wrap
+msgid "print example"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:404
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This is t@point{}he contents of foo.\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: example
+#: streams.texi.orig:408
+#, no-wrap
+msgid ""
+"(print \"This is the output\" (get-buffer \"foo\"))\n"
+"     @result{} \"This is the output\"\n"
+"\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:415
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This is t\n"
+"\"This is the output\"\n"
+"@point{}he contents of foo.\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:424
+msgid ""
+"Now we show a use of a marker as an output stream.  Initially, the marker is "
+"in buffer @code{foo}, between the @samp{t} and the @samp{h} in the word "
+"@samp{the}.  At the end, the marker has advanced over the inserted text so "
+"that it remains positioned before the same @samp{h}.  Note that the location "
+"of point, shown in the usual fashion, has no effect."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:430
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This is the @point{}output\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:435
+#, no-wrap
+msgid ""
+"(setq m (copy-marker 10))\n"
+"     @result{} #<marker at 10 in foo>\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:440
+#, no-wrap
+msgid ""
+"(print \"More output for foo.\" m)\n"
+"     @result{} \"More output for foo.\"\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:448
+#, no-wrap
+msgid ""
+"---------- Buffer: foo ----------\n"
+"This is t\n"
+"\"More output for foo.\"\n"
+"he @point{}output\n"
+"---------- Buffer: foo ----------\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:453
+#, no-wrap
+msgid ""
+"m\n"
+"     @result{} #<marker at 34 in foo>\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:457
+msgid "The following example shows output to the echo area:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:465
+#, no-wrap
+msgid ""
+"(print \"Echo Area output\" t)\n"
+"     @result{} \"Echo Area output\"\n"
+"---------- Echo Area ----------\n"
+"\"Echo Area output\"\n"
+"---------- Echo Area ----------\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:473
+msgid ""
+"Finally, we show the use of a function as an output stream.  The function "
+"@code{eat-output} takes each character that it is given and conses it onto "
+"the front of the list @code{last-output} (@pxref{Building Lists}).  At the "
+"end, the list contains all the characters output, but in reverse order."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:478
+#, no-wrap
+msgid ""
+"(setq last-output nil)\n"
+"     @result{} nil\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:484
+#, no-wrap
+msgid ""
+"(defun eat-output (c)\n"
+"  (setq last-output (cons c last-output)))\n"
+"     @result{} eat-output\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:489
+#, no-wrap
+msgid ""
+"(print \"This is the output\" 'eat-output)\n"
+"     @result{} \"This is the output\"\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:495
+#, no-wrap
+msgid ""
+"last-output\n"
+"     @result{} (10 34 116 117 112 116 117 111 32 101 104\n"
+"    116 32 115 105 32 115 105 104 84 34 10)\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:500
+msgid "Now we can put the output in the proper order by reversing the list:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:507
+#, no-wrap
+msgid ""
+"(concat (nreverse last-output))\n"
+"     @result{} \"\n"
+"\\\"This is the output\\\"\n"
+"\"\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:513
+msgid ""
+"Calling @code{concat} converts the list to a string so you can see its "
+"contents more clearly."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:519
+msgid ""
+"This section describes the Lisp functions for printing Lisp "
+"objects---converting objects into their printed representation."
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:520
+#, no-wrap
+msgid "@samp{\"} in printing"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:521
+#, no-wrap
+msgid "@samp{\\} in printing"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:522
+#, no-wrap
+msgid "quoting characters in printing"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:523
+#, no-wrap
+msgid "escape characters in printing"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:531
+msgid ""
+"Some of the Emacs printing functions add quoting characters to the output "
+"when necessary so that it can be read properly.  The quoting characters used "
+"are @samp{\"} and @samp{\\}; they distinguish strings from symbols, and "
+"prevent punctuation characters in strings and symbols from being taken as "
+"delimiters when reading.  @xref{Printed Representation}, for full details.  "
+"You specify quoting or no quoting by the choice of printing function."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:537
+msgid ""
+"If the text is to be read back into Lisp, then you should print with quoting "
+"characters to avoid ambiguity.  Likewise, if the purpose is to describe a "
+"Lisp object clearly for a Lisp programmer.  However, if the purpose of the "
+"output is to look nice for humans, then it is usually better to print "
+"without quoting."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:545
+msgid ""
+"Lisp objects can refer to themselves.  Printing a self-referential object in "
+"the normal way would require an infinite amount of text, and the attempt "
+"could cause infinite recursion.  Emacs detects such recursion and prints "
+"@samp{#@var{level}} instead of recursively printing an object already being "
+"printed.  For example, here @samp{#0} indicates a recursive reference to the "
+"object at level 0 of the current print operation:"
+msgstr ""
+
+#. type: example
+#: streams.texi.orig:551
+#, no-wrap
+msgid ""
+"(setq foo (list nil))\n"
+"     @result{} (nil)\n"
+"(setcar foo foo)\n"
+"     @result{} (#0)\n"
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:557
+msgid ""
+"In the functions below, @var{stream} stands for an output stream.  (See the "
+"previous section for a description of output streams.)  If @var{stream} is "
+"@code{nil} or omitted, it defaults to the value of @code{standard-output}."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:558
+#, no-wrap
+msgid "print object &optional stream"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:559
+#, no-wrap
+msgid "Lisp printer"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:564
+msgid ""
+"The @code{print} function is a convenient way of printing.  It outputs the "
+"printed representation of @var{object} to @var{stream}, printing in addition "
+"one newline before @var{object} and another after it.  Quoting characters "
+"are used.  @code{print} returns @var{object}.  For example:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:577
+#, no-wrap
+msgid ""
+"(progn (print 'The\\ cat\\ in)\n"
+"       (print \"the hat\")\n"
+"       (print \" came back\"))\n"
+"     @print{}\n"
+"     @print{} The\\ cat\\ in\n"
+"     @print{}\n"
+"     @print{} \"the hat\"\n"
+"     @print{}\n"
+"     @print{} \" came back\"\n"
+"     @result{} \" came back\"\n"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:581
+#, no-wrap
+msgid "prin1 object &optional stream"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:586
+msgid ""
+"This function outputs the printed representation of @var{object} to "
+"@var{stream}.  It does not print newlines to separate output as @code{print} "
+"does, but it does use quoting characters just like @code{print}.  It returns "
+"@var{object}."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:594
+#, no-wrap
+msgid ""
+"(progn (prin1 'The\\ cat\\ in)\n"
+"       (prin1 \"the hat\")\n"
+"       (prin1 \" came back\"))\n"
+"     @print{} The\\ cat\\ in\"the hat\"\" came back\"\n"
+"     @result{} \" came back\"\n"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:598
+#, no-wrap
+msgid "princ object &optional stream"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:601
+msgid ""
+"This function outputs the printed representation of @var{object} to "
+"@var{stream}.  It returns @var{object}."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:606
+msgid ""
+"This function is intended to produce output that is readable by people, not "
+"by @code{read}, so it doesn't insert quoting characters and doesn't put "
+"double-quotes around the contents of strings.  It does not add any spacing "
+"between calls."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:614
+#, no-wrap
+msgid ""
+"(progn\n"
+"  (princ 'The\\ cat)\n"
+"  (princ \" in the \\\"hat\\\"\"))\n"
+"     @print{} The cat in the \"hat\"\n"
+"     @result{} \" in the \\\"hat\\\"\"\n"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:618
+#, no-wrap
+msgid "terpri &optional stream"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:619
+#, no-wrap
+msgid "newline in print"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:622
+msgid ""
+"This function outputs a newline to @var{stream}.  The name stands for "
+"``terminate print''."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:624
+#, no-wrap
+msgid "write-char character &optional stream"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:627
+msgid ""
+"This function outputs @var{character} to @var{stream}.  It returns "
+"@var{character}."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:629
+#, no-wrap
+msgid "prin1-to-string object &optional noescape"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:630
+#, no-wrap
+msgid "object to string"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:633
+msgid ""
+"This function returns a string containing the text that @code{prin1} would "
+"have printed for the same argument."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:638
+#, no-wrap
+msgid ""
+"(prin1-to-string 'foo)\n"
+"     @result{} \"foo\"\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:642
+#, no-wrap
+msgid ""
+"(prin1-to-string (mark-marker))\n"
+"     @result{} \"#<marker at 2773 in strings.texi>\"\n"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:648
+msgid ""
+"If @var{noescape} is non-@code{nil}, that inhibits use of quoting characters "
+"in the output.  (This argument is supported in Emacs versions 19 and later.)"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:653
+#, no-wrap
+msgid ""
+"(prin1-to-string \"foo\")\n"
+"     @result{} \"\\\"foo\\\"\"\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:657
+#, no-wrap
+msgid ""
+"(prin1-to-string \"foo\" t)\n"
+"     @result{} \"foo\"\n"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:662
+msgid ""
+"See @code{format}, in @ref{Formatting Strings}, for other ways to obtain the "
+"printed representation of a Lisp object as a string."
+msgstr ""
+
+#. type: defmac
+#: streams.texi.orig:664
+#, no-wrap
+msgid "with-output-to-string body@dots{}"
+msgstr ""
+
+#. type: defmac
+#: streams.texi.orig:667
+msgid ""
+"This macro executes the @var{body} forms with @code{standard-output} set up "
+"to feed output into a string.  Then it returns that string."
+msgstr ""
+
+#. type: defmac
+#: streams.texi.orig:669
+msgid "For example, if the current buffer name is @samp{foo},"
+msgstr ""
+
+#. type: example
+#: streams.texi.orig:674
+#, no-wrap
+msgid ""
+"(with-output-to-string\n"
+"  (princ \"The buffer is \")\n"
+"  (princ (buffer-name)))\n"
+msgstr ""
+
+#. type: defmac
+#: streams.texi.orig:678
+msgid "returns @code{\"The buffer is foo\"}."
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:680
+#, no-wrap
+msgid "pp object &optional stream"
+msgstr ""
+
+#. type: defun
+#: streams.texi.orig:684
+msgid ""
+"This function outputs @var{object} to @var{stream}, just like @code{prin1}, "
+"but does it in a more ``pretty'' way.  That is, it'll indent and fill the "
+"object to make it more readable for humans."
+msgstr ""
+
+#. type: section
+#: streams.texi.orig:687
+#, no-wrap
+msgid "Variables Affecting Output"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:688
+#, no-wrap
+msgid "output-controlling variables"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:690
+#, no-wrap
+msgid "standard-output"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:694
+msgid ""
+"The value of this variable is the default output stream---the stream that "
+"print functions use when the @var{stream} argument is @code{nil}.  The "
+"default is @code{t}, meaning display in the echo area."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:696
+#, no-wrap
+msgid "print-quoted"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:700
+msgid ""
+"If this is non-@code{nil}, that means to print quoted forms using "
+"abbreviated reader syntax, e.g., @code{(quote foo)} prints as @code{'foo}, "
+"and @code{(function foo)} as @code{#'foo}."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:702
+#, no-wrap
+msgid "print-escape-newlines"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:703
+#, no-wrap
+msgid "@samp{\\n} in print"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:704
+#, no-wrap
+msgid "escape characters"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:708
+msgid ""
+"If this variable is non-@code{nil}, then newline characters in strings are "
+"printed as @samp{\\n} and formfeeds are printed as @samp{\\f}.  Normally "
+"these characters are printed as actual newlines and formfeeds."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:712
+msgid ""
+"This variable affects the print functions @code{prin1} and @code{print} that "
+"print with quoting.  It does not affect @code{princ}.  Here is an example "
+"using @code{prin1}:"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:720
+#, no-wrap
+msgid ""
+"(prin1 \"a\\nb\")\n"
+"     @print{} \"a\n"
+"     @print{} b\"\n"
+"     @result{} \"a\n"
+"b\"\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:728
+#, no-wrap
+msgid ""
+"(let ((print-escape-newlines t))\n"
+"  (prin1 \"a\\nb\"))\n"
+"     @print{} \"a\\nb\"\n"
+"     @result{} \"a\n"
+"b\"\n"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:735
+msgid ""
+"In the second expression, the local binding of @code{print-escape-newlines} "
+"is in effect during the call to @code{prin1}, but not during the printing of "
+"the result."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:737
+#, no-wrap
+msgid "print-escape-nonascii"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:742
+msgid ""
+"If this variable is non-@code{nil}, then unibyte non-@acronym{ASCII} "
+"characters in strings are unconditionally printed as backslash sequences by "
+"the print functions @code{prin1} and @code{print} that print with quoting."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:746
+msgid ""
+"Those functions also use backslash sequences for unibyte non-@acronym{ASCII} "
+"characters, regardless of the value of this variable, when the output stream "
+"is a multibyte buffer or a marker pointing into one."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:748
+#, no-wrap
+msgid "print-escape-multibyte"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:753
+msgid ""
+"If this variable is non-@code{nil}, then multibyte non-@acronym{ASCII} "
+"characters in strings are unconditionally printed as backslash sequences by "
+"the print functions @code{prin1} and @code{print} that print with quoting."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:758
+msgid ""
+"Those functions also use backslash sequences for multibyte "
+"non-@acronym{ASCII} characters, regardless of the value of this variable, "
+"when the output stream is a unibyte buffer or a marker pointing into one."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:760
+#, no-wrap
+msgid "print-length"
+msgstr ""
+
+#. type: cindex
+#: streams.texi.orig:761
+#, no-wrap
+msgid "printing limits"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:765
+msgid ""
+"The value of this variable is the maximum number of elements to print in any "
+"list, vector or bool-vector.  If an object being printed has more than this "
+"many elements, it is abbreviated with an ellipsis."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:767
+msgid "If the value is @code{nil} (the default), then there is no limit."
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:772
+#, no-wrap
+msgid ""
+"(setq print-length 2)\n"
+"     @result{} 2\n"
+msgstr ""
+
+#. type: group
+#: streams.texi.orig:777
+#, no-wrap
+msgid ""
+"(print '(1 2 3 4 5))\n"
+"     @print{} (1 2 ...)\n"
+"     @result{} (1 2 ...)\n"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:781
+#, no-wrap
+msgid "print-level"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:786
+msgid ""
+"The value of this variable is the maximum depth of nesting of parentheses "
+"and brackets when printed.  Any list or vector at a depth exceeding this "
+"limit is abbreviated with an ellipsis.  A value of @code{nil} (which is the "
+"default) means no limit."
+msgstr ""
+
+#. type: defopt
+#: streams.texi.orig:788
+#, no-wrap
+msgid "eval-expression-print-length"
+msgstr ""
+
+#. type: defoptx
+#: streams.texi.orig:789
+#, no-wrap
+msgid "eval-expression-print-level"
+msgstr ""
+
+#. type: defopt
+#: streams.texi.orig:794
+msgid ""
+"These are the values for @code{print-length} and @code{print-level} used by "
+"@code{eval-expression}, and thus, indirectly, by many interactive evaluation "
+"commands (@pxref{Lisp Eval,, Evaluating Emacs-Lisp Expressions, emacs, The "
+"GNU Emacs Manual})."
+msgstr ""
+
+#. type: Plain text
+#: streams.texi.orig:798
+msgid ""
+"These variables are used for detecting and reporting circular and shared "
+"structure:"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:799
+#, no-wrap
+msgid "print-circle"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:802
+msgid ""
+"If non-@code{nil}, this variable enables detection of circular and shared "
+"structure in printing.  @xref{Circular Objects}."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:804
+#, no-wrap
+msgid "print-gensym"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:809
+msgid ""
+"If non-@code{nil}, this variable enables detection of uninterned symbols "
+"(@pxref{Creating Symbols}) in printing.  When this is enabled, uninterned "
+"symbols print with the prefix @samp{#:}, which tells the Lisp reader to "
+"produce an uninterned symbol."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:811
+#, no-wrap
+msgid "print-continuous-numbering"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:818
+msgid ""
+"If non-@code{nil}, that means number continuously across print calls.  This "
+"affects the numbers printed for @samp{#@var{n}=} labels and @samp{#@var{m}#} "
+"references.  Don't set this variable with @code{setq}; you should only bind "
+"it temporarily to @code{t} with @code{let}.  When you do that, you should "
+"also bind @code{print-number-table} to @code{nil}."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:820
+#, no-wrap
+msgid "print-number-table"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:824
+msgid ""
+"This variable holds a vector used internally by printing to implement the "
+"@code{print-circle} feature.  You should not use it except to bind it to "
+"@code{nil} when you bind @code{print-continuous-numbering}."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:826
+#, no-wrap
+msgid "float-output-format"
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:830
+msgid ""
+"This variable specifies how to print floating-point numbers.  The default is "
+"@code{nil}, meaning use the shortest output that represents the number "
+"without losing information."
+msgstr ""
+
+#. type: defvar
+#: streams.texi.orig:835
+msgid ""
+"To control output format more precisely, you can put a string in this "
+"variable.  The string should hold a @samp{%}-specification to be used in the "
+"C function @code{sprintf}.  For further restrictions on what you can use, "
+"see the variable's documentation string."
+msgstr ""
