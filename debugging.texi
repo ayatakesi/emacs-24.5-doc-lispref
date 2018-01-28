@@ -446,7 +446,7 @@ syntax)について報告はしますが、実際の問題箇所は報告しま�
 parsing(パース中にファイル終端に達した)''は、開カッコまたは開角カッコ(open parenthese or open square
 bracket)が多いことを示しています。Lispリーダーはこの不一致をファイル終端で検出しましたが、本来閉カッコがあるべき箇所を解決することはできません。同様に、``Invalid
 read syntax:
-")"(無効なread構文:”)”)''は開カッコの欠落を示していますが、欠落しているカッコが属すべき場所は告げません。ならば、どうやって変更すべき箇所を探せばよいのでしょうか?
+")"(無効なread構文:)")"''は開カッコの欠落を示していますが、欠落しているカッコが属すべき場所は告げません。ならば、どうやって変更すべき箇所を探せばよいのでしょうか?
 
   問題が単なるカッコの不一致でない場合の便利なテクニックは、各defunの先頭で@kbd{C-M-e}とタイプして、そのdefunの最後と思われる箇所に移動するか確認する方法です。もし移動しなければ、問題はそのdefunの内部にあります。
 
@@ -464,34 +464,18 @@ Parenモードを有効にしてコードにポイントを移動するだけで
 @subsection Excess Open Parentheses
 @cindex excess open parentheses
 
-  The first step is to find the defun that is unbalanced.  If there is an
-excess open parenthesis, the way to do this is to go to the end of the file
-and type @kbd{C-u C-M-u}.  This will move you to the beginning of the first
-defun that is unbalanced.
+  カッコがマッチしないdefunを探すのが、最初のステップです。過剰な開カッコが存在する場合は、ファイルの終端に移動して@kbd{C-u
+C-M-u}とタイプします。これにより、カッコがマッチしない最初のdefunの先頭に移動するでしょう。
 
-  The next step is to determine precisely what is wrong.  There is no way to
-be sure of this except by studying the program, but often the existing
-indentation is a clue to where the parentheses should have been.  The
-easiest way to use this clue is to reindent with @kbd{C-M-q} and see what
-moves.  @strong{But don't do this yet!} Keep reading, first.
+  何が間違っているのか正確に判断するのが次のステップです。これを確実に行なうには、そのプログラムを詳しく調べる以外に方法はありませんが、カッコがあるべき箇所を探すのに、既存のインデントが手掛かりになることが多々あります。@kbd{C-M-q}で再インデントして何が移動されるか確認するのが、この手掛かりを使用するもっとも簡単な方法です。@strong{しかし、行うのはちょっと待ってください!}
+まず続きを読んでからにしましょう。
 
-  Before you do this, make sure the defun has enough close parentheses.
-Otherwise, @kbd{C-M-q} will get an error, or will reindent all the rest of
-the file until the end.  So move to the end of the defun and insert a close
-parenthesis there.  Don't use @kbd{C-M-e} to move there, since that too will
-fail to work until the defun is balanced.
+  これを行なう前に、defunに十分な閉カッコがあるか確認します。十分な閉カッコがない場合、@kbd{C-M-q}がエラーとなるか、そのdefunからファイル終端までの残りすべてが再インデントされます。その場合はdefunの最後に移動して、そこに閉カッコを挿入します。そのdefunのカッコの釣り合いがとれるまでは、defunの最後に移動するのに@kbd{C-M-e}は使用できません(失敗するでしょう)。
 
-  Now you can go to the beginning of the defun and type @kbd{C-M-q}.  Usually
-all the lines from a certain point to the end of the function will shift to
-the right.  There is probably a missing close parenthesis, or a superfluous
-open parenthesis, near that point.  (However, don't assume this is true;
-study the code to make sure.)  Once you have found the discrepancy, undo the
-@kbd{C-M-q} with @kbd{C-_}, since the old indentation is probably
-appropriate to the intended parentheses.
+  これでdefunの先頭に移動して@kbd{C-M-q}とタイプすることができます。通常は、一定のポイントからその関数の最後までのすべての行が、右へとシフトされるでしょう。これはおそらくそのポイント付近で閉カッコが欠落しているか、不要な開カッコがあります。(しかし、これを真実と仮定せず、コードを詳しく調べてください。)
+不一致箇所が見つけたら、元のインデントはおそらく意図されたカッコに適しているはずなので、@kbd{C-_}で@kbd{C-M-q}をアンドゥしてください。
 
-  After you think you have fixed the problem, use @kbd{C-M-q} again.  If the
-old indentation actually fit the intended nesting of parentheses, and you
-have put back those parentheses, @kbd{C-M-q} should not change anything.
+  問題をfixできたと思った後に、再度@kbd{C-M-q}を使用します。実際に元のインデントが意図したカッコのネストに適合していて、足りないカッコを追加していたら、@kbd{C-M-q}は何も変更しないはずです。
 
 @node Excess Close
 @subsection Excess Close Parentheses
