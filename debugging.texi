@@ -527,52 +527,34 @@ Testing}を参照)。これらの機能は部分的に重複しており、組�
 @cindex measuring resource usage
 @cindex memory usage
 
-If your program is working correctly, but you want to make it run more
-quickly or efficiently, the first thing to do is @dfn{profile} your code so
-that you know how it is using resources.  If you find that one particular
-function is responsible for a significant portion of the runtime, you can
-start looking for ways to optimize that piece.
+プログラムは正常に機能しているものの、より高速にまたは効率的に実行させたい場合にまず行うべきは、そのプログラムがリソースをどのように使用するか知るために、コードを@dfn{プロファイル(profile)}することです。ある特定の関数の実行が、実行時間のうち無視できない割り合いを占めるようなら、その部分を最適化する方法を探すことを開始できます。
 
-Emacs has built-in support for this.  To begin profiling, type @kbd{M-x
-profiler-start}.  You can choose to profile by processor usage, memory
-usage, or both.  After doing some work, type @kbd{M-x profiler-report} to
-display a summary buffer for each resource that you chose to profile.  The
-names of the report buffers include the times at which the reports were
-generated, so you can generate another report later on without erasing
-previous results.  When you have finished profiling, type @kbd{M-x
-profiler-stop} (there is a small overhead associated with profiling).
+Emacsには、このためのビルトインサポートがあります。プロファイリングを開始するには、@kbd{M-x
+profiler-start}をタイプします。プロファイルはプロセッサー使用(processor usage)、メモリー使用(memory
+usage)、またはその両方を選択できます。何らかの処理を行った後に@kbd{M-x
+profiler-report}とタイプすると、プロファイルに選択した各リソースがsummaryバッファーに表示されます。reportバッファーの名前には、そのレポートが生成された時刻が含まれるので、前の結果を消去せずに後で他のレポートを生成できます。プロファイリングが終了したら、@kbd{M-x
+profiler-stop}とタイプしてください(プロファイリングに関連したオーバーヘッドが少しあるからです)。
 
-The profiler report buffer shows, on each line, a function that was called,
-followed by how much resource (processor or memory) it used in absolute and
-percentage times since profiling started.  If a given line has a @samp{+}
-symbol at the left-hand side, you can expand that line by typing @key{RET},
-in order to see the function(s) called by the higher-level function.
-Pressing @key{RET} again will collapse back to the original state.
+profiler
+reportバッファーでは、各行に呼び出された関数と、その後にプロファイリングが開始されてから使用したリソース(プロセッサーまたはメモリー)の絶対時間とパーセンテージ時間が表示されます。左側にシンボル@samp{+}のある行では@key{RET}をタイプして行を展開して、高位レベルの関数に呼び出された関数を確認できます。もう一度@key{RET}をタイプすると、元の状態へと行が折り畳まれます。
 
-Press @kbd{j} or @kbd{mouse-2} to jump to the definition of a function.
-Press @kbd{d} to view a function's documentation.  You can save a profile to
-a file using @kbd{C-x C-w}.  You can compare two profiles using @kbd{=}.
+@kbd{j}または@kbd{mouse-2}を押下すると、関数の定義にジャンプします。@kbd{d}を押下すると、関数のドキュメントを閲覧できます。@kbd{C-x
+C-w}を使用して、プロファイルをファイルに保存できます。@kbd{=}を使用すれば、2つのプロファイルを比較することができます。
 
 @c FIXME reversed calltree?
 
 @cindex @file{elp.el}
 @cindex timing programs
-The @file{elp} library offers an alternative approach.  See the file
-@file{elp.el} for instructions.
+@file{elp}ライブラリーは、別のアプローチを提案します。使い方は@file{elp.el}を参照してください。
 
 @cindex @file{benchmark.el}
 @cindex benchmarking
-You can check the speed of individual Emacs Lisp forms using the
-@file{benchmark} library.  See the functions @code{benchmark-run} and
-@code{benchmark-run-compiled} in @file{benchmark.el}.
+@file{benchmark}ライブラリーを使用して、Emacs
+Lispフォームのスピードwpy個別にチェックできます。@file{benchmark.el}内の関数@code{benchmark-run}、および@code{benchmark-run-compiled}を参照してください。
 
 @c Not worth putting in the printed manual.
 @ifnottex
 @cindex --enable-profiling option of configure
-To profile Emacs at the level of its C code, you can build it using the
-@option{--enable-profiling} option of @command{configure}.  When Emacs
-exits, it generates a file @file{gmon.out} that you can examine using the
-@command{gprof} utility.  This feature is mainly useful for debugging
-Emacs.  It actually stops the Lisp-level @kbd{M-x profiler-@dots{}} commands
-described above from working.
+@command{configure}のオプションに@option{--enable-profiling}を使用してビルドすることにより、EmacsをCコードのレベルでプロファイルすることができます。こうしてビルドされたEmacsは、Emacsをexitするときに@command{gprof}ユーティリティを使用して検証できるファイル@file{gmon.out}を生成します。この機能は主にEmacsのデバッグに有用です。このEmacsは、実行状態から上述の@kbd{M-x
+profiler-@dots{}}コマンドによりLispレベルで実際にストップします。
 @end ifnottex
