@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-29 07:18+0900\n"
-"PO-Revision-Date: 2018-01-29 07:49+0900\n"
+"PO-Revision-Date: 2018-01-29 19:28+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -113,25 +113,25 @@ msgstr "プリント関数が何を行うか制御する変数。"
 #: streams.texi.orig:27
 #, no-wrap
 msgid "Introduction to Reading and Printing"
-msgstr ""
+msgstr "Introduction to Reading and Printing"
 
 #. type: cindex
 #: streams.texi.orig:28
 #, no-wrap
 msgid "Lisp reader"
-msgstr ""
+msgstr "Lisp reader"
 
 #. type: cindex
 #: streams.texi.orig:29
 #, no-wrap
 msgid "printing"
-msgstr ""
+msgstr "printing"
 
 #. type: cindex
 #: streams.texi.orig:30
 #, no-wrap
 msgid "reading"
-msgstr ""
+msgstr "reading"
 
 #. type: Plain text
 #: streams.texi.orig:38
@@ -142,7 +142,7 @@ msgid ""
 "of the object.  For example, the text @samp{(a .@: 5)} is the read syntax "
 "for a cons cell whose @sc{car} is @code{a} and whose @sc{cdr} is the number "
 "5."
-msgstr ""
+msgstr "Lispオブジェクトの@dfn{読み取り}とは、テキスト形式のLisp式をパース(parse: 構文解析)して、対応するLispオブジェクトを生成することを意味します。これは、LLispプログラムがLispコードファイルからLispに取得される方法でもあります。わたしたちは、そのテキストをそのオブジェクトの@dfn{入力構文(read syntax)}と呼んでいます。たとえばテキスト@samp{(a .@: 5)}は、@sc{car}が@code{a}で@sc{cdr}が数字の5であるようなコンスセルにたいする入力構文です。"
 
 #. type: Plain text
 #: streams.texi.orig:43
@@ -151,7 +151,7 @@ msgid ""
 "object---converting the object to its @dfn{printed representation} "
 "(@pxref{Printed Representation}).  Printing the cons cell described above "
 "produces the text @samp{(a .@: 5)}."
-msgstr ""
+msgstr "Lispオブジェクトの@dfn{プリント}とは、あるオブジェクトをそのオブジェクトの@dfn{プリント表現(printed representation)} (@ref{Printed Representation}を参照)に変換することにより、そのオブジェクトを表すテキストを生成することを意味します。上述のコンスセルをプリントすると、テキスト@samp{(a .@: 5)}が生成されます。"
 
 #. type: Plain text
 #: streams.texi.orig:53
@@ -164,14 +164,14 @@ msgid ""
 "symbol @code{foo}.  Printing a list whose elements are @code{a} and @code{b} "
 "produces the text @samp{(a b)}, and reading that text produces a list (but "
 "not the same list) with elements @code{a} and @code{b}."
-msgstr ""
+msgstr "読み取りとプリントは、概ね逆の処理といえます。あるテキスト断片を読み取った結果生成されたオブジェクトをプリントすると、多くの場合は同じテキストが生成され、あるオブジェクトをプリントした結果のテキストを読み取ると、通常は同じようなオブジェクトが生成されます。たとえばシンボル@code{foo}をプリントするとテキスト@samp{foo}が生成され、そのテキストを読み取るとシンボル@code{foo}がリターンされます。要素が@code{a}と@code{b}のリストをプリントするとテキスト@samp{(a b)}が生成され、そのテキストを読み取ると、(同じリストではないが)要素が@code{a}と@code{b}のリストが生成されます。"
 
 #. type: Plain text
 #: streams.texi.orig:56
 msgid ""
 "However, these two operations are not precisely inverse to each other.  "
 "There are three kinds of exceptions:"
-msgstr ""
+msgstr "しかし、これら2つの処理は互いにまったく逆の処理というわけではありません。３つの例外があります:"
 
 #. type: itemize
 #: streams.texi.orig:63
@@ -180,7 +180,7 @@ msgid ""
 "windows, frames, subprocesses and markers print as text that starts with "
 "@samp{#}; if you try to read this text, you get an error.  There is no way "
 "to read those data types."
-msgstr ""
+msgstr "プリントは読み取ることが不可能なテキストを生成できる。たとえば、バッファー、フレーム、サブプロセス、マーカーは@samp{#}で始まるテキストとしてプリントされる。このテキストの読み取りを試行すると、エラーとなる。これらのデータ型を読み取る方法は存在しない。"
 
 #. type: itemize
 #: streams.texi.orig:69
@@ -189,14 +189,14 @@ msgid ""
 "and @samp{01} represent the same integer, and @samp{(a b)} and @samp{(a .@: "
 "(b))} represent the same list.  Reading will accept any of the alternatives, "
 "but printing must choose one of them."
-msgstr ""
+msgstr "1つのオブジェクトが、複数のテキスト的な表現をもつことができる。たとえば@samp{1}と@samp{01}は同じ整数を表し、@samp{(a b)}と@samp{(a .@: (b))}は同じリストを表す。読み取りは複数の候補を受容するかもしれないが、プリントはそのうちのただ1つを選択しなければならない。"
 
 #. type: itemize
 #: streams.texi.orig:73
 msgid ""
 "Comments can appear at certain points in the middle of an object's read "
 "sequence without affecting the result of reading it."
-msgstr ""
+msgstr "あるオブジェクトの読み取りシーケンスの中間の特定ポイントに、読み取り結果に影響を与えないコメントが存在することができる。"
 
 #. type: cindex
 #: streams.texi.orig:77
