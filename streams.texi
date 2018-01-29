@@ -1,3 +1,8 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
 @c -*-texinfo-*-
 @c This is part of the GNU Emacs Lisp Reference Manual.
 @c Copyright (C) 1990-1994, 1998-1999, 2001-2015 Free Software
@@ -6,21 +11,18 @@
 @node Read and Print
 @chapter Reading and Printing Lisp Objects
 
-  @dfn{Printing} and @dfn{reading} are the operations of converting Lisp
-objects to textual form and vice versa.  They use the printed
-representations and read syntax described in @ref{Lisp Data Types}.
+  @dfn{プリント(print)}および@dfn{読み取り(read)}は、Lispオブジェクトからテキスト形式への変換、またはその逆の変換を行なう操作です。これらは@ref{Lisp
+Data Types}で説明したプリント表現(printed representation)と入力構文(read syntax)を使用します。
 
-  This chapter describes the Lisp functions for reading and printing.
-It also describes @dfn{streams}, which specify where to get the text (if
-reading) or where to put it (if printing).
+  このチャプターでは、読み取りおよびプリントのためのLisp関数について説明します。このチャプターではさらに@dfn{ストリーム(stream)}についても説明します。ストリームとは、(読み取りにおいては)テキストがどこから取得されるか、(プリントにおいては)テキストをどこに出力するかを指定します。
 
 @menu
-* Streams Intro::     Overview of streams, reading and printing.
-* Input Streams::     Various data types that can be used as input streams.
-* Input Functions::   Functions to read Lisp objects from text.
-* Output Streams::    Various data types that can be used as output streams.
-* Output Functions::  Functions to print Lisp objects as text.
-* Output Variables::  Variables that control what the printing functions do.
+* Streams Intro::            ストリーム、読み取り、プリントの概観。
+* Input Streams::            入力ストリームとして使用できる、さまざまなデータ型。
+* Input Functions::          テキストからLispオブジェクトを読み取る関数。
+* Output Streams::           出力ストリームとして使用できる、さまざまなデータ型。
+* Output Functions::         テキストとしてLispオブジェクトをプリントする関数。
+* Output Variables::         プリント関数が何を行うか制御する変数。
 @end menu
 
 @node Streams Intro
@@ -29,27 +31,26 @@ reading) or where to put it (if printing).
 @cindex printing
 @cindex reading
 
-  @dfn{Reading} a Lisp object means parsing a Lisp expression in textual
-form and producing a corresponding Lisp object.  This is how Lisp
-programs get into Lisp from files of Lisp code.  We call the text the
-@dfn{read syntax} of the object.  For example, the text @samp{(a .@: 5)}
-is the read syntax for a cons cell whose @sc{car} is @code{a} and whose
-@sc{cdr} is the number 5.
+  @dfn{Reading} a Lisp object means parsing a Lisp expression in textual form
+and producing a corresponding Lisp object.  This is how Lisp programs get
+into Lisp from files of Lisp code.  We call the text the @dfn{read syntax}
+of the object.  For example, the text @samp{(a .@: 5)} is the read syntax
+for a cons cell whose @sc{car} is @code{a} and whose @sc{cdr} is the number
+5.
 
   @dfn{Printing} a Lisp object means producing text that represents that
 object---converting the object to its @dfn{printed representation}
-(@pxref{Printed Representation}).  Printing the cons cell described
-above produces the text @samp{(a .@: 5)}.
+(@pxref{Printed Representation}).  Printing the cons cell described above
+produces the text @samp{(a .@: 5)}.
 
   Reading and printing are more or less inverse operations: printing the
-object that results from reading a given piece of text often produces
-the same text, and reading the text that results from printing an object
-usually produces a similar-looking object.  For example, printing the
-symbol @code{foo} produces the text @samp{foo}, and reading that text
-returns the symbol @code{foo}.  Printing a list whose elements are
-@code{a} and @code{b} produces the text @samp{(a b)}, and reading that
-text produces a list (but not the same list) with elements @code{a}
-and @code{b}.
+object that results from reading a given piece of text often produces the
+same text, and reading the text that results from printing an object usually
+produces a similar-looking object.  For example, printing the symbol
+@code{foo} produces the text @samp{foo}, and reading that text returns the
+symbol @code{foo}.  Printing a list whose elements are @code{a} and @code{b}
+produces the text @samp{(a b)}, and reading that text produces a list (but
+not the same list) with elements @code{a} and @code{b}.
 
   However, these two operations are not precisely inverse to each other.
 There are three kinds of exceptions:
@@ -57,19 +58,19 @@ There are three kinds of exceptions:
 @itemize @bullet
 @item
 Printing can produce text that cannot be read.  For example, buffers,
-windows, frames, subprocesses and markers print as text that starts
-with @samp{#}; if you try to read this text, you get an error.  There is
-no way to read those data types.
+windows, frames, subprocesses and markers print as text that starts with
+@samp{#}; if you try to read this text, you get an error.  There is no way
+to read those data types.
 
 @item
-One object can have multiple textual representations.  For example,
-@samp{1} and @samp{01} represent the same integer, and @samp{(a b)} and
-@samp{(a .@: (b))} represent the same list.  Reading will accept any of
-the alternatives, but printing must choose one of them.
+One object can have multiple textual representations.  For example, @samp{1}
+and @samp{01} represent the same integer, and @samp{(a b)} and @samp{(a .@:
+(b))} represent the same list.  Reading will accept any of the alternatives,
+but printing must choose one of them.
 
 @item
-Comments can appear at certain points in the middle of an object's
-read sequence without affecting the result of reading it.
+Comments can appear at certain points in the middle of an object's read
+sequence without affecting the result of reading it.
 @end itemize
 
 @node Input Streams
@@ -77,23 +78,22 @@ read sequence without affecting the result of reading it.
 @cindex stream (for reading)
 @cindex input stream
 
-  Most of the Lisp functions for reading text take an @dfn{input stream}
-as an argument.  The input stream specifies where or how to get the
-characters of the text to be read.  Here are the possible types of input
-stream:
+  Most of the Lisp functions for reading text take an @dfn{input stream} as an
+argument.  The input stream specifies where or how to get the characters of
+the text to be read.  Here are the possible types of input stream:
 
 @table @asis
 @item @var{buffer}
 @cindex buffer input stream
-The input characters are read from @var{buffer}, starting with the
-character directly after point.  Point advances as characters are read.
+The input characters are read from @var{buffer}, starting with the character
+directly after point.  Point advances as characters are read.
 
 @item @var{marker}
 @cindex marker input stream
 The input characters are read from the buffer that @var{marker} is in,
-starting with the character directly after the marker.  The marker
-position advances as characters are read.  The value of point in the
-buffer has no effect when the stream is a marker.
+starting with the character directly after the marker.  The marker position
+advances as characters are read.  The value of point in the buffer has no
+effect when the stream is a marker.
 
 @item @var{string}
 @cindex string input stream
@@ -102,8 +102,8 @@ character in the string and using as many characters as required.
 
 @item @var{function}
 @cindex function input stream
-The input characters are generated by @var{function}, which must support
-two kinds of calls:
+The input characters are generated by @var{function}, which must support two
+kinds of calls:
 
 @itemize @bullet
 @item
@@ -111,39 +111,38 @@ When it is called with no arguments, it should return the next character.
 
 @item
 When it is called with one argument (always a character), @var{function}
-should save the argument and arrange to return it on the next call.
-This is called @dfn{unreading} the character; it happens when the Lisp
-reader reads one character too many and wants to ``put it back where it
-came from''.  In this case, it makes no difference what value
-@var{function} returns.
+should save the argument and arrange to return it on the next call.  This is
+called @dfn{unreading} the character; it happens when the Lisp reader reads
+one character too many and wants to ``put it back where it came from''.  In
+this case, it makes no difference what value @var{function} returns.
 @end itemize
 
 @item @code{t}
 @cindex @code{t} input stream
-@code{t} used as a stream means that the input is read from the
-minibuffer.  In fact, the minibuffer is invoked once and the text
-given by the user is made into a string that is then used as the
-input stream.  If Emacs is running in batch mode, standard input is used
-instead of the minibuffer.  For example,
+@code{t} used as a stream means that the input is read from the minibuffer.
+In fact, the minibuffer is invoked once and the text given by the user is
+made into a string that is then used as the input stream.  If Emacs is
+running in batch mode, standard input is used instead of the minibuffer.
+For example,
 @example
 (message "%s" (read t))
 @end example
-will read a Lisp expression from standard input and print the result
-to standard output.
+will read a Lisp expression from standard input and print the result to
+standard output.
 
 @item @code{nil}
 @cindex @code{nil} input stream
 @code{nil} supplied as an input stream means to use the value of
-@code{standard-input} instead; that value is the @dfn{default input
-stream}, and must be a non-@code{nil} input stream.
+@code{standard-input} instead; that value is the @dfn{default input stream},
+and must be a non-@code{nil} input stream.
 
 @item @var{symbol}
-A symbol as input stream is equivalent to the symbol's function
-definition (if any).
+A symbol as input stream is equivalent to the symbol's function definition
+(if any).
 @end table
 
-  Here is an example of reading from a stream that is a buffer, showing
-where point is located before and after:
+  Here is an example of reading from a stream that is a buffer, showing where
+point is located before and after:
 
 @example
 @group
@@ -172,9 +171,9 @@ This is the@point{} contents of foo.
 Note that the first read skips a space.  Reading skips any amount of
 whitespace preceding the significant text.
 
-  Here is an example of reading from a stream that is a marker,
-initially positioned at the beginning of the buffer shown.  The value
-read is the symbol @code{This}.
+  Here is an example of reading from a stream that is a marker, initially
+positioned at the beginning of the buffer shown.  The value read is the
+symbol @code{This}.
 
 @example
 @group
@@ -207,10 +206,9 @@ m
 @end group
 @end example
 
-  The following example reads from the minibuffer.  The
-prompt is: @w{@samp{Lisp expression: }}.  (That is always the prompt
-used when you read from the stream @code{t}.)  The user's input is shown
-following the prompt.
+  The following example reads from the minibuffer.  The prompt is:
+@w{@samp{Lisp expression: }}.  (That is always the prompt used when you read
+from the stream @code{t}.)  The user's input is shown following the prompt.
 
 @example
 @group
@@ -223,10 +221,10 @@ Lisp expression: @kbd{23 @key{RET}}
 @end example
 
   Finally, here is an example of a stream that is a function, named
-@code{useless-stream}.  Before we use the stream, we initialize the
-variable @code{useless-list} to a list of characters.  Then each call to
-the function @code{useless-stream} obtains the next character in the list
-or unreads a character by adding it to the front of the list.
+@code{useless-stream}.  Before we use the stream, we initialize the variable
+@code{useless-list} to a list of characters.  Then each call to the function
+@code{useless-stream} obtains the next character in the list or unreads a
+character by adding it to the front of the list.
 
 @example
 @group
@@ -261,40 +259,40 @@ useless-list
 
 @noindent
 Note that the open and close parentheses remain in the list.  The Lisp
-reader encountered the open parenthesis, decided that it ended the
-input, and unread it.  Another attempt to read from the stream at this
-point would read @samp{()} and return @code{nil}.
+reader encountered the open parenthesis, decided that it ended the input,
+and unread it.  Another attempt to read from the stream at this point would
+read @samp{()} and return @code{nil}.
 
 @node Input Functions
 @section Input Functions
 
-  This section describes the Lisp functions and variables that pertain
-to reading.
+  This section describes the Lisp functions and variables that pertain to
+reading.
 
-  In the functions below, @var{stream} stands for an input stream (see
-the previous section).  If @var{stream} is @code{nil} or omitted, it
-defaults to the value of @code{standard-input}.
+  In the functions below, @var{stream} stands for an input stream (see the
+previous section).  If @var{stream} is @code{nil} or omitted, it defaults to
+the value of @code{standard-input}.
 
 @kindex end-of-file
   An @code{end-of-file} error is signaled if reading encounters an
 unterminated list, vector, or string.
 
 @defun read &optional stream
-This function reads one textual Lisp expression from @var{stream},
-returning it as a Lisp object.  This is the basic Lisp input function.
+This function reads one textual Lisp expression from @var{stream}, returning
+it as a Lisp object.  This is the basic Lisp input function.
 @end defun
 
 @defun read-from-string string &optional start end
 @cindex string to object
 This function reads the first textual Lisp expression from the text in
-@var{string}.  It returns a cons cell whose @sc{car} is that expression,
-and whose @sc{cdr} is an integer giving the position of the next
-remaining character in the string (i.e., the first one not read).
+@var{string}.  It returns a cons cell whose @sc{car} is that expression, and
+whose @sc{cdr} is an integer giving the position of the next remaining
+character in the string (i.e., the first one not read).
 
-If @var{start} is supplied, then reading begins at index @var{start} in
-the string (where the first character is at index 0).  If you specify
-@var{end}, then reading is forced to stop just before that index, as if
-the rest of the string were not there.
+If @var{start} is supplied, then reading begins at index @var{start} in the
+string (where the first character is at index 0).  If you specify @var{end},
+then reading is forced to stop just before that index, as if the rest of the
+string were not there.
 
 For example:
 
@@ -328,15 +326,14 @@ For example:
 @end defun
 
 @defvar standard-input
-This variable holds the default input stream---the stream that
-@code{read} uses when the @var{stream} argument is @code{nil}.
-The default is @code{t}, meaning use the minibuffer.
+This variable holds the default input stream---the stream that @code{read}
+uses when the @var{stream} argument is @code{nil}.  The default is @code{t},
+meaning use the minibuffer.
 @end defvar
 
 @defvar read-circle
-If non-@code{nil}, this variable enables the reading of circular and
-shared structures.  @xref{Circular Objects}.  Its default value is
-@code{t}.
+If non-@code{nil}, this variable enables the reading of circular and shared
+structures.  @xref{Circular Objects}.  Its default value is @code{t}.
 @end defvar
 
 @node Output Streams
@@ -344,32 +341,31 @@ shared structures.  @xref{Circular Objects}.  Its default value is
 @cindex stream (for printing)
 @cindex output stream
 
-  An output stream specifies what to do with the characters produced
-by printing.  Most print functions accept an output stream as an
-optional argument.  Here are the possible types of output stream:
+  An output stream specifies what to do with the characters produced by
+printing.  Most print functions accept an output stream as an optional
+argument.  Here are the possible types of output stream:
 
 @table @asis
 @item @var{buffer}
 @cindex buffer output stream
-The output characters are inserted into @var{buffer} at point.
-Point advances as characters are inserted.
+The output characters are inserted into @var{buffer} at point.  Point
+advances as characters are inserted.
 
 @item @var{marker}
 @cindex marker output stream
-The output characters are inserted into the buffer that @var{marker}
-points into, at the marker position.  The marker position advances as
-characters are inserted.  The value of point in the buffer has no effect
-on printing when the stream is a marker, and this kind of printing
-does not move point (except that if the marker points at or before the
-position of point, point advances with the surrounding text, as
-usual).
+The output characters are inserted into the buffer that @var{marker} points
+into, at the marker position.  The marker position advances as characters
+are inserted.  The value of point in the buffer has no effect on printing
+when the stream is a marker, and this kind of printing does not move point
+(except that if the marker points at or before the position of point, point
+advances with the surrounding text, as usual).
 
 @item @var{function}
 @cindex function output stream
-The output characters are passed to @var{function}, which is responsible
-for storing them away.  It is called with a single character as
-argument, as many times as there are characters to be output, and
-is responsible for storing the characters wherever you want to put them.
+The output characters are passed to @var{function}, which is responsible for
+storing them away.  It is called with a single character as argument, as
+many times as there are characters to be output, and is responsible for
+storing the characters wherever you want to put them.
 
 @item @code{t}
 @cindex @code{t} output stream
@@ -382,18 +378,17 @@ The output characters are displayed in the echo area.
 stream}, and must not be @code{nil}.
 
 @item @var{symbol}
-A symbol as output stream is equivalent to the symbol's function
-definition (if any).
+A symbol as output stream is equivalent to the symbol's function definition
+(if any).
 @end table
 
   Many of the valid output streams are also valid as input streams.  The
-difference between input and output streams is therefore more a matter
-of how you use a Lisp object, than of different types of object.
+difference between input and output streams is therefore more a matter of
+how you use a Lisp object, than of different types of object.
 
-  Here is an example of a buffer used as an output stream.  Point is
-initially located as shown immediately before the @samp{h} in
-@samp{the}.  At the end, point is located directly before that same
-@samp{h}.
+  Here is an example of a buffer used as an output stream.  Point is initially
+located as shown immediately before the @samp{h} in @samp{the}.  At the end,
+point is located directly before that same @samp{h}.
 
 @cindex print example
 @example
@@ -415,12 +410,11 @@ This is t
 @end group
 @end example
 
-  Now we show a use of a marker as an output stream.  Initially, the
-marker is in buffer @code{foo}, between the @samp{t} and the @samp{h} in
-the word @samp{the}.  At the end, the marker has advanced over the
-inserted text so that it remains positioned before the same @samp{h}.
-Note that the location of point, shown in the usual fashion, has no
-effect.
+  Now we show a use of a marker as an output stream.  Initially, the marker is
+in buffer @code{foo}, between the @samp{t} and the @samp{h} in the word
+@samp{the}.  At the end, the marker has advanced over the inserted text so
+that it remains positioned before the same @samp{h}.  Note that the location
+of point, shown in the usual fashion, has no effect.
 
 @example
 @group
@@ -465,11 +459,10 @@ m
 @end group
 @end example
 
-  Finally, we show the use of a function as an output stream.  The
-function @code{eat-output} takes each character that it is given and
-conses it onto the front of the list @code{last-output} (@pxref{Building
-Lists}).  At the end, the list contains all the characters output, but
-in reverse order.
+  Finally, we show the use of a function as an output stream.  The function
+@code{eat-output} takes each character that it is given and conses it onto
+the front of the list @code{last-output} (@pxref{Building Lists}).  At the
+end, the list contains all the characters output, but in reverse order.
 
 @example
 @group
@@ -521,27 +514,25 @@ objects---converting objects into their printed representation.
 @cindex @samp{\} in printing
 @cindex quoting characters in printing
 @cindex escape characters in printing
-  Some of the Emacs printing functions add quoting characters to the
-output when necessary so that it can be read properly.  The quoting
-characters used are @samp{"} and @samp{\}; they distinguish strings from
-symbols, and prevent punctuation characters in strings and symbols from
-being taken as delimiters when reading.  @xref{Printed Representation},
-for full details.  You specify quoting or no quoting by the choice of
-printing function.
+  Some of the Emacs printing functions add quoting characters to the output
+when necessary so that it can be read properly.  The quoting characters used
+are @samp{"} and @samp{\}; they distinguish strings from symbols, and
+prevent punctuation characters in strings and symbols from being taken as
+delimiters when reading.  @xref{Printed Representation}, for full details.
+You specify quoting or no quoting by the choice of printing function.
 
-  If the text is to be read back into Lisp, then you should print with
-quoting characters to avoid ambiguity.  Likewise, if the purpose is to
-describe a Lisp object clearly for a Lisp programmer.  However, if the
-purpose of the output is to look nice for humans, then it is usually
-better to print without quoting.
+  If the text is to be read back into Lisp, then you should print with quoting
+characters to avoid ambiguity.  Likewise, if the purpose is to describe a
+Lisp object clearly for a Lisp programmer.  However, if the purpose of the
+output is to look nice for humans, then it is usually better to print
+without quoting.
 
-  Lisp objects can refer to themselves.  Printing a self-referential
-object in the normal way would require an infinite amount of text, and
-the attempt could cause infinite recursion.  Emacs detects such
-recursion and prints @samp{#@var{level}} instead of recursively printing
-an object already being printed.  For example, here @samp{#0} indicates
-a recursive reference to the object at level 0 of the current print
-operation:
+  Lisp objects can refer to themselves.  Printing a self-referential object in
+the normal way would require an infinite amount of text, and the attempt
+could cause infinite recursion.  Emacs detects such recursion and prints
+@samp{#@var{level}} instead of recursively printing an object already being
+printed.  For example, here @samp{#0} indicates a recursive reference to the
+object at level 0 of the current print operation:
 
 @example
 (setq foo (list nil))
@@ -550,17 +541,16 @@ operation:
      @result{} (#0)
 @end example
 
-  In the functions below, @var{stream} stands for an output stream.
-(See the previous section for a description of output streams.)  If
-@var{stream} is @code{nil} or omitted, it defaults to the value of
-@code{standard-output}.
+  In the functions below, @var{stream} stands for an output stream.  (See the
+previous section for a description of output streams.)  If @var{stream} is
+@code{nil} or omitted, it defaults to the value of @code{standard-output}.
 
 @defun print object &optional stream
 @cindex Lisp printer
-The @code{print} function is a convenient way of printing.  It outputs
-the printed representation of @var{object} to @var{stream}, printing in
-addition one newline before @var{object} and another after it.  Quoting
-characters are used.  @code{print} returns @var{object}.  For example:
+The @code{print} function is a convenient way of printing.  It outputs the
+printed representation of @var{object} to @var{stream}, printing in addition
+one newline before @var{object} and another after it.  Quoting characters
+are used.  @code{print} returns @var{object}.  For example:
 
 @example
 @group
@@ -580,9 +570,9 @@ characters are used.  @code{print} returns @var{object}.  For example:
 
 @defun prin1 object &optional stream
 This function outputs the printed representation of @var{object} to
-@var{stream}.  It does not print newlines to separate output as
-@code{print} does, but it does use quoting characters just like
-@code{print}.  It returns @var{object}.
+@var{stream}.  It does not print newlines to separate output as @code{print}
+does, but it does use quoting characters just like @code{print}.  It returns
+@var{object}.
 
 @example
 @group
@@ -599,10 +589,10 @@ This function outputs the printed representation of @var{object} to
 This function outputs the printed representation of @var{object} to
 @var{stream}.  It returns @var{object}.
 
-This function is intended to produce output that is readable by people,
-not by @code{read}, so it doesn't insert quoting characters and doesn't
-put double-quotes around the contents of strings.  It does not add any
-spacing between calls.
+This function is intended to produce output that is readable by people, not
+by @code{read}, so it doesn't insert quoting characters and doesn't put
+double-quotes around the contents of strings.  It does not add any spacing
+between calls.
 
 @example
 @group
@@ -617,8 +607,8 @@ spacing between calls.
 
 @defun terpri &optional stream
 @cindex newline in print
-This function outputs a newline to @var{stream}.  The name stands
-for ``terminate print''.
+This function outputs a newline to @var{stream}.  The name stands for
+``terminate print''.
 @end defun
 
 @defun write-char character &optional stream
@@ -628,8 +618,8 @@ This function outputs @var{character} to @var{stream}.  It returns
 
 @defun prin1-to-string object &optional noescape
 @cindex object to string
-This function returns a string containing the text that @code{prin1}
-would have printed for the same argument.
+This function returns a string containing the text that @code{prin1} would
+have printed for the same argument.
 
 @example
 @group
@@ -642,9 +632,8 @@ would have printed for the same argument.
 @end group
 @end example
 
-If @var{noescape} is non-@code{nil}, that inhibits use of quoting
-characters in the output.  (This argument is supported in Emacs versions
-19 and later.)
+If @var{noescape} is non-@code{nil}, that inhibits use of quoting characters
+in the output.  (This argument is supported in Emacs versions 19 and later.)
 
 @example
 @group
@@ -657,13 +646,13 @@ characters in the output.  (This argument is supported in Emacs versions
 @end group
 @end example
 
-See @code{format}, in @ref{Formatting Strings}, for other ways to obtain
-the printed representation of a Lisp object as a string.
+See @code{format}, in @ref{Formatting Strings}, for other ways to obtain the
+printed representation of a Lisp object as a string.
 @end defun
 
 @defmac with-output-to-string body@dots{}
-This macro executes the @var{body} forms with @code{standard-output} set
-up to feed output into a string.  Then it returns that string.
+This macro executes the @var{body} forms with @code{standard-output} set up
+to feed output into a string.  Then it returns that string.
 
 For example, if the current buffer name is @samp{foo},
 
@@ -678,9 +667,9 @@ returns @code{"The buffer is foo"}.
 @end defmac
 
 @defun pp object &optional stream
-This function outputs @var{object} to @var{stream}, just like
-@code{prin1}, but does it in a more ``pretty'' way.  That is, it'll
-indent and fill the object to make it more readable for humans.
+This function outputs @var{object} to @var{stream}, just like @code{prin1},
+but does it in a more ``pretty'' way.  That is, it'll indent and fill the
+object to make it more readable for humans.
 @end defun
 
 @node Output Variables
@@ -688,27 +677,27 @@ indent and fill the object to make it more readable for humans.
 @cindex output-controlling variables
 
 @defvar standard-output
-The value of this variable is the default output stream---the stream
-that print functions use when the @var{stream} argument is @code{nil}.
-The default is @code{t}, meaning display in the echo area.
+The value of this variable is the default output stream---the stream that
+print functions use when the @var{stream} argument is @code{nil}.  The
+default is @code{t}, meaning display in the echo area.
 @end defvar
 
 @defvar print-quoted
 If this is non-@code{nil}, that means to print quoted forms using
-abbreviated reader syntax, e.g., @code{(quote foo)} prints as
-@code{'foo}, and @code{(function foo)} as @code{#'foo}.
+abbreviated reader syntax, e.g., @code{(quote foo)} prints as @code{'foo},
+and @code{(function foo)} as @code{#'foo}.
 @end defvar
 
 @defvar print-escape-newlines
 @cindex @samp{\n} in print
 @cindex escape characters
-If this variable is non-@code{nil}, then newline characters in strings
-are printed as @samp{\n} and formfeeds are printed as @samp{\f}.
-Normally these characters are printed as actual newlines and formfeeds.
+If this variable is non-@code{nil}, then newline characters in strings are
+printed as @samp{\n} and formfeeds are printed as @samp{\f}.  Normally these
+characters are printed as actual newlines and formfeeds.
 
-This variable affects the print functions @code{prin1} and @code{print}
-that print with quoting.  It does not affect @code{princ}.  Here is an
-example using @code{prin1}:
+This variable affects the print functions @code{prin1} and @code{print} that
+print with quoting.  It does not affect @code{princ}.  Here is an example
+using @code{prin1}:
 
 @example
 @group
@@ -729,39 +718,36 @@ b"
 @end example
 
 @noindent
-In the second expression, the local binding of
-@code{print-escape-newlines} is in effect during the call to
-@code{prin1}, but not during the printing of the result.
+In the second expression, the local binding of @code{print-escape-newlines}
+is in effect during the call to @code{prin1}, but not during the printing of
+the result.
 @end defvar
 
 @defvar print-escape-nonascii
 If this variable is non-@code{nil}, then unibyte non-@acronym{ASCII}
-characters in strings are unconditionally printed as backslash sequences
-by the print functions @code{prin1} and @code{print} that print with
-quoting.
+characters in strings are unconditionally printed as backslash sequences by
+the print functions @code{prin1} and @code{print} that print with quoting.
 
 Those functions also use backslash sequences for unibyte non-@acronym{ASCII}
-characters, regardless of the value of this variable, when the output
-stream is a multibyte buffer or a marker pointing into one.
+characters, regardless of the value of this variable, when the output stream
+is a multibyte buffer or a marker pointing into one.
 @end defvar
 
 @defvar print-escape-multibyte
 If this variable is non-@code{nil}, then multibyte non-@acronym{ASCII}
-characters in strings are unconditionally printed as backslash sequences
-by the print functions @code{prin1} and @code{print} that print with
-quoting.
+characters in strings are unconditionally printed as backslash sequences by
+the print functions @code{prin1} and @code{print} that print with quoting.
 
 Those functions also use backslash sequences for multibyte
 non-@acronym{ASCII} characters, regardless of the value of this variable,
-when the output stream is a unibyte buffer or a marker pointing into
-one.
+when the output stream is a unibyte buffer or a marker pointing into one.
 @end defvar
 
 @defvar print-length
 @cindex printing limits
-The value of this variable is the maximum number of elements to print in
-any list, vector or bool-vector.  If an object being printed has more
-than this many elements, it is abbreviated with an ellipsis.
+The value of this variable is the maximum number of elements to print in any
+list, vector or bool-vector.  If an object being printed has more than this
+many elements, it is abbreviated with an ellipsis.
 
 If the value is @code{nil} (the default), then there is no limit.
 
@@ -779,57 +765,56 @@ If the value is @code{nil} (the default), then there is no limit.
 @end defvar
 
 @defvar print-level
-The value of this variable is the maximum depth of nesting of
-parentheses and brackets when printed.  Any list or vector at a depth
-exceeding this limit is abbreviated with an ellipsis.  A value of
-@code{nil} (which is the default) means no limit.
+The value of this variable is the maximum depth of nesting of parentheses
+and brackets when printed.  Any list or vector at a depth exceeding this
+limit is abbreviated with an ellipsis.  A value of @code{nil} (which is the
+default) means no limit.
 @end defvar
 
 @defopt eval-expression-print-length
 @defoptx eval-expression-print-level
-These are the values for @code{print-length} and @code{print-level}
-used by @code{eval-expression}, and thus, indirectly, by many
-interactive evaluation commands (@pxref{Lisp Eval,, Evaluating
-Emacs-Lisp Expressions, emacs, The GNU Emacs Manual}).
+These are the values for @code{print-length} and @code{print-level} used by
+@code{eval-expression}, and thus, indirectly, by many interactive evaluation
+commands (@pxref{Lisp Eval,, Evaluating Emacs-Lisp Expressions, emacs, The
+GNU Emacs Manual}).
 @end defopt
 
-  These variables are used for detecting and reporting circular
-and shared structure:
+  These variables are used for detecting and reporting circular and shared
+structure:
 
 @defvar print-circle
-If non-@code{nil}, this variable enables detection of circular and
-shared structure in printing.  @xref{Circular Objects}.
+If non-@code{nil}, this variable enables detection of circular and shared
+structure in printing.  @xref{Circular Objects}.
 @end defvar
 
 @defvar print-gensym
 If non-@code{nil}, this variable enables detection of uninterned symbols
-(@pxref{Creating Symbols}) in printing.  When this is enabled,
-uninterned symbols print with the prefix @samp{#:}, which tells the Lisp
-reader to produce an uninterned symbol.
+(@pxref{Creating Symbols}) in printing.  When this is enabled, uninterned
+symbols print with the prefix @samp{#:}, which tells the Lisp reader to
+produce an uninterned symbol.
 @end defvar
 
 @defvar print-continuous-numbering
-If non-@code{nil}, that means number continuously across print calls.
-This affects the numbers printed for @samp{#@var{n}=} labels and
-@samp{#@var{m}#} references.
-Don't set this variable with @code{setq}; you should only bind it
-temporarily to @code{t} with @code{let}.  When you do that, you should
+If non-@code{nil}, that means number continuously across print calls.  This
+affects the numbers printed for @samp{#@var{n}=} labels and @samp{#@var{m}#}
+references.  Don't set this variable with @code{setq}; you should only bind
+it temporarily to @code{t} with @code{let}.  When you do that, you should
 also bind @code{print-number-table} to @code{nil}.
 @end defvar
 
 @defvar print-number-table
-This variable holds a vector used internally by printing to implement
-the @code{print-circle} feature.  You should not use it except
-to bind it to @code{nil} when you bind @code{print-continuous-numbering}.
+This variable holds a vector used internally by printing to implement the
+@code{print-circle} feature.  You should not use it except to bind it to
+@code{nil} when you bind @code{print-continuous-numbering}.
 @end defvar
 
 @defvar float-output-format
-This variable specifies how to print floating-point numbers.  The
-default is @code{nil}, meaning use the shortest output
-that represents the number without losing information.
+This variable specifies how to print floating-point numbers.  The default is
+@code{nil}, meaning use the shortest output that represents the number
+without losing information.
 
 To control output format more precisely, you can put a string in this
-variable.  The string should hold a @samp{%}-specification to be used
-in the C function @code{sprintf}.  For further restrictions on what
-you can use, see the variable's documentation string.
+variable.  The string should hold a @samp{%}-specification to be used in the
+C function @code{sprintf}.  For further restrictions on what you can use,
+see the variable's documentation string.
 @end defvar
