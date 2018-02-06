@@ -137,9 +137,7 @@ This is the@point{} contents of foo.
 @noindent
 最初の読み取りではスペースがスキップされていることに注意してください。読み取りにおいては、意味のあるテキストに先行する、任意のサイズの空白文字がスキップされます。
 
-  Here is an example of reading from a stream that is a marker, initially
-positioned at the beginning of the buffer shown.  The value read is the
-symbol @code{This}.
+  以下は、マーカーストリームからの読み取りの例で、最初は表示されているバッファーの先頭にマーカーが配します。読み取られた値はシンボル@code{This}です。
 
 @example
 @group
@@ -159,11 +157,11 @@ This is the contents of foo.
 @end group
 @group
 m
-     @result{} #<marker at 5 in foo>   ;; @r{Before the first space.}
+     @result{} #<marker at 5 in foo>   ;; @r{最初のスペースの前。}
 @end group
 @end example
 
-  Here we read from the contents of a string:
+  以下では、文字列のコンテンツから読み取っています:
 
 @example
 @group
@@ -172,9 +170,8 @@ m
 @end group
 @end example
 
-  The following example reads from the minibuffer.  The prompt is:
-@w{@samp{Lisp expression: }}.  (That is always the prompt used when you read
-from the stream @code{t}.)  The user's input is shown following the prompt.
+  以下はミニバッファーから読み取る例です。プロンプトは、@w{@samp{Lisp expression:
+}}です。(このプロンプトはストリーム@code{t}から読み取る際は常に使用されます。) ユーザーの入力はプロンプトの後に表示されます。
 
 @example
 @group
@@ -186,11 +183,7 @@ Lisp expression: @kbd{23 @key{RET}}
 @end group
 @end example
 
-  Finally, here is an example of a stream that is a function, named
-@code{useless-stream}.  Before we use the stream, we initialize the variable
-@code{useless-list} to a list of characters.  Then each call to the function
-@code{useless-stream} obtains the next character in the list or unreads a
-character by adding it to the front of the list.
+  最後は、@code{useless-stream}という名前の関数ストリームから読み取る例です。ストリームを使用する前に、変数@code{useless-list}を文字のリストに初期化しています。その後は、リスト内の次の文字を取得するため、または文字をリストの先頭に追加することにより読み戻すために、関数@code{useless-stream}を呼び出します。
 
 @example
 @group
@@ -209,7 +202,7 @@ character by adding it to the front of the list.
 @end example
 
 @noindent
-Now we read using the stream thus constructed:
+このストリームを使って、以下のように読み取ります:
 
 @example
 @group
@@ -224,10 +217,7 @@ useless-list
 @end example
 
 @noindent
-Note that the open and close parentheses remain in the list.  The Lisp
-reader encountered the open parenthesis, decided that it ended the input,
-and unread it.  Another attempt to read from the stream at this point would
-read @samp{()} and return @code{nil}.
+開カッコと閉カッコがリスト内に残ることに注意してください。Lispリーダーは開カッコに出会うと、それを入力の終わりと判断して、読み戻します。次にこのポイント位置からこのストリームを読み取ると、@samp{()}が読み取られて@code{nil}がリターンされます。
 
 @node Input Functions
 @section Input Functions
