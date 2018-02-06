@@ -284,54 +284,37 @@ structures)の読み取りを有効にする。@ref{Circular Objects}を参照�
 @cindex stream (for printing)
 @cindex output stream
 
-  An output stream specifies what to do with the characters produced by
-printing.  Most print functions accept an output stream as an optional
-argument.  Here are the possible types of output stream:
+  出力ストリームは、プリントにより生成された文字に何を行うかを指定します。ほとんどのプリント関数は、オプション引数として出力ストリームを受け入れます。以下は利用できる出力ストリーム型です:
 
 @table @asis
 @item @var{buffer}
 @cindex buffer output stream
-The output characters are inserted into @var{buffer} at point.  Point
-advances as characters are inserted.
+出力文字は、@var{buffer}のポイント位置に挿入される。文字が挿入された分、ポイントが進む。
 
 @item @var{marker}
 @cindex marker output stream
-The output characters are inserted into the buffer that @var{marker} points
-into, at the marker position.  The marker position advances as characters
-are inserted.  The value of point in the buffer has no effect on printing
-when the stream is a marker, and this kind of printing does not move point
-(except that if the marker points at or before the position of point, point
-advances with the surrounding text, as usual).
+出力文字は、@var{marker}のあるバッファーのマーカー位置に挿入される。文字が挿入された分、マーカー位置が進む。ストリームがマーカーのときは、そのバッファー内のポイント位置にプリントは影響せず、この種のプリントでポイントは移動しない(マーカー位置がポイント位置、またはポイント位置より前の場合は除外される。通常はテキストの周囲にポイントが進む)。
 
 @item @var{function}
 @cindex function output stream
-The output characters are passed to @var{function}, which is responsible for
-storing them away.  It is called with a single character as argument, as
-many times as there are characters to be output, and is responsible for
-storing the characters wherever you want to put them.
+出力文字は、文字を格納する役目をもつ@var{function}に渡される。この関数は１つの文字を引数に、出力される文字の回数呼び出され、その文字を格納したい場所に格納する役目をもつ。
 
 @item @code{t}
 @cindex @code{t} output stream
-The output characters are displayed in the echo area.
+出力文字はエコーエリアに表示される。
 
 @item @code{nil}
 @cindex @code{nil} output stream
-@code{nil} specified as an output stream means to use the value of
-@code{standard-output} instead; that value is the @dfn{default output
-stream}, and must not be @code{nil}.
+出力ストリームに@code{nil}が指定された場合は、かわりに@code{standard-output}の値が使用されることを意味する。この値は@dfn{デフォルトの出力ストリーム(default
+output stream)}であり、非@code{nil}でなければならない。
 
 @item @var{symbol}
-A symbol as output stream is equivalent to the symbol's function definition
-(if any).
+出力ストリームとしてのシンボルは、(もしあれば)そのシンボルの関数定義と等価である。
 @end table
 
-  Many of the valid output streams are also valid as input streams.  The
-difference between input and output streams is therefore more a matter of
-how you use a Lisp object, than of different types of object.
+  有効な出力ストリームの多くは、入力ストリームとしても有効です。したがって入力ストリームと出力ストリームの違いは、Lispオブジェクトの型ではなく、どのようにLispオブジェクトを使うかという点です。
 
-  Here is an example of a buffer used as an output stream.  Point is initially
-located as shown immediately before the @samp{h} in @samp{the}.  At the end,
-point is located directly before that same @samp{h}.
+  以下はバッファーを出力ストリームとして使用する例です。ポイントは最初は@samp{the}の中の@samp{h}の直前にあります。そして最後も、同じ@samp{h}の直前に配されます。
 
 @cindex print example
 @example
@@ -353,11 +336,7 @@ This is t
 @end group
 @end example
 
-  Now we show a use of a marker as an output stream.  Initially, the marker is
-in buffer @code{foo}, between the @samp{t} and the @samp{h} in the word
-@samp{the}.  At the end, the marker has advanced over the inserted text so
-that it remains positioned before the same @samp{h}.  Note that the location
-of point, shown in the usual fashion, has no effect.
+  次はマーカーを出力ストリームとして使用する例です。マーカーは最初、バッファー@code{foo}内の単語@samp{the}の中の@samp{t}と@samp{h}の間にあります。最後には、挿入されたテキストによりマーカーが進み、同じ@samp{h}の前に留まります。通常の方法で見られるようなポイント位置への影響がないことに注意してください。
 
 @example
 @group
@@ -390,7 +369,7 @@ m
 @end group
 @end example
 
-  The following example shows output to the echo area:
+  以下はエコーエリアに出力を表示する例です:
 
 @example
 @group
@@ -402,10 +381,8 @@ m
 @end group
 @end example
 
-  Finally, we show the use of a function as an output stream.  The function
-@code{eat-output} takes each character that it is given and conses it onto
-the front of the list @code{last-output} (@pxref{Building Lists}).  At the
-end, the list contains all the characters output, but in reverse order.
+  最後は関数を出力ストリームとして使用する例です。関数@code{eat-output}は与えられたそれぞれの文字を@code{last-output}の先頭にconsします(@ref{Building
+Lists}を参照)。最後には、リストには出力されたすべての文字が逆順で含まれます。
 
 @example
 @group
@@ -432,7 +409,7 @@ last-output
 @end example
 
 @noindent
-Now we can put the output in the proper order by reversing the list:
+このリストを逆転すれば、正しい順序で出力することができます:
 
 @example
 @group
@@ -444,8 +421,7 @@ Now we can put the output in the proper order by reversing the list:
 @end example
 
 @noindent
-Calling @code{concat} converts the list to a string so you can see its
-contents more clearly.
+@code{concat}を呼び出してリストを文字列に変換すれば、内容をより明解に確認できます。
 
 @node Output Functions
 @section Output Functions
