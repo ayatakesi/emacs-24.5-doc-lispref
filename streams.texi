@@ -426,32 +426,18 @@ last-output
 @node Output Functions
 @section Output Functions
 
-  This section describes the Lisp functions for printing Lisp
-objects---converting objects into their printed representation.
+  このセクションでは、オブジェクトをオブジェクトのプリント表現に変換してLispオブジェクトをプリントするLisp関数を説明します。
 
 @cindex @samp{"} in printing
 @cindex @samp{\} in printing
 @cindex quoting characters in printing
 @cindex escape characters in printing
-  Some of the Emacs printing functions add quoting characters to the output
-when necessary so that it can be read properly.  The quoting characters used
-are @samp{"} and @samp{\}; they distinguish strings from symbols, and
-prevent punctuation characters in strings and symbols from being taken as
-delimiters when reading.  @xref{Printed Representation}, for full details.
-You specify quoting or no quoting by the choice of printing function.
+  Emacsプリント関数には、正しく読み取れるように必要なとき出力にクォート文字を追加するものがあります。使用されるクォート文字は@samp{"}と@samp{\}です。これらは文字列をシンボルと区別するとともに、文字列およびシンボル内の区切り文字が読み取り時に区切り文字として扱われることを防ぎます。完全な詳細は@ref{Printed
+Representation}を参照してください。クォートするかしないかは、プリント関数の選択により指定できます。
 
-  If the text is to be read back into Lisp, then you should print with quoting
-characters to avoid ambiguity.  Likewise, if the purpose is to describe a
-Lisp object clearly for a Lisp programmer.  However, if the purpose of the
-output is to look nice for humans, then it is usually better to print
-without quoting.
+  そのテキストがLispに読み戻す場合、同様にLispプログラマーにLispオブジェクトを明解に説明するのが目的の場合は、曖昧さを避けるためにクォート文字をプリントするべきです。しかし、プログラマー以外の人間にたいして出力の見栄えを良くするのが目的なら、通常はクォートなしでプリントしたほうがよいでしょう。
 
-  Lisp objects can refer to themselves.  Printing a self-referential object in
-the normal way would require an infinite amount of text, and the attempt
-could cause infinite recursion.  Emacs detects such recursion and prints
-@samp{#@var{level}} instead of recursively printing an object already being
-printed.  For example, here @samp{#0} indicates a recursive reference to the
-object at level 0 of the current print operation:
+  Lispオブジェクトは自己参照ができます。通常の方法で自己参照オブジェクトをプリントするにはテキストが無限に必要で、その試みにより無限再帰が発生する恐れがあります。Emacsはそのような再帰を検知して、すでにプリントされたオブジェクトを再帰的にプリントするかわりに、@samp{#@var{level}}をプリントします。たとえば以下は、カレントのプリント処理において、レベル0のオブジェクトを再帰的に参照することを示しています:
 
 @example
 (setq foo (list nil))
@@ -460,16 +446,12 @@ object at level 0 of the current print operation:
      @result{} (#0)
 @end example
 
-  In the functions below, @var{stream} stands for an output stream.  (See the
-previous section for a description of output streams.)  If @var{stream} is
-@code{nil} or omitted, it defaults to the value of @code{standard-output}.
+  以下の関数では、@var{stream}は出力ストリームを意味します。(出力ストリームの説明は、前のセクションを参照してください。)
+@var{stream}が@code{nil}、または省略された場合のデフォルトは、@code{standard-output}の値になります。
 
 @defun print object &optional stream
 @cindex Lisp printer
-The @code{print} function is a convenient way of printing.  It outputs the
-printed representation of @var{object} to @var{stream}, printing in addition
-one newline before @var{object} and another after it.  Quoting characters
-are used.  @code{print} returns @var{object}.  For example:
+@code{print}関数は、プリントを行うための便利な方法である。この関数は@var{object}の前後に改行を付与して、@var{object}のプリント表現を@var{stream}にプリントする。クォート文字が使用される。@code{print}は@var{object}をリターンする。たとえば:
 
 @example
 @group
@@ -488,10 +470,7 @@ are used.  @code{print} returns @var{object}.  For example:
 @end defun
 
 @defun prin1 object &optional stream
-This function outputs the printed representation of @var{object} to
-@var{stream}.  It does not print newlines to separate output as @code{print}
-does, but it does use quoting characters just like @code{print}.  It returns
-@var{object}.
+この関数は@var{object}のプリント表現を@var{stream}に出力する。この関数は@code{print}のように出力を分割するための改行をプリントしないが、@code{print}のようにクォート文字を使用する。@var{object}をリターンする。
 
 @example
 @group
@@ -505,13 +484,9 @@ does, but it does use quoting characters just like @code{print}.  It returns
 @end defun
 
 @defun princ object &optional stream
-This function outputs the printed representation of @var{object} to
-@var{stream}.  It returns @var{object}.
+この関数は@var{object}のプリント表現を@var{stream}に出力する。@var{object}をリターンする。
 
-This function is intended to produce output that is readable by people, not
-by @code{read}, so it doesn't insert quoting characters and doesn't put
-double-quotes around the contents of strings.  It does not add any spacing
-between calls.
+この関数は@code{read}ではなく人間が読める出力を生成することを意図しているので、クォート文字を挿入せず、文字列のコンテンツの前後にダブルクォート文字を配さない。呼び出しの間に間隔を何も出力しない。
 
 @example
 @group
@@ -526,19 +501,16 @@ between calls.
 
 @defun terpri &optional stream
 @cindex newline in print
-This function outputs a newline to @var{stream}.  The name stands for
-``terminate print''.
+この関数は@var{stream}に改行を出力する。名前の由来は、``terminate print''である。
 @end defun
 
 @defun write-char character &optional stream
-This function outputs @var{character} to @var{stream}.  It returns
-@var{character}.
+この関数は@var{character}を@var{stream}に出力する。@var{character}をリターンする。
 @end defun
 
 @defun prin1-to-string object &optional noescape
 @cindex object to string
-This function returns a string containing the text that @code{prin1} would
-have printed for the same argument.
+この関数は、同じ引数で@code{prin1}がプリントするテキストを含む文字列をリターンする。
 
 @example
 @group
@@ -551,8 +523,7 @@ have printed for the same argument.
 @end group
 @end example
 
-If @var{noescape} is non-@code{nil}, that inhibits use of quoting characters
-in the output.  (This argument is supported in Emacs versions 19 and later.)
+@var{noescape}が非@code{nil}の場合は、出力中のクォート文字の使用を抑制する。(この引数は、Emacsバージョン19以降でサポートされた。)
 
 @example
 @group
@@ -565,15 +536,14 @@ in the output.  (This argument is supported in Emacs versions 19 and later.)
 @end group
 @end example
 
-See @code{format}, in @ref{Formatting Strings}, for other ways to obtain the
-printed representation of a Lisp object as a string.
+Lispオブジェクトのプリント表現を文字列として取得する別の手段については、@ref{Formatting
+Strings}の@code{format}を参照のこと。
 @end defun
 
 @defmac with-output-to-string body@dots{}
-This macro executes the @var{body} forms with @code{standard-output} set up
-to feed output into a string.  Then it returns that string.
+このマクロは出力を文字列に送るよう@code{standard-output}をセットアップして、フォーム@var{body}を実行する。その文字列がリターンされる。
 
-For example, if the current buffer name is @samp{foo},
+たとえばカレントバッファー名が@samp{foo}の場合、
 
 @example
 (with-output-to-string
@@ -582,13 +552,11 @@ For example, if the current buffer name is @samp{foo},
 @end example
 
 @noindent
-returns @code{"The buffer is foo"}.
+は@code{"The buffer is foo"}をリターンする。
 @end defmac
 
 @defun pp object &optional stream
-This function outputs @var{object} to @var{stream}, just like @code{prin1},
-but does it in a more ``pretty'' way.  That is, it'll indent and fill the
-object to make it more readable for humans.
+この関数は@code{prin1}と同じように@var{object}を@var{stream}に出力するが、より``優雅(pretty)''な方法でこれを行う。すなわち、この関数は人間がより読みやすいようにオブジェクトのインデントとパディングを行う。
 @end defun
 
 @node Output Variables

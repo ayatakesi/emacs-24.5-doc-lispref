@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-29 07:18+0900\n"
-"PO-Revision-Date: 2018-02-06 20:31+0900\n"
+"PO-Revision-Date: 2018-02-07 20:45+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1091,31 +1091,31 @@ msgstr "@code{concat}を呼び出してリストを文字列に変換すれば�
 msgid ""
 "This section describes the Lisp functions for printing Lisp "
 "objects---converting objects into their printed representation."
-msgstr ""
+msgstr "このセクションでは、オブジェクトをオブジェクトのプリント表現に変換してLispオブジェクトをプリントするLisp関数を説明します。"
 
 #. type: cindex
 #: streams.texi.orig:520
 #, no-wrap
 msgid "@samp{\"} in printing"
-msgstr ""
+msgstr "@samp{\"} in printing"
 
 #. type: cindex
 #: streams.texi.orig:521
 #, no-wrap
 msgid "@samp{\\} in printing"
-msgstr ""
+msgstr "@samp{\\} in printing"
 
 #. type: cindex
 #: streams.texi.orig:522
 #, no-wrap
 msgid "quoting characters in printing"
-msgstr ""
+msgstr "quoting characters in printing"
 
 #. type: cindex
 #: streams.texi.orig:523
 #, no-wrap
 msgid "escape characters in printing"
-msgstr ""
+msgstr "escape characters in printing"
 
 #. type: Plain text
 #: streams.texi.orig:531
@@ -1126,7 +1126,7 @@ msgid ""
 "prevent punctuation characters in strings and symbols from being taken as "
 "delimiters when reading.  @xref{Printed Representation}, for full details.  "
 "You specify quoting or no quoting by the choice of printing function."
-msgstr ""
+msgstr "Emacsプリント関数には、正しく読み取れるように必要なとき出力にクォート文字を追加するものがあります。使用されるクォート文字は@samp{\"}と@samp{\\}です。これらは文字列をシンボルと区別するとともに、文字列およびシンボル内の区切り文字が読み取り時に区切り文字として扱われることを防ぎます。完全な詳細は@ref{Printed Representation}を参照してください。クォートするかしないかは、プリント関数の選択により指定できます。"
 
 #. type: Plain text
 #: streams.texi.orig:537
@@ -1136,7 +1136,7 @@ msgid ""
 "Lisp object clearly for a Lisp programmer.  However, if the purpose of the "
 "output is to look nice for humans, then it is usually better to print "
 "without quoting."
-msgstr ""
+msgstr "そのテキストがLispに読み戻す場合、同様にLispプログラマーにLispオブジェクトを明解に説明するのが目的の場合は、曖昧さを避けるためにクォート文字をプリントするべきです。しかし、プログラマー以外の人間にたいして出力の見栄えを良くするのが目的なら、通常はクォートなしでプリントしたほうがよいでしょう。"
 
 #. type: Plain text
 #: streams.texi.orig:545
@@ -1147,7 +1147,7 @@ msgid ""
 "@samp{#@var{level}} instead of recursively printing an object already being "
 "printed.  For example, here @samp{#0} indicates a recursive reference to the "
 "object at level 0 of the current print operation:"
-msgstr ""
+msgstr "Lispオブジェクトは自己参照ができます。通常の方法で自己参照オブジェクトをプリントするにはテキストが無限に必要で、その試みにより無限再帰が発生する恐れがあります。Emacsはそのような再帰を検知して、すでにプリントされたオブジェクトを再帰的にプリントするかわりに、@samp{#@var{level}}をプリントします。たとえば以下は、カレントのプリント処理において、レベル0のオブジェクトを再帰的に参照することを示しています:"
 
 #. type: example
 #: streams.texi.orig:551
@@ -1158,6 +1158,10 @@ msgid ""
 "(setcar foo foo)\n"
 "     @result{} (#0)\n"
 msgstr ""
+"(setq foo (list nil))\n"
+"     @result{} (nil)\n"
+"(setcar foo foo)\n"
+"     @result{} (#0)\n"
 
 #. type: Plain text
 #: streams.texi.orig:557
@@ -1165,19 +1169,19 @@ msgid ""
 "In the functions below, @var{stream} stands for an output stream.  (See the "
 "previous section for a description of output streams.)  If @var{stream} is "
 "@code{nil} or omitted, it defaults to the value of @code{standard-output}."
-msgstr ""
+msgstr "以下の関数では、@var{stream}は出力ストリームを意味します。(出力ストリームの説明は、前のセクションを参照してください。) @var{stream}が@code{nil}、または省略された場合のデフォルトは、@code{standard-output}の値になります。"
 
 #. type: defun
 #: streams.texi.orig:558
 #, no-wrap
 msgid "print object &optional stream"
-msgstr ""
+msgstr "print object &optional stream"
 
 #. type: cindex
 #: streams.texi.orig:559
 #, no-wrap
 msgid "Lisp printer"
-msgstr ""
+msgstr "Lisp printer"
 
 #. type: defun
 #: streams.texi.orig:564
@@ -1186,7 +1190,7 @@ msgid ""
 "printed representation of @var{object} to @var{stream}, printing in addition "
 "one newline before @var{object} and another after it.  Quoting characters "
 "are used.  @code{print} returns @var{object}.  For example:"
-msgstr ""
+msgstr "@code{print}関数は、プリントを行うための便利な方法である。この関数は@var{object}の前後に改行を付与して、@var{object}のプリント表現を@var{stream}にプリントする。クォート文字が使用される。@code{print}は@var{object}をリターンする。たとえば:"
 
 #. type: group
 #: streams.texi.orig:577
@@ -1203,12 +1207,22 @@ msgid ""
 "     @print{} \" came back\"\n"
 "     @result{} \" came back\"\n"
 msgstr ""
+"(progn (print 'The\\ cat\\ in)\n"
+"       (print \"the hat\")\n"
+"       (print \" came back\"))\n"
+"     @print{}\n"
+"     @print{} The\\ cat\\ in\n"
+"     @print{}\n"
+"     @print{} \"the hat\"\n"
+"     @print{}\n"
+"     @print{} \" came back\"\n"
+"     @result{} \" came back\"\n"
 
 #. type: defun
 #: streams.texi.orig:581
 #, no-wrap
 msgid "prin1 object &optional stream"
-msgstr ""
+msgstr "prin1 object &optional stream"
 
 #. type: defun
 #: streams.texi.orig:586
@@ -1217,7 +1231,7 @@ msgid ""
 "@var{stream}.  It does not print newlines to separate output as @code{print} "
 "does, but it does use quoting characters just like @code{print}.  It returns "
 "@var{object}."
-msgstr ""
+msgstr "この関数は@var{object}のプリント表現を@var{stream}に出力する。この関数は@code{print}のように出力を分割するための改行をプリントしないが、@code{print}のようにクォート文字を使用する。@var{object}をリターンする。"
 
 #. type: group
 #: streams.texi.orig:594
@@ -1229,19 +1243,24 @@ msgid ""
 "     @print{} The\\ cat\\ in\"the hat\"\" came back\"\n"
 "     @result{} \" came back\"\n"
 msgstr ""
+"(progn (prin1 'The\\ cat\\ in)\n"
+"       (prin1 \"the hat\")\n"
+"       (prin1 \" came back\"))\n"
+"     @print{} The\\ cat\\ in\"the hat\"\" came back\"\n"
+"     @result{} \" came back\"\n"
 
 #. type: defun
 #: streams.texi.orig:598
 #, no-wrap
 msgid "princ object &optional stream"
-msgstr ""
+msgstr "princ object &optional stream"
 
 #. type: defun
 #: streams.texi.orig:601
 msgid ""
 "This function outputs the printed representation of @var{object} to "
 "@var{stream}.  It returns @var{object}."
-msgstr ""
+msgstr "この関数は@var{object}のプリント表現を@var{stream}に出力する。@var{object}をリターンする。"
 
 #. type: defun
 #: streams.texi.orig:606
@@ -1250,7 +1269,7 @@ msgid ""
 "by @code{read}, so it doesn't insert quoting characters and doesn't put "
 "double-quotes around the contents of strings.  It does not add any spacing "
 "between calls."
-msgstr ""
+msgstr "この関数は@code{read}ではなく人間が読める出力を生成することを意図しているので、クォート文字を挿入せず、文字列のコンテンツの前後にダブルクォート文字を配さない。呼び出しの間に間隔を何も出力しない。"
 
 #. type: group
 #: streams.texi.orig:614
@@ -1262,57 +1281,62 @@ msgid ""
 "     @print{} The cat in the \"hat\"\n"
 "     @result{} \" in the \\\"hat\\\"\"\n"
 msgstr ""
+"(progn\n"
+"  (princ 'The\\ cat)\n"
+"  (princ \" in the \\\"hat\\\"\"))\n"
+"     @print{} The cat in the \"hat\"\n"
+"     @result{} \" in the \\\"hat\\\"\"\n"
 
 #. type: defun
 #: streams.texi.orig:618
 #, no-wrap
 msgid "terpri &optional stream"
-msgstr ""
+msgstr "terpri &optional stream"
 
 #. type: cindex
 #: streams.texi.orig:619
 #, no-wrap
 msgid "newline in print"
-msgstr ""
+msgstr "newline in print"
 
 #. type: defun
 #: streams.texi.orig:622
 msgid ""
 "This function outputs a newline to @var{stream}.  The name stands for "
 "``terminate print''."
-msgstr ""
+msgstr "この関数は@var{stream}に改行を出力する。名前の由来は、``terminate print''である。"
 
 #. type: defun
 #: streams.texi.orig:624
 #, no-wrap
 msgid "write-char character &optional stream"
-msgstr ""
+msgstr "write-char character &optional stream"
 
 #. type: defun
 #: streams.texi.orig:627
 msgid ""
 "This function outputs @var{character} to @var{stream}.  It returns "
 "@var{character}."
-msgstr ""
+msgstr "この関数は@var{character}を@var{stream}に出力する。@var{character}をリターンする。"
 
 #. type: defun
 #: streams.texi.orig:629
 #, no-wrap
 msgid "prin1-to-string object &optional noescape"
-msgstr ""
+msgstr "prin1-to-string object &optional noescape"
 
 #. type: cindex
 #: streams.texi.orig:630
 #, no-wrap
 msgid "object to string"
-msgstr ""
+msgstr "object to string"
 
 #. type: defun
 #: streams.texi.orig:633
 msgid ""
 "This function returns a string containing the text that @code{prin1} would "
 "have printed for the same argument."
-msgstr ""
+msgstr "この関数は、同じ引数で@code{prin1}がプリントするテキストを含む文字列をリターンする。"
 
 #. type: group
 #: streams.texi.orig:638
@@ -1321,6 +1345,8 @@ msgid ""
 "(prin1-to-string 'foo)\n"
 "     @result{} \"foo\"\n"
 msgstr ""
+"(prin1-to-string 'foo)\n"
+"     @result{} \"foo\"\n"
 
 #. type: group
 #: streams.texi.orig:642
@@ -1329,13 +1355,15 @@ msgid ""
 "(prin1-to-string (mark-marker))\n"
 "     @result{} \"#<marker at 2773 in strings.texi>\"\n"
 msgstr ""
+"(prin1-to-string (mark-marker))\n"
+"     @result{} \"#<marker at 2773 in strings.texi>\"\n"
 
 #. type: defun
 #: streams.texi.orig:648
 msgid ""
 "If @var{noescape} is non-@code{nil}, that inhibits use of quoting characters "
 "in the output.  (This argument is supported in Emacs versions 19 and later.)"
-msgstr ""
+msgstr "@var{noescape}が非@code{nil}の場合は、出力中のクォート文字の使用を抑制する。(この引数は、Emacsバージョン19以降でサポートされた。)"
 
 #. type: group
 #: streams.texi.orig:653
@@ -1344,6 +1372,8 @@ msgid ""
 "(prin1-to-string \"foo\")\n"
 "     @result{} \"\\\"foo\\\"\"\n"
 msgstr ""
+"(prin1-to-string \"foo\")\n"
+"     @result{} \"\\\"foo\\\"\"\n"
 
 #. type: group
 #: streams.texi.orig:657
@@ -1352,31 +1382,33 @@ msgid ""
 "(prin1-to-string \"foo\" t)\n"
 "     @result{} \"foo\"\n"
 msgstr ""
+"(prin1-to-string \"foo\" t)\n"
+"     @result{} \"foo\"\n"
 
 #. type: defun
 #: streams.texi.orig:662
 msgid ""
 "See @code{format}, in @ref{Formatting Strings}, for other ways to obtain the "
 "printed representation of a Lisp object as a string."
-msgstr ""
+msgstr "Lispオブジェクトのプリント表現を文字列として取得する別の手段については、@ref{Formatting Strings}の@code{format}を参照のこと。"
 
 #. type: defmac
 #: streams.texi.orig:664
 #, no-wrap
 msgid "with-output-to-string body@dots{}"
-msgstr ""
+msgstr "with-output-to-string body@dots{}"
 
 #. type: defmac
 #: streams.texi.orig:667
 msgid ""
 "This macro executes the @var{body} forms with @code{standard-output} set up "
 "to feed output into a string.  Then it returns that string."
-msgstr ""
+msgstr "このマクロは出力を文字列に送るよう@code{standard-output}をセットアップして、フォーム@var{body}を実行する。その文字列がリターンされる。"
 
 #. type: defmac
 #: streams.texi.orig:669
 msgid "For example, if the current buffer name is @samp{foo},"
-msgstr ""
+msgstr "たとえばカレントバッファー名が@samp{foo}の場合、"
 
 #. type: example
 #: streams.texi.orig:674
@@ -1386,17 +1418,20 @@ msgid ""
 "  (princ \"The buffer is \")\n"
 "  (princ (buffer-name)))\n"
 msgstr ""
+"(with-output-to-string\n"
+"  (princ \"The buffer is \")\n"
+"  (princ (buffer-name)))\n"
 
 #. type: defmac
 #: streams.texi.orig:678
 msgid "returns @code{\"The buffer is foo\"}."
-msgstr ""
+msgstr "は@code{\"The buffer is foo\"}をリターンする。"
 
 #. type: defun
 #: streams.texi.orig:680
 #, no-wrap
 msgid "pp object &optional stream"
-msgstr ""
+msgstr "pp object &optional stream"
 
 #. type: defun
 #: streams.texi.orig:684
@@ -1404,7 +1439,7 @@ msgid ""
 "This function outputs @var{object} to @var{stream}, just like @code{prin1}, "
 "but does it in a more ``pretty'' way.  That is, it'll indent and fill the "
 "object to make it more readable for humans."
-msgstr ""
+msgstr "この関数は@code{prin1}と同じように@var{object}を@var{stream}に出力するが、より``優雅(pretty)''な方法でこれを行う。すなわち、この関数は人間がより読みやすいようにオブジェクトのインデントとパディングを行う。"
 
 #. type: section
 #: streams.texi.orig:687
