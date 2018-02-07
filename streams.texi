@@ -564,27 +564,21 @@ Strings}の@code{format}を参照のこと。
 @cindex output-controlling variables
 
 @defvar standard-output
-The value of this variable is the default output stream---the stream that
-print functions use when the @var{stream} argument is @code{nil}.  The
-default is @code{t}, meaning display in the echo area.
+この変数の値はデフォルト出力ストリーム(@var{stream}引数が@code{nil}のときプリント関数が使用するストリーム)である。デフォルトは@code{t}で、エコーエリアに表示することを意味する。
 @end defvar
 
 @defvar print-quoted
-If this is non-@code{nil}, that means to print quoted forms using
-abbreviated reader syntax, e.g., @code{(quote foo)} prints as @code{'foo},
-and @code{(function foo)} as @code{#'foo}.
+これが非@code{nil}の場合は、省略されたリーダー構文(たとえば@code{(quote
+foo)}を@code{'foo}、@code{(function
+foo)}を@code{#'foo}のように)を使用してクォートされたフォームをプリントすることを意味する。
 @end defvar
 
 @defvar print-escape-newlines
 @cindex @samp{\n} in print
 @cindex escape characters
-If this variable is non-@code{nil}, then newline characters in strings are
-printed as @samp{\n} and formfeeds are printed as @samp{\f}.  Normally these
-characters are printed as actual newlines and formfeeds.
+この変数が非@code{nil}の場合、文字列内の改行は@samp{\n}、改ページは@samp{\f}でプリントされる。これらの文字は、通常は実際の改行および改ページとしてプリントされる。
 
-This variable affects the print functions @code{prin1} and @code{print} that
-print with quoting.  It does not affect @code{princ}.  Here is an example
-using @code{prin1}:
+この変数はクォートつきのプリントを行うプリント関数@code{prin1}および@code{print}に影響を与える。@code{princ}に影響はない。以下は@code{prin1}を使用した場合の例である:
 
 @example
 @group
@@ -605,38 +599,26 @@ b"
 @end example
 
 @noindent
-In the second expression, the local binding of @code{print-escape-newlines}
-is in effect during the call to @code{prin1}, but not during the printing of
-the result.
+2つ目の式では、@code{prin1}を呼び出す間は@code{print-escape-newlines}のローカルバインドが効果をもつが、結果をプリントするときには効果がない。
 @end defvar
 
 @defvar print-escape-nonascii
-If this variable is non-@code{nil}, then unibyte non-@acronym{ASCII}
-characters in strings are unconditionally printed as backslash sequences by
-the print functions @code{prin1} and @code{print} that print with quoting.
+この変数が非@code{nil}の場合、クォートつきでプリントするプリント関数@code{prin1}および@code{print}は、文字列内のユニバイトの非@acronym{ASCII}文字を無条件でバックスラッシュシーケンスとしてプリントする。
 
-Those functions also use backslash sequences for unibyte non-@acronym{ASCII}
-characters, regardless of the value of this variable, when the output stream
-is a multibyte buffer or a marker pointing into one.
+これらの関数は、出力ストリームがマルチバイトバッファー、あるいはマーカーがマルチバイトバッファーをポイントするときは、この変数の値に関わらずユニバイト非@acronym{ASCII}文字にたいしてバックスラッシュシーケンスを使用する。
 @end defvar
 
 @defvar print-escape-multibyte
-If this variable is non-@code{nil}, then multibyte non-@acronym{ASCII}
-characters in strings are unconditionally printed as backslash sequences by
-the print functions @code{prin1} and @code{print} that print with quoting.
+この変数が非@code{nil}の場合、クォートつきでプリントするプリント関数@code{prin1}および@code{print}は、文字列内のマルチバイトの非@acronym{ASCII}文字を無条件でバックスラッシュシーケンスとしてプリントする。
 
-Those functions also use backslash sequences for multibyte
-non-@acronym{ASCII} characters, regardless of the value of this variable,
-when the output stream is a unibyte buffer or a marker pointing into one.
+これらの関数は、出力ストリームがユニバイトバッファー、あるいはマーカーがユニバイトバッファーをポイントするときは、この変数の値に関わらずマルチバイト非@acronym{ASCII}文字にたいしてバックスラッシュシーケンスを使用する。
 @end defvar
 
 @defvar print-length
 @cindex printing limits
-The value of this variable is the maximum number of elements to print in any
-list, vector or bool-vector.  If an object being printed has more than this
-many elements, it is abbreviated with an ellipsis.
+この変数の値は任意のリスト、ベクター、ブールベクターをプリントする際の最大要素数である。プリントされるオブジェクトがこれより多くの要素をもつ場合は、省略記号(``...'')で省略される。
 
-If the value is @code{nil} (the default), then there is no limit.
+値が@code{nil}(デフォルト)の場合は、無制限である。
 
 @example
 @group
@@ -652,56 +634,37 @@ If the value is @code{nil} (the default), then there is no limit.
 @end defvar
 
 @defvar print-level
-The value of this variable is the maximum depth of nesting of parentheses
-and brackets when printed.  Any list or vector at a depth exceeding this
-limit is abbreviated with an ellipsis.  A value of @code{nil} (which is the
-default) means no limit.
+この変数の値はプリント時の丸カッコ(parentheses: ``()'')と角カッコ(brackets:
+``[]"')のネスト最大深さである。この制限を超える任意のリストまたはベクターは省略記号(``...'')で省略される。値@code{nil}(デフォルト)は無制限を意味する。
 @end defvar
 
 @defopt eval-expression-print-length
 @defoptx eval-expression-print-level
-These are the values for @code{print-length} and @code{print-level} used by
-@code{eval-expression}, and thus, indirectly, by many interactive evaluation
-commands (@pxref{Lisp Eval,, Evaluating Emacs-Lisp Expressions, emacs, The
-GNU Emacs Manual}).
+これらは@code{eval-expression}により使用される@code{print-length}および@code{print-level}の値であり、したがって間接的に多くのインタラクティブな評価コマンドにより使用される(@ref{Lisp
+Eval,, Evaluating Emacs-Lisp Expressions, emacs, The GNU Emacs Manual}を参照)。
 @end defopt
 
-  These variables are used for detecting and reporting circular and shared
-structure:
+  以下の変数は循環構造および共有構造の検出と報告に使用されます:
 
 @defvar print-circle
-If non-@code{nil}, this variable enables detection of circular and shared
-structure in printing.  @xref{Circular Objects}.
+非@code{nil}の場合、この変数はプリント時の循環構造と共有構造の検出を有効にする。@ref{Circular Objects}を参照のこと。
 @end defvar
 
 @defvar print-gensym
-If non-@code{nil}, this variable enables detection of uninterned symbols
-(@pxref{Creating Symbols}) in printing.  When this is enabled, uninterned
-symbols print with the prefix @samp{#:}, which tells the Lisp reader to
-produce an uninterned symbol.
+非@code{nil}の場合、この変数はプリント時のインターンされていないシンボル(@ref{Creating
+Symbols}を参照)の検出を有効にする。これが有効な場合、インターンされていないシンボルはプレフィックス@samp{#:}とともにプリントされる。このプレフィックスは、Lispリーダーにたいしてインターンされていないシンボルを生成するよう告げる。
 @end defvar
 
 @defvar print-continuous-numbering
-If non-@code{nil}, that means number continuously across print calls.  This
-affects the numbers printed for @samp{#@var{n}=} labels and @samp{#@var{m}#}
-references.  Don't set this variable with @code{setq}; you should only bind
-it temporarily to @code{t} with @code{let}.  When you do that, you should
-also bind @code{print-number-table} to @code{nil}.
+非@code{nil}の場合は、複数のプリント呼び出しを通じて通番が振られることを意味する。これは@samp{#@var{n}=}ラベルおよび@samp{#@var{m}#}参照にたいしてプリントされる数字に影響する。この変数を@code{setq}でセットしてはならない。@code{let}を使用して一時的に@code{t}にバインドするべきである。これを行う場合は、@code{print-number-table}も@code{nil}にバインドするべきである。
 @end defvar
 
 @defvar print-number-table
-This variable holds a vector used internally by printing to implement the
-@code{print-circle} feature.  You should not use it except to bind it to
-@code{nil} when you bind @code{print-continuous-numbering}.
+この変数は@code{print-circle}機能を実装するために、プリント処理で内部的に使用されるベクターを保持する。@code{print-continuous-numbering}をバインドするときにこの変数を@code{nil}にバインドする以外は、この変数を使用するべきではない。
 @end defvar
 
 @defvar float-output-format
-This variable specifies how to print floating-point numbers.  The default is
-@code{nil}, meaning use the shortest output that represents the number
-without losing information.
+この変数は浮動小数点数をプリントする方法を指定する。デフォルトは@code{nil}で、これは情報を失わずにその数値を表せるもっとも短い出力を使用することを意味する。
 
-To control output format more precisely, you can put a string in this
-variable.  The string should hold a @samp{%}-specification to be used in the
-C function @code{sprintf}.  For further restrictions on what you can use,
-see the variable's documentation string.
+出力フォーマットをより精密に制御するために、この変数に文字列をセットできる。この文字列にはCの@code{sprintf}関数で使用される@samp{%}指定子をセットする。この変数で使用することのできる制限についての詳細は、この変数のドキュメント文字列を参照のこと。
 @end defvar

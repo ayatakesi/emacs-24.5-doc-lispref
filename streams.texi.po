@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-01-29 07:18+0900\n"
-"PO-Revision-Date: 2018-02-07 20:45+0900\n"
+"PO-Revision-Date: 2018-02-08 00:35+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1445,19 +1445,19 @@ msgstr "この関数は@code{prin1}と同じように@var{object}を@var{stream}
 #: streams.texi.orig:687
 #, no-wrap
 msgid "Variables Affecting Output"
-msgstr ""
+msgstr "Variables Affecting Output"
 
 #. type: cindex
 #: streams.texi.orig:688
 #, no-wrap
 msgid "output-controlling variables"
-msgstr ""
+msgstr "output-controlling variables"
 
 #. type: defvar
 #: streams.texi.orig:690
 #, no-wrap
 msgid "standard-output"
-msgstr ""
+msgstr "standard-output"
 
 #. type: defvar
 #: streams.texi.orig:694
@@ -1465,13 +1465,13 @@ msgid ""
 "The value of this variable is the default output stream---the stream that "
 "print functions use when the @var{stream} argument is @code{nil}.  The "
 "default is @code{t}, meaning display in the echo area."
-msgstr ""
+msgstr "この変数の値はデフォルト出力ストリーム(@var{stream}引数が@code{nil}のときプリント関数が使用するストリーム)である。デフォルトは@code{t}で、エコーエリアに表示することを意味する。"
 
 #. type: defvar
 #: streams.texi.orig:696
 #, no-wrap
 msgid "print-quoted"
-msgstr ""
+msgstr "print-quoted"
 
 #. type: defvar
 #: streams.texi.orig:700
@@ -1479,25 +1479,25 @@ msgid ""
 "If this is non-@code{nil}, that means to print quoted forms using "
 "abbreviated reader syntax, e.g., @code{(quote foo)} prints as @code{'foo}, "
 "and @code{(function foo)} as @code{#'foo}."
-msgstr ""
+msgstr "これが非@code{nil}の場合は、省略されたリーダー構文(たとえば@code{(quote foo)}を@code{'foo}、@code{(function foo)}を@code{#'foo}のように)を使用してクォートされたフォームをプリントすることを意味する。"
 
 #. type: defvar
 #: streams.texi.orig:702
 #, no-wrap
 msgid "print-escape-newlines"
-msgstr ""
+msgstr "print-escape-newlines"
 
 #. type: cindex
 #: streams.texi.orig:703
 #, no-wrap
 msgid "@samp{\\n} in print"
-msgstr ""
+msgstr "@samp{\\n} in print"
 
 #. type: cindex
 #: streams.texi.orig:704
 #, no-wrap
 msgid "escape characters"
-msgstr ""
+msgstr "escape characters"
 
 #. type: defvar
 #: streams.texi.orig:708
@@ -1505,7 +1505,7 @@ msgid ""
 "If this variable is non-@code{nil}, then newline characters in strings are "
 "printed as @samp{\\n} and formfeeds are printed as @samp{\\f}.  Normally "
 "these characters are printed as actual newlines and formfeeds."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合、文字列内の改行は@samp{\\n}、改ページは@samp{\\f}でプリントされる。これらの文字は、通常は実際の改行および改ページとしてプリントされる。"
 
 #. type: defvar
 #: streams.texi.orig:712
@@ -1513,7 +1513,7 @@ msgid ""
 "This variable affects the print functions @code{prin1} and @code{print} that "
 "print with quoting.  It does not affect @code{princ}.  Here is an example "
 "using @code{prin1}:"
-msgstr ""
+msgstr "この変数はクォートつきのプリントを行うプリント関数@code{prin1}および@code{print}に影響を与える。@code{princ}に影響はない。以下は@code{prin1}を使用した場合の例である:"
 
 #. type: group
 #: streams.texi.orig:720
@@ -1525,6 +1525,11 @@ msgid ""
 "     @result{} \"a\n"
 "b\"\n"
 msgstr ""
+"(prin1 \"a\\nb\")\n"
+"     @print{} \"a\n"
+"     @print{} b\"\n"
+"     @result{} \"a\n"
+"b\"\n"
 
 #. type: group
 #: streams.texi.orig:728
@@ -1536,6 +1541,11 @@ msgid ""
 "     @result{} \"a\n"
 "b\"\n"
 msgstr ""
+"(let ((print-escape-newlines t))\n"
+"  (prin1 \"a\\nb\"))\n"
+"     @print{} \"a\\nb\"\n"
+"     @result{} \"a\n"
+"b\"\n"
 
 #. type: defvar
 #: streams.texi.orig:735
@@ -1543,13 +1553,13 @@ msgid ""
 "In the second expression, the local binding of @code{print-escape-newlines} "
 "is in effect during the call to @code{prin1}, but not during the printing of "
 "the result."
-msgstr ""
+msgstr "2つ目の式では、@code{prin1}を呼び出す間は@code{print-escape-newlines}のローカルバインドが効果をもつが、結果をプリントするときには効果がない。"
 
 #. type: defvar
 #: streams.texi.orig:737
 #, no-wrap
 msgid "print-escape-nonascii"
-msgstr ""
+msgstr "print-escape-nonascii"
 
 #. type: defvar
 #: streams.texi.orig:742
@@ -1557,7 +1567,7 @@ msgid ""
 "If this variable is non-@code{nil}, then unibyte non-@acronym{ASCII} "
 "characters in strings are unconditionally printed as backslash sequences by "
 "the print functions @code{prin1} and @code{print} that print with quoting."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合、クォートつきでプリントするプリント関数@code{prin1}および@code{print}は、文字列内のユニバイトの非@acronym{ASCII}文字を無条件でバックスラッシュシーケンスとしてプリントする。"
 
 #. type: defvar
 #: streams.texi.orig:746
@@ -1565,13 +1575,13 @@ msgid ""
 "Those functions also use backslash sequences for unibyte non-@acronym{ASCII} "
 "characters, regardless of the value of this variable, when the output stream "
 "is a multibyte buffer or a marker pointing into one."
-msgstr ""
+msgstr "これらの関数は、出力ストリームがマルチバイトバッファー、あるいはマーカーがマルチバイトバッファーをポイントするときは、この変数の値に関わらずユニバイト非@acronym{ASCII}文字にたいしてバックスラッシュシーケンスを使用する。"
 
 #. type: defvar
 #: streams.texi.orig:748
 #, no-wrap
 msgid "print-escape-multibyte"
-msgstr ""
+msgstr "print-escape-multibyte"
 
 #. type: defvar
 #: streams.texi.orig:753
@@ -1579,7 +1589,7 @@ msgid ""
 "If this variable is non-@code{nil}, then multibyte non-@acronym{ASCII} "
 "characters in strings are unconditionally printed as backslash sequences by "
 "the print functions @code{prin1} and @code{print} that print with quoting."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合、クォートつきでプリントするプリント関数@code{prin1}および@code{print}は、文字列内のマルチバイトの非@acronym{ASCII}文字を無条件でバックスラッシュシーケンスとしてプリントする。"
 
 #. type: defvar
 #: streams.texi.orig:758
@@ -1587,19 +1597,19 @@ msgid ""
 "Those functions also use backslash sequences for multibyte "
 "non-@acronym{ASCII} characters, regardless of the value of this variable, "
 "when the output stream is a unibyte buffer or a marker pointing into one."
-msgstr ""
+msgstr "これらの関数は、出力ストリームがユニバイトバッファー、あるいはマーカーがユニバイトバッファーをポイントするときは、この変数の値に関わらずマルチバイト非@acronym{ASCII}文字にたいしてバックスラッシュシーケンスを使用する。"
 
 #. type: defvar
 #: streams.texi.orig:760
 #, no-wrap
 msgid "print-length"
-msgstr ""
+msgstr "print-length"
 
 #. type: cindex
 #: streams.texi.orig:761
 #, no-wrap
 msgid "printing limits"
-msgstr ""
+msgstr "printing limits"
 
 #. type: defvar
 #: streams.texi.orig:765
@@ -1607,12 +1617,12 @@ msgid ""
 "The value of this variable is the maximum number of elements to print in any "
 "list, vector or bool-vector.  If an object being printed has more than this "
 "many elements, it is abbreviated with an ellipsis."
-msgstr ""
+msgstr "この変数の値は任意のリスト、ベクター、ブールベクターをプリントする際の最大要素数である。プリントされるオブジェクトがこれより多くの要素をもつ場合は、省略記号(``...'')で省略される。"
 
 #. type: defvar
 #: streams.texi.orig:767
 msgid "If the value is @code{nil} (the default), then there is no limit."
-msgstr ""
+msgstr "値が@code{nil}(デフォルト)の場合は、無制限である。"
 
 #. type: group
 #: streams.texi.orig:772
@@ -1621,6 +1631,8 @@ msgid ""
 "(setq print-length 2)\n"
 "     @result{} 2\n"
 msgstr ""
+"(setq print-length 2)\n"
+"     @result{} 2\n"
 
 #. type: group
 #: streams.texi.orig:777
@@ -1630,12 +1642,15 @@ msgid ""
 "     @print{} (1 2 ...)\n"
 "     @result{} (1 2 ...)\n"
 msgstr ""
+"(print '(1 2 3 4 5))\n"
+"     @print{} (1 2 ...)\n"
+"     @result{} (1 2 ...)\n"
 
 #. type: defvar
 #: streams.texi.orig:781
 #, no-wrap
 msgid "print-level"
-msgstr ""
+msgstr "print-level"
 
 #. type: defvar
 #: streams.texi.orig:786
@@ -1644,19 +1659,19 @@ msgid ""
 "and brackets when printed.  Any list or vector at a depth exceeding this "
 "limit is abbreviated with an ellipsis.  A value of @code{nil} (which is the "
 "default) means no limit."
-msgstr ""
+msgstr "この変数の値はプリント時の丸カッコ(parentheses: ``()'')と角カッコ(brackets: ``[]\"')のネスト最大深さである。この制限を超える任意のリストまたはベクターは省略記号(``...'')で省略される。値@code{nil}(デフォルト)は無制限を意味する。"
 
 #. type: defopt
 #: streams.texi.orig:788
 #, no-wrap
 msgid "eval-expression-print-length"
-msgstr ""
+msgstr "eval-expression-print-length"
 
 #. type: defoptx
 #: streams.texi.orig:789
 #, no-wrap
 msgid "eval-expression-print-level"
-msgstr ""
+msgstr "eval-expression-print-level"
 
 #. type: defopt
 #: streams.texi.orig:794
@@ -1665,33 +1680,33 @@ msgid ""
 "@code{eval-expression}, and thus, indirectly, by many interactive evaluation "
 "commands (@pxref{Lisp Eval,, Evaluating Emacs-Lisp Expressions, emacs, The "
 "GNU Emacs Manual})."
-msgstr ""
+msgstr "これらは@code{eval-expression}により使用される@code{print-length}および@code{print-level}の値であり、したがって間接的に多くのインタラクティブな評価コマンドにより使用される(@ref{Lisp Eval,, Evaluating Emacs-Lisp Expressions, emacs, The GNU Emacs Manual}を参照)。"
 
 #. type: Plain text
 #: streams.texi.orig:798
 msgid ""
 "These variables are used for detecting and reporting circular and shared "
 "structure:"
-msgstr ""
+msgstr "以下の変数は循環構造および共有構造の検出と報告に使用されます:"
 
 #. type: defvar
 #: streams.texi.orig:799
 #, no-wrap
 msgid "print-circle"
-msgstr ""
+msgstr "print-circle"
 
 #. type: defvar
 #: streams.texi.orig:802
 msgid ""
 "If non-@code{nil}, this variable enables detection of circular and shared "
 "structure in printing.  @xref{Circular Objects}."
-msgstr ""
+msgstr "非@code{nil}の場合、この変数はプリント時の循環構造と共有構造の検出を有効にする。@ref{Circular Objects}を参照のこと。"
 
 #. type: defvar
 #: streams.texi.orig:804
 #, no-wrap
 msgid "print-gensym"
-msgstr ""
+msgstr "print-gensym"
 
 #. type: defvar
 #: streams.texi.orig:809
@@ -1700,13 +1715,13 @@ msgid ""
 "(@pxref{Creating Symbols}) in printing.  When this is enabled, uninterned "
 "symbols print with the prefix @samp{#:}, which tells the Lisp reader to "
 "produce an uninterned symbol."
-msgstr ""
+msgstr "非@code{nil}の場合、この変数はプリント時のインターンされていないシンボル(@ref{Creating Symbols}を参照)の検出を有効にする。これが有効な場合、インターンされていないシンボルはプレフィックス@samp{#:}とともにプリントされる。このプレフィックスは、Lispリーダーにたいしてインターンされていないシンボルを生成するよう告げる。"
 
 #. type: defvar
 #: streams.texi.orig:811
 #, no-wrap
 msgid "print-continuous-numbering"
-msgstr ""
+msgstr "print-continuous-numbering"
 
 #. type: defvar
 #: streams.texi.orig:818
@@ -1716,13 +1731,13 @@ msgid ""
 "references.  Don't set this variable with @code{setq}; you should only bind "
 "it temporarily to @code{t} with @code{let}.  When you do that, you should "
 "also bind @code{print-number-table} to @code{nil}."
-msgstr ""
+msgstr "非@code{nil}の場合は、複数のプリント呼び出しを通じて通番が振られることを意味する。これは@samp{#@var{n}=}ラベルおよび@samp{#@var{m}#}参照にたいしてプリントされる数字に影響する。この変数を@code{setq}でセットしてはならない。@code{let}を使用して一時的に@code{t}にバインドするべきである。これを行う場合は、@code{print-number-table}も@code{nil}にバインドするべきである。"
 
 #. type: defvar
 #: streams.texi.orig:820
 #, no-wrap
 msgid "print-number-table"
-msgstr ""
+msgstr "print-number-table"
 
 #. type: defvar
 #: streams.texi.orig:824
@@ -1730,13 +1745,13 @@ msgid ""
 "This variable holds a vector used internally by printing to implement the "
 "@code{print-circle} feature.  You should not use it except to bind it to "
 "@code{nil} when you bind @code{print-continuous-numbering}."
-msgstr ""
+msgstr "この変数は@code{print-circle}機能を実装するために、プリント処理で内部的に使用されるベクターを保持する。@code{print-continuous-numbering}をバインドするときにこの変数を@code{nil}にバインドする以外は、この変数を使用するべきではない。"
 
 #. type: defvar
 #: streams.texi.orig:826
 #, no-wrap
 msgid "float-output-format"
-msgstr ""
+msgstr "float-output-format"
 
 #. type: defvar
 #: streams.texi.orig:830
@@ -1744,7 +1759,7 @@ msgid ""
 "This variable specifies how to print floating-point numbers.  The default is "
 "@code{nil}, meaning use the shortest output that represents the number "
 "without losing information."
-msgstr ""
+msgstr "この変数は浮動小数点数をプリントする方法を指定する。デフォルトは@code{nil}で、これは情報を失わずにその数値を表せるもっとも短い出力を使用することを意味する。"
 
 #. type: defvar
 #: streams.texi.orig:835
@@ -1753,4 +1768,4 @@ msgid ""
 "variable.  The string should hold a @samp{%}-specification to be used in the "
 "C function @code{sprintf}.  For further restrictions on what you can use, "
 "see the variable's documentation string."
-msgstr ""
+msgstr "出力フォーマットをより精密に制御するために、この変数に文字列をセットできる。この文字列にはCの@code{sprintf}関数で使用される@samp{%}指定子をセットする。この変数で使用することのできる制限についての詳細は、この変数のドキュメント文字列を参照のこと。"
