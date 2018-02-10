@@ -376,76 +376,59 @@ Input}を参照)使用して、ミニバッファーの初期内容となるヒ�
   新たな要素をヒストリーリストに追加するEmacs関数は、リストが長くなりすぎたときに古い要素の削除も行うことができます。変数@code{history-length}は、ほとんどのヒストリーリストの最大長を指定する変数です。特定のヒストリーリストにたいして異なる最大長を指定するには、そのヒストリーリストシンボルの@code{history-length}プロパティにその最大長をセットします。変数@code{history-delete-duplicates}には、ヒストリー内の重複を削除するかどうかを指定します。
 
 @defun add-to-history history-var newelt &optional maxelt keep-all
-This function adds a new element @var{newelt}, if it isn't the empty string,
-to the history list stored in the variable @var{history-var}, and returns
-the updated history list.  It limits the list length to the value of
-@var{maxelt} (if non-@code{nil}) or @code{history-length} (described
-below).  The possible values of @var{maxelt} have the same meaning as the
-values of @code{history-length}.
+この関数は@var{newelt}が空文字列でなければ、それを新たな要素として変数@var{history-var}に格納されたヒストリーリストに追加して、更新されたヒストリーリストをリターンする。これは@var{maxelt}または@code{history-length}がが非@code{nil}の場合は、リストの長さをその変数の値に制限する(以下参照)。@var{maxelt}に指定できる値の意味は、@code{history-length}の値と同様。
 
-Normally, @code{add-to-history} removes duplicate members from the history
-list if @code{history-delete-duplicates} is non-@code{nil}.  However, if
-@var{keep-all} is non-@code{nil}, that says not to remove duplicates, and to
-add @var{newelt} to the list even if it is empty.
+@code{add-to-history}は通常、@code{history-delete-duplicates}が非@code{nil}ならば、ヒストリーリスト内の重複メンバーを削除する。しかし、@var{keep-all}が非@code{nil}の場合、それは重複を削除しないことを意味し、たとえ@var{newelt}が空でもリストに追加する。
 @end defun
 
 @defvar history-add-new-input
-If the value of this variable is @code{nil}, standard functions that read
-from the minibuffer don't add new elements to the history list.  This lets
-Lisp programs explicitly manage input history by using
-@code{add-to-history}.  The default value is @code{t}.
+この変数の値が@code{nil}の場合、ミニバッファーから読み取りを行う標準的な関数は、ヒストリーリストに新たな要素を追加しない。これにより、Lispプログラムが@code{add-to-history}を使用して明示的に入力ヒストリーを管理することになる。デフォルト値は@code{t}。
 @end defvar
 
 @defopt history-length
-The value of this variable specifies the maximum length for all history
-lists that don't specify their own maximum lengths.  If the value is
-@code{t}, that means there is no maximum (don't delete old elements).  If a
-history list variable's symbol has a non-@code{nil} @code{history-length}
-property, it overrides this variable for that particular history list.
+この変数の値は、最大長を独自に指定しないすべてのヒストリーリストの最大長を指定する。値が@code{t}の場合は、最大長がない(古い要素を削除しない)ことを意味する。ヒストリーリスト変数のシンボルの@code{history-length}プロパティが非@code{nil}の場合には、その特定のヒストリーリストにたいする最大長として、そのプロパティ値がこの変数をオーバーライドする。
 @end defopt
 
 @defopt history-delete-duplicates
-If the value of this variable is @code{t}, that means when adding a new
-history element, all previous identical elements are deleted.
+この変数の値が@code{t}の場合、それは新たなヒストリー要素の追加時に、以前からある等しい要素が削除されることを意味する。
 @end defopt
 
-  Here are some of the standard minibuffer history list variables:
+  以下は、標準的なミニバッファーヒストリーリスト変数です:
 
 @defvar minibuffer-history
-The default history list for minibuffer history input.
+ミニバッファーヒストリー入力にたいするデフォルトのヒストリーリスト。
 @end defvar
 
 @defvar query-replace-history
-A history list for arguments to @code{query-replace} (and similar arguments
-to other commands).
+@code{query-replace}の引数(および他のコマンドの同様の引数)にたいするヒストリーリスト。
 @end defvar
 
 @defvar file-name-history
-A history list for file-name arguments.
+ファイル名引数にたいするヒストリーリスト。
 @end defvar
 
 @defvar buffer-name-history
-A history list for buffer-name arguments.
+バッファー名引数にたいするヒストリーリスト。
 @end defvar
 
 @defvar regexp-history
-A history list for regular expression arguments.
+正規表現引数にたいするヒストリーリスト。
 @end defvar
 
 @defvar extended-command-history
-A history list for arguments that are names of extended commands.
+拡張コマンド名引数にたいするヒストリーリスト。
 @end defvar
 
 @defvar shell-command-history
-A history list for arguments that are shell commands.
+シェルコマンド引数にたいするヒストリーリスト。
 @end defvar
 
 @defvar read-expression-history
-A history list for arguments that are Lisp expressions to evaluate.
+評価されるためのLisp式引数にたいするヒストリーリスト。
 @end defvar
 
 @defvar face-name-history
-A history list for arguments that are faces.
+フェイス引数にたいするヒストリーリスト。
 @end defvar
 
 @c Less common: coding-system-history, input-method-history,
