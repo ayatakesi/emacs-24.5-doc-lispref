@@ -460,40 +460,25 @@ History}を参照してください。
 @cindex completion
 
 @c "This is the sort of English up with which I will not put."
-  @dfn{Completion} is a feature that fills in the rest of a name starting from
-an abbreviation for it.  Completion works by comparing the user's input
-against a list of valid names and determining how much of the name is
-determined uniquely by what the user has typed.  For example, when you type
-@kbd{C-x b} (@code{switch-to-buffer}) and then type the first few letters of
-the name of the buffer to which you wish to switch, and then type @key{TAB}
-(@code{minibuffer-complete}), Emacs extends the name as far as it can.
+  @dfn{補完(complete,
+ompletion)}は省略された形式から始まる名前の残りを充填する機能です。補完はユーザー入力と有効な名前リストを比較して、ユーザーが何をタイプしたかで名前をどの程度一意に判定できるか判断することにより機能します。たとえば@kbd{C-x
+b}(@code{switch-to-buffer})とタイプしてから、スイッチしたいバッファー名の最初の数文字をタイプして、その後に@key{TAB}(@code{minibuffer-complete})をタイプすると、Emacsはその名前を可能な限り展開します。
 
-  Standard Emacs commands offer completion for names of symbols, files,
-buffers, and processes; with the functions in this section, you can
-implement completion for other kinds of names.
+  標準的なEmacsコマンドはシンボル、ファイル、バッファー、プロセスの名前にたいして補完を提案します。このセクションの関数により、他の種類の名前にたいしても補完を実装できます。
 
-  The @code{try-completion} function is the basic primitive for completion: it
-returns the longest determined completion of a given initial string, with a
-given set of strings to match against.
+  @code{try-completion}関数は補完にたいする基本的なプリミティブです。これは初期文字列にたいして文字列セットをマッチして、最長と判定された補完をリターンします。
 
-  The function @code{completing-read} provides a higher-level interface for
-completion.  A call to @code{completing-read} specifies how to determine the
-list of valid names.  The function then activates the minibuffer with a
-local keymap that binds a few keys to commands useful for completion.  Other
-functions provide convenient simple interfaces for reading certain kinds of
-names with completion.
+  関数@code{completing-read}は、補完にたいする高レベルなインターフェイスを提供します。@code{completing-read}の呼び出しにより、有効な名前リストの判定方法が指定されます。その後にこの関数は補完にたいして有用ないくつかのコマンドにキーバインドするローカルキーマップとともに、ミニバッファーをアクティブ化します。その他の関数は、特定の種類の名前を補完つきで読み取る、簡便なインターフェイスを提供します。
 
 @menu
-* Basic Completion::         Low-level functions for completing strings.
-* Minibuffer Completion::    Invoking the minibuffer with completion.
-* Completion Commands::      Minibuffer commands that do completion.
-* High-Level Completion::    Convenient special cases of completion (reading 
-                               buffer names, variablenames, etc.).
-* Reading File Names::       Using completion to read file names and shell 
-                               commands.
-* Completion Variables::     Variables controlling completion behavior.
-* Programmed Completion::    Writing your own completion function.
-* Completion in Buffers::    Completing text in ordinary buffers.
+* Basic Completion::         文字列を補完する低レベル関数。
+* Minibuffer Completion::    補完つきでミニバッファーを呼び出す。
+* Completion Commands::      補完を行うミニバッファーコマンド。
+* High-Level Completion::    特別なケースに有用な補完(バッファー名や変数名などの読み取り)。
+* Reading File Names::       ファイル名やシェルコマンドの読み取りに補完を使用する。
+* Completion Variables::     補完の挙動を制御する変数。
+* Programmed Completion::    独自の補完関数を記述する。
+* Completion in Buffers::    通常バッファー内でのテキスト補完。
 @end menu
 
 @node Basic Completion
