@@ -71,91 +71,48 @@ and Frames}を参照してください。
 @section Reading Text Strings with the Minibuffer
 @cindex minibuffer input, reading text strings
 
-  The most basic primitive for minibuffer input is
-@code{read-from-minibuffer}, which can be used to read either a string or a
-Lisp object in textual form.  The function @code{read-regexp} is used for
-reading regular expressions (@pxref{Regular Expressions}), which are a
-special kind of string.  There are also specialized functions for reading
-commands, variables, file names, etc.@: (@pxref{Completion}).
+  ミニバッファー入力にたいする基本的なプリミティブは@code{read-from-minibuffer}で、これは文字列とLispオブジェクトの両方からテキスト表現されたフォームを読み取ることができます。関数@code{read-regexp}は、特別な種類の文字列である正規表現式(@ref{Regular
+Expressions}を参照)の読み取りに使用されます。コマンドや変数、ファイル名などの読み取りに特化した関数もあります(@ref{Completion}を参照)。
 
-  In most cases, you should not call minibuffer input functions in the middle
-of a Lisp function.  Instead, do all minibuffer input as part of reading the
-arguments for a command, in the @code{interactive} specification.
-@xref{Defining Commands}.
+  ほとんどの場合では、Lisp関数の途中でミニバッファー入力関数を呼び出すべきではありません。かわりに@code{interactive}指定されたコマンドの引数読み取りの一部として、すべてのミニバッファー入力を行います。@ref{Defining
+Commands}を参照してください。
 
 @defun read-from-minibuffer prompt &optional initial keymap read history default inherit-input-method
-This function is the most general way to get input from the minibuffer.  By
-default, it accepts arbitrary text and returns it as a string; however, if
-@var{read} is non-@code{nil}, then it uses @code{read} to convert the text
-into a Lisp object (@pxref{Input Functions}).
+この関数は、ミニバッファーから入力を取得するもっとも一般的な手段である。デフォルトでは、任意のテキストを受け入れて、それを文字列としてリターンする。しかし、@var{read}が非@code{nil}の場合は、テキストをLispオブジェクトに変換するために@code{read}を使用する(@ref{Input
+Functions}を参照)。
 
-The first thing this function does is to activate a minibuffer and display
-it with @var{prompt} (which must be a string) as the prompt.  Then the user
-can edit text in the minibuffer.
+この関数が最初に行うのは、ミニバッファーをアクティブにして、プロンプトに@var{prompt}(文字列でなければならない)を用いてミニバッファーを表示することである。その後に、ユーザーはミニバッファーでテキストを編集できる。
 
-When the user types a command to exit the minibuffer,
-@code{read-from-minibuffer} constructs the return value from the text in the
-minibuffer.  Normally it returns a string containing that text.  However, if
-@var{read} is non-@code{nil}, @code{read-from-minibuffer} reads the text and
-returns the resulting Lisp object, unevaluated.  (@xref{Input Functions},
-for information about reading.)
+ミニバッファーをexitするためにユーザーがコマンドをタイプするとき、@code{read-from-minibuffer}はミニバッファー内のテキストからリターン値を構築する。通常はそのテキストを含む文字列がリターンされる。しかし、@var{read}が非@code{nil}の場合、@code{read-from-minibuffer}はテキストを読み込んで結果を未評価のLispオブジェクトでリターンする。(読み取りについての詳細は、@xref{Input
+Functions}を参照のこと。)
 
-The argument @var{default} specifies default values to make available
-through the history commands.  It should be a string, a list of strings, or
-@code{nil}.  The string or strings become the minibuffer's ``future
-history'', available to the user with @kbd{M-n}.
+引数@var{default}は、ヒストリーコマンドを通じて利用できるデフォルト値を指定する。値には文字列、文字列リスト、または@code{nil}を指定する。文字列または文字列リストは、ユーザーが@kbd{M-n}で利用可能な``未来のヒストリー(future
+history)''になります。
 
-If @var{read} is non-@code{nil}, then @var{default} is also used as the
-input to @code{read}, if the user enters empty input.  If @var{default} is a
-list of strings, the first string is used as the input.  If @var{default} is
-@code{nil}, empty input results in an @code{end-of-file} error.  However, in
-the usual case (where @var{read} is @code{nil}), @code{read-from-minibuffer}
-ignores @var{default} when the user enters empty input and returns an empty
-string, @code{""}.  In this respect, it differs from all the other
-minibuffer input functions in this chapter.
+@var{read}が非@code{nil}の場合は、ユーザーの入力が空のときの@code{read}の入力としても、@var{default}が使用される。@var{default}が文字列リストの!は、最初の文字列が入力として使用される。@var{default}が@code{nil}の場合、空の入力は@code{end-of-file}エラーとなる。しかし通常(@var{read}が@code{nil})の場合には、ユーザーの入力が空のとき@code{read-from-minibuffer}は@var{default}を無視して、空文字列@code{""}をリターンする。この点において、この関数はこのチャプターの他のどのミニバッファー入力関数とも異なる。
 
-If @var{keymap} is non-@code{nil}, that keymap is the local keymap to use in
-the minibuffer.  If @var{keymap} is omitted or @code{nil}, the value of
-@code{minibuffer-local-map} is used as the keymap.  Specifying a keymap is
-the most important way to customize the minibuffer for various applications
-such as completion.
+@var{keymap}が非@code{nil}の場合、そのキーマップはミニバッファー内で使用されるローカルキーマップとなる。@var{keymap}が省略、または@code{nil}の場合は、@code{minibuffer-local-map}の値がキーマップとして使用される。キーマップの指定は、補完のようなさまざまなアプリケーションにたいしてミニバッファーをカスタマイズする、もっとも重要な方法である。
 
-The argument @var{history} specifies a history list variable to use for
-saving the input and for history commands used in the minibuffer.  It
-defaults to @code{minibuffer-history}.  You can optionally specify a
-starting position in the history list as well.  @xref{Minibuffer History}.
+引数@var{history}は、入力の保存やミニバッファー内で使用されるヒストリーコマンドが使用するヒストリーリスト変数を指定する。デフォルトは@code{minibuffer-history}である。同様に、オプションでヒストリーリスト内の開始位置を指定できる。@ref{Minibuffer
+History}を参照のこと。
 
-If the variable @code{minibuffer-allow-text-properties} is non-@code{nil},
-then the string that is returned includes whatever text properties were
-present in the minibuffer.  Otherwise all the text properties are stripped
-when the value is returned.
+変数@code{minibuffer-allow-text-properties}が非@code{nil}の場合には、リターンされる文字列にはミニバッファーでのすべてのテキストプロパティが含まれる。それ以外では、値がリターンされるときすべてのテキストプロパティが取り除かれる。
 
-If the argument @var{inherit-input-method} is non-@code{nil}, then the
-minibuffer inherits the current input method (@pxref{Input Methods}) and the
-setting of @code{enable-multibyte-characters} (@pxref{Text Representations})
-from whichever buffer was current before entering the minibuffer.
+引数@var{inherit-input-method}が非@code{nil}の場合には、ミニバッファーにエンターする前にカレントふぁったバッファーが何であれ、カレントのインプットメソッド(@ref{Input
+Methods}を参照)、および@code{enable-multibyte-characters}のセッティング(@ref{Text
+Representations}を参照)が継承される。
 
-Use of @var{initial} is mostly deprecated; we recommend using a
-non-@code{nil} value only in conjunction with specifying a cons cell for
-@var{history}.  @xref{Initial Input}.
+ほとんどの場合、@var{initial}の使用は推奨されない。非@code{nil}値の使用は、@var{history}にたいするコンスセル指定と組み合わせる場合のみ推奨する。@ref{Initial
+Input}を参照のこと。
 @end defun
 
 @defun read-string prompt &optional initial history default inherit-input-method
-This function reads a string from the minibuffer and returns it.  The
-arguments @var{prompt}, @var{initial}, @var{history} and
-@var{inherit-input-method} are used as in @code{read-from-minibuffer}.  The
-keymap used is @code{minibuffer-local-map}.
+この関数はミニバッファーから文字列を読み取り、それをリターンする。引数@var{prompt}、@var{initial}、@var{history}、@var{inherit-input-method}は@code{read-from-minibuffer}で使用する場合と同様。使用されるキーマップは@code{minibuffer-local-map}である。
 
-The optional argument @var{default} is used as in
-@code{read-from-minibuffer}, except that, if non-@code{nil}, it also
-specifies a default value to return if the user enters null input.  As in
-@code{read-from-minibuffer} it should be a string, a list of strings, or
-@code{nil}, which is equivalent to an empty string.  When @var{default} is a
-string, that string is the default value.  When it is a list of strings, the
-first string is the default value.  (All these strings are available to the
-user in the ``future minibuffer history''.)
+オプション引数@var{default}は@code{read-from-minibuffer}の場合と同様に使用されるが、ユーザーの入力が空の場合にリターンするデフォルト値も指定する。@code{read-from-minibuffer}の場合と同様、値は文字列、文字列リスト、または@code{nil}(空文字列と等価)である。@var{default}が文字列のときは、その文字列がデフォルト値になる。文字列リストのときは、最初の文字列がデフォルト値になる。(これらの文字列はすべて``未来のミニバッファーヒストリー(future
+minibuffer history)''としてユーザーが利用可能)。
 
-This function works by calling the @code{read-from-minibuffer} function:
+この関数は@code{read-from-minibuffer}を呼び出すことにより機能する。
 
 @smallexample
 @group
@@ -172,92 +129,67 @@ This function works by calling the @code{read-from-minibuffer} function:
 @end defun
 
 @defun read-regexp prompt &optional defaults history
-This function reads a regular expression as a string from the minibuffer and
-returns it.  If the minibuffer prompt string @var{prompt} does not end in
-@samp{:} (followed by optional whitespace), the function adds @samp{: } to
-the end, preceded by the default return value (see below), if that is
-non-empty.
+この関数はミニバッファーから文字列として正規表現を読み取り、それをリターンする。ミニバッファーのプロンプト文字列@var{prompt}が@samp{:}(とその後にオプションの空白文字)で終端されていない場合、この関数はデフォルトのリターン値(空文字列でない場合。以下参照)の前に@samp{:
+}を付加する。
 
-The optional argument @var{defaults} controls the default value to return if
-the user enters null input, and should be one of: a string; @code{nil},
-which is equivalent to an empty string; a list of strings; or a symbol.
+オプション引数@var{defaults}は、入力が空の場合にリターンするデフォルト値を制御する。値は文字列、@code{nil}(空文字列と等価)、文字列リスト、シンボルのうちのどれか。
 
-If @var{defaults} is a symbol, @code{read-regexp} consults the value of the
-variable @code{read-regexp-defaults-function} (see below), and if that is
-non-@code{nil} uses it in preference to @var{defaults}.  The value in this
-case should be either:
+@var{defaults}がシンボルの場合、@code{read-regexp}は変数@code{read-regexp-defaults-function}(以下参照)の値を調べて非@code{nil}のときは、@var{defaults}よりそちらを優先的に使用する。この場合、値は以下のいずれか:
 
 @itemize @minus
 @item
-@code{regexp-history-last}, which means to use the first element of the
-appropriate minibuffer history list (see below).
+@code{regexp-history-last}。これは適切なミニバッファーヒストリーリスト(以下参照)の最初の要素を使用することを意味する。
 
 @item
-A function of no arguments, whose return value (which should be @code{nil},
-a string, or a list of strings) becomes the value of @var{defaults}.
+引数なしの関数。リターン値(@code{nil}、文字列、文字列リストのいずれか)が@var{defaults}の値となる。
 @end itemize
 
-@code{read-regexp} now ensures that the result of processing @var{defaults}
-is a list (i.e., if the value is @code{nil} or a string, it converts it to a
-list of one element).  To this list, @code{read-regexp} then appends a few
-potentially useful candidates for input.  These are:
+これで、@code{read-regexp}が@var{defaults}を処理した結果はリストに確定する(値が@code{nil}または文字列の場合は1要素のリストに変換する)。このリストにたいし、@code{read-regexp}は、以下のような入力として有用な候補をいくつか追加する:
 
 @itemize @minus
 @item
-The word or symbol at point.
+ポイント位置の単語またはシンボル。
 @item
-The last regexp used in an incremental search.
+インクリメンタル検索で最後に使用されたregexp。
 @item
-The last string used in an incremental search.
+インクリメンタル検索で最後に使用された文字列。
 @item
-The last string or pattern used in query-replace commands.
+問い合わせつき置換コマンドで最後に使用された文字列またはパターン。
 @end itemize
 
-The function now has a list of regular expressions that it passes to
-@code{read-from-minibuffer} to obtain the user's input.  The first element
-of the list is the default result in case of empty input.  All elements of
-the list are available to the user as the ``future minibuffer history list''
-(@pxref{Minibuffer History, future list,, emacs, The GNU Emacs Manual}).
+これで関数は、ユーザー入力を取得するために@code{read-from-minibuffer}に渡す正規表現のリストを得た。リストの最初の要素は入力が空の場合のデフォルト値である。リストのすべての要素は``未来のミニバッファーヒストリーリスト(future
+minibuffer history list)'' (@pxref{Minibuffer History, future list,, emacs,
+The GNU Emacs Manual}を参照)としてユーザーが利用可能になる。
 
-The optional argument @var{history}, if non-@code{nil}, is a symbol
-specifying a minibuffer history list to use (@pxref{Minibuffer History}).
-If it is omitted or @code{nil}, the history list defaults to
-@code{regexp-history}.
+オプション引数@var{history}が非@code{nil}の場合、それは使用するミニバッファーヒストリーリストを指定するシンボルである(@ref{Minibuffer
+History}を参照)。これが省略、または@code{nil}の場合、ヒストリーリストのデフォルトは@code{regexp-history}となる。
 @end defun
 
 @defvar read-regexp-defaults-function
-The function @code{read-regexp} may use the value of this variable to
-determine its list of default regular expressions.  If non-@code{nil}, the
-value of this variable should be either:
+関数@code{read-regexp}は、デフォルトの正規表現リストを決定するために、この変数の値を使用するかもしれない。非@code{nil}の場合、この変数は以下のいずれかである:
 
 @itemize @minus
 @item
-The symbol @code{regexp-history-last}.
+シンボル@code{regexp-history-last}。
 
 @item
-A function of no arguments that returns either @code{nil}, a string, or a
-list of strings.
+@code{nil}、文字列、文字列リストのいずれかをリターンする引数なしの関数。
 @end itemize
 
 @noindent
-See @code{read-regexp} above for details of how these values are used.
+これらの変数の使い方についての詳細は、上述の@code{read-regexp}を参照のこと。
 @end defvar
 
 @defvar minibuffer-allow-text-properties
-If this variable is @code{nil}, then @code{read-from-minibuffer} and
-@code{read-string} strip all text properties from the minibuffer input
-before returning it.  However, @code{read-no-blanks-input} (see below), as
-well as @code{read-minibuffer} and related functions (@pxref{Object from
-Minibuffer,, Reading Lisp Objects With the Minibuffer}), and all functions
-that do minibuffer input with completion, discard text properties
-unconditionally, regardless of the value of this variable.
+この変数が@code{nil}の場合、@code{read-from-minibuffer}および@code{read-string}はミニバッファー入力をリターンする前に、すべてのテキストプロパティを取り除く。しかし@code{read-no-blanks-input}(以下参照)、同様に補完つきでミニバッファー入力を行う@code{read-minibuffer}およびそれに関連する関数(@ref{Object
+from Minibuffer,, Reading Lisp Objects With the
+Minibuffer}を参照)は、この変数の値に関わらず、無条件でテキストプロパティを破棄する。
 @end defvar
 
 @defvar minibuffer-local-map
 @c avoid page break at anchor; work around Texinfo deficiency
-This @anchor{Definition of minibuffer-local-map} is the default local keymap
-for reading from the minibuffer.  By default, it makes the following
-bindings:
+@anchor{Definition of
+minibuffer-local-map}これはミニバッファーからの読み取りにたいするデフォルトローカルキーマップである。デフォルトでは以下のバインディングをもつ:
 
 @table @asis
 @item @kbd{C-j}
@@ -294,19 +226,11 @@ bindings:
 @c In version 18, initial is required
 @c Emacs 19 feature
 @defun read-no-blanks-input prompt &optional initial inherit-input-method
-This function reads a string from the minibuffer, but does not allow
-whitespace characters as part of the input: instead, those characters
-terminate the input.  The arguments @var{prompt}, @var{initial}, and
-@var{inherit-input-method} are used as in @code{read-from-minibuffer}.
+この関数はミニバッファーから文字列を読み取るが、入力の一部として空白文字を認めず、かわりに空白文字は入力を終端させる。引数@var{prompt}、@var{initial}、@var{inherit-input-method}は@code{read-from-minibuffer}で使用するときと同様。
 
-This is a simplified interface to the @code{read-from-minibuffer} function,
-and passes the value of the @code{minibuffer-local-ns-map} keymap as the
-@var{keymap} argument for that function.  Since the keymap
-@code{minibuffer-local-ns-map} does not rebind @kbd{C-q}, it @emph{is}
-possible to put a space into the string, by quoting it.
+これは関数@code{read-from-minibuffer}の簡略化されたインターフェイスであり、キーマップ@code{minibuffer-local-ns-map}の値を@var{keymap}引数として、@code{read-from-minibuffer}関数に渡す。キーマップ@code{minibuffer-local-ns-map}は@kbd{C-q}をリバインドしないので、クォートすることにより文字列内にスペースを挿入することが@emph{可能である}。
 
-This function discards text properties, regardless of the value of
-@code{minibuffer-allow-text-properties}.
+@code{minibuffer-allow-text-properties}の値に関わらず、この関数はテキストプロパティを破棄する。
 
 @smallexample
 @group
@@ -321,9 +245,7 @@ This function discards text properties, regardless of the value of
 @c Slightly unfortunate name, suggesting it might be related to the
 @c Nextstep port...
 @defvar minibuffer-local-ns-map
-This built-in variable is the keymap used as the minibuffer local keymap in
-the function @code{read-no-blanks-input}.  By default, it makes the
-following bindings, in addition to those of @code{minibuffer-local-map}:
+このビルトイン変数は関数@code{read-no-blanks-input}内でミニバッファーローカルキーマップとして使用されるキーマップである。デフォルトでは、@code{minibuffer-local-map}のバインディングに加えて、以下のバインディングが有効になる:
 
 @table @asis
 @item @key{SPC}
@@ -959,10 +881,9 @@ non-@code{nil} value only in conjunction with specifying a cons cell for
 @var{history}.  @xref{Initial Input}.  For default input, use @var{default}
 instead.
 
-If the argument @var{inherit-input-method} is non-@code{nil}, then the
-minibuffer inherits the current input method (@pxref{Input Methods}) and the
-setting of @code{enable-multibyte-characters} (@pxref{Text Representations})
-from whichever buffer was current before entering the minibuffer.
+引数@var{inherit-input-method}が非@code{nil}の場合には、ミニバッファーにエンターする前にカレントふぁったバッファーが何であれ、カレントのインプットメソッド(@ref{Input
+Methods}を参照)、および@code{enable-multibyte-characters}のセッティング(@ref{Text
+Representations}を参照)が継承される。
 
 If the variable @code{completion-ignore-case} is non-@code{nil}, completion
 ignores case when comparing the input against the possible matches.
