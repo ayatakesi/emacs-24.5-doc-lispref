@@ -438,37 +438,22 @@ Input}を参照)使用して、ミニバッファーの初期内容となるヒ�
 @node Initial Input
 @section Initial Input
 
-Several of the functions for minibuffer input have an argument called
-@var{initial}.  This is a mostly-deprecated feature for specifying that the
-minibuffer should start out with certain text, instead of empty as usual.
+ミニバッファー入力にたいする関数のいくつかには、@var{initial}と呼ばれる引数があります。これは通常のように空の状態で開始されるのではなく、特定のテキストとともにミニバッファーが開始されることを指定しますが、ほとんどの場合において推奨されない機能です。
 
-If @var{initial} is a string, the minibuffer starts out containing the text
-of the string, with point at the end, when the user starts to edit the
-text.  If the user simply types @key{RET} to exit the minibuffer, it will
-use the initial input string to determine the value to return.
+@var{initial}が文字列の場合、ミニバッファーはその文字列のテキストを含む状態で開始され、ユーザーがそのテキストの編集を開始するとき、ポイントはテキストの終端にあります。ユーザーがミニバッファーをexitするために単に@key{RET}をタイプした場合には、この入力文字列の初期値をリターン値だと判断します。
 
-@strong{We discourage use of a non-@code{nil} value for @var{initial}},
-because initial input is an intrusive interface.  History lists and default
-values provide a much more convenient method to offer useful default inputs
-to the user.
+@strong{@var{initial}にたいして非@code{nil}値の使用には反対します。}なぜなら初期入力は強要的なインターフェイスだからです。ユーザーにたいして有用なデフォルト入力を提案するためには、ヒストリーリストやデフォルト値の提供のほうが、より便利です。
 
-There is just one situation where you should specify a string for an
-@var{initial} argument.  This is when you specify a cons cell for the
-@var{history} argument.  @xref{Minibuffer History}.
+しかし@var{initial}引数にたいして文字列を指定すべき状況が1つだけあります。それは、@var{history}引数にコンスセルを指定したときです。@ref{Minibuffer
+History}を参照してください。
 
-@var{initial} can also be a cons cell of the form @code{(@var{string}
-. @var{position})}.  This means to insert @var{string} in the minibuffer but
-put point at @var{position} within the string's text.
+@var{initial}は@code{(@var{string}
+.
+@var{position})}という形式をとることもできます。これは@var{string}をミニバッファーに挿入するが、その文字列のテキスト中の@var{position}にポイントを配するという意味です。
 
-As a historical accident, @var{position} was implemented inconsistently in
-different functions.  In @code{completing-read}, @var{position}'s value is
-interpreted as origin-zero; that is, a value of 0 means the beginning of the
-string, 1 means after the first character, etc.  In @code{read-minibuffer},
-and the other non-completion minibuffer input functions that support this
-argument, 1 means the beginning of the string, 2 means after the first
-character, etc.
+歴史的な経緯により、@var{position}は異なる関数において実装が統一されていません。@code{completing-read}では@var{position}の値は0基準です。つまり、値0は文字列の先頭で、1は最初の文字の次、...を意味します。しかし@code{read-minibuffer}、およびこの引数をサポートする補完を行わない他のミニバッファー入力関数では、1は文字列の先頭、2は最初の文字の次、...を意味します。
 
-Use of a cons cell as the value for @var{initial} arguments is deprecated.
+@var{initial}の値としてのコンスセルの使用は、推奨されません。
 
 @node Completion
 @section Completion
