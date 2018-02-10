@@ -266,15 +266,12 @@ minibuffer-local-map}これはミニバッファーからの読み取りにた�
 @section Reading Lisp Objects with the Minibuffer
 @cindex minibuffer input, reading lisp objects
 
-  This section describes functions for reading Lisp objects with the
-minibuffer.
+  このセクションでは、ミニバッファーでLispオブジェクトを読み取る関数を説明します。
 
 @defun read-minibuffer prompt &optional initial
-This function reads a Lisp object using the minibuffer, and returns it
-without evaluating it.  The arguments @var{prompt} and @var{initial} are
-used as in @code{read-from-minibuffer}.
+この関数はミニバッファーを使用してLispオブジェクトをよみ、それを評価せずにリターンする。引数@var{prompt}と@var{initial}は、@code{read-from-minibuffer}のときと同様に使用する。
 
-This is a simplified interface to the @code{read-from-minibuffer} function:
+これは@code{read-from-minibuffer}関数にたいする簡略化されたインターフェイスである。
 
 @smallexample
 @group
@@ -285,15 +282,14 @@ This is a simplified interface to the @code{read-from-minibuffer} function:
 @end group
 @end smallexample
 
-Here is an example in which we supply the string @code{"(testing)"} as
-initial input:
+以下の例では、初期入力として文字列@code{"(testing)"}を与えている:
 
 @smallexample
 @group
 (read-minibuffer
  "Enter an expression: " (format "%s" '(testing)))
 
-;; @r{Here is how the minibuffer is displayed:}
+;; @r{以下はミニバッファーでの表示::}
 @end group
 
 @group
@@ -304,17 +300,13 @@ Enter an expression: (testing)@point{}
 @end smallexample
 
 @noindent
-The user can type @key{RET} immediately to use the initial input as a
-default, or can edit the input.
+ユーザーは@key{RET}をタイプして初期入力をデフォルトとして利用したり、入力を編集することができる。
 @end defun
 
 @defun eval-minibuffer prompt &optional initial
-This function reads a Lisp expression using the minibuffer, evaluates it,
-then returns the result.  The arguments @var{prompt} and @var{initial} are
-used as in @code{read-from-minibuffer}.
+この関数はミニバッファーを使用してLisp式を読み取り、それを評価して結果をリターンする。引数@var{prompt}と@var{initial}の使い方は、@code{read-from-minibuffer}と同様。
 
-This function simply evaluates the result of a call to
-@code{read-minibuffer}:
+この関数は、@code{read-minibuffer}の呼び出し結果を単に評価する:
 
 @smallexample
 @group
@@ -326,23 +318,17 @@ This function simply evaluates the result of a call to
 @end defun
 
 @defun edit-and-eval-command prompt form
-This function reads a Lisp expression in the minibuffer, evaluates it, then
-returns the result.  The difference between this command and
-@code{eval-minibuffer} is that here the initial @var{form} is not optional
-and it is treated as a Lisp object to be converted to printed representation
-rather than as a string of text.  It is printed with @code{prin1}, so if it
-is a string, double-quote characters (@samp{"})  appear in the initial
-text.  @xref{Output Functions}.
+この関数はミニバッファーでLisp式を読み取り、それを評価して結果をリターンする。このコマンドと@code{eval-minibuffer}の違いは、このコマンドでは初期値としての@var{form}はオプションではなく、テキストの文字列ではないプリント表現に変換されたLispオブジェクトとして扱われることである。これは@code{prin1}でプリントされるので、文字列の場合はテキスト初期値内にダブルクォート文字(@samp{"})が含まれる。@ref{Output
+Functions}を参照のこと。
 
-In the following example, we offer the user an expression with initial text
-that is already a valid form:
+以下の例では、すでに有効なフォームであるようなテキスト初期値として式をユーザーに提案している:
 
 @smallexample
 @group
 (edit-and-eval-command "Please edit: " '(forward-word 1))
 
-;; @r{After evaluation of the preceding expression,}
-;;   @r{the following appears in the minibuffer:}
+;; @r{前の式を評価した後に、}
+;;   @r{ミニバッファーに以下が表示される。:}
 @end group
 
 @group
@@ -353,8 +339,7 @@ Please edit: (forward-word 1)@point{}
 @end smallexample
 
 @noindent
-Typing @key{RET} right away would exit the minibuffer and evaluate the
-expression, thus moving point forward one word.
+すぐに@key{RET} をタイプするとミニバッファーをexitして式を評価するので、1単語分ポイントは前進する。
 @end defun
 
 @node Minibuffer History
@@ -1315,8 +1300,8 @@ Here is an example of using @code{read-file-name}:
 @group
 (read-file-name "The file is ")
 
-;; @r{After evaluation of the preceding expression,}
-;;   @r{the following appears in the minibuffer:}
+;; @r{前の式を評価した後に、}
+;;   @r{ミニバッファーに以下が表示される。:}
 @end group
 
 @group
