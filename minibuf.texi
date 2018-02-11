@@ -484,65 +484,37 @@ b}(@code{switch-to-buffer})とタイプしてから、スイッチしたいバ�
 @node Basic Completion
 @subsection Basic Completion Functions
 
-  The following completion functions have nothing in themselves to do with
-minibuffers.  We describe them here to keep them near the higher-level
-completion features that do use the minibuffer.
+  以下の補完関数は、その関数自身ではミニバッファーでなにも行いません。ここでは、ミニバッファーを使用する高レベルの補完機能と並べて、これらの関数について説明します。
 
 @defun try-completion string collection &optional predicate
-This function returns the longest common substring of all possible
-completions of @var{string} in @var{collection}.
+この関数は@var{collection}内の@var{string}に利用可能なすべての補完の、共通する最長部分文字列をリターンする。
 
 @cindex completion table
-@var{collection} is called the @dfn{completion table}.  Its value must be a
-list of strings or cons cells, an obarray, a hash table, or a completion
-function.
+@var{collection}は@dfn{補完テーブル(completion
+table)}と呼ばれる。値は文字列リスト、コンスセル、obarray、ハッシュテーブル、または補完関数でなければならない。
 
-@code{try-completion} compares @var{string} against each of the permissible
-completions specified by the completion table.  If no permissible
-completions match, it returns @code{nil}.  If there is just one matching
-completion, and the match is exact, it returns @code{t}.  Otherwise, it
-returns the longest initial sequence common to all possible matching
-completions.
+@code{try-completion}は補完テーブルにより指定された許容できる補完それぞれにたいして、@var{string}と比較を行う。許容できる補完マッチが存在しない場合は、@code{nil}をリターンする。マッチする補完が1つだけで、それが完全一致ならば@code{t}をリターンする。それ以外は、すべてのマッチ可能な補完に共通する最長の初期シーケンス(longest
+initial sequence)をリターンする。
 
-If @var{collection} is a list, the permissible completions are specified by
-the elements of the list, each of which should be either a string, or a cons
-cell whose @sc{car} is either a string or a symbol (a symbol is converted to
-a string using @code{symbol-name}).  If the list contains elements of any
-other type, those are ignored.
+@var{collection}がリストの場合、許容できる補完(permissible
+completions)はそのリストの要素により指定される。リストの要素は文字列、または@sc{car}が文字列または(@code{symbol-name}により文字列に変換される)シンボルであるようなコンスセルである。リストに他の型の要素が含まれる場合は無視される。
 
 @cindex obarray in completion
-If @var{collection} is an obarray (@pxref{Creating Symbols}), the names of
-all symbols in the obarray form the set of permissible completions.
+@var{collection}がobarray(@ref{Creating
+Symbols}を参照)の場合、そのobarray内のすべてのシンボル名が許容できる補完セットを形成する。
 
-If @var{collection} is a hash table, then the keys that are strings are the
-possible completions.  Other keys are ignored.
+@var{collection}がハッシュテーブルの場合には、文字列のキーが利用可能な補完(possible
+completions)になる。他のキーは無視される。
 
-You can also use a function as @var{collection}.  Then the function is
-solely responsible for performing completion; @code{try-completion} returns
-whatever this function returns.  The function is called with three
-arguments: @var{string}, @var{predicate} and @code{nil} (the third argument
-is so that the same function can be used in @code{all-completions} and do
-the appropriate thing in either case).  @xref{Programmed Completion}.
+@var{collection}として関数を使用することもできる。この場合、この関数だけが補完を処理する役目を担う。つまり@code{try-completion}は、この関数が何をリターンしようとも、それをリターンする。この関数は@var{string}、@var{predicate}、@code{nil}の3つの引数で呼び出される(3つ目の引数は同じ関数を@code{all-completions}でも使用して、どちらの場合でも適切なことを行うためである)。@ref{Programmed
+Completion}を参照のこと。
 
-If the argument @var{predicate} is non-@code{nil}, then it must be a
-function of one argument, unless @var{collection} is a hash table, in which
-case it should be a function of two arguments.  It is used to test each
-possible match, and the match is accepted only if @var{predicate} returns
-non-@code{nil}.  The argument given to @var{predicate} is either a string or
-a cons cell (the @sc{car} of which is a string) from the alist, or a symbol
-(@emph{not} a symbol name) from the obarray.  If @var{collection} is a hash
-table, @var{predicate} is called with two arguments, the string key and the
-associated value.
+引数@var{predicate}が非@code{nil}の場合、@var{collection}がハッシュテーブルなら1引数、それ以外は2引数の関数でなければならない。これは利用可能なマッチのテストに使用され、マッチは@var{predicate}が非@code{nil}をリターンしたときだけ受け入れられる。@var{predicate}に与えられる引数は文字列、alistのコンスセル(@sc{car}が文字列)、またはobarrayのシンボル(シンボル名では@emph{ない})のうちのどれか。@var{collection}がハッシュテーブルの場合、@var{predicate}は文字列キー(string
+key)と関連値(associated value)の2引数で呼び出される。
 
-In addition, to be acceptable, a completion must also match all the regular
-expressions in @code{completion-regexp-list}.  (Unless @var{collection} is a
-function, in which case that function has to handle
-@code{completion-regexp-list} itself.)
+加えて使いやすいように、補完は@code{completion-regexp-list}内のすべての正規表現にもマッチしなければならない。(@var{collection}が関数の場合は、その関数自身が@code{completion-regexp-list}を処理する必要がある。)
 
-In the first of the following examples, the string @samp{foo} is matched by
-three of the alist @sc{car}s.  All of the matches begin with the characters
-@samp{fooba}, so that is the result.  In the second example, there is only
-one possible match, and it is exact, so the return value is @code{t}.
+以下の例の1つ目では、文字列@samp{foo}がalistのうち3つの@sc{car}とマッチされている。すべてのマッチは文字@samp{fooba}で始まるので、それが結果となる。2つ目の例では、可能なマッチは1つだけで、しかも完全一致なのでリターン値は@code{t}になる。
 
 @smallexample
 @group
@@ -558,10 +530,7 @@ one possible match, and it is exact, so the return value is @code{t}.
 @end group
 @end smallexample
 
-In the following example, numerous symbols begin with the characters
-@samp{forw}, and all of them begin with the word @samp{forward}.  In most of
-the symbols, this is followed with a @samp{-}, but not in all, so no more
-than @samp{forward} can be completed.
+以下の例では、文字@samp{forw}で始まるシンボルが多数あり、それらはすべて単語@samp{forward}で始まる。ほとんどのシンボルはその後に@samp{-}が続くが、すべてではないので@samp{forward}までしか補完できない。
 
 @smallexample
 @group
@@ -570,9 +539,7 @@ than @samp{forward} can be completed.
 @end group
 @end smallexample
 
-Finally, in the following example, only two of the three possible matches
-pass the predicate @code{test} (the string @samp{foobaz} is too short).
-Both of those begin with the string @samp{foobar}.
+最後に、以下の例では述語@code{test}に渡される利用可能なマッチは3つのうち2つだけである(文字列@samp{foobaz}は短すぎる)。これらは両方とも文字列@samp{foobar}で始まる。
 
 @smallexample
 @group
@@ -593,10 +560,7 @@ Both of those begin with the string @samp{foobar}.
 @c Removed obsolete argument nospace.
 @defun all-completions string collection &optional predicate
 @c (aside from @var{nospace})
-This function returns a list of all possible completions of @var{string}.
-The arguments to this function are the same as those of
-@code{try-completion}, and it uses @code{completion-regexp-list} in the same
-way that @code{try-completion} does.
+この関数は、@var{string}の利用可能な補完すべてのリストをリターンする。この関数の引数は@code{try-completion}の引数と同じであり、@code{try-completion}が行うのと同じ方法で@code{completion-regexp-list}を使用する。
 
 @ignore
 The optional argument @var{nospace} is obsolete.  If it is
@@ -604,12 +568,10 @@ non-@code{nil}, completions that start with a space are ignored unless
 @var{string} starts with a space.
 @end ignore
 
-If @var{collection} is a function, it is called with three arguments:
-@var{string}, @var{predicate} and @code{t}; then @code{all-completions}
-returns whatever the function returns.  @xref{Programmed Completion}.
+@var{collection}か関数の場合は@var{string}、@var{predicate}、@code{t}の3つの引数で呼び出される。この場合、その関数がリターンするのが何であれ、@code{all-completions}はそれをリターンする。@ref{Programmed
+Completion}を参照のこと。
 
-Here is an example, using the function @code{test} shown in the example for
-@code{try-completion}:
+以下の例は、@code{try-completion}の例の関数@code{test}を使用している。
 
 @smallexample
 @group
@@ -630,74 +592,45 @@ Here is an example, using the function @code{test} shown in the example for
 
 @defun test-completion string collection &optional predicate
 @anchor{Definition of test-completion}
-This function returns non-@code{nil} if @var{string} is a valid completion
-alternative specified by @var{collection} and @var{predicate}.  The
-arguments are the same as in @code{try-completion}.  For instance, if
-@var{collection} is a list of strings, this is true if @var{string} appears
-in the list and @var{predicate} is satisfied.
+この関数は、@var{string}が@var{collection}および@var{predicate}で指定された有効な補完候補の場合は、@code{nil}をリターンする。引数は@code{try-completion}の引数と同じ。たとえば、@var{collection}が文字列リストの場合は、@var{string}がリスト内に存在し、かつ@var{predicate}を満足すればtrueとなる。
 
-This function uses @code{completion-regexp-list} in the same way that
-@code{try-completion} does.
+この関数は@code{try-completion}が行うのと同じ方法で、@code{completion-regexp-list}を使用する。
 
-If @var{predicate} is non-@code{nil} and if @var{collection} contains
-several strings that are equal to each other, as determined by
-@code{compare-strings} according to @code{completion-ignore-case}, then
-@var{predicate} should accept either all or none of them.  Otherwise, the
-return value of @code{test-completion} is essentially unpredictable.
+@var{predicate}が非@code{nil}で、@var{collection}が同じ文字列を複数含む場合には、@code{completion-ignore-case}にしたがって@code{compare-strings}で判定して、それらすべてをリターンするか、もしくは何もリターンしない。それ以外では、@code{test-completion}のリターン値は基本的に予測不可能である。
 
-If @var{collection} is a function, it is called with three arguments, the
-values @var{string}, @var{predicate} and @code{lambda}; whatever it returns,
-@code{test-completion} returns in turn.
+@var{collection}が関数の場合は@var{string}、@var{predicate}、@code{lambda}の3つの引数で呼び出される。それが何をリターンするにせよ、@code{test-completion}はそれをリターンする。
 @end defun
 
 @defun completion-boundaries string collection predicate suffix
-This function returns the boundaries of the field on which @var{collection}
-will operate, assuming that @var{string} holds the text before point and
-@var{suffix} holds the text after point.
+この関数はポイントの前のテキストが@var{string}、ポイントの後が@var{suffix}と仮定して、@var{collection}が扱うフィールドの境界(boundary)をリターンする。
 
-Normally completion operates on the whole string, so for all normal
-collections, this will always return @code{(0 . (length @var{suffix}))}.
-But more complex completion such as completion on files is done one field at
-a time.  For example, completion of @code{"/usr/sh"} will include
-@code{"/usr/share/"} but not @code{"/usr/share/doc"} even if
-@code{"/usr/share/doc"} exists.  Also @code{all-completions} on
-@code{"/usr/sh"} will not include @code{"/usr/share/"} but only
-@code{"share/"}.  So if @var{string} is @code{"/usr/sh"} and @var{suffix} is
-@code{"e/doc"}, @code{completion-boundaries} will return @code{(5 . 1)}
-which tells us that the @var{collection} will only return completion
-information that pertains to the area after @code{"/usr/"} and before
-@code{"/doc"}.
+補完は通常、文字列(string)全体に作用するので、すべての普通のコレクション(collection)にたいして、この関数は常に@code{(0
+. (length
+@var{suffix}))}をリターンするだろう。しかしファイルにたいする補完などのより複雑な補完は、1回に1フィールド行われる。たとえば、たとえ@code{"/usr/share/doc"}が存在しても、@code{"/usr/sh"}の補完に@code{"/usr/share/"}は含まれるが、@code{"/usr/share/doc"}は含まれないだろう。また、@code{"/usr/sh"}にたいする@code{all-completions}に@code{"/usr/share/"}は含まれず、@code{"share/"}だけが含まれるだろう。@var{string}が@code{"/usr/sh"}、@var{suffix}が@code{"e/doc"}の場合、@code{completion-boundaries}は@code{(5
+.
+1)}をリターンするだろう。これは、@var{collection}が@code{"/usr/"}の後ろにあり@code{"/doc"}の前にある領域に関する補完情報だけをリターンするであろうことを告げている。
 @end defun
 
-If you store a completion alist in a variable, you should mark the variable
-as ``risky'' by giving it a non-@code{nil} @code{risky-local-variable}
-property.  @xref{File Local Variables}.
+補完alistを変数に格納した場合は、変数の@code{risky-local-variable}プロパティに非@code{nil}をセットして、その変数が``risky(危険)''だとマークすべきである。@ref{File
+Local Variables}を参照のこと。
 
 @defvar completion-ignore-case
-If the value of this variable is non-@code{nil}, case is not considered
-significant in completion.  Within @code{read-file-name}, this variable is
-overridden by @code{read-file-name-completion-ignore-case} (@pxref{Reading
-File Names}); within @code{read-buffer}, it is overridden by
-@code{read-buffer-completion-ignore-case} (@pxref{High-Level Completion}).
+この変数の値が非@code{nil}の場合、補完での大文字小文字の違いは意味をもたない。@code{read-file-name}では、この変数は@code{read-file-name-completion-ignore-case}(@ref{Reading
+File
+Names}を参照)にオーバーライドされる。@code{read-buffer}では、この変数は@code{read-buffer-completion-ignore-case}(@ref{High-Level
+Completion}を参照)にオーバーライドされる。
 @end defvar
 
 @defvar completion-regexp-list
-This is a list of regular expressions.  The completion functions only
-consider a completion acceptable if it matches all regular expressions in
-this list, with @code{case-fold-search} (@pxref{Searching and Case})  bound
-to the value of @code{completion-ignore-case}.
+これは正規表現のリストである。補完関数はこのリスト内のすべての正規表現にマッチした場合のみ許容できる補完と判断する。@code{case-fold-search}(@ref{Searching
+and Case}を参照)では@code{completion-ignore-case}の値にバインドされる。
 @end defvar
 
 @defmac lazy-completion-table var fun
-This macro provides a way to initialize the variable @var{var} as a
-collection for completion in a lazy way, not computing its actual contents
-until they are first needed.  You use this macro to produce a value that you
-store in @var{var}.  The actual computation of the proper value is done the
-first time you do completion using @var{var}.  It is done by calling
-@var{fun} with no arguments.  The value @var{fun} returns becomes the
-permanent value of @var{var}.
+この変数は変数@var{var}を補完のためのcollectionとしてlazy(lazy:
+力のない、だらけさせる、のろのろした、怠惰な、不精な、眠気を誘う)な方法で初期化する。ここでlazyとは、collection内の実際のコンテンツを必要になるまで計算しないという意味。このマクロは@var{var}に格納する値の生成に使用する。@var{var}を使用して最初に補完を行ったとき、真の値が実際に計算される。これは引数なしで@var{fun}を呼び出すことにより行われる。@var{fun}がリターンする値は、@var{var}の永続的な値となる。
 
-Here is an example:
+以下は例である:
 
 @smallexample
 (defvar foo (lazy-completion-table foo make-my-alist))
@@ -714,16 +647,10 @@ Here is an example:
 @findex completion-table-with-terminator
 @cindex completion table, modifying
 @cindex completion tables, combining
-There are several functions that take an existing completion table and
-return a modified version.  @code{completion-table-case-fold} returns a
-case-insensitive table.  @code{completion-table-in-turn} and
-@code{completion-table-merge} combine multiple input tables in different
-ways.  @code{completion-table-subvert} alters a table to use a different
-initial prefix.  @code{completion-table-with-quoting} returns a table
-suitable for operating on quoted text.
-@code{completion-table-with-predicate} filters a table with a predicate
-function.  @code{completion-table-with-terminator} adds a terminating
-string.
+既存の補完テーブルを受け取り変更したバージョンをリターンする関数が、いくつかあります。@code{completion-table-case-fold}は大文字小文字を区別しない、case-insensitiveなテーブルをリターンします。@code{completion-table-in-turn}と@code{completion-table-merge}は、複数の入力テーブルを、異なる方法で組み合わせます。@code{completion-table-subvert}はテーブルを異なる初期プレフィックス(initial
+prefix)で変更します。@code{completion-table-with-quoting}はクォートされたテキストの処理に適したテーブルをリターンします。@code{completion-table-with-predicate}は述語関数(predicate
+function)によりフィルターします。@code{completion-table-with-terminator}は終端文字列(terminating
+string)を追加します。
 
 
 @node Minibuffer Completion
@@ -1722,7 +1649,7 @@ waits about two seconds and repeats the request.
 @code{yes-or-no-p} requires more work from the user than @code{y-or-n-p} and
 is appropriate for more crucial decisions.
 
-Here is an example:
+以下は例である:
 
 @smallexample
 @group
