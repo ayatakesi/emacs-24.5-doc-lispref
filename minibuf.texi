@@ -658,80 +658,54 @@ string)を追加します。
 @cindex minibuffer completion
 @cindex reading from minibuffer with completion
 
-  This section describes the basic interface for reading from the minibuffer
-with completion.
+  このセクションでは、補完つきでミニバッファーから読み取るための、基本的なインターフェイスを説明します。
 
 @defun completing-read prompt collection &optional predicate require-match initial history default inherit-input-method
-This function reads a string in the minibuffer, assisting the user by
-providing completion.  It activates the minibuffer with prompt @var{prompt},
-which must be a string.
+この関数は、補完の提供によりユーザーを支援して、ミニバッファーから文字列を読み取る。@var{prompt}(文字列でなければならない)のプロンプトとともに、ミニバッファーをアクティブ化する。
 
-The actual completion is done by passing the completion table
-@var{collection} and the completion predicate @var{predicate} to the
-function @code{try-completion} (@pxref{Basic Completion}).  This happens in
-certain commands bound in the local keymaps used for completion.  Some of
-these commands also call @code{test-completion}.  Thus, if @var{predicate}
-is non-@code{nil}, it should be compatible with @var{collection} and
-@code{completion-ignore-case}.  @xref{Definition of test-completion}.
+実際の補完は、補完テーブル@var{collection}と補完述語@var{predicate}を関数@code{try-completion}(@ref{Basic
+Completion}を参照)に渡すことにより行われる。これは補完の使用されるローカルキーマップに特定のコマンドをバインドしたとき発生する。これらのコマンドのいくつかは、@code{test-completion}も呼び出す。したがって、@var{predicate}が非@code{nil}の場合は、@var{collection}と@code{completion-ignore-case}が矛盾しないようにすべきである。@ref{Definition
+of test-completion}を参照のこと。
 
-The value of the optional argument @var{require-match} determines how the
-user may exit the minibuffer:
+オプション引数@var{require-match}の値は、ユーザーがミニバッファーをexitする方法を決定する。
 
 @itemize @bullet
 @item
-If @code{nil}, the usual minibuffer exit commands work regardless of the
-input in the minibuffer.
+@code{nil}の場合、通常のミニバッファーexitコマンドは、ミニバッファーの入力と無関係に機能する。
 
 @item
-If @code{t}, the usual minibuffer exit commands won't exit unless the input
-completes to an element of @var{collection}.
+@code{t}の場合は、入力が@var{collection}の要素に補完されるまで、通常のミニバッファーexitコマンドは機能しない。
 
 @item
-If @code{confirm}, the user can exit with any input, but is asked for
-confirmation if the input is not an element of @var{collection}.
+@code{confirm}の場合、どのような入力でもユーザーはexitできるが、入力が@code{confirm}の要素に補完されていなければ、確認を求められる。
 
 @item
-If @code{confirm-after-completion}, the user can exit with any input, but is
-asked for confirmation if the preceding command was a completion command
-(i.e., one of the commands in @code{minibuffer-confirm-exit-commands}) and
-the resulting input is not an element of @var{collection}.  @xref{Completion
-Commands}.
+@code{confirm-after-completion}の場合、どのような入力でもユーザーはexitできるが、前のコマンドが補完コマンド(たとえば@code{minibuffer-confirm-exit-commands}の中のコマンドの1つの場合)で、入力の結果が@var{collection}の要素でない場合は、確認を求められる。@ref{Completion
+Commands}を参照のこと。
 
 @item
-Any other value of @var{require-match} behaves like @code{t}, except that
-the exit commands won't exit if it performs completion.
+@var{require-match}にたいする他の値は@code{t}と同じふぁが、exitコマンドは補完処理中はexitしない。
 @end itemize
 
-However, empty input is always permitted, regardless of the value of
-@var{require-match}; in that case, @code{completing-read} returns the first
-element of @var{default}, if it is a list; @code{""}, if @var{default} is
-@code{nil}; or @var{default}.  The string or strings in @var{default} are
-also available to the user through the history commands.
+しかし、@var{require-match}の値に関わらず、空の入力は常に許される。この場合、@code{completing-read}は@var{default}がリストなら最初の要素、@var{default}が@code{nil}なら@code{""}、または@var{default}をリターンする。文字列および@var{default}内の文字列は、ヒストリーコマンドを通じてユーザーが利用できる。
 
-The function @code{completing-read} uses
-@code{minibuffer-local-completion-map} as the keymap if @var{require-match}
-is @code{nil}, and uses @code{minibuffer-local-must-match-map} if
-@var{require-match} is non-@code{nil}.  @xref{Completion Commands}.
+関数@code{completing-read}は@var{require-match}が@code{nil}の場合はキーマップとして@code{minibuffer-local-completion-map}を、@var{require-match}が非@code{nil}の場合は@code{minibuffer-local-must-match-map}を使用する。@ref{Completion
+Commands}を参照のこと。
 
-The argument @var{history} specifies which history list variable to use for
-saving the input and for minibuffer history commands.  It defaults to
-@code{minibuffer-history}.  @xref{Minibuffer History}.
+引数@var{history}は入力の保存とミニバッファーヒストリーコマンドに、どのヒストリーリスト変数を使用するか指定する。デフォルトは@code{minibuffer-history}。@ref{Minibuffer
+History}を参照のこと。
 
-The argument @var{initial} is mostly deprecated; we recommend using a
-non-@code{nil} value only in conjunction with specifying a cons cell for
-@var{history}.  @xref{Initial Input}.  For default input, use @var{default}
-instead.
+@var{initial}は、ほとんどの場合推奨されない。@var{history}にたいするコンスセル指定と組み合わせた場合のみ、非@code{nil}値の使用を推奨する。@ref{Initial
+Input}を参照のこと。デフォルト入力にたいしては、かわりに@var{default}を使用する。
 
 引数@var{inherit-input-method}が非@code{nil}の場合には、ミニバッファーにエンターする前にカレントだったバッファーが何であれ、カレントのインプットメソッド(@ref{Input
 Methods}を参照)、および@code{enable-multibyte-characters}のセッティング(@ref{Text
 Representations}を参照)が継承される。
 
-If the variable @code{completion-ignore-case} is non-@code{nil}, completion
-ignores case when comparing the input against the possible matches.
-@xref{Basic Completion}.  In this mode of operation, @var{predicate} must
-also ignore case, or you will get surprising results.
+変数@code{completion-ignore-case}が非@code{nil}の場合、利用可能なマッチにたいして入力を比較するときの補完は、大文字小文字を区別しない。@ref{Basic
+Completion}を参照のこと。このモードでの操作では、@var{predicate}も大文字小文字を区別してはならない(さもないと驚くべき結果となるであろう)。
 
-Here's an example of using @code{completing-read}:
+以下は@code{completing-read}を使用した例である:
 
 @smallexample
 @group
@@ -742,8 +716,8 @@ Here's an example of using @code{completing-read}:
 @end group
 
 @group
-;; @r{After evaluation of the preceding expression,}
-;;   @r{the following appears in the minibuffer:}
+;; @r{前の式を評価後に、}
+;;   @r{ミニバッファーに以下が表示される。:}
 
 ---------- Buffer: Minibuffer ----------
 Complete a foo: fo@point{}
@@ -752,20 +726,14 @@ Complete a foo: fo@point{}
 @end smallexample
 
 @noindent
-If the user then types @kbd{@key{DEL} @key{DEL} b @key{RET}},
-@code{completing-read} returns @code{barfoo}.
+その後ユーザーが@kbd{@key{DEL} @key{DEL} b
+@key{RET}}をタイプすると、@code{completing-read}は@code{barfoo}をリターンする。
 
-The @code{completing-read} function binds variables to pass information to
-the commands that actually do completion.  They are described in the
-following section.
+@code{completing-read}関数は、実際に補完を行うコマンドの情報を渡すために、変数をバインドする。これらの変数は、以降のセクションで説明する。
 @end defun
 
 @defvar completing-read-function
-The value of this variable must be a function, which is called by
-@code{completing-read} to actually do its work.  It should accept the same
-arguments as @code{completing-read}.  This can be bound to a different
-function to completely override the normal behavior of
-@code{completing-read}.
+この変数の値は関数でなければならず、補完つきの読み取りを実際に行うために@code{completing-read}から呼び出される。この関数は@code{completing-read}と同じ引数を受け入れる。他の関数のバインドして、通常の@code{completing-read}の振る舞いを完全にオーバーライドすることができる。
 @end defvar
 
 @node Completion Commands
