@@ -739,84 +739,47 @@ Complete a foo: fo@point{}
 @node Completion Commands
 @subsection Minibuffer Commands that Do Completion
 
-  This section describes the keymaps, commands and user options used in the
-minibuffer to do completion.
+  このセクションでは、補完のためにミニバッファーで使用されるキーマップ、コマンド、ユーザーオプションを説明します。
 
 @defvar minibuffer-completion-table
-The value of this variable is the completion table used for completion in
-the minibuffer.  This is the global variable that contains what
-@code{completing-read} passes to @code{try-completion}.  It is used by
-minibuffer completion commands such as @code{minibuffer-complete-word}.
+この変数の値は、ミニバッファー内の補完に使用される補完テーブルである。これは@code{completing-read}が@code{try-completion}に渡す補完テーブルを含むグローバル変数である。@code{minibuffer-complete-word}のような、ミニバッファー補完コマンドにより使用される。
 @end defvar
 
 @defvar minibuffer-completion-predicate
-This variable's value is the predicate that @code{completing-read} passes to
-@code{try-completion}.  The variable is also used by the other minibuffer
-completion functions.
+この変数の値は@code{completing-read}が@code{try-completion}に渡す述語(predicate)である。この変数は、他のミニバッファー補完関数でも使用される。
 @end defvar
 
 @defvar minibuffer-completion-confirm
-This variable determines whether Emacs asks for confirmation before exiting
-the minibuffer; @code{completing-read} binds this variable, and the function
-@code{minibuffer-complete-and-exit} checks the value before exiting.  If the
-value is @code{nil}, confirmation is not required.  If the value is
-@code{confirm}, the user may exit with an input that is not a valid
-completion alternative, but Emacs asks for confirmation.  If the value is
-@code{confirm-after-completion}, the user may exit with an input that is not
-a valid completion alternative, but Emacs asks for confirmation if the user
-submitted the input right after any of the completion commands in
-@code{minibuffer-confirm-exit-commands}.
+この変数はミニバッファーをexitする前に、Emacsが確認を求めるかどうかを決定する。@code{completing-read}はこの変数をバインドして、exitする前に関数@code{minibuffer-complete-and-exit}がこの値をチェックする。値が@code{nil}の場合は、確認は求められない。値が@code{confirm}の場合、入力が有効な補完候補でなくてもユーザーはexitするかもしれないが、Emacsは確認を求めない。値が@code{confirm-after-completion}の場合、入力が有効な補完候補でなくてもユーザーはexitするかもしれないが、ユーザーが@code{minibuffer-confirm-exit-commands}内の任意の補完コマンドの直後に入力を確定した場合、Emacsは確認を求める。
 @end defvar
 
 @defvar minibuffer-confirm-exit-commands
-This variable holds a list of commands that cause Emacs to ask for
-confirmation before exiting the minibuffer, if the @var{require-match}
-argument to @code{completing-read} is @code{confirm-after-completion}.  The
-confirmation is requested if the user attempts to exit the minibuffer
-immediately after calling any command in this list.
+この変数には、@code{completing-read}の引数@var{require-match}が@code{confirm-after-completion}の場合は、ミニバッファーをexitする前にEmacsが確認を求めるようにさせるコマンドのリストが保持されている。このリストないのコマンドを呼び出した直後にユーザーがミニバッファーのexitを試みると、Emacsは確認を求める。
 @end defvar
 
 @deffn Command minibuffer-complete-word
-This function completes the minibuffer contents by at most a single word.
-Even if the minibuffer contents have only one completion,
-@code{minibuffer-complete-word} does not add any characters beyond the first
-character that is not a word constituent.  @xref{Syntax Tables}.
+この関数は、ただ1つの単語からミニバッファーを補完する。たとえミニバッファーのコンテンツが1つの補完しかもたない場合でも、@code{minibuffer-complete-word}はその単語に属さない最初の文字を超えた追加はしない。@ref{Syntax
+Tables}を参照のこと。
 @end deffn
 
 @deffn Command minibuffer-complete
-This function completes the minibuffer contents as far as possible.
+この関数は、可能な限りミニバッファーのコンテンツを補完する。
 @end deffn
 
 @deffn Command minibuffer-complete-and-exit
-This function completes the minibuffer contents, and exits if confirmation
-is not required, i.e., if @code{minibuffer-completion-confirm} is
-@code{nil}.  If confirmation @emph{is} required, it is given by repeating
-this command immediately---the command is programmed to work without
-confirmation when run twice in succession.
+この関数はミニバッファーのコンテンツを補完して、確認が要求されない場合(たとえば@code{minibuffer-completion-confirm}が@code{nil}のとき)はexitする。確認が@emph{要求される}場合には、このコマンドを即座に繰り返すことにより確認が行われないようにする。このコマンドは2回連続で実行された場合は確認なしで機能するようにプログラムされている。
 @end deffn
 
 @deffn Command minibuffer-completion-help
-This function creates a list of the possible completions of the current
-minibuffer contents.  It works by calling @code{all-completions} using the
-value of the variable @code{minibuffer-completion-table} as the
-@var{collection} argument, and the value of
-@code{minibuffer-completion-predicate} as the @var{predicate} argument.  The
-list of completions is displayed as text in a buffer named
-@file{*Completions*}.
+この関数は、カレントのミニバッファーのコンテンツで利用可能な補完のリストを作成する。これは@code{all-completions}の引数@var{collection}に変数@code{minibuffer-completion-table}の値を、引数@var{predicate}に@code{minibuffer-completion-predicate}の値を使用して呼び出すことにより機能する。補完リストは、@file{*Completions*}と呼ばれるバッファーのテキストとして表示される。
 @end deffn
 
 @defun display-completion-list completions
-This function displays @var{completions} to the stream in
-@code{standard-output}, usually a buffer.  (@xref{Read and Print}, for more
-information about streams.)  The argument @var{completions} is normally a
-list of completions just returned by @code{all-completions}, but it does not
-have to be.  Each element may be a symbol or a string, either of which is
-simply printed.  It can also be a list of two strings, which is printed as
-if the strings were concatenated.  The first of the two strings is the
-actual completion, the second string serves as annotation.
+この関数は@code{standard-output}内のストリーム(通常はバッファー)に@var{completions}を表示する(ストリームについての詳細は、@ref{Read
+and
+Print}を参照)。引数@var{completions}は通常、@code{all-completions}がリターンする補完リストそのものだが、それである必要はない。要素はシンボルか文字列で、どちらも単にプリントされる。文字列2つのリストでもよく、2つの文字列が結合されたかのようにプリントされる。この場合、1つ目の文字列は実際の補完で、2つ目の文字列は注釈の役目を負う。
 
-This function is called by @code{minibuffer-completion-help}.  A common way
-to use it is together with @code{with-output-to-temp-buffer}, like this:
+この関数は@code{minibuffer-completion-help}により呼び出される。一般的には、以下のように@code{with-output-to-temp-buffer}とともに使用される。
 
 @example
 (with-output-to-temp-buffer "*Completions*"
@@ -826,15 +789,11 @@ to use it is together with @code{with-output-to-temp-buffer}, like this:
 @end defun
 
 @defopt completion-auto-help
-If this variable is non-@code{nil}, the completion commands automatically
-display a list of possible completions whenever nothing can be completed
-because the next character is not uniquely determined.
+この変数が非@code{nil}の場合には、次の文字が一意でないために決定できず補完が完了しないときは常に、補完コマンドは利用可能な補完リストを自動的に表示する。
 @end defopt
 
 @defvar minibuffer-local-completion-map
-@code{completing-read} uses this value as the local keymap when an exact
-match of one of the completions is not required.  By default, this keymap
-makes the following bindings:
+@code{completing-read}の値は、補完の1つが完全に一致することを要求されないときにローカルキーマップとして使用される。デフォルトでは、このキーマップは以下のバインディングを作成する:
 
 @table @asis
 @item @kbd{?}
@@ -848,15 +807,12 @@ makes the following bindings:
 @end table
 
 @noindent
-and uses @code{minibuffer-local-map} as its parent keymap (@pxref{Definition
-of minibuffer-local-map}).
+親キーマップとして@code{minibuffer-local-map}を使用する(@ref{Definition of
+minibuffer-local-map}を参照)。
 @end defvar
 
 @defvar minibuffer-local-must-match-map
-@code{completing-read} uses this value as the local keymap when an exact
-match of one of the completions is required.  Therefore, no keys are bound
-to @code{exit-minibuffer}, the command that exits the minibuffer
-unconditionally.  By default, this keymap makes the following bindings:
+@code{completing-read}は、補完の1つの完全な一致が要求されないときのローカルキーマップとして、この値を使用する。したがって@code{exit-minibuffer}にキーがバインドされていなければ、無条件にミニバッファーをexitする。デフォルトでは、このキーマップは以下のバインディングを作成する:
 
 @table @asis
 @item @kbd{C-j}
@@ -867,14 +823,12 @@ unconditionally.  By default, this keymap makes the following bindings:
 @end table
 
 @noindent
-and uses @code{minibuffer-local-completion-map} as its parent keymap.
+親キーマップは@code{minibuffer-local-completion-map}を使用する。
 @end defvar
 
 @defvar minibuffer-local-filename-completion-map
-This is a sparse keymap that simply unbinds @key{SPC}; because filenames can
-contain spaces.  The function @code{read-file-name} combines this keymap
-with either @code{minibuffer-local-completion-map} or
-@code{minibuffer-local-must-match-map}.
+これは単に@key{SPC}を非バインドするsparseキーマップ(sparse:
+疎、希薄、まばら)を作成する。これはファイル名にスペースを含めることができるからである。関数@code{read-file-name}は、このキーマップと@code{minibuffer-local-completion-map}か@code{minibuffer-local-must-match-map}のいずれかを組み合わせる。
 @end defvar
 
 
