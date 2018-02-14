@@ -981,28 +981,14 @@ C-v}を試すとよい。@strong{注意: ほとんどの場合、}@var{initial}�
 
 @var{default}が非@code{nil}の場合、ユーザーが最初に@code{read-file-name}が挿入したものと同じ、空以外のコンテンツを残してミニバッファーをexitすると、この関数は@var{default}をリターンする。@code{insert-default-directory}が非@code{nil}の場合はそれがデフォルトとなるので、ミニバッファーの初期コンテンツは常に空以外になる。@var{require-match}の値に関わらず、@var{default}の有効性はチェックされない。とはいえ@var{require-match}が非@code{nil}の場合、ミニバッファーの初期コンテンツは有効なファイル名(またはディレクトリー名)であるべきだろう。それが有効でない場合、ユーザーがそれを編集せずにexitすると@code{read-file-name}は補完を試み、@var{default}はリターンされない。@var{default}はヒストリーコマンドからも利用できる。
 
-If @var{default} is @code{nil}, @code{read-file-name} tries to find a
-substitute default to use in its place, which it treats in exactly the same
-way as if it had been specified explicitly.  If @var{default} is @code{nil},
-but @var{initial} is non-@code{nil}, then the default is the absolute file
-name obtained from @var{directory} and @var{initial}.  If both @var{default}
-and @var{initial} are @code{nil} and the buffer is visiting a file,
-@code{read-file-name} uses the absolute file name of that file as default.
-If the buffer is not visiting a file, then there is no default.  In that
-case, if the user types @key{RET} without any editing, @code{read-file-name}
-simply returns the pre-inserted contents of the minibuffer.
+@var{default}が@code{nil}の場合、@code{read-file-name}はその場所に代用するデフォルトを探そうと試みる。この代用デフォルトは、明示的に@var{default}にそれが指定されたかのように、@var{default}とまったく同じ方法で扱われる。@var{default}が@code{nil}でも@var{initial}が非@code{nil}の場合、デフォルトは@var{directory}と@var{initial}から得られる絶対ファイル名になる。@var{default}と@var{initial}の両方が@code{nil}で、そのバッファーがファイルをvisitしているバッファーの場合、@code{read-file-name}はそのファイルの絶対ファイル名をデフォルトとして使用する。バッファーがファイルをvisitしていなければ、デフォルトは存在しない。この場合、ユーザーが編集せずに@key{RET}をタイプすると、@code{read-file-name}は前にミニバッファーに挿入されたコンテンツを単にリターンする。
 
-If the user types @key{RET} in an empty minibuffer, this function returns an
-empty string, regardless of the value of @var{require-match}.  This is, for
-instance, how the user can make the current buffer visit no file using
-@kbd{M-x set-visited-file-name}.
+空のミニバッファー内でユーザーが@key{RET}をタイプした場合、この関数は@var{require-match}の値に関わらず、空の文字列をリターンする。たとえばユーザーが@kbd{M-x
+set-visited-file-name}を使用して、カレントバッファーをファイルをvisitしていないことにするのに、この方法を使用している。
 
-If @var{predicate} is non-@code{nil}, it specifies a function of one
-argument that decides which file names are acceptable completion
-alternatives.  A file name is an acceptable value if @var{predicate} returns
-non-@code{nil} for it.
+@var{predicate}が非@code{nil}の場合、それは補完候補として許容できるファイル名を決定する、1引数の関数である。@var{predicate}が関数名にたいして非@code{nil}をリターンすれば、それはファイル名として許容できる値である。
 
-Here is an example of using @code{read-file-name}:
+以下は@code{read-file-name}を使用した例である:
 
 @example
 @group
@@ -1020,7 +1006,7 @@ The file is /gp/gnu/elisp/@point{}
 @end example
 
 @noindent
-Typing @kbd{manual @key{TAB}} results in the following:
+@kbd{manual @key{TAB}}をタイプすると以下がリターンされる:
 
 @example
 @group
@@ -1032,24 +1018,19 @@ The file is /gp/gnu/elisp/manual.texi@point{}
 
 @c Wordy to avoid overfull hbox in smallbook mode.
 @noindent
-If the user types @key{RET}, @code{read-file-name} returns the file name as
-the string @code{"/gp/gnu/elisp/manual.texi"}.
+ここでユーザーが@key{RET}をタイプすると、@code{read-file-name}は文字列@code{"/gp/gnu/elisp/manual.texi"}をファイル名としてリターンする。
 @end defun
 
 @defvar read-file-name-function
-If non-@code{nil}, this should be a function that accepts the same arguments
-as @code{read-file-name}.  When @code{read-file-name} is called, it calls
-this function with the supplied arguments instead of doing its usual work.
+非@code{nil}の場合は、@code{read-file-name}と同じ引数を受け取る関数である。@code{read-file-name}が呼び出されたとき、@code{read-file-name}は通常の処理を行なうかわりに、与えられた引数でこの関数を呼び出す。
 @end defvar
 
 @defopt read-file-name-completion-ignore-case
-If this variable is non-@code{nil}, @code{read-file-name} ignores case when
-performing completion.
+この変数が非@code{nil}の場合、@code{read-file-name}は補完を行なう際に大文字小文字を無視する。
 @end defopt
 
 @defun read-directory-name prompt &optional directory default require-match initial
-This function is like @code{read-file-name} but allows only directory names
-as completion alternatives.
+この関数は@code{read-file-name}と似ているが、補完候補としてディレクトリーだけを許す。
 
 If @var{default} is @code{nil} and @var{initial} is non-@code{nil},
 @code{read-directory-name} constructs a substitute default by combining
