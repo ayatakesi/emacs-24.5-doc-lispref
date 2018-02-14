@@ -943,71 +943,43 @@ Methods}の@code{read-input-method-name}も参照のこと。
 @cindex read file names
 @cindex prompt for file name
 
-  The high-level completion functions @code{read-file-name},
-@code{read-directory-name}, and @code{read-shell-command} are designed to
-read file names, directory names, and shell commands, respectively.  They
-provide special features, including automatic insertion of the default
-directory.
+  高レベル補完関数@code{read-file-name}、@code{read-directory-name}、@code{read-shell-command}はそれぞれ、ファイル名、ディレクトリー名、シェルコマンドを読み取るようデザインされています。これらはデフォルトディレクトリーの自動挿入を含む特別な機能を提供します。
 
 @defun read-file-name prompt &optional directory default require-match initial predicate
-This function reads a file name, prompting with @var{prompt} and providing
-completion.
+この関数はプロンプト@var{prompt}とともに補完つきでファイル名を読み取る。
 
-As an exception, this function reads a file name using a graphical file
-dialog instead of the minibuffer, if all of the following are true:
+例外として以下のすべてが真ならば、この関数はミニバッファーのかわりにグラフィカルなファイルダイアログを使用してファイル名を読み取る:
 
 @enumerate
 @item
-It is invoked via a mouse command.
+マウスコマンドを通じて呼び出された。
 
 @item
-The selected frame is on a graphical display supporting such dialogs.
+グラフィカルなディスプレイ上の選択されたフレームがこの種のダイアログをサポートする。
 
 @item
-The variable @code{use-dialog-box} is non-@code{nil}.  @xref{Dialog Boxes,,
-Dialog Boxes, emacs, The GNU Emacs Manual}.
+変数@code{use-dialog-box}が非@code{nil}の場合。@ref{Dialog Boxes,, Dialog Boxes,
+emacs, The GNU Emacs Manual}を参照のこと。
 
 @item
-The @var{directory} argument, described below, does not specify a remote
-file.  @xref{Remote Files,, Remote Files, emacs, The GNU Emacs Manual}.
+@var{directory}引数(以下参照)がリモートファイルを指定しない。@ref{Remote Files,, Remote Files,
+emacs, The GNU Emacs Manual}を参照のこと。
 @end enumerate
 
 @noindent
-The exact behavior when using a graphical file dialog is
-platform-dependent.  Here, we simply document the behavior when using the
-minibuffer.
+グラフィカルなファイルダイアログを使用したときの正確な振る舞いは、プラットホームに依存する。ここでは単にミニバッファーを使用したときの振る舞いを記す。
 
-@code{read-file-name} does not automatically expand the returned file name.
-You must call @code{expand-file-name} yourself if an absolute file name is
-required.
+@code{read-file-name}はリターンするファイル名を自動的に展開しない。絶対ファイル名が必要ならば、自分で@code{expand-file-name}を呼び出さなければならない。
 
 オプション引数@var{require-match}は、@code{completing-read}のときと同じ。@ref{Minibuffer
 Completion}を参照のこと。
 
-The argument @var{directory} specifies the directory to use for completing
-relative file names.  It should be an absolute directory name.  If the
-variable @code{insert-default-directory} is non-@code{nil}, @var{directory}
-is also inserted in the minibuffer as initial input.  It defaults to the
-current buffer's value of @code{default-directory}.
+引数@var{directory}は、相対ファイル名の補完に使用するディレクトリーを指定する。値は絶対ディレクトリー名。変数@code{insert-default-directory}が非@code{nil}の場合は、初期入力としてミニバッファーに@var{directory}も挿入される。デフォルトはカレントバッファーの@code{default-directory}の値。
 
-If you specify @var{initial}, that is an initial file name to insert in the
-buffer (after @var{directory}, if that is inserted).  In this case, point
-goes at the beginning of @var{initial}.  The default for @var{initial} is
-@code{nil}---don't insert any file name.  To see what @var{initial} does,
-try the command @kbd{C-x C-v} in a buffer visiting a file.  @strong{Please
-note:} we recommend using @var{default} rather than @var{initial} in most
-cases.
+@var{initial}を指定した場合、それはミニバッファーに挿入する初期ファイル名になる(@var{directory}が挿入された場合はその後に挿入される)。この場合、ポイントは@var{initial}の先頭に配される。@var{initial}のデフォルト値は@code{nil}(ファイル名を挿入しない)。@var{initial}が何を行うか確認するには、ファイルをvisitしているバッファーで@kbd{C-x
+C-v}を試すとよい。@strong{注意: ほとんどの場合、}@var{initial}よりも@var{default}の使用を推奨する。
 
-If @var{default} is non-@code{nil}, then the function returns @var{default}
-if the user exits the minibuffer with the same non-empty contents that
-@code{read-file-name} inserted initially.  The initial minibuffer contents
-are always non-empty if @code{insert-default-directory} is non-@code{nil},
-as it is by default.  @var{default} is not checked for validity, regardless
-of the value of @var{require-match}.  However, if @var{require-match} is
-non-@code{nil}, the initial minibuffer contents should be a valid file (or
-directory) name.  Otherwise @code{read-file-name} attempts completion if the
-user exits without any editing, and does not return @var{default}.
-@var{default} is also available through the history commands.
+@var{default}が非@code{nil}の場合、ユーザーが最初に@code{read-file-name}が挿入したものと同じ、空以外のコンテンツを残してミニバッファーをexitすると、この関数は@var{default}をリターンする。@code{insert-default-directory}が非@code{nil}の場合はそれがデフォルトとなるので、ミニバッファーの初期コンテンツは常に空以外になる。@var{require-match}の値に関わらず、@var{default}の有効性はチェックされない。とはいえ@var{require-match}が非@code{nil}の場合、ミニバッファーの初期コンテンツは有効なファイル名(またはディレクトリー名)であるべきだろう。それが有効でない場合、ユーザーがそれを編集せずにexitすると@code{read-file-name}は補完を試み、@var{default}はリターンされない。@var{default}はヒストリーコマンドからも利用できる。
 
 If @var{default} is @code{nil}, @code{read-file-name} tries to find a
 substitute default to use in its place, which it treats in exactly the same
