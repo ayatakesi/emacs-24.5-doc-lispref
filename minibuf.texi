@@ -835,41 +835,27 @@ minibuffer-local-map}を参照)。
 @node High-Level Completion
 @subsection High-Level Completion Functions
 
-  This section describes the higher-level convenience functions for reading
-certain sorts of names with completion.
+  このセクションでは、特定の種類の名前を補完つきで読み取る便利な高レベル関数を説明します。
 
-  In most cases, you should not call these functions in the middle of a Lisp
-function.  When possible, do all minibuffer input as part of reading the
-arguments for a command, in the @code{interactive} specification.
-@xref{Defining Commands}.
+  ほとんどの場合、Lisp関数の中盤でこれらの関数を呼び出すべきではありません。可能なときは、@code{interactive}指定の内部で呼び出し、ミニバッファーのすべての入力をコマンドの引数読み取りの一部にします。@ref{Defining
+Commands}を参照してください。
 
 @defun read-buffer prompt &optional default require-match
-This function reads the name of a buffer and returns it as a string.  The
-argument @var{default} is the default name to use, the value to return if
-the user exits with an empty minibuffer.  If non-@code{nil}, it should be a
-string, a list of strings, or a buffer.  If it is a list, the default value
-is the first element of this list.  It is mentioned in the prompt, but is
-not inserted in the minibuffer as initial input.
+この関数はバッファーの名前を読み取り、それを文字列でリターンする。引数@var{default}は、ミニバッファーが空の状態でユーザーがexitした場合にリターンされるデフォルト名として使用される。非@code{nil}の場合は文字列、文字列リスト、またはバッファーを指定する。リストの場合は、リストの先頭の要素がデフォルト値になる。デフォルト値はプロンプトに示されるが、初期入力としてミニバッファーには挿入されない。
 
-The argument @var{prompt} should be a string ending with a colon and a
-space.  If @var{default} is non-@code{nil}, the function inserts it in
-@var{prompt} before the colon to follow the convention for reading from the
-minibuffer with a default value (@pxref{Programming Tips}).
+引数@var{prompt}は、コロンかスペースで終わる文字列である。@var{default}が非@code{nil}の場合、この関数はデフォルト値つきでミニバッファーから読み取る際の慣習にしたがい、コロンの前の@var{prompt}の中にこれを挿入する。
 
-The optional argument @var{require-match} has the same meaning as in
-@code{completing-read}.  @xref{Minibuffer Completion}.
+オプション引数@var{require-match}は、@code{completing-read}のときと同じ。@ref{Minibuffer
+Completion}を参照のこと。
 
-In the following example, the user enters @samp{minibuffer.t}, and then
-types @key{RET}.  The argument @var{require-match} is @code{t}, and the only
-buffer name starting with the given input is @samp{minibuffer.texi}, so that
-name is the value.
+以下の例で、ユーザーが@samp{minibuffer.t}とエンターしてから、@key{RET}をタイプする。引数@var{require-match}は@code{t}であり、与えられた入力で始まるバッファー名は@samp{minibuffer.texi}だけなので、その名前が値となる。
 
 @example
 (read-buffer "Buffer name: " "foo" t)
 @group
-;; @r{After evaluation of the preceding expression,}
-;;   @r{the following prompt appears,}
-;;   @r{with an empty minibuffer:}
+;; @r{前の式を評価した後、}
+;;   @r{空のミニバッファーに}
+;;   @r{以下のプロンプトが表示される:}
 @end group
 
 @group
@@ -879,44 +865,33 @@ Buffer name (default foo): @point{}
 @end group
 
 @group
-;; @r{The user types @kbd{minibuffer.t @key{RET}}.}
+;; @r{ユーザーが@kbd{minibuffer.t @key{RET}}とタイプする。}
      @result{} "minibuffer.texi"
 @end group
 @end example
 @end defun
 
 @defopt read-buffer-function
-This variable, if non-@code{nil}, specifies a function for reading buffer
-names.  @code{read-buffer} calls this function instead of doing its usual
-work, with the same arguments passed to @code{read-buffer}.
+この変数が非@code{nil}の場合は、バッファー名を読み取る関数である。@code{read-buffer}は通常行うことを行うかわりに、@code{read-buffer}と同じ引数でその関数を呼び出す。
 @end defopt
 
 @defopt read-buffer-completion-ignore-case
-If this variable is non-@code{nil}, @code{read-buffer} ignores case when
-performing completion.
+この変数が非non-@code{nil}の場合は、補完の処理において@code{read-buffer}は大文字小文字を無視する。
 @end defopt
 
 @defun read-command prompt &optional default
-This function reads the name of a command and returns it as a Lisp symbol.
-The argument @var{prompt} is used as in @code{read-from-minibuffer}.  Recall
-that a command is anything for which @code{commandp} returns @code{t}, and a
-command name is a symbol for which @code{commandp} returns @code{t}.
-@xref{Interactive Call}.
+この関数はコマンドの名前を読み取り、Lispシンボルとしてそれをリターンする。引数@var{prompt}は、@code{read-from-minibuffer}で使用される場合と同じ。それが何であれ@code{commandp}が@code{t}をリターンすればコマンドであり、コマンド名とは@code{commandp}が@code{t}をリターンするシンボルだということを思い出してほしい。@ref{Interactive
+Call}を参照のこと。
 
-The argument @var{default} specifies what to return if the user enters null
-input.  It can be a symbol, a string or a list of strings.  If it is a
-string, @code{read-command} interns it before returning it.  If it is a
-list, @code{read-command} interns the first element of this list.  If
-@var{default} is @code{nil}, that means no default has been specified; then
-if the user enters null input, the return value is @code{(intern "")}, that
-is, a symbol whose name is an empty string.
+引数@var{default}は、ユーザーがnull入力をエンターした場合に何をリターンするか指定する。シンボル、文字列、文字列リストを指定できる。文字列の場合、@code{read-command}はリターンする前にそれをinternする。リストの場合、@code{read-command}はリストの最初の要素をinternする。@var{default}が@code{nil}の場合は、デフォルトが指定されなかったことを意味する。その場合もしユーザーがnull入力をエンターすると、リターン値は@code{(intern
+"")}、つまり名前が空文字列のシンボルとなる。
 
 @example
 (read-command "Command name? ")
 
 @group
-;; @r{After evaluation of the preceding expression,}
-;;   @r{the following prompt appears with an empty minibuffer:}
+;; @r{前の式を評価した後に、}
+;;   @r{空のミニバッファーに以下のプロンプトが表示される:}
 @end group
 
 @group
@@ -927,13 +902,9 @@ Command name?
 @end example
 
 @noindent
-If the user types @kbd{forward-c @key{RET}}, then this function returns
-@code{forward-char}.
+ユーザーが@kbd{forward-c @key{RET}}とタイプした場合、この関数は@code{forward-char}をリターンする。
 
-The @code{read-command} function is a simplified interface to
-@code{completing-read}.  It uses the variable @code{obarray} so as to
-complete in the set of extant Lisp symbols, and it uses the @code{commandp}
-predicate so as to accept only command names:
+@code{read-command}関数は、@code{completing-read}の簡略化されたインターフェイスである。実在するLisp変数のセットを補完するために変数@code{obarray}を、コマンド名だけを受け入れるために述語@code{commandp}を使用する。
 
 @cindex @code{commandp} example
 @example
@@ -948,37 +919,24 @@ predicate so as to accept only command names:
 
 @defun read-variable prompt &optional default
 @anchor{Definition of read-variable}
-This function reads the name of a customizable variable and returns it as a
-symbol.  Its arguments have the same form as those of @code{read-command}.
-It behaves just like @code{read-command}, except that it uses the predicate
-@code{custom-variable-p} instead of @code{commandp}.
+この変数はカスタマイズ可能な変数の名前を読み取り、それをシンボルとしてリターンする。引数の形式は@code{read-command}の引数と同じ。この関数は、@code{commandp}のかわりに@code{custom-variable-p}を述語に使用する点を除き、@code{read-command}と同様に振る舞う。
 @end defun
 
 @deffn Command read-color &optional prompt convert allow-empty display
-This function reads a string that is a color specification, either the
-color's name or an RGB hex value such as @code{#RRRGGGBBB}.  It prompts with
-@var{prompt} (default: @code{"Color (name or #RGB triplet):"})  and provides
-completion for color names, but not for hex RGB values.  In addition to
-names of standard colors, completion candidates include the foreground and
-background colors at point.
+この関数はカラー指定(カラー名、または@code{#RRRGGGBBB}のような形式のRGB16進値)の文字列を読み取る。これはプロンプトに@var{prompt}(デフォルトは@code{"Color
+(name or #RGB
+triplet):"})を表示して、カラー名にたいする補完を提供する(16進RGB値は補完しない)。標準的なカラー名に加えて、補完候補にはポイント位置のフォアグラウンドカラーとバックグラウンドカラーが含まれる。
 
 Valid RGB values are described in @ref{Color Names}.
 
-The function's return value is the string typed by the user in the
-minibuffer.  However, when called interactively or if the optional argument
-@var{convert} is non-@code{nil}, it converts any input color name into the
-corresponding RGB value string and instead returns that.  This function
-requires a valid color specification to be input.  Empty color names are
-allowed when @var{allow-empty} is non-@code{nil} and the user enters null
-input.
+この関数のリターン値は、ミニバッファー内でユーザーがタイプした文字列である。しかし、インタラクティブに呼び出されたとき、またはオプション引数@var{convert}が非@code{nil}の場合は、入力されたカラー名のかわりに、それに対応するRGB値文字列をリターンする。この関数は、入力に有効なカラー指定を求める。@var{allow-empty}が非@code{nil}でユーザーがnull入力をエンターした場合は、空のカラー名が許される。
 
-Interactively, or when @var{display} is non-@code{nil}, the return value is
-also displayed in the echo area.
+インタラクティブに呼び出されたとき、または@var{display}が非@code{nil}の場合には、エコーエリアにもリターン値が表示される。
 @end deffn
 
-  See also the functions @code{read-coding-system} and
-@code{read-non-nil-coding-system}, in @ref{User-Chosen Coding Systems}, and
-@code{read-input-method-name}, in @ref{Input Methods}.
+  @ref{User-Chosen Coding
+Systems}の関数@code{read-coding-system}と@code{read-non-nil-coding-system}、および@ref{Input
+Methods}の@code{read-input-method-name}も参照のこと。
 
 @node Reading File Names
 @subsection Reading File Names
@@ -1023,8 +981,8 @@ minibuffer.
 You must call @code{expand-file-name} yourself if an absolute file name is
 required.
 
-The optional argument @var{require-match} has the same meaning as in
-@code{completing-read}.  @xref{Minibuffer Completion}.
+オプション引数@var{require-match}は、@code{completing-read}のときと同じ。@ref{Minibuffer
+Completion}を参照のこと。
 
 The argument @var{directory} specifies the directory to use for completing
 relative file names.  It should be an absolute directory name.  If the
@@ -1577,9 +1535,9 @@ is appropriate for more crucial decisions.
 @group
 (yes-or-no-p "Do you really want to remove everything? ")
 
-;; @r{After evaluation of the preceding expression,}
-;;   @r{the following prompt appears,}
-;;   @r{with an empty minibuffer:}
+;; @r{前の式を評価した後、}
+;;   @r{空のミニバッファーに}
+;;   @r{以下のプロンプトが表示される:}
 @end group
 
 @group
