@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-02-08 01:38+0900\n"
-"PO-Revision-Date: 2018-02-15 04:58+0900\n"
+"PO-Revision-Date: 2018-02-15 14:50+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3019,13 +3019,13 @@ msgid ""
 "@var{initial} are @code{nil}, this function uses @var{directory} as "
 "substitute default, or the current buffer's default directory if "
 "@var{directory} is @code{nil}."
-msgstr ""
+msgstr "@var{default}が@code{nil}で@var{initial}が非@code{nil}の場合、@code{read-directory-name}は@var{directory}(@var{directory}が@code{nil}ならカレントバッファーのデフォルトディレクトリー)と@var{initial}を組み合わせて代替えのデフォルトを構築する。@var{default}と@var{initial}の両方が@code{nil}の場合、この関数は@var{directory}、@var{directory}も@code{nil}の場合はカレントバッファーのデフォルトディレクトリーを代替えのデフォルトとして使用する。"
 
 #. type: defopt
 #: minibuf.texi.orig:1530
 #, no-wrap
 msgid "insert-default-directory"
-msgstr ""
+msgstr "insert-default-directory"
 
 #. type: defopt
 #: minibuf.texi.orig:1542
@@ -3040,7 +3040,7 @@ msgid ""
 "not place any initial input in the minibuffer (unless you specify initial "
 "input with the @var{initial} argument).  In that case, the default directory "
 "is still used for completion of relative file names, but is not displayed."
-msgstr ""
+msgstr "この変数は@code{read-file-name}により使用されるため、ファイル名を読み取るほとんどのコマンドにより、間接的に使用される。(これらのコマンドにはコマンドのインタラクティブフォームに@samp{f}や@samp{F}のコードレター(code letter))をふくむすべてのコマンドが含まれる。@ref{Interactive Codes,, Code Characters for interactive}を参照のこと。)この変数の値は、(もしあれば)デフォルトディレクトリー名をミニバッファー内に配して@code{read-file-name}を開始するかどうかを制御する。変数の値が@code{nil}の場合、@code{read-file-name}はミニバッファーに初期入力を何も配さない(ただし@var{initial}引数で初期入力を指定しない場合)。この場合、依然としてデフォルトディレクトリーが相対ファイル名の補完に使用されるが、表示はされない。"
 
 #. type: defopt
 #: minibuf.texi.orig:1549
@@ -3051,12 +3051,12 @@ msgid ""
 "minibuffer contents are always non-empty and the user can always request a "
 "default value by immediately typing @key{RET} in an unedited minibuffer.  "
 "(See above.)"
-msgstr ""
+msgstr "この変数が@code{nil}でミニバッファーの初期コンテンツが空の場合、ユーザーはデフォルト値にアクセスするために次のヒストリー要素を明示的にフェッチする必要があるだろう。この変数が非@code{nil}ならミニバッファーの初期コンテンツは常に空以外となり、ミニバッファーで編集をおこなわず即座に@key{RET}をタイプすることにより、常にデフォルト値を要求できる(上記参照)。"
 
 #. type: defopt
 #: minibuf.texi.orig:1551
 msgid "For example:"
-msgstr ""
+msgstr "たとえば:"
 
 #. type: group
 #: minibuf.texi.orig:1557
@@ -3066,6 +3066,9 @@ msgid ""
 "(let ((insert-default-directory t))\n"
 "  (read-file-name \"The file is \"))\n"
 msgstr ""
+";; @r{デフォルトディレクトリーとともにミニバッファーが開始。}\n"
+"(let ((insert-default-directory t))\n"
+"  (read-file-name \"The file is \"))\n"
 
 #. type: group
 #: minibuf.texi.orig:1563
@@ -3075,6 +3078,9 @@ msgid ""
 "The file is ~lewis/manual/@point{}\n"
 "---------- Buffer: Minibuffer ----------\n"
 msgstr ""
+"---------- Buffer: Minibuffer ----------\n"
+"The file is ~lewis/manual/@point{}\n"
+"---------- Buffer: Minibuffer ----------\n"
 
 #. type: group
 #: minibuf.texi.orig:1570
@@ -3085,6 +3091,10 @@ msgid ""
 "(let ((insert-default-directory nil))\n"
 "  (read-file-name \"The file is \"))\n"
 msgstr ""
+";; @r{ミニバッファーはプロンプトだけで空。}\n"
+";;   @r{appears on its line.}\n"
+"(let ((insert-default-directory nil))\n"
+"  (read-file-name \"The file is \"))\n"
 
 #. type: group
 #: minibuf.texi.orig:1576
@@ -3094,12 +3104,15 @@ msgid ""
 "The file is @point{}\n"
 "---------- Buffer: Minibuffer ----------\n"
 msgstr ""
+"---------- Buffer: Minibuffer ----------\n"
+"The file is @point{}\n"
+"---------- Buffer: Minibuffer ----------\n"
 
 #. type: defun
 #: minibuf.texi.orig:1580
 #, no-wrap
 msgid "read-shell-command prompt &optional initial history &rest args"
-msgstr ""
+msgstr "read-shell-command prompt &optional initial history &rest args"
 
 #. type: defun
 #: minibuf.texi.orig:1585
@@ -3108,7 +3121,7 @@ msgid ""
 "@var{prompt} and providing intelligent completion.  It completes the first "
 "word of the command using candidates that are appropriate for command names, "
 "and the rest of the command words as file names."
-msgstr ""
+msgstr "この関数は、プロンプト@var{prompt}と優れた補完を提供して、ミニバッファーからのシェルコマンドを読み取る。これはコマンド名にたいして適切な候補を使用してコマンドの最初の単語を補完する。コマンドの残りの単語はファイル名として補完する。"
 
 #. type: defun
 #: minibuf.texi.orig:1595
@@ -3122,13 +3135,13 @@ msgid ""
 "@var{args}, if present, are used as the @var{default} and "
 "@var{inherit-input-method} arguments in @code{read-from-minibuffer} "
 "(@pxref{Text from Minibuffer})."
-msgstr ""
+msgstr "この関数はミニバッファー入力にたいするキーマップとして@code{minibuffer-local-shell-command-map}を使用する。@var{history}引数は使用するヒストリーリストを指定する。省略、または@code{nil}の場合のデフォルトは@code{shell-command-history}(@ref{Minibuffer History, shell-command-history}を参照)。オプション引数@var{initial}はミニバッファーの初期コンテンツを指定する(@ref{Initial Input}を参照)。もしあれば、残りの@var{args}は@code{read-from-minibuffer}内の@var{default}および@var{inherit-input-method}として使用される(@ref{Text from Minibuffer}を参照)。"
 
 #. type: defvar
 #: minibuf.texi.orig:1597
 #, no-wrap
 msgid "minibuffer-local-shell-command-map"
-msgstr ""
+msgstr "minibuffer-local-shell-command-map"
 
 #. type: defvar
 #: minibuf.texi.orig:1602
@@ -3137,7 +3150,7 @@ msgid ""
 "file names that are part of a shell command.  It uses "
 "@code{minibuffer-local-map} as its parent keymap, and binds @key{TAB} to "
 "@code{completion-at-point}."
-msgstr ""
+msgstr "このキーマップは@code{read-shell-command}により、コマンドおよびシェルコマンドの一部となるファイル名の補完のために使用される。これは親キーマップとして@code{minibuffer-local-map}を使用し、@key{TAB}を@code{completion-at-point}にバインドする。"
 
 #. type: Plain text
 #: minibuf.texi.orig:1609

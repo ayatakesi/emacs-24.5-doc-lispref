@@ -1032,39 +1032,21 @@ The file is /gp/gnu/elisp/manual.texi@point{}
 @defun read-directory-name prompt &optional directory default require-match initial
 この関数は@code{read-file-name}と似ているが、補完候補としてディレクトリーだけを許す。
 
-If @var{default} is @code{nil} and @var{initial} is non-@code{nil},
-@code{read-directory-name} constructs a substitute default by combining
-@var{directory} (or the current buffer's default directory if
-@var{directory} is @code{nil}) and @var{initial}.  If both @var{default} and
-@var{initial} are @code{nil}, this function uses @var{directory} as
-substitute default, or the current buffer's default directory if
-@var{directory} is @code{nil}.
+@var{default}が@code{nil}で@var{initial}が非@code{nil}の場合、@code{read-directory-name}は@var{directory}(@var{directory}が@code{nil}ならカレントバッファーのデフォルトディレクトリー)と@var{initial}を組み合わせて代替えのデフォルトを構築する。@var{default}と@var{initial}の両方が@code{nil}の場合、この関数は@var{directory}、@var{directory}も@code{nil}の場合はカレントバッファーのデフォルトディレクトリーを代替えのデフォルトとして使用する。
 @end defun
 
 @defopt insert-default-directory
-This variable is used by @code{read-file-name}, and thus, indirectly, by
-most commands reading file names.  (This includes all commands that use the
-code letters @samp{f} or @samp{F} in their interactive form.
-@xref{Interactive Codes,, Code Characters for interactive}.)  Its value
-controls whether @code{read-file-name} starts by placing the name of the
-default directory in the minibuffer, plus the initial file name, if any.  If
-the value of this variable is @code{nil}, then @code{read-file-name} does
-not place any initial input in the minibuffer (unless you specify initial
-input with the @var{initial} argument).  In that case, the default directory
-is still used for completion of relative file names, but is not displayed.
+この変数は@code{read-file-name}により使用されるため、ファイル名を読み取るほとんどのコマンドにより、間接的に使用される。(これらのコマンドにはコマンドのインタラクティブフォームに@samp{f}や@samp{F}のコードレター(code
+letter))をふくむすべてのコマンドが含まれる。@ref{Interactive Codes,, Code Characters for
+interactive}を参照のこと。)この変数の値は、(もしあれば)デフォルトディレクトリー名をミニバッファー内に配して@code{read-file-name}を開始するかどうかを制御する。変数の値が@code{nil}の場合、@code{read-file-name}はミニバッファーに初期入力を何も配さない(ただし@var{initial}引数で初期入力を指定しない場合)。この場合、依然としてデフォルトディレクトリーが相対ファイル名の補完に使用されるが、表示はされない。
 
-If this variable is @code{nil} and the initial minibuffer contents are
-empty, the user may have to explicitly fetch the next history element to
-access a default value.  If the variable is non-@code{nil}, the initial
-minibuffer contents are always non-empty and the user can always request a
-default value by immediately typing @key{RET} in an unedited minibuffer.
-(See above.)
+この変数が@code{nil}でミニバッファーの初期コンテンツが空の場合、ユーザーはデフォルト値にアクセスするために次のヒストリー要素を明示的にフェッチする必要があるだろう。この変数が非@code{nil}ならミニバッファーの初期コンテンツは常に空以外となり、ミニバッファーで編集をおこなわず即座に@key{RET}をタイプすることにより、常にデフォルト値を要求できる(上記参照)。
 
-For example:
+たとえば:
 
 @example
 @group
-;; @r{Here the minibuffer starts out with the default directory.}
+;; @r{デフォルトディレクトリーとともにミニバッファーが開始。}
 (let ((insert-default-directory t))
   (read-file-name "The file is "))
 @end group
@@ -1076,7 +1058,7 @@ The file is ~lewis/manual/@point{}
 @end group
 
 @group
-;; @r{Here the minibuffer is empty and only the prompt}
+;; @r{ミニバッファーはプロンプトだけで空。}
 ;;   @r{appears on its line.}
 (let ((insert-default-directory nil))
   (read-file-name "The file is "))
@@ -1091,27 +1073,17 @@ The file is @point{}
 @end defopt
 
 @defun read-shell-command prompt &optional initial history &rest args
-This function reads a shell command from the minibuffer, prompting with
-@var{prompt} and providing intelligent completion.  It completes the first
-word of the command using candidates that are appropriate for command names,
-and the rest of the command words as file names.
+この関数は、プロンプト@var{prompt}と優れた補完を提供して、ミニバッファーからのシェルコマンドを読み取る。これはコマンド名にたいして適切な候補を使用してコマンドの最初の単語を補完する。コマンドの残りの単語はファイル名として補完する。
 
-This function uses @code{minibuffer-local-shell-command-map} as the keymap
-for minibuffer input.  The @var{history} argument specifies the history list
-to use; if is omitted or @code{nil}, it defaults to
-@code{shell-command-history} (@pxref{Minibuffer History,
-shell-command-history}).  The optional argument @var{initial} specifies the
-initial content of the minibuffer (@pxref{Initial Input}).  The rest of
-@var{args}, if present, are used as the @var{default} and
-@var{inherit-input-method} arguments in @code{read-from-minibuffer}
-(@pxref{Text from Minibuffer}).
+この関数はミニバッファー入力にたいするキーマップとして@code{minibuffer-local-shell-command-map}を使用する。@var{history}引数は使用するヒストリーリストを指定する。省略、または@code{nil}の場合のデフォルトは@code{shell-command-history}(@ref{Minibuffer
+History,
+shell-command-history}を参照)。オプション引数@var{initial}はミニバッファーの初期コンテンツを指定する(@ref{Initial
+Input}を参照)。もしあれば、残りの@var{args}は@code{read-from-minibuffer}内の@var{default}および@var{inherit-input-method}として使用される(@ref{Text
+from Minibuffer}を参照)。
 @end defun
 
 @defvar minibuffer-local-shell-command-map
-This keymap is used by @code{read-shell-command} for completing command and
-file names that are part of a shell command.  It uses
-@code{minibuffer-local-map} as its parent keymap, and binds @key{TAB} to
-@code{completion-at-point}.
+このキーマップは@code{read-shell-command}により、コマンドおよびシェルコマンドの一部となるファイル名の補完のために使用される。これは親キーマップとして@code{minibuffer-local-map}を使用し、@key{TAB}を@code{completion-at-point}にバインドする。
 @end defvar
 
 @node Completion Variables
