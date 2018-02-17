@@ -1089,99 +1089,62 @@ from Minibuffer}を参照)。
 @node Completion Variables
 @subsection Completion Variables
 
-  Here are some variables that can be used to alter the default completion
-behavior.
+  補完のデフォルト動作を変更するために使用される変数がいくつかあります。
 
 @cindex completion styles
 @defopt completion-styles
-The value of this variable is a list of completion style (symbols) to use
-for performing completion.  A @dfn{completion style} is a set of rules for
-generating completions.  Each symbol occurring this list must have a
-corresponding entry in @code{completion-styles-alist}.
+この変数の値は、補完を行うために使用される補完スタイル(シンボル)である。@dfn{補完スタイル(completion
+style)}とは、補完を生成するためのルールセットのこと。このリストにあるシンボルはそれぞれ、@code{completion-styles-alist}内に対応するエントリーをもたなければならない。
 @end defopt
 
 @defvar completion-styles-alist
-This variable stores a list of available completion styles.  Each element in
-the list has the form
+この変数には補完スタイルのリストが格納される。リスト内の各要素は以下の形式をもつ
 
 @example
 (@var{style} @var{try-completion} @var{all-completions} @var{doc})
 @end example
 
 @noindent
-Here, @var{style} is the name of the completion style (a symbol), which may
-be used in the @code{completion-styles} variable to refer to this style;
-@var{try-completion} is the function that does the completion;
-@var{all-completions} is the function that lists the completions; and
-@var{doc} is a string describing the completion style.
+ここで@var{style}は補完スタイルの名前(シンボル)であり、そのスタイルを参照するために変数@code{completion-styles}内で使用されるかもしれない。@var{try-completion}は補完を行なう関数で、@var{all-completions}補完をリストする関数、@var{doc}補完スタイルを説明する文字列である。
 
-The @var{try-completion} and @var{all-completions} functions should each
-accept four arguments: @var{string}, @var{collection}, @var{predicate}, and
-@var{point}.  The @var{string}, @var{collection}, and @var{predicate}
-arguments have the same meanings as in @code{try-completion} (@pxref{Basic
-Completion}), and the @var{point} argument is the position of point within
-@var{string}.  Each function should return a non-@code{nil} value if it
-performed its job, and @code{nil} if it did not (e.g., if there is no way to
-complete @var{string} according to the completion style).
+関数@var{try-completion}および@var{all-completions}は@var{string}、@var{collection}、@var{predicate}、@var{point}の4つの引数をとる。引数@var{string}、@var{collection}、@var{predicate}の意味は@code{try-completion}(@ref{Basic
+Completion}を参照)のときと同様。引数@var{point}は@var{string}内のポイント位置。各関数は自身の処理を行った場合は非@code{nil}を、行わなかった場合(たとえば補完スタイルに一致するように@var{string}を行う方法がない場合)は@code{nil}をリターンする。
 
-When the user calls a completion command like @code{minibuffer-complete}
-(@pxref{Completion Commands}), Emacs looks for the first style listed in
-@code{completion-styles} and calls its @var{try-completion} function.  If
-this function returns @code{nil}, Emacs moves to the next listed completion
-style and calls its @var{try-completion} function, and so on until one of
-the @var{try-completion} functions successfully performs completion and
-returns a non-@code{nil} value.  A similar procedure is used for listing
-completions, via the @var{all-completions} functions.
+ユーザーが@code{minibuffer-complete}(@ref{Completion
+Commands}を参照)のような補完コマンドを呼び出すと、Emacsは@code{completion-styles}に最初にリストされたスタイルを探して、そのスタイルの@var{try-completion}関数を呼び出す。この関数が@code{nil}をリターンした場合、Emacsは次にリストされた補完スタイルに移動してそのスタイルの@var{try-completion}関数を呼び出すといったように、@var{try-completion}関数の1つが補完の処理に成功して非@code{nil}値をリターンするまで順次これを行なう。同様の手順は@var{all-completions}関数を通じて、補完のリストにも行われる。
 
-@xref{Completion Styles,,, emacs, The GNU Emacs Manual}, for a description
-of the available completion styles.
+利用できる補完スタイルについては@ref{Completion Styles,,, emacs, The GNU Emacs
+Manual}を参照のこと。
 @end defvar
 
 @defopt completion-category-overrides
-This variable specifies special completion styles and other completion
-behaviors to use when completing certain types of text.  Its value should be
-an alist with elements of the form @code{(@var{category} . @var{alist})}.
-@var{category} is a symbol describing what is being completed; currently,
-the @code{buffer}, @code{file}, and @code{unicode-name} categories are
-defined, but others can be defined via specialized completion functions
-(@pxref{Programmed Completion}).  @var{alist} is an association list
-describing how completion should behave for the corresponding category.  The
-following alist keys are supported:
+この変数は特別な補完スタイルと、特定の種類のテキスト補完時に使用するその他の補完動作を指定する。この変数の値は@code{(@var{category}
+.
+@var{alist})}という形式の要素をもつalistである。@var{category}は何が補完されるかを記述するシンボルで、現在のところカテゴリーに@code{buffer}、@code{file}、@code{unicode-name}が定義されているが、これに特化した補完関数(@ref{Programmed
+Completion}を参照)を通じて他のカテゴリーを定義できる。@var{alist}は、そのカテゴリーにたいして補完がどのように振る舞うべきかを記述する連想リスト。以下のalistのキーがサポートされる:
 
 @table @code
 @item styles
-The value should be a list of completion styles (symbols).
+値は補完スタイル(シンボル)のリスト。
 
 @item cycle
-The value should be a value for @code{completion-cycle-threshold}
-(@pxref{Completion Options,,, emacs, The GNU Emacs Manual}) for this
-category.
+値はそのカテゴリーにたいする@code{completion-cycle-threshold}(@ref{Completion Options,,,
+emacs, The GNU Emacs Manual}を参照)の値。
 @end table
 
 @noindent
-Additional alist entries may be defined in the future.
+将来、さらにalistエントリーが定義されるかもしれない。
 @end defopt
 
 @defvar completion-extra-properties
-This variable is used to specify extra properties of the current completion
-command.  It is intended to be let-bound by specialized completion
-commands.  Its value should be a list of property and value pairs.  The
-following properties are supported:
+この変数はカレント補完コマンドの特別なプロパティの指定に使用される。この変数は補完に特化したコマンドによりletバインドされることを意図している。値はプロパティ/値ペアーのリスト。以下のプロパティがサポートされる:
 
 @table @code
 @item :annotation-function
-The value should be a function to add annotations in the completions
-buffer.  This function must accept one argument, a completion, and should
-either return @code{nil} or a string to be displayed next to the completion.
+値は補完バッファー内に注釈(annotation)を加える関数。この関数は引数completionを1つ受け取り@code{nil}、または補完の隣に表示する文字列をリターンしなければならない。
 
 @item :exit-function
-The value should be a function to run after performing completion.  The
-function should accept two arguments, @var{string} and @var{status}, where
-@var{string} is the text to which the field was completed, and @var{status}
-indicates what kind of operation happened: @code{finished} if text is now
-complete, @code{sole} if the text cannot be further completed but completion
-is not finished, or @code{exact} if the text is a valid completion but may
-be further completed.
+値は補完を行った後に実行する関数。この関数は2つの引数@var{string}と@var{status}を受け取る。@var{string}は補完されたフィールドのテキストで、@var{status}は行われた操作の種類を示す。操作の種類は、テキストの補完が完了したなら@code{finished}、それ以上補完できないが補完が完了していなければ@code{sole}、有効な補完だがさらに補完できるときは@code{exact}となる。
 @end table
 @end defvar
 

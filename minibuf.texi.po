@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-02-08 01:38+0900\n"
-"PO-Revision-Date: 2018-02-15 17:47+0900\n"
+"PO-Revision-Date: 2018-02-16 02:00+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3191,13 +3191,13 @@ msgstr "completion-styles-alist"
 msgid ""
 "This variable stores a list of available completion styles.  Each element in "
 "the list has the form"
-msgstr ""
+msgstr "この変数には補完スタイルのリストが格納される。リスト内の各要素は以下の形式をもつ"
 
 #. type: example
 #: minibuf.texi.orig:1624
 #, no-wrap
 msgid "(@var{style} @var{try-completion} @var{all-completions} @var{doc})\n"
-msgstr ""
+msgstr "(@var{style} @var{try-completion} @var{all-completions} @var{doc})\n"
 
 #. type: defvar
 #: minibuf.texi.orig:1633
@@ -3207,7 +3207,7 @@ msgid ""
 "@var{try-completion} is the function that does the completion; "
 "@var{all-completions} is the function that lists the completions; and "
 "@var{doc} is a string describing the completion style."
-msgstr ""
+msgstr "ここで@var{style}は補完スタイルの名前(シンボル)であり、そのスタイルを参照するために変数@code{completion-styles}内で使用されるかもしれない。@var{try-completion}は補完を行なう関数で、@var{all-completions}補完をリストする関数、@var{doc}補完スタイルを説明する文字列である。"
 
 #. type: defvar
 #: minibuf.texi.orig:1643
@@ -3220,7 +3220,7 @@ msgid ""
 "@var{string}.  Each function should return a non-@code{nil} value if it "
 "performed its job, and @code{nil} if it did not (e.g., if there is no way to "
 "complete @var{string} according to the completion style)."
-msgstr ""
+msgstr "関数@var{try-completion}および@var{all-completions}は@var{string}、@var{collection}、@var{predicate}、@var{point}の4つの引数をとる。引数@var{string}、@var{collection}、@var{predicate}の意味は@code{try-completion}(@ref{Basic Completion}を参照)のときと同様。引数@var{point}は@var{string}内のポイント位置。各関数は自身の処理を行った場合は非@code{nil}を、行わなかった場合(たとえば補完スタイルに一致するように@var{string}を行う方法がない場合)は@code{nil}をリターンする。"
 
 #. type: defvar
 #: minibuf.texi.orig:1653
@@ -3233,20 +3233,20 @@ msgid ""
 "the @var{try-completion} functions successfully performs completion and "
 "returns a non-@code{nil} value.  A similar procedure is used for listing "
 "completions, via the @var{all-completions} functions."
-msgstr ""
+msgstr "ユーザーが@code{minibuffer-complete}(@ref{Completion Commands}を参照)のような補完コマンドを呼び出すと、Emacsは@code{completion-styles}に最初にリストされたスタイルを探して、そのスタイルの@var{try-completion}関数を呼び出す。この関数が@code{nil}をリターンした場合、Emacsは次にリストされた補完スタイルに移動してそのスタイルの@var{try-completion}関数を呼び出すといったように、@var{try-completion}関数の1つが補完の処理に成功して非@code{nil}値をリターンするまで順次これを行なう。同様の手順は@var{all-completions}関数を通じて、補完のリストにも行われる。"
 
 #. type: defvar
 #: minibuf.texi.orig:1656
 msgid ""
 "@xref{Completion Styles,,, emacs, The GNU Emacs Manual}, for a description "
 "of the available completion styles."
-msgstr ""
+msgstr "利用できる補完スタイルについては@ref{Completion Styles,,, emacs, The GNU Emacs Manual}を参照のこと。"
 
 #. type: defopt
 #: minibuf.texi.orig:1658
 #, no-wrap
 msgid "completion-category-overrides"
-msgstr ""
+msgstr "completion-category-overrides"
 
 #. type: defopt
 #: minibuf.texi.orig:1669
@@ -3260,24 +3260,24 @@ msgid ""
 "(@pxref{Programmed Completion}).  @var{alist} is an association list "
 "describing how completion should behave for the corresponding category.  The "
 "following alist keys are supported:"
-msgstr ""
+msgstr "この変数は特別な補完スタイルと、特定の種類のテキスト補完時に使用するその他の補完動作を指定する。この変数の値は@code{(@var{category} . @var{alist})}という形式の要素をもつalistである。@var{category}は何が補完されるかを記述するシンボルで、現在のところカテゴリーに@code{buffer}、@code{file}、@code{unicode-name}が定義されているが、これに特化した補完関数(@ref{Programmed Completion}を参照)を通じて他のカテゴリーを定義できる。@var{alist}は、そのカテゴリーにたいして補完がどのように振る舞うべきかを記述する連想リスト。以下のalistのキーがサポートされる:"
 
 #. type: item
 #: minibuf.texi.orig:1671
 #, no-wrap
 msgid "styles"
-msgstr ""
+msgstr "styles"
 
 #. type: table
 #: minibuf.texi.orig:1673
 msgid "The value should be a list of completion styles (symbols)."
-msgstr ""
+msgstr "値は補完スタイル(シンボル)のリスト。"
 
 #. type: item
 #: minibuf.texi.orig:1674
 #, no-wrap
 msgid "cycle"
-msgstr ""
+msgstr "cycle"
 
 #. type: table
 #: minibuf.texi.orig:1678
@@ -3285,18 +3285,18 @@ msgid ""
 "The value should be a value for @code{completion-cycle-threshold} "
 "(@pxref{Completion Options,,, emacs, The GNU Emacs Manual}) for this "
 "category."
-msgstr ""
+msgstr "値はそのカテゴリーにたいする@code{completion-cycle-threshold}(@ref{Completion Options,,, emacs, The GNU Emacs Manual}を参照)の値。"
 
 #. type: defopt
 #: minibuf.texi.orig:1682
 msgid "Additional alist entries may be defined in the future."
-msgstr ""
+msgstr "将来、さらにalistエントリーが定義されるかもしれない。"
 
 #. type: defvar
 #: minibuf.texi.orig:1684
 #, no-wrap
 msgid "completion-extra-properties"
-msgstr ""
+msgstr "completion-extra-properties"
 
 #. type: defvar
 #: minibuf.texi.orig:1689
@@ -3305,13 +3305,13 @@ msgid ""
 "command.  It is intended to be let-bound by specialized completion "
 "commands.  Its value should be a list of property and value pairs.  The "
 "following properties are supported:"
-msgstr ""
+msgstr "この変数はカレント補完コマンドの特別なプロパティの指定に使用される。この変数は補完に特化したコマンドによりletバインドされることを意図している。値はプロパティ/値ペアーのリスト。以下のプロパティがサポートされる:"
 
 #. type: item
 #: minibuf.texi.orig:1691
 #, no-wrap
 msgid ":annotation-function"
-msgstr ""
+msgstr ":annotation-function"
 
 #. type: table
 #: minibuf.texi.orig:1696
@@ -3319,13 +3319,13 @@ msgid ""
 "The value should be a function to add annotations in the completions "
 "buffer.  This function must accept one argument, a completion, and should "
 "either return @code{nil} or a string to be displayed next to the completion."
-msgstr ""
+msgstr "値は補完バッファー内に注釈(annotation)を加える関数。この関数は引数completionを1つ受け取り@code{nil}、または補完の隣に表示する文字列をリターンしなければならない。"
 
 #. type: item
 #: minibuf.texi.orig:1697
 #, no-wrap
 msgid ":exit-function"
-msgstr ""
+msgstr ":exit-function"
 
 #. type: table
 #: minibuf.texi.orig:1706
@@ -3337,7 +3337,7 @@ msgid ""
 "complete, @code{sole} if the text cannot be further completed but completion "
 "is not finished, or @code{exact} if the text is a valid completion but may "
 "be further completed."
-msgstr ""
+msgstr "値は補完を行った後に実行する関数。この関数は2つの引数@var{string}と@var{status}を受け取る。@var{string}は補完されたフィールドのテキストで、@var{status}は行われた操作の種類を示す。操作の種類は、テキストの補完が完了したなら@code{finished}、それ以上補完できないが補完が完了していなければ@code{sole}、有効な補完だがさらに補完できるときは@code{exact}となる。"
 
 #. type: cindex
 #: minibuf.texi.orig:1711
