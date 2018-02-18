@@ -1098,87 +1098,53 @@ style)}とは、補完を生成するためのルールセットのこと。こ�
 @end defopt
 
 @defvar completion-styles-alist
-This variable stores a list of available completion styles.  Each element in
-the list has the form
+この変数には補完スタイルのリストが格納される。リスト内の各要素は以下の形式をもつ
 
 @example
 (@var{style} @var{try-completion} @var{all-completions} @var{doc})
 @end example
 
 @noindent
-Here, @var{style} is the name of the completion style (a symbol), which may
-be used in the @code{completion-styles} variable to refer to this style;
-@var{try-completion} is the function that does the completion;
-@var{all-completions} is the function that lists the completions; and
-@var{doc} is a string describing the completion style.
+ここで@var{style}は補完スタイルの名前(シンボル)であり、そのスタイルを参照するために変数@code{completion-styles}内で使用されるかもしれない。@var{try-completion}は補完を行なう関数で、@var{all-completions}補完をリストする関数、@var{doc}補完スタイルを説明する文字列である。
 
-The @var{try-completion} and @var{all-completions} functions should each
-accept four arguments: @var{string}, @var{collection}, @var{predicate}, and
-@var{point}.  The @var{string}, @var{collection}, and @var{predicate}
-arguments have the same meanings as in @code{try-completion} (@pxref{Basic
-Completion}), and the @var{point} argument is the position of point within
-@var{string}.  Each function should return a non-@code{nil} value if it
-performed its job, and @code{nil} if it did not (e.g., if there is no way to
-complete @var{string} according to the completion style).
+関数@var{try-completion}および@var{all-completions}は@var{string}、@var{collection}、@var{predicate}、@var{point}の4つの引数をとる。引数@var{string}、@var{collection}、@var{predicate}の意味は@code{try-completion}(@ref{Basic
+Completion}を参照)のときと同様。引数@var{point}は@var{string}内のポイント位置。各関数は自身の処理を行った場合は非@code{nil}を、行わなかった場合(たとえば補完スタイルに一致するように@var{string}を行う方法がない場合)は@code{nil}をリターンする。
 
-When the user calls a completion command like @code{minibuffer-complete}
-(@pxref{Completion Commands}), Emacs looks for the first style listed in
-@code{completion-styles} and calls its @var{try-completion} function.  If
-this function returns @code{nil}, Emacs moves to the next listed completion
-style and calls its @var{try-completion} function, and so on until one of
-the @var{try-completion} functions successfully performs completion and
-returns a non-@code{nil} value.  A similar procedure is used for listing
-completions, via the @var{all-completions} functions.
+ユーザーが@code{minibuffer-complete}(@ref{Completion
+Commands}を参照)のような補完コマンドを呼び出すと、Emacsは@code{completion-styles}に最初にリストされたスタイルを探して、そのスタイルの@var{try-completion}関数を呼び出す。この関数が@code{nil}をリターンした場合、Emacsは次にリストされた補完スタイルに移動してそのスタイルの@var{try-completion}関数を呼び出すといったように、@var{try-completion}関数の1つが補完の処理に成功して非@code{nil}値をリターンするまで順次これを行なう。同様の手順は@var{all-completions}関数を通じて、補完のリストにも行われる。
 
-@xref{Completion Styles,,, emacs, The GNU Emacs Manual}, for a description
-of the available completion styles.
+利用できる補完スタイルについては@ref{Completion Styles,,, emacs, The GNU Emacs
+Manual}を参照のこと。
 @end defvar
 
 @defopt completion-category-overrides
-This variable specifies special completion styles and other completion
-behaviors to use when completing certain types of text.  Its value should be
-an alist with elements of the form @code{(@var{category} . @var{alist})}.
-@var{category} is a symbol describing what is being completed; currently,
-the @code{buffer}, @code{file}, and @code{unicode-name} categories are
-defined, but others can be defined via specialized completion functions
-(@pxref{Programmed Completion}).  @var{alist} is an association list
-describing how completion should behave for the corresponding category.  The
-following alist keys are supported:
+この変数は特別な補完スタイルと、特定の種類のテキスト補完時に使用するその他の補完動作を指定する。この変数の値は@code{(@var{category}
+.
+@var{alist})}という形式の要素をもつalistである。@var{category}は何が補完されるかを記述するシンボルで、現在のところカテゴリーに@code{buffer}、@code{file}、@code{unicode-name}が定義されているが、これに特化した補完関数(@ref{Programmed
+Completion}を参照)を通じて他のカテゴリーを定義できる。@var{alist}は、そのカテゴリーにたいして補完がどのように振る舞うべきかを記述する連想リスト。以下のalistのキーがサポートされる:
 
 @table @code
 @item styles
-The value should be a list of completion styles (symbols).
+値は補完スタイル(シンボル)のリスト。
 
 @item cycle
-The value should be a value for @code{completion-cycle-threshold}
-(@pxref{Completion Options,,, emacs, The GNU Emacs Manual}) for this
-category.
+値はそのカテゴリーにたいする@code{completion-cycle-threshold}(@ref{Completion Options,,,
+emacs, The GNU Emacs Manual}を参照)の値。
 @end table
 
 @noindent
-Additional alist entries may be defined in the future.
+将来、さらにalistエントリーが定義されるかもしれない。
 @end defopt
 
 @defvar completion-extra-properties
-This variable is used to specify extra properties of the current completion
-command.  It is intended to be let-bound by specialized completion
-commands.  Its value should be a list of property and value pairs.  The
-following properties are supported:
+この変数はカレント補完コマンドの特別なプロパティの指定に使用される。この変数は補完に特化したコマンドによりletバインドされることを意図している。値はプロパティ/値ペアーのリスト。以下のプロパティがサポートされる:
 
 @table @code
 @item :annotation-function
-The value should be a function to add annotations in the completions
-buffer.  This function must accept one argument, a completion, and should
-either return @code{nil} or a string to be displayed next to the completion.
+値は補完バッファー内に注釈(annotation)を加える関数。この関数は引数completionを1つ受け取り@code{nil}、または補完の隣に表示する文字列をリターンしなければならない。
 
 @item :exit-function
-The value should be a function to run after performing completion.  The
-function should accept two arguments, @var{string} and @var{status}, where
-@var{string} is the text to which the field was completed, and @var{status}
-indicates what kind of operation happened: @code{finished} if text is now
-complete, @code{sole} if the text cannot be further completed but completion
-is not finished, or @code{exact} if the text is a valid completion but may
-be further completed.
+値は補完を行った後に実行する関数。この関数は2つの引数@var{string}と@var{status}を受け取る。@var{string}は補完されたフィールドのテキストで、@var{status}は行われた操作の種類を示す。操作の種類は、テキストの補完が完了したなら@code{finished}、それ以上補完できないが補完が完了していなければ@code{sole}、有効な補完だがさらに補完できるときは@code{exact}となる。
 @end table
 @end defvar
 
@@ -1186,113 +1152,71 @@ be further completed.
 @subsection Programmed Completion
 @cindex programmed completion
 
-  Sometimes it is not possible or convenient to create an alist or an obarray
-containing all the intended possible completions ahead of time.  In such a
-case, you can supply your own function to compute the completion of a given
-string.  This is called @dfn{programmed completion}.  Emacs uses programmed
-completion when completing file names (@pxref{File Name Completion}), among
-many other cases.
+  意図した利用可能な補完のすべてを含むalistまたはobarrayを前もって作成するのが不可能または不便なことがあります。このような場合は、与えられた文字列にたいする補完を計算する独自の関数を提供できます。これは@dfn{プログラム補完(programmed
+completion)}と呼ばれます。Emacsは数あるケースの中でも特に、ファイル名の補完(@ref{File Name
+Completion}を参照)でプログラム補完を使用しています。
 
-  To use this feature, pass a function as the @var{collection} argument to
-@code{completing-read}.  The function @code{completing-read} arranges to
-pass your completion function along to @code{try-completion},
-@code{all-completions}, and other basic completion functions, which will
-then let your function do all the work.
+  この機能を使用するためには、関数を@code{completing-read}の@var{collection}引数に渡します。関数@code{completing-read}はその補完関数が@code{try-completion}、@code{all-completions}などの基本的な補完関数に渡されて、その関数がすべてを行えるよう取り計らいます。
 
-  The completion function should accept three arguments:
+  補完関数は3つの引数を受け取ります:
 
 @itemize @bullet
 @item
-The string to be completed.
+補完される文字列。
 
 @item
-A predicate function with which to filter possible matches, or @code{nil} if
-none.  The function should call the predicate for each possible match, and
-ignore the match if the predicate returns @code{nil}.
+利用可能なマッチをフィルターする述語関数。もしなければ@code{nil}。関数は利用可能なマッチにたいしてこの述語(predicate)を呼び出し、述語が@code{nil}をリターンした場合はそのマッチを無視する。
 
 @item
-A flag specifying the type of completion operation to perform.  This is one
-of the following four values:
+実行する補完操作のタイプを指定するフラグ。以下の4つの値のうち1つを指定する:
 
 @table @code
 @item nil
-This specifies a @code{try-completion} operation.  The function should
-return @code{t} if the specified string is a unique and exact match; if
-there is more than one match, it should return the common substring of all
-matches (if the string is an exact match for one completion alternative but
-also matches other longer alternatives, the return value is the string); if
-there are no matches, it should return @code{nil}.
+@code{try-completion}を指定する。関数は指定された文字が一意かつ完全一致の場合は、@code{t}をリターンする。マッチが複数の場合、すべてのマッチに共通する部分文字列をリターンする(文字列が補完候補の1つに完全一致するが、より長い他の候補にもマッチする場合、リターン値はその文字列)。マッチがなければ@code{nil}をリターンする。
 
 @item t
-This specifies an @code{all-completions} operation.  The function should
-return a list of all possible completions of the specified string.
+@code{all-completions}を指定する。関数は指定された文字列の利用可能なすべての補完のリストをリターンする。
 
 @item lambda
-This specifies a @code{test-completion} operation.  The function should
-return @code{t} if the specified string is an exact match for some
-completion alternative; @code{nil} otherwise.
+@code{test-completion}を指定する。関数は指定された文字列がいくつかの補完候補に完全一致する場合は@code{t}、それ以外は@code{nil}をリターンする。
 
 @item (boundaries . @var{suffix})
-This specifies a @code{completion-boundaries} operation.  The function
-should return @code{(boundaries @var{start} . @var{end})}, where @var{start}
-is the position of the beginning boundary in the specified string, and
-@var{end} is the position of the end boundary in @var{suffix}.
+@code{completion-boundaries}を指定する。関数は@code{(boundaries @var{start}
+.
+@var{end})}をリターンする。ここで@var{start}は指定された文字列内の境界の開始位置、@var{end}は@var{suffix}内の境界の終了位置。
 
 @item metadata
-This specifies a request for information about the state of the current
-completion.  The return value should have the form @code{(metadata
-. @var{alist})}, where @var{alist} is an alist whose elements are described
-below.
+カレント補完の状態に関する情報の要求を指定する。リターン値は@code{(metadata
+. @var{alist})}の形式をもち、@var{alist}は以下で説明する要素をもつ連想配列。
 @end table
 
 @noindent
-If the flag has any other value, the completion function should return
-@code{nil}.
+フラグに他の値が指定された場合、補完関数は@code{nil}をリターンする。
 @end itemize
 
-The following is a list of metadata entries that a completion function may
-return in response to a @code{metadata} flag argument:
+以下は@code{metadata}フラグ引数への応答として補完関数がリターンするかもしれない、metadataエントリーのリストです:
 
 @table @code
 @item category
-The value should be a symbol describing what kind of text the completion
-function is trying to complete.  If the symbol matches one of the keys in
-@code{completion-category-overrides}, the usual completion behavior is
-overridden.  @xref{Completion Variables}.
+値は補完関数が補完を試みているテキストの種類を説明するシンボル。シンボルが@code{completion-category-overrides}内のキーの1つにマッチする場合、通常の補完動作はオーバーライドされる。@ref{Completion
+Variables}を参照のこと。
 
 @item annotation-function
-The value should be a function for @dfn{annotating} completions.  The
-function should take one argument, @var{string}, which is a possible
-completion.  It should return a string, which is displayed after the
-completion @var{string} in the @file{*Completions*} buffer.
+値は補完に@dfn{注釈(annotation)}を付ける関数。この関数は1つの引数@var{string}をとり、これは利用可能な補完である。リターン値は文字列で、@file{*Completions*}バッファー内の補完@var{string}の後に表示される。
 
 @item display-sort-function
-The value should be a function for sorting completions.  The function should
-take one argument, a list of completion strings, and return a sorted list of
-completion strings.  It is allowed to alter the input list destructively.
+値は補完をソートする関数。関数は1つの引数をとる。これは補完文字列のリストで、ソートされた補完文字列リストがリターンされる。その入力のリストは破壊的に変更することが許される。
 
 @item cycle-sort-function
-The value should be a function for sorting completions, when
-@code{completion-cycle-threshold} is non-@code{nil} and the user is cycling
-through completion alternatives.  @xref{Completion Options,,, emacs, The GNU
-Emacs Manual}.  Its argument list and return value are the same as for
-@code{display-sort-function}.
+値は@code{completion-cycle-threshold}が非@code{nil}で、ユーザーが補完候補を巡回するときに補完をソートする関数。引数のリストとリターン値は@code{display-sort-function}と同様。
 @end table
 
 @defun completion-table-dynamic function
-This function is a convenient way to write a function that can act as a
-programmed completion function.  The argument @var{function} should be a
-function that takes one argument, a string, and returns an alist of possible
-completions of it.  You can think of @code{completion-table-dynamic} as a
-transducer between that interface and the interface for programmed
-completion functions.
+この関数はプログラム補完関数として動作する関数を記述する便利な方法である。引数@var{function}は1つの引数(文字列)をとる関数であり、その文字列の利用可能な補完のalistをリターンする。@code{completion-table-dynamic}は、@var{function}とプログラム補完関数のインターフェイス変換器と考えることができる。
 @end defun
 
 @defun completion-table-with-cache function &optional ignore-case
-This is a wrapper for @code{completion-table-dynamic} that saves the last
-argument-result pair.  This means that multiple lookups with the same
-argument only need to call @var{function} once.  This can be useful when a
-slow operation is involved, such as calling an external process.
+これは前回の引数/結果ペアーを保存する@code{completion-table-dynamic}にたいするラッパーである。これは同じ引数にたいする複数回の検査に必要なのは、1回の@var{function}呼び出しだけであることを意味する。これは外部プロセス呼び出しなど、処理が低速のとき有用かもしれない。
 @end defun
 
 @node Completion in Buffers
@@ -1300,77 +1224,49 @@ slow operation is involved, such as calling an external process.
 @cindex inline completion
 
 @findex completion-at-point
-  Although completion is usually done in the minibuffer, the completion
-facility can also be used on the text in ordinary Emacs buffers.  In many
-major modes, in-buffer completion is performed by the @kbd{C-M-i} or
-@kbd{M-@key{TAB}} command, bound to @code{completion-at-point}.
-@xref{Symbol Completion,,, emacs, The GNU Emacs Manual}.  This command uses
-the abnormal hook variable @code{completion-at-point-functions}:
+  補完は通常はミニバッファー内で行われますが、補完機能は通常のEmacsバッファー内のテキストにも使用できます。多くのメジャーモードで、コマンド@kbd{C-M-i}または@kbd{M-@key{TAB}}によりバッファー内補完が行われ、それらは@code{completion-at-point}にバインドされています。@ref{Symbol
+Completion,,, emacs, The GNU Emacs
+Manual}を参照してください。このコマンドはアブノーマルフック変数@code{completion-at-point-functions}を使用します:
 
 @defvar completion-at-point-functions
-The value of this abnormal hook should be a list of functions, which are
-used to compute a completion table for completing the text at point.  It can
-be used by major modes to provide mode-specific completion tables
-(@pxref{Major Mode Conventions}).
+このアブノーマルフックの値は関数のリストである。これらの関数はポイント位置のテキストの補完にたいする補完テーブルの計算に使用される。これはメジャーモードにより、モード特有な補完テーブル(@ref{Major
+Mode Conventions}を参照)の提供に使用できる。
 
-When the command @code{completion-at-point} runs, it calls the functions in
-the list one by one, without any argument.  Each function should return
-@code{nil} if it is unable to produce a completion table for the text at
-point.  Otherwise it should return a list of the form
+コマンド@code{completion-at-point}が実行されると、引数なしでリスト内の関数が1つずつ呼び出される。それぞれの関数は、ポイント位置のテキストにたいして補完テーブルを生成できない場合は@code{nil}をリターンする。生成できた場合は、以下の形式のリストをリターンする
 
 @example
 (@var{start} @var{end} @var{collection} . @var{props})
 @end example
 
 @noindent
-@var{start} and @var{end} delimit the text to complete (which should enclose
-point).  @var{collection} is a completion table for completing that text, in
-a form suitable for passing as the second argument to @code{try-completion}
-(@pxref{Basic Completion}); completion alternatives will be generated from
-this completion table in the usual way, via the completion styles defined in
-@code{completion-styles} (@pxref{Completion Variables}).  @var{props} is a
-property list for additional information; any of the properties in
-@code{completion-extra-properties} are recognized (@pxref{Completion
-Variables}), as well as the following additional ones:
+ここで@var{start}と@var{end}は補完する(ポイントを取り囲む)テキストの区切りである。@var{collection}はそのテキストを補完する補完テーブルであり、@code{try-completion}(@ref{Basic
+Completion}を参照)の2つ目の引数として渡すのに適した形式である。補完候補は@code{completion-styles}(@ref{Completion
+Variables}を参照)で定義された補完スタイルを通じ、この補完テーブルを通常の方法で使用して生成されるだろう。@var{props}は追加の情報のためのプロパティリストである。@code{completion-extra-properties}内のすべてのプロパティ(@ref{Completion
+Variables}を参照)と、以下の追加のプロパティが認識される:
 
 @table @code
 @item :predicate
-The value should be a predicate that completion candidates need to satisfy.
+値は補完候補が満足する必要がある述語。
 
 @item :exclusive
-If the value is @code{no}, then if the completion table fails to match the
-text at point, @code{completion-at-point} moves on to the next function in
-@code{completion-at-point-functions} instead of reporting a completion
-failure.
+値が@code{no}の場合は、もし補完テーブルがポイント位置のテキストのマッチに失敗したなら、補完の失敗を報告するかわりに@code{completion-at-point}は@code{completion-at-point-functions}内の次の関数へ移動する。
 @end table
 
-A function in @code{completion-at-point-functions} may also return a
-function.  In that case, that returned function is called, with no argument,
-and it is entirely responsible for performing the completion.  We discourage
-this usage; it is intended to help convert old code to using
-@code{completion-at-point}.
+@code{completion-at-point-functions}内の関数も関数をリターンするかもしれない。その場合は引数なしでリターンされた関数が呼び出され、その関数が補完処理の全責任を負う。この方法は推奨されない。これは@code{completion-at-point}を使用する古いコードの救済を意図したもののだからである。
 
-The first function in @code{completion-at-point-functions} to return a
-non-@code{nil} value is used by @code{completion-at-point}.  The remaining
-functions are not called.  The exception to this is when there is an
-@code{:exclusive} specification, as described above.
+非@code{nil}値を最初にリターンした@code{completion-at-point-functions}内の関数が、@code{completion-at-point}により使用される。残りの関数は呼び出されない。これの例外は上述の@code{:exclusive}指定があるときである。
 @end defvar
 
-  The following function provides a convenient way to perform completion on an
-arbitrary stretch of text in an Emacs buffer:
+  以下の関数は、Emacsバッファー内の任意に拡張されたテキストにたいして便利な補完方法を提供します:
 
 @defun completion-in-region start end collection &optional predicate
-This function completes the text in the current buffer between the positions
-@var{start} and @var{end}, using @var{collection}.  The argument
-@var{collection} has the same meaning as in @code{try-completion}
-(@pxref{Basic Completion}).
+この関数は@var{collection}を使用して、カレントバッファー内の位置@var{start}と@var{end}の間のテキストを補完する。引数@var{collection}は@code{try-completion}(@ref{Basic
+Completion}を参照)のときと同じ意味をもつ。
 
-This function inserts the completion text directly into the current buffer.
-Unlike @code{completing-read} (@pxref{Minibuffer Completion}), it does not
-activate the minibuffer.
+この関数は補完テキストを直接カレントバッファーに挿入する。@code{completing-read}(@ref{Minibuffer
+Completion}を参照)とは異なり、ミニバッファーをアクティブにしない。
 
-For this function to work, point must be somewhere between @var{start} and
-@var{end}.
+この関数が機能するためには、ポイントが@var{start}と@var{end}の間になければならない。
 @end defun
 
 
@@ -1380,76 +1276,44 @@ For this function to work, point must be somewhere between @var{start} and
 @cindex querying the user
 @cindex yes-or-no questions
 
-  This section describes functions used to ask the user a yes-or-no question.
-The function @code{y-or-n-p} can be answered with a single character; it is
-useful for questions where an inadvertent wrong answer will not have serious
-consequences.  @code{yes-or-no-p} is suitable for more momentous questions,
-since it requires three or four characters to answer.
+  このセクションでは、ユーザーにyes-or-noの確認を求める関数を説明します。関数@code{y-or-n-p}は1文字での応答に使用できます。この関数は不注意による誤った答えが深刻な結果を招かない場合に有用です。@code{yes-or-no-p}は3文字から4文字の答えを要求するので、より重大な問に適しています。
 
-   If either of these functions is called in a command that was invoked using
-the mouse---more precisely, if @code{last-nonmenu-event} (@pxref{Command
-Loop Info}) is either @code{nil} or a list---then it uses a dialog box or
-pop-up menu to ask the question.  Otherwise, it uses keyboard input.  You
-can force use either of the mouse or of keyboard input by binding
-@code{last-nonmenu-event} to a suitable value around the call.
+   3つの関数はどれも、マウスを使用して呼び出されたコマンド、より正確には@code{last-nonmenu-event}(@ref{Command
+Loop
+Info}を参照)が@code{nil}かリストの場合は、問いに答えるためにダイアログボックスまたはポップアップメニューを使用します。それ以外の場合はキーボード入力を使用します。呼び出しの周囲で@code{last-nonmenu-event}に適切な値をバインドすることにより、マウスまたはキーボードの使用を強制できます。
 
-  Strictly speaking, @code{yes-or-no-p} uses the minibuffer and
-@code{y-or-n-p} does not; but it seems best to describe them together.
+  厳密に言うと、@code{yes-or-no-p}はミニバッファーを使用し、@code{y-or-n-p}は使用しませんが、これらのコマンドは一緒に説明したほうがよいでしょう。
 
 @defun y-or-n-p prompt
-This function asks the user a question, expecting input in the echo area.
-It returns @code{t} if the user types @kbd{y}, @code{nil} if the user types
-@kbd{n}.  This function also accepts @key{SPC} to mean yes and @key{DEL} to
-mean no.  It accepts @kbd{C-]} to mean ``quit'', like @kbd{C-g}, because the
-question might look like a minibuffer and for that reason the user might try
-to use @kbd{C-]} to get out.  The answer is a single character, with no
-@key{RET} needed to terminate it.  Upper and lower case are equivalent.
+この関数はユーザーに答えを尋ねて、ミニバッファーに入力を求める。ユーザーが@kbd{y}をタイプしたら@code{t}、@kbd{n}をタイプしたら@code{nil}をリターンする。この関数はyesの意味で@key{SPC}、noの意味で@key{DEL}も受け入れる。``quit''の意味として@kbd{C-g}と同様に@kbd{C-]}も受け入れる。これは問いがミニバッファーのような外見をもち、ミニバッファーを抜けるためにユーザーが@kbd{C-]}の使用を試みるかもしれないという理由による。応答は1文字であり、問いを終了させるための@key{RET}は必要ない。大文字と小文字は等価である。
 
-``Asking the question'' means printing @var{prompt} in the echo area,
-followed by the string @w{@samp{(y or n) }}.  If the input is not one of the
-expected answers (@kbd{y}, @kbd{n}, @kbd{@key{SPC}}, @kbd{@key{DEL}}, or
-something that quits), the function responds @samp{Please answer y or n.},
-and repeats the request.
+``答えを尋ねる''とはエコーエリアに@var{prompt}と、その後に文字列@w{@samp{(y or n)
+}}をプリントすることを意味する。期待される答え(@kbd{y}、@kbd{n}、@kbd{@key{SPC}}、@kbd{@key{DEL}}、もしくは質問を終了するその他のキー)以外が入力された場合、この関数は@samp{Please
+answer y or n.}と応答し、繰り返し答えの入力を要求する。
 
-This function does not actually use the minibuffer, since it does not allow
-editing of the answer.  It actually uses the echo area (@pxref{The Echo
-Area}), which uses the same screen space as the minibuffer.  The cursor
-moves to the echo area while the question is being asked.
+この関数は答えの編集を許さないため、実際にミニバッファーは使用しない。実際に使用するのはミニバッファーと同じスクリーンスペースを使用するエコーエリア(@ref{The
+Echo Area}を参照)である。問いが答えられるまで、カーソルはエコーエリアに移動する。
 
-The answers and their meanings, even @samp{y} and @samp{n}, are not
-hardwired, and are specified by the keymap @code{query-replace-map}
-(@pxref{Search and Replace}).  In particular, if the user enters the special
-responses @code{recenter}, @code{scroll-up}, @code{scroll-down},
-@code{scroll-other-window}, or @code{scroll-other-window-down} (respectively
-bound to @kbd{C-l}, @kbd{C-v}, @kbd{M-v}, @kbd{C-M-v} and @kbd{C-M-S-v} in
-@code{query-replace-map}), this function performs the specified window
-recentering or scrolling operation, and poses the question again.
+答えとその意味は、たとえ@samp{y}と@samp{n}であっても固定されたものではなく、キーマップ@code{query-replace-map}により指定される(@ref{Search
+and
+Replace}を参照)。特にユーザーが@code{recenter}、@code{scroll-up}、@code{scroll-down}、@code{scroll-other-window}、@code{scroll-other-window-down}(それぞれ@code{query-replace-map}内で@kbd{C-l}、@kbd{C-v}、@kbd{M-v}、@kbd{C-M-v}、@kbd{C-M-S-v}にバインドされている)のような特殊な応答をエンターした場合、この関数はは指定されたウィンドウの再センタリングやスクロール操作を処理してから再度答えを求める。
 
 @noindent
-We show successive lines of echo area messages, but only one actually
-appears on the screen at a time.
+例ではエコーエリアのメッセージを連続する行で示しているが、スクリーン上に実際に表示されるのは1回に1行だけである。
 @end defun
 
 @defun y-or-n-p-with-timeout prompt seconds default
-Like @code{y-or-n-p}, except that if the user fails to answer within
-@var{seconds} seconds, this function stops waiting and returns
-@var{default}.  It works by setting up a timer; see @ref{Timers}.  The
-argument @var{seconds} should be a number.
+@code{y-or-n-p}と同様だが、ユーザーが@var{seconds}秒以内に答えないと、この関数は待つのをやめて@var{default}をリターンする。これはタイマーをセットアップすることにより機能する。引数@var{seconds}は数字である。
 @end defun
 
 @defun yes-or-no-p prompt
-This function asks the user a question, expecting input in the minibuffer.
-It returns @code{t} if the user enters @samp{yes}, @code{nil} if the user
-types @samp{no}.  The user must type @key{RET} to finalize the response.
-Upper and lower case are equivalent.
+この関数は質問して、ミニバッファーに答えの入力を求める。これはユーザーが@samp{yes}をエンターすると@code{t}を、@samp{no}をエンターすると@code{nil}をリターンする。ユーザーは応答を終えるために@key{RET}をタイプしなければならない。大文字と小文字は等価である。
 
-@code{yes-or-no-p} starts by displaying @var{prompt} in the echo area,
-followed by @w{@samp{(yes or no) }}.  The user must type one of the expected
-responses; otherwise, the function responds @samp{Please answer yes or no.},
-waits about two seconds and repeats the request.
+@code{yes-or-no-p}はエコーエリアに@var{prompt}とその後に@w{@samp{(yes or no)
+}}を表示することにより開始される。ユーザーは期待される応答の1つをタイプしなければならない。それ以外の答えだと、この関数は@samp{Please
+answer yes or no.}と応答して約2秒待った後に要求を繰り返す。
 
-@code{yes-or-no-p} requires more work from the user than @code{y-or-n-p} and
-is appropriate for more crucial decisions.
+@code{yes-or-no-p}は@code{y-or-n-p}より多くの作業をユーザーに要求し、より重大な決定に適している。
 
 以下は例である:
 
@@ -1470,9 +1334,8 @@ Do you really want to remove everything? (yes or no)
 @end smallexample
 
 @noindent
-If the user first types @kbd{y @key{RET}}, which is invalid because this
-function demands the entire word @samp{yes}, it responds by displaying these
-prompts, with a brief pause between them:
+ユーザーが最初に@kbd{y
+@key{RET}}とタイプした場合、これは無効である。なぜならこの関数は@samp{yes}という単語全体を要求しているので、以下のプロンプトを説明のために一時停止して表示する。
 
 @smallexample
 @group
@@ -1488,44 +1351,29 @@ Do you really want to remove everything? (yes or no)
 @section Asking Multiple Y-or-N Questions
 @cindex multiple yes-or-no questions
 
-  When you have a series of similar questions to ask, such as ``Do you want to
-save this buffer'' for each buffer in turn, you should use
-@code{map-y-or-n-p} to ask the collection of questions, rather than asking
-each question individually.  This gives the user certain convenient
-facilities such as the ability to answer the whole series at once.
+  同じような連続する質問と答えがある場合、たとえば各バッファーにたいして順に``Do you want to save this
+buffer''と確認を求めるような場合は、個別に質問するより@code{map-y-or-n-p}を使用して質問のコレクションを尋ねるべきです。これはユーザーにたいして、質問全体にたいして1回で答えられるような便利な機能を提供します。
 
 @defun map-y-or-n-p prompter actor list &optional help action-alist no-cursor-in-echo-area
-This function asks the user a series of questions, reading a
-single-character answer in the echo area for each one.
+この関数はユーザーに一連の質問をし、それぞれの質問にたいしてエコーエリア内の1文字の答えを読み取る。
 
-The value of @var{list} specifies the objects to ask questions about.  It
-should be either a list of objects or a generator function.  If it is a
-function, it should expect no arguments, and should return either the next
-object to ask about, or @code{nil}, meaning to stop asking questions.
+値@var{list}は質問をするオブジェクトを指定する。これはリスト、オブジェクト、または生成関数(generator
+function)のいずれかである。関数の場合は引数なしで、次に質問するオブジェクト、または質問の中止を意味する@code{nil}のいずれかをリターンする。
 
-The argument @var{prompter} specifies how to ask each question.  If
-@var{prompter} is a string, the question text is computed like this:
+引数@var{prompter}は各質問について問い合わせ方法を指定する。@var{prompter}が文字列の場合、質問テキストは以下のようになる:
 
 @example
 (format @var{prompter} @var{object})
 @end example
 
 @noindent
-where @var{object} is the next object to ask about (as obtained from
-@var{list}).
+ここで@var{object}は、(@var{list}から得られる)質問する次のオブジェクトである。
 
-If not a string, @var{prompter} should be a function of one argument (the
-next object to ask about) and should return the question text.  If the value
-is a string, that is the question to ask the user.  The function can also
-return @code{t}, meaning do act on this object (and don't ask the user), or
-@code{nil}, meaning ignore this object (and don't ask the user).
+文字列でない場合、@var{prompter}は1つの引数(質問する次のオブジェクト)をとる関数で、質問テキストをリターンする。値が文字列の場合は、ユーザー問うための質問。関数は@code{t}(ユーザーに尋ねずこのオブジェクトを処理する)、または@code{nil}(ユーザーに尋ねずこのオブジェクトを無視する)をリターンすることもできる。
 
-The argument @var{actor} says how to act on the answers that the user
-gives.  It should be a function of one argument, and it is called with each
-object that the user says yes for.  Its argument is always an object
-obtained from @var{list}.
+引数@var{actor}は、ユーザーが与えた答えにたいし、どのように処理するかを指定する。これは引数が1つの関数で、ユーザーがyesと答えたオブジェクトを引数に呼び出される。引数は常に@var{list}から取得したオブジェクトである。
 
-If the argument @var{help} is given, it should be a list of this form:
+引数@var{help}が与えられた場合は、以下の形式のリストである:
 
 @example
 (@var{singular} @var{plural} @var{action})
