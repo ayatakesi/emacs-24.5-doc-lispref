@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Emacs-24.5\n"
 "POT-Creation-Date: 2018-02-08 01:38+0900\n"
-"PO-Revision-Date: 2018-02-16 02:00+0900\n"
+"PO-Revision-Date: 2018-02-18 10:59+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3343,7 +3343,7 @@ msgstr "値は補完を行った後に実行する関数。この関数は2つ�
 #: minibuf.texi.orig:1711
 #, no-wrap
 msgid "programmed completion"
-msgstr ""
+msgstr "programmed completion"
 
 #. type: Plain text
 #: minibuf.texi.orig:1719
@@ -3354,7 +3354,7 @@ msgid ""
 "string.  This is called @dfn{programmed completion}.  Emacs uses programmed "
 "completion when completing file names (@pxref{File Name Completion}), among "
 "many other cases."
-msgstr ""
+msgstr "意図した利用可能な補完のすべてを含むalistまたはobarrayを前もって作成するのが不可能または不便なことがあります。このような場合は、与えられた文字列にたいする補完を計算する独自の関数を提供できます。これは@dfn{プログラム補完(programmed completion)}と呼ばれます。Emacsは数あるケースの中でも特に、ファイル名の補完(@ref{File Name Completion}を参照)でプログラム補完を使用しています。"
 
 #. type: Plain text
 #: minibuf.texi.orig:1726
@@ -3364,17 +3364,17 @@ msgid ""
 "pass your completion function along to @code{try-completion}, "
 "@code{all-completions}, and other basic completion functions, which will "
 "then let your function do all the work."
-msgstr ""
+msgstr "この機能を使用するためには、関数を@code{completing-read}の@var{collection}引数に渡します。関数@code{completing-read}はその補完関数が@code{try-completion}、@code{all-completions}などの基本的な補完関数に渡されて、その関数がすべてを行えるよう取り計らいます。"
 
 #. type: Plain text
 #: minibuf.texi.orig:1728
 msgid "The completion function should accept three arguments:"
-msgstr ""
+msgstr "補完関数は3つの引数を受け取ります:"
 
 #. type: itemize
 #: minibuf.texi.orig:1732
 msgid "The string to be completed."
-msgstr ""
+msgstr "補完される文字列。"
 
 #. type: itemize
 #: minibuf.texi.orig:1738
@@ -3382,20 +3382,20 @@ msgid ""
 "A predicate function with which to filter possible matches, or @code{nil} if "
 "none.  The function should call the predicate for each possible match, and "
 "ignore the match if the predicate returns @code{nil}."
-msgstr ""
+msgstr "利用可能なマッチをフィルターする述語関数。もしなければ@code{nil}。関数は利用可能なマッチにたいしてこの述語(predicate)を呼び出し、述語が@code{nil}をリターンした場合はそのマッチを無視する。"
 
 #. type: itemize
 #: minibuf.texi.orig:1742
 msgid ""
 "A flag specifying the type of completion operation to perform.  This is one "
 "of the following four values:"
-msgstr ""
+msgstr "実行する補完操作のタイプを指定するフラグ。以下の4つの値のうち1つを指定する:"
 
 #. type: item
 #: minibuf.texi.orig:1744
 #, no-wrap
 msgid "nil"
-msgstr ""
+msgstr "nil"
 
 #. type: table
 #: minibuf.texi.orig:1752
@@ -3406,26 +3406,26 @@ msgid ""
 "matches (if the string is an exact match for one completion alternative but "
 "also matches other longer alternatives, the return value is the string); if "
 "there are no matches, it should return @code{nil}."
-msgstr ""
+msgstr "@code{try-completion}を指定する。関数は指定された文字が一意かつ完全一致の場合は、@code{t}をリターンする。マッチが複数の場合、すべてのマッチに共通する部分文字列をリターンする(文字列が補完候補の1つに完全一致するが、より長い他の候補にもマッチする場合、リターン値はその文字列)。マッチがなければ@code{nil}をリターンする。"
 
 #. type: item
 #: minibuf.texi.orig:1753
 #, no-wrap
 msgid "t"
-msgstr ""
+msgstr "t"
 
 #. type: table
 #: minibuf.texi.orig:1757
 msgid ""
 "This specifies an @code{all-completions} operation.  The function should "
 "return a list of all possible completions of the specified string."
-msgstr ""
+msgstr "@code{all-completions}を指定する。関数は指定された文字列の利用可能なすべての補完のリストをリターンする。"
 
 #. type: item
 #: minibuf.texi.orig:1758
 #, no-wrap
 msgid "lambda"
-msgstr ""
+msgstr "lambda"
 
 #. type: table
 #: minibuf.texi.orig:1762
@@ -3433,13 +3433,13 @@ msgid ""
 "This specifies a @code{test-completion} operation.  The function should "
 "return @code{t} if the specified string is an exact match for some "
 "completion alternative; @code{nil} otherwise."
-msgstr ""
+msgstr "@code{test-completion}を指定する。関数は指定された文字列がいくつかの補完候補に完全一致する場合は@code{t}、それ以外は@code{nil}をリターンする。"
 
 #. type: item
 #: minibuf.texi.orig:1763
 #, no-wrap
 msgid "(boundaries . @var{suffix})"
-msgstr ""
+msgstr "(boundaries . @var{suffix})"
 
 #. type: table
 #: minibuf.texi.orig:1769
@@ -3448,13 +3448,13 @@ msgid ""
 "should return @code{(boundaries @var{start} . @var{end})}, where @var{start} "
 "is the position of the beginning boundary in the specified string, and "
 "@var{end} is the position of the end boundary in @var{suffix}."
-msgstr ""
+msgstr "@code{completion-boundaries}を指定する。関数は@code{(boundaries @var{start} . @var{end})}をリターンする。ここで@var{start}は指定された文字列内の境界の開始位置、@var{end}は@var{suffix}内の境界の終了位置。"
 
 #. type: item
 #: minibuf.texi.orig:1770
 #, no-wrap
 msgid "metadata"
-msgstr ""
+msgstr "metadata"
 
 #. type: table
 #: minibuf.texi.orig:1775
@@ -3463,27 +3463,27 @@ msgid ""
 "completion.  The return value should have the form @code{(metadata "
 ". @var{alist})}, where @var{alist} is an alist whose elements are described "
 "below."
-msgstr ""
+msgstr "カレント補完の状態に関する情報の要求を指定する。リターン値は@code{(metadata . @var{alist})}の形式をもち、@var{alist}は以下で説明する要素をもつ連想配列。"
 
 #. type: itemize
 #: minibuf.texi.orig:1780
 msgid ""
 "If the flag has any other value, the completion function should return "
 "@code{nil}."
-msgstr ""
+msgstr "フラグに他の値が指定された場合、補完関数は@code{nil}をリターンする。"
 
 #. type: Plain text
 #: minibuf.texi.orig:1784
 msgid ""
 "The following is a list of metadata entries that a completion function may "
 "return in response to a @code{metadata} flag argument:"
-msgstr ""
+msgstr "以下は@code{metadata}フラグ引数への応答として補完関数がリターンするかもしれない、metadataエントリーのリストです:"
 
 #. type: item
 #: minibuf.texi.orig:1786
 #, no-wrap
 msgid "category"
-msgstr ""
+msgstr "category"
 
 #. type: table
 #: minibuf.texi.orig:1791
@@ -3492,13 +3492,13 @@ msgid ""
 "function is trying to complete.  If the symbol matches one of the keys in "
 "@code{completion-category-overrides}, the usual completion behavior is "
 "overridden.  @xref{Completion Variables}."
-msgstr ""
+msgstr "値は補完関数が補完を試みているテキストの種類を説明するシンボル。シンボルが@code{completion-category-overrides}内のキーの1つにマッチする場合、通常の補完動作はオーバーライドされる。@ref{Completion Variables}を参照のこと。"
 
 #. type: item
 #: minibuf.texi.orig:1792
 #, no-wrap
 msgid "annotation-function"
-msgstr ""
+msgstr "annotation-function"
 
 #. type: table
 #: minibuf.texi.orig:1797
@@ -3507,13 +3507,13 @@ msgid ""
 "function should take one argument, @var{string}, which is a possible "
 "completion.  It should return a string, which is displayed after the "
 "completion @var{string} in the @file{*Completions*} buffer."
-msgstr ""
+msgstr "値は補完に@dfn{注釈(annotation)}を付ける関数。この関数は1つの引数@var{string}をとり、これは利用可能な補完である。リターン値は文字列で、@file{*Completions*}バッファー内の補完@var{string}の後に表示される。"
 
 #. type: item
 #: minibuf.texi.orig:1798
 #, no-wrap
 msgid "display-sort-function"
-msgstr ""
+msgstr "display-sort-function"
 
 #. type: table
 #: minibuf.texi.orig:1803
@@ -3521,13 +3521,13 @@ msgid ""
 "The value should be a function for sorting completions.  The function should "
 "take one argument, a list of completion strings, and return a sorted list of "
 "completion strings.  It is allowed to alter the input list destructively."
-msgstr ""
+msgstr "値は補完をソートする関数。関数は1つの引数をとる。これは補完文字列のリストで、ソートされた補完文字列リストがリターンされる。その入力のリストは破壊的に変更することが許される。"
 
 #. type: item
 #: minibuf.texi.orig:1804
 #, no-wrap
 msgid "cycle-sort-function"
-msgstr ""
+msgstr "cycle-sort-function"
 
 #. type: table
 #: minibuf.texi.orig:1810
@@ -3537,13 +3537,13 @@ msgid ""
 "through completion alternatives.  @xref{Completion Options,,, emacs, The GNU "
 "Emacs Manual}.  Its argument list and return value are the same as for "
 "@code{display-sort-function}."
-msgstr ""
+msgstr "値は@code{completion-cycle-threshold}が非@code{nil}で、ユーザーが補完候補を巡回するときに補完をソートする関数。引数のリストとリターン値は@code{display-sort-function}と同様。"
 
 #. type: defun
 #: minibuf.texi.orig:1812
 #, no-wrap
 msgid "completion-table-dynamic function"
-msgstr ""
+msgstr "completion-table-dynamic function"
 
 #. type: defun
 #: minibuf.texi.orig:1819
@@ -3554,13 +3554,13 @@ msgid ""
 "completions of it.  You can think of @code{completion-table-dynamic} as a "
 "transducer between that interface and the interface for programmed "
 "completion functions."
-msgstr ""
+msgstr "この関数はプログラム補完関数として動作する関数を記述する便利な方法である。引数@var{function}は1つの引数(文字列)をとる関数であり、その文字列の利用可能な補完のalistをリターンする。@code{completion-table-dynamic}は、@var{function}とプログラム補完関数のインターフェイス変換器と考えることができる。"
 
 #. type: defun
 #: minibuf.texi.orig:1821
 #, no-wrap
 msgid "completion-table-with-cache function &optional ignore-case"
-msgstr ""
+msgstr "completion-table-with-cache function &optional ignore-case"
 
 #. type: defun
 #: minibuf.texi.orig:1826
@@ -3569,7 +3569,7 @@ msgid ""
 "argument-result pair.  This means that multiple lookups with the same "
 "argument only need to call @var{function} once.  This can be useful when a "
 "slow operation is involved, such as calling an external process."
-msgstr ""
+msgstr "これは前回の引数/結果ペアーを保存する@code{completion-table-dynamic}にたいするラッパーである。これは同じ引数にたいする複数回の検査に必要なのは、1回の@var{function}呼び出しだけであることを意味する。これは外部プロセス呼び出しなど、処理が低速のとき有用かもしれない。"
 
 #. type: subsection
 #: minibuf.texi.orig:1829

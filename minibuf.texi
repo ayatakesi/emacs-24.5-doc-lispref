@@ -1152,113 +1152,71 @@ emacs, The GNU Emacs Manual}を参照)の値。
 @subsection Programmed Completion
 @cindex programmed completion
 
-  Sometimes it is not possible or convenient to create an alist or an obarray
-containing all the intended possible completions ahead of time.  In such a
-case, you can supply your own function to compute the completion of a given
-string.  This is called @dfn{programmed completion}.  Emacs uses programmed
-completion when completing file names (@pxref{File Name Completion}), among
-many other cases.
+  意図した利用可能な補完のすべてを含むalistまたはobarrayを前もって作成するのが不可能または不便なことがあります。このような場合は、与えられた文字列にたいする補完を計算する独自の関数を提供できます。これは@dfn{プログラム補完(programmed
+completion)}と呼ばれます。Emacsは数あるケースの中でも特に、ファイル名の補完(@ref{File Name
+Completion}を参照)でプログラム補完を使用しています。
 
-  To use this feature, pass a function as the @var{collection} argument to
-@code{completing-read}.  The function @code{completing-read} arranges to
-pass your completion function along to @code{try-completion},
-@code{all-completions}, and other basic completion functions, which will
-then let your function do all the work.
+  この機能を使用するためには、関数を@code{completing-read}の@var{collection}引数に渡します。関数@code{completing-read}はその補完関数が@code{try-completion}、@code{all-completions}などの基本的な補完関数に渡されて、その関数がすべてを行えるよう取り計らいます。
 
-  The completion function should accept three arguments:
+  補完関数は3つの引数を受け取ります:
 
 @itemize @bullet
 @item
-The string to be completed.
+補完される文字列。
 
 @item
-A predicate function with which to filter possible matches, or @code{nil} if
-none.  The function should call the predicate for each possible match, and
-ignore the match if the predicate returns @code{nil}.
+利用可能なマッチをフィルターする述語関数。もしなければ@code{nil}。関数は利用可能なマッチにたいしてこの述語(predicate)を呼び出し、述語が@code{nil}をリターンした場合はそのマッチを無視する。
 
 @item
-A flag specifying the type of completion operation to perform.  This is one
-of the following four values:
+実行する補完操作のタイプを指定するフラグ。以下の4つの値のうち1つを指定する:
 
 @table @code
 @item nil
-This specifies a @code{try-completion} operation.  The function should
-return @code{t} if the specified string is a unique and exact match; if
-there is more than one match, it should return the common substring of all
-matches (if the string is an exact match for one completion alternative but
-also matches other longer alternatives, the return value is the string); if
-there are no matches, it should return @code{nil}.
+@code{try-completion}を指定する。関数は指定された文字が一意かつ完全一致の場合は、@code{t}をリターンする。マッチが複数の場合、すべてのマッチに共通する部分文字列をリターンする(文字列が補完候補の1つに完全一致するが、より長い他の候補にもマッチする場合、リターン値はその文字列)。マッチがなければ@code{nil}をリターンする。
 
 @item t
-This specifies an @code{all-completions} operation.  The function should
-return a list of all possible completions of the specified string.
+@code{all-completions}を指定する。関数は指定された文字列の利用可能なすべての補完のリストをリターンする。
 
 @item lambda
-This specifies a @code{test-completion} operation.  The function should
-return @code{t} if the specified string is an exact match for some
-completion alternative; @code{nil} otherwise.
+@code{test-completion}を指定する。関数は指定された文字列がいくつかの補完候補に完全一致する場合は@code{t}、それ以外は@code{nil}をリターンする。
 
 @item (boundaries . @var{suffix})
-This specifies a @code{completion-boundaries} operation.  The function
-should return @code{(boundaries @var{start} . @var{end})}, where @var{start}
-is the position of the beginning boundary in the specified string, and
-@var{end} is the position of the end boundary in @var{suffix}.
+@code{completion-boundaries}を指定する。関数は@code{(boundaries @var{start}
+.
+@var{end})}をリターンする。ここで@var{start}は指定された文字列内の境界の開始位置、@var{end}は@var{suffix}内の境界の終了位置。
 
 @item metadata
-This specifies a request for information about the state of the current
-completion.  The return value should have the form @code{(metadata
-. @var{alist})}, where @var{alist} is an alist whose elements are described
-below.
+カレント補完の状態に関する情報の要求を指定する。リターン値は@code{(metadata
+. @var{alist})}の形式をもち、@var{alist}は以下で説明する要素をもつ連想配列。
 @end table
 
 @noindent
-If the flag has any other value, the completion function should return
-@code{nil}.
+フラグに他の値が指定された場合、補完関数は@code{nil}をリターンする。
 @end itemize
 
-The following is a list of metadata entries that a completion function may
-return in response to a @code{metadata} flag argument:
+以下は@code{metadata}フラグ引数への応答として補完関数がリターンするかもしれない、metadataエントリーのリストです:
 
 @table @code
 @item category
-The value should be a symbol describing what kind of text the completion
-function is trying to complete.  If the symbol matches one of the keys in
-@code{completion-category-overrides}, the usual completion behavior is
-overridden.  @xref{Completion Variables}.
+値は補完関数が補完を試みているテキストの種類を説明するシンボル。シンボルが@code{completion-category-overrides}内のキーの1つにマッチする場合、通常の補完動作はオーバーライドされる。@ref{Completion
+Variables}を参照のこと。
 
 @item annotation-function
-The value should be a function for @dfn{annotating} completions.  The
-function should take one argument, @var{string}, which is a possible
-completion.  It should return a string, which is displayed after the
-completion @var{string} in the @file{*Completions*} buffer.
+値は補完に@dfn{注釈(annotation)}を付ける関数。この関数は1つの引数@var{string}をとり、これは利用可能な補完である。リターン値は文字列で、@file{*Completions*}バッファー内の補完@var{string}の後に表示される。
 
 @item display-sort-function
-The value should be a function for sorting completions.  The function should
-take one argument, a list of completion strings, and return a sorted list of
-completion strings.  It is allowed to alter the input list destructively.
+値は補完をソートする関数。関数は1つの引数をとる。これは補完文字列のリストで、ソートされた補完文字列リストがリターンされる。その入力のリストは破壊的に変更することが許される。
 
 @item cycle-sort-function
-The value should be a function for sorting completions, when
-@code{completion-cycle-threshold} is non-@code{nil} and the user is cycling
-through completion alternatives.  @xref{Completion Options,,, emacs, The GNU
-Emacs Manual}.  Its argument list and return value are the same as for
-@code{display-sort-function}.
+値は@code{completion-cycle-threshold}が非@code{nil}で、ユーザーが補完候補を巡回するときに補完をソートする関数。引数のリストとリターン値は@code{display-sort-function}と同様。
 @end table
 
 @defun completion-table-dynamic function
-This function is a convenient way to write a function that can act as a
-programmed completion function.  The argument @var{function} should be a
-function that takes one argument, a string, and returns an alist of possible
-completions of it.  You can think of @code{completion-table-dynamic} as a
-transducer between that interface and the interface for programmed
-completion functions.
+この関数はプログラム補完関数として動作する関数を記述する便利な方法である。引数@var{function}は1つの引数(文字列)をとる関数であり、その文字列の利用可能な補完のalistをリターンする。@code{completion-table-dynamic}は、@var{function}とプログラム補完関数のインターフェイス変換器と考えることができる。
 @end defun
 
 @defun completion-table-with-cache function &optional ignore-case
-This is a wrapper for @code{completion-table-dynamic} that saves the last
-argument-result pair.  This means that multiple lookups with the same
-argument only need to call @var{function} once.  This can be useful when a
-slow operation is involved, such as calling an external process.
+これは前回の引数/結果ペアーを保存する@code{completion-table-dynamic}にたいするラッパーである。これは同じ引数にたいする複数回の検査に必要なのは、1回の@var{function}呼び出しだけであることを意味する。これは外部プロセス呼び出しなど、処理が低速のとき有用かもしれない。
 @end defun
 
 @node Completion in Buffers
