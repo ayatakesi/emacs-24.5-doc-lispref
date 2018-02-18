@@ -1351,44 +1351,29 @@ Do you really want to remove everything? (yes or no)
 @section Asking Multiple Y-or-N Questions
 @cindex multiple yes-or-no questions
 
-  When you have a series of similar questions to ask, such as ``Do you want to
-save this buffer'' for each buffer in turn, you should use
-@code{map-y-or-n-p} to ask the collection of questions, rather than asking
-each question individually.  This gives the user certain convenient
-facilities such as the ability to answer the whole series at once.
+  同じような連続する質問と答えがある場合、たとえば各バッファーにたいして順に``Do you want to save this
+buffer''と確認を求めるような場合は、個別に質問するより@code{map-y-or-n-p}を使用して質問のコレクションを尋ねるべきです。これはユーザーにたいして、質問全体にたいして1回で答えられるような便利な機能を提供します。
 
 @defun map-y-or-n-p prompter actor list &optional help action-alist no-cursor-in-echo-area
-This function asks the user a series of questions, reading a
-single-character answer in the echo area for each one.
+この関数はユーザーに一連の質問をし、それぞれの質問にたいしてエコーエリア内の1文字の答えを読み取る。
 
-The value of @var{list} specifies the objects to ask questions about.  It
-should be either a list of objects or a generator function.  If it is a
-function, it should expect no arguments, and should return either the next
-object to ask about, or @code{nil}, meaning to stop asking questions.
+値@var{list}は質問をするオブジェクトを指定する。これはリスト、オブジェクト、または生成関数(generator
+function)のいずれかである。関数の場合は引数なしで、次に質問するオブジェクト、または質問の中止を意味する@code{nil}のいずれかをリターンする。
 
-The argument @var{prompter} specifies how to ask each question.  If
-@var{prompter} is a string, the question text is computed like this:
+引数@var{prompter}は各質問について問い合わせ方法を指定する。@var{prompter}が文字列の場合、質問テキストは以下のようになる:
 
 @example
 (format @var{prompter} @var{object})
 @end example
 
 @noindent
-where @var{object} is the next object to ask about (as obtained from
-@var{list}).
+ここで@var{object}は、(@var{list}から得られる)質問する次のオブジェクトである。
 
-If not a string, @var{prompter} should be a function of one argument (the
-next object to ask about) and should return the question text.  If the value
-is a string, that is the question to ask the user.  The function can also
-return @code{t}, meaning do act on this object (and don't ask the user), or
-@code{nil}, meaning ignore this object (and don't ask the user).
+文字列でない場合、@var{prompter}は1つの引数(質問する次のオブジェクト)をとる関数で、質問テキストをリターンする。値が文字列の場合は、ユーザー問うための質問。関数は@code{t}(ユーザーに尋ねずこのオブジェクトを処理する)、または@code{nil}(ユーザーに尋ねずこのオブジェクトを無視する)をリターンすることもできる。
 
-The argument @var{actor} says how to act on the answers that the user
-gives.  It should be a function of one argument, and it is called with each
-object that the user says yes for.  Its argument is always an object
-obtained from @var{list}.
+引数@var{actor}は、ユーザーが与えた答えにたいし、どのように処理するかを指定する。これは引数が1つの関数で、ユーザーがyesと答えたオブジェクトを引数に呼び出される。引数は常に@var{list}から取得したオブジェクトである。
 
-If the argument @var{help} is given, it should be a list of this form:
+引数@var{help}が与えられた場合は、以下の形式のリストである:
 
 @example
 (@var{singular} @var{plural} @var{action})
