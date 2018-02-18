@@ -1224,77 +1224,49 @@ Variables}を参照のこと。
 @cindex inline completion
 
 @findex completion-at-point
-  Although completion is usually done in the minibuffer, the completion
-facility can also be used on the text in ordinary Emacs buffers.  In many
-major modes, in-buffer completion is performed by the @kbd{C-M-i} or
-@kbd{M-@key{TAB}} command, bound to @code{completion-at-point}.
-@xref{Symbol Completion,,, emacs, The GNU Emacs Manual}.  This command uses
-the abnormal hook variable @code{completion-at-point-functions}:
+  補完は通常はミニバッファー内で行われますが、補完機能は通常のEmacsバッファー内のテキストにも使用できます。多くのメジャーモードで、コマンド@kbd{C-M-i}または@kbd{M-@key{TAB}}によりバッファー内補完が行われ、それらは@code{completion-at-point}にバインドされています。@ref{Symbol
+Completion,,, emacs, The GNU Emacs
+Manual}を参照してください。このコマンドはアブノーマルフック変数@code{completion-at-point-functions}を使用します:
 
 @defvar completion-at-point-functions
-The value of this abnormal hook should be a list of functions, which are
-used to compute a completion table for completing the text at point.  It can
-be used by major modes to provide mode-specific completion tables
-(@pxref{Major Mode Conventions}).
+このアブノーマルフックの値は関数のリストである。これらの関数はポイント位置のテキストの補完にたいする補完テーブルの計算に使用される。これはメジャーモードにより、モード特有な補完テーブル(@ref{Major
+Mode Conventions}を参照)の提供に使用できる。
 
-When the command @code{completion-at-point} runs, it calls the functions in
-the list one by one, without any argument.  Each function should return
-@code{nil} if it is unable to produce a completion table for the text at
-point.  Otherwise it should return a list of the form
+コマンド@code{completion-at-point}が実行されると、引数なしでリスト内の関数が1つずつ呼び出される。それぞれの関数は、ポイント位置のテキストにたいして補完テーブルを生成できない場合は@code{nil}をリターンする。生成できた場合は、以下の形式のリストをリターンする
 
 @example
 (@var{start} @var{end} @var{collection} . @var{props})
 @end example
 
 @noindent
-@var{start} and @var{end} delimit the text to complete (which should enclose
-point).  @var{collection} is a completion table for completing that text, in
-a form suitable for passing as the second argument to @code{try-completion}
-(@pxref{Basic Completion}); completion alternatives will be generated from
-this completion table in the usual way, via the completion styles defined in
-@code{completion-styles} (@pxref{Completion Variables}).  @var{props} is a
-property list for additional information; any of the properties in
-@code{completion-extra-properties} are recognized (@pxref{Completion
-Variables}), as well as the following additional ones:
+ここで@var{start}と@var{end}は補完する(ポイントを取り囲む)テキストの区切りである。@var{collection}はそのテキストを補完する補完テーブルであり、@code{try-completion}(@ref{Basic
+Completion}を参照)の2つ目の引数として渡すのに適した形式である。補完候補は@code{completion-styles}(@ref{Completion
+Variables}を参照)で定義された補完スタイルを通じ、この補完テーブルを通常の方法で使用して生成されるだろう。@var{props}は追加の情報のためのプロパティリストである。@code{completion-extra-properties}内のすべてのプロパティ(@ref{Completion
+Variables}を参照)と、以下の追加のプロパティが認識される:
 
 @table @code
 @item :predicate
-The value should be a predicate that completion candidates need to satisfy.
+値は補完候補が満足する必要がある述語。
 
 @item :exclusive
-If the value is @code{no}, then if the completion table fails to match the
-text at point, @code{completion-at-point} moves on to the next function in
-@code{completion-at-point-functions} instead of reporting a completion
-failure.
+値が@code{no}の場合は、もし補完テーブルがポイント位置のテキストのマッチに失敗したなら、補完の失敗を報告するかわりに@code{completion-at-point}は@code{completion-at-point-functions}内の次の関数へ移動する。
 @end table
 
-A function in @code{completion-at-point-functions} may also return a
-function.  In that case, that returned function is called, with no argument,
-and it is entirely responsible for performing the completion.  We discourage
-this usage; it is intended to help convert old code to using
-@code{completion-at-point}.
+@code{completion-at-point-functions}内の関数も関数をリターンするかもしれない。その場合は引数なしでリターンされた関数が呼び出され、その関数が補完処理の全責任を負う。この方法は推奨されない。これは@code{completion-at-point}を使用する古いコードの救済を意図したもののだからである。
 
-The first function in @code{completion-at-point-functions} to return a
-non-@code{nil} value is used by @code{completion-at-point}.  The remaining
-functions are not called.  The exception to this is when there is an
-@code{:exclusive} specification, as described above.
+非@code{nil}値を最初にリターンした@code{completion-at-point-functions}内の関数が、@code{completion-at-point}により使用される。残りの関数は呼び出されない。これの例外は上述の@code{:exclusive}指定があるときである。
 @end defvar
 
-  The following function provides a convenient way to perform completion on an
-arbitrary stretch of text in an Emacs buffer:
+  以下の関数は、Emacsバッファー内の任意に拡張されたテキストにたいして便利な補完方法を提供します:
 
 @defun completion-in-region start end collection &optional predicate
-This function completes the text in the current buffer between the positions
-@var{start} and @var{end}, using @var{collection}.  The argument
-@var{collection} has the same meaning as in @code{try-completion}
-(@pxref{Basic Completion}).
+この関数は@var{collection}を使用して、カレントバッファー内の位置@var{start}と@var{end}の間のテキストを補完する。引数@var{collection}は@code{try-completion}(@ref{Basic
+Completion}を参照)のときと同じ意味をもつ。
 
-This function inserts the completion text directly into the current buffer.
-Unlike @code{completing-read} (@pxref{Minibuffer Completion}), it does not
-activate the minibuffer.
+この関数は補完テキストを直接カレントバッファーに挿入する。@code{completing-read}(@ref{Minibuffer
+Completion}を参照)とは異なり、ミニバッファーをアクティブにしない。
 
-For this function to work, point must be somewhere between @var{start} and
-@var{end}.
+この関数が機能するためには、ポイントが@var{start}と@var{end}の間になければならない。
 @end defun
 
 
