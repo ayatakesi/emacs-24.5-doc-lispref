@@ -1546,59 +1546,43 @@ Interactive}を参照)。ミニバッファーコマンド@code{next-matching-hi
 @section Minibuffer Miscellany
 
 @defun minibufferp &optional buffer-or-name
-This function returns non-@code{nil} if @var{buffer-or-name} is a
-minibuffer.  If @var{buffer-or-name} is omitted, it tests the current
-buffer.
+この関数は@var{buffer-or-name}がミニバッファーの場合は非@code{nil}をリターンする。@var{buffer-or-name}が省略された場合はカレントバッファーをテストする。
 @end defun
 
 @defvar minibuffer-setup-hook
-This is a normal hook that is run whenever the minibuffer is entered.
-@xref{Hooks}.
+これはミニバッファーがエンターされたときは常に実行されるノーマルフックである。@ref{Hooks}を参照のこと。
 @end defvar
 
 @defvar minibuffer-exit-hook
-This is a normal hook that is run whenever the minibuffer is exited.
-@xref{Hooks}.
+これはミニバッファーがexitされたときは常に実行されるノーマルフックである。
 @end defvar
 
 @defvar minibuffer-help-form
 @anchor{Definition of minibuffer-help-form}
-The current value of this variable is used to rebind @code{help-form}
-locally inside the minibuffer (@pxref{Help Functions}).
+この変数のカレント値はミニバッファー内で@code{help-form}をローカルにリバインドするために使用される(@ref{Help
+Functions}を参照)。
 @end defvar
 
 @defvar minibuffer-scroll-window
 @anchor{Definition of minibuffer-scroll-window}
-If the value of this variable is non-@code{nil}, it should be a window
-object.  When the function @code{scroll-other-window} is called in the
-minibuffer, it scrolls this window.
+この変数の値が非@code{nil}の場合、それはウィンドウオブジェクトである。ミニバッファー内で関数@code{scroll-other-window}が呼び出されたときは、このウィンドウをスクロールする。
 @end defvar
 
 @defun minibuffer-selected-window
-This function returns the window that was selected when the minibuffer was
-entered.  If selected window is not a minibuffer window, it returns
-@code{nil}.
+この関数はミニバッファーがエンターされたときに選択されていたウィンドウをリターンする。選択されたウィンドウがミニバッファー以外のときは、@code{nil}をリターンする。
 @end defun
 
 @defopt max-mini-window-height
-This variable specifies the maximum height for resizing minibuffer windows.
-If a float, it specifies a fraction of the height of the frame.  If an
-integer, it specifies a number of lines.
+この変数はミニバッファーウィンドウのリサイズにたいする最大高さを指定する。浮動小数点数の場合は、フレーム高さにたいする割り合いを指定する。整数の場合は行数を指定する。
 @end defopt
 
 @vindex minibuffer-message-timeout
 @defun minibuffer-message string &rest args
-This function displays @var{string} temporarily at the end of the minibuffer
-text, for a few seconds, or until the next input event arrives, whichever
-comes first.  The variable @code{minibuffer-message-timeout} specifies the
-number of seconds to wait in the absence of input.  It defaults to 2.  If
-@var{args} is non-@code{nil}, the actual message is obtained by passing
-@var{string} and @var{args} through @code{format}.  @xref{Formatting
-Strings}.
+この関数は数秒、あるいは次の入力イベントが到着するまで、ミニバッファーテキストの最後に一時的に@var{string}を表示する。変数@code{minibuffer-message-timeout}は入力がない場合に待機する秒数を指定する(デフォルトは2)。@var{args}が非@code{nil}の場合、実際のメッセージは@code{format}に@var{string}と@var{args}を渡して作成される。@xref{Formatting
+Strings}を参照のこと。
 @end defun
 
 @deffn Command minibuffer-inactive-mode
-This is the major mode used in inactive minibuffers.  It uses keymap
-@code{minibuffer-inactive-mode-map}.  This can be useful if the minibuffer
-is in a separate frame.  @xref{Minibuffers and Frames}.
+これはインタラクティブなミニバッファー内で使用されるメジャーモードである。キーマップ@code{minibuffer-inactive-mode-map}を使用する。ミニバッファーが別のフレームにある場合は有用かもしれない。@ref{Minibuffers
+and Frames}を参照のこと。
 @end deffn
