@@ -1461,44 +1461,32 @@ Info})を参照のこと。
 @section Minibuffer Windows
 @cindex minibuffer windows
 
-  These functions access and select minibuffer windows and test whether they
-are active.
+  以下の関数はミニバッファーウィンドウをアクセスにして選択して、それがアクティブかどうかテストします。
 
 @defun active-minibuffer-window
-This function returns the currently active minibuffer window, or @code{nil}
-if there is none.
+この関数はカレントでアクティブなミニバッファーウィンドウ、アクティブなウィンドウがない場合は@code{nil}をリターンする。
 @end defun
 
 @defun minibuffer-window &optional frame
 @anchor{Definition of minibuffer-window}
-This function returns the minibuffer window used for frame @var{frame}.  If
-@var{frame} is @code{nil}, that stands for the current frame.  Note that the
-minibuffer window used by a frame need not be part of that frame---a frame
-that has no minibuffer of its own necessarily uses some other frame's
-minibuffer window.
+この関数はフレーム@var{frame}にたいして使用されるミニバッファーウィンドウをリターンする。@var{frame}が@code{nil}の場合はカレントフレームを意味する。フレームに使用されるミニバッファーウィンドウは、そのフレームの一部である必要はないことに注意。自身のミニバッファーをもたないフレームは、必然的に他のフレームのミニバッファーウィンドウを使用する。
 @end defun
 
 @defun set-minibuffer-window window
-This function specifies @var{window} as the minibuffer window to use.  This
-affects where the minibuffer is displayed if you put text in it without
-invoking the usual minibuffer commands.  It has no effect on the usual
-minibuffer input functions because they all start by choosing the minibuffer
-window according to the current frame.
+この関数はミニバッファーウィンドウとして@var{window}を使用するよう指定する。
+This function specifies as the minibuffer window to use.
+これは通常のミニバッファーコマンドを呼び出さずにミニバッファーにテキストを入力する場合、そのミニバッファーがどこに表示されるかに影響を及ぼす。通常のミニバッファー入力関数はすべてカレントフレームに対応するミニバッファーを選択して開始されるので、影響はない。
 @end defun
 
 @c Emacs 19 feature
 @defun window-minibuffer-p &optional window
-This function returns non-@code{nil} if @var{window} is a minibuffer
-window.  @var{window} defaults to the selected window.
+この関数は@var{window}がミニバッファーウィンドウなら@code{nil}をリターンする。@var{window}のデフォルトは選択されたウィンドウである。
 @end defun
 
-It is not correct to determine whether a given window is a minibuffer by
-comparing it with the result of @code{(minibuffer-window)}, because there
-can be more than one minibuffer window if there is more than one frame.
+@code{(minibuffer-window)}の結果を比較して、与えられたウィンドウがミニバッファーかどうか判断するのは正しくない。なぜなら複数のフレームがある場合、ミニバッファーウィンドウも複数あり得るからである。
 
 @defun minibuffer-window-active-p window
-This function returns non-@code{nil} if @var{window} is the currently active
-minibuffer window.
+この関数は@var{window}がカレントでアクティブなミニバッファーウィンドウの場合は、非@code{nil}をリターンする。
 @end defun
 
 @node Minibuffer Contents
