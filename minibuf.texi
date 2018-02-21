@@ -1525,34 +1525,22 @@ Properties}を参照のこと。
 @section Recursive Minibuffers
 @cindex recursive minibuffers
 
-  These functions and variables deal with recursive minibuffers
-(@pxref{Recursive Editing}):
+  以下の関数および変数は再帰ミニバッファーを処理します(@ref{Recursive Editing}を参照):
 
 @defun minibuffer-depth
-This function returns the current depth of activations of the minibuffer, a
-nonnegative integer.  If no minibuffers are active, it returns zero.
+この関数はアクティブなミニバッファーのカレント深さを正の整数でリターンする。アクティブなミニバッファーが存在しない場合は0をリターンする。
 @end defun
 
 @defopt enable-recursive-minibuffers
-If this variable is non-@code{nil}, you can invoke commands (such as
-@code{find-file}) that use minibuffers even while the minibuffer window is
-active.  Such invocation produces a recursive editing level for a new
-minibuffer.  The outer-level minibuffer is invisible while you are editing
-the inner one.
+この変数が非@code{nil}の場合は、ミニバッファーウィンドウがアクティブでも、(@code{find-file}のような)ミニバッファーを使用するコマンドを呼び出すことができる。このような呼び出しは、新たなミニバッファーにたいして再帰編集レベル(recursive
+editing level)を生成する。内側レベルの編集の間、外側レベルのミニバッファーは非表示になる。
 
-If this variable is @code{nil}, you cannot invoke minibuffer commands when
-the minibuffer window is active, not even if you switch to another window to
-do it.
+この変数が@code{nil}の場合、ミニバッファーウィンドウがアクティブなときは、たとえ他のウィンドウに切り替えても、ミニバッファーコマンドの呼び出しはできない。
 @end defopt
 
 @c Emacs 19 feature
-If a command name has a property @code{enable-recursive-minibuffers} that is
-non-@code{nil}, then the command can use the minibuffer to read arguments
-even if it is invoked from the minibuffer.  A command can also achieve this
-by binding @code{enable-recursive-minibuffers} to @code{t} in the
-interactive declaration (@pxref{Using Interactive}).  The minibuffer command
-@code{next-matching-history-element} (normally @kbd{M-s} in the minibuffer)
-does the latter.
+コマンド名が非@code{nil}のプロパティ@code{enable-recursive-minibuffers}をもつ場合は、たとえミニバッファーから呼び出された場合でも、そのコマンドは引数の読み取りにミニバッファーを使用できる。コマンドのinteractive宣言内で@code{enable-recursive-minibuffers}を@code{t}にしても、これを行うことができる(@ref{Using
+Interactive}を参照)。ミニバッファーコマンド@code{next-matching-history-element}(ミニバッファー内では通常@kbd{M-s})は後者を行う。
 
 @node Minibuffer Misc
 @section Minibuffer Miscellany
