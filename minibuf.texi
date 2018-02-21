@@ -1387,31 +1387,19 @@ function)のいずれかである。関数の場合は引数なしで、次に�
 質問のたびに、ユーザーはそのオブジェクトを処理するには@kbd{y}、@kbd{Y}または@key{SPC}を、そのオブジェクトをスキップするには@kbd{n}、@kbd{N}、または@key{DEL}を、以降のすべてのオブジェクトを処理するには@kbd{!}を、exit(以降のすべてのオブジェクトをスキップ)するには@key{ESC}か@kbd{q}を、カレントオブジェクトを処理した後にexitするには@kbd{.}(ピリオド)を、ヘルプを入手するには@kbd{C-h}をエンターする。これらは@code{query-replace}が受け入れるのと同じ答えである。キーマップ@code{query-replace-map}は@code{map-y-or-n-p}にたいするそれらの意味を定義し、@code{query-replace}にたいしても同様に定義する。@ref{Search
 and Replace}を参照のこと。
 
-You can use @var{action-alist} to specify additional possible answers and
-what they mean.  It is an alist of elements of the form @code{(@var{char}
-@var{function} @var{help})}, each of which defines one additional answer.
-In this element, @var{char} is a character (the answer); @var{function} is a
-function of one argument (an object from @var{list}); @var{help} is a
-string.
+@var{action-alist}を使用して、利用できる追加の答えとそれらが何を意味するかを指定できる。これは要素が@code{(@var{char}
+@var{function}
+@var{help})}という形式のalistで、それぞれの要素が追加の答えを1つ定義する。要素の内容は@var{char}が文字(答え)、@var{function}が引数が1つ(@var{list}から取得するオブジェクト)の関数、@var{help}が文字列である。
 
-When the user responds with @var{char}, @code{map-y-or-n-p} calls
-@var{function}.  If it returns non-@code{nil}, the object is considered
-``acted upon'', and @code{map-y-or-n-p} advances to the next object in
-@var{list}.  If it returns @code{nil}, the prompt is repeated for the same
-object.
+ユーザーの応答が@var{char}の場合、@code{map-y-or-n-p}は@var{function}を呼び出す。これが非@code{nil}をリターンした場合には、そのオブジェクトが``処理された''と判断して、@code{map-y-or-n-p}は@var{list}内の次のオブジェクトに進む。@code{nil}をリターンした場合は、同じオブジェクトにたいして質問を繰り返す。
 
-Normally, @code{map-y-or-n-p} binds @code{cursor-in-echo-area} while
-prompting.  But if @var{no-cursor-in-echo-area} is non-@code{nil}, it does
-not do that.
+確認を求める間は通常、@code{map-y-or-n-p}は@code{cursor-in-echo-area}をバインドする。しかし@var{no-cursor-in-echo-area}が非@code{nil}の場合はバインドしない。
 
-If @code{map-y-or-n-p} is called in a command that was invoked using the
-mouse---more precisely, if @code{last-nonmenu-event} (@pxref{Command Loop
-Info}) is either @code{nil} or a list---then it uses a dialog box or pop-up
-menu to ask the question.  In this case, it does not use keyboard input or
-the echo area.  You can force use either of the mouse or of keyboard input
-by binding @code{last-nonmenu-event} to a suitable value around the call.
+マウスを使用して呼び出されたコマンドから@code{map-y-or-n-p}が呼び出された場合(より正確には@code{last-nonmenu-event}は非@code{nil}かリストの場合。@ref{Command
+Loop
+Info}を参照)は、確認を求めるためにダイアログボックスかポップアップメニューが使用される。この場合、キーボード入力やエコーエリアは使用されない。呼び出しの前後で@code{last-nonmenu-event}を適切な値にバインドして、入力マウスあるいはキーボードの入力を強制できる。
 
-The return value of @code{map-y-or-n-p} is the number of objects acted on.
+@code{map-y-or-n-p}のリターン値は、処理したオブジェクトの数である。
 @end defun
 @c FIXME  An example of this would be more useful than all the
 @c preceding examples of simple things.
