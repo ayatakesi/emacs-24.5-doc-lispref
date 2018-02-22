@@ -38,63 +38,43 @@ loop)}にエンターします。このループはキーシーケンスを読�
 @node Command Overview
 @section Command Loop Overview
 
-  The first thing the command loop must do is read a key sequence, which is a
-sequence of input events that translates into a command.  It does this by
-calling the function @code{read-key-sequence}.  Lisp programs can also call
-this function (@pxref{Key Sequence Input}).  They can also read input at a
-lower level with @code{read-key} or @code{read-event} (@pxref{Reading One
-Event}), or discard pending input with @code{discard-input} (@pxref{Event
-Input Misc}).
+  コマンドループが最初に行わなければならないのはキーシーケンスの読み取りです。キーシーケンスほコマンドに変換される入力イベントのシーケンスです。これは関数@code{read-key-sequence}を呼び出すことにより行われます。Lispプログラムもこの関数を呼び出すことができます(@ref{Key
+Sequence
+Input}を参照)。これらはより低レベルの@code{read-key}や@code{read-event}(@ref{Reading One
+Event})で入力を読み取ったり、@code{discard-input}(@ref{Event Input
+Misc}を参照)で保留中の入力を無視することもできます。
 
-  The key sequence is translated into a command through the currently active
-keymaps.  @xref{Key Lookup}, for information on how this is done.  The
-result should be a keyboard macro or an interactively callable function.  If
-the key is @kbd{M-x}, then it reads the name of another command, which it
-then calls.  This is done by the command @code{execute-extended-command}
-(@pxref{Interactive Call}).
+  キーシーケンスはカレントでアクティブなキーマップを通じてコマンドに変換されます。これが行われる方法については、@xref{Key
+Lookup}を参照してください。結果はキーボードマクロかインタラクティブに呼び出し可能な関数になります。キーが@kbd{M-x}の場合は、他のコマンドの名前を読み取り、それを呼び出します。これはコマンド@code{execute-extended-command}(@ref{Interactive
+Call}を参照)により行われます。
 
-  Prior to executing the command, Emacs runs @code{undo-boundary} to create an
-undo boundary.  @xref{Maintaining Undo}.
+  コマンドの実行に先立ち、Emacsはアンドゥ境界(undo
+boundary)を作成するために@code{undo-boundary}を実行します。@ref{Maintaining Undo}を参照してください。
 
-  To execute a command, Emacs first reads its arguments by calling
-@code{command-execute} (@pxref{Interactive Call}).  For commands written in
-Lisp, the @code{interactive} specification says how to read the arguments.
-This may use the prefix argument (@pxref{Prefix Command Arguments}) or may
-read with prompting in the minibuffer (@pxref{Minibuffers}).  For example,
-the command @code{find-file} has an @code{interactive} specification which
-says to read a file name using the minibuffer.  The function body of
-@code{find-file} does not use the minibuffer, so if you call
-@code{find-file} as a function from Lisp code, you must supply the file name
-string as an ordinary Lisp function argument.
+  コマンドを実行するために、Emacsはまず@code{command-execute}を呼び出してコマンドの引数を読み取ります(@ref{Interactive
+Call}を参照)。Lispで記述されたコマンドについては、@code{interactive}指定で引数を読み取る方法を指定します。これはプレフィクス引数(@ref{Prefix
+Command
+Arguments}を参照)を使用したり、ミニバッファー内(@ref{Minibuffers}を参照)で確認を求めて読み取りを行うかもしれません。たとえば、コマンド@code{find-file}には@code{interactive}指定があり、これはミニバッファーを使用してファイル名を読み取ることを指定します。@code{find-file}の関数bodyはミニバッファーを使用しないので、Lispコードから関数として@code{find-file}を呼び出す場合は通常のLisp関数引数としてファイル名を文字列で与えなければなりません。
 
-  If the command is a keyboard macro (i.e., a string or vector), Emacs
-executes it using @code{execute-kbd-macro} (@pxref{Keyboard Macros}).
+  コマンドがキーボードマクロ(文字列やベクター)の場合、Emacsは@code{execute-kbd-macro}を使用してそれを実行します(@ref{Keyboard
+Macros}を参照)。
 
 @defvar pre-command-hook
-This normal hook is run by the editor command loop before it executes each
-command.  At that time, @code{this-command} contains the command that is
-about to run, and @code{last-command} describes the previous command.
-@xref{Command Loop Info}.
+このノーマルフックはコマンドを実行する前に、エディターコマンドループにより実行される。その際、@code{this-command}
+には実行しようとするコマンドが含まれ、@code{last-command}には前のコマンドが記述される。@ref{Command Loop
+Info}を参照のこと。
 @end defvar
 
 @defvar post-command-hook
-This normal hook is run by the editor command loop after it executes each
-command (including commands terminated prematurely by quitting or by
-errors).  At that time, @code{this-command} refers to the command that just
-ran, and @code{last-command} refers to the command before that.
+このノーマルフックはコマンドを実行した後(quitやエラーにより早期に終了させられたコマンドを含む)に、エディターコマンドループにより実行される。その際、@code{this-command}は正に実行されたコマンドを参照し、@code{last-command}は前に実行されたコマンドを参照する。
 
-This hook is also run when Emacs first enters the command loop (at which
-point @code{this-command} and @code{last-command} are both @code{nil}).
+このフックはEmacsが最初にコマンドループにエンターしたときにも実行される(その時点では@code{this-command}と@code{last-command}はどちらも@code{nil})。
 @end defvar
 
-  Quitting is suppressed while running @code{pre-command-hook} and
-@code{post-command-hook}.  If an error happens while executing one of these
-hooks, it does not terminate execution of the hook; instead the error is
-silenced and the function in which the error occurred is removed from the
-hook.
+  @code{pre-command-hook}および@code{post-command-hook}の実行中、quitは抑制されます。これらのフックのどれか1つを実行中にエラーが発生した場合、そのエラーはフックの実行を終了させません。そのかわりにエラーは黙殺され、エラーが発生した関数はそのフックから取り除かれます。
 
-  A request coming into the Emacs server (@pxref{Emacs Server,,, emacs, The
-GNU Emacs Manual}) runs these two hooks just as a keyboard command does.
+  Emacsサーバー(@ref{Emacs Server,,, emacs, The GNU Emacs
+Manual}を参照)に届くリクエストは、キーボードコマンドが行うのと同じように、これらの2つのフックを実行します。
 
 @node Defining Commands
 @section Defining Commands
