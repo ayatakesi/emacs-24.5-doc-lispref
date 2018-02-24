@@ -83,38 +83,22 @@ Manual}を参照)に届くリクエストは、キーボードコマンドが行
 @cindex functions, making them interactive
 @cindex interactive function
 
-  The special form @code{interactive} turns a Lisp function into a command.
-The @code{interactive} form must be located at top-level in the function
-body, usually as the first form in the body; this applies to both lambda
-expressions (@pxref{Lambda Expressions}) and @code{defun} forms
-(@pxref{Defining Functions}).  This form does nothing during the actual
-execution of the function; its presence serves as a flag, telling the Emacs
-command loop that the function can be called interactively.  The argument of
-the @code{interactive} form specifies how the arguments for an interactive
-call should be read.
+  スペシャルフォーム@code{interactive}はLisp関数をコマンドに変えます。@code{interactive}フォームは関数ボディーのトップレベルに置かなければならず、通常はボディー内の最初のフォームとして記述されます。これはラムダ式(@ref{Lambda
+Expressions}を参照)と@code{defun}(@ref{Defining
+Functions}を参照)の両方を受け入れます。このフォームは、その関数が実際に実行される間は何も行いません。このフォームの存在はフラグとしての役割りをもち、Emacsコマンドループにたいしてその関数がインタラクティブに呼び出せることを告げます。@code{interactive}フォームの引数は、インタラクティブな呼び出しが引数を読み取る方法を指定します。
 
 @cindex @code{interactive-form} property
-  Alternatively, an @code{interactive} form may be specified in a function
-symbol's @code{interactive-form} property.  A non-@code{nil} value for this
-property takes precedence over any @code{interactive} form in the function
-body itself.  This feature is seldom used.
+  @code{interactive}フォームのかわりに、関数シンボルの@code{interactive-form}プロパティで指定されることもあります。このプロパティが非@code{nil}値の場合、関数ボディー内の@code{interactive}フォームより優先されます。この機能はほとんど使用されません。
 
 @cindex @code{interactive-only} property
-  Sometimes, a function is only intended to be called interactively, never
-directly from Lisp.  In that case, give the function a non-@code{nil}
-@code{interactive-only} property.  This causes the byte compiler to warn if
-the command is called from Lisp.  The value of the property can be: a
-string, which the byte-compiler will use directly in its warning (it should
-end with a period, and not start with a capital, e.g. ``use @dots{}
-instead.''); @code{t}; any other symbol, which should be an alternative
-function to use in Lisp code.
+  インタラクティブに呼び出されることだけを意図していて、決してLispから直接呼び出されない関数が時折あります。この場合は、その関数の@code{interactive-only}プロパティに非@code{nil}を与えます。これにより、そのコマンドがLispから呼び出された場合に、バイトコンパイラーが警告を発します。このプロパティの値には、文字列、@code{t}、または任意のシンボルを指定できます。文字列の場合、それはバイトコンパイラーによる警告内で直接使用されます(最初は大文字でなくピリオドで終端される文字列。たとえば``use
+@dots{} instead.'')。シンボルの場合、それはLispコード内で使用されるかわりの関数です。
 
 @menu
-* Using Interactive::        General rules for @code{interactive}.
-* Interactive Codes::        The standard letter-codes for reading arguments 
-                               in various ways.
-* Interactive Examples::     Examples of how to read interactive arguments.
-* Generic Commands::         Select among command alternatives.
+* Using Interactive::        @code{interactive}にたいする一般的なルール。
+* Interactive Codes::        さまざまな方法で引数を読み取る標準的なアルファベットコード。
+* Interactive Examples::     インタラクティブ引数を読み取る方法の例。
+* Generic Commands::         コマンド候補からの選択。
 @end menu
 
 @node Using Interactive
