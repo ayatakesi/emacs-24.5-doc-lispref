@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-02-22 02:45+0900\n"
-"PO-Revision-Date: 2018-02-25 22:19+0900\n"
+"PO-Revision-Date: 2018-02-25 23:03+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1403,24 +1403,24 @@ msgstr "コマンドにプレフィクス引数がある場合はコーディン
 #: commands.texi.orig:533
 #, no-wrap
 msgid "Examples of Using @code{interactive}"
-msgstr ""
+msgstr "Examples of Using @code{interactive}"
 
 #. type: cindex
 #: commands.texi.orig:534
 #, no-wrap
 msgid "examples of using @code{interactive}"
-msgstr ""
+msgstr "examples of using @code{interactive}"
 
 #. type: cindex
 #: commands.texi.orig:535
 #, no-wrap
 msgid "@code{interactive}, examples of using"
-msgstr ""
+msgstr "@code{interactive}, examples of using"
 
 #. type: Plain text
 #: commands.texi.orig:538
 msgid "Here are some examples of @code{interactive}:"
-msgstr ""
+msgstr "以下に@code{interactive}の例をいくつか挙げます:"
 
 #. type: group
 #: commands.texi.orig:545
@@ -1431,6 +1431,10 @@ msgid ""
 "    (forward-word 2))\n"
 "     @result{} foo1\n"
 msgstr ""
+"(defun foo1 ()              ; @r{@code{foo1}は1つの引数をとり}\n"
+"    (interactive)           ;   @r{単に2単語分前に移動する。}\n"
+"    (forward-word 2))\n"
+"     @result{} foo1\n"
 
 #. type: group
 #: commands.texi.orig:554
@@ -1443,6 +1447,12 @@ msgid ""
 "    (forward-word (* 2 n)))\n"
 "     @result{} foo2\n"
 msgstr ""
+"(defun foo2 (n)             ; @r{@code{foo2}は引数を1つとる}\n"
+"    (interactive \"^p\")      ;   @r{引数は数引数}\n"
+"                            ; @r{@code{shift-select-mode}では、}\n"
+"                            ;   @r{リージョンをアクティブにするか、拡張する}\n"
+"    (forward-word (* 2 n)))\n"
+"     @result{} foo2\n"
 
 #. type: group
 #: commands.texi.orig:561
@@ -1453,6 +1463,10 @@ msgid ""
 "    (forward-word (* 2 n)))\n"
 "     @result{} foo3\n"
 msgstr ""
+"(defun foo3 (n)             ; @r{@code{foo3}は引数を1つとる}\n"
+"    (interactive \"nCount:\") ;   @r{引数はミニバッファーで読み取られる}\n"
+"    (forward-word (* 2 n)))\n"
+"     @result{} foo3\n"
 
 #. type: group
 #: commands.texi.orig:567
@@ -1462,6 +1476,9 @@ msgid ""
 "  \"Select three existing buffers.\n"
 "Put them into three windows, selecting the last one.\"\n"
 msgstr ""
+"(defun three-b (b1 b2 b3)\n"
+"  \"Select three existing buffers.\n"
+"Put them into three windows, selecting the last one.\"\n"
 
 #. type: example
 #: commands.texi.orig:578
@@ -1478,6 +1495,16 @@ msgid ""
 "    (switch-to-buffer b3))\n"
 "     @result{} three-b\n"
 msgstr ""
+"    (interactive \"bBuffer1:\\nbBuffer2:\\nbBuffer3:\")\n"
+"    (delete-other-windows)\n"
+"    (split-window (selected-window) 8)\n"
+"    (switch-to-buffer b1)\n"
+"    (other-window 1)\n"
+"    (split-window (selected-window) 8)\n"
+"    (switch-to-buffer b2)\n"
+"    (other-window 1)\n"
+"    (switch-to-buffer b3))\n"
+"     @result{} three-b\n"
 
 #. type: group
 #: commands.texi.orig:581
@@ -1486,6 +1513,8 @@ msgid ""
 "(three-b \"*scratch*\" \"declarations.texi\" \"*mail*\")\n"
 "     @result{} nil\n"
 msgstr ""
+"(three-b \"*scratch*\" \"declarations.texi\" \"*mail*\")\n"
+"     @result{} nil\n"
 
 #. type: subsection
 #: commands.texi.orig:585
