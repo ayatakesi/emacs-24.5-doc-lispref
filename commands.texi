@@ -421,25 +421,18 @@ Put them into three windows, selecting the last one."
 @cindex generic commands
 @cindex alternatives, defining
 
-The macro @code{define-alternatives} can be used to define @dfn{generic
-commands}.  These are interactive functions whose implementation can be
-selected from several alternatives, as a matter of user preference.
+マクロ@code{define-alternatives}は@dfn{ジェネリックコマンド(generic
+command)}を定義するために使用できます。これらはユーザーの選択により複数の候補から選択可能なinteractive関数の実装です。
 
 @defmac define-alternatives command &rest customizations
-Define the new command @var{command}, a symbol.
+新たなコマンド@var{command}(シンボル)を定義する。
 
-When a user runs @kbd{M-x @var{command} @key{RET}} for the first time, Emacs
-prompts for which real form of the command to use, and records the selection
-by way of a custom variable.  Using a prefix argument repeats this process
-of choosing an alternative.
+最初にユーザーが@kbd{M-x @var{command}
+@key{RET}}を実行したとき、Emacsはコマンドが使用する実際のフォームにたいして確認を求め、その選択をカスタム変数として記録する。プレフィクス引数を使用すると、候補選択のプロセスを繰り返す。
 
-The variable @code{@var{command}-alternatives} should contain an alist with
-alternative implementations of @var{command}.  Until this variable is set,
-@code{define-alternatives} has no effect.
+変数@code{@var{command}-alternatives}には、@var{command}の実装候補がalistで含まれる。この変数がセットされるまで、@code{define-alternatives}は効果をもたない。
 
-If @var{customizations} is non-@code{nil}, it should consist of alternating
-@code{defcustom} keywords (typically @code{:group} and @code{:version}) and
-values to add to the declaration of @code{@var{command}-alternatives}.
+@var{customizations}が非@code{nil}の場合は、@code{defcustom}キーワード(典型的には@code{:group}および@code{:version})と、@code{@var{command}-alternatives}の宣言に追加する値により構成される候補である。
 @end defmac
 
 @node Interactive Call
