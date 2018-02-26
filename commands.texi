@@ -524,12 +524,7 @@ Events}を参照)を実行する場合に使用される。
 @cindex distinguish interactive calls
 @cindex is this call interactive
 
-  Sometimes a command should display additional visual feedback (such as an
-informative message in the echo area) for interactive calls only.  There are
-three ways to do this.  The recommended way to test whether the function was
-called using @code{call-interactively} is to give it an optional argument
-@code{print-message} and use the @code{interactive} spec to make it
-non-@code{nil} in interactive calls.  Here's an example:
+  interactive呼び出しのときは、コマンドが(エコーエリア内の情報メッセージなどのような)視覚的な追加フィードバックを表示すべきときがあります。これを行うためには、3つの方法があります。その関数が@code{call-interactively}を使用して呼び出されたかどうかテストするには、オプション引数@code{print-message}を与えるとともに、interactive呼び出しで非@code{nil}となるように@code{interactive}仕様を使うのが推奨される方法です。以下は例です:
 
 @example
 (defun foo (&optional print-message)
@@ -539,37 +534,26 @@ non-@code{nil} in interactive calls.  Here's an example:
 @end example
 
 @noindent
-We use @code{"p"} because the numeric prefix argument is never @code{nil}.
-Defined in this way, the function does display the message when called from
-a keyboard macro.
+数プレフィクス引数は決して@code{nil}にならないので、わたしたちは@code{"p"}を使用します。この方法で定義された関数は、キーボードマクロから呼び出されたときにメッセージを表示します。
 
-  The above method with the additional argument is usually best, because it
-allows callers to say ``treat this call as interactive''.  But you can also
-do the job by testing @code{called-interactively-p}.
+  追加引数による上記の手法は、呼び出し側に``この呼び出しをinteractiveとして扱うように''伝えることができるので、通常は最善です。しかし、@code{called-interactively-p}.をテストすることにより、これを行うこともできます。
 
 @defun called-interactively-p kind
-This function returns @code{t} when the calling function was called using
-@code{call-interactively}.
+この関数は、呼び出された関数が@code{call-interactively}を使用して呼び出された場合は@code{t}をリターンする。
 
-The argument @var{kind} should be either the symbol @code{interactive} or
-the symbol @code{any}.  If it is @code{interactive}, then
-@code{called-interactively-p} returns @code{t} only if the call was made
-directly by the user---e.g., if the user typed a key sequence bound to the
-calling function, but @emph{not} if the user ran a keyboard macro that
-called the function (@pxref{Keyboard Macros}).  If @var{kind} is @code{any},
-@code{called-interactively-p} returns @code{t} for any kind of interactive
-call, including keyboard macros.
+引数@var{kind}はシンボル@code{interactive}かシンボル@code{any}のどちらかである。これが@code{interactive}の場合、@code{called-interactively-p}はユーザーから直接呼び出しが行われたとき
+---
+たとえば関数呼び出しにバインドされたキーシーケンスをユーザーがタイプした場合がそれに該当するが、ユーザーがその関数を呼び出すキーボードマクロ(@ref{Keyboard
+Macros}を参照)を実行中した場合は@emph{該当しない} ---
+だけ@code{t}をリターンする@var{kind}が@code{any}の場合、@code{called-interactively-p}はキーボードマクロを含む任意の種類のinteractive呼び出しにたいして@code{t}をリターンする。
 
-If in doubt, use @code{any}; the only known proper use of @code{interactive}
-is if you need to decide whether to display a helpful message while a
-function is running.
+疑わしい場合は@code{any}を使用すること。@code{interactive}の使用が正しいと解っているのは、関数が実行中に役に立つメッセージを表示するかどうか判断が必要な場合だけである。
 
-A function is never considered to be called interactively if it was called
-via Lisp evaluation (or with @code{apply} or @code{funcall}).
+Lisp評価(または@code{apply}や@code{funcall}))を通じて呼び出された、または場合、関数は決してインタラクティブに呼び出されたとは判断されない。
 @end defun
 
 @noindent
-Here is an example of using @code{called-interactively-p}:
+以下は@code{called-interactively-p}を使用する例である:
 
 @example
 @group
@@ -581,7 +565,7 @@ Here is an example of using @code{called-interactively-p}:
 @end group
 
 @group
-;; @r{Type @kbd{M-x foo}.}
+;; @r{@kbd{M-x foo}とタイプする}
      @print{} Interactive!
 @end group
 
@@ -592,8 +576,7 @@ Here is an example of using @code{called-interactively-p}:
 @end example
 
 @noindent
-Here is another example that contrasts direct and indirect calls to
-@code{called-interactively-p}.
+以下は@code{called-interactively-p}の直接呼び出しと間接呼び出しを比較した例である。
 
 @example
 @group
@@ -603,7 +586,7 @@ Here is another example that contrasts direct and indirect calls to
 @end group
 
 @group
-;; @r{Type @kbd{M-x bar}.}
+;; @r{@kbd{M-x bar}とタイプする}
      @print{} (nil t)
 @end group
 @end example

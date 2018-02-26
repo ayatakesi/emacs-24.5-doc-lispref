@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-02-22 02:45+0900\n"
-"PO-Revision-Date: 2018-02-26 12:09+0900\n"
+"PO-Revision-Date: 2018-02-26 16:06+0900\n"
 "00:42+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
@@ -1495,24 +1495,24 @@ msgstr ""
 #: commands.texi.orig:747
 #, no-wrap
 msgid "Distinguish Interactive Calls"
-msgstr ""
+msgstr "Distinguish Interactive Calls"
 
 #. type: cindex
 #: commands.texi.orig:748
 #, no-wrap
 msgid "distinguish interactive calls"
-msgstr ""
+msgstr "distinguish interactive calls"
 
 #. type: cindex
 #: commands.texi.orig:749
 #, no-wrap
 msgid "is this call interactive"
-msgstr ""
+msgstr "is this call interactive"
 
 #. type: Plain text
 #: commands.texi.orig:758
 msgid "Sometimes a command should display additional visual feedback (such as an informative message in the echo area) for interactive calls only.  There are three ways to do this.  The recommended way to test whether the function was called using @code{call-interactively} is to give it an optional argument @code{print-message} and use the @code{interactive} spec to make it non-@code{nil} in interactive calls.  Here's an example:"
-msgstr ""
+msgstr "interactive呼び出しのときは、コマンドが(エコーエリア内の情報メッセージなどのような)視覚的な追加フィードバックを表示すべきときがあります。これを行うためには、3つの方法があります。その関数が@code{call-interactively}を使用して呼び出されたかどうかテストするには、オプション引数@code{print-message}を与えるとともに、interactive呼び出しで非@code{nil}となるように@code{interactive}仕様を使うのが推奨される方法です。以下は例です:"
 
 #. type: example
 #: commands.texi.orig:764
@@ -1523,47 +1523,51 @@ msgid ""
 "  (when print-message\n"
 "    (message \"foo\")))\n"
 msgstr ""
+"(defun foo (&optional print-message)\n"
+"  (interactive \"p\")\n"
+"  (when print-message\n"
+"    (message \"foo\")))\n"
 
 #. type: Plain text
 #: commands.texi.orig:770
 msgid "We use @code{\"p\"} because the numeric prefix argument is never @code{nil}.  Defined in this way, the function does display the message when called from a keyboard macro."
-msgstr ""
+msgstr "数プレフィクス引数は決して@code{nil}にならないので、わたしたちは@code{\"p\"}を使用します。この方法で定義された関数は、キーボードマクロから呼び出されたときにメッセージを表示します。"
 
 #. type: Plain text
 #: commands.texi.orig:774
 msgid "The above method with the additional argument is usually best, because it allows callers to say ``treat this call as interactive''.  But you can also do the job by testing @code{called-interactively-p}."
-msgstr ""
+msgstr "追加引数による上記の手法は、呼び出し側に``この呼び出しをinteractiveとして扱うように''伝えることができるので、通常は最善です。しかし、@code{called-interactively-p}.をテストすることにより、これを行うこともできます。"
 
 #. type: defun
 #: commands.texi.orig:775
 #, no-wrap
 msgid "called-interactively-p kind"
-msgstr ""
+msgstr "called-interactively-p kind"
 
 #. type: defun
 #: commands.texi.orig:778
 msgid "This function returns @code{t} when the calling function was called using @code{call-interactively}."
-msgstr ""
+msgstr "この関数は、呼び出された関数が@code{call-interactively}を使用して呼び出された場合は@code{t}をリターンする。"
 
 #. type: defun
 #: commands.texi.orig:787
 msgid "The argument @var{kind} should be either the symbol @code{interactive} or the symbol @code{any}.  If it is @code{interactive}, then @code{called-interactively-p} returns @code{t} only if the call was made directly by the user---e.g., if the user typed a key sequence bound to the calling function, but @emph{not} if the user ran a keyboard macro that called the function (@pxref{Keyboard Macros}).  If @var{kind} is @code{any}, @code{called-interactively-p} returns @code{t} for any kind of interactive call, including keyboard macros."
-msgstr ""
+msgstr "引数@var{kind}はシンボル@code{interactive}かシンボル@code{any}のどちらかである。これが@code{interactive}の場合、@code{called-interactively-p}はユーザーから直接呼び出しが行われたとき --- たとえば関数呼び出しにバインドされたキーシーケンスをユーザーがタイプした場合がそれに該当するが、ユーザーがその関数を呼び出すキーボードマクロ(@ref{Keyboard Macros}を参照)を実行中した場合は@emph{該当しない} --- だけ@code{t}をリターンする@var{kind}が@code{any}の場合、@code{called-interactively-p}はキーボードマクロを含む任意の種類のinteractive呼び出しにたいして@code{t}をリターンする。"
 
 #. type: defun
 #: commands.texi.orig:791
 msgid "If in doubt, use @code{any}; the only known proper use of @code{interactive} is if you need to decide whether to display a helpful message while a function is running."
-msgstr ""
+msgstr "疑わしい場合は@code{any}を使用すること。@code{interactive}の使用が正しいと解っているのは、関数が実行中に役に立つメッセージを表示するかどうか判断が必要な場合だけである。"
 
 #. type: defun
 #: commands.texi.orig:794
 msgid "A function is never considered to be called interactively if it was called via Lisp evaluation (or with @code{apply} or @code{funcall})."
-msgstr ""
+msgstr "Lisp評価(または@code{apply}や@code{funcall}))を通じて呼び出された、または場合、関数は決してインタラクティブに呼び出されたとは判断されない。"
 
 #. type: Plain text
 #: commands.texi.orig:798
 msgid "Here is an example of using @code{called-interactively-p}:"
-msgstr ""
+msgstr "以下は@code{called-interactively-p}を使用する例である:"
 
 #. type: group
 #: commands.texi.orig:806
@@ -1575,6 +1579,11 @@ msgid ""
 "    (message \"Interactive!\")\n"
 "    'foo-called-interactively))\n"
 msgstr ""
+"(defun foo ()\n"
+"  (interactive)\n"
+"  (when (called-interactively-p 'any)\n"
+"    (message \"Interactive!\")\n"
+"    'foo-called-interactively))\n"
 
 #. type: group
 #: commands.texi.orig:811
@@ -1583,6 +1592,8 @@ msgid ""
 ";; @r{Type @kbd{M-x foo}.}\n"
 "     @print{} Interactive!\n"
 msgstr ""
+";; @r{@kbd{M-x foo}とタイプする}\n"
+"     @print{} Interactive!\n"
 
 #. type: group
 #: commands.texi.orig:816
@@ -1591,11 +1602,13 @@ msgid ""
 "(foo)\n"
 "     @result{} nil\n"
 msgstr ""
+"(foo)\n"
+"     @result{} nil\n"
 
 #. type: Plain text
 #: commands.texi.orig:822
 msgid "Here is another example that contrasts direct and indirect calls to @code{called-interactively-p}."
-msgstr ""
+msgstr "以下は@code{called-interactively-p}の直接呼び出しと間接呼び出しを比較した例である。"
 
 #. type: group
 #: commands.texi.orig:828
@@ -1605,6 +1618,9 @@ msgid ""
 "  (interactive)\n"
 "  (message \"%s\" (list (foo) (called-interactively-p 'any))))\n"
 msgstr ""
+"(defun bar ()\n"
+"  (interactive)\n"
+"  (message \"%s\" (list (foo) (called-interactively-p 'any))))\n"
 
 #. type: group
 #: commands.texi.orig:833
@@ -1613,6 +1629,8 @@ msgid ""
 ";; @r{Type @kbd{M-x bar}.}\n"
 "     @print{} (nil t)\n"
 msgstr ""
+";; @r{@kbd{M-x bar}とタイプする}\n"
+"     @print{} (nil t)\n"
 
 #. type: section
 #: commands.texi.orig:837
