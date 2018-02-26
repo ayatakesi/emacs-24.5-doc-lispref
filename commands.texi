@@ -279,7 +279,7 @@ Events}を参照のこと。[No I/O]
 Events}を参照)にたいして使用する。コマンドが受け取るイベントリストは、そのイベントに依存する。@ref{Input
 Events}ではそれぞれのイベントのリスト形式を、対応するサブセクションでそれぞれ説明しているので、参照のこと。
 
-1つのコマンドのinteractive指定の中で、@samp{e}を複数回使用できる。そのコマンドを呼び出したキーシーケンスがイベント@var{n}(リスト)をもつ場合は、@samp{e}の@var{n}番目がそのイベントを提供する。関数キーや@acronym{ASCII}文字のようなリスト以外のイベントは、@samp{e}に関連するイベントとしてカウントされない。
+1つのコマンドのinteractive仕様の中で、@samp{e}を複数回使用できる。そのコマンドを呼び出したキーシーケンスがイベント@var{n}(リスト)をもつ場合は、@samp{e}の@var{n}番目がそのイベントを提供する。関数キーや@acronym{ASCII}文字のようなリスト以外のイベントは、@samp{e}に関連するイベントとしてカウントされない。
 
 @item f
 既存ファイルのファイル名(@ref{File
@@ -439,43 +439,26 @@ command)}を定義するために使用できます。これらはユーザー�
 @section Interactive Call
 @cindex interactive call
 
-  After the command loop has translated a key sequence into a command, it
-invokes that command using the function @code{command-execute}.  If the
-command is a function, @code{command-execute} calls
-@code{call-interactively}, which reads the arguments and calls the command.
-You can also call these functions yourself.
+  コマンドループはキーシーケンスをコマンドに翻訳した後、関数@code{command-execute}を使用してその関数を呼び出します。そのコマンドが関数の場合、@code{command-execute}は引数を読み取りコマンドを呼び出す@code{call-interactively}を呼び出します。自分でこれらの関数を呼び出すこともできます。
 
-  Note that the term ``command'', in this context, refers to an interactively
-callable function (or function-like object), or a keyboard macro.  It does
-not refer to the key sequence used to invoke a command (@pxref{Keymaps}).
+  このコンテキストにおいて用語``command''はインタラクティブにコール可能な関数(または関数likeなオブジェクト)やキーボードマクロを指すことに注意してください。つまりコマンドを呼び出すキーシーケンスのことではありません(@ref{Keymaps}を参照)。
 
 @defun commandp object &optional for-call-interactively
-This function returns @code{t} if @var{object} is a command.  Otherwise, it
-returns @code{nil}.
+この関数は@var{object}がコマンドの場合は@code{t}、それ以外は@code{nil}をリターンする。
 
-Commands include strings and vectors (which are treated as keyboard macros),
-lambda expressions that contain a top-level @code{interactive} form
-(@pxref{Using Interactive}), byte-code function objects made from such
-lambda expressions, autoload objects that are declared as interactive
-(non-@code{nil} fourth argument to @code{autoload}), and some primitive
-functions.  Also, a symbol is considered a command if it has a
-non-@code{nil} @code{interactive-form} property, or if its function
-definition satisfies @code{commandp}.
+コマンドには文字列とベクター(キーボードマクロとして扱われる)、トップレベル@code{interactive}フォーム(@ref{Using
+Interactive}を参照)を含むラムダ式、そのようなラムダ式から作成されたバイトコンパイル関数オブジェクト、interactiveとして宣言(@code{autoload}の4つ目の引数が非@code{nil})されたautoloadオブジェクト、およびいくつかのプリミティブ関数が含まれる。@code{interactive-form}プロパティが非@code{nil}のシンボル、および関数定義が@code{commandp}を満足するシンボルもコマンドとされる。
 
-If @var{for-call-interactively} is non-@code{nil}, then @code{commandp}
-returns @code{t} only for objects that @code{call-interactively} could
-call---thus, not for keyboard macros.
+@var{for-call-interactively}が非@code{nil}の場合は、@code{call-interactively}が呼び出すことができるオブジェクトにたいしてのみ@code{commandp}は@code{t}をリターンする。したがってキーボードマクロは該当しなくなる。
 
-See @code{documentation} in @ref{Accessing Documentation}, for a realistic
-example of using @code{commandp}.
+@code{commandp}を使用する現実的な例は、@ref{Accessing
+Documentation}内の@code{documentation}を参照のこと。
 @end defun
 
 @defun call-interactively command &optional record-flag keys
-This function calls the interactively callable function @var{command},
-providing arguments according to its interactive calling specifications.  It
-returns whatever @var{command} returns.
+この関数はinteractive呼び出し仕様にしたがって引数を取得し、インタラクティブに呼び出し可能な関数@var{command}を呼び出す。これは@var{command}がリターンするものが何であれ、それをリターンする。
 
-If, for instance, you have a function with the following signature:
+たとえば、もし以下の署名をもつ関数がある場合:
 
 @example
 (defun foo (begin end)
@@ -483,75 +466,47 @@ If, for instance, you have a function with the following signature:
   ...)
 @end example
 
-then saying
+以下を行うと
 
 @example
 (call-interactively 'foo)
 @end example
 
-will call @code{foo} with the region (@code{point} and @code{mark}) as the
-arguments.
+これはリージョン(@code{point}と@code{mark})を引数として@code{foo}を呼び出すだろう。
 
-An error is signaled if @var{command} is not a function or if it cannot be
-called interactively (i.e., is not a command).  Note that keyboard macros
-(strings and vectors) are not accepted, even though they are considered
-commands, because they are not functions.  If @var{command} is a symbol,
-then @code{call-interactively} uses its function definition.
+@var{command}が関数でない、またはインタラクティブに呼び出せない(コマンドでない)場合は、エラーをシグナルする。たとえコマンドだとしても、キーボードマクロ(文字列かベクター)は、関数ではないので、許されないことに注意。@var{command}がシンボルの場合、@code{call-interactively}はそれの関数定義を使用する。
 
 @cindex record command history
-If @var{record-flag} is non-@code{nil}, then this command and its arguments
-are unconditionally added to the list @code{command-history}.  Otherwise,
-the command is added only if it uses the minibuffer to read an argument.
-@xref{Command History}.
+@var{record-flag}が非@code{nil}の場合は、このコマンドとコマンドの引数は無条件にリスト@code{command-history}に追加される。それ以外では、引数の読み取りにミニバッファーを使用した場合のみコマンドが追加される。@ref{Command
+History}を参照のこと。
 
-The argument @var{keys}, if given, should be a vector which specifies the
-sequence of events to supply if the command inquires which events were used
-to invoke it.  If @var{keys} is omitted or @code{nil}, the default is the
-return value of @code{this-command-keys-vector}.  @xref{Definition of
-this-command-keys-vector}.
+引数@var{keys}が与えられた場合、それはコマンドを呼び出すためにどのイベントを使用するかコマンドが問い合わせた場合に与えるべき、イベントシーケンスを指定するベクターである。@var{keys}が@code{nil}、または省略された場合のデフォルトは、@code{this-command-keys-vector}のリターン値である。@ref{Definition
+of this-command-keys-vector}を参照のこと。
 @end defun
 
 @defun command-execute command &optional record-flag keys special
 @cindex keyboard macro execution
-This function executes @var{command}.  The argument @var{command} must
-satisfy the @code{commandp} predicate; i.e., it must be an interactively
-callable function or a keyboard macro.
+この関数は@var{command}を実行する。引数@var{command}は述語@code{commandp}を満足しなければならない。つまりインタラクティブに呼び出し可能な関数かキーボードマクロでなければならない。
 
-A string or vector as @var{command} is executed with
-@code{execute-kbd-macro}.  A function is passed to @code{call-interactively}
-(see above), along with the @var{record-flag} and @var{keys} arguments.
+@var{command}が文字列かベクターの場合は、@code{execute-kbd-macro}により実行される。関数は@var{record-flag}および@var{keys}引数とともに@code{call-interactively}に渡される(上記参照)。
 
-If @var{command} is a symbol, its function definition is used in its place.
-A symbol with an @code{autoload} definition counts as a command if it was
-declared to stand for an interactively callable function.  Such a definition
-is handled by loading the specified library and then rechecking the
-definition of the symbol.
+@var{command}がシンボルの場合、その位置にシンボルの関数定義が使用される。@code{autoload}定義のあるシンボルは、インタラクティブに呼び出し可能な関数お意味するよう宣言されている場合は、コマンドとして判断される。そのような宣言は、指定されたライブラリーのロードと、シンボル定義の再チェックにより処理される。
 
-The argument @var{special}, if given, means to ignore the prefix argument
-and not clear it.  This is used for executing special events (@pxref{Special
-Events}).
+引数@var{special}が与えられた場合、それはプレフィクス引数を無視して、それをクリアーしないという意味である。これはスペシャルイベント(@ref{Special
+Events}を参照)を実行する場合に使用される。
 @end defun
 
 @deffn Command execute-extended-command prefix-argument
 @cindex read command name
-This function reads a command name from the minibuffer using
-@code{completing-read} (@pxref{Completion}).  Then it uses
-@code{command-execute} to call the specified command.  Whatever that command
-returns becomes the value of @code{execute-extended-command}.
+この関数は@code{completing-read}(@ref{Completion}を参照)を使用して、ミニバッファーからコマンド名を読み取る。その後、指定されたコマンドを呼び出すために@code{command-execute}を使用する。そのコマンドがリターンするのが何であれ、それが@code{execute-extended-command}の値となる。
 
 @cindex execute with prefix argument
-If the command asks for a prefix argument, it receives the value
-@var{prefix-argument}.  If @code{execute-extended-command} is called
-interactively, the current raw prefix argument is used for
-@var{prefix-argument}, and thus passed on to whatever command is run.
+そのコマンドがプレフィクス引数を求める場合は、@var{prefix-argument}のの値を受け取る。@code{execute-extended-command}がインタラクティブに呼び出された場合は、カレントのrawプレフィクス引数が@var{prefix-argument}に使用され、それが何であれ実行するコマンドに渡される。
 
 @c !!! Should this be @kindex?
 @cindex @kbd{M-x}
-@code{execute-extended-command} is the normal definition of @kbd{M-x}, so it
-uses the string @w{@samp{M-x }} as a prompt.  (It would be better to take
-the prompt from the events used to invoke @code{execute-extended-command},
-but that is painful to implement.)  A description of the value of the prefix
-argument, if any, also becomes part of the prompt.
+通常、@code{execute-extended-command}は@kbd{M-x}の定義なので、プロンプトとして文字列@w{@samp{M-x
+}}を使用する(@code{execute-extended-command}を呼び出したイベントからプロンプトを受け取るほうが良いのだろうが、実装は骨が折れる)。プレフィクス引数の値の説明が、もしあれば、それもプロンプトの一部となる。
 
 @example
 @group
