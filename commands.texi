@@ -595,96 +595,65 @@ Lisp評価(または@code{apply}や@code{funcall}))を通じて呼び出され�
 @section Information from the Command Loop
 @cindex command loop variables
 
-The editor command loop sets several Lisp variables to keep status records
-for itself and for commands that are run.  With the exception of
-@code{this-command} and @code{last-command} it's generally a bad idea to
-change any of these variables in a Lisp program.
+エディターコマンドループは、自分自身と実行するコマンドのために、いくつかのLisp変数にステータス記録を保持します。@code{this-command}および@code{last-command}以外は、一般的にこれらの変数をLispプログラム内で変更するのは、良いアイデアではありません。
 
 @defvar last-command
-This variable records the name of the previous command executed by the
-command loop (the one before the current command).  Normally the value is a
-symbol with a function definition, but this is not guaranteed.
+この変数は、コマンドループにより実行された以前のコマンド(前にカレントだったコマンド)の名前を記録する。値は通常、関数定義をもつシンボルだが、その保証はない。
 
-The value is copied from @code{this-command} when a command returns to the
-command loop, except when the command has specified a prefix argument for
-the following command.
+コマンドがコマンドループからリターンするとき、@code{this-command}から値がコピーされる。ただしそのコマンドが、後続のコマンドにたいしてプレフィクス引数を指定されたときを除く。
 
-This variable is always local to the current terminal and cannot be
-buffer-local.  @xref{Multiple Terminals}.
+この変数は常にカレント端末にたいしてローカルであり、バッファーローカルにできない。@ref{Multiple Terminals}を参照のこと。
 @end defvar
 
 @defvar real-last-command
-This variable is set up by Emacs just like @code{last-command}, but never
-altered by Lisp programs.
+この変数はEmacsにより@code{last-command}と同様にセットアップされるが、Lispプログラムから決して変更されない。
 @end defvar
 
 @defvar last-repeatable-command
-This variable stores the most recently executed command that was not part of
-an input event.  This is the command @code{repeat} will try to repeat,
-@xref{Repeating,,, emacs, The GNU Emacs Manual}.
+この変数は、入力イベントと一部としではなく、もっとも最近実行されたコマンドを格納する。これはコマンド@code{repeat}が再実行を試みるコマンドである。@ref{Repeating,,,
+emacs, The GNU Emacs Manual}を参照のこと。
 @end defvar
 
 @defvar this-command
 @cindex current command
-This variable records the name of the command now being executed by the
-editor command loop.  Like @code{last-command}, it is normally a symbol with
-a function definition.
+この変数は、コマンドループにより現在実行中のコマンドの名前を記録する。@code{last-command}と同様、通常は関数定義をもつシンボルである。
 
-The command loop sets this variable just before running a command, and
-copies its value into @code{last-command} when the command finishes (unless
-the command specified a prefix argument for the following command).
+コマンドループはコマンドを実行する直前にこの変数をセットして、(そのコマンドが後続のコマンドのプレフィクス引数を指定しない場合)そのコマンドが終了したときに、その値を@code{last-command}内にコピーする。
 
 @cindex kill command repetition
-Some commands set this variable during their execution, as a flag for
-whatever command runs next.  In particular, the functions for killing text
-set @code{this-command} to @code{kill-region} so that any kill commands
-immediately following will know to append the killed text to the previous
-kill.
+いくつかのコマンドは、次に実行されるコマンドが何であれ、それにたいするフラグとして、実行中の間この変数をセットする。特にテキストをkillする関数は@code{this-command}を@code{kill-region}にセットするので、直後に実行された任意のkillコマンドは、killしたテキストを前にkillされたテキストに追加すべきことが解かるだろう。
 @end defvar
 
-If you do not want a particular command to be recognized as the previous
-command in the case where it got an error, you must code that command to
-prevent this.  One way is to set @code{this-command} to @code{t} at the
-beginning of the command, and set @code{this-command} back to its proper
-value at the end, like this:
+特定のコマンドにおいて、エラーが発生した場合に前のコマンドとして認識されたくない場合は、これを防ぐようにそのコマンドをコーディングしなければならない。これを行う1つの方法は、以下のようにコマンドの最初で@code{this-command}に@code{t}をセットして、最後に@code{this-command}に正しい値をセットする方法である:
 
 @example
 (defun foo (args@dots{})
   (interactive @dots{})
   (let ((old-this-command this-command))
     (setq this-command t)
-    @r{@dots{}do the work@dots{}}
+    @r{@dots{} 処理を行う @dots{}}
     (setq this-command old-this-command)))
 @end example
 
 @noindent
-We do not bind @code{this-command} with @code{let} because that would
-restore the old value in case of error---a feature of @code{let} which in
-this case does precisely what we want to avoid.
+エラーの場合、@code{let}は古い値をリストアするので、わたしたちは@code{let}で@code{this-command}をバインドしない。この場合における@code{let}の機能は、わたしたちが避けたいと思っていることを正確に行ってしまうだろう。
 
 @defvar this-original-command
-This has the same value as @code{this-command} except when command remapping
-occurs (@pxref{Remapping Commands}).  In that case, @code{this-command}
-gives the command actually run (the result of remapping), and
-@code{this-original-command} gives the command that was specified to run but
-remapped into another command.
+コマンドのリマップ(@ref{Remapping
+Commands}を参照)が発生したときを除き、これは@code{this-command}と同じ値をもつ。リマップが発生した場合、@code{this-command}は実際に実行されたコマンド、@code{this-original-command}は実行を指定されたが他のコマンドにリマップされたコマンドを与える。
 @end defvar
 
 @defun this-command-keys
-This function returns a string or vector containing the key sequence that
-invoked the present command, plus any previous commands that generated the
-prefix argument for this command.  Any events read by the command using
-@code{read-event} without a timeout get tacked on to the end.
+この関数は、現在のコマンドを呼び出したキーシーケンスと、加えてそのコマンドにたいするプレフィクス引数を生成した前のコマンドを含む文字列またはベクターをリターンする。@code{read-event}を使用するコマンドにより、タイムアウトせずに読み取られた任意のイベントは最後に加えられる。
 
-However, if the command has called @code{read-key-sequence}, it returns the
-last read key sequence.  @xref{Key Sequence Input}.  The value is a string
-if all events in the sequence were characters that fit in a string.
-@xref{Input Events}.
+しかし、そのコマンドが@code{read-key-sequence}を呼び出していた場合は、最後に読み取られたキーシーケンスをリターンする。@ref{Key
+Sequence Input}を参照のこと。シーケンス内のすべてのイベントが文字列として適当な文字の場合は、文字列が値になる。@ref{Input
+Events}を参照のこと。
 
 @example
 @group
 (this-command-keys)
-;; @r{Now use @kbd{C-u C-x C-e} to evaluate that.}
+;; @r{これを評価するために@kbd{C-u C-x C-e}を使用すると、}
      @result{} "^U^X^E"
 @end group
 @end example
@@ -692,54 +661,42 @@ if all events in the sequence were characters that fit in a string.
 
 @defun this-command-keys-vector
 @anchor{Definition of this-command-keys-vector}
-Like @code{this-command-keys}, except that it always returns the events in a
-vector, so you don't need to deal with the complexities of storing input
-events in a string (@pxref{Strings of Events}).
+@code{this-command-keys}と同様だが、常にベクターでイベントをリターンするので、入力イベントを文字列内に格納する複雑さを処理する必要がない(@ref{Strings
+of Events}を参照)。
 @end defun
 
 @defun clear-this-command-keys &optional keep-record
-This function empties out the table of events for @code{this-command-keys}
-to return.  Unless @var{keep-record} is non-@code{nil}, it also empties the
-records that the function @code{recent-keys} (@pxref{Recording Input}) will
-subsequently return.  This is useful after reading a password, to prevent
-the password from echoing inadvertently as part of the next command in
-certain cases.
+この関数は、@code{this-command-keys}がリターンするイベントテーブルを空にする。@var{keep-record}が@code{nil}の場合は、その後に関数@code{recent-keys}(@ref{Recording
+Input})がリターンするレコードも空にする。これは特定のケースにおいて、パスワードを読み取った後、次のコマンドの一部として不用意にパスワードがエコーされるのを防ぐために有用である。
 @end defun
 
 @defvar last-nonmenu-event
-This variable holds the last input event read as part of a key sequence, not
-counting events resulting from mouse menus.
+この変数はキーシーケンス(マウスメニューからのイベントは勘定しない)の一部として読み取られた最後の入力イベントを保持する。
 
-One use of this variable is for telling @code{x-popup-menu} where to pop up
-a menu.  It is also used internally by @code{y-or-n-p} (@pxref{Yes-or-No
-Queries}).
+この変数の1つの使い方は、@code{x-popup-menu}にたいしてどこにメニューをポップアップすべきか告げる場合である。これは内部的に@code{y-or-n-p}(@ref{Yes-or-No
+Queries}を参照)にも使用されている。
 @end defvar
 
 @defvar last-command-event
-This variable is set to the last input event that was read by the command
-loop as part of a command.  The principal use of this variable is in
-@code{self-insert-command}, which uses it to decide which character to
-insert.
+この変数には、コマンドの一部としてコマンドループに読み取られた、最後の入力イベントがセットされる。この変数は主に、@code{self-insert-command}内でどの文字が挿入されたか判断するために使用されている。
 
 @example
 @group
 last-command-event
-;; @r{Now use @kbd{C-u C-x C-e} to evaluate that.}
+;; @r{これを評価するために@kbd{C-u C-x C-e}を使用すると、}
      @result{} 5
 @end group
 @end example
 
 @noindent
-The value is 5 because that is the @acronym{ASCII} code for @kbd{C-e}.
+@kbd{C-e}の@acronym{ASCII}コードの5が値になる。
 @end defvar
 
 @defvar last-event-frame
-This variable records which frame the last input event was directed to.
-Usually this is the frame that was selected when the event was generated,
-but if that frame has redirected input focus to another frame, the value is
-the frame to which the event was redirected.  @xref{Input Focus}.
+この変数は、最後の入力イベントが送られたフレームを記録する。これは通常、そのイベントが生成されたときに選択されていたフレームだが、そのフレームの入力が他のフレームにリダイレクトされていた場合は、そのリダイレクトされていたフレームが値となる。@ref{Input
+Focus}を参照のこと。
 
-If the last event came from a keyboard macro, the value is @code{macro}.
+最後のイベントがキーボードマクロ由来の場合、値は@code{macro}になる。
 @end defvar
 
 @node Adjusting Point
