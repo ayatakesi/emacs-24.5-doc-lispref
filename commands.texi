@@ -706,27 +706,18 @@ Focus}を参照のこと。
 @cindex @code{display} property, and point display
 @cindex @code{composition} property, and point display
 
-  It is not easy to display a value of point in the middle of a sequence of
-text that has the @code{display}, @code{composition} or is invisible.
-Therefore, after a command finishes and returns to the command loop, if
-point is within such a sequence, the command loop normally moves point to
-the edge of the sequence.
+  プロパティ@code{display}や@code{composition}をｍつテキストや、非表示のテキストシーケンスの中間でポイント値を表示するのは、簡単ではありません。したがって、コマンドが終了した後にコマンドループにリターンするとき、そのようなシーケンス中にポイントがある場合、コマンドループは通常ポイントをそのようなシーケンスの端に移動します。
 
-  A command can inhibit this feature by setting the variable
-@code{disable-point-adjustment}:
+  変数@code{disable-point-adjustment}をセットすることにより、コマンドはこの機能を抑制できます:
 
 @defvar disable-point-adjustment
-If this variable is non-@code{nil} when a command returns to the command
-loop, then the command loop does not check for those text properties, and
-does not move point out of sequences that have them.
+この変数が非@code{nil}の場合は、コマンドがコマンドループにリターンするとき、コマンドループはこれらのテキストプロパティをチェックせず、これらのプロパティをもつシーケンスの外にポイントを移動しない。
 
-The command loop sets this variable to @code{nil} before each command, so if
-a command sets it, the effect applies only to that command.
+コマンドループはそれぞれのコマンドを実行する前にこの変数を@code{nil}にセットするので、あるコマンドがこれをセットしても、効果が適用されるのはそのコマンドにたいしてだけである。
 @end defvar
 
 @defvar global-disable-point-adjustment
-If you set this variable to a non-@code{nil} value, the feature of moving
-point out of these sequences is completely turned off.
+この変数を非@code{nil}にセットした場合、これらのシーケンス外にポイントを移動する機能は、完全にオフになる。
 @end defvar
 
 @node Input Events
