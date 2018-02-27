@@ -725,42 +725,33 @@ Focus}を参照のこと。
 @cindex events
 @cindex input events
 
-The Emacs command loop reads a sequence of @dfn{input events} that represent
-keyboard or mouse activity, or system events sent to Emacs.  The events for
-keyboard activity are characters or symbols; other events are always lists.
-This section describes the representation and meaning of input events in
-detail.
+Emacsコマンドループは@dfn{入力イベント(input
+events)}のシーケンスを読み取ります。入力イベントとは、キーボードやマウスのアクティビティ、またはEmacsに送られるシステムイベントを表します。キーボードアクティビティにたいするイベントは文字、またはシンボルです。それ以外のイベントは、常にリストになります。このセクションでは、入力イベントの表現と意味について詳細を説明します。
 
 @defun eventp object
-This function returns non-@code{nil} if @var{object} is an input event or
-event type.
+この関数は、@var{object}が入力イベント、またはイベント型の場合は、非@code{nil}をリターンする。
 
-Note that any symbol might be used as an event or an event type.
-@code{eventp} cannot distinguish whether a symbol is intended by Lisp code
-to be used as an event.  Instead, it distinguishes whether the symbol has
-actually been used in an event that has been read as input in the current
-Emacs session.  If a symbol has not yet been so used, @code{eventp} returns
-@code{nil}.
+イベント、またはイベント型として任意のシンボルが使用されるかもしれないことに注意。@code{eventp}は、あるシンボルがLispコードによりイベントとして使用されることを意図しているか否か区別できない。そのかわりに、カレントEmacsセッション内で、そのシンボルが入力として読み取られたイベント内で実際に使用されているか否かを区別する。シンボルがまだそのように使用されていない場合、@code{eventp}は@code{nil}をリターンする。
 @end defun
 
 @menu
-* Keyboard Events::          Ordinary characters--keys with symbols on them.
-* Function Keys::            Function keys--keys with names, not symbols.
-* Mouse Events::             Overview of mouse events.
-* Click Events::             Pushing and releasing a mouse button.
-* Drag Events::              Moving the mouse before releasing the button.
-* Button-Down Events::       A button was pushed and not yet released.
-* Repeat Events::            Double and triple click (or drag, or down).
-* Motion Events::            Just moving the mouse, not pushing a button.
-* Focus Events::             Moving the mouse between frames.
-* Misc Events::              Other events the system can generate.
-* Event Examples::           Examples of the lists for mouse events.
-* Classifying Events::       Finding the modifier keys in an event symbol.  
-                               Event types.
-* Accessing Mouse::          Functions to extract info from mouse events.
-* Accessing Scroll::         Functions to get info from scroll bar events.
-* Strings of Events::        Special considerations for putting keyboard 
-                               character events in a string.
+* Keyboard Events::          通常の文字 --- 
+                               自身にシンボルされるキー。
+* Function Keys::            ファンクションキー --- 
+                               名前をもつがシンボルではない。
+* Mouse Events::             マウスイベントの概観。
+* Click Events::             マウスボタンのプッシュとリリース。
+* Drag Events::              ボタンをリリースする前のマウス移動。
+* Button-Down Events::       ボタンがプッシュされて、まだリリースされていない状態。
+* Repeat Events::            ダブル、トリプルのクリック(またはドラッグ、ダウン)
+* Motion Events::            ボタンを押さずに、マウスだけを移動する。
+* Focus Events::             フレーム間のマウス移動。
+* Misc Events::              システムが生成可能なその他のイベント。
+* Event Examples::           マウスイベントの例。
+* Classifying Events::       イベントシンボル内の修飾キーを見つける。イベント型。
+* Accessing Mouse::          マウスイベントから情報抽出する関数。
+* Accessing Scroll::         スクロールバーイベントから情報取得する関数。
+* Strings of Events::        文字列内にキーボード文字イベントを配すための特別な配慮。
 @end menu
 
 @node Keyboard Events
