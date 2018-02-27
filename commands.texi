@@ -758,131 +758,110 @@ events)}のシーケンスを読み取ります。入力イベントとは、キ
 @subsection Keyboard Events
 @cindex keyboard events
 
-There are two kinds of input you can get from the keyboard: ordinary keys,
-and function keys.  Ordinary keys correspond to characters; the events they
-generate are represented in Lisp as characters.  The event type of a
-character event is the character itself (an integer); see @ref{Classifying
-Events}.
+キーボードから取得できる入力には2つの種類があります。それは通常のキーとファンクションキーです。通常のキーは文字に対応し、それらが生成するイベントはLisp内では文字で表現されます。文字イベントのイベント型は文字自身(整数)です。@ref{Classifying
+Events}を参照してください。
 
 @cindex modifier bits (of input character)
 @cindex basic code (of input character)
-An input character event consists of a @dfn{basic code} between 0 and
-524287, plus any or all of these @dfn{modifier bits}:
+入力文字イベントは0から524287までの@dfn{基本コード(basic code)}に加えて、以下の@dfn{修飾ビット(modifier
+bits)}の一部、またはすべてにより構成されます:
 
 @table @asis
 @item meta
-The
+文字コードのビット
 @tex
 @math{2^{27}}
 @end tex
 @ifnottex
 2**27
 @end ifnottex
-bit in the character code indicates a character typed with the meta key held
-down.
+はメタキーが押下された状態で文字がタイプされたことを示す。
 
 @item control
-The
+文字コードのビット
 @tex
 @math{2^{26}}
 @end tex
 @ifnottex
 2**26
 @end ifnottex
-bit in the character code indicates a non-@acronym{ASCII} control character.
+は非@acronym{ASCII}コントロール文字を示す。
 
-@sc{ascii} control characters such as @kbd{C-a} have special basic codes of
-their own, so Emacs needs no special bit to indicate them.  Thus, the code
-for @kbd{C-a} is just 1.
+@kbd{C-a}のような非@sc{ascii}コントロール文字は、自身が特別な基本コードをもつため、それらを示すためにEmacsは特別なビットを必要としない。つまり@kbd{C-a}のコードは単なる1である。
 
-But if you type a control combination not in @acronym{ASCII}, such as
-@kbd{%} with the control key, the numeric value you get is the code for
-@kbd{%} plus
+しかし、@kbd{%}のような非@acronym{ASCII}とコントロールを組み合わせてタイプした場合、取得される数値は@kbd{%}に
 @tex
 @math{2^{26}}
 @end tex
 @ifnottex
 2**26
 @end ifnottex
-(assuming the terminal supports non-@acronym{ASCII} control characters).
+を加えた値となる(端末が非@acronym{ASCII}コントロール文字をサポートすると仮定する)。
 
 @item shift
-The
+文字コードのビット
 @tex
 @math{2^{25}}
 @end tex
 @ifnottex
 2**25
 @end ifnottex
-bit in the character code indicates an @acronym{ASCII} control character
-typed with the shift key held down.
+はシフトキーが押下された状態で@acronym{ASCII}コントロール文字がタイプされたことを示す。
 
-For letters, the basic code itself indicates upper versus lower case; for
-digits and punctuation, the shift key selects an entirely different
-character with a different basic code.  In order to keep within the
-@acronym{ASCII} character set whenever possible, Emacs avoids using the
+アルファベット文字にたいしては、基本コード自身が大文字か小文字かを示す。数字と句読点文字にたいしてシフトキーは、異なる基本コードをもつ完全に違う文字を選択する。可能な限り@acronym{ASCII}文字として保つために、Emacsはこれらの文字にたいしてビット
 @tex
 @math{2^{25}}
 @end tex
 @ifnottex
 2**25
 @end ifnottex
-bit for those characters.
+を使用しない。
 
-However, @acronym{ASCII} provides no way to distinguish @kbd{C-A} from
-@kbd{C-a}, so Emacs uses the
+しかし、@acronym{ASCII}は@kbd{C-A}と@kbd{C-a}を区別する方法を提供しないので、Emacsは@kbd{C-A}にたいしてビット
 @tex
 @math{2^{25}}
 @end tex
 @ifnottex
 2**25
 @end ifnottex
-bit in @kbd{C-A} and not in @kbd{C-a}.
+を使用し、@kbd{C-a}には使用しない。
 
 @item hyper
-The
+文字コードのビット
 @tex
 @math{2^{24}}
 @end tex
 @ifnottex
 2**24
 @end ifnottex
-bit in the character code indicates a character typed with the hyper key
-held down.
+はハイパーキーが押下された状態で文字がタイプされたことを示す。
 
 @item super
-The
+文字コードのビット
 @tex
 @math{2^{23}}
 @end tex
 @ifnottex
 2**23
 @end ifnottex
-bit in the character code indicates a character typed with the super key
-held down.
+はスーパーキーが押下された状態で文字がタイプされたことを示す。
 
 @item alt
-The
+文字コードのビット
 @tex
 @math{2^{22}}
 @end tex
 @ifnottex
 2**22
 @end ifnottex
-bit in the character code indicates a character typed with the alt key held
-down.  (The key labeled @key{Alt} on most keyboards is actually treated as
-the meta key, not this.)
+はアルトキーが押下された状態で文字がタイプされたことを示す(ほとんどのキーボードで@key{Alt}とラベルされたキーは、実際にはアルトキーではなくメタキーとして扱われる)。
 @end table
 
-  It is best to avoid mentioning specific bit numbers in your program.  To
-test the modifier bits of a character, use the function
-@code{event-modifiers} (@pxref{Classifying Events}).  When making key
-bindings, you can use the read syntax for characters with modifier bits
-(@samp{\C-}, @samp{\M-}, and so on).  For making key bindings with
-@code{define-key}, you can use lists such as @code{(control hyper ?x)} to
-specify the characters (@pxref{Changing Key Bindings}).  The function
-@code{event-convert-list} converts such a list into an event type
-(@pxref{Classifying Events}).
+  プログラム内での特定のビット数値の記述は避けるのが最善の方法です。文字の修飾ビットをテストするためには、関数@code{event-modifiers}(@ref{Classifying
+Events}を参照)を使用してください。キーバインディングを作成するときは、修飾ビットつきの文字にたいする読み取り構文を使用できます(@samp{\C-}、@samp{\M-}、...など)。@code{define-key}でのキーバインディング作成では、文字を指定するために@code{(control
+hyper ?x)}のようなリストを使用できます(@ref{Changing Key
+Bindings}を参照)。関数@code{event-convert-list}は、そのようなリストをイベント型に変換します(@ref{Classifying
+Events}を参照)。
 
 @node Function Keys
 @subsection Function Keys
