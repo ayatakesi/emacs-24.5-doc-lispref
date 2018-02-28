@@ -935,9 +935,7 @@ Codes}を参照してください。
 @cindex click event
 @cindex mouse click event
 
-When the user presses a mouse button and releases it at the same location,
-that generates a @dfn{click} event.  All mouse click event share the same
-format:
+ユーザーが同じ場所でマウスボタンを押してから離す(release)と、@dfn{click}イベントが生成されます。すべてのマウスクリックイベントは同じフォーマットを共有します:
 
 @example
 (@var{event-type} @var{position} @var{click-count})
@@ -945,34 +943,22 @@ format:
 
 @table @asis
 @item @var{event-type}
-This is a symbol that indicates which mouse button was used.  It is one of
-the symbols @code{mouse-1}, @code{mouse-2}, @dots{}, where the buttons are
-numbered left to right.
+これはマウスボタンが使用されたことを示す。これはシンボル@code{mouse-1}、@code{mouse-2}、@dots{}のうちのどれかで、マウスボタンは左から右に番号が付される。
 
-You can also use prefixes @samp{A-}, @samp{C-}, @samp{H-}, @samp{M-},
-@samp{S-} and @samp{s-} for modifiers alt, control, hyper, meta, shift and
-super, just as you would with function keys.
+ファンクションキーにたいして行うのと同様にアルト、コントロール、ハイパー、メタ、シフト、スーパーの修飾にたいしてプレフィクス@samp{A-}、@samp{C-}、@samp{H-}、@samp{M-}、@samp{S-}、@samp{s-}も使用できる。
 
-This symbol also serves as the event type of the event.  Key bindings
-describe events by their types; thus, if there is a key binding for
-@code{mouse-1}, that binding would apply to all events whose
-@var{event-type} is @code{mouse-1}.
+このシンボルは、イベントのイベント型の役割りももつ。イベントのキーバインディングはこれらの型により示される。したがって、@code{mouse-1}にたいするキーバインディングが存在する場合、そのバインディングは@var{event-type}が@code{mouse-1}であるようなすべてのイベントに適用されるだろう。
 
 @item @var{position}
 @cindex mouse position list
-This is a @dfn{mouse position list} specifying where the mouse click
-occurred; see below for details.
+これはマウスクリックがどこで発生したかを表す@dfn{マウス位置リスト(mouse position list)}である。詳細は以下を参照のこと。
 
 @item @var{click-count}
-This is the number of rapid repeated presses so far of the same mouse
-button.  @xref{Repeat Events}.
+これは同じマウスボタンを素早く繰り返し押下したときの回数である。@ref{Repeat Events}を参照のこと。
 @end table
 
-  To access the contents of a mouse position list in the @var{position} slot
-of a click event, you should typically use the functions documented in
-@ref{Accessing Mouse}.  The explicit format of the list depends on where the
-click occurred.  For clicks in the text area, mode line, header line, or in
-the fringe or marginal areas, the mouse position list has the form
+  クリックイベントの@var{position}スロット内にあるマウス位置リストの内容にアクセスするためには、一般的には@ref{Accessing
+Mouse}にドキュメントされている関数を使用するべきです。このリストの明示的なフォーマットは、どこでクリックが発生したかに依存します。テキストエリア、モードライン、ヘッダーライン、フリンジ、マージンエリアでのクリックにたいして、マウス位置リストは以下のフォーマットをもちます
 
 @example
 (@var{window} @var{pos-or-area} (@var{x} . @var{y}) @var{timestamp}
@@ -981,86 +967,58 @@ the fringe or marginal areas, the mouse position list has the form
 @end example
 
 @noindent
-The meanings of these list elements are as follows:
+以下はこれらのリスト要素がもつ意味です:
 
 @table @asis
 @item @var{window}
-The window in which the click occurred.
+クリックが発生したウィンドウ。
 
 @item @var{pos-or-area}
-The buffer position of the character clicked on in the text area; or, if the
-click was outside the text area, the window area where it occurred.  It is
-one of the symbols @code{mode-line}, @code{header-line},
-@code{vertical-line}, @code{left-margin}, @code{right-margin},
-@code{left-fringe}, or @code{right-fringe}.
+テキストエリア内でクリックされた文字のバッファー位置。またはテキストエリア外がクリックされた場合は、クリックが発生したウィンドウエリア。これはシンボル@code{mode-line}、@code{header-line}、@code{vertical-line}、@code{left-margin}、@code{right-margin}、@code{left-fringe}、@code{right-fringe}のどれか。
 
-In one special case, @var{pos-or-area} is a list containing a symbol (one of
-the symbols listed above) instead of just the symbol.  This happens after
-the imaginary prefix keys for the event are registered by Emacs.  @xref{Key
-Sequence Input}.
+特別な場合の1つとして、@var{pos-or-area}が単なるシンボルではなく、(上記シンボルのいずれか1つの)シンボルを含むリストの場合がある。これはEmacsにより登録されたイベントにたいする、イマジナリープレフィクスキー(imaginary
+prefix key)の後に発生する。@ref{Key Sequence Input}を参照のこと。
 
 @item @var{x}, @var{y}
-The relative pixel coordinates of the click.  For clicks in the text area of
-a window, the coordinate origin @code{(0 . 0)} is taken to be the top left
-corner of the text area.  @xref{Window Sizes}.  For clicks in a mode line or
-header line, the coordinate origin is the top left corner of the window
-itself.  For fringes, margins, and the vertical border, @var{x} does not
-have meaningful data.  For fringes and margins, @var{y} is relative to the
-bottom edge of the header line.  In all cases, the @var{x} and @var{y}
-coordinates increase rightward and downward respectively.
+クリックの相対ピクセル座標(relative pixel
+coordinates)。あるウィンドウのテキストエリア内でのクリックにたいする座標原点@code{(0
+. 0)}は、テキストエリアの左上隅となる。@ref{Window
+Sizes}を参照のこと。モードラインまたはヘッダーライン内でのクリックにたいする座標原点は、そのウィンドウ自身の左上隅となる。フリンジ、マージン、垂直ボーダー(vertical
+border)では、@var{x}な有意なデータをもたない。フリンジ、マージンでは、@var{y}はヘッダーラインの最下端からの相対位置である。すべてのケースにおいて@var{x}および@var{y}座標は右方向および下方向で増加する。
 
 @item @var{timestamp}
-The time at which the event occurred, as an integer number of milliseconds
-since a system-dependent initial time.
+そのイベントが発生した時刻を、システム依存の初期時刻(initial time)からの経過ミリ秒で表す整数。
 
 @item @var{object}
-Either @code{nil} if there is no string-type text property at the click
-position, or a cons cell of the form (@var{string} . @var{string-pos}) if
-there is one:
+クリック位置に文字列タイプのテキストプロパティが存在しない場合は@code{nil}、存在する場合は(@var{string}
+. @var{string-pos})形式のコンスセル:
 
 @table @asis
 @item @var{string}
-The string which was clicked on, including any properties.
+クリックされた文字列。すべてのテキストプロパティを含む。
 
 @item @var{string-pos}
-The position in the string where the click occurred.
+クリックが発生した文字列内の位置。
 @end table
 
 @item @var{text-pos}
-For clicks on a marginal area or on a fringe, this is the buffer position of
-the first visible character in the corresponding line in the window.  For
-other events, it is the current buffer position in the window.
+マージンエリアまたはフリンジにたいするクリックでは、そのウィンドウ内の対応する行内の最初の可視な文字のバッファー位置となる。他のイベントにたいしては、そのウィンドウ内のカレントバッファーの位置となる。
 
 @item @var{col}, @var{row}
-These are the actual column and row coordinate numbers of the glyph under
-the @var{x}, @var{y} position.  If @var{x} lies beyond the last column of
-actual text on its line, @var{col} is reported by adding fictional extra
-columns that have the default character width.  Row 0 is taken to be the
-header line if the window has one, or the topmost row of the text area
-otherwise.  Column 0 is taken to be the leftmost column of the text area for
-clicks on a window text area, or the leftmost mode line or header line
-column for clicks there.  For clicks on fringes or vertical borders, these
-have no meaningful data.  For clicks on margins, @var{col} is measured from
-the left edge of the margin area and @var{row} is measured from the top of
-the margin area.
+これらは@var{x}、@var{y}の位置にあるグリフ(gliph)の、実際の行と列の座標数値である。行@var{x}がその行の実際のテキストの最後の列を超える場合、@var{col}はデフォルトの文字幅をもつ仮想的な追加列数を加えた値が報告される。そのウィンドウがヘッダーラインをもつ場合、行0はヘッダーラインとなり、ヘッダーラインをもたない場合はテキストエリアの上端ラインが行0となる。ウィンドウのテキストエリアのクリックにたいしては、テキストエリアの左端列が列0となり、モードラインまたはヘッダーラインのクリックにたいしてはそのラインの左端が列0となる。フリンジまたは垂直ボーダーのクリックにたいしては、これらは有意なデータをもたない。マージンのクリックにたいしては、@var{col}はマージンエリアの左端、@var{row}はマージンエリアの上端から測られる。
 
 @item @var{image}
-This is the image object on which the click occurred.  It is either
-@code{nil} if there is no image at the position clicked on, or it is an
-image object as returned by @code{find-image} if click was in an image.
+これはクリックが発生した場所のイメージオブジェクトである。クリックされた場所にイメージが存在しない場合は@code{nil}、イメージがクリックされた場合は@code{find-image}によりリターンされるイメージオブジェクトである。
 
 @item @var{dx}, @var{dy}
-These are the pixel coordinates of the click, relative to the top left
-corner of @var{object}, which is @code{(0 . 0)}.  If @var{object} is
-@code{nil}, the coordinates are relative to the top left corner of the
-character glyph clicked on.
+これらは@var{object}の左上隅@code{(0
+. 0)}からの相対的ピクセル座標である。@var{object}が@code{nil}の場合は、クリックされた文字グリフの左上隅からの相対座標である。
 
 @item @var{width}, @var{height}
-These are the pixel width and height of @var{object} or, if this is
-@code{nil}, those of the character glyph clicked on.
+これらは@var{object}のピクセル幅とピクセル高さであり、@var{object}が@code{nil}の場合はクリックされた文字グリフのピクセル幅とピクセル高さである。
 @end table
 
-For clicks on a scroll bar, @var{position} has this form:
+スクロールバーへのクリックにたいして、@var{position}は以下の形式をもちます:
 
 @example
 (@var{window} @var{area} (@var{portion} . @var{whole}) @var{timestamp} @var{part})
@@ -1068,32 +1026,23 @@ For clicks on a scroll bar, @var{position} has this form:
 
 @table @asis
 @item @var{window}
-The window whose scroll bar was clicked on.
+スクロールバーがクリックされたウィンドウ。
 
 @item @var{area}
-This is the symbol @code{vertical-scroll-bar}.
+これはシンボル@code{vertical-scroll-bar}である。
 
 @item @var{portion}
-The number of pixels from the top of the scroll bar to the click position.
-On some toolkits, including GTK+, Emacs cannot extract this data, so the
-value is always @code{0}.
+スクロールバーの上端からクリック位置までのピクセル数。GTK+を含むいくつかのツールキットでは、Emacsがこれらのデータを抽出できないので、値は常に@code{0}となる。
 
 @item @var{whole}
-The total length, in pixels, of the scroll bar.  On some toolkits, including
-GTK+, Emacs cannot extract this data, so the value is always @code{0}.
+スクロールバーの全長のピクセル数。GTK+を含むいくつかのツールキットでは、Emacsがこれらのデータを抽出できないので、値は常に@code{0}となる。
 
 @item @var{timestamp}
-The time at which the event occurred, in milliseconds.  On some toolkits,
-including GTK+, Emacs cannot extract this data, so the value is always
-@code{0}.
+イベントが発生したミリ秒時刻。GTK+を含むいくつかのツールキットでは、Emacsがこれらのデータを抽出できないので、値は常に@code{0}となる。
 
 @item @var{part}
 @c The `top', `bottom', and `end-scroll' codes don't seem to be used.
-The part of the scroll bar on which the click occurred.  It is one of the
-symbols @code{handle} (the scroll bar handle), @code{above-handle} (the area
-above the handle), @code{below-handle} (the area below the handle),
-@code{up} (the up arrow at one end of the scroll bar), or @code{down} (the
-down arrow at one end of the scroll bar).
+クリックが発生したスクロールバー部分。これはシンボル@code{handle}(スクロールバーのハンドル)、@code{above-handle}(ハンドルの上側エリア)、@code{below-handle}(ハンドルの下側エリア)、@code{up}(スクロールバー端の上矢印)、@code{down}(スクロールバー端の下矢印)のいずれかである。
 @end table
 
 
