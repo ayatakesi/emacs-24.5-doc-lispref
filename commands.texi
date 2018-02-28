@@ -867,78 +867,57 @@ Events}を参照)。
 @subsection Function Keys
 
 @cindex function keys
-Most keyboards also have @dfn{function keys}---keys that have names or
-symbols that are not characters.  Function keys are represented in Emacs
-Lisp as symbols; the symbol's name is the function key's label, in lower
-case.  For example, pressing a key labeled @key{F1} generates an input event
-represented by the symbol @code{f1}.
+ほとんどのキーボードには@dfn{ファンクションキー(function
+keys)}があります。これは名前、または文字以外のシンボルをもつキーです。Emacs
+Lispではファンクションキーはシンボルとして表現されます。そのシンボル名はファンクションキーのラベルの小文字です。たとえば@key{F1}とラベルされたキーを押下すると、シンボル@code{f1}で表される入力イベントが生成されます。
 
-The event type of a function key event is the event symbol itself.
-@xref{Classifying Events}.
+ファンクションキーのイベント型は、イベントシンボルそれ自身です。@ref{Classifying Events}を参照してください。
 
-Here are a few special cases in the symbol-naming convention for function
-keys:
+ファンクションキーにたいするシンボルネーミングの慣習には、以下のような特別なケースがいくつかあります:
 
 @table @asis
-@item @code{backspace}, @code{tab}, @code{newline}, @code{return}, @code{delete}
-These keys correspond to common @acronym{ASCII} control characters that have
-special keys on most keyboards.
+@item @code{backspace}、@code{tab}、@code{newline}、@code{return}、@code{delete}
+これらのキーは、ほとんどのキーボードにおいて特別にキーをもつ、一般的な@acronym{ASCII}コントロール文字に対応する。
 
-In @acronym{ASCII}, @kbd{C-i} and @key{TAB} are the same character.  If the
-terminal can distinguish between them, Emacs conveys the distinction to Lisp
-programs by representing the former as the integer 9, and the latter as the
-symbol @code{tab}.
+@acronym{ASCII}では@kbd{C-i}と@key{TAB}は同じ文字である。端末がこれらを区別できる場合、Emacsは前者を整数の9、後者をシンボル@code{tab}で表現することにより、Lispプログラムにこれらの違いを伝える。
 
-Most of the time, it's not useful to distinguish the two.  So normally
-@code{local-function-key-map} (@pxref{Translation Keymaps}) is set up to map
-@code{tab} into 9.  Thus, a key binding for character code 9 (the character
-@kbd{C-i}) also applies to @code{tab}.  Likewise for the other symbols in
-this group.  The function @code{read-char} likewise converts these events
-into characters.
+ほとんどの場合、これら2つを区別するのは役に立たない。そのため@code{local-function-key-map}(@ref{Translation
+Keymaps}を参照)は@code{tab}を9にマップするようセットアップされている。したがって文字コード9(文字@kbd{C-i})へのキーバインディングは@code{tab}にも適用される。このグループ内の他のシンボルも同様である。関数@code{read-char}が、これらのイベントを文字に変換する場合も同様である。
 
-In @acronym{ASCII}, @key{BS} is really @kbd{C-h}.  But @code{backspace}
-converts into the character code 127 (@key{DEL}), not into code 8
-(@key{BS}).  This is what most users prefer.
+@acronym{ASCII}では、@key{BS}は実際は@kbd{C-h}である。しかし@code{backspace}は文字コード8(@key{BS})ではなく、文字コード127(@key{DEL})に変換される。ほとんどのユーザーにとって、これは好ましいだろう。
 
-@item @code{left}, @code{up}, @code{right}, @code{down}
-Cursor arrow keys
-@item @code{kp-add}, @code{kp-decimal}, @code{kp-divide}, @dots{}
-Keypad keys (to the right of the regular keyboard).
-@item @code{kp-0}, @code{kp-1}, @dots{}
-Keypad keys with digits.
-@item @code{kp-f1}, @code{kp-f2}, @code{kp-f3}, @code{kp-f4}
-Keypad PF keys.
-@item @code{kp-home}, @code{kp-left}, @code{kp-up}, @code{kp-right}, @code{kp-down}
-Keypad arrow keys.  Emacs normally translates these into the corresponding
-non-keypad keys @code{home}, @code{left}, @dots{}
-@item @code{kp-prior}, @code{kp-next}, @code{kp-end}, @code{kp-begin}, @code{kp-insert}, @code{kp-delete}
-Additional keypad duplicates of keys ordinarily found elsewhere.  Emacs
-normally translates these into the like-named non-keypad keys.
+@item @code{left}、@code{up}、@code{right}、@code{down}
+矢印カーソルキー
+@item @code{kp-add}、@code{kp-decimal}、@code{kp-divide}、@dots{}
+キーパッドキー(標準的なキーボードにおいては右側にある)。
+@item @code{kp-0}、@code{kp-1}、@dots{}
+キーパッド数字キー。
+@item @code{kp-f1}、@code{kp-f2}、@code{kp-f3}、@code{kp-f4}
+キーパッドPFキー。
+@item @code{kp-home}、@code{kp-left}、@code{kp-up}、@code{kp-right}、@code{kp-down}
+キーパッド矢印キー。Emacsは通常これらを非キーパッドのキー@code{home}、@code{left}、@dots{}に変換する。
+@item @code{kp-prior}、@code{kp-next}、@code{kp-end}、@code{kp-begin}、@code{kp-insert}、@code{kp-delete}
+通常は他の箇所にあるキーと重複するキーパッド追加キー。Emacsは通常これらを同じような名前の非キーパッドキーに変換する。
 @end table
 
-You can use the modifier keys @key{ALT}, @key{CTRL}, @key{HYPER},
-@key{META}, @key{SHIFT}, and @key{SUPER} with function keys.  The way to
-represent them is with prefixes in the symbol name:
+ファンクションキーにたいしても修飾キー@key{ALT}、@key{CTRL}、@key{HYPER}、@key{META}、@key{SHIFT}、@key{SUPER}を使用できます。シンボル名のプレフィクスとしてこれらを表します:
 
 @table @samp
 @item A-
-The alt modifier.
+アルト修飾。
 @item C-
-The control modifier.
+コントロール修飾。
 @item H-
-The hyper modifier.
+ハイパー修飾。
 @item M-
-The meta modifier.
+メタ修飾。
 @item S-
-The shift modifier.
+シフト修飾。
 @item s-
-The super modifier.
+スーパー修飾。
 @end table
 
-Thus, the symbol for the key @key{F3} with @key{META} held down is
-@code{M-f3}.  When you use more than one prefix, we recommend you write them
-in alphabetical order; but the order does not matter in arguments to the
-key-binding lookup and modification functions.
+したがって、@key{META}を押下した場合の@key{F3}キーにたいするシンボルは@code{M-f3}になります。複雑のプレフィクスを使用する場合は、アルファベット順に記述することを推奨します。とはいえ、キーバインディングが修飾されたファンクションキーを探す際、引数の順序は関係ありません。
 
 @node Mouse Events
 @subsection Mouse Events
