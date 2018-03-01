@@ -1088,87 +1088,40 @@ Events}を参照してください。
 @cindex triple-click events
 @cindex mouse events, repeated
 
-If you press the same mouse button more than once in quick succession
-without moving the mouse, Emacs generates special @dfn{repeat} mouse events
-for the second and subsequent presses.
+マウスを移動せずに同じマウスボタンを素早く2回以上連続して押下すると、Emacsは2回目とそれ以降の押下にたいして、特別な@dfn{リピート(repeat)}マウスイベントを生成します。
 
-The most common repeat events are @dfn{double-click} events.  Emacs
-generates a double-click event when you click a button twice; the event
-happens when you release the button (as is normal for all click events).
+もっとも一般的なリピートイベントは、@dfn{ダブルクリック(double-click)}イベントです。Emacsはボタンを2回クリックしたときに、ダブルクリックイベントを生成します。このイベントは、(すべてのクリックイベントが通常そうであるように)ボタンをリリースしたときに発生します。
 
-The event type of a double-click event contains the prefix @samp{double-}.
-Thus, a double click on the second mouse button with @key{meta} held down
-comes to the Lisp program as @code{M-double-mouse-2}.  If a double-click
-event has no binding, the binding of the corresponding ordinary click event
-is used to execute it.  Thus, you need not pay attention to the double click
-feature unless you really want to.
+ダブルクリックイベントのイベント型には、プレフィクス@samp{double-}が含まれます。したがって、@key{meta}を押しながら2つ目のマウスボタンをダブルクリックすると、Lispプログラムには@code{M-double-mouse-2}が渡されます。ダブルクリックイベントがバインディングをもたない場合、対応する通常のクリックイベントのバインディングが実行に使用されます。したがって、実際に望んでいなければダブルクリック機能に注意を払う必要はありません。
 
-When the user performs a double click, Emacs generates first an ordinary
-click event, and then a double-click event.  Therefore, you must design the
-command binding of the double click event to assume that the single-click
-command has already run.  It must produce the desired results of a double
-click, starting from the results of a single click.
+ユーザーがダブルクリックを行うとき、Emacsはまず通常のクリックイベントを生成し、その後ダブルクリックイベントを生成します。したがって、ダブルクリックイベントのコマンドバインディングは、すでにシングルクリックイベントが実行された想定でデザインしなければなりません。つまりシングルクリックの結果から開始して、ダブルクリックの望むべき結果を生成しなければならないのです。
 
-This is convenient, if the meaning of a double click somehow ``builds on''
-the meaning of a single click---which is recommended user interface design
-practice for double clicks.
+これはダブルクリックの意味合いが、シングルクリックの意味合いの何らかにもとづいて``構築''される場合は便利です。これはダブルクリックにたいするユーザーインターフェイスにおける推奨されるデザインプラクティスです。
 
-If you click a button, then press it down again and start moving the mouse
-with the button held down, then you get a @dfn{double-drag} event when you
-ultimately release the button.  Its event type contains @samp{double-drag}
-instead of just @samp{drag}.  If a double-drag event has no binding, Emacs
-looks for an alternate binding as if the event were an ordinary drag.
+ボタンをクリックした後もう一度ボタンを押下して、そのままマウス一般的を開始した場合、最終的にボタンをリリースしたとき@dfn{ダブルドラッグ(double-drag)}イベントが取得されます。このイベント型には単なる@samp{drag}のかわりに@samp{double-drag}が含まれます。ダブルドラッグイベントがバインディングをもたない場合、それがあたかも通常のドラッグイベントだったかのようにEmacsはかわりのバインディングを探します。
 
-Before the double-click or double-drag event, Emacs generates a
-@dfn{double-down} event when the user presses the button down for the second
-time.  Its event type contains @samp{double-down} instead of just
-@samp{down}.  If a double-down event has no binding, Emacs looks for an
-alternate binding as if the event were an ordinary button-down event.  If it
-finds no binding that way either, the double-down event is ignored.
+ダブルクリックまたはダブルドラッグイベントの前に、Emacsはユーザーが2回目にボタンを押したタイミングで@dfn{ダブルダウン(double-down)}イベントを生成します。このイベント型には、単なる@samp{down}のかわりに@samp{double-down}が含まれます。ダブルダウンイベントがバインディングをもたない場合、それがあたかも通常のボタンダウンイベントだったかのようにEmacsはかわりのバインディングを探します。どちらの方法でもバインディングが見つからなかった場合、ダブルダウンイベントは無視されます。
 
-To summarize, when you click a button and then press it again right away,
-Emacs generates a down event and a click event for the first click, a
-double-down event when you press the button again, and finally either a
-double-click or a double-drag event.
+要約すると、ボタンをクリックしてすぐにまた押したとき、Emacsは1回目のクリックにたいしてダウンイベントとクリックイベントを生成し、2回目に再度ボタンを押したときにダブルダウンイベント、そして最後にダブルクリックまたはダブルドラッグイベントを生成します。
 
-If you click a button twice and then press it again, all in quick
-succession, Emacs generates a @dfn{triple-down} event, followed by either a
-@dfn{triple-click} or a @dfn{triple-drag}.  The event types of these events
-contain @samp{triple} instead of @samp{double}.  If any triple event has no
-binding, Emacs uses the binding that it would use for the corresponding
-double event.
+ボタンを2回クリックした後もう一度押したとき、それらすべてが素早く連続で行われた場合、Emacsは@dfn{トリプルダウン(triple-down)}イベントと、その後続の@dfn{トリプルクリック(triple-click)}または@dfn{トリプルドラッグ(triple-drag)}イベントを生成します。これらイベントのイベント型には、@samp{double}のかわりに@samp{triple}が含まれます。トリプルイベントがバインディングをもたない場合、Emacsは対応するダブルイベントに使用されるであろうバインディングを使用します。
 
-If you click a button three or more times and then press it again, the
-events for the presses beyond the third are all triple events.  Emacs does
-not have separate event types for quadruple, quintuple, etc.@: events.
-However, you can look at the event list to find out precisely how many times
-the button was pressed.
+ボタンを3回以上クリックした後、再度ボタンを押した場合、3回を超える押下にたいするイベントはすべてトリプルイベントになります。Emacsはクワドループル(quadruple:
+4連)、クインティプル(quintuple:
+5連)、...等のイベントにたいして個別のイベント型をもちません。しかし、ボタンが何回押下されたかを正確に見つけるために、イベントリストを調べることができます。
 
 @defun event-click-count event
-This function returns the number of consecutive button presses that led up
-to @var{event}.  If @var{event} is a double-down, double-click or
-double-drag event, the value is 2.  If @var{event} is a triple event, the
-value is 3 or greater.  If @var{event} is an ordinary mouse event (not a
-repeat event), the value is 1.
+この関数は@var{event}を誘因した連続したボタン押下の回数をリターンする。@var{event}がダブルダウン、ダブルクリック、ダブルドラッグの場合、値は2である。@var{event}がトリプルイベントの場合、値は3以上になる。@var{event}が(リピートイベントではない)通常のマウスイベントの場合、値は1である。
 @end defun
 
 @defopt double-click-fuzz
-To generate repeat events, successive mouse button presses must be at
-approximately the same screen position.  The value of
-@code{double-click-fuzz} specifies the maximum number of pixels the mouse
-may be moved (horizontally or vertically) between two successive clicks to
-make a double-click.
+リピートイベントを生成するためには、ほぼ同じスクリーン位置で連続でマウスボタンを押下しなければならない。@code{double-click-fuzz}の値は、ダブルクリックを生成するために連続する2回のクリック間で、マウスが移動(水平および垂直)するかもしれない最大ピクセル数を指定する。
 
-This variable is also the threshold for motion of the mouse to count as a
-drag.
+この変数はドラッグとみなされるマウス移動の閾値でもある。
 @end defopt
 
 @defopt double-click-time
-To generate repeat events, the number of milliseconds between successive
-button presses must be less than the value of @code{double-click-time}.
-Setting @code{double-click-time} to @code{nil} disables multi-click
-detection entirely.  Setting it to @code{t} removes the time limit; Emacs
-then detects multi-clicks by position only.
+リピートイベントを生成するためには、連続するボタン押下のミリ秒間隔が、@code{double-click-time}の値より小さくなければならない。@code{double-click-time}を@code{nil}にセットすると、複数回クリック検知が完全に無効になる。@code{t}にセットすると、時間制限が取り除かれる。その場合、Emacsは位置だけで複数回クリックを検知する。
 @end defopt
 
 @node Motion Events
