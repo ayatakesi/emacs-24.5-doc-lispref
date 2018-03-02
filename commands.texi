@@ -1147,34 +1147,22 @@ Tracking}を参照してください。
 @subsection Focus Events
 @cindex focus event
 
-Window systems provide general ways for the user to control which window
-gets keyboard input.  This choice of window is called the @dfn{focus}.  When
-the user does something to switch between Emacs frames, that generates a
-@dfn{focus event}.  The normal definition of a focus event, in the global
-keymap, is to select a new frame within Emacs, as the user would expect.
-@xref{Input Focus}.
+ウィンドウシステムは、ユーザーにたいしてどのウィンドウがキーボード入力を受け取るか制御するための、一般的な方法を提供します。このウィンドウ選択は@dfn{フォーカス(focus)}と呼ばれます。Emacsのフレームを切り替えるためにユーザーが何かを行うと、それは@dfn{フォーカスイベント(focus
+event)}を生成します。フォーカスイベントの通常の定義はグローバルキーマップ内にあり、ユーザーが期待するようにEmacsで新たなフレームを選択するためのものです。@xref{Input
+Focus}を参照してください。
 
-Focus events are represented in Lisp as lists that look like this:
+フォーカスイベントは、以下のようにLispのリストで表現されます:
 
 @example
 (switch-frame @var{new-frame})
 @end example
 
 @noindent
-where @var{new-frame} is the frame switched to.
+ここで@var{new-frame}は切り替え先のフレームです。
 
-Some X window managers are set up so that just moving the mouse into a
-window is enough to set the focus there.  Usually, there is no need for a
-Lisp program to know about the focus change until some other kind of input
-arrives.  Emacs generates a focus event only when the user actually types a
-keyboard key or presses a mouse button in the new frame; just moving the
-mouse between frames does not generate a focus event.
+Xウィンドウマネージャーには、あるウィンドウにマウスを移動するだけで、そこにフォーカスされるようにセットアップするものがいくつかあります。通常は、他の種類の入力が到着するまで、Lispプログラムがフォーカスの変更を知る必要はありません。Emacsはユーザーが新たなフレーム内で実際にキーボードのキーをタイプするかマウスボタンを押下したときしか、フォーカスイベントを生成しません。つまりフレーム間でマウスを移動させても、フォーカスイベントは生成されません。
 
-A focus event in the middle of a key sequence would garble the sequence.  So
-Emacs never generates a focus event in the middle of a key sequence.  If the
-user changes focus in the middle of a key sequence---that is, after a prefix
-key---then Emacs reorders the events so that the focus event comes either
-before or after the multi-event key sequence, and not within it.
+キーシーケンスの途中におけるフォーカスイベントは、そのシーケンスを誤ったものにするかもしれません。そのため、Emacsは決してキーシーケンスの途中でフォーカスイベントを生成しません。ユーザーがキーシーケンスの途中(つまりプレフィクス引数の後)でフォーカスを変更した場合、複数イベントキーシーケンスの前か後にフォーカスイベントが到着するように、Emacsはフォーカスイベントを記録しておきます。
 
 @node Misc Events
 @subsection Miscellaneous System Events
