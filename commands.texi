@@ -922,7 +922,7 @@ Keymaps}を参照)は@code{tab}を9にマップするようセットアップさ
 @node Mouse Events
 @subsection Mouse Events
 
-Emacsは4つの種類のマウスイベントをサポートします。それはクリックイベント、ドラッグイベント、ボタンダウンイベント、移動イベントです。すべてのマウスイベントはリストで表現されます。このリストの@sc{car}はイベント型です。イベント型はどのマウスボタンが関与するのか、それにたいしてどの修飾キーが使用されたかを示します。イベント型によりダブル、あるいはトリプルでボタンが押されたかを区別することもできます(@ref{Repeat
+Emacsは4つの種類のマウスイベントをサポートします。それはクリックイベント、ドラッグイベント、ボタンダウンイベント、モーションイベントです。すべてのマウスイベントはリストで表現されます。このリストの@sc{car}はイベント型です。イベント型はどのマウスボタンが関与するのか、それにたいしてどの修飾キーが使用されたかを示します。イベント型によりダブル、あるいはトリプルでボタンが押されたかを区別することもできます(@ref{Repeat
 Events}を参照)。残りのリスト要素は、位置と時間の情報を提供します。
 
 キーの照合においては、イベント型だけが問題になります。2つのイベントが同じコマンドを実行するためには、同じイベント型が必要です。実行されるコマンドはinteractiveのコード@samp{e}を使用して、これらのイベントの完全な値にアクセスできます。@ref{Interactive
@@ -1078,7 +1078,7 @@ Events}を参照)としてドラッグの開始と終了の位置を与えます
 原文は``Button-down is the conservative antithesis of
 drag.''。ボタンダウンを着るような人種と麻薬を対比させたジョークのような気がしますが、すいません、よく分からないので直訳します)。}。これらは@var{event-type}のシンボル名に@samp{down-}が含まれることを除き、クリックイベントとまったく同じようなリストにより表現されます。@samp{down-}プレフィクスの後には、@samp{C-}や@samp{M-}のような修飾キープレフィクスが続きます。
 
-関数@code{read-key-sequence}は、コマンドバインディングをもたないボタンダウンイベントを無視します。したがって、Emacsコマンドループもこれらを無視します。これは、ボタンダウンイベントで何かしたい場合以外は、ボタンダウンイベントの定義について心配する必要がないことを意味します。ボタンダウンイベントを定義する通常の理由は、ボタンがリリースされるまで(移動イベントを読み取ることにより)マウス移動を追跡できるからです。@ref{Motion
+関数@code{read-key-sequence}は、コマンドバインディングをもたないボタンダウンイベントを無視します。したがって、Emacsコマンドループもこれらを無視します。これは、ボタンダウンイベントで何かしたい場合以外は、ボタンダウンイベントの定義について心配する必要がないことを意味します。ボタンダウンイベントを定義する通常の理由は、ボタンがリリースされるまで(モーションイベントを読み取ることにより)マウスモーションを追跡できるからです。@ref{Motion
 Events}を参照してください。
 
 @node Repeat Events
@@ -1117,7 +1117,7 @@ Events}を参照してください。
 @defopt double-click-fuzz
 リピートイベントを生成するためには、ほぼ同じスクリーン位置で連続でマウスボタンを押下しなければならない。@code{double-click-fuzz}の値は、ダブルクリックを生成するために連続する2回のクリック間で、マウスが移動(水平および垂直)するかもしれない最大ピクセル数を指定する。
 
-この変数はドラッグとみなされるマウス移動の閾値でもある。
+この変数はドラッグとみなされるマウスモーションの閾値でもある。
 @end defopt
 
 @defopt double-click-time
@@ -1129,25 +1129,19 @@ Events}を参照してください。
 @cindex motion event
 @cindex mouse motion events
 
-Emacs sometimes generates @dfn{mouse motion} events to describe motion of
-the mouse without any button activity.  Mouse motion events are represented
-by lists that look like this:
+Emacsは、ボタンアクティビティが何もないマウスのモーション(motion: 動き)を記述する@dfn{マウスモーション(mouse
+motion)}イベントを生成するときがあります。マウスモーションイベントは、以下のようなリストにより表現されます:
 
 @example
 (mouse-movement POSITION)
 @end example
 
 @noindent
-@var{position} is a mouse position list (@pxref{Click Events}), specifying
-the current position of the mouse cursor.  As with the end-position of a
-drag event, this position list may represent a location outside the
-boundaries of the initially selected frame, in which case the list contains
-that frame in place of a window.
+@var{position}は、マウスカーソルのカレント位置を指定するマウス位置リスト(@pxref{Click
+Events})です。ドラッグイベントの終了位置のように、この位置リストは最初に選択されていた境界外の位置を表すかもしれず、その場合はそのフレーム内のその位置のウィンドウが含まれる。
 
-The special form @code{track-mouse} enables generation of motion events
-within its body.  Outside of @code{track-mouse} forms, Emacs does not
-generate events for mere motion of the mouse, and these events do not
-appear.  @xref{Mouse Tracking}.
+スペシャルフォーム@code{track-mouse}は、ボタン内でのモーションイベントの生成を有効にします。@code{track-mouse}フォームの外側では、Emacsはマウスの単なるモーションにたいするイベントは生成せず、これらのイベントは発生しません。@ref{Mouse
+Tracking}を参照してください。
 
 @node Focus Events
 @subsection Focus Events
