@@ -1314,41 +1314,21 @@ SIGUSR1シグナルを処理するためにはインタラクティブ関数を�
 @cindex event type
 @cindex classifying events
 
-  Every event has an @dfn{event type}, which classifies the event for key
-binding purposes.  For a keyboard event, the event type equals the event
-value; thus, the event type for a character is the character, and the event
-type for a function key symbol is the symbol itself.  For events that are
-lists, the event type is the symbol in the @sc{car} of the list.  Thus, the
-event type is always a symbol or a character.
+  すべてのイベントは@dfn{イベント型(event
+type)}をもちます。イベント型はキーバインディング目的でイベントをクラス分けします。キーボードイベントにたいするイベント型はイベント値と等しく、したがって文字のイベント型は文字、ファンクションキーシンボルのイベント型はそのシンボル自身です。リストであるようなイベントのイベント型は、そのリストの@sc{car}内のシンボルです。したがって、イベント型は常にシンボルか文字です。
 
-  Two events of the same type are equivalent where key bindings are concerned;
-thus, they always run the same command.  That does not necessarily mean they
-do the same things, however, as some commands look at the whole event to
-decide what to do.  For example, some commands use the location of a mouse
-event to decide where in the buffer to act.
+  同じ型の２つのイベントはキーバインディングに関する限り同じです。したがって、それらは常に同じコマンドを実行します。これらが同じことを行う必要があるという意味ではありませんが、イベント全体を調べてから何を行うか決定するコマンドもいくつかあります。、たとえば、バッファー内でどこに作用するか決定するためにマウスイベントの場所を使用するコマンドもいくつかあります。
 
-  Sometimes broader classifications of events are useful.  For example, you
-might want to ask whether an event involved the @key{META} key, regardless
-of which other key or mouse button was used.
+  広範なイベントのクラス分けが役に立つときもあります。たとえば、他の修飾キーやマウスボタンが使用されたかとは無関係に、@key{META}キーとともに呼び出されたイベントを尋ねたいと思うかもしれません。
 
-  The functions @code{event-modifiers} and @code{event-basic-type} are
-provided to get such information conveniently.
+  関数@code{event-modifiers}は@code{event-basic-type}は、そのような情報を手軽に取得するために提供されています。
 
 @defun event-modifiers event
-This function returns a list of the modifiers that @var{event} has.  The
-modifiers are symbols; they include @code{shift}, @code{control},
-@code{meta}, @code{alt}, @code{hyper} and @code{super}.  In addition, the
-modifiers list of a mouse event symbol always contains one of @code{click},
-@code{drag}, and @code{down}.  For double or triple events, it also contains
-@code{double} or @code{triple}.
+この関数は、@var{event}がもつ修飾子のリストをリターンする。この修飾子はシンボルであり@code{shift}、@code{control}、@code{meta}、@code{alt}、@code{hyper}、@code{super}が含まれる。さらにマウスイベントシンボルの修飾子リストには常に@code{click}、@code{drag}、@code{down}のいずれか1つが含まれる。ダブルイベントまたはトリプルイベントには@code{double}または@code{triple}も含まれる。
 
-The argument @var{event} may be an entire event object, or just an event
-type.  If @var{event} is a symbol that has never been used in an event that
-has been read as input in the current Emacs session, then
-@code{event-modifiers} can return @code{nil}, even when @var{event} actually
-has modifiers.
+引数@var{event}はイベントオブジェクト全体、または単なるイベント型かもしれない。@var{event}がカレントEmacsセッション内で入力として読み取られたイベント内で決して使用されないシンボルの場合は、実際に@var{event}が変更されたときでも、@code{event-modifiers}は@code{nil}をリターンできる。
 
-Here are some examples:
+いくつか例を挙げる:
 
 @example
 (event-modifiers ?a)
@@ -1373,14 +1353,11 @@ Here are some examples:
      @result{} (down)
 @end example
 
-The modifiers list for a click event explicitly contains @code{click}, but
-the event symbol name itself does not contain @samp{click}.
+クリックイベントにたいする修飾リストは明示的に@code{click}を含むが、イベントシンボル名自身は@samp{click}を含まない。
 @end defun
 
 @defun event-basic-type event
-This function returns the key or mouse button that @var{event} describes,
-with all modifiers removed.  The @var{event} argument is as in
-@code{event-modifiers}.  For example:
+この関数は@var{event}を記述するキー、またはマウスボタンをリターンする。@var{event}引数は@code{event-modifiers}の場合と同様。たとえば:
 
 @example
 (event-basic-type ?a)
@@ -1403,14 +1380,12 @@ with all modifiers removed.  The @var{event} argument is as in
 @end defun
 
 @defun mouse-movement-p object
-This function returns non-@code{nil} if @var{object} is a mouse movement
-event.
+@var{object}がマウス移動イベントの場合、この関数は非@code{nil}をリターンする。
 @end defun
 
 @defun event-convert-list list
-This function converts a list of modifier names and a basic event type to an
-event type which specifies all of them.  The basic event type must be the
-last element of the list.  For example,
+この関数は修飾子名リストと基本イベント型(basic event
+type)を、それらすべてを指定するイベント型に変換する。基本イベント型はそのリストの最後の要素でなければならない。たとえば、
 
 @example
 (event-convert-list '(control ?a))
