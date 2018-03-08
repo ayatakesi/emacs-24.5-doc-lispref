@@ -1402,63 +1402,46 @@ type)を、それらすべてを指定するイベント型に変換する。基
 @cindex mouse events, data in
 @cindex keyboard events, data in
 
-  This section describes convenient functions for accessing the data in a
-mouse button or motion event.  Keyboard event data can be accessed using the
-same functions, but data elements that aren't applicable to keyboard events
-are zero or @code{nil}.
+  このセクションではマウスボタンやモーションイベント内のデータアクセスに役に立つ関数を説明します。同じ関数を使用してキーボードイベントデータにもアクセスできますが、キーボードイベントに不適切なデータ要素は0または@code{nil}になります。
 
-  The following two functions return a mouse position list (@pxref{Click
-Events}), specifying the position of a mouse event.
+  以下の2つの関数は、マウスイベントの位置を指定するマウス位置リスト(@pxref{Click Events})をリターンします。
 
 @defun event-start event
-This returns the starting position of @var{event}.
+これは@var{event}の開始位置をリターンする。
 
-If @var{event} is a click or button-down event, this returns the location of
-the event.  If @var{event} is a drag event, this returns the drag's starting
-position.
+@var{event}がクリックイベントまたはボタンダウンイベントの場合、この関数はそのイベントの位置をリターンする。@var{event}がドラッグイベントの場合は、そのドラッグの開始位置をリターンする。
 @end defun
 
 @defun event-end event
-This returns the ending position of @var{event}.
+これは@var{event}の終了位置をリターンする。
 
-If @var{event} is a drag event, this returns the position where the user
-released the mouse button.  If @var{event} is a click or button-down event,
-the value is actually the starting position, which is the only position such
-events have.
+@var{event}がドラッグイベントの場合、この関数はユーザーがマウスボタンをリリースした位置をリターンする。@var{event}がクリックイベントまたはボタンダウンイベントの場合、値はそのイベント固有の開始位置となる。
 @end defun
 
 @defun posnp object
-This function returns non-@code{nil} if @var{object} is a mouse position
-list, in either of the formats documented in @ref{Click Events}); and
-@code{nil} otherwise.
+この関数は@var{object}が(@ref{Click
+Events}に記述されたいずれかのフォーマットの)マウス位置リストの場合は非@code{nil}、それ以外では@code{nil}をリターンする。
 @end defun
 
 @cindex mouse position list, accessing
-  These functions take a mouse position list as argument, and return various
-parts of it:
+  以下の関数は、引数にマウス位置リストをとり、そのリストのさまざまな部分をリターンします:
 
 @defun posn-window position
-Return the window that @var{position} is in.  If @var{position} represents a
-location outside the frame where the event was initiated, return that frame
-instead.
+@var{position}があったウィンドウをリターンする。@var{position}が最初イベントがあったフレーム外の位置を表す場合は、かわりにそのフレームをリターンする。
 @end defun
 
 @defun posn-area position
-Return the window area recorded in @var{position}.  It returns @code{nil}
-when the event occurred in the text area of the window; otherwise, it is a
-symbol identifying the area in which the event occurred.
+@var{position}に記録されたウィンドウエリアをリターンする。そのウィンドウのテキストエリアでイベントが発生したときは@code{nil}、それ以外ではイベントがどこで発生したかを識別するシンボルをリターンする。
 @end defun
 
 @defun posn-point position
-Return the buffer position in @var{position}.  When the event occurred in
-the text area of the window, in a marginal area, or on a fringe, this is an
-integer specifying a buffer position.  Otherwise, the value is undefined.
+@var{position}内のバッファー位置をリターンする。ウィンドウのテキストエリア、マージンエリア、フリンジでイベントが発生したときは、バッファー位置を識別する整数値、それ以外では値は未定義である。
 @end defun
 
 @defun posn-x-y position
-Return the pixel-based x and y coordinates in @var{position}, as a cons cell
-@code{(@var{x} . @var{y})}.  These coordinates are relative to the window
-given by @code{posn-window}.
+コンスセル@code{(@var{x}
+.
+@var{y})}のようなピクセル単位のxy座標で@var{position}をリターンする。これらは@code{posn-window}により与えられるウィンドウにたいする相対座標である。
 
 This example shows how to convert the window-relative coordinates in the
 text area of a window into frame-relative coordinates:
