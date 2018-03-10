@@ -1564,92 +1564,69 @@ Events}を参照のこと。@var{position}が実際のポジション値を含�
 Input Misc}を参照)を使用する。
 @end itemize
 
-  The complexities stem from the modifier bits that keyboard input characters
-can include.  Aside from the Meta modifier, none of these modifier bits can
-be included in a string, and the Meta modifier is allowed only in special
-cases.
+  複雑さはキーボード入力に含まれるかもしれない修飾ビットに起因します。メタ修飾以外の修飾ビットは文字列に含めることができず、メタ文字も特別な場合だけ許されます。
 
-  The earliest GNU Emacs versions represented meta characters as codes in the
-range of 128 to 255.  At that time, the basic character codes ranged from 0
-to 127, so all keyboard character codes did fit in a string.  Many Lisp
-programs used @samp{\M-} in string constants to stand for meta characters,
-especially in arguments to @code{define-key} and similar functions, and key
-sequences and sequences of events were always represented as strings.
+  GNU
+Emacsの初期のバージョンでは、メタ文字を128から255のコードで表していました。その頃は基本文字コードの範囲は0から127だったので、すべてのキーボード文字を文字列内に適合させることができました。Lispプログラムの多くは、特に@code{define-key}やその種の関数の引数として文字列定数内にメタ文字を意味する@samp{\M-}を使用し、キーシーケンスとイベントシーケンスは常に文字列として表現されていました。
 
-  When we added support for larger basic character codes beyond 127, and
-additional modifier bits, we had to change the representation of meta
-characters.  Now the flag that represents the Meta modifier in a character
-is
+  127を超えるより大きい基本文字コードと追加の修飾ビットにたいするサポートを加えたとき、わたしたちはメタ文字の表現を変更する必要がありました。現在では文字のメタ修飾を表すフラグは
 @tex
 @math{2^{27}}
 @end tex
 @ifnottex
 2**27
 @end ifnottex
-and such numbers cannot be included in a string.
+であり、そのような値は文字列内に含めることができません。
 
-  To support programs with @samp{\M-} in string constants, there are special
-rules for including certain meta characters in a string.  Here are the rules
-for interpreting a string as a sequence of input characters:
+  プログラムで文字列定数内の@samp{\M-}をサポートするために、文字列内に特定のメタ文字を含めるための特別なルールがあります。以下は入力文字シーケンスとして文字列を解釈するためのルールです:
 
 @itemize @bullet
 @item
-If the keyboard character value is in the range of 0 to 127, it can go in
-the string unchanged.
+キーボード文字の値の範囲が0から127の場合は、文字列を変更せずに含めることができる。
 
 @item
-The meta variants of those characters, with codes in the range of
+これらの文字のコード
 @tex
 @math{2^{27}}
 @end tex
 @ifnottex
 2**27
 @end ifnottex
-to
+から
 @tex
 @math{2^{27} + 127},
 @end tex
 @ifnottex
 2**27+127,
 @end ifnottex
-can also go in the string, but you must change their numeric values.  You
-must set the
+までの範囲のメタ修飾された変種も文字列に含めることができるが、それらの数値を変更しなければならない。値が128から255の範囲となるように、ビット
 @tex
 @math{2^{7}}
 @end tex
 @ifnottex
 2**7
 @end ifnottex
-bit instead of the
+のかわりにビット
 @tex
 @math{2^{27}}
 @end tex
 @ifnottex
 2**27
 @end ifnottex
-bit, resulting in a value between 128 and 255.  Only a unibyte string can
-include these codes.
+をセットしなければならない。ユニバイト文字列だけがこれらの文字を含むことができる。
 
 @item
-Non-@acronym{ASCII} characters above 256 can be included in a multibyte
-string.
+265を超える非@acronym{ASCII}文字はマルチバイト文字に含めることができる。
 
 @item
-Other keyboard character events cannot fit in a string.  This includes
-keyboard events in the range of 128 to 255.
+その他のキーボード文字イベントは文字列に適合させられない。これには128から255の範囲のキーボードイベントが含まれる。
 @end itemize
 
-  Functions such as @code{read-key-sequence} that construct strings of
-keyboard input characters follow these rules: they construct vectors instead
-of strings, when the events won't fit in a string.
+  キーボード入力文字の文字列定数を構築する@code{read-key-sequence}のような関数は、イベントが文字列内に適合しないときは文字列のかわりにベクターを構築するというルールにしたがいます。
 
-  When you use the read syntax @samp{\M-} in a string, it produces a code in
-the range of 128 to 255---the same code that you get if you modify the
-corresponding keyboard event to put it in the string.  Thus, meta events in
-strings work consistently regardless of how they get into the strings.
+  文字列内で入力構文@samp{\M-}を使用すると、それは128から255の範囲のコード、つまり対応するキーボードイベントを文字列内に配すために変更するとき取得されるのと同じコードが生成されます。したがって文字列内のメタイベントは、それが文字列内にどのように配置されたかと無関係に一貫して機能します。
 
-  However, most programs would do well to avoid these issues by following the
-recommendations at the beginning of this section.
+  しかし、ほとんどのプログラムはこのセクションの冒頭の推奨にしたがって、これらの問題を避けるほうがよいでしょう。
 
 @node Reading Input
 @section Reading Input
