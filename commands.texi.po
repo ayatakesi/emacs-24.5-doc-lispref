@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-02-22 02:45+0900\n"
-"PO-Revision-Date: 2018-03-09 11:58+0900\n"
+"PO-Revision-Date: 2018-03-10 22:51+0900\n"
 "00:42+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
@@ -4021,54 +4021,54 @@ msgstr "スクロールバーイベントは、xy座標ペアーのかわりに�
 #: commands.texi.orig:2187
 #, no-wrap
 msgid "Putting Keyboard Events in Strings"
-msgstr ""
+msgstr "Putting Keyboard Events in Strings"
 
 #. type: cindex
 #: commands.texi.orig:2188
 #, no-wrap
 msgid "keyboard events in strings"
-msgstr ""
+msgstr "keyboard events in strings"
 
 #. type: cindex
 #: commands.texi.orig:2189
 #, no-wrap
 msgid "strings with keyboard events"
-msgstr ""
+msgstr "strings with keyboard events"
 
 #. type: Plain text
 #: commands.texi.orig:2198
 msgid "In most of the places where strings are used, we conceptualize the string as containing text characters---the same kind of characters found in buffers or files.  Occasionally Lisp programs use strings that conceptually contain keyboard characters; for example, they may be key sequences or keyboard macro definitions.  However, storing keyboard characters in a string is a complex matter, for reasons of historical compatibility, and it is not always possible."
-msgstr ""
+msgstr "文字列が使用される場所のほとんどにおいて、わたしたちはテキスト文字を含むもの、つまりバッファーやファイル内で見出すのと同種のものとして、文字列を概念化します。Lispプログラムはときおり、キーボード文字、たとえばキーシーケンスやキーボードマクロ定義かもしれないキーボード文字を概念的に含む文字列を使用します。しかし文字列内へのキーボード文字の格納は、歴史的な互換性の理由により複雑な問題であり、常に可能なわけではありません。"
 
 #. type: Plain text
 #: commands.texi.orig:2201
 msgid "We recommend that new programs avoid dealing with these complexities by not storing keyboard events in strings.  Here is how to do that:"
-msgstr ""
+msgstr "新たに記述するプログラムでは文字列内にキーボードイベントを格納しないことにより、これらの複雑さを扱うことを避けるよう推奨します。以下はこれを行う方法です:"
 
 #. type: itemize
 #: commands.texi.orig:2209
 msgid "Use vectors instead of strings for key sequences, when you plan to use them for anything other than as arguments to @code{lookup-key} and @code{define-key}.  For example, you can use @code{read-key-sequence-vector} instead of @code{read-key-sequence}, and @code{this-command-keys-vector} instead of @code{this-command-keys}."
-msgstr ""
+msgstr "@code{lookup-key}および@code{define-key}の引数として使用するのでなければ、キーシーケンスにたいして文字列のかわりにベクターを使用する。たとえば、@code{read-key-sequence}のかわりに@code{read-key-sequence-vector}、@code{this-command-keys}のかわりに@code{this-command-keys-vector}を使用できる。"
 
 #. type: itemize
 #: commands.texi.orig:2213
 msgid "Use vectors to write key sequence constants containing meta characters, even when passing them directly to @code{define-key}."
-msgstr ""
+msgstr "メタ文字を含むキーシーケンス定数を記述する際は、たとえそれを直接@code{define-key}に渡す場合でもベクターを使用する。"
 
 #. type: itemize
 #: commands.texi.orig:2218
 msgid "When you have to look at the contents of a key sequence that might be a string, use @code{listify-key-sequence} (@pxref{Event Input Misc})  first, to convert it to a list."
-msgstr ""
+msgstr "文字列かもしれないキーシーケンスの内容を調べる必要があるときは、それをリストに変換するために最初に@code{listify-key-sequence}(@ref{Event Input Misc}を参照)を使用する。"
 
 #. type: Plain text
 #: commands.texi.orig:2224
 msgid "The complexities stem from the modifier bits that keyboard input characters can include.  Aside from the Meta modifier, none of these modifier bits can be included in a string, and the Meta modifier is allowed only in special cases."
-msgstr ""
+msgstr "複雑さはキーボード入力に含まれるかもしれない修飾ビットに起因します。メタ修飾以外の修飾ビットは文字列に含めることができず、メタ文字も特別な場合だけ許されます。"
 
 #. type: Plain text
 #: commands.texi.orig:2232
 msgid "The earliest GNU Emacs versions represented meta characters as codes in the range of 128 to 255.  At that time, the basic character codes ranged from 0 to 127, so all keyboard character codes did fit in a string.  Many Lisp programs used @samp{\\M-} in string constants to stand for meta characters, especially in arguments to @code{define-key} and similar functions, and key sequences and sequences of events were always represented as strings."
-msgstr ""
+msgstr "GNU Emacsの初期のバージョンでは、メタ文字を128から255のコードで表していました。その頃は基本文字コードの範囲は0から127だったので、すべてのキーボード文字を文字列内に適合させることができました。Lispプログラムの多くは、特に@code{define-key}やその種の関数の引数として文字列定数内にメタ文字を意味する@samp{\\M-}を使用し、キーシーケンスとイベントシーケンスは常に文字列として表現されていました。"
 
 #. type: Plain text
 #: commands.texi.orig:2237
