@@ -1822,63 +1822,34 @@ Functions}を参照)を非@code{nil}値にバインドした場合、@code{help-
 @cindex translating input events
 @cindex event translation
 
-  Emacs modifies every event it reads according to
-@code{extra-keyboard-modifiers}, then translates it through
-@code{keyboard-translate-table} (if applicable), before returning it from
-@code{read-event}.
+  Emacsは@code{extra-keyboard-modifiers}に合わせて読み取ったすべてのイベントを変更して、@code{read-event}からリターンする前に、(もし適切なら)@code{keyboard-translate-table}を通じてそれを変換します。
 
 @defvar extra-keyboard-modifiers
-This variable lets Lisp programs ``press'' the modifier keys on the
-keyboard.  The value is a character.  Only the modifiers of the character
-matter.  Each time the user types a keyboard key, it is altered as if those
-modifier keys were held down.  For instance, if you bind
-@code{extra-keyboard-modifiers} to @code{?\C-\M-a}, then all keyboard input
-characters typed during the scope of the binding will have the control and
-meta modifiers applied to them.  The character @code{?\C-@@}, equivalent to
-the integer 0, does not count as a control character for this purpose, but
-as a character with no modifiers.  Thus, setting
-@code{extra-keyboard-modifiers} to zero cancels any modification.
+この変数は、Lispプログラムにキーボード上の修飾キーを``押下''させる。値は文字である。文字の修飾子だけが対象となる。ユーザーがキーボードのキーを押下するたびに、その修飾キーがすでに押下されたかのように処理される。たとえば、@code{extra-keyboard-modifiers}を@code{?\C-\M-a}にバインドした場合、このバインディングのスコープ内にある間、すべてのキーボード入力文字はコントロール修飾とメタ修飾を適用されるだろう。文字@code{?\C-@@}は0と等価なので、この目的にたいしてはコントロール文字として勘定されないが、修飾無しの文字として扱われる。したがって@code{extra-keyboard-modifiers}を0にセットすることにより、すべての修飾をキャンセルできる。
 
-When using a window system, the program can ``press'' any of the modifier
-keys in this way.  Otherwise, only the @key{CTL} and @key{META} keys can be
-virtually pressed.
+ウィンドウシステムを利用する場合は、この方法によりプログラムが任意の修飾キーを``押下''できる。それ以外は@key{CTL}と@key{META}のキーだけを仮想的に押下できる。
 
-Note that this variable applies only to events that really come from the
-keyboard, and has no effect on mouse events or any other events.
+この変数は実際にキーボード由来のイベントだけに適用され、マウスイベントやその他のイベントには効果がないことに注意されたい。
 @end defvar
 
 @defvar keyboard-translate-table
-This terminal-local variable is the translate table for keyboard
-characters.  It lets you reshuffle the keys on the keyboard without changing
-any command bindings.  Its value is normally a char-table, or else
-@code{nil}.  (It can also be a string or vector, but this is considered
-obsolete.)
+この端末ローカルな変数はキーボード文字にたいする変換テーブルである。これによりコマンドバインディングを変更することなく、キーボード上のキーを再配置できる。値は通常、文字テーブル、または@code{nil}ある(文字列かベクターも指定できるが、時代遅れとされている)
 
-If @code{keyboard-translate-table} is a char-table (@pxref{Char-Tables}),
-then each character read from the keyboard is looked up in this char-table.
-If the value found there is non-@code{nil}, then it is used instead of the
-actual input character.
+@code{keyboard-translate-table}が文字テーブル(@ref{Char-Tables}を参照)の場合、キーボードから読み取られたそれぞれの文字はその文字テーブルを調べる。非@code{nil}の値が見つかった場合は、実際の入力文字のかわりにそれを使用する。
 
-Note that this translation is the first thing that happens to a character
-after it is read from the terminal.  Record-keeping features such as
-@code{recent-keys} and dribble files record the characters after
-translation.
+この変換は文字が端末から読み取られた後、最初に発生することに注意されたい。@code{recent-keys}のような記録保持機能や文字を記録するdribbleファイルは、この変換の後に処理される。
 
-Note also that this translation is done before the characters are supplied
-to input methods (@pxref{Input Methods}).  Use
-@code{translation-table-for-input} (@pxref{Translation of Characters}), if
-you want to translate characters after input methods operate.
+さらに、この変換は入力メソッド(@ref{Input
+Methods}を参照)に文字を提供する前に行われることにも注意されたい。入力メソッド処理の後に文字を変換したい場合は、@code{translation-table-for-input}(@ref{Translation
+of Characters}を参照)を使用すること。
 @end defvar
 
 @defun keyboard-translate from to
-This function modifies @code{keyboard-translate-table} to translate
-character code @var{from} into character code @var{to}.  It creates the
-keyboard translate table if necessary.
+この関数は文字コード@var{from}を文字コード@var{to}に変換するために、@code{keyboard-translate-table}を変更する。
+必要な場合は、キーボード変換テーブルを作成する。
 @end defun
 
-  Here's an example of using the @code{keyboard-translate-table} to make
-@kbd{C-x}, @kbd{C-c} and @kbd{C-v} perform the cut, copy and paste
-operations:
+  以下は@kbd{C-x}でカット、@kbd{C-}でコピー、@kbd{C-v}でペーストを処理するように@code{keyboard-translate-table}を使用する例です:
 
 @example
 (keyboard-translate ?\C-x 'control-x)
@@ -1890,13 +1861,10 @@ operations:
 @end example
 
 @noindent
-On a graphical terminal that supports extended @acronym{ASCII} input, you
-can still get the standard Emacs meanings of one of those characters by
-typing it with the shift key.  That makes it a different character as far as
-keyboard translation is concerned, but it has the same usual meaning.
+拡張@acronym{ASCII}入力をサポートするグラフィカルな端末上では、シフトキーとともにタイプすることにより、標準的なEmacsにおける意味をこれらの文字から依然として取得することが可能です。これはキーボード変換が関与する文字とは異なりますが、それらは通常と同じ意味をもちます。
 
-  @xref{Translation Keymaps}, for mechanisms that translate event sequences at
-the level of @code{read-key-sequence}.
+  @code{read-key-sequence}のレベルでイベントシーケンスを変換するメカニズムについては、@ref{Translation
+Keymaps}を参照してください。
 
 @node Invoking the Input Method
 @subsection Invoking the Input Method
