@@ -1732,58 +1732,32 @@ Mark, handle-shift-selection}を参照)。
 @cindex reading a single event
 @cindex event, reading only one
 
-  The lowest level functions for command input are @code{read-event},
-@code{read-char}, and @code{read-char-exclusive}.
+  @code{read-event},@code{read-char}、@code{read-char-exclusive}は、コマンド入力にたいするもっとも低レベルの関数です。
 
 @defun read-event &optional prompt inherit-input-method seconds
-This function reads and returns the next event of command input, waiting if
-necessary until an event is available.
+この関数はコマンド入力の次のイベントを読み取り、リターンする。必要ならイベントが利用可能になるまで待機する。
 
-The returned event may come directly from the user, or from a keyboard
-macro.  It is not decoded by the keyboard's input coding system
-(@pxref{Terminal I/O Encoding}).
+リターンされるイベントはユーザーから直接のイベントかもしれないし、またはキーボードマクロからのイベントかもしれない。イベントはキーボードの入力コーディングシステム(@ref{Terminal
+I/O Encoding}を参照)により復号されない。
 
-If the optional argument @var{prompt} is non-@code{nil}, it should be a
-string to display in the echo area as a prompt.  Otherwise,
-@code{read-event} does not display any message to indicate it is waiting for
-input; instead, it prompts by echoing: it displays descriptions of the
-events that led to or were read by the current command.  @xref{The Echo
-Area}.
+オプション引数@var{prompt}が非@code{nil}の場合、それはエコーエリアにプロンプトとして表示される文字列である。@code{nil}の場合、@code{read-event}は入力待ちを示すメッセージを何も表示せず、エコーを行うことによりプロンプトの代用とする。エコーで表示されるのはカレントコマンドに至ったイベントや読み取られたイベントの説明である。@ref{The
+Echo Area}を参照のこと。
 
-If @var{inherit-input-method} is non-@code{nil}, then the current input
-method (if any) is employed to make it possible to enter a
-non-@acronym{ASCII} character.  Otherwise, input method handling is disabled
-for reading this event.
+@var{inherit-input-method}が非@code{nil}の場合、(もしあれば)非@acronym{ASCII}文字の入力を可能にするためにカレントの入力メソッドが採用される。それ以外では、このイベントの読み取りにたいして入力メソッドの処理が無効になる。
 
-If @code{cursor-in-echo-area} is non-@code{nil}, then @code{read-event}
-moves the cursor temporarily to the echo area, to the end of any message
-displayed there.  Otherwise @code{read-event} does not move the cursor.
+@code{cursor-in-echo-area}が非@code{nil}の場合、@code{read-event}はカーソルを一時的にエコーエリアの、そこに表示されているメッセージの終端に移動する。それ以外では、@code{read-event}はカーソルを移動しない。
 
-If @var{seconds} is non-@code{nil}, it should be a number specifying the
-maximum time to wait for input, in seconds.  If no input arrives within that
-time, @code{read-event} stops waiting and returns @code{nil}.  A floating
-point @var{seconds} means to wait for a fractional number of seconds.  Some
-systems support only a whole number of seconds; on these systems,
-@var{seconds} is rounded down.  If @var{seconds} is @code{nil},
-@code{read-event} waits as long as necessary for input to arrive.
+@var{seconds}が非@code{nil}の場合、それは入力を待つ最大秒数を指定する数値である。その時間内に入力が何も到着しない場合、@code{read-event}は待機を終えて@code{nil}をリターンする。浮動小数点数@var{seconds}は待機する秒の分数を意味する。いくつかのシステムではサポートされるのは整数の秒数だけであり、そのようなシステムでは@var{seconds}は切り捨てられる。@var{seconds}が@code{nil}の場合、@code{read-event}は入力が到着するのに必要なだけ待機する。
 
-If @var{seconds} is @code{nil}, Emacs is considered idle while waiting for
-user input to arrive.  Idle timers---those created with
-@code{run-with-idle-timer} (@pxref{Idle Timers})---can run during this
-period.  However, if @var{seconds} is non-@code{nil}, the state of idleness
-remains unchanged.  If Emacs is non-idle when @code{read-event} is called,
-it remains non-idle throughout the operation of @code{read-event}; if Emacs
-is idle (which can happen if the call happens inside an idle timer), it
-remains idle.
+@var{seconds}が@code{nil}の場合、ユーザー入力が到着するのを待つ間、Emacsはアイドル状態にあるとみなされる。この期間中にアイドルタイマー
+--- @code{run-with-idle-timer}(@ref{Idle Timers}を参照) ---
+を実行できる。しかし@var{seconds}が非@code{nil}の場合には、非アイドル状態は変更されずに残る。@code{read-event}が呼び出されたときEmacsが非アイドルだった場合、@code{read-event}の処理を通じて非アイドルのままとなる。Emacsがアイドルだった場合(これはアイドルタイマー内部からその呼び出しが行われた場合に起こり得る)は、アイドルのままとまる。
 
-If @code{read-event} gets an event that is defined as a help character, then
-in some cases @code{read-event} processes the event directly without
-returning.  @xref{Help Functions}.  Certain other events, called
-@dfn{special events}, are also processed directly within @code{read-event}
-(@pxref{Special Events}).
+@code{read-event}がヘルプ文字として定義されたイベントを取得した場合、ある状況においては@code{read-event}がリターンせずに直接イベントを処理することがある。@ref{Help
+Functions}を参照のこと。その他の@dfn{スペシャルイベント(special events)}(@ref{Special
+Events}を参照)と呼ばれる特定のイベントも@code{read-event}で直接処理される。
 
-Here is what happens if you call @code{read-event} and then press the
-right-arrow function key:
+以下は@code{read-event}を呼び出してから右矢印キーを押下したとき何が起こるかの例である:
 
 @example
 @group
@@ -1794,17 +1768,9 @@ right-arrow function key:
 @end defun
 
 @defun read-char &optional prompt inherit-input-method seconds
-This function reads and returns a character of command input.  If the user
-generates an event which is not a character (i.e., a mouse click or function
-key event), @code{read-char} signals an error.  The arguments work as in
-@code{read-event}.
+この関数はコマンド入力の文字を読み取り、それをリターンする。ユーザーが文字以外(たとえばマウスクリックやファンクションキー)のイベントを生成した場合、@code{read-char}はエラーをシグナルする。引数は@code{read-event}と同じように機能する。
 
-In the first example, the user types the character @kbd{1} (@acronym{ASCII}
-code 49).  The second example shows a keyboard macro definition that calls
-@code{read-char} from the minibuffer using @code{eval-expression}.
-@code{read-char} reads the keyboard macro's very next character, which is
-@kbd{1}.  Then @code{eval-expression} displays its return value in the echo
-area.
+1つ目の例では、ユーザーは文字@kbd{1}(@acronym{ASCII}コード49)をタイプしている。2つ目の例では、@code{eval-expression}を使用してミニバッファーから@code{read-char}を呼び出すキーボード定義を示している。@code{read-char}は、キーボードマクロの直後の文字@kbd{1}を読み取る。その後、@code{eval-expression}はリターン値をエコーエリアに表示する。
 
 @example
 @group
@@ -1813,7 +1779,7 @@ area.
 @end group
 
 @group
-;; @r{We assume here you use @kbd{M-:} to evaluate this.}
+;; @r{@kbd{M-:}を使用して以下を評価するものとする}
 (symbol-function 'foo)
      @result{} "^[:(read-char)^M1"
 @end group
@@ -1826,46 +1792,28 @@ area.
 @end defun
 
 @defun read-char-exclusive &optional prompt inherit-input-method seconds
-This function reads and returns a character of command input.  If the user
-generates an event which is not a character, @code{read-char-exclusive}
-ignores it and reads another event, until it gets a character.  The
-arguments work as in @code{read-event}.
+この関数はコマンド入力の文字を読み取り、それをリターンする。ユーザーが文字以外のイベントを生成した場合、@code{read-char-exclusive}はそれを無視して文字を取得するまで他のイベントを読み取る。引数は@code{read-event}と同じように機能する。
 @end defun
 
-  None of the above functions suppress quitting.
+  上記でquitを抑制する関数はありません。
 
 @defvar num-nonmacro-input-events
-This variable holds the total number of input events received so far from
-the terminal---not counting those generated by keyboard macros.
+この変数は端末から受信した入力イベント(キーボードマクロにより生成されたイベントは勘定されない)の総数を保持する。
 @end defvar
 
-  We emphasize that, unlike @code{read-key-sequence}, the functions
-@code{read-event}, @code{read-char}, and @code{read-char-exclusive} do not
-perform the translations described in @ref{Translation Keymaps}.  If you
-wish to read a single key taking these translations into account, use the
-function @code{read-key}:
+  @code{read-key-sequence}と異なり、関数@code{read-event}、@code{read-char}、@code{read-char-exclusive}は@ref{Translation
+Keymaps}で説明した変換を行わないことを強調しておきます。単一キー読み取りでこれらの変換を行いたい場合は、関数@code{read-key}を使用してください。
 
 @defun read-key &optional prompt
-This function reads a single key.  It is ``intermediate'' between
-@code{read-key-sequence} and @code{read-event}.  Unlike the former, it reads
-a single key, not a key sequence.  Unlike the latter, it does not return a
-raw event, but decodes and translates the user input according to
-@code{input-decode-map}, @code{local-function-key-map}, and
-@code{key-translation-map} (@pxref{Translation Keymaps}).
+この関数は1つのキーを読み取る。これは@code{read-key-sequence}と@code{read-event}の間の``中間的''な関数である。@code{read-key-sequence}と異なるのは、キーシーケンスではなく単一キーを読み取ることである。@code{read-event}と異なるのは、rawイベントをリターンせずに@code{input-decode-map}、@code{local-function-key-map}、@code{key-translation-map}(@ref{Translation
+Keymaps}を参照)に合わせて復号と変換を行うことである。
 
-The argument @var{prompt} is either a string to be displayed in the echo
-area as a prompt, or @code{nil}, meaning not to display a prompt.
+引数@var{prompt}はプロンプトとしてエコーエリアに表示する文字列で、@code{nil}はプロンプトを表示しないことを意味する。
 @end defun
 
 @defun read-char-choice prompt chars &optional inhibit-quit
-This function uses @code{read-key} to read and return a single character.
-It ignores any input that is not a member of @var{chars}, a list of accepted
-characters.  Optionally, it will also ignore keyboard-quit events while it
-is waiting for valid input.  If you bind @code{help-form} (@pxref{Help
-Functions}) to a non-@code{nil} value while calling @code{read-char-choice},
-then pressing @code{help-char} causes it to evaluate @code{help-form} and
-display the result.  It then continues to wait for a valid input character,
-or keyboard-quit.
+この関数は1つの文字を読み取りリターンするために@code{read-key}を使用する。これは@var{chars}(許容される文字のリスト)のメンバー以外の入力を無視する。オプションで、有効な入力を待つ間のquitイベントも無視する。@code{read-char-choice}呼び出しの間に@code{help-form}(@ref{Help
+Functions}を参照)を非@code{nil}値にバインドした場合、@code{help-char}の押下により@code{help-form}が評価され結果が表示される。その後、有効な入力文字、またはキーボードquitの待機を継続する。
 @end defun
 
 @node Event Mod
