@@ -1874,34 +1874,19 @@ Keymaps}を参照してください。
 Methods}を参照)。@code{input-method-function}の値が非@code{nil}の場合、関数を指定します。@code{read-event}が修飾ビットのないプリント文字(@key{SPC}を含む)を読み取ったときは、その文字を引数としてその関数を呼び出します。
 
 @defvar input-method-function
-If this is non-@code{nil}, its value specifies the current input method
-function.
+これが非@code{nil}の場合、その値はカレントの入力メソッド関数を指定する。
 
-@strong{Warning:} don't bind this variable with @code{let}.  It is often
-buffer-local, and if you bind it around reading input (which is exactly when
-you @emph{would} bind it), switching buffers asynchronously while Emacs is
-waiting will cause the value to be restored in the wrong buffer.
+@strong{警告:}
+この変数は@code{let}でバインドしてはならない。この変数はしばしばバッファーローカルであり、入力の前後(これは正にあなたがバインド@emph{するであろう}タイミングである)でバインドした場合、Emacsが待機中に非同期にバッファーを切り替えると誤ったバッファーに値がリストアされるだろう。
 @end defvar
 
-  The input method function should return a list of events which should be
-used as input.  (If the list is @code{nil}, that means there is no input, so
-@code{read-event} waits for another event.)  These events are processed
-before the events in @code{unread-command-events} (@pxref{Event Input
-Misc}).  Events returned by the input method function are not passed to the
-input method function again, even if they are printing characters with no
-modifier bits.
+  入力メソッド関数は、入力として使用されるイベントのリストをリターンするべきです(このリストが@code{nil}の場合、それは入力がないことを意味するので、@code{read-event}他のイベントを待機する)。これらのイベントは@code{unread-command-events}(@ref{Event
+Input
+Misc}を参照)内のイベントの前に処理されます。入力メソッドによりリターンされるイベントは、たとえそれらが修飾ビットのないプリント文字であっても、再度入力メソッドに渡されることはありません。
 
-  If the input method function calls @code{read-event} or
-@code{read-key-sequence}, it should bind @code{input-method-function} to
-@code{nil} first, to prevent recursion.
+  入力メソッド関数が@code{read-event}または@code{read-key-sequence}を呼び出した場合は、再帰を防ぐために最初に@code{input-method-function}を@code{nil}にバインドするべきです。
 
-  The input method function is not called when reading the second and
-subsequent events of a key sequence.  Thus, these characters are not subject
-to input method processing.  The input method function should test the
-values of @code{overriding-local-map} and
-@code{overriding-terminal-local-map}; if either of these variables is
-non-@code{nil}, the input method should put its argument into a list and
-return that list with no further processing.
+  キーシーケンスの2つ目および後続のイベントを読み取るときは、入力メソッド関数は呼び出されません。したがって、それらの文字は入力メソッドの処理対象ではありません。入力メソッド関数は@code{overriding-local-map}と@code{overriding-terminal-local-map}の値をテストするべきです。これらの変数のいずれかが非@code{nil}の場合、入力メソッドは引数をリストにputして、それ以上の処理を行わずにそのリストをリターンするべきです。
 
 @node Quoted Character Input
 @subsection Quoted Character Input
