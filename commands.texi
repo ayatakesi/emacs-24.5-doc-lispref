@@ -1924,29 +1924,18 @@ What character @kbd{1 7 7}-
 @node Event Input Misc
 @subsection Miscellaneous Event Input Features
 
-This section describes how to ``peek ahead'' at events without using them
-up, how to check for pending input, and how to discard pending input.  See
-also the function @code{read-passwd} (@pxref{Reading a Password}).
+このセクションでは、イベントを使い切ることなく``先読み''する方法、および入力の保留や保留の破棄の方法について説明します。@ref{Reading a
+Password}の関数@code{read-passwd}も参照してください。
 
 @defvar unread-command-events
 @cindex next input
 @cindex peeking at input
-This variable holds a list of events waiting to be read as command input.
-The events are used in the order they appear in the list, and removed one by
-one as they are used.
+この変数はコマンド入力として読み取り待機中のイベントのリストを保持する。イベントはこのリスト内の出現順に使用され、使用されるごとにリストから取り除かれる。
 
-The variable is needed because in some cases a function reads an event and
-then decides not to use it.  Storing the event in this variable causes it to
-be processed normally, by the command loop or by the functions to read
-command input.
+ある関数がイベントを読み取ってそれを使用するかどうか決定する場合がいくつかあるので、この変数が必要になる。この変数にイベントを格納すると、コマンドループおよにコマンド入力を読み取る関数により、イベントは通常のように処理される。
 
 @cindex prefix argument unreading
-For example, the function that implements numeric prefix arguments reads any
-number of digits.  When it finds a non-digit event, it must unread the event
-so that it can be read normally by the command loop.  Likewise, incremental
-search uses this feature to unread events with no special meaning in a
-search, because these events should exit the search and then execute
-normally.
+たとえば、数引数を実装する関数は、任意の個数の数字を読み取る。数字イベントが見つからないとき、関数はそのイベントを読み戻す(unread)ので、そのイベントはコマンドループにより通常通り読み取られることができる。同様に、インクリメンタル検索は、検索において特別な意味をもたないイベントを読み戻すために、この機能を使用する。なぜなら、それらのイベントは検索をexitして、通常どおり実行されるべきだからである。
 
 The reliable and easy way to extract events from a key sequence so as to put
 them in @code{unread-command-events} is to use @code{listify-key-sequence}
