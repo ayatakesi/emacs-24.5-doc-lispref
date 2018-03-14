@@ -2007,21 +2007,12 @@ C-e}は式を評価するコマンドとする)が@code{last-command-event}に�
 @section Special Events
 
 @cindex special events
-Certain @dfn{special events} are handled at a very low level---as soon as
-they are read.  The @code{read-event} function processes these events
-itself, and never returns them.  Instead, it keeps waiting for the first
-event that is not special and returns that one.
+特定の@dfn{スペシャルイベント(special
+event)}は、読み取られると即座に非常に低レベルで処理されます。@code{read-event}関数はそれらのイベントを自身で処理して、それらを決してリターンしません。かわりに、スペシャルイベント以外の最初のイベントを待ち、それをリターンします。
 
-  Special events do not echo, they are never grouped into key sequences, and
-they never appear in the value of @code{last-command-event} or
-@code{(this-command-keys)}.  They do not discard a numeric argument, they
-cannot be unread with @code{unread-command-events}, they may not appear in a
-keyboard macro, and they are not recorded in a keyboard macro while you are
-defining one.
+  スペシャルイベントはエコーされず、決してキーシーケンスにグループ化されず、@code{last-command-event}や@code{(this-command-keys)}の値として出現することもありません。スペシャルイベントは数引数を破棄し、@code{unread-command-events}による読み戻しができず、キーボードマクロ内に出現することもないでしょうし、キーボードマクロ定義中にキーボードマクロに記録されることもありません。
 
-  Special events do, however, appear in @code{last-input-event} immediately
-after they are read, and this is the way for the event's definition to find
-the actual event.
+  しかし、スペシャルイベントは読み取られた直後に@code{last-input-event}内に出現するので、これが実際のイベントを探すイベント定義にたいする方法になります。
 
   The events types @code{iconify-frame}, @code{make-frame-visible},
 @code{delete-frame}, @code{drag-n-drop}, @code{language-change}, and user
