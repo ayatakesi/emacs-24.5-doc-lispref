@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-02-22 02:45+0900\n"
-"PO-Revision-Date: 2018-03-13 17:47+0900\n"
+"PO-Revision-Date: 2018-03-14 19:27+0900\n"
 "00:42+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
@@ -4954,66 +4954,66 @@ msgstr "たとえば、数引数を実装する関数は、任意の個数の数
 #. type: defvar
 #: commands.texi.orig:2810
 msgid "The reliable and easy way to extract events from a key sequence so as to put them in @code{unread-command-events} is to use @code{listify-key-sequence} (see below)."
-msgstr ""
+msgstr "@code{unread-command-events}にイベントを置くためにキーシーケンスからイベントを抽出するには、@code{listify-key-sequence}(以下参照)を使用するのが簡単で信頼のおける方法である。"
 
 #. type: defvar
 #: commands.texi.orig:2813
 msgid "Normally you add events to the front of this list, so that the events most recently unread will be reread first."
-msgstr ""
+msgstr "もっとも最近読み戻したイベントが最初に再読み取りされるように、このリストの先頭にイベントを追加するのが通常である。"
 
 #. type: defvar
 #: commands.texi.orig:2819
 msgid "Events read from this list are not normally added to the current command's key sequence (as returned by, e.g., @code{this-command-keys}), as the events will already have been added once as they were read for the first time.  An element of the form @w{@code{(t . @var{event})}} forces @var{event} to be added to the current command's key sequence."
-msgstr ""
+msgstr "通常このリストから読み取ったイベントは、そのイベントが最初に読み取られたときにすでに一度追加されたときのように、カレントコマンドのキーシーケンスに(たとえば@code{this-command-keys}にリターンされたとみのように)追加される。フォーム@w{@code{(t . @var{event})}}の要素は、カレントコマンドのキーシーケンスに@var{event}を強制的に追加する。"
 
 #. type: defun
 #: commands.texi.orig:2821
 #, no-wrap
 msgid "listify-key-sequence key"
-msgstr ""
+msgstr "listify-key-sequence key"
 
 #. type: defun
 #: commands.texi.orig:2824
 msgid "This function converts the string or vector @var{key} to a list of individual events, which you can put in @code{unread-command-events}."
-msgstr ""
+msgstr "この関数は文字列またはベクターの@var{key}を、@code{unread-command-events}置くことができる個別のイベントのリストに変換する。"
 
 #. type: defun
 #: commands.texi.orig:2826
 #, no-wrap
 msgid "input-pending-p &optional check-timers"
-msgstr ""
+msgstr "input-pending-p &optional check-timers"
 
 #. type: cindex
 #: commands.texi.orig:2827
 #, no-wrap
 msgid "waiting for command key input"
-msgstr ""
+msgstr "waiting for command key input"
 
 #. type: defun
 #: commands.texi.orig:2832
 msgid "This function determines whether any command input is currently available to be read.  It returns immediately, with value @code{t} if there is available input, @code{nil} otherwise.  On rare occasions it may return @code{t} when no input is available."
-msgstr ""
+msgstr "この関数は、コマンド入力がカレントで読み取り可能かどうか判断する。入力が利用可能なら即座に@code{t}を、それ以外は@code{nil}をリターンする。非常に稀だが、入力が利用できないときに@code{t}"
 
 #. type: defun
 #: commands.texi.orig:2836
 msgid "If the optional argument @var{check-timers} is non-@code{nil}, then if no input is available, Emacs runs any timers which are ready.  @xref{Timers}."
-msgstr ""
+msgstr "オプション引数@var{check-timers}が非@code{nil}の場合、Emacsは順部位ができたら任意のタイマーを実行する。@ref{Timers}を参照のこと。"
 
 #. type: defvar
 #: commands.texi.orig:2838
 #, no-wrap
 msgid "last-input-event"
-msgstr ""
+msgstr "last-input-event"
 
 #. type: defvar
 #: commands.texi.orig:2841
 msgid "This variable records the last terminal input event read, whether as part of a command or explicitly by a Lisp program."
-msgstr ""
+msgstr "この変数は最後に読み取られた端末入力イベントがコマンドの一部なのか、それともLispプログラムによる明示的なものなのかを記録する。"
 
 #. type: defvar
 #: commands.texi.orig:2846
 msgid "In the example below, the Lisp program reads the character @kbd{1}, @acronym{ASCII} code 49.  It becomes the value of @code{last-input-event}, while @kbd{C-e} (we assume @kbd{C-x C-e} command is used to evaluate this expression) remains the value of @code{last-command-event}."
-msgstr ""
+msgstr "以下の例では、文字@kbd{1}(@acronym{ASCII}コード49)をLispプログラムが読み取っている。@kbd{C-e}(@kbd{C-x C-e}は式を評価するコマンドとする)が@code{last-command-event}に値として残っている間は、それが@code{last-input-event}の値となる。"
 
 #. type: group
 #: commands.texi.orig:2855
@@ -5026,27 +5026,33 @@ msgid ""
 "     @print{} 5\n"
 "     @result{} 49\n"
 msgstr ""
+"(progn (print (read-char))\n"
+"       (print last-command-event)\n"
+"       last-input-event)\n"
+"     @print{} 49\n"
+"     @print{} 5\n"
+"     @result{} 49\n"
 
 #. type: defmac
 #: commands.texi.orig:2859
 #, no-wrap
 msgid "while-no-input body@dots{}"
-msgstr ""
+msgstr "while-no-input body@dots{}"
 
 #. type: defmac
 #: commands.texi.orig:2866
 msgid "This construct runs the @var{body} forms and returns the value of the last one---but only if no input arrives.  If any input arrives during the execution of the @var{body} forms, it aborts them (working much like a quit).  The @code{while-no-input} form returns @code{nil} if aborted by a real quit, and returns @code{t} if aborted by arrival of other input."
-msgstr ""
+msgstr "この構成は@var{body}フォームを実行して、入力が何も到着しない場合だけ最後のフォームの値をリターンする。@var{body}フォームを実行する間に何らかの入力が到着した場合は、それらの入力をする(quitのように機能する)。@code{while-no-input}フォームは実際のquitによりabortした場合は@code{nil}、入力の到着によりabortした場合は@code{t}をリターンする。"
 
 #. type: defmac
 #: commands.texi.orig:2870
 msgid "If a part of @var{body} binds @code{inhibit-quit} to non-@code{nil}, arrival of input during those parts won't cause an abort until the end of that part."
-msgstr ""
+msgstr "@var{body}の一部で@code{inhibit-quit}を非@code{nil}にバインドした場合、その部分の間に到着した入力は、その部分が終わるまでabortしない。"
 
 #. type: defmac
 #: commands.texi.orig:2874
 msgid "If you want to be able to distinguish all possible values computed by @var{body} from both kinds of abort conditions, write the code like this:"
-msgstr ""
+msgstr "両方のabort条件を@var{body}により計算されたすべての可能な値で区別できるようにしたい場合は、以下のようにコードを記述する:"
 
 #. type: example
 #: commands.texi.orig:2879
@@ -5056,40 +5062,43 @@ msgid ""
 "  (list\n"
 "    (progn . @var{body})))\n"
 msgstr ""
+"(while-no-input\n"
+"  (list\n"
+"    (progn . @var{body})))\n"
 
 #. type: defun
 #: commands.texi.orig:2882
 #, no-wrap
 msgid "discard-input"
-msgstr ""
+msgstr "discard-input"
 
 #. type: cindex
 #: commands.texi.orig:2883
 #, no-wrap
 msgid "flushing input"
-msgstr ""
+msgstr "flushing input"
 
 #. type: cindex
 #: commands.texi.orig:2884
 #, no-wrap
 msgid "discarding input"
-msgstr ""
+msgstr "discarding input"
 
 #. type: cindex
 #: commands.texi.orig:2885
 #, no-wrap
 msgid "keyboard macro, terminating"
-msgstr ""
+msgstr "keyboard macro, terminating"
 
 #. type: defun
 #: commands.texi.orig:2889
 msgid "This function discards the contents of the terminal input buffer and cancels any keyboard macro that might be in the process of definition.  It returns @code{nil}."
-msgstr ""
+msgstr "この関数は端末入力バッファーの内容を破棄して定義処理中かもしれないキーボードマクロをキャンセルする。この関数は@code{nil}をリターンする。"
 
 #. type: defun
 #: commands.texi.orig:2894
 msgid "In the following example, the user may type a number of characters right after starting the evaluation of the form.  After the @code{sleep-for} finishes sleeping, @code{discard-input} discards any characters typed during the sleep."
-msgstr ""
+msgstr "以下の例では、フォームの評価開始直後にユーザーが数字か文字をタイプするかもしれない。@code{sleep-for}がスリープを終えた後、@code{discard-input}はスリープ中にタイプされた文字を破棄する。"
 
 #. type: example
 #: commands.texi.orig:2899
@@ -5099,6 +5108,9 @@ msgid ""
 "       (discard-input))\n"
 "     @result{} nil\n"
 msgstr ""
+"(progn (sleep-for 2)\n"
+"       (discard-input))\n"
+"     @result{} nil\n"
 
 #. type: cindex
 #: commands.texi.orig:2905
