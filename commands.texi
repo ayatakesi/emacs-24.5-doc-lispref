@@ -2122,56 +2122,41 @@ Modes}内の関数@code{set-input-mode}を参照してください。
 @cindex raw prefix argument
 @cindex numeric prefix argument
 
-  Most Emacs commands can use a @dfn{prefix argument}, a number specified
-before the command itself.  (Don't confuse prefix arguments with prefix
-keys.)  The prefix argument is at all times represented by a value, which
-may be @code{nil}, meaning there is currently no prefix argument.  Each
-command may use the prefix argument or ignore it.
+  ほとんどのEmacsコマンドは@dfn{プレフィクス引数(prefix
+argument)}を使用できます。プレフィクス引数はコマンド自身の前に数字を指定するものです(プレフィクス引数とプレフィクスキーを混同しないように)。プレフィクス引数は常に値により表され、@code{nil}のときはカレントでプレフィクス引数が存在しないことを意味します。すべてのコマンドはプレフィクス引数を使用するか、あるいは無視します。
 
-  There are two representations of the prefix argument: @dfn{raw} and
-@dfn{numeric}.  The editor command loop uses the raw representation
-internally, and so do the Lisp variables that store the information, but
-commands can request either representation.
+  プレフィクス引数には2つの表現があります。それは@dfn{raw(生の、加工していない、原料のままの、未加工の)}と@dfn{数字(numeric)}です。エディターコマンドループは内部的にraw表現を使用し、Lisp変数もその情報を格納するのにこれを使用しますが、コマンドはどちらかの表現を要求できます。
 
-  Here are the possible values of a raw prefix argument:
+  以下は利用できるrawプレフィクス引数の値です:
 
 @itemize @bullet
 @item
-@code{nil}, meaning there is no prefix argument.  Its numeric value is 1,
-but numerous commands make a distinction between @code{nil} and the integer
-1.
+@code{nil}はプレフィクス引数がないことを意味する。これの数値的な値は1だが、多くのコマンドは@code{nil}と整数1を区別する。
 
 @item
-An integer, which stands for itself.
+整数はそれ自身を意味する。
 
 @item
-A list of one element, which is an integer.  This form of prefix argument
-results from one or a succession of @kbd{C-u}s with no digits.  The numeric
-value is the integer in the list, but some commands make a distinction
-between such a list and an integer alone.
+整数の要素を1つもつリスト。プレフィクス引数のこの形式は、1つまたは数字無しの連続する@kbd{C-u}の結果である。数値的な値はリスト内の整数だが、そのようなリストと単独の整数を区別するコマンドがいくつかある。
 
 @item
-The symbol @code{-}.  This indicates that @kbd{M--} or @kbd{C-u -} was
-typed, without following digits.  The equivalent numeric value is @minus{}1,
-but some commands make a distinction between the integer @minus{}1 and the
-symbol @code{-}.
+シンボル@code{-}。これは後に数字をともなわない@kbd{M--}か@kbd{C-u
+-}がタイプされたことを示す。数値的に等価な値は@minus{}1だが、整数の@minus{}1をシンボルの@code{-}を区別するコマンドがいくつかある。
 @end itemize
 
-We illustrate these possibilities by calling the following function with
-various prefixes:
+以下の関数をさまざまなプレフィクスで呼び出して、これらの可能なプレフィクスを説明しましょう:
 
 @example
 @group
 (defun display-prefix (arg)
-  "Display the value of the raw prefix arg."
+  "rawプレフィクス引数の値を表示する。"
   (interactive "P")
   (message "%s" arg))
 @end group
 @end example
 
 @noindent
-Here are the results of calling @code{display-prefix} with various raw
-prefix arguments:
+以下はさまざまなrawプレフィクス引数で@code{display-prefix}を呼び出した結果です:
 
 @example
         M-x display-prefix  @print{} nil
@@ -2182,15 +2167,15 @@ C-u C-u M-x display-prefix  @print{} (16)
 
 C-u 3   M-x display-prefix  @print{} 3
 
-M-3     M-x display-prefix  @print{} 3      ; @r{(Same as @code{C-u 3}.)}
+M-3     M-x display-prefix  @print{} 3      ; @r{(@code{C-u 3}と同じ)}
 
 C-u -   M-x display-prefix  @print{} -
 
-M--     M-x display-prefix  @print{} -      ; @r{(Same as @code{C-u -}.)}
+M--     M-x display-prefix  @print{} -      ; @r{(@code{C-u -}と同じ)}
 
 C-u - 7 M-x display-prefix  @print{} -7
 
-M-- 7   M-x display-prefix  @print{} -7     ; @r{(Same as @code{C-u -7}.)}
+M-- 7   M-x display-prefix  @print{} -7     ; @r{(@code{C-u -7}と同じ)}
 @end example
 
   Emacs uses two variables to store the prefix argument: @code{prefix-arg} and
