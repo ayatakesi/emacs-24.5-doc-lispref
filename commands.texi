@@ -2021,60 +2021,38 @@ Keymaps}を参照)の中にあります。
 @section Waiting for Elapsed Time or Input
 @cindex waiting
 
-  The wait functions are designed to wait for a certain amount of time to pass
-or until there is input.  For example, you may wish to pause in the middle
-of a computation to allow the user time to view the display.  @code{sit-for}
-pauses and updates the screen, and returns immediately if input comes in,
-while @code{sleep-for} pauses without updating the screen.
+  待機関数(wait
+function)は特定の時間が経過するか、入力があるまで待機するようにデザインされています。たとえば、計算の途中でユーザーがディスプレイを閲覧できるように一時停止したいときがあるかもしれません。@code{sit-for}は一時停止して画面を更新、@code{sleep-for}は画面を更新せずに一時停止して、入力が到着したら即座にリターンします。
 
 @defun sit-for seconds &optional nodisp
-This function performs redisplay (provided there is no pending input from
-the user), then waits @var{seconds} seconds, or until input is available.
-The usual purpose of @code{sit-for} is to give the user time to read text
-that you display.  The value is @code{t} if @code{sit-for} waited the full
-time with no input arriving (@pxref{Event Input Misc}).  Otherwise, the
-value is @code{nil}.
+この関数は、(ユーザーからの保留中入力がない場合は)再描画を行ってから、@var{seconds}秒、または入力が利用可能になるまで待機する。@code{sit-for}の通常の目的は、ディスプレイしたテキストをユーザーが読み取る時間を与えるためである。入力が何も到着せず(@ref{Event
+Input Misc}を参照)、時間をフルに待機した場合は@code{t}、それ以外は@code{nil}が値となる。
 
-The argument @var{seconds} need not be an integer.  If it is floating point,
-@code{sit-for} waits for a fractional number of seconds.  Some systems
-support only a whole number of seconds; on these systems, @var{seconds} is
-rounded down.
+引数@var{seconds}は整数である必要はない。浮動小数点数の場合、@code{sit-for}は秒の少数点数を待機する。整数の秒だけをサポートするいくつかのシステムでは、@var{seconds}は切り捨てられる。
 
-The expression @code{(sit-for 0)} is equivalent to @code{(redisplay)}, i.e.,
-it requests a redisplay, without any delay, if there is no pending input.
-@xref{Forcing Redisplay}.
+保留中の入力が存在しない場合、式@code{(sit-for
+0)}は遅延なしに再描画をリクエストする@code{(redisplay)}と等価である。@ref{Forcing Redisplay}を参照のこと。
 
-If @var{nodisp} is non-@code{nil}, then @code{sit-for} does not redisplay,
-but it still returns as soon as input is available (or when the timeout
-elapses).
+@var{nodisp}が非@code{nil}の場合@code{sit-for}は再描画を行わないが、それでも入力が利用可能になると(またはタイムアウト時間が経過すると)即座にリターンする。
 
-In batch mode (@pxref{Batch Mode}), @code{sit-for} cannot be interrupted,
-even by input from the standard input descriptor.  It is thus equivalent to
-@code{sleep-for}, which is described below.
+バッチモード(@ref{Batch
+Mode}を参照)では、たとえ標準入力ディスクリプタからの入力でも割り込みできまい。これは以下で説明する@code{sleep-for}でも同じである。
 
-It is also possible to call @code{sit-for} with three arguments, as
-@code{(sit-for @var{seconds} @var{millisec} @var{nodisp})}, but that is
-considered obsolete.
+@code{(sit-for @var{seconds} @var{millisec}
+@var{nodisp})}のように、3つの引数で@code{sit-for}を呼び出すことも可能だが時代遅れだと考えられている。
 @end defun
 
 @defun sleep-for seconds &optional millisec
-This function simply pauses for @var{seconds} seconds without updating the
-display.  It pays no attention to available input.  It returns @code{nil}.
+この関数は表示を更新せず、単に@var{seconds}秒間一時停止する。これは利用可能な入力に注意を払わない。この関数は@code{nil}をリターンする。
 
-The argument @var{seconds} need not be an integer.  If it is floating point,
-@code{sleep-for} waits for a fractional number of seconds.  Some systems
-support only a whole number of seconds; on these systems, @var{seconds} is
-rounded down.
+引数@var{seconds}は整数である必要はない。浮動小数点数の場合、@code{sleep-for}は秒の少数点数を待機する。整数の秒だけをサポートするいくつかのシステムでは、@var{seconds}は切り捨てられる。
 
-The optional argument @var{millisec} specifies an additional waiting period
-measured in milliseconds.  This adds to the period specified by
-@var{seconds}.  If the system doesn't support waiting fractions of a second,
-you get an error if you specify nonzero @var{millisec}.
+オプション引数@var{millisec}はミリ秒単位で追加の待機期間を指定する。これは@var{seconds}で指定された期間に追加される。システムが小数点の秒数をサポートしない場合、非0の@var{millisec}を指定するとエラーとなる。
 
-Use @code{sleep-for} when you wish to guarantee a delay.
+遅延を保証したい場合は@code{sleep-for}を使用する。
 @end defun
 
-  @xref{Time of Day}, for functions to get the current time.
+  現在時刻を取得する関数については、@ref{Time of Day}を参照してください。
 
 @node Quitting
 @section Quitting
