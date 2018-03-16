@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-02-22 02:45+0900\n"
-"PO-Revision-Date: 2018-03-16 18:59+0900\n"
+"PO-Revision-Date: 2018-03-16 21:29+0900\n"
 "00:42+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
@@ -5232,65 +5232,65 @@ msgstr "C-g"
 #: commands.texi.orig:2994
 #, no-wrap
 msgid "quitting"
-msgstr ""
+msgstr "quitting"
 
 #. type: cindex
 #: commands.texi.orig:2995
 #, no-wrap
 msgid "interrupt Lisp functions"
-msgstr ""
+msgstr "interrupt Lisp functions"
 
 #. type: Plain text
 #: commands.texi.orig:3000
 msgid "Typing @kbd{C-g} while a Lisp function is running causes Emacs to @dfn{quit} whatever it is doing.  This means that control returns to the innermost active command loop."
-msgstr ""
+msgstr "Lisp関数を実行中に@kbd{C-g}をタイプすると、Emacsが何を行っていてもEmacsを@dfn{quit(中止、終了)}させます。これはアクティブなコマンドループの再内に制御がリターンすることを意味します。"
 
 #. type: Plain text
 #: commands.texi.orig:3008
 msgid "Typing @kbd{C-g} while the command loop is waiting for keyboard input does not cause a quit; it acts as an ordinary input character.  In the simplest case, you cannot tell the difference, because @kbd{C-g} normally runs the command @code{keyboard-quit}, whose effect is to quit.  However, when @kbd{C-g} follows a prefix key, they combine to form an undefined key.  The effect is to cancel the prefix key as well as any prefix argument."
-msgstr ""
+msgstr "コマンドループがキーボード入力待機中に@kbd{C-g}をタイプしてもquitはしません。これは通常の入力文字として機能します。もっともシンプルなケースでは、通常@kbd{C-g}はquitの効果をもつ@code{keyboard-quit}を実行するので、区別できませんしかしプレフィクスキーの後の@kbd{C-g}は、未定義のキー組み合わせになります。これはプレフィクスキーやプレフィクスキーも同様にキャンセルする効果をもちます。"
 
 #. type: Plain text
 #: commands.texi.orig:3018
 msgid "In the minibuffer, @kbd{C-g} has a different definition: it aborts out of the minibuffer.  This means, in effect, that it exits the minibuffer and then quits.  (Simply quitting would return to the command loop @emph{within} the minibuffer.)  The reason why @kbd{C-g} does not quit directly when the command reader is reading input is so that its meaning can be redefined in the minibuffer in this way.  @kbd{C-g} following a prefix key is not redefined in the minibuffer, and it has its normal effect of canceling the prefix key and prefix argument.  This too would not be possible if @kbd{C-g} always quit directly."
-msgstr ""
+msgstr "ミニバッファー内では、@kbd{C-g}は異なる定義をもち、それはミニバッファーをabort(失敗、中止、中断)します。これは実際にはミニバッファーをexitしてquitします(単にquitするのは@emph{ミニバッファー内}のコマンドループにリターンするだろう)。@kbd{C-g}がなぜコマンドリーダーが入力読み取り時に直接quitしないかという理由は、ミニバッファー内で@kbd{C-g}の意味をこの方法により再定義可能にするためです。プレフィクスキーの後の@kbd{C-g}はミニバッファー内で再定義されておらず、プレフィクスキーおよびプレフィクス引数のキャンセルという通常の効果をもちます。もし@kbd{C-g}ｇヴぁ常に直接quitするなら、これは不可能でしょう。"
 
 #. type: Plain text
 #: commands.texi.orig:3023
 msgid "When @kbd{C-g} does directly quit, it does so by setting the variable @code{quit-flag} to @code{t}.  Emacs checks this variable at appropriate times and quits if it is not @code{nil}.  Setting @code{quit-flag} non-@code{nil} in any way thus causes a quit."
-msgstr ""
+msgstr "@kbd{C-g}が直接quitを行うときは、変数@code{quit-flag}を@code{t}にセットすることによりそれを行います。Emacsは適切なときにこの変数をチェックして、@code{nil}でない場合はquitします。どのような方法でも、@code{quit-flag}を非@code{nil}にセットするとquitが発生します。"
 
 #. type: Plain text
 #: commands.texi.orig:3029
 msgid "At the level of C code, quitting cannot happen just anywhere; only at the special places that check @code{quit-flag}.  The reason for this is that quitting at other places might leave an inconsistency in Emacs's internal state.  Because quitting is delayed until a safe place, quitting cannot make Emacs crash."
-msgstr ""
+msgstr "Cコードのレベルでは、どこでもquitを発生させることはできず、@code{quit-flag}をチェックする特別な場所でのみquitが発生します。この理由は、他の場所でquitすると、Emacsの内部状態が矛盾が生じるかもしれないからです。安全な場所までquitが遅延されるので、quitがEmacsをクラッシュさせることがなくなります。"
 
 #. type: Plain text
 #: commands.texi.orig:3037
 msgid "Certain functions such as @code{read-key-sequence} or @code{read-quoted-char} prevent quitting entirely even though they wait for input.  Instead of quitting, @kbd{C-g} serves as the requested input.  In the case of @code{read-key-sequence}, this serves to bring about the special behavior of @kbd{C-g} in the command loop.  In the case of @code{read-quoted-char}, this is so that @kbd{C-q} can be used to quote a @kbd{C-g}."
-msgstr ""
+msgstr "@code{read-key-sequence}や@code{read-quoted-char}のような特定の関数は、たとえ入力を待機中でもquitを抑制します。quitするかわりに、@kbd{C-g}は要求された入力として処理されます。@code{read-key-sequence}の場合、これはコマンドループ内での@kbd{C-g}の特別な振る舞いを引き起こすのに役立ちます。@code{read-quoted-char}の場合、これは@kbd{C-g}をクォートするのに@kbd{C-q}を使用できるようにします。"
 
 #. type: cindex
 #: commands.texi.orig:3038
 #, no-wrap
 msgid "preventing quitting"
-msgstr ""
+msgstr "preventing quitting"
 
 #. type: Plain text
 #: commands.texi.orig:3048
 msgid "You can prevent quitting for a portion of a Lisp function by binding the variable @code{inhibit-quit} to a non-@code{nil} value.  Then, although @kbd{C-g} still sets @code{quit-flag} to @code{t} as usual, the usual result of this---a quit---is prevented.  Eventually, @code{inhibit-quit} will become @code{nil} again, such as when its binding is unwound at the end of a @code{let} form.  At that time, if @code{quit-flag} is still non-@code{nil}, the requested quit happens immediately.  This behavior is ideal when you wish to make sure that quitting does not happen within a ``critical section'' of the program."
-msgstr ""
+msgstr "変数@code{inhibit-quit}を非@code{nil}値にバインドすることにより、Lisp関数の一部でquitを抑止できます。その場合は、@code{quit-flag}を@code{t}にセットされていても、@kbd{C-g}の通常の結果であるquitは抑止されます。@code{let}フォームの最後でこのバインディングがunwindされるなどして、結果として@code{inhibit-quit}は再び@code{nil}になります。このとき@code{quit-flag}が@code{nil}の場合には、即座に要求されたquitが発生します。この挙動は、プログラム中の``クリティカルセクション''内でquitが発生しないことを確実にしたいときに理想的です。"
 
 #. type: cindex
 #: commands.texi.orig:3049
 #, no-wrap
 msgid "@code{read-quoted-char} quitting"
-msgstr ""
+msgstr "@code{read-quoted-char} quitting"
 
 #. type: Plain text
 #: commands.texi.orig:3057
 msgid "In some functions (such as @code{read-quoted-char}), @kbd{C-g} is handled in a special way that does not involve quitting.  This is done by reading the input with @code{inhibit-quit} bound to @code{t}, and setting @code{quit-flag} to @code{nil} before @code{inhibit-quit} becomes @code{nil} again.  This excerpt from the definition of @code{read-quoted-char} shows how this is done; it also shows that normal quitting is permitted after the first character of input."
-msgstr ""
+msgstr "(@code{read-quoted-char}のような)いくつかの関数では、quitを起こさない特別な方法で@kbd{C-g}が処理されます。これは@code{inhibit-quit}を@code{t}にバインドして入力を読み取り、再び@code{inhibit-quit}が@code{nil}になる前に@code{quit-flag}を@code{nil}にセットすることにより行われます。以下は、これを行う方法を示すための@code{read-quoted-char}の抜粋です。この例は入力の最初の文字の後で通常のquitを許す方法も示しています。"
 
 #. type: example
 #: commands.texi.orig:3070
@@ -5308,6 +5308,17 @@ msgid ""
 "      @r{@dots{}set the variable @code{code}@dots{}})\n"
 "    code))\n"
 msgstr ""
+"(defun read-quoted-char (&optional prompt)\n"
+"  \"@dots{}@var{documentation}@dots{}\"\n"
+"  (let ((message-log-max nil) done (first t) (code 0) char)\n"
+"    (while (not done)\n"
+"      (let ((inhibit-quit first)\n"
+"            @dots{})\n"
+"        (and prompt (message \"%s-\" prompt))\n"
+"        (setq char (read-event))\n"
+"        (if inhibit-quit (setq quit-flag nil)))\n"
+"      @r{@dots{} 変数@code{code}をセット @dots{}})\n"
+"    code))\n"
 
 #. type: defvar
 #: commands.texi.orig:3072
