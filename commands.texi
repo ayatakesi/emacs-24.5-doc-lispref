@@ -2093,48 +2093,28 @@ Mode}を参照)では、たとえ標準入力ディスクリプタからの入�
 @end example
 
 @defvar quit-flag
-If this variable is non-@code{nil}, then Emacs quits immediately, unless
-@code{inhibit-quit} is non-@code{nil}.  Typing @kbd{C-g} ordinarily sets
-@code{quit-flag} non-@code{nil}, regardless of @code{inhibit-quit}.
+この変数が非@code{nil}で@code{inhibit-quit}が@code{nil}の場合、macsは即座にquitする。@kbd{C-g}をタイプすると、通常は@code{inhibit-quit}とは無関係に@code{quit-flag}を非@code{nil}にセットする。
 @end defvar
 
 @defvar inhibit-quit
-This variable determines whether Emacs should quit when @code{quit-flag} is
-set to a value other than @code{nil}.  If @code{inhibit-quit} is
-non-@code{nil}, then @code{quit-flag} has no special effect.
+この変数は、@code{quit-flag}が非@code{nil}にセットされているときEmacsがquitするかどうかを決定する。@code{inhibit-quit}が非@code{nil}の場合、@code{quit-flag}は特に効果がない。
 @end defvar
 
 @defmac with-local-quit body@dots{}
-This macro executes @var{body} forms in sequence, but allows quitting, at
-least locally, within @var{body} even if @code{inhibit-quit} was
-non-@code{nil} outside this construct.  It returns the value of the last
-form in @var{body}, unless exited by quitting, in which case it returns
-@code{nil}.
+このマクロは@var{body}を順番に実行するが、たとえこの構成の外部で@code{inhibit-quit}が非@code{nil}でも、少なくともローカルに@var{body}内でのquitを許す。このマクロはquitによりexitした場合は@code{nil}、それ以外は@var{body}内の最後のフォームの値をリターンする。
 
-If @code{inhibit-quit} is @code{nil} on entry to @code{with-local-quit}, it
-only executes the @var{body}, and setting @code{quit-flag} causes a normal
-quit.  However, if @code{inhibit-quit} is non-@code{nil} so that ordinary
-quitting is delayed, a non-@code{nil} @code{quit-flag} triggers a special
-kind of local quit.  This ends the execution of @var{body} and exits the
-@code{with-local-quit} body with @code{quit-flag} still non-@code{nil}, so
-that another (ordinary) quit will happen as soon as that is allowed.  If
-@code{quit-flag} is already non-@code{nil} at the beginning of @var{body},
-the local quit happens immediately and the body doesn't execute at all.
+@code{inhibit-quit}が@code{nil}の場合@code{with-local-quit}へのエントリーで@var{body}だけが実行され、@code{quit-flag}をセットすることにより通常のquitが発生する。しかし通常のquitが遅延されるように@code{inhibit-quit}が非@code{nil}にセットされている場合、非@code{nil}の@code{quit-flag}は特別な種類のローカルquitを引き起こす。これは@var{body}の実行を終了して、@code{quit-flag}を非@code{nil}のままで@code{with-local-quit}ボディーをexitするので、許され次第(通常の)他のquitが発生する。@var{body}の先頭ですでに@code{quit-flag}が非@code{nil}の場合、即座にローカルquitが発生して結局ボディーは実行されない。
 
-This macro is mainly useful in functions that can be called from timers,
-process filters, process sentinels, @code{pre-command-hook},
-@code{post-command-hook}, and other places where @code{inhibit-quit} is
-normally bound to @code{t}.
+このマクロは主にタイマー、プロセスフィルター、プロセスセンチネル、@code{pre-command-hook}、@code{post-command-hook}、および@code{inhibit-quit}が通常は@code{t}にバイドされている場所で役に立つ。
 @end defmac
 
 @deffn Command keyboard-quit
-This function signals the @code{quit} condition with @code{(signal 'quit
-nil)}.  This is the same thing that quitting does.  (See @code{signal} in
-@ref{Errors}.)
+この関数は@code{(signal 'quit
+nil)}により@code{quit}条件をシグナルする。これはquitが行うことと同じである(@ref{Errors}の@code{signal}を参照)。
 @end deffn
 
-  You can specify a character other than @kbd{C-g} to use for quitting.  See
-the function @code{set-input-mode} in @ref{Input Modes}.
+  quitに使用する@kbd{C-g}以外の文字を指定できます。@ref{Input
+Modes}内の関数@code{set-input-mode}を参照してください。
 
 @node Prefix Command Arguments
 @section Prefix Command Arguments
