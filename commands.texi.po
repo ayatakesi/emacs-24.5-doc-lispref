@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-02-22 02:45+0900\n"
-"PO-Revision-Date: 2018-03-18 09:14+0900\n"
+"PO-Revision-Date: 2018-03-18 17:10+0900\n"
 "00:42+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
@@ -5699,39 +5699,39 @@ msgstr "ほとんどのアプリケーションはミニバッファー使用の
 #. type: Plain text
 #: commands.texi.orig:3319
 msgid "Recursive edits are useful in debugging.  You can insert a call to @code{debug} into a function definition as a sort of breakpoint, so that you can look around when the function gets there.  @code{debug} invokes a recursive edit but also provides the other features of the debugger."
-msgstr ""
+msgstr "再帰編集はデバッグに便利です。一種のブレークポイントとして関数定義内に@code{debug}を挿入して、関数がそこに達したときにその箇所を調べることができます。@code{debug}は再帰編集を呼び出しますが、デバッガのその他の機能も提供します。"
 
 #. type: Plain text
 #: commands.texi.orig:3322
 msgid "Recursive editing levels are also used when you type @kbd{C-r} in @code{query-replace} or use @kbd{C-x q} (@code{kbd-macro-query})."
-msgstr ""
+msgstr "@code{query-replace}内で@kbd{C-r}をタイプしたときや@kbd{C-x q}(@code{kbd-macro-query})を使用したときも、再帰編集レベルが使用されます。"
 
 #. type: deffn
 #: commands.texi.orig:3323
 #, no-wrap
 msgid "Command recursive-edit"
-msgstr ""
+msgstr "Command recursive-edit"
 
 #. type: cindex
 #: commands.texi.orig:3324
 #, no-wrap
 msgid "suspend evaluation"
-msgstr ""
+msgstr "suspend evaluation"
 
 #. type: deffn
 #: commands.texi.orig:3329
 msgid "This function invokes the editor command loop.  It is called automatically by the initialization of Emacs, to let the user begin editing.  When called from a Lisp program, it enters a recursive editing level."
-msgstr ""
+msgstr "この関数はエディターコマンドループを呼び出す。これはユーザーに編集を開始させるために、Emacsの初期化により自動的に呼び出されるLispプログラムから呼び出されたときは、再帰編集レベルにエンターする。"
 
 #. type: deffn
 #: commands.texi.orig:3334
 msgid "If the current buffer is not the same as the selected window's buffer, @code{recursive-edit} saves and restores the current buffer.  Otherwise, if you switch buffers, the buffer you switched to is current after @code{recursive-edit} returns."
-msgstr ""
+msgstr "カレントバッファーが選択されたウィンドウのバッファーと異なる場合、@code{recursive-edit}はカレントバッファーの保存とリストアを行う。それ以外では、バッファーを切り替えた場合には、@code{recursive-edit}がリターンした後その切り替えたバッファーがカレントになる。"
 
 #. type: deffn
 #: commands.texi.orig:3339
 msgid "In the following example, the function @code{simple-rec} first advances point one word, then enters a recursive edit, printing out a message in the echo area.  The user can then do any editing desired, and then type @kbd{C-M-c} to exit and continue executing @code{simple-rec}."
-msgstr ""
+msgstr "以下の例では、関数@code{simple-rec}が最初にポイントを1単語分進めてからメッセージをエコーエリアにプリントして再帰編集にエンターする。その後ユーザーは望む編集を行い、@kbd{C-M-c}をタイプすれば再帰編集をexitして、@code{simple-rec}の実行を継続できる。"
 
 #. type: example
 #: commands.texi.orig:3349
@@ -5746,50 +5746,58 @@ msgid ""
 "(simple-rec)\n"
 "     @result{} nil\n"
 msgstr ""
+"(defun simple-rec ()\n"
+"  (forward-word 1)\n"
+"  (message \"Recursive edit in progress\")\n"
+"  (recursive-edit)\n"
+"  (forward-word 1))\n"
+"     @result{} simple-rec\n"
+"(simple-rec)\n"
+"     @result{} nil\n"
 
 #. type: deffn
 #: commands.texi.orig:3352
 #, no-wrap
 msgid "Command exit-recursive-edit"
-msgstr ""
+msgstr "Command exit-recursive-edit"
 
 #. type: deffn
 #: commands.texi.orig:3356
 msgid "This function exits from the innermost recursive edit (including minibuffer input).  Its definition is effectively @code{(throw 'exit nil)}."
-msgstr ""
+msgstr "この関数は最内の再帰編集(ミニバッファー入力を含む)からexitする。関数の実質的な定義は@code{(throw 'exit nil)}である。"
 
 #. type: deffn
 #: commands.texi.orig:3358
 #, no-wrap
 msgid "Command abort-recursive-edit"
-msgstr ""
+msgstr "Command abort-recursive-edit"
 
 #. type: deffn
 #: commands.texi.orig:3363
 msgid "This function aborts the command that requested the innermost recursive edit (including minibuffer input), by signaling @code{quit} after exiting the recursive edit.  Its definition is effectively @code{(throw 'exit t)}.  @xref{Quitting}."
-msgstr ""
+msgstr "この関数は、再帰編集をexitした後に@code{quit}をシグナルすることにより、最内の再帰編集(ミニバッファー入力を含む)を要求したコマンドをabortする。関数の実質的な定義は@code{(throw 'exit t)}である。@ref{Quitting}を参照のこと。"
 
 #. type: deffn
 #: commands.texi.orig:3365
 #, no-wrap
 msgid "Command top-level"
-msgstr ""
+msgstr "Command top-level"
 
 #. type: deffn
 #: commands.texi.orig:3369
 msgid "This function exits all recursive editing levels; it does not return a value, as it jumps completely out of any computation directly back to the main command loop."
-msgstr ""
+msgstr "この関数はすべての再帰編集レベルをexitする。これはすべての計算を直接抜け出してメインのコマンドループに戻り、値をリターンしない。"
 
 #. type: defun
 #: commands.texi.orig:3371
 #, no-wrap
 msgid "recursion-depth"
-msgstr ""
+msgstr "recursion-depth"
 
 #. type: defun
 #: commands.texi.orig:3374
 msgid "This function returns the current depth of recursive edits.  When no recursive edit is active, it returns 0."
-msgstr ""
+msgstr "この関数は再帰編集のカレントの深さをリターンする。アクティブな再帰編集が存在しない場合は、0をリターンする。"
 
 #. type: cindex
 #: commands.texi.orig:3378

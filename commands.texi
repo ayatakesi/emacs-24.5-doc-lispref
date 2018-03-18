@@ -2240,29 +2240,18 @@ Throw}を参照)。@code{t}以外の値をthrowした場合、@code{recursive-ed
 
   ほとんどのアプリケーションはミニバッファー使用の一部として使用する場合を除き、再帰編集を使用するべきではありません。カレントバッファーのメジャーモードから、特殊なメジャーモードに一時的に変更する場合に、そのモードに戻るコマンドをもつ必要があるときは、通常は再帰編集のほうが便利です(Rmailの@kbd{e}コマンドはこのテクニックを使用している)。またはユーザーが新たなバッファーの特殊なモードで、異なるテキストを``再帰的''に編集・作成・選択できるようにしたい場合が該当します。このモードでは処理を完了させるコマンドを定義して、前のバッファーに戻ります(Rmailの@kbd{m}コマンドはこれを使用している)。
 
-  Recursive edits are useful in debugging.  You can insert a call to
-@code{debug} into a function definition as a sort of breakpoint, so that you
-can look around when the function gets there.  @code{debug} invokes a
-recursive edit but also provides the other features of the debugger.
+  再帰編集はデバッグに便利です。一種のブレークポイントとして関数定義内に@code{debug}を挿入して、関数がそこに達したときにその箇所を調べることができます。@code{debug}は再帰編集を呼び出しますが、デバッガのその他の機能も提供します。
 
-  Recursive editing levels are also used when you type @kbd{C-r} in
-@code{query-replace} or use @kbd{C-x q} (@code{kbd-macro-query}).
+  @code{query-replace}内で@kbd{C-r}をタイプしたときや@kbd{C-x
+q}(@code{kbd-macro-query})を使用したときも、再帰編集レベルが使用されます。
 
 @deffn Command recursive-edit
 @cindex suspend evaluation
-This function invokes the editor command loop.  It is called automatically
-by the initialization of Emacs, to let the user begin editing.  When called
-from a Lisp program, it enters a recursive editing level.
+この関数はエディターコマンドループを呼び出す。これはユーザーに編集を開始させるために、Emacsの初期化により自動的に呼び出されるLispプログラムから呼び出されたときは、再帰編集レベルにエンターする。
 
-If the current buffer is not the same as the selected window's buffer,
-@code{recursive-edit} saves and restores the current buffer.  Otherwise, if
-you switch buffers, the buffer you switched to is current after
-@code{recursive-edit} returns.
+カレントバッファーが選択されたウィンドウのバッファーと異なる場合、@code{recursive-edit}はカレントバッファーの保存とリストアを行う。それ以外では、バッファーを切り替えた場合には、@code{recursive-edit}がリターンした後その切り替えたバッファーがカレントになる。
 
-In the following example, the function @code{simple-rec} first advances
-point one word, then enters a recursive edit, printing out a message in the
-echo area.  The user can then do any editing desired, and then type
-@kbd{C-M-c} to exit and continue executing @code{simple-rec}.
+以下の例では、関数@code{simple-rec}が最初にポイントを1単語分進めてからメッセージをエコーエリアにプリントして再帰編集にエンターする。その後ユーザーは望む編集を行い、@kbd{C-M-c}をタイプすれば再帰編集をexitして、@code{simple-rec}の実行を継続できる。
 
 @example
 (defun simple-rec ()
@@ -2277,26 +2266,20 @@ echo area.  The user can then do any editing desired, and then type
 @end deffn
 
 @deffn Command exit-recursive-edit
-This function exits from the innermost recursive edit (including minibuffer
-input).  Its definition is effectively @code{(throw 'exit nil)}.
+この関数は最内の再帰編集(ミニバッファー入力を含む)からexitする。関数の実質的な定義は@code{(throw 'exit nil)}である。
 @end deffn
 
 @deffn Command abort-recursive-edit
-This function aborts the command that requested the innermost recursive edit
-(including minibuffer input), by signaling @code{quit} after exiting the
-recursive edit.  Its definition is effectively @code{(throw 'exit t)}.
-@xref{Quitting}.
+この関数は、再帰編集をexitした後に@code{quit}をシグナルすることにより、最内の再帰編集(ミニバッファー入力を含む)を要求したコマンドをabortする。関数の実質的な定義は@code{(throw
+'exit t)}である。@ref{Quitting}を参照のこと。
 @end deffn
 
 @deffn Command top-level
-This function exits all recursive editing levels; it does not return a
-value, as it jumps completely out of any computation directly back to the
-main command loop.
+この関数はすべての再帰編集レベルをexitする。これはすべての計算を直接抜け出してメインのコマンドループに戻り、値をリターンしない。
 @end deffn
 
 @defun recursion-depth
-This function returns the current depth of recursive edits.  When no
-recursive edit is active, it returns 0.
+この関数は再帰編集のカレントの深さをリターンする。アクティブな再帰編集が存在しない場合は、0をリターンする。
 @end defun
 
 @node Disabling Commands
