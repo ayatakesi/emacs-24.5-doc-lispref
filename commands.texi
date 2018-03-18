@@ -2286,58 +2286,46 @@ q}(@code{kbd-macro-query})を使用したときも、再帰編集レベルが使
 @section Disabling Commands
 @cindex disabled command
 
-  @dfn{Disabling a command} marks the command as requiring user confirmation
-before it can be executed.  Disabling is used for commands which might be
-confusing to beginning users, to prevent them from using the commands by
-accident.
+  @dfn{コマンドを無効化(disabling a
+command)}とは、それを実行可能にする前にユーザーによる確認を要求するようにコマンドをマークすることです。無効化は初めてのユーザーを混乱させるかもしれないコマンドにたいして、アクシデントによりそのコマンドが使用されるのを防ぐために使用されます。
 
 @kindex disabled
-  The low-level mechanism for disabling a command is to put a non-@code{nil}
-@code{disabled} property on the Lisp symbol for the command.  These
-properties are normally set up by the user's init file (@pxref{Init File})
-with Lisp expressions such as this:
+  コマンド無効化の低レベルにおけるメカニズムは、そのコマンドにたいするLispシンボルの@code{disabled}プロパティに非@code{nil}をputすることです。これらのプロパティは、通常はユーザーのinitファイル(@ref{Init
+File}を参照)で以下のようなLisp式によりセットアップされます:
 
 @example
 (put 'upcase-region 'disabled t)
 @end example
 
 @noindent
-For a few commands, these properties are present by default (you can remove
-them in your init file if you wish).
+いくつかのコマンドにたいしては、これらのプロパティがデフォルトで与えられています(これらを削除したい場合はinitファイルで削除できる)。
 
-  If the value of the @code{disabled} property is a string, the message saying
-the command is disabled includes that string.  For example:
+  @code{disabled}プロパティの値が文字列の場合、そのコマンドが無効化されていることを告げるメッセージにその文字列が含まれます。たとえば:
 
 @example
 (put 'delete-region 'disabled
-     "Text deleted this way cannot be yanked back!\n")
+     "この方法で削除されたテキストはyankで戻せない!\n")
 @end example
 
-  @xref{Disabling,,, emacs, The GNU Emacs Manual}, for the details on what
-happens when a disabled command is invoked interactively.  Disabling a
-command has no effect on calling it as a function from Lisp programs.
+  無効化されたコマンドをインタラクティブに呼び出したときに何が起こるかの詳細は、@xref{Disabling,,, emacs, The GNU
+Emacs Manual}を参照してください。コマンドの無効化は、それをLispプログラムから関数として呼び出したときは効果がありません。
 
 @deffn Command enable-command command
-Allow @var{command} (a symbol) to be executed without special confirmation
-from now on, and alter the user's init file (@pxref{Init File}) so that this
-will apply to future sessions.
+その時点より、特別な確認なしで@var{command}(シンボル)が実行されることを許す。さらにユーザーのinitファイル(@ref{Init
+File}を参照)も修正するので、将来のセッションにもこれが適用される。
 @end deffn
 
 @deffn Command disable-command command
-Require special confirmation to execute @var{command} from now on, and alter
-the user's init file so that this will apply to future sessions.
+その時点より、@var{command}(シンボル)の実行に特別な確認を要求する。さらにユーザーのinitファイル(@ref{Init
+File}を参照)も修正するので、将来のセッションにもこれが適用される。
 @end deffn
 
 @defvar disabled-command-function
-The value of this variable should be a function.  When the user invokes a
-disabled command interactively, this function is called instead of the
-disabled command.  It can use @code{this-command-keys} to determine what the
-user typed to run the command, and thus find the command itself.
+この変数の値は関数であること。ユーザーが無効化されたコマンドを呼び出したときは、無効化されたコマンドのかわりにその関数が呼び出される。そのコマンドを実行するためにユーザーが何のキーをタイプしたかを判断するために@code{this-command-keys}を使用して、そのコマンド自体を探すことができる。
 
-The value may also be @code{nil}.  Then all commands work normally, even
-disabled ones.
+値が@code{nil}の場合もあり得る。その場合は、たとえ無効化されたコマンドでも、すべてのコマンドが通常に機能する。
 
-By default, the value is a function that asks the user whether to proceed.
+デフォルトでは、値はユーザーに処理を行うか尋ねる関数である。
 @end defvar
 
 @node Command History
