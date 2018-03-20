@@ -114,84 +114,64 @@ Keymaps}を参照してください。
 @cindex full keymap
 @cindex sparse keymap
 
-  Each keymap is a list whose @sc{car} is the symbol @code{keymap}.  The
-remaining elements of the list define the key bindings of the keymap.  A
-symbol whose function definition is a keymap is also a keymap.  Use the
-function @code{keymapp} (see below) to test whether an object is a keymap.
+  キーマップはそれぞれ、@sc{car}がシンボル@code{keymap}であるようなリストです。このリストの残りの要素は、そのキーマップのキーバインディングを定義します。関数定義がキーマップであるようなシンボルもキーマップです。あるオブジェクトがキーマップかどうかテストするには、関数@code{keymapp}(以下参照)を使用してください。
 
-  Several kinds of elements may appear in a keymap, after the symbol
-@code{keymap} that begins it:
+  キーマップを開始するシンボル@code{keymap}の後には、いくつかの種類の要素が出現します:
 
 @table @code
 @item (@var{type} .@: @var{binding})
-This specifies one binding, for events of type @var{type}.  Each ordinary
-binding applies to events of a particular @dfn{event type}, which is always
-a character or a symbol.  @xref{Classifying Events}.  In this kind of
-binding, @var{binding} is a command.
+これは型@var{type}のイベントにたいする1つのバインディングを指定する。通常のバインディングはそれぞれ、常に文字かシンボルであるような特定の@dfn{イベント型(event
+type)}のイベントに適用される。@ref{Classifying
+Events}を参照のこと。この種のバインディングでは、@var{binding}はコマンドである。
 
 @item (@var{type} @var{item-name} .@: @var{binding})
-This specifies a binding which is also a simple menu item that displays as
-@var{item-name} in the menu.  @xref{Simple Menu Items}.
+これは、メニュー内で@var{item-name}として表示されるシンプルなメニューアイテムでもあるようなバインディングを指定する。@ref{Simple
+Menu Items}を参照のこと。
 
 @item (@var{type} @var{item-name} @var{help-string} .@: @var{binding})
-This is a simple menu item with help string @var{help-string}.
+これは、ヘルプ文字列@var{help-string}のシンプルなメニューアイテムである。
 
 @item (@var{type} menu-item .@: @var{details})
-This specifies a binding which is also an extended menu item.  This allows
-use of other features.  @xref{Extended Menu Items}.
+これは、拡張されたメニューアイテムでもあるようなバインディングを指定する。これは他の機能も使用できる。@ref{Extended Menu
+Items}を参照のこと。
 
 @item (t .@: @var{binding})
 @cindex default key binding
-This specifies a @dfn{default key binding}; any event not bound by other
-elements of the keymap is given @var{binding} as its binding.  Default
-bindings allow a keymap to bind all possible event types without having to
-enumerate all of them.  A keymap that has a default binding completely masks
-any lower-precedence keymap, except for events explicitly bound to
-@code{nil} (see below).
+これは@dfn{デフォルトキーバインディング(default key
+binding)}を指定する。キーマップの他の要素でバインドされないイベントは、バインディングとして@var{binding}が与えられる。デフォルトバインディングにより、利用可能なすべてのイベント型を列挙することなくバインドできる。デフォルトバインディングをもつキーマップは、明示的に@code{nil}にバインドされるイベント(以下参照)を除き、より低い優先度にあるすべてのキーマップをマスクする。
 
 @item @var{char-table}
-If an element of a keymap is a char-table, it counts as holding bindings for
-all character events with no modifier bits (@pxref{modifier bits}): element
-@var{n} is the binding for the character with code @var{n}.  This is a
-compact way to record lots of bindings.  A keymap with such a char-table is
-called a @dfn{full keymap}.  Other keymaps are called @dfn{sparse keymaps}.
+キーマップのある要素が文字テーブル(char-table)の場合、それは修飾ビットなしのすべての文字イベントにたいするバインディングを保持するとみなされる。
+If an element of a keymap is a it counts as holding bindings for all
+character events with no modifier bits (@pxref{modifier bits}):
+要素@var{n}は、コード@var{n}の文字にたいするバインディングである。これは多量のバインディングを記録するための、コンパクトな方法である。そのような文字テーブルのキーマップは、@dfn{fullキーマップ(full
+keymap: 完全なキーマップ)}と呼ばれる。それにたいし他のキーマップは@dfn{sparseキーマップ(sparse keymaps:
+疎なキーマップ)}と呼ばれる。
 
 @item @var{string}
 @cindex keymap prompt string
 @cindex overall prompt string
 @cindex prompt string of keymap
-Aside from elements that specify bindings for keys, a keymap can also have a
-string as an element.  This is called the @dfn{overall prompt string} and
-makes it possible to use the keymap as a menu.  @xref{Defining Menus}.
+キーにたいするバインディングを指定する要素は別として、キーマップは要素として文字列ももつことができる。これは@dfn{overallプロンプト文字列(overall
+prompt string: 全般的なプロンプト文字列)}と呼ばれ、メニューとしてキーマップを使用することを可能にする。@ref{Defining
+Menus}を参照のこと。
 
 @item (keymap @dots{})
-If an element of a keymap is itself a keymap, it counts as if this inner
-keymap were inlined in the outer keymap.  This is used for
-multiple-inheritance, such as in @code{make-composed-keymap}.
+キーマップのある要素それ自身がキーマップの場合、それは外側のキーマップ内でこれが内側のキーマップとしてinline指定されているかのようにみなされる。これは@code{make-composed-keymap}内で行なわれるような多重継承にたいして使用される。
 @end table
 
-When the binding is @code{nil}, it doesn't constitute a definition but it
-does take precedence over a default binding or a binding in the parent
-keymap.  On the other hand, a binding of @code{nil} does @emph{not} override
-lower-precedence keymaps; thus, if the local map gives a binding of
-@code{nil}, Emacs uses the binding from the global map.
+バインディングが@code{nil}の場合、それは定義の構成要素ではありませんが、デフォルトバインディングや親キーマップ内のバインディングに優先されます。一方、@code{nil}のバインディングは、より低い優先度のキーマップを@emph{オーバーライドしません}したがって、ローカルマップで@code{nil}のバインディングが与えられた場合、Emacsはグローバルマップのバインディングを使用します。
 
 @cindex meta characters lookup
-  Keymaps do not directly record bindings for the meta characters.  Instead,
-meta characters are regarded for purposes of key lookup as sequences of two
-characters, the first of which is @key{ESC} (or whatever is currently the
-value of @code{meta-prefix-char}).  Thus, the key @kbd{M-a} is internally
-represented as @kbd{@key{ESC} a}, and its global binding is found at the
-slot for @kbd{a} in @code{esc-map} (@pxref{Prefix Keys}).
+  キーマップはメタ文字にたいするバインディングを直接記録しません。かわりに、メタ文字は１文字目が@key{ESC}(または何であれ@code{meta-prefix-char}のカレント値)の、2文字のキーシーケンスを照合するものとみなされます。したがって、キー@kbd{M-a}は内部的に@kbd{@key{ESC}
+a}で表され、そのグローバルバインディングは、@code{esc-map}内の@kbd{a}にたいするスロットで見つけることができます(@ref{Prefix
+Keys}を参照)。
 
-  This conversion applies only to characters, not to function keys or other
-input events; thus, @kbd{M-@key{end}} has nothing to do with @kbd{@key{ESC}
-@key{end}}.
+  この変換は文字にたいしてのみ適用され、ファンクションキーや他の入力イベントには適用されないので、@kbd{M-@key{end}}は@kbd{@key{ESC}
+@key{end}}と何も関係ありません。
 
-  Here as an example is the local keymap for Lisp mode, a sparse keymap.  It
-defines bindings for @key{DEL}, @kbd{C-c C-z}, @kbd{C-M-q}, and @kbd{C-M-x}
-(the actual value also contains a menu binding, which is omitted here for
-the sake of brevity).
+  以下に例としてLispモードにたいするローカルキーマップ(sparseキーマップ)を挙げます。以下では@key{DEL}、@kbd{C-c
+C-z}、@kbd{C-M-q}、@kbd{C-M-x}にたいするバインディングを定義しています(実際の値はメニューバインディングも含みますが、簡潔にするためここでは省略しています)。
 
 @example
 @group
@@ -206,27 +186,24 @@ lisp-mode-map
 @end group
 @group
  (27 keymap
-     ;; @r{@kbd{C-M-x}, treated as @kbd{@key{ESC} C-x}}
+     ;; @r{@kbd{C-M-x}は@kbd{@key{ESC} C-x}として扱われる}
      (24 . lisp-send-defun))
 @end group
 @group
- ;; @r{This part is inherited from @code{lisp-mode-shared-map}.}
+ ;; @r{この部分は@code{lisp-mode-shared-map}から継承}
  keymap
  ;; @key{DEL}
  (127 . backward-delete-char-untabify)
 @end group
 @group
  (27 keymap
-     ;; @r{@kbd{C-M-q}, treated as @kbd{@key{ESC} C-q}}
+     ;; @r{@kbd{C-M-q}は@kbd{@key{ESC} C-q}として扱われる}
      (17 . indent-sexp)))
 @end group
 @end example
 
 @defun keymapp object
-This function returns @code{t} if @var{object} is a keymap, @code{nil}
-otherwise.  More precisely, this function tests for a list whose @sc{car} is
-@code{keymap}, or for a symbol whose function definition satisfies
-@code{keymapp}.
+この関数は、@var{object}がキーマップなら@code{t}、それ以外は@code{nil}をリターンする。より正確には、この関数はリストにたいしてその@sc{car}が@code{keymap}か、あるいはシンボルにたいしてその関数定義が@code{keymapp}かをテストする。
 
 @example
 @group
