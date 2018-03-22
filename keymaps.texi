@@ -290,47 +290,31 @@ fullキーマップは、多くのスロットを保持するときはsparseキ�
 @cindex keymap inheritance
 @cindex inheritance, keymap
 
-  A keymap can inherit the bindings of another keymap, which we call the
-@dfn{parent keymap}.  Such a keymap looks like this:
+  キーマップは、他のキーマップを継承することができ、この継承元のキーマップを@dfn{親キーマップ(parent
+keymap)}と呼びます。そのようなキーマップは、以下のようなキーマップです:
 
 @example
 (keymap @var{elements}@dots{} . @var{parent-keymap})
 @end example
 
 @noindent
-The effect is that this keymap inherits all the bindings of
-@var{parent-keymap}, whatever they may be at the time a key is looked up,
-but can add to them or override them with @var{elements}.
+これの効果は、このキーマップがキー照合時に@var{parent-keymap}のすべてのバインディングを継承するが、それらにバインディングを追加したり、@var{elements}でオーバーライドできるということです。
 
-If you change the bindings in @var{parent-keymap} using @code{define-key} or
-other key-binding functions, these changed bindings are visible in the
-inheriting keymap, unless shadowed by the bindings made by @var{elements}.
-The converse is not true: if you use @code{define-key} to change bindings in
-the inheriting keymap, these changes are recorded in @var{elements}, but
-have no effect on @var{parent-keymap}.
+@code{define-key}や他のキーバインディング関数を使用して@var{parent-keymap}内のバインディングを変更した場合、変更されたバインディングは@var{elements}で作られたバインディングにshadowされない限り、継承されたキーマップ内で可視になります。逆は真ではありません。@code{define-key}を使用して継承されたキーマップ内のバインディングを変更した場合、これらの変更は@var{elements}内に記録されますが、@var{parent-keymap}に影響はありません。
 
-The proper way to construct a keymap with a parent is to use
-@code{set-keymap-parent}; if you have code that directly constructs a keymap
-with a parent, please convert the program to use @code{set-keymap-parent}
-instead.
+親キーマップからキーマップを構築するには、@code{set-keymap-parent}を使用するのが正しい方法です。親キーマップから直接キーマップを構築するコードがある場合は、かわりに@code{set-keymap-parent}を使用するようにプログラムを変更してください。
 
 @defun keymap-parent keymap
-This returns the parent keymap of @var{keymap}.  If @var{keymap} has no
-parent, @code{keymap-parent} returns @code{nil}.
+これは、@var{keymap}の親キーマップをリターンする。@var{keymap}に親キーマップがない場合、@code{keymap-parent}は@code{nil}をリターンする。
 @end defun
 
 @defun set-keymap-parent keymap parent
-This sets the parent keymap of @var{keymap} to @var{parent}, and returns
-@var{parent}.  If @var{parent} is @code{nil}, this function gives
-@var{keymap} no parent at all.
+これは@var{keymap}の親キーマップを@var{parent}にセットして、@var{parent}をリターンする。@var{parent}が@code{nil}の場合、この関数は@var{keymap}に親キーマップを与えない。
 
-If @var{keymap} has submaps (bindings for prefix keys), they too receive new
-parent keymaps that reflect what @var{parent} specifies for those prefix
-keys.
+@var{keymap}がサブマップ(プレフィクスキーにたいするバインディング)をもつ場合は、それらも新たな親キーマップを受け取り、それらのプレフィクスキーにたいして@var{parent}が何を指定するかが反映される。
 @end defun
 
-   Here is an example showing how to make a keymap that inherits from
-@code{text-mode-map}:
+   以下は@code{text-mode-map}から継承してキーマップを作成する方法を示す例です:
 
 @example
 (let ((map (make-sparse-keymap)))
@@ -338,29 +322,17 @@ keys.
   map)
 @end example
 
-  A non-sparse keymap can have a parent too, but this is not very useful.  A
-non-sparse keymap always specifies something as the binding for every
-numeric character code without modifier bits, even if it is @code{nil}, so
-these character's bindings are never inherited from the parent keymap.
+  非sparseキーマップも親キーマップをもつことができますが、便利とは言えません。非sparseキーマップは、修飾ビットをもたないすべての数値文字コードにたいするバインディングとして、たとえそれが@code{nil}であっても常に何かを指定するので、これらの文字のバインディングが親キーマップから継承されることは決してないのです。
 
 @cindex keymap inheritance from multiple maps
-  Sometimes you want to make a keymap that inherits from more than one map.
-You can use the function @code{make-composed-keymap} for this.
+  複数のマップからキーマップを継承したいときがあるかもしれません。これにたいしては、関数@code{make-composed-keymap}が使用できます。
 
 @defun make-composed-keymap maps &optional parent
-This function returns a new keymap composed of the existing keymap(s)
-@var{maps}, and optionally inheriting from a parent keymap @var{parent}.
-@var{maps} can be a single keymap or a list of more than one.  When looking
-up a key in the resulting new map, Emacs searches in each of the @var{maps}
-in turn, and then in @var{parent}, stopping at the first match.  A
-@code{nil} binding in any one of @var{maps} overrides any binding in
-@var{parent}, but it does not override any non-@code{nil} binding in any
-other of the @var{maps}.
+この関数は、既存のキーマップから構成される新たなキーマップをリターンする。また、オプションで親キーマップ@var{parent}から継承する。@var{maps}には単一のキーマップ、または複数のキーマップのリストを指定できる。リターンされた新たなマップ内でキーを照合するとき、Emacsは@var{maps}内のキーマップを順に検索してから@var{parent}内を検索する。この検索は最初のマッチで停止される。@var{maps}のどれか1つのキーマップ内の@code{nil}バインディングは、@var{parent}内の任意のバインディングをオーバーライドするが、@var{maps}にないキーマップの非@code{nil}バインディングはオーバーライドしない。
 @end defun
 
 @noindent For example, here is how Emacs sets the parent of
-@code{help-mode-map}, such that it inherits from both
-@code{button-buffer-map} and @code{special-mode-map}:
+たとえば、以下は@code{button-buffer-map}と@code{special-mode-map}の両方を継承する@code{help-mode-map}のようなキーマップの親キーマップをEmacsがセットする方法です:
 
 @example
 (defvar help-mode-map

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-21 10:21+0900\n"
+"PO-Revision-Date: 2018-03-22 01:50+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -760,65 +760,65 @@ msgstr ""
 #: keymaps.texi.orig:378
 #, no-wrap
 msgid "inheritance, keymap"
-msgstr ""
+msgstr "inheritance, keymap"
 
 #. type: Plain text
 #: keymaps.texi.orig:382
 msgid "A keymap can inherit the bindings of another keymap, which we call the @dfn{parent keymap}.  Such a keymap looks like this:"
-msgstr ""
+msgstr "キーマップは、他のキーマップを継承することができ、この継承元のキーマップを@dfn{親キーマップ(parent keymap)}と呼びます。そのようなキーマップは、以下のようなキーマップです:"
 
 #. type: example
 #: keymaps.texi.orig:385
 #, no-wrap
 msgid "(keymap @var{elements}@dots{} . @var{parent-keymap})\n"
-msgstr ""
+msgstr "(keymap @var{elements}@dots{} . @var{parent-keymap})\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:391
 msgid "The effect is that this keymap inherits all the bindings of @var{parent-keymap}, whatever they may be at the time a key is looked up, but can add to them or override them with @var{elements}."
-msgstr ""
+msgstr "これの効果は、このキーマップがキー照合時に@var{parent-keymap}のすべてのバインディングを継承するが、それらにバインディングを追加したり、@var{elements}でオーバーライドできるということです。"
 
 #. type: Plain text
 #: keymaps.texi.orig:399
 msgid "If you change the bindings in @var{parent-keymap} using @code{define-key} or other key-binding functions, these changed bindings are visible in the inheriting keymap, unless shadowed by the bindings made by @var{elements}.  The converse is not true: if you use @code{define-key} to change bindings in the inheriting keymap, these changes are recorded in @var{elements}, but have no effect on @var{parent-keymap}."
-msgstr ""
+msgstr "@code{define-key}や他のキーバインディング関数を使用して@var{parent-keymap}内のバインディングを変更した場合、変更されたバインディングは@var{elements}で作られたバインディングにshadowされない限り、継承されたキーマップ内で可視になります。逆は真ではありません。@code{define-key}を使用して継承されたキーマップ内のバインディングを変更した場合、これらの変更は@var{elements}内に記録されますが、@var{parent-keymap}に影響はありません。"
 
 #. type: Plain text
 #: keymaps.texi.orig:404
 msgid "The proper way to construct a keymap with a parent is to use @code{set-keymap-parent}; if you have code that directly constructs a keymap with a parent, please convert the program to use @code{set-keymap-parent} instead."
-msgstr ""
+msgstr "親キーマップからキーマップを構築するには、@code{set-keymap-parent}を使用するのが正しい方法です。親キーマップから直接キーマップを構築するコードがある場合は、かわりに@code{set-keymap-parent}を使用するようにプログラムを変更してください。"
 
 #. type: defun
 #: keymaps.texi.orig:405
 #, no-wrap
 msgid "keymap-parent keymap"
-msgstr ""
+msgstr "keymap-parent keymap"
 
 #. type: defun
 #: keymaps.texi.orig:408
 msgid "This returns the parent keymap of @var{keymap}.  If @var{keymap} has no parent, @code{keymap-parent} returns @code{nil}."
-msgstr ""
+msgstr "これは、@var{keymap}の親キーマップをリターンする。@var{keymap}に親キーマップがない場合、@code{keymap-parent}は@code{nil}をリターンする。"
 
 #. type: defun
 #: keymaps.texi.orig:410
 #, no-wrap
 msgid "set-keymap-parent keymap parent"
-msgstr ""
+msgstr "set-keymap-parent keymap parent"
 
 #. type: defun
 #: keymaps.texi.orig:414
 msgid "This sets the parent keymap of @var{keymap} to @var{parent}, and returns @var{parent}.  If @var{parent} is @code{nil}, this function gives @var{keymap} no parent at all."
-msgstr ""
+msgstr "これは@var{keymap}の親キーマップを@var{parent}にセットして、@var{parent}をリターンする。@var{parent}が@code{nil}の場合、この関数は@var{keymap}に親キーマップを与えない。"
 
 #. type: defun
 #: keymaps.texi.orig:418
 msgid "If @var{keymap} has submaps (bindings for prefix keys), they too receive new parent keymaps that reflect what @var{parent} specifies for those prefix keys."
-msgstr ""
+msgstr "@var{keymap}がサブマップ(プレフィクスキーにたいするバインディング)をもつ場合は、それらも新たな親キーマップを受け取り、それらのプレフィクスキーにたいして@var{parent}が何を指定するかが反映される。"
 
 #. type: Plain text
 #: keymaps.texi.orig:422
 msgid "Here is an example showing how to make a keymap that inherits from @code{text-mode-map}:"
-msgstr ""
+msgstr "以下は@code{text-mode-map}から継承してキーマップを作成する方法を示す例です:"
 
 #. type: example
 #: keymaps.texi.orig:427
@@ -828,38 +828,41 @@ msgid ""
 "  (set-keymap-parent map text-mode-map)\n"
 "  map)\n"
 msgstr ""
+"(let ((map (make-sparse-keymap)))\n"
+"  (set-keymap-parent map text-mode-map)\n"
+"  map)\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:434
 msgid "A non-sparse keymap can have a parent too, but this is not very useful.  A non-sparse keymap always specifies something as the binding for every numeric character code without modifier bits, even if it is @code{nil}, so these character's bindings are never inherited from the parent keymap."
-msgstr ""
+msgstr "非sparseキーマップも親キーマップをもつことができますが、便利とは言えません。非sparseキーマップは、修飾ビットをもたないすべての数値文字コードにたいするバインディングとして、たとえそれが@code{nil}であっても常に何かを指定するので、これらの文字のバインディングが親キーマップから継承されることは決してないのです。"
 
 #. type: cindex
 #: keymaps.texi.orig:435
 #, no-wrap
 msgid "keymap inheritance from multiple maps"
-msgstr ""
+msgstr "keymap inheritance from multiple maps"
 
 #. type: Plain text
 #: keymaps.texi.orig:438
 msgid "Sometimes you want to make a keymap that inherits from more than one map.  You can use the function @code{make-composed-keymap} for this."
-msgstr ""
+msgstr "複数のマップからキーマップを継承したいときがあるかもしれません。これにたいしては、関数@code{make-composed-keymap}が使用できます。"
 
 #. type: defun
 #: keymaps.texi.orig:439
 #, no-wrap
 msgid "make-composed-keymap maps &optional parent"
-msgstr ""
+msgstr "make-composed-keymap maps &optional parent"
 
 #. type: defun
 #: keymaps.texi.orig:448
 msgid "This function returns a new keymap composed of the existing keymap(s)  @var{maps}, and optionally inheriting from a parent keymap @var{parent}.  @var{maps} can be a single keymap or a list of more than one.  When looking up a key in the resulting new map, Emacs searches in each of the @var{maps} in turn, and then in @var{parent}, stopping at the first match.  A @code{nil} binding in any one of @var{maps} overrides any binding in @var{parent}, but it does not override any non-@code{nil} binding in any other of the @var{maps}."
-msgstr ""
+msgstr "この関数は、既存のキーマップから構成される新たなキーマップをリターンする。また、オプションで親キーマップ@var{parent}から継承する。@var{maps}には単一のキーマップ、または複数のキーマップのリストを指定できる。リターンされた新たなマップ内でキーを照合するとき、Emacsは@var{maps}内のキーマップを順に検索してから@var{parent}内を検索する。この検索は最初のマッチで停止される。@var{maps}のどれか1つのキーマップ内の@code{nil}バインディングは、@var{parent}内の任意のバインディングをオーバーライドするが、@var{maps}にないキーマップの非@code{nil}バインディングはオーバーライドしない。"
 
 #. type: Plain text
 #: keymaps.texi.orig:453
 msgid "@code{help-mode-map}, such that it inherits from both @code{button-buffer-map} and @code{special-mode-map}:"
-msgstr ""
+msgstr "たとえば、以下は@code{button-buffer-map}と@code{special-mode-map}の両方を継承する@code{help-mode-map}のようなキーマップの親キーマップをEmacsがセットする方法です:"
 
 #. type: example
 #: keymaps.texi.orig:460
@@ -871,6 +874,11 @@ msgid ""
 "      (make-composed-keymap button-buffer-map special-mode-map))\n"
 "    ... map) ... )\n"
 msgstr ""
+"(defvar help-mode-map\n"
+"  (let ((map (make-sparse-keymap)))\n"
+"    (set-keymap-parent map\n"
+"      (make-composed-keymap button-buffer-map special-mode-map))\n"
+"    ... map) ... )\n"
 
 #. type: cindex
 #: keymaps.texi.orig:465
