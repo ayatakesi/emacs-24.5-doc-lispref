@@ -347,116 +347,89 @@ keymap)}と呼びます。そのようなキーマップは、以下のような
 @section Prefix Keys
 @cindex prefix key
 
-  A @dfn{prefix key} is a key sequence whose binding is a keymap.  The keymap
-defines what to do with key sequences that extend the prefix key.  For
-example, @kbd{C-x} is a prefix key, and it uses a keymap that is also stored
-in the variable @code{ctl-x-map}.  This keymap defines bindings for key
-sequences starting with @kbd{C-x}.
+  @dfn{プレフィクスキー(prefix
+key)}とは、バインディングがキーマップであるようなキーシーケンスです。このキーマップは、プレフィクスキーを拡張するキーシーケンスが何を行うか定義します。たとえば、@kbd{C-x}はプレフィクスキーであり、これはキーマップを使用し、そのキーマップは変数@code{ctl-x-map}にも格納されています。このキーマップは@kbd{C-x}で始まるキーシーケンスにたいするバインディングを定義します。
 
-  Some of the standard Emacs prefix keys use keymaps that are also found in
-Lisp variables:
+  標準的なEmacsのプレフィクスキーのいくつかは、Lisp変数でも見い出すことができるキーマップを使用していますl:
 
 @itemize @bullet
 @item
 @vindex esc-map
 @findex ESC-prefix
-@code{esc-map} is the global keymap for the @key{ESC} prefix key.  Thus, the
-global definitions of all meta characters are actually found here.  This map
-is also the function definition of @code{ESC-prefix}.
+@code{esc-map}は、プレフィクスキー@key{ESC}にたいするグローバルキーマップである。したがって、すべてのメタ文字にたいする定義は、このキーマップで見つけることができる。このマップは、@code{ESC-prefix}の関数定義でもある。
 
 @item
 @cindex @kbd{C-h}
-@code{help-map} is the global keymap for the @kbd{C-h} prefix key.
+@code{help-map}は、プレフィクスキー@kbd{C-h}にたいするグローバルキーマップである。
 
 @item
 @cindex @kbd{C-c}
 @vindex mode-specific-map
-@code{mode-specific-map} is the global keymap for the prefix key @kbd{C-c}.
-This map is actually global, not mode-specific, but its name provides useful
-information about @kbd{C-c} in the output of @kbd{C-h b}
-(@code{display-bindings}), since the main use of this prefix key is for
-mode-specific bindings.
+@code{mode-specific-map}は、プレフィクスキー@kbd{C-c}にたいするグローバルキーマップである。このマップは実際にはモード特有(mode-specific)ではなくグローバルであるが、このプレフィクスキーは主にモード特有なバインディングに使用されるので、@kbd{C-h
+b}(@code{display-bindings})の出力内の@kbd{C-c}に関する情報で、この名前は有意義な情報を提供する。
 
 @item
 @cindex @kbd{C-x}
 @vindex ctl-x-map
 @findex Control-X-prefix
-@code{ctl-x-map} is the global keymap used for the @kbd{C-x} prefix key.
-This map is found via the function cell of the symbol
-@code{Control-X-prefix}.
+@code{ctl-x-map}は、プレフィクスキー@kbd{C-x}にたいして使用されるグローバルキーマップである。このマップは、シンボル@code{Control-X-prefix}の関数セルを通して見つけることができる。
 
 @item
 @cindex @kbd{C-x @key{RET}}
 @vindex mule-keymap
-@code{mule-keymap} is the global keymap used for the @kbd{C-x @key{RET}}
-prefix key.
+@code{mule-keymap}は、プレフィクスキー@kbd{C-x @key{RET}} にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{C-x 4}
 @vindex ctl-x-4-map
-@code{ctl-x-4-map} is the global keymap used for the @kbd{C-x 4} prefix key.
+@code{ctl-x-4-map}は、プレフィクスキー@kbd{C-x 4}にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{C-x 5}
 @vindex ctl-x-5-map
-@code{ctl-x-5-map} is the global keymap used for the @kbd{C-x 5} prefix key.
+@code{ctl-x-5-map}は、プレフィクスキー@kbd{C-x 5}にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{C-x 6}
 @vindex 2C-mode-map
-@code{2C-mode-map} is the global keymap used for the @kbd{C-x 6} prefix key.
+@code{2C-mode-map}は、プレフィクスキー@kbd{C-x 6}にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{C-x v}
 @vindex vc-prefix-map
-@code{vc-prefix-map} is the global keymap used for the @kbd{C-x v} prefix
-key.
+@code{vc-prefix-map}は、プレフィクスキー@kbd{C-x v}にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{M-g}
 @vindex goto-map
-@code{goto-map} is the global keymap used for the @kbd{M-g} prefix key.
+@code{goto-map}は、プレフィクスキー@kbd{M-g}にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{M-s}
 @vindex search-map
-@code{search-map} is the global keymap used for the @kbd{M-s} prefix key.
+@code{search-map}は、プレフィクスキー@kbd{M-s}にたいして使用されるグローバルキーマップである。
 
 @item
 @cindex @kbd{M-o}
 @vindex facemenu-keymap
-@code{facemenu-keymap} is the global keymap used for the @kbd{M-o} prefix
-key.
+@code{facemenu-keymap}は、プレフィクスキー@kbd{M-o}にたいして使用されるグローバルキーマップである。
 
 @item
-The other Emacs prefix keys are @kbd{C-x @@}, @kbd{C-x a i}, @kbd{C-x
-@key{ESC}} and @kbd{@key{ESC} @key{ESC}}.  They use keymaps that have no
-special names.
+Emacsの他のプレフィクスキーには@kbd{C-x @@}、@kbd{C-x a i}、@kbd{C-x
+@key{ESC}}、@kbd{@key{ESC} @key{ESC}}がある。これらは、特別な名前をもたないキーマップを使用する。
 @end itemize
 
-  The keymap binding of a prefix key is used for looking up the event that
-follows the prefix key.  (It may instead be a symbol whose function
-definition is a keymap.  The effect is the same, but the symbol serves as a
-name for the prefix key.)  Thus, the binding of @kbd{C-x} is the symbol
-@code{Control-X-prefix}, whose function cell holds the keymap for @kbd{C-x}
-commands.  (The same keymap is also the value of @code{ctl-x-map}.)
+  プレフィクスキーのキーマップバインディングは、プレフィクスキーに続くイベントを照合するために使用されます。(これは、関数定義がキーマップであるようなシンボルかもしれません。効果は同じですが、シンボルはプレフィクスキーにたいする名前の役割を果たします。)
+したがって、@kbd{C-x}のバインディングはシンボル@code{Control-X-prefix}であり、このシンボルの関数セルが@kbd{C-x}コマンドにたいするキーマップを保持します(@code{ctl-x-map}の値も同じキーマップです)。
 
-  Prefix key definitions can appear in any active keymap.  The definitions of
-@kbd{C-c}, @kbd{C-x}, @kbd{C-h} and @key{ESC} as prefix keys appear in the
-global map, so these prefix keys are always available.  Major and minor
-modes can redefine a key as a prefix by putting a prefix key definition for
-it in the local map or the minor mode's map.  @xref{Active Keymaps}.
+  プレフィクスキー定義は、任意のアクティブなキーマップ内に置くことができます。プレフィクスキーとしての@kbd{C-c}、@kbd{C-x}、@kbd{C-h}、@key{ESC}の定義はグローバルマップ内にもあるので、これらのプレフィクスキーは常に使用できます。メジャーモードとマイナーモードは、ローカルマップやマイナーモードのマップ内にプレフィクスキー定義を置くことにより、キーをプレフィクスキーとして再定義できます。
+@ref{Active Keymaps}を参照してください。
 
-  If a key is defined as a prefix in more than one active map, then its
-various definitions are in effect merged: the commands defined in the minor
-mode keymaps come first, followed by those in the local map's prefix
-definition, and then by those from the global map.
+  あるキーが複数のアクティブなマップ内でプレフィクスキーとして定義されている場合、それぞれの定義がマージされて効果をもちます。まずマイナーモードキーマップ内で定義されたコマンド、次にローカルマップのプレフィクス定義されたコマンド、そしてグローバルマップのコマンドが続きます。
 
-  In the following example, we make @kbd{C-p} a prefix key in the local
-keymap, in such a way that @kbd{C-p} is identical to @kbd{C-x}.  Then the
-binding for @kbd{C-p C-f} is the function @code{find-file}, just like
-@kbd{C-x C-f}.  The key sequence @kbd{C-p 6} is not found in any active
-keymap.
+  以下の例では、ローカルキーマップ内で@kbd{C-p}を@kbd{C-x}と等価なプレフィクスキーにしています。すると、@kbd{C-p
+C-f}にたいするバインディングは、@kbd{C-x C-f}と同様に関数@code{find-file}になります。キーシーケンス@kbd{C-p
+6}は、すべてのアクティブなキーマップで見つけることができません。
 
 @example
 @group
@@ -481,18 +454,12 @@ keymap.
 @defun define-prefix-command symbol &optional mapvar prompt
 @cindex prefix command
 @anchor{Definition of define-prefix-command}
-This function prepares @var{symbol} for use as a prefix key's binding: it
-creates a sparse keymap and stores it as @var{symbol}'s function
-definition.  Subsequently binding a key sequence to @var{symbol} will make
-that key sequence into a prefix key.  The return value is @code{symbol}.
+この関数は、プレフィクスキーのバインディングとして使用するために、@var{symbol}を用意する。これはsparseキーマップを作成して、それを@var{symbol}の関数定義として格納する。その後は@var{symbol}にキーシーケンスをバインディングすると、そのキーシーケンスはプレフィクスキーになるだろう。リターン値は@code{symbol}である。
 
-This function also sets @var{symbol} as a variable, with the keymap as its
-value.  But if @var{mapvar} is non-@code{nil}, it sets @var{mapvar} as a
-variable instead.
+この関数は、値がそのキーマップであるような変数としても@var{symbol}をセットする。しかし@var{mapvar}が非@code{nil}の場合は、かわりに@var{mapvar}を変数としてセットする。
 
-If @var{prompt} is non-@code{nil}, that becomes the overall prompt string
-for the keymap.  The prompt string should be given for menu keymaps
-(@pxref{Defining Menus}).
+@var{prompt}が非@code{nil}の場合、これはそのキーマップにたいするoverallプロンプト文字列になる。プロンプト文字列はメニューキーマップにたいして与えられるべきである(@ref{Defining
+Menus}を参照)。
 @end defun
 
 @node Active Keymaps
