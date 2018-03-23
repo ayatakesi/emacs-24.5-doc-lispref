@@ -22,7 +22,7 @@ lookup)}と呼びます。
 * Inheritance and Keymaps::  キーマップが他のキーマップのバインディングを継承する方法。
 * Prefix Keys::              キーマップの定義としてキーを定義する。
 * Active Keymaps::           Emacsがアクティブなキーマップでキーバインディングを探す方法。
-* Searching Keymaps::        アクティブなマップ検索の擬似Lisp概要。
+* Searching Keymaps::        アクティブなマップ検索のLisp処理概要。
 * Controlling Active Maps::  各バッファーは標準(グローバル)のバインディングをオーバーライドするためのキーマップをもつ。マイナーマイナーもそれらをオーバーライドできる。
 * Key Lookup::               1つのキーマップからあえうキーのバインディングを探す。
 * Functions for Key Lookup::  キールックアップを要求する方法。
@@ -535,7 +535,7 @@ Commands}を参照)されたとき、@code{key-binding}は通常、実際に実�
 @section Searching the Active Keymaps
 @cindex searching active keymaps for keys
 
-Here is a pseudo-Lisp summary of how Emacs searches the active keymaps:
+以下は、macsがアクティブなキーマップを検索する方法を示す、Lisp処理概要です:
 
 @lisp
 (or (if overriding-terminal-local-map
@@ -553,30 +553,17 @@ Here is a pseudo-Lisp summary of how Emacs searches the active keymaps:
 @end lisp
 
 @noindent
-Here, @var{find-in} and @var{find-in-any} are pseudo functions that search
-in one keymap and in an alist of keymaps, respectively.  Note that the
-@code{set-transient-map} function works by setting
-@code{overriding-terminal-local-map} (@pxref{Controlling Active Maps}).
+ここで、@var{find-in}と@var{find-in-any}はそれぞれ、1つのキーマップとキーマップのalistを検索する仮の関数です。関数@code{set-transient-map}が@code{overriding-terminal-local-map}(@ref{Controlling
+Active Maps}を参照)をセットすることにより機能する点に注意してください。
 
-  In the above pseudo-code, if a key sequence starts with a mouse event
-(@pxref{Mouse Events}), that event's position is used instead of point, and
-the event's buffer is used instead of the current buffer.  In particular,
-this affects how the @code{keymap} and @code{local-map} properties are
-looked up.  If a mouse event occurs on a string embedded with a
-@code{display}, @code{before-string}, or @code{after-string} property
-(@pxref{Special Properties}), and the string has a non-@code{nil}
-@code{keymap} or @code{local-map} property, that overrides the corresponding
-property in the underlying buffer text (i.e., the property specified by the
-underlying text is ignored).
+  上記の処理概要では、キーシーケンスがマウスイベント(@ref{Mouse
+Events}を参照)で始まる場合、ポイント位置のかわりにそのイベント位置、カレントバッファーのかわりにそのイベントのバッファーが使用されます。これは特に、プロパティ@code{keymap}および@code{local-map}を照合する方法に影響を与えます。@code{display}、@code{before-string}、@code{after-string}プロパティ(@ref{Special
+Properties}を参照)が埋め込まれていて、@code{keymap}または@code{local-map}プロパティが非@code{nil}の文字列上でマウスイベントが発生した場合、それは基調となるバッファーテキストの対応するプロパティをオーバーライドします(バッファーテキストにより指定されたプロパティは無視される)。
 
-  When a key binding is found in one of the active keymaps, and that binding
-is a command, the search is over---the command is executed.  However, if the
-binding is a symbol with a value or a string, Emacs replaces the input key
-sequences with the variable's value or the string, and restarts the search
-of the active keymaps.  @xref{Key Lookup}.
+  アクティブなキーマップの1つでキーバインディングが見つかり、そのバインディングがコマンドの場合、検索は終了し、そのコマンドが実行されます。しかし、そのバインディングが値をもつ変数、または文字列の場合、Emacsは入力キーシーケンスをその変数の値、または文字列で置き換えて、アクティブなキーマップの検索を再開します。
+@ref{Key Lookup}を参照してください。
 
-  The command which is finally found might also be remapped.  @xref{Remapping
-Commands}.
+  最終的に見つかったコマンドも再マップされるかもしれません。@ref{Remapping Commands}を参照してください。
 
 @node Controlling Active Maps
 @section Controlling the Active Keymaps

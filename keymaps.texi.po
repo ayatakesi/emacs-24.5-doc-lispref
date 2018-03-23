@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-24 02:00+0900\n"
+"PO-Revision-Date: 2018-03-24 06:50+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -118,7 +118,7 @@ msgstr "Searching Keymaps"
 #. type: menuentry
 #: keymaps.texi.orig:38
 msgid "A pseudo-Lisp summary of searching active maps."
-msgstr "アクティブなマップ検索の擬似Lisp概要。"
+msgstr "アクティブなマップ検索のLisp処理概要。"
 
 #. type: node
 #: keymaps.texi.orig:38 keymaps.texi.orig:783
@@ -299,7 +299,7 @@ msgstr ""
 #: keymaps.texi.orig:101
 #, no-wrap
 msgid "key binding"
-msgstr ""
+msgstr "key binding"
 
 #. type: cindex
 #: keymaps.texi.orig:102
@@ -739,6 +739,8 @@ msgid ""
 "(eq map (current-local-map))\n"
 "    @result{} nil\n"
 msgstr ""
+"(eq map (current-local-map))\n"
+"    @result{} nil\n"
 
 #. type: group
 #: keymaps.texi.orig:371
@@ -754,7 +756,7 @@ msgstr ""
 #: keymaps.texi.orig:377
 #, no-wrap
 msgid "keymap inheritance"
-msgstr ""
+msgstr "keymap inheritance"
 
 #. type: cindex
 #: keymaps.texi.orig:378
@@ -1337,18 +1339,18 @@ msgstr ""
 #: keymaps.texi.orig:733
 #, no-wrap
 msgid "Searching the Active Keymaps"
-msgstr ""
+msgstr "Searching the Active Keymaps"
 
 #. type: cindex
 #: keymaps.texi.orig:734
 #, no-wrap
 msgid "searching active keymaps for keys"
-msgstr ""
+msgstr "searching active keymaps for keys"
 
 #. type: Plain text
 #: keymaps.texi.orig:738
 msgid "Here is a pseudo-Lisp summary of how Emacs searches the active keymaps:"
-msgstr ""
+msgstr "以下は、macsがアクティブなキーマップを検索する方法を示す、Lisp処理概要です:"
 
 #. type: lisp
 #: keymaps.texi.orig:752
@@ -1367,26 +1369,38 @@ msgid ""
 "            (@var{find-in} (current-local-map)))))\n"
 "    (@var{find-in} (current-global-map)))\n"
 msgstr ""
+"(or (if overriding-terminal-local-map\n"
+"        (@var{find-in} overriding-terminal-local-map))\n"
+"    (if overriding-local-map\n"
+"        (@var{find-in} overriding-local-map)\n"
+"      (or (@var{find-in} (get-char-property (point) 'keymap))\n"
+"          (@var{find-in-any} emulation-mode-map-alists)\n"
+"          (@var{find-in-any} minor-mode-overriding-map-alist)\n"
+"          (@var{find-in-any} minor-mode-map-alist)\n"
+"          (if (get-text-property (point) 'local-map)\n"
+"              (@var{find-in} (get-char-property (point) 'local-map))\n"
+"            (@var{find-in} (current-local-map)))))\n"
+"    (@var{find-in} (current-global-map)))\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:760
 msgid "Here, @var{find-in} and @var{find-in-any} are pseudo functions that search in one keymap and in an alist of keymaps, respectively.  Note that the @code{set-transient-map} function works by setting @code{overriding-terminal-local-map} (@pxref{Controlling Active Maps})."
-msgstr ""
+msgstr "ここで、@var{find-in}と@var{find-in-any}はそれぞれ、1つのキーマップとキーマップのalistを検索する仮の関数です。関数@code{set-transient-map}が@code{overriding-terminal-local-map}(@ref{Controlling Active Maps}を参照)をセットすることにより機能する点に注意してください。"
 
 #. type: Plain text
 #: keymaps.texi.orig:772
 msgid "In the above pseudo-code, if a key sequence starts with a mouse event (@pxref{Mouse Events}), that event's position is used instead of point, and the event's buffer is used instead of the current buffer.  In particular, this affects how the @code{keymap} and @code{local-map} properties are looked up.  If a mouse event occurs on a string embedded with a @code{display}, @code{before-string}, or @code{after-string} property (@pxref{Special Properties}), and the string has a non-@code{nil} @code{keymap} or @code{local-map} property, that overrides the corresponding property in the underlying buffer text (i.e., the property specified by the underlying text is ignored)."
-msgstr ""
+msgstr "上記の処理概要では、キーシーケンスがマウスイベント(@ref{Mouse Events}を参照)で始まる場合、ポイント位置のかわりにそのイベント位置、カレントバッファーのかわりにそのイベントのバッファーが使用されます。これは特に、プロパティ@code{keymap}および@code{local-map}を照合する方法に影響を与えます。@code{display}、@code{before-string}、@code{after-string}プロパティ(@ref{Special Properties}を参照)が埋め込まれていて、@code{keymap}または@code{local-map}プロパティが非@code{nil}の文字列上でマウスイベントが発生した場合、それは基調となるバッファーテキストの対応するプロパティをオーバーライドします(バッファーテキストにより指定されたプロパティは無視される)。"
 
 #. type: Plain text
 #: keymaps.texi.orig:779
 msgid "When a key binding is found in one of the active keymaps, and that binding is a command, the search is over---the command is executed.  However, if the binding is a symbol with a value or a string, Emacs replaces the input key sequences with the variable's value or the string, and restarts the search of the active keymaps.  @xref{Key Lookup}."
-msgstr ""
+msgstr "アクティブなキーマップの1つでキーバインディングが見つかり、そのバインディングがコマンドの場合、検索は終了し、そのコマンドが実行されます。しかし、そのバインディングが値をもつ変数、または文字列の場合、Emacsは入力キーシーケンスをその変数の値、または文字列で置き換えて、アクティブなキーマップの検索を再開します。 @ref{Key Lookup}を参照してください。"
 
 #. type: Plain text
 #: keymaps.texi.orig:782
 msgid "The command which is finally found might also be remapped.  @xref{Remapping Commands}."
-msgstr ""
+msgstr "最終的に見つかったコマンドも再マップされるかもしれません。@ref{Remapping Commands}を参照してください。"
 
 #. type: section
 #: keymaps.texi.orig:784
