@@ -332,7 +332,7 @@ keymap)}と呼びます。そのようなキーマップは、以下のような
 @end defun
 
 @noindent For example, here is how Emacs sets the parent of
-たとえば、以下は@code{button-buffer-map}と@code{special-mode-map}の両方を継承する@code{help-mode-map}のようなキーマップの親キーマップをEmacsがセットする方法です:
+【FIXME】たとえば、以下は@code{button-buffer-map}と@code{special-mode-map}の両方を継承する@code{help-mode-map}のようなキーマップの親キーマップをEmacsがセットする方法です:
 
 @example
 (defvar help-mode-map
@@ -466,99 +466,62 @@ Menus}を参照)。
 @section Active Keymaps
 @cindex active keymap
 
-  Emacs contains many keymaps, but at any time only a few keymaps are
-@dfn{active}.  When Emacs receives user input, it translates the input event
-(@pxref{Translation Keymaps}), and looks for a key binding in the active
-keymaps.
+  Emacsは多くのキーマップを含んでいますが、常にいくつかのキーマップだけが@dfn{アクティブ}です。Emacsがユーザー入力を受け取ったとき、それは入力イベントに変換されて(@ref{Translation
+Keymaps}を参照)、アクティブなキーマップ内でキーバインディングが照合されます。
 
-  Usually, the active keymaps are: (i) the keymap specified by the
-@code{keymap} property, (ii) the keymaps of enabled minor modes, (iii)  the
-current buffer's local keymap, and (iv) the global keymap, in that order.
-Emacs searches for each input key sequence in all these keymaps.
+  アクティブなキーマップは通常、(1) @code{keymap}プロパティにより指定されるキーマップ、(2) 有効なマイナーモードのキーマップ、(3)
+カレントバッファーのローカルキーマップ、(4)
+グローバルキーマップの順です。Emacsは入力キーシーケンスそれぞれにたいして、これらすべてのキーマップ内を検索します。
 
-  Of these ``usual'' keymaps, the highest-precedence one is specified by the
-@code{keymap} text or overlay property at point, if any.  (For a mouse input
-event, Emacs uses the event position instead of point;
+  これらの``通常''のキーマップのうち最優先されるのは、もしあればポイント位置の@code{keymap}テキストにより指定されるキーマップ、またはoverallプロパティです。(マウス入力イベントにたいしては、Emacsはポイント位置のかわりにイベント位置を使用する。
 @iftex
-see the next section for details.)
+詳細は次のセクションを参照のこと。)
 @end iftex
 @ifnottex
-@pxref{Searching Keymaps}.)
+@ref{Searching Keymaps}を参照のこと。)
 @end ifnottex
 
-  Next in precedence are keymaps specified by enabled minor modes.  These
-keymaps, if any, are specified by the variables
-@code{emulation-mode-map-alists}, @code{minor-mode-overriding-map-alist},
-and @code{minor-mode-map-alist}.  @xref{Controlling Active Maps}.
+  次に優先されるのは、有効なマイナーモードにより指定されるキーマップです。もしあれば、これらのキーマップは変数@code{emulation-mode-map-alists}、@code{minor-mode-overriding-map-alist}、@code{minor-mode-map-alist}により指定されます。@ref{Controlling
+Active Maps}を参照してください。
 
 @cindex local keymap
-  Next in precedence is the buffer's @dfn{local keymap}, containing key
-bindings specific to the buffer.  The minibuffer also has a local keymap
-(@pxref{Intro to Minibuffers}).  If there is a @code{local-map} text or
-overlay property at point, that specifies the local keymap to use, in place
-of the buffer's default local keymap.
+  次に優先されるのは、バッファーの@dfn{ローカルキーマップ(local
+keymap)}で、これにはそのバッファー特有なキーバインディングが含まれます。ミニバッファーもローカルキーマップをもちます(@ref{Intro to
+Minibuffers}を参照)。ポイント位置に@code{local-map}テキスト、またはoverlayプロパティがある場合、それはバッファーのデフォルトローカルキーマップのかわりに使用するローカルキーマップを指定します。
 
 @cindex major mode keymap
-  The local keymap is normally set by the buffer's major mode, and every
-buffer with the same major mode shares the same local keymap.  Hence, if you
-call @code{local-set-key} (@pxref{Key Binding Commands})  to change the
-local keymap in one buffer, that also affects the local keymaps in other
-buffers with the same major mode.
+  ローカルキーマップは通常はそのバッファーのメジャーモードによりセットされます。同じメジャーモードをもつすべてのバッファーは、同じローカルキーマップを共有します。したがって、あるバッファーでローカルキーマップを変更するために@code{local-set-key}(@ref{Key
+Binding Commands}を参照)を呼び出した場合、それは同じメジャーモードをもつ他のバッファーのローカルキーマップにも影響を与えます。
 
 @cindex global keymap
-  Finally, the @dfn{global keymap} contains key bindings that are defined
-regardless of the current buffer, such as @kbd{C-f}.  It is always active,
-and is bound to the variable @code{global-map}.
+  最後は、@kbd{C-f}のようなカレントバッファーとは関係なく定義されるキーバインディングを含む、@dfn{グローバルキーマップ(global
+keymap)}です。kこのキーマップは常にアクティブであり、変数@code{global-map}にバインドされています。
 
-  Apart from the above ``usual'' keymaps, Emacs provides special ways for
-programs to make other keymaps active.  Firstly, the variable
-@code{overriding-local-map} specifies a keymap that replaces the usual
-active keymaps, except for the global keymap.  Secondly, the terminal-local
-variable @code{overriding-terminal-local-map} specifies a keymap that takes
-precedence over @emph{all} other keymaps (including
-@code{overriding-local-map}); this is normally used for modal/transient
-keybindings (the function @code{set-transient-map} provides a convenient
-interface for this).  @xref{Controlling Active Maps}, for details.
+  これら``通常''のキーマップとは別に、Emacsはプログラムが他のキーマップをアクティブにするための特別な手段を提供します。1つ目は、グローバルキーマップ以外の通常アクティブなキーマップを置き換えるキーマップを指定する変数@code{overriding-local-map}です。2つ目は、他の@emph{すべて}のキーマップより優先されるキーマップを指定する、端末ローカル変数@code{overriding-terminal-local-map}です。この端末ローカル変数は通常、modal(訳注:
+他のキーマップを選択できない状態)かつ一時的なキーバインディングに使用されます(ここの変数にたいして関数@code{set-transient-map}は便利なインターフェイスを提供する)。詳細は、@ref{Controlling
+Active Maps}を参照のこと。
 
-  Making keymaps active is not the only way to use them.  Keymaps are also
-used in other ways, such as for translating events within
-@code{read-key-sequence}.  @xref{Translation Keymaps}.
+  これらを使用するのがキーマップをアクティブにする唯一の方法ではありません。キーマップは、@code{read-key-sequence}によるイベントの変換のような、他の用途にも使用されます。@ref{Translation
+Keymaps}を参照してください。
 
-  @xref{Standard Keymaps}, for a list of some standard keymaps.
+  いくつかの標準的なキーマップのリストは、@ref{Standard Keymaps}を参照してください。
 
 @defun current-active-maps &optional olp position
-This returns the list of active keymaps that would be used by the command
-loop in the current circumstances to look up a key sequence.  Normally it
-ignores @code{overriding-local-map} and
-@code{overriding-terminal-local-map}, but if @var{olp} is non-@code{nil}
-then it pays attention to them.  @var{position} can optionally be either an
-event position as returned by @code{event-start} or a buffer position, and
-may change the keymaps as described for @code{key-binding}.
+これは、カレントの状況下でコマンドループによりキーシーケンスを照合するたって使用される、アクティブなキーマップのリストをリターンする。これは通常、@code{overriding-local-map}と@code{overriding-terminal-local-map}を無視するが、@var{olp}が非@code{nil}の場合には、それらのキーマップにも注意を払う。オプションで@var{position}に@code{event-start}によりリターンされるイベント位置、またはバッファー位置を指定でき、@code{key-binding}で説明されているようにキーマップを変更するかもしれない。
 @end defun
 
 @defun key-binding key &optional accept-defaults no-remap position
-This function returns the binding for @var{key} according to the current
-active keymaps.  The result is @code{nil} if @var{key} is undefined in the
-keymaps.
+この関数は、カレントのアクティブキーマップで@var{key}にたいするバインディングをリターンする。そのキーマップ内で@var{key}が未定義の場合、結果は@code{nil}になる。
 
-The argument @var{accept-defaults} controls checking for default bindings,
-as in @code{lookup-key} (@pxref{Functions for Key Lookup}).
+引数@var{accept-defaults}は、@code{lookup-key}(@ref{Functions for Key
+Lookup}を参照)のようにデフォルトバインディングをチェックするかを制御する。
 
-When commands are remapped (@pxref{Remapping Commands}), @code{key-binding}
-normally processes command remappings so as to return the remapped command
-that will actually be executed.  However, if @var{no-remap} is
-non-@code{nil}, @code{key-binding} ignores remappings and returns the
-binding directly specified for @var{key}.
+コマンドが再マップ(@ref{Remapping
+Commands}を参照)されたとき、@code{key-binding}は通常、実際に実行されるであろう再マップされたコマンドをリターンするように、コマンドの再マップを行う。しかし、@var{no-remap}が非@code{nil}の場合、@code{key-binding}は再マップを無視して、@var{key}にたいして直接指定されたバインディングをリターンする。
 
-If @var{key} starts with a mouse event (perhaps following a prefix event),
-the maps to be consulted are determined based on the event's position.
-Otherwise, they are determined based on the value of point.  However, you
-can override either of them by specifying @var{position}.  If @var{position}
-is non-@code{nil}, it should be either a buffer position or an event
-position like the value of @code{event-start}.  Then the maps consulted are
-determined based on @var{position}.
+@var{key}がマウスイベント(もしかしたらプレフィクスイベントが先行するかもしれない)で始まる場合、照合されるマップはそのイベントの位置を元に決定される。それ以外では、それらのマップはポイント値に基づき決定される。しかし、@var{position}を指定することにより、これらをオーバーライドできる。@var{position}が非@code{nil}の場合、それはバッファー位置か@code{event-start}の値のようなイベント位置のいずれかである。その場合、照合されるマップは@var{position}に基づき決定される。
 
-Emacs signals an error if @var{key} is not a string or a vector.
+@var{key}が文字列とベクターのいずれでもない場合、Emacsはエラーをシグナルする。
 
 @example
 @group
