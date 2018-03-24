@@ -570,21 +570,13 @@ Properties}を参照)が埋め込まれていて、@code{keymap}または@code{l
 @cindex active keymap, controlling
 
 @defvar global-map
-This variable contains the default global keymap that maps Emacs keyboard
-input to commands.  The global keymap is normally this keymap.  The default
-global keymap is a full keymap that binds @code{self-insert-command} to all
-of the printing characters.
+この変数は、Emacsキーボード入力をコマンドにマップするデフォルトのグローバルキーマップを含む。通常は、このキーマップがグローバルキーマップである。デフォルトグローバルキーマップは、@code{self-insert-command}をすべてのプリント文字にバインドするfullキーマップである。
 
-It is normal practice to change the bindings in the global keymap, but you
-should not assign this variable any value other than the keymap it starts
-out with.
+これはグローバルキーマップ内のバインディングを変更する通常の手段だが、この変数に開始時のキーマップ以外の値を割り当てるべきではない。
 @end defvar
 
 @defun current-global-map
-This function returns the current global keymap.  This is the same as the
-value of @code{global-map} unless you change one or the other.  The return
-value is a reference, not a copy; if you use @code{define-key} or other
-functions on it you will alter global bindings.
+この関数は、カレントのグローバルキーマップをリターンする。デフォルトグローバルキーマップとカレントグローバルキーマップのいずれも変更していない場合は、@code{global-map}と同じ値になる。リターン値はコピーではなく参照である。これに@code{define-key}などの関数を使用すると、グローバルバインディングが変更されるだろう。
 
 @example
 @group
@@ -596,10 +588,8 @@ functions on it you will alter global bindings.
 @end defun
 
 @defun current-local-map
-This function returns the current buffer's local keymap, or @code{nil} if it
-has none.  In the following example, the keymap for the @file{*scratch*}
-buffer (using Lisp Interaction mode) is a sparse keymap in which the entry
-for @key{ESC}, @acronym{ASCII} code 27, is another sparse keymap.
+この関数はカレントバッファーのローカルキーマップをリターンする。ローカルキーマップがない場合は@code{nil}をリターンする。以下の例では、(Lisp
+Interactionモードを使用する)@file{*scratch*}バッファーにたいするキーマップは、@key{ESC}(@acronym{ASCII}コード27)にたいするエントリーが別のsparseキーマップであるようなsparseキーマップである。
 
 @example
 @group
@@ -617,136 +607,88 @@ for @key{ESC}, @acronym{ASCII} code 27, is another sparse keymap.
 @end example
 @end defun
 
-@code{current-local-map} returns a reference to the local keymap, not a copy
-of it; if you use @code{define-key} or other functions on it you will alter
-local bindings.
+@code{current-local-map}はローカルキーマップのコピーではなく参照をリターンする。これに@code{define-key}などの関数を使用すると、ローカルバインディングが変更されるだろう。
 
 @defun current-minor-mode-maps
-This function returns a list of the keymaps of currently enabled minor
-modes.
+この関数は、カレントで有効なメジャーモードのキーマップリストをリターンする。
 @end defun
 
 @defun use-global-map keymap
-This function makes @var{keymap} the new current global keymap.  It returns
-@code{nil}.
+この関数は、@var{keymap}を新たなカレントグローバルキーマップにする。これは@code{nil}をリターンする。
 
-It is very unusual to change the global keymap.
+グローバルキーマップの変更は、異例である。
 @end defun
 
 @defun use-local-map keymap
-This function makes @var{keymap} the new local keymap of the current
-buffer.  If @var{keymap} is @code{nil}, then the buffer has no local
-keymap.  @code{use-local-map} returns @code{nil}.  Most major mode commands
-use this function.
+この関数は、@var{keymap}をカレントバッファーの新たなローカルキーマップにする。@var{keymap}が@code{nil}の場合、そのバッファーはローカルキーマップをもたない。@code{use-local-map}は@code{nil}をリターンする。ほとんどのメジャーモードコマンドは、この関数を使用する。
 @end defun
 
 @defvar minor-mode-map-alist
 @anchor{Definition of minor-mode-map-alist}
-This variable is an alist describing keymaps that may or may not be active
-according to the values of certain variables.  Its elements look like this:
+この変数は、アクティブかどうかに関わらず、特定の変数の値にたいするキーマップを示すalistである。要素は、以下のようになる:
 
 @example
 (@var{variable} . @var{keymap})
 @end example
 
-The keymap @var{keymap} is active whenever @var{variable} has a
-non-@code{nil} value.  Typically @var{variable} is the variable that enables
-or disables a minor mode.  @xref{Keymaps and Minor Modes}.
+キーマップ@var{keymap}は、
+@var{variable}が非@code{nil}値をもつときはアクティブである。通常、@var{variable}はメジャーモードを有効、または無効にする変数である。@ref{Keymaps
+and Minor Modes}を参照のこと。
 
-Note that elements of @code{minor-mode-map-alist} do not have the same
-structure as elements of @code{minor-mode-alist}.  The map must be the
-@sc{cdr} of the element; a list with the map as the second element will not
-do.  The @sc{cdr} can be either a keymap (a list) or a symbol whose function
-definition is a keymap.
+@code{minor-mode-map-alist}の要素が、@code{minor-mode-alist}の要素と異なる構造をもつことに注意されたい。マップは要素の@sc{cdr}でなければならず、そうでなければ2つ目の要素にマップリストは用いられないだろう。@sc{cdr}はキーマップ(リスト)、または関数定義がキーマップであるようなシンボルである。
 
-When more than one minor mode keymap is active, the earlier one in
-@code{minor-mode-map-alist} takes priority.  But you should design minor
-modes so that they don't interfere with each other.  If you do this
-properly, the order will not matter.
+1つ以上のマイナーモードキーマップがアクティブなとき、@code{minor-mode-map-alist}内で前のキーマップが優先される。しかし、互いが干渉しないようにマイナーモードをデザインすべきである。これを正しく行えば、順序は問題にならない。
 
-See @ref{Keymaps and Minor Modes}, for more information about minor modes.
-See also @code{minor-mode-key-binding} (@pxref{Functions for Key Lookup}).
+マイナーモードについての詳細な情報は、@ref{Keymaps and Minor
+Modes}を参照のこと。@code{minor-mode-key-binding}(@pxref{Functions for Key
+Lookup}を参照)も確認されたい。
 @end defvar
 
 @defvar minor-mode-overriding-map-alist
-This variable allows major modes to override the key bindings for particular
-minor modes.  The elements of this alist look like the elements of
-@code{minor-mode-map-alist}: @code{(@var{variable} . @var{keymap})}.
+この変数は、メジャーモードによる特定のマイナーモードにたいするキーバインディングのオーバーライドを可能にする。このalistの要素は、@code{minor-mode-map-alist}の要素のように、@code{(@var{variable}
+. @var{keymap})}のような形式である。
 
-If a variable appears as an element of
-@code{minor-mode-overriding-map-alist}, the map specified by that element
-totally replaces any map specified for the same variable in
-@code{minor-mode-map-alist}.
+ある変数が@code{minor-mode-overriding-map-alist}の要素として出現する場合、その要素により指定されるマップは、@code{minor-mode-map-alist}内の同じ変数にたいして指定される任意のマップを完全に置き換える。
 
-@code{minor-mode-overriding-map-alist} is automatically buffer-local in all
-buffers.
+すべてのバッファーにおいて、@code{minor-mode-overriding-map-alist}は自動的にバッファーローカルである。
 @end defvar
 
 @defvar overriding-local-map
-If non-@code{nil}, this variable holds a keymap to use instead of the
-buffer's local keymap, any text property or overlay keymaps, and any minor
-mode keymaps.  This keymap, if specified, overrides all other maps that
-would have been active, except for the current global map.
+この変数が非@code{nil}の場合は、バッファーのローカルキーマップ、テキストプロパティまたはoverlayによるキーマップ、マイナーモードキーマップのかわりに使用されるするキーマップを保持する。このキーマップが指定された場合、カレントグローバルキーマップ以外のアクティブだった他のすべてのマップがオーバーライドされる。
 @end defvar
 
 @defvar overriding-terminal-local-map
-If non-@code{nil}, this variable holds a keymap to use instead of
-@code{overriding-local-map}, the buffer's local keymap, text property or
-overlay keymaps, and all the minor mode keymaps.
+この変数が非@code{nil}の場合は、@code{overriding-local-map}、バッファーのローカルキーマップ、テキストプロパティまたはoverlayによるキーマップ、およびすべてのマイナーモードキーマップのかわりに使用されるキーマップを保持する。
 
-This variable is always local to the current terminal and cannot be
-buffer-local.  @xref{Multiple Terminals}.  It is used to implement
-incremental search mode.
+この変数は、カレント端末にたいして常にローカルであり、バッファーローカルにできない。@ref{Multiple
+Terminals}を参照のこと。これはインクリメンタル検索モードの実装に使用される。
 @end defvar
 
 @defvar overriding-local-map-menu-flag
-If this variable is non-@code{nil}, the value of @code{overriding-local-map}
-or @code{overriding-terminal-local-map} can affect the display of the menu
-bar.  The default value is @code{nil}, so those map variables have no effect
-on the menu bar.
+この変数が非@code{nil}の場合は、@code{overriding-local-map}または@code{overriding-terminal-local-map}の値がメニューバーの表示に影響し得る。デフォルト値は@code{nil}なので、これらのマップ変数なメニューバーに影響をもたない。
 
-Note that these two map variables do affect the execution of key sequences
-entered using the menu bar, even if they do not affect the menu bar
-display.  So if a menu bar key sequence comes in, you should clear the
-variables before looking up and executing that key sequence.  Modes that use
-the variables would typically do this anyway; normally they respond to
-events that they do not handle by ``unreading'' them and exiting.
+これら2つのマップ変数は、たとえこれらの変数がメニューバー表示に影響し得るを与えない場合でも、メニューバーを使用してエンターされたキーシーケンスの実行には影響を与えることに注意されたい。したがって、もしメニューバーキーシーケンスが到着したら、そのキーシーケンスを照合・実行する前に変数をクリアーすべきである。この変数を使用するモードは通常、何らかの方法でこれを行っている。これらのモードは通常``読み戻し(unread)''とexitにより処理されないイベントに応答する。
 @end defvar
 
 @defvar special-event-map
-This variable holds a keymap for special events.  If an event type has a
-binding in this keymap, then it is special, and the binding for the event is
-run directly by @code{read-event}.  @xref{Special Events}.
+この変数は、スペシャルイベントにたいするキーマップを保持する。あるイベント型がこのキーマップ内でバインディングをもつ場合、それはスペシャルであり、そのイベントにたいするバインディングは@code{read-event}により直接実行される。@ref{Special
+Events}を参照のこと。
 @end defvar
 
 @defvar emulation-mode-map-alists
-This variable holds a list of keymap alists to use for emulation modes.  It
-is intended for modes or packages using multiple minor-mode keymaps.  Each
-element is a keymap alist which has the same format and meaning as
-@code{minor-mode-map-alist}, or a symbol with a variable binding which is
-such an alist.  The ``active'' keymaps in each alist are used before
-@code{minor-mode-map-alist} and @code{minor-mode-overriding-map-alist}.
+この変数は、エミュレーションモードにたいして使用するキーマップalistのリストを保持する。この変数は、複数マイナーモードキーマップを使用するモードとパッケージを意図している。リストの各要素は@code{minor-mode-map-alist}と同じフォーマットと意味をもつキーマップalistか、そのようなalist形式の変数バインディングをもつシンボルである。それぞれのalist内の``アクティブ''なキーマップは、@code{minor-mode-map-alist}と@code{minor-mode-overriding-map-alist}の前に使用される。
 @end defvar
 
 @cindex transient keymap
 @defun set-transient-map keymap &optional keep
-This function adds @var{keymap} as a @dfn{transient} keymap, which takes
-precedence over other keymaps for one (or more) subsequent keys.
+この関数は@dfn{一時的(transient)}なキーマップとして@var{keymap}を追加する。一時的なキーマップは1つ以上の後続するキーにたいして、他のキーマップより優先される。
 
-Normally, @var{keymap} is used just once, to look up the very next key.  If
-the optional argument @var{pred} is @code{t}, the map stays active as long
-as the user types keys defined in @var{keymap}; when the user types a key
-that is not in @var{keymap}, the transient keymap is deactivated and normal
-key lookup continues for that key.
+通常、@var{keymap}は直後のキー照合するために、1回だけ使用される。しかし、オプション引数@var{pred}が@code{t}の場合、そのマップはユーザーが@var{keymap}内で定義されたキーをタイプするまでアクのままとなる。@var{keymap}内にないキーをユーザーがタイプしたとき、一時的キーマップは非アクティブとなり、そのキーにたいして通常のキー照合が継続される。
 
-The @var{pred} argument can also be a function.  In that case, the function
-is called with no arguments, prior to running each command, while
-@var{keymap} is active; it should return non-@code{nil} if @var{keymap}
-should stay active.
+@var{pred}には関数も指定できる。。この場合、@var{keymap}がアクティブの間は、各コマンドの実行に優先して、その関数が引数なしで呼び出される。@var{keymap}がアクティブの間、関数は非@code{nil}をリターンすべきである。
 
-This function works by adding and removing @code{keymap} from the variable
-@code{overriding-terminal-local-map}, which takes precedence over all other
-active keymaps (@pxref{Searching Keymaps}).
+この関数は、他のすべてのアクティブなキーマップに優先される変数@code{overriding-terminal-local-map}にたいして、@code{keymap}を追加、または削除することにより機能する(@ref{Searching
+Keymaps}を参照)。
 @end defun
 
 @node Key Lookup

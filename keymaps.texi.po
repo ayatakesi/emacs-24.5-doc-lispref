@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-24 06:50+0900\n"
+"PO-Revision-Date: 2018-03-24 13:19+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1406,40 +1406,40 @@ msgstr "最終的に見つかったコマンドも再マップされるかもし
 #: keymaps.texi.orig:784
 #, no-wrap
 msgid "Controlling the Active Keymaps"
-msgstr ""
+msgstr "Controlling the Active Keymaps"
 
 #. type: cindex
 #: keymaps.texi.orig:785
 #, no-wrap
 msgid "active keymap, controlling"
-msgstr ""
+msgstr "active keymap, controlling"
 
 #. type: defvar
 #: keymaps.texi.orig:787
 #, no-wrap
 msgid "global-map"
-msgstr ""
+msgstr "global-map"
 
 #. type: defvar
 #: keymaps.texi.orig:792
 msgid "This variable contains the default global keymap that maps Emacs keyboard input to commands.  The global keymap is normally this keymap.  The default global keymap is a full keymap that binds @code{self-insert-command} to all of the printing characters."
-msgstr ""
+msgstr "この変数は、Emacsキーボード入力をコマンドにマップするデフォルトのグローバルキーマップを含む。通常は、このキーマップがグローバルキーマップである。デフォルトグローバルキーマップは、@code{self-insert-command}をすべてのプリント文字にバインドするfullキーマップである。"
 
 #. type: defvar
 #: keymaps.texi.orig:796
 msgid "It is normal practice to change the bindings in the global keymap, but you should not assign this variable any value other than the keymap it starts out with."
-msgstr ""
+msgstr "これはグローバルキーマップ内のバインディングを変更する通常の手段だが、この変数に開始時のキーマップ以外の値を割り当てるべきではない。"
 
 #. type: defun
 #: keymaps.texi.orig:798
 #, no-wrap
 msgid "current-global-map"
-msgstr ""
+msgstr "current-global-map"
 
 #. type: defun
 #: keymaps.texi.orig:804
 msgid "This function returns the current global keymap.  This is the same as the value of @code{global-map} unless you change one or the other.  The return value is a reference, not a copy; if you use @code{define-key} or other functions on it you will alter global bindings."
-msgstr ""
+msgstr "この関数は、カレントのグローバルキーマップをリターンする。デフォルトグローバルキーマップとカレントグローバルキーマップのいずれも変更していない場合は、@code{global-map}と同じ値になる。リターン値はコピーではなく参照である。これに@code{define-key}などの関数を使用すると、グローバルバインディングが変更されるだろう。"
 
 #. type: group
 #: keymaps.texi.orig:810
@@ -1449,17 +1449,20 @@ msgid ""
 "@result{} (keymap [set-mark-command beginning-of-line @dots{}\n"
 "            delete-backward-char])\n"
 msgstr ""
+"(current-global-map)\n"
+"@result{} (keymap [set-mark-command beginning-of-line @dots{}\n"
+"            delete-backward-char])\n"
 
 #. type: defun
 #: keymaps.texi.orig:814
 #, no-wrap
 msgid "current-local-map"
-msgstr ""
+msgstr "current-local-map"
 
 #. type: defun
 #: keymaps.texi.orig:820
 msgid "This function returns the current buffer's local keymap, or @code{nil} if it has none.  In the following example, the keymap for the @file{*scratch*} buffer (using Lisp Interaction mode) is a sparse keymap in which the entry for @key{ESC}, @acronym{ASCII} code 27, is another sparse keymap."
-msgstr ""
+msgstr "この関数はカレントバッファーのローカルキーマップをリターンする。ローカルキーマップがない場合は@code{nil}をリターンする。以下の例では、(Lisp Interactionモードを使用する)@file{*scratch*}バッファーにたいするキーマップは、@key{ESC}(@acronym{ASCII}コード27)にたいするエントリーが別のsparseキーマップであるようなsparseキーマップである。"
 
 #. type: group
 #: keymaps.texi.orig:828
@@ -1471,6 +1474,11 @@ msgid ""
 "    (9 . lisp-indent-line)\n"
 "    (127 . backward-delete-char-untabify)\n"
 msgstr ""
+"(current-local-map)\n"
+"@result{} (keymap\n"
+"    (10 . eval-print-last-sexp)\n"
+"    (9 . lisp-indent-line)\n"
+"    (127 . backward-delete-char-untabify)\n"
 
 #. type: group
 #: keymaps.texi.orig:833
@@ -1480,209 +1488,212 @@ msgid ""
 "        (24 . eval-defun)\n"
 "        (17 . indent-sexp)))\n"
 msgstr ""
+"    (27 keymap\n"
+"        (24 . eval-defun)\n"
+"        (17 . indent-sexp)))\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:840
 msgid "@code{current-local-map} returns a reference to the local keymap, not a copy of it; if you use @code{define-key} or other functions on it you will alter local bindings."
-msgstr ""
+msgstr "@code{current-local-map}はローカルキーマップのコピーではなく参照をリターンする。これに@code{define-key}などの関数を使用すると、ローカルバインディングが変更されるだろう。"
 
 #. type: defun
 #: keymaps.texi.orig:841
 #, no-wrap
 msgid "current-minor-mode-maps"
-msgstr ""
+msgstr "current-minor-mode-maps"
 
 #. type: defun
 #: keymaps.texi.orig:843
 msgid "This function returns a list of the keymaps of currently enabled minor modes."
-msgstr ""
+msgstr "この関数は、カレントで有効なメジャーモードのキーマップリストをリターンする。"
 
 #. type: defun
 #: keymaps.texi.orig:845
 #, no-wrap
 msgid "use-global-map keymap"
-msgstr ""
+msgstr "use-global-map keymap"
 
 #. type: defun
 #: keymaps.texi.orig:848
 msgid "This function makes @var{keymap} the new current global keymap.  It returns @code{nil}."
-msgstr ""
+msgstr "この関数は、@var{keymap}を新たなカレントグローバルキーマップにする。これは@code{nil}をリターンする。"
 
 #. type: defun
 #: keymaps.texi.orig:850
 msgid "It is very unusual to change the global keymap."
-msgstr ""
+msgstr "グローバルキーマップの変更は、異例である。"
 
 #. type: defun
 #: keymaps.texi.orig:852
 #, no-wrap
 msgid "use-local-map keymap"
-msgstr ""
+msgstr "use-local-map keymap"
 
 #. type: defun
 #: keymaps.texi.orig:857
 msgid "This function makes @var{keymap} the new local keymap of the current buffer.  If @var{keymap} is @code{nil}, then the buffer has no local keymap.  @code{use-local-map} returns @code{nil}.  Most major mode commands use this function."
-msgstr ""
+msgstr "この関数は、@var{keymap}をカレントバッファーの新たなローカルキーマップにする。@var{keymap}が@code{nil}の場合、そのバッファーはローカルキーマップをもたない。@code{use-local-map}は@code{nil}をリターンする。ほとんどのメジャーモードコマンドは、この関数を使用する。"
 
 #. type: defvar
 #: keymaps.texi.orig:859
 #, no-wrap
 msgid "minor-mode-map-alist"
-msgstr ""
+msgstr "minor-mode-map-alist"
 
 #. type: anchor{#1}
 #: keymaps.texi.orig:864
 msgid "Definition of minor-mode-map-alist"
-msgstr ""
+msgstr "Definition of minor-mode-map-alist"
 
 #. type: defvar
 #: keymaps.texi.orig:864
 msgid "This variable is an alist describing keymaps that may or may not be active according to the values of certain variables.  Its elements look like this:"
-msgstr ""
+msgstr "この変数は、アクティブかどうかに関わらず、特定の変数の値にたいするキーマップを示すalistである。要素は、以下のようになる:"
 
 #. type: example
 #: keymaps.texi.orig:867
 #, no-wrap
 msgid "(@var{variable} . @var{keymap})\n"
-msgstr ""
+msgstr "(@var{variable} . @var{keymap})\n"
 
 #. type: defvar
 #: keymaps.texi.orig:872
 msgid "The keymap @var{keymap} is active whenever @var{variable} has a non-@code{nil} value.  Typically @var{variable} is the variable that enables or disables a minor mode.  @xref{Keymaps and Minor Modes}."
-msgstr ""
+msgstr "キーマップ@var{keymap}は、 @var{variable}が非@code{nil}値をもつときはアクティブである。通常、@var{variable}はメジャーモードを有効、または無効にする変数である。@ref{Keymaps and Minor Modes}を参照のこと。"
 
 #. type: defvar
 #: keymaps.texi.orig:878
 msgid "Note that elements of @code{minor-mode-map-alist} do not have the same structure as elements of @code{minor-mode-alist}.  The map must be the @sc{cdr} of the element; a list with the map as the second element will not do.  The @sc{cdr} can be either a keymap (a list) or a symbol whose function definition is a keymap."
-msgstr ""
+msgstr "@code{minor-mode-map-alist}の要素が、@code{minor-mode-alist}の要素と異なる構造をもつことに注意されたい。マップは要素の@sc{cdr}でなければならず、そうでなければ2つ目の要素にマップリストは用いられないだろう。@sc{cdr}はキーマップ(リスト)、または関数定義がキーマップであるようなシンボルである。"
 
 #. type: defvar
 #: keymaps.texi.orig:883
 msgid "When more than one minor mode keymap is active, the earlier one in @code{minor-mode-map-alist} takes priority.  But you should design minor modes so that they don't interfere with each other.  If you do this properly, the order will not matter."
-msgstr ""
+msgstr "1つ以上のマイナーモードキーマップがアクティブなとき、@code{minor-mode-map-alist}内で前のキーマップが優先される。しかし、互いが干渉しないようにマイナーモードをデザインすべきである。これを正しく行えば、順序は問題にならない。"
 
 #. type: defvar
 #: keymaps.texi.orig:887
 msgid "See @ref{Keymaps and Minor Modes}, for more information about minor modes.  See also @code{minor-mode-key-binding} (@pxref{Functions for Key Lookup})."
-msgstr ""
+msgstr "マイナーモードについての詳細な情報は、@ref{Keymaps and Minor Modes}を参照のこと。@code{minor-mode-key-binding}(@pxref{Functions for Key Lookup}を参照)も確認されたい。"
 
 #. type: defvar
 #: keymaps.texi.orig:889
 #, no-wrap
 msgid "minor-mode-overriding-map-alist"
-msgstr ""
+msgstr "minor-mode-overriding-map-alist"
 
 #. type: defvar
 #: keymaps.texi.orig:894
 msgid "This variable allows major modes to override the key bindings for particular minor modes.  The elements of this alist look like the elements of @code{minor-mode-map-alist}: @code{(@var{variable} . @var{keymap})}."
-msgstr ""
+msgstr "この変数は、メジャーモードによる特定のマイナーモードにたいするキーバインディングのオーバーライドを可能にする。このalistの要素は、@code{minor-mode-map-alist}の要素のように、@code{(@var{variable} . @var{keymap})}のような形式である。"
 
 #. type: defvar
 #: keymaps.texi.orig:899
 msgid "If a variable appears as an element of @code{minor-mode-overriding-map-alist}, the map specified by that element totally replaces any map specified for the same variable in @code{minor-mode-map-alist}."
-msgstr ""
+msgstr "ある変数が@code{minor-mode-overriding-map-alist}の要素として出現する場合、その要素により指定されるマップは、@code{minor-mode-map-alist}内の同じ変数にたいして指定される任意のマップを完全に置き換える。"
 
 #. type: defvar
 #: keymaps.texi.orig:902
 msgid "@code{minor-mode-overriding-map-alist} is automatically buffer-local in all buffers."
-msgstr ""
+msgstr "すべてのバッファーにおいて、@code{minor-mode-overriding-map-alist}は自動的にバッファーローカルである。"
 
 #. type: defvar
 #: keymaps.texi.orig:904
 #, no-wrap
 msgid "overriding-local-map"
-msgstr ""
+msgstr "overriding-local-map"
 
 #. type: defvar
 #: keymaps.texi.orig:909
 msgid "If non-@code{nil}, this variable holds a keymap to use instead of the buffer's local keymap, any text property or overlay keymaps, and any minor mode keymaps.  This keymap, if specified, overrides all other maps that would have been active, except for the current global map."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合は、バッファーのローカルキーマップ、テキストプロパティまたはoverlayによるキーマップ、マイナーモードキーマップのかわりに使用されるするキーマップを保持する。このキーマップが指定された場合、カレントグローバルキーマップ以外のアクティブだった他のすべてのマップがオーバーライドされる。"
 
 #. type: defvar
 #: keymaps.texi.orig:911
 #, no-wrap
 msgid "overriding-terminal-local-map"
-msgstr ""
+msgstr "overriding-terminal-local-map"
 
 #. type: defvar
 #: keymaps.texi.orig:915
 msgid "If non-@code{nil}, this variable holds a keymap to use instead of @code{overriding-local-map}, the buffer's local keymap, text property or overlay keymaps, and all the minor mode keymaps."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合は、@code{overriding-local-map}、バッファーのローカルキーマップ、テキストプロパティまたはoverlayによるキーマップ、およびすべてのマイナーモードキーマップのかわりに使用されるキーマップを保持する。"
 
 #. type: defvar
 #: keymaps.texi.orig:919
 msgid "This variable is always local to the current terminal and cannot be buffer-local.  @xref{Multiple Terminals}.  It is used to implement incremental search mode."
-msgstr ""
+msgstr "この変数は、カレント端末にたいして常にローカルであり、バッファーローカルにできない。@ref{Multiple Terminals}を参照のこと。これはインクリメンタル検索モードの実装に使用される。"
 
 #. type: defvar
 #: keymaps.texi.orig:921
 #, no-wrap
 msgid "overriding-local-map-menu-flag"
-msgstr ""
+msgstr "overriding-local-map-menu-flag"
 
 #. type: defvar
 #: keymaps.texi.orig:926
 msgid "If this variable is non-@code{nil}, the value of @code{overriding-local-map} or @code{overriding-terminal-local-map} can affect the display of the menu bar.  The default value is @code{nil}, so those map variables have no effect on the menu bar."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合は、@code{overriding-local-map}または@code{overriding-terminal-local-map}の値がメニューバーの表示に影響し得る。デフォルト値は@code{nil}なので、これらのマップ変数なメニューバーに影響をもたない。"
 
 #. type: defvar
 #: keymaps.texi.orig:934
 msgid "Note that these two map variables do affect the execution of key sequences entered using the menu bar, even if they do not affect the menu bar display.  So if a menu bar key sequence comes in, you should clear the variables before looking up and executing that key sequence.  Modes that use the variables would typically do this anyway; normally they respond to events that they do not handle by ``unreading'' them and exiting."
-msgstr ""
+msgstr "これら2つのマップ変数は、たとえこれらの変数がメニューバー表示に影響し得るを与えない場合でも、メニューバーを使用してエンターされたキーシーケンスの実行には影響を与えることに注意されたい。したがって、もしメニューバーキーシーケンスが到着したら、そのキーシーケンスを照合・実行する前に変数をクリアーすべきである。この変数を使用するモードは通常、何らかの方法でこれを行っている。これらのモードは通常``読み戻し(unread)''とexitにより処理されないイベントに応答する。"
 
 #. type: defvar
 #: keymaps.texi.orig:936
 #, no-wrap
 msgid "special-event-map"
-msgstr ""
+msgstr "special-event-map"
 
 #. type: defvar
 #: keymaps.texi.orig:940
 msgid "This variable holds a keymap for special events.  If an event type has a binding in this keymap, then it is special, and the binding for the event is run directly by @code{read-event}.  @xref{Special Events}."
-msgstr ""
+msgstr "この変数は、スペシャルイベントにたいするキーマップを保持する。あるイベント型がこのキーマップ内でバインディングをもつ場合、それはスペシャルであり、そのイベントにたいするバインディングは@code{read-event}により直接実行される。@ref{Special Events}を参照のこと。"
 
 #. type: defvar
 #: keymaps.texi.orig:942
 #, no-wrap
 msgid "emulation-mode-map-alists"
-msgstr ""
+msgstr "emulation-mode-map-alists"
 
 #. type: defvar
 #: keymaps.texi.orig:950
 msgid "This variable holds a list of keymap alists to use for emulation modes.  It is intended for modes or packages using multiple minor-mode keymaps.  Each element is a keymap alist which has the same format and meaning as @code{minor-mode-map-alist}, or a symbol with a variable binding which is such an alist.  The ``active'' keymaps in each alist are used before @code{minor-mode-map-alist} and @code{minor-mode-overriding-map-alist}."
-msgstr ""
+msgstr "この変数は、エミュレーションモードにたいして使用するキーマップalistのリストを保持する。この変数は、複数マイナーモードキーマップを使用するモードとパッケージを意図している。リストの各要素は@code{minor-mode-map-alist}と同じフォーマットと意味をもつキーマップalistか、そのようなalist形式の変数バインディングをもつシンボルである。それぞれのalist内の``アクティブ''なキーマップは、@code{minor-mode-map-alist}と@code{minor-mode-overriding-map-alist}の前に使用される。"
 
 #. type: cindex
 #: keymaps.texi.orig:952
 #, no-wrap
 msgid "transient keymap"
-msgstr ""
+msgstr "transient keymap"
 
 #. type: defun
 #: keymaps.texi.orig:953
 #, no-wrap
 msgid "set-transient-map keymap &optional keep"
-msgstr ""
+msgstr "set-transient-map keymap &optional keep"
 
 #. type: defun
 #: keymaps.texi.orig:956
 msgid "This function adds @var{keymap} as a @dfn{transient} keymap, which takes precedence over other keymaps for one (or more) subsequent keys."
-msgstr ""
+msgstr "この関数は@dfn{一時的(transient)}なキーマップとして@var{keymap}を追加する。一時的なキーマップは1つ以上の後続するキーにたいして、他のキーマップより優先される。"
 
 #. type: defun
 #: keymaps.texi.orig:962
 msgid "Normally, @var{keymap} is used just once, to look up the very next key.  If the optional argument @var{pred} is @code{t}, the map stays active as long as the user types keys defined in @var{keymap}; when the user types a key that is not in @var{keymap}, the transient keymap is deactivated and normal key lookup continues for that key."
-msgstr ""
+msgstr "通常、@var{keymap}は直後のキー照合するために、1回だけ使用される。しかし、オプション引数@var{pred}が@code{t}の場合、そのマップはユーザーが@var{keymap}内で定義されたキーをタイプするまでアクのままとなる。@var{keymap}内にないキーをユーザーがタイプしたとき、一時的キーマップは非アクティブとなり、そのキーにたいして通常のキー照合が継続される。"
 
 #. type: defun
 #: keymaps.texi.orig:967
 msgid "The @var{pred} argument can also be a function.  In that case, the function is called with no arguments, prior to running each command, while @var{keymap} is active; it should return non-@code{nil} if @var{keymap} should stay active."
-msgstr ""
+msgstr "@var{pred}には関数も指定できる。。この場合、@var{keymap}がアクティブの間は、各コマンドの実行に優先して、その関数が引数なしで呼び出される。@var{keymap}がアクティブの間、関数は非@code{nil}をリターンすべきである。"
 
 #. type: defun
 #: keymaps.texi.orig:971
 msgid "This function works by adding and removing @code{keymap} from the variable @code{overriding-terminal-local-map}, which takes precedence over all other active keymaps (@pxref{Searching Keymaps})."
-msgstr ""
+msgstr "この関数は、他のすべてのアクティブなキーマップに優先される変数@code{overriding-terminal-local-map}にたいして、@code{keymap}を追加、または削除することにより機能する(@ref{Searching Keymaps}を参照)。"
 
 #. type: cindex
 #: keymaps.texi.orig:975
