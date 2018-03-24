@@ -12,7 +12,7 @@
 @cindex keymap
 
   入力イベントのコマンドバインディングは、@dfn{キーマップ(keymap)}と呼ばれるデータ構造に記録されます。キーマップ内の各エントリーは個別のイベント型(他のキーマップ、またはコマンド)に関連づけ(または@dfn{バインド})されます。イベント型がキーマップにバインドされる場合、そのキーマップは次の入力イベントを調べるために使用されます。これはコマンドが見つかるまで継続されます。このプロセス全体を@dfn{キールックアップ(key
-lookup)}と呼びます。
+lookup: キー照合)}と呼びます。
 
 @menu
 * Key Sequences::            Lispオブジェクトとしてのキーシーケンス。
@@ -163,7 +163,7 @@ Menus}を参照のこと。
 バインディングが@code{nil}の場合、それは定義の構成要素ではありませんが、デフォルトバインディングや親キーマップ内のバインディングに優先されます。一方、@code{nil}のバインディングは、より低い優先度のキーマップを@emph{オーバーライドしません}したがって、ローカルマップで@code{nil}のバインディングが与えられた場合、Emacsはグローバルマップのバインディングを使用します。
 
 @cindex meta characters lookup
-  キーマップはメタ文字にたいするバインディングを直接記録しません。かわりに、メタ文字は１文字目が@key{ESC}(または何であれ@code{meta-prefix-char}のカレント値)の、2文字のキーシーケンスを照合するものとみなされます。したがって、キー@kbd{M-a}は内部的に@kbd{@key{ESC}
+  キーマップはメタ文字にたいするバインディングを直接記録しません。かわりに、メタ文字は１文字目が@key{ESC}(または何であれ@code{meta-prefix-char}のカレント値)の、2文字のキーシーケンスをルックアップするものとみなされます。したがって、キー@kbd{M-a}は内部的に@kbd{@key{ESC}
 a}で表され、そのグローバルバインディングは、@code{esc-map}内の@kbd{a}にたいするスロットで見つけることができます(@ref{Prefix
 Keys}を参照)。
 
@@ -239,7 +239,7 @@ lisp-mode-map
 @end example
 
 @var{prompt}を指定した場合、それはキーマップにたいするoverallプロンプト文字列になる。これはメニューキーマップ(@ref{Defining
-Menus}を参照)にたいしてのみ指定すべきである。overallプロンプト文字列をともなうキーマップがアクティブな場合は、次の入力イベントの照合にたいしてマウスメニューとキーボードメニューを常に提示する。これはコマンドループにたいして毎回キーボードメニューを提示するので、overallプロンプト文字列をメインマップ、メジャーモードマップ、マイナーモードマップに指定しないこと。
+Menus}を参照)にたいしてのみ指定すべきである。overallプロンプト文字列をともなうキーマップがアクティブな場合は、次の入力イベントのルックアップにたいしてマウスメニューとキーボードメニューを常に提示する。これはコマンドループにたいして毎回キーボードメニューを提示するので、overallプロンプト文字列をメインマップ、メジャーモードマップ、マイナーモードマップに指定しないこと。
 @end defun
 
 @defun make-keymap &optional prompt
@@ -298,7 +298,7 @@ keymap)}と呼びます。そのようなキーマップは、以下のような
 @end example
 
 @noindent
-これの効果は、このキーマップがキー照合時に@var{parent-keymap}のすべてのバインディングを継承するが、それらにバインディングを追加したり、@var{elements}でオーバーライドできるということです。
+これの効果は、このキーマップがキールックアップ時に@var{parent-keymap}のすべてのバインディングを継承するが、それらにバインディングを追加したり、@var{elements}でオーバーライドできるということです。
 
 @code{define-key}や他のキーバインディング関数を使用して@var{parent-keymap}内のバインディングを変更した場合、変更されたバインディングは@var{elements}で作られたバインディングにshadowされない限り、継承されたキーマップ内で可視になります。逆は真ではありません。@code{define-key}を使用して継承されたキーマップ内のバインディングを変更した場合、これらの変更は@var{elements}内に記録されますが、@var{parent-keymap}に影響はありません。
 
@@ -328,7 +328,7 @@ keymap)}と呼びます。そのようなキーマップは、以下のような
   複数のマップからキーマップを継承したいときがあるかもしれません。これにたいしては、関数@code{make-composed-keymap}が使用できます。
 
 @defun make-composed-keymap maps &optional parent
-この関数は、既存のキーマップから構成される新たなキーマップをリターンする。また、オプションで親キーマップ@var{parent}から継承する。@var{maps}には単一のキーマップ、または複数のキーマップのリストを指定できる。リターンされた新たなマップ内でキーを照合するとき、Emacsは@var{maps}内のキーマップを順に検索してから@var{parent}内を検索する。この検索は最初のマッチで停止される。@var{maps}のどれか1つのキーマップ内の@code{nil}バインディングは、@var{parent}内の任意のバインディングをオーバーライドするが、@var{maps}にないキーマップの非@code{nil}バインディングはオーバーライドしない。
+この関数は、既存のキーマップから構成される新たなキーマップをリターンする。また、オプションで親キーマップ@var{parent}から継承する。@var{maps}には単一のキーマップ、または複数のキーマップのリストを指定できる。リターンされた新たなマップ内でキーをルックアップするとき、Emacsは@var{maps}内のキーマップを順に検索してから@var{parent}内を検索する。この検索は最初のマッチで停止される。@var{maps}のどれか1つのキーマップ内の@code{nil}バインディングは、@var{parent}内の任意のバインディングをオーバーライドするが、@var{maps}にないキーマップの非@code{nil}バインディングはオーバーライドしない。
 @end defun
 
 @noindent For example, here is how Emacs sets the parent of
@@ -419,7 +419,7 @@ Emacsの他のプレフィクスキーには@kbd{C-x @@}、@kbd{C-x a i}、@kbd{
 @key{ESC}}、@kbd{@key{ESC} @key{ESC}}がある。これらは、特別な名前をもたないキーマップを使用する。
 @end itemize
 
-  プレフィクスキーのキーマップバインディングは、プレフィクスキーに続くイベントを照合するために使用されます。(これは、関数定義がキーマップであるようなシンボルかもしれません。効果は同じですが、シンボルはプレフィクスキーにたいする名前の役割を果たします。)
+  プレフィクスキーのキーマップバインディングは、プレフィクスキーに続くイベントをルックアップするために使用されます。(これは、関数定義がキーマップであるようなシンボルかもしれません。効果は同じですが、シンボルはプレフィクスキーにたいする名前の役割を果たします。)
 したがって、@kbd{C-x}のバインディングはシンボル@code{Control-X-prefix}であり、このシンボルの関数セルが@kbd{C-x}コマンドにたいするキーマップを保持します(@code{ctl-x-map}の値も同じキーマップです)。
 
   プレフィクスキー定義は、任意のアクティブなキーマップ内に置くことができます。プレフィクスキーとしての@kbd{C-c}、@kbd{C-x}、@kbd{C-h}、@key{ESC}の定義はグローバルマップ内にもあるので、これらのプレフィクスキーは常に使用できます。メジャーモードとマイナーモードは、ローカルマップやマイナーモードのマップ内にプレフィクスキー定義を置くことにより、キーをプレフィクスキーとして再定義できます。
@@ -507,7 +507,7 @@ Keymaps}を参照してください。
   いくつかの標準的なキーマップのリストは、@ref{Standard Keymaps}を参照してください。
 
 @defun current-active-maps &optional olp position
-これは、カレントの状況下でコマンドループによりキーシーケンスを照合するたって使用される、アクティブなキーマップのリストをリターンする。これは通常、@code{overriding-local-map}と@code{overriding-terminal-local-map}を無視するが、@var{olp}が非@code{nil}の場合には、それらのキーマップにも注意を払う。オプションで@var{position}に@code{event-start}によりリターンされるイベント位置、またはバッファー位置を指定でき、@code{key-binding}で説明されているようにキーマップを変更するかもしれない。
+これは、カレントの状況下でコマンドループによりキーシーケンスをルックアップするために使用される、アクティブなキーマップのリストをリターンする。これは通常、@code{overriding-local-map}と@code{overriding-terminal-local-map}を無視するが、@var{olp}が非@code{nil}の場合には、それらのキーマップにも注意を払う。オプションで@var{position}に@code{event-start}によりリターンされるイベント位置、またはバッファー位置を指定でき、@code{key-binding}で説明されているようにキーマップを変更するかもしれない。
 @end defun
 
 @defun key-binding key &optional accept-defaults no-remap position
@@ -557,7 +557,7 @@ Commands}を参照)されたとき、@code{key-binding}は通常、実際に実�
 Active Maps}を参照)をセットすることにより機能する点に注意してください。
 
   上記の処理概要では、キーシーケンスがマウスイベント(@ref{Mouse
-Events}を参照)で始まる場合、ポイント位置のかわりにそのイベント位置、カレントバッファーのかわりにそのイベントのバッファーが使用されます。これは特に、プロパティ@code{keymap}および@code{local-map}を照合する方法に影響を与えます。@code{display}、@code{before-string}、@code{after-string}プロパティ(@ref{Special
+Events}を参照)で始まる場合、ポイント位置のかわりにそのイベント位置、カレントバッファーのかわりにそのイベントのバッファーが使用されます。これは特に、プロパティ@code{keymap}および@code{local-map}をルックアップする方法に影響を与えます。@code{display}、@code{before-string}、@code{after-string}プロパティ(@ref{Special
 Properties}を参照)が埋め込まれていて、@code{keymap}または@code{local-map}プロパティが非@code{nil}の文字列上でマウスイベントが発生した場合、それは基調となるバッファーテキストの対応するプロパティをオーバーライドします(バッファーテキストにより指定されたプロパティは無視される)。
 
   アクティブなキーマップの1つでキーバインディングが見つかり、そのバインディングがコマンドの場合、検索は終了し、そのコマンドが実行されます。しかし、そのバインディングが値をもつ変数、または文字列の場合、Emacsは入力キーシーケンスをその変数の値、または文字列で置き換えて、アクティブなキーマップの検索を再開します。
@@ -667,7 +667,7 @@ Terminals}を参照のこと。これはインクリメンタル検索モード�
 @defvar overriding-local-map-menu-flag
 この変数が非@code{nil}の場合は、@code{overriding-local-map}または@code{overriding-terminal-local-map}の値がメニューバーの表示に影響し得る。デフォルト値は@code{nil}なので、これらのマップ変数なメニューバーに影響をもたない。
 
-これら2つのマップ変数は、たとえこれらの変数がメニューバー表示に影響し得るを与えない場合でも、メニューバーを使用してエンターされたキーシーケンスの実行には影響を与えることに注意されたい。したがって、もしメニューバーキーシーケンスが到着したら、そのキーシーケンスを照合・実行する前に変数をクリアーすべきである。この変数を使用するモードは通常、何らかの方法でこれを行っている。これらのモードは通常``読み戻し(unread)''とexitにより処理されないイベントに応答する。
+これら2つのマップ変数は、たとえこれらの変数がメニューバー表示に影響し得るを与えない場合でも、メニューバーを使用してエンターされたキーシーケンスの実行には影響を与えることに注意されたい。したがって、もしメニューバーキーシーケンスが到着したら、そのキーシーケンスをルックアップ・実行する前に変数をクリアーすべきである。この変数を使用するモードは通常、何らかの方法でこれを行っている。これらのモードは通常``読み戻し(unread)''とexitにより処理されないイベントに応答する。
 @end defvar
 
 @defvar special-event-map
@@ -683,7 +683,7 @@ Events}を参照のこと。
 @defun set-transient-map keymap &optional keep
 この関数は@dfn{一時的(transient)}なキーマップとして@var{keymap}を追加する。一時的なキーマップは1つ以上の後続するキーにたいして、他のキーマップより優先される。
 
-通常、@var{keymap}は直後のキー照合するために、1回だけ使用される。しかし、オプション引数@var{pred}が@code{t}の場合、そのマップはユーザーが@var{keymap}内で定義されたキーをタイプするまでアクのままとなる。@var{keymap}内にないキーをユーザーがタイプしたとき、一時的キーマップは非アクティブとなり、そのキーにたいして通常のキー照合が継続される。
+通常、@var{keymap}は直後のキーをルックアップするために、1回だけ使用される。しかし、オプション引数@var{pred}が@code{t}の場合、そのマップはユーザーが@var{keymap}内で定義されたキーをタイプするまでアクのままとなる。@var{keymap}内にないキーをユーザーがタイプしたとき、一時的キーマップは非アクティブとなり、そのキーにたいして通常のキールックアップが継続される。
 
 @var{pred}には関数も指定できる。。この場合、@var{keymap}がアクティブの間は、各コマンドの実行に優先して、その関数が引数なしで呼び出される。@var{keymap}がアクティブの間、関数は非@code{nil}をリターンすべきである。
 
@@ -696,126 +696,81 @@ Keymaps}を参照)。
 @cindex key lookup
 @cindex keymap entry
 
-  @dfn{Key lookup} is the process of finding the binding of a key sequence
-from a given keymap.  The execution or use of the binding is not part of key
-lookup.
+  @dfn{キールックアップ(key lookup:
+キー照合)}とは、与えられたキーマップからキーシーケンスのバインディングを見つけ出すことです。そのバインディングの使用や実行は、キールックアップの一部ではありません。
 
-  Key lookup uses just the event type of each event in the key sequence; the
-rest of the event is ignored.  In fact, a key sequence used for key lookup
-may designate a mouse event with just its types (a symbol)  instead of the
-entire event (a list).  @xref{Input Events}.  Such a ``key sequence'' is
-insufficient for @code{command-execute} to run, but it is sufficient for
-looking up or rebinding a key.
+  キールックアップは、キーシーケンス内の各イベントのイベント型だけを使用し、そのイベントの残りは無視します。実際のところ、キールックアップに使用されるキーシーケンスは、マウスイベントをイベント全体(リスト)のかわりにイベント型のみ(シンボル)を用いるでしょう。@ref{Input
+Events}を参照してください。そのような``キーシーケンス''は、@code{command-execute}による実行には不十分ですが、キーのルックアップやリバインドには十分です。
 
-  When the key sequence consists of multiple events, key lookup processes the
-events sequentially: the binding of the first event is found, and must be a
-keymap; then the second event's binding is found in that keymap, and so on
-until all the events in the key sequence are used up.  (The binding thus
-found for the last event may or may not be a keymap.)  Thus, the process of
-key lookup is defined in terms of a simpler process for looking up a single
-event in a keymap.  How that is done depends on the type of object
-associated with the event in that keymap.
+  キーシーケンスが複数イベントから構成されるとき、キールックアップはイベントを順に処理します。最初のイベントのバインディングが見つかったとき、それはキーマップでなければなりません。そのキーマップ内で2つ目のイベントを見つけ出し、そのキーシーケンス内のすべてのイベントが消費されるまで、このプロセスを続けます(故に、最後のイベントにたいして見つかったイベントはキーマップかどうかわからない)。したがって、キールックアッププロセスは、キーマップ内で単一イベントを見つけ出す、よりシンプルなプロセスで定義されます。これが行なわれる方法は、キーマップ内でそのイベントに関連するオブジェクトの型に依存します。
 
-  Let's use the term @dfn{keymap entry} to describe the value found by looking
-up an event type in a keymap.  (This doesn't include the item string and
-other extra elements in a keymap element for a menu item, because
-@code{lookup-key} and other key lookup functions don't include them in the
-returned value.)  While any Lisp object may be stored in a keymap as a
-keymap entry, not all make sense for key lookup.  Here is a table of the
-meaningful types of keymap entries:
+  キーマップ内のイベント型ルックアップによる値発見を説明するために、@dfn{キーマップエントリー(keymap
+entry)}という用語を導入しましょう。(これにはメニューアイテムにたいするキーマップ内のアイテム文字列や、他の余計な要素は含まれません。なぜなら、@code{lookup-key}や他のキーマップルックアップ関数が、リターン値にそれらを含まないからです。)
+任意のLispオブジェクトがキーマップエントリーとしてキーマップに格納されるかもしれませんが、すべてがキールックアップに意味をもつわけではありません。以下のテーブルは、キーマップエントリーで重要な型です:
 
 @table @asis
 @item @code{nil}
 @cindex @code{nil} in keymap
-@code{nil} means that the events used so far in the lookup form an undefined
-key.  When a keymap fails to mention an event type at all, and has no
-default binding, that is equivalent to a binding of @code{nil} for that
-event type.
+@code{nil}は、それまでにルックアップに使用されたイベントが、未定義キーを形成することを意味する。最終的にキーマップがイベント型を調べるのに失敗して、デフォルトバインディングも存在しないときは、そのイベント型のバインディングが@code{nil}であるのと同じである。
 
 @item @var{command}
 @cindex command in keymap
-The events used so far in the lookup form a complete key, and @var{command}
-is its binding.  @xref{What Is a Function}.
+それまでにルックアップに使用されたイベントがコンプリートキーを形成し、そのバインディングは@var{command}である。@ref{What Is a
+Function}を参照のこと。
 
 @item @var{array}
 @cindex string in keymap
-The array (either a string or a vector) is a keyboard macro.  The events
-used so far in the lookup form a complete key, and the array is its
-binding.  See @ref{Keyboard Macros}, for more information.
+array(文字列かベクター)は、キーボードマクロである。それまでにルックアップに使用されたイベントはコンプリートキーを形成し、そのバインディングはarrayである。詳細は@ref{Keyboard
+Macros}を参照のこと。
 
 @item @var{keymap}
 @cindex keymap in keymap
-The events used so far in the lookup form a prefix key.  The next event of
-the key sequence is looked up in @var{keymap}.
+それまでにルックアップに使用されたイベントはプレフィクスキーを形成する。そのキーシーケンスの次のイベントは、@var{keymap}内でルックアップされる。
 
 @item @var{list}
 @cindex list in keymap
-The meaning of a list depends on what it contains:
+listの意味は、そのリストが何を含んでいるかに依存する:
 
 @itemize @bullet
 @item
-If the @sc{car} of @var{list} is the symbol @code{keymap}, then the list is
-a keymap, and is treated as a keymap (see above).
+@var{list}の@sc{car}がシンボル@code{keymap}の場合、そのリストはキーマップであり、キーマップとして扱われる(上記参照)。
 
 @item
 @cindex @code{lambda} in keymap
-If the @sc{car} of @var{list} is @code{lambda}, then the list is a lambda
-expression.  This is presumed to be a function, and is treated as such (see
-above).  In order to execute properly as a key binding, this function must
-be a command---it must have an @code{interactive} specification.
-@xref{Defining Commands}.
+@var{list}の@sc{car}が@code{lambda}の場合、そのリストはラムダ式である。これは関数とみなされ、そのように扱われる(上記参照)。キーバインディングとして正しく実行されるために、この関数はコマンドでなければならず、@code{interactive}指定をもたなければならない。@ref{Defining
+Commands}を参照のこと。
 
 @item
-If the @sc{car} of @var{list} is a keymap and the @sc{cdr} is an event type,
-then this is an @dfn{indirect entry}:
+@var{list}の@sc{car}がキーマップで@sc{cdr}がイベント型の場合、これは@dfn{インダイレクトエントリー(indirect
+entry: 間接エントリー)}である:
 
 @example
 (@var{othermap} . @var{othertype})
 @end example
 
-When key lookup encounters an indirect entry, it looks up instead the
-binding of @var{othertype} in @var{othermap} and uses that.
+キールックアップはインダイレクトエントリーに遭遇したときは、かわりに@var{othermap}内で@var{othertype}のバインディングをルックアップして、それを使用する。
 
-This feature permits you to define one key as an alias for another key.  For
-example, an entry whose @sc{car} is the keymap called @code{esc-map} and
-whose @sc{cdr} is 32 (the code for @key{SPC}) means, ``Use the global
-binding of @kbd{Meta-@key{SPC}}, whatever that may be''.
+この機能により、あるキーを他のキーにたいするalistとして定義することが可能になる。たとえば、@sc{car}が@code{esc-map}と呼ばれるキーマップで、@sc{cdr}が32(@key{SPC}のコード)の場合は、``それが何であろうと@kbd{Meta-@key{SPC}}のグローバルバインディングを使用する''ことを意味する。
 @end itemize
 
 @item @var{symbol}
 @cindex symbol in keymap
-The function definition of @var{symbol} is used in place of @var{symbol}.
-If that too is a symbol, then this process is repeated, any number of
-times.  Ultimately this should lead to an object that is a keymap, a
-command, or a keyboard macro.  A list is allowed if it is a keymap or a
-command, but indirect entries are not understood when found via symbols.
+@var{symbol}の関数定義が@var{symbol}のかわりに使用される。もし関数定義もシンボルの場合は、任意の回数このプロセスが繰り返される。これは最終的にキーマップであるようなオブジェクト、コマンド、またはキーボードマクロに行き着くはずである。それがキーマップかコマンドの場合はリストも許されるが、シンボルを通じて見つけ出された場合、インダイレクトエントリーは理解されない。
 
-Note that keymaps and keyboard macros (strings and vectors) are not valid
-functions, so a symbol with a keymap, string, or vector as its function
-definition is invalid as a function.  It is, however, valid as a key
-binding.  If the definition is a keyboard macro, then the symbol is also
-valid as an argument to @code{command-execute} (@pxref{Interactive Call}).
+キーマップおよびキーボードマクロ(文字列かベクター)は有効な関数ではないので、関数定義にキーマップ、文字列、ベクターをもつシンボルは、関数としては無効であることに注意されたい。しかし、キーバインディングとしては有効である。その定義がキーボードマクロの場合、そのシンボルは@code{command-execute}(@ref{Interactive
+Call}を参照)の引数としても有効である。
 
 @cindex @code{undefined} in keymap
-The symbol @code{undefined} is worth special mention: it means to treat the
-key as undefined.  Strictly speaking, the key is defined, and its binding is
-the command @code{undefined}; but that command does the same thing that is
-done automatically for an undefined key: it rings the bell (by calling
-@code{ding}) but does not signal an error.
+シンボル@code{undefined}は特記するに値する。これはそのキーを未定義として扱うことを意味する。厳密に言うと、そのキーは定義されているが、そのバインディングがコマンド@code{undefined}なのである。しかし、このコマンドは未定義キーにたいして自動的に行われるのと同じことを行う。つまり、(@code{ding}を呼び出して)bellを鳴らすが、エラーはシグナルしない。
 
 @cindex preventing prefix key
-@code{undefined} is used in local keymaps to override a global key binding
-and make the key ``undefined'' locally.  A local binding of @code{nil} would
-fail to do this because it would not override the global binding.
+@code{undefined}は、グローバルキーバインディングをオーバーライドして、そのキーをローカルに``未定義''にするために使用される。@code{nil}にローカルにバインドしても、グローバルバインディングをオーバーライドしないであろうから、これを行うのに失敗するだろう。
 
 @item @var{anything else}
-If any other type of object is found, the events used so far in the lookup
-form a complete key, and the object is its binding, but the binding is not
-executable as a command.
+オブジェクトの他の型が見つかった場合、それまでにルックアップで使用されたイベントはコンプリートキーを形成し、そのオブジェクトがバインディングになるが、そのバインディングはコマンドとして実行不可能である。
 @end table
 
-  In short, a keymap entry may be a keymap, a command, a keyboard macro, a
-symbol that leads to one of them, or an indirection or @code{nil}.
+  要約すると、キーマップエントリーはキーマップ、コマンド、キーボードマクロ、あるいはそれらに導出されるシンボル、インダイレクトエントリー、あるいは@code{nil}のいずれかです。
 
 @node Functions for Key Lookup
 @section Functions for Key Lookup
