@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-25 00:53+0900\n"
+"PO-Revision-Date: 2018-03-25 03:10+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1874,7 +1874,7 @@ msgstr "@code{undefined} in keymap"
 #. type: table
 #: keymaps.texi.orig:1087
 msgid "The symbol @code{undefined} is worth special mention: it means to treat the key as undefined.  Strictly speaking, the key is defined, and its binding is the command @code{undefined}; but that command does the same thing that is done automatically for an undefined key: it rings the bell (by calling @code{ding}) but does not signal an error."
-msgstr "シンボル@code{undefined}は特記するに値する。これはそのキーを未定義として扱うことを意味する。厳密に言うと、そのキーは定義されているが、そのバインディングがコマンド@code{undefined}なのである。しかし、このコマンドは未定義キーにたいして自動的に行われるのと同じことを行う。つまり、(@code{ding}を呼び出して)bellを鳴らすが、エラーはシグナルしない。"
+msgstr "シンボル@code{undefined}は特記するに値する。これはそのキーを未定義として扱うことを意味する。厳密に言うと、そのキーは定義されているが、そのバインディングがコマンド@code{undefined}なのである。しかし、このコマンドは未定義キーにたいして自動的に行われるのと同じことを行う。これは(@code{ding}を呼び出して)bellを鳴らすが、エラーはシグナルしない。"
 
 #. type: cindex
 #: keymaps.texi.orig:1088
@@ -1906,18 +1906,18 @@ msgstr "要約すると、キーマップエントリーはキーマップ、コ
 #. type: Plain text
 #: keymaps.texi.orig:1108
 msgid "Here are the functions and variables pertaining to key lookup."
-msgstr ""
+msgstr "以下は、キールックアップに関連する関数および変数です。"
 
 #. type: defun
 #: keymaps.texi.orig:1109
 #, no-wrap
 msgid "lookup-key keymap key &optional accept-defaults"
-msgstr ""
+msgstr "lookup-key keymap key &optional accept-defaults"
 
 #. type: defun
 #: keymaps.texi.orig:1113
 msgid "This function returns the definition of @var{key} in @var{keymap}.  All the other functions described in this chapter that look up keys use @code{lookup-key}.  Here are examples:"
-msgstr ""
+msgstr "この関数は、@var{keymap}内の@var{key}の定義をリターンする。このチャプターで説明されている、キーをルックアップする他のすべての関数が@code{lookup-key}を使用する。以下は例である:"
 
 #. type: group
 #: keymaps.texi.orig:1118
@@ -1926,6 +1926,8 @@ msgid ""
 "(lookup-key (current-global-map) \"\\C-x\\C-f\")\n"
 "    @result{} find-file\n"
 msgstr ""
+"(lookup-key (current-global-map) \"\\C-x\\C-f\")\n"
+"    @result{} find-file\n"
 
 #. type: group
 #: keymaps.texi.orig:1122
@@ -1934,6 +1936,8 @@ msgid ""
 "(lookup-key (current-global-map) (kbd \"C-x C-f\"))\n"
 "    @result{} find-file\n"
 msgstr ""
+"(lookup-key (current-global-map) (kbd \"C-x C-f\"))\n"
+"    @result{} find-file\n"
 
 #. type: group
 #: keymaps.texi.orig:1126
@@ -1942,21 +1946,23 @@ msgid ""
 "(lookup-key (current-global-map) \"\\C-x\\C-f12345\")\n"
 "    @result{} 2\n"
 msgstr ""
+"(lookup-key (current-global-map) \"\\C-x\\C-f12345\")\n"
+"    @result{} 2\n"
 
 #. type: defun
 #: keymaps.texi.orig:1134
 msgid "If the string or vector @var{key} is not a valid key sequence according to the prefix keys specified in @var{keymap}, it must be ``too long'' and have extra events at the end that do not fit into a single key sequence.  Then the value is a number, the number of events at the front of @var{key} that compose a complete key."
-msgstr ""
+msgstr "文字列、またはベクターの@var{key}が、@var{keymap}内で指定されるプレフィクスキーとして有効なキーシーケンスでない場合、それは最後に余計なイベントをもつ、単一のキーシーケンスに適合しない、``長過ぎる''キーのはずである。その場合のリターン値は数となり、この数はコンプリートキーを構成する@var{key}の前にあるイベントの数である。"
 
 #. type: defun
 #: keymaps.texi.orig:1142
 msgid "If @var{accept-defaults} is non-@code{nil}, then @code{lookup-key} considers default bindings as well as bindings for the specific events in @var{key}.  Otherwise, @code{lookup-key} reports only bindings for the specific sequence @var{key}, ignoring default bindings except when you explicitly ask about them.  (To do this, supply @code{t} as an element of @var{key}; see @ref{Format of Keymaps}.)"
-msgstr ""
+msgstr "@var{accept-defaults}が非@code{nil}の場合、@code{lookup-key}は@var{key}内の特定のイベントにたいするバインディングと同様に、デフォルトバインディングも考慮する。それ以外では、@code{lookup-key}は特定の@var{key}のシーケンスにたいするバインディングだけを報告し、明示的に指定したとき以外はデフォルトバインディングを無視する。(これを行うには、@var{key}の要素として@code{t}を与える。@ref{Format of Keymaps}を参照のこと。)"
 
 #. type: defun
 #: keymaps.texi.orig:1148
 msgid "If @var{key} contains a meta character (not a function key), that character is implicitly replaced by a two-character sequence: the value of @code{meta-prefix-char}, followed by the corresponding non-meta character.  Thus, the first example below is handled by conversion into the second example."
-msgstr ""
+msgstr "@var{key}がメタ文字(ファンクションキーではない)を含む場合その文字は暗黙に@code{meta-prefix-char}の値と対応する非メタ文字からなる、2文字シーケンスに置き換えられる。したがって、以下に1つ目の例は、2つ目の例に変換されて処理される。"
 
 #. type: group
 #: keymaps.texi.orig:1153
@@ -1965,6 +1971,8 @@ msgid ""
 "(lookup-key (current-global-map) \"\\M-f\")\n"
 "    @result{} forward-word\n"
 msgstr ""
+"(lookup-key (current-global-map) \"\\M-f\")\n"
+"    @result{} forward-word\n"
 
 #. type: group
 #: keymaps.texi.orig:1157
@@ -1973,87 +1981,89 @@ msgid ""
 "(lookup-key (current-global-map) \"\\ef\")\n"
 "    @result{} forward-word\n"
 msgstr ""
+"(lookup-key (current-global-map) \"\\ef\")\n"
+"    @result{} forward-word\n"
 
 #. type: defun
 #: keymaps.texi.orig:1164
 msgid "Unlike @code{read-key-sequence}, this function does not modify the specified events in ways that discard information (@pxref{Key Sequence Input}).  In particular, it does not convert letters to lower case and it does not change drag events to clicks."
-msgstr ""
+msgstr "@code{read-key-sequence}とは異なり、この関数は指定されたイベントの情報を破棄する変更(@ref{Key Sequence Input}を参照)を行わない。特に、この関数はアルファベット文字を小文字に変更せず、ドラッグイベントをクリックイベントに変更しない。"
 
 #. type: deffn
 #: keymaps.texi.orig:1166
 #, no-wrap
 msgid "Command undefined"
-msgstr ""
+msgstr "Command undefined"
 
 #. type: deffn
 #: keymaps.texi.orig:1169
 msgid "Used in keymaps to undefine keys.  It calls @code{ding}, but does not cause an error."
-msgstr ""
+msgstr "キーを未定義にするために、キーマップ内で使用される。これは@code{ding}を呼び出すが、エラーを起こさない。"
 
 #. type: defun
 #: keymaps.texi.orig:1171
 #, no-wrap
 msgid "local-key-binding key &optional accept-defaults"
-msgstr ""
+msgstr "local-key-binding key &optional accept-defaults"
 
 #. type: defun
 #: keymaps.texi.orig:1174
 msgid "This function returns the binding for @var{key} in the current local keymap, or @code{nil} if it is undefined there."
-msgstr ""
+msgstr "この関数は、カレントのローカルキーマップ内の、@var{key}にたいするバインディングをリターンする。カレントのローカルキーマップ内で未定義の場合は、@code{nil}をリターンする。"
 
 #. type: defun
 #: keymaps.texi.orig:1178 keymaps.texi.orig:1187 keymaps.texi.orig:1205
 msgid "The argument @var{accept-defaults} controls checking for default bindings, as in @code{lookup-key} (above)."
-msgstr ""
+msgstr "引数@var{accept-defaults}は、@code{lookup-key}(上記)と同じように、デフォルトバインディングのチェックを制御する。"
 
 #. type: defun
 #: keymaps.texi.orig:1180
 #, no-wrap
 msgid "global-key-binding key &optional accept-defaults"
-msgstr ""
+msgstr "global-key-binding key &optional accept-defaults"
 
 #. type: defun
 #: keymaps.texi.orig:1183
 msgid "This function returns the binding for command @var{key} in the current global keymap, or @code{nil} if it is undefined there."
-msgstr ""
+msgstr "この関数は、カレントのグローバルキーマップ内で、コマンド@var{key}にたいするバインディングをリターンする。カレントのグローバルキーマップ内で未定義の場合は、@code{nil}をリターンする。"
 
 #. type: defun
 #: keymaps.texi.orig:1190
 #, no-wrap
 msgid "minor-mode-key-binding key &optional accept-defaults"
-msgstr ""
+msgstr "minor-mode-key-binding key &optional accept-defaults"
 
 #. type: defun
 #: keymaps.texi.orig:1197
 msgid "This function returns a list of all the active minor mode bindings of @var{key}.  More precisely, it returns an alist of pairs @code{(@var{modename} . @var{binding})}, where @var{modename} is the variable that enables the minor mode, and @var{binding} is @var{key}'s binding in that mode.  If @var{key} has no minor-mode bindings, the value is @code{nil}."
-msgstr ""
+msgstr "この関数は、アクティブなマイナーモードの@var{key}のバインディングを、リストでリターンする。より正確には、この関数は@code{(@var{modename} . @var{binding})}のとうなペアーのalistをリターンする。ここで@var{modename}なそのマイナーモードを有効にする変数、@var{binding}はそのモードでの@var{key}のバインディングである。@var{key}がマイナーモードバインディングをみたない場合、値は@code{nil}である。"
 
 #. type: defun
 #: keymaps.texi.orig:1202
 msgid "If the first binding found is not a prefix definition (a keymap or a symbol defined as a keymap), all subsequent bindings from other minor modes are omitted, since they would be completely shadowed.  Similarly, the list omits non-prefix bindings that follow prefix bindings."
-msgstr ""
+msgstr "最初に見つかったバインディングがプレフィクス定義(キーマップ、またはキーマップとして定義されたシンボル)でない場合は、他のマイナーモード由来のすべての後続するバインディングは、完全にshadowされるため省略される。同様に、このリストはプレフィクスバインディングに後続する非プレフィクスバインディングは省略される。"
 
 #. type: defopt
 #: keymaps.texi.orig:1207
 #, no-wrap
 msgid "meta-prefix-char"
-msgstr ""
+msgstr "meta-prefix-char"
 
 #. type: key{#1}
 #: keymaps.texi.orig:1208
 #, no-wrap
 msgid "ESC"
-msgstr ""
+msgstr "ESC"
 
 #. type: defopt
 #: keymaps.texi.orig:1214
 msgid "This variable is the meta-prefix character code.  It is used for translating a meta character to a two-character sequence so it can be looked up in a keymap.  For useful results, the value should be a prefix event (@pxref{Prefix Keys}).  The default value is 27, which is the @acronym{ASCII} code for @key{ESC}."
-msgstr ""
+msgstr "この変数はメタ/プレフィクス文字コードである。これはメタ文字をキーマップ内でルックアップできるように、2文字シーケンスに変換する。有用な結果を得るために、値はプレフィクスイベント(@ref{Prefix Keys}を参照)であること。デフォルト値は27で、これは@key{ESC}にたいする@acronym{ASCII}コードである。"
 
 #. type: defopt
 #: keymaps.texi.orig:1222
 msgid "As long as the value of @code{meta-prefix-char} remains 27, key lookup translates @kbd{M-b} into @kbd{@key{ESC} b}, which is normally defined as the @code{backward-word} command.  However, if you were to set @code{meta-prefix-char} to 24, the code for @kbd{C-x}, then Emacs will translate @kbd{M-b} into @kbd{C-x b}, whose standard binding is the @code{switch-to-buffer} command.  (Don't actually do this!)  Here is an illustration of what would happen:"
-msgstr ""
+msgstr "@code{meta-prefix-char}の値が27であるような限り、キールックアップは通常@code{backward-word}コマンドとして定義される@kbd{M-b}を、@kbd{@key{ESC} b}に変換する。しかし、@code{meta-prefix-char}を24(@kbd{C-x}のコード)にセットした場合、Emacsは@kbd{M-b}を@kbd{C-x b}に変換するだろうが、これの標準のバインディングは@code{switch-to-buffer}コマンドである。以下に何が起こるかを示す(実際にこれを行ってはならない!):"
 
 #. type: group
 #: keymaps.texi.orig:1227
@@ -2062,6 +2072,8 @@ msgid ""
 "meta-prefix-char                    ; @r{The default value.}\n"
 "     @result{} 27\n"
 msgstr ""
+"meta-prefix-char                    ; @r{デフォルト値}\n"
+"     @result{} 27\n"
 
 #. type: group
 #: keymaps.texi.orig:1231
@@ -2070,6 +2082,8 @@ msgid ""
 "(key-binding \"\\M-b\")\n"
 "     @result{} backward-word\n"
 msgstr ""
+"(key-binding \"\\M-b\")\n"
+"     @result{} backward-word\n"
 
 #. type: group
 #: keymaps.texi.orig:1235
@@ -2078,6 +2092,8 @@ msgid ""
 "?\\C-x                               ; @r{The print representation}\n"
 "     @result{} 24                          ;   @r{of a character.}\n"
 msgstr ""
+"?\\C-x                               ; @r{文字.の}\n"
+"     @result{} 24                          ; @r{プリント表現}\n"
 
 #. type: group
 #: keymaps.texi.orig:1239
@@ -2086,6 +2102,8 @@ msgid ""
 "(setq meta-prefix-char 24)\n"
 "     @result{} 24\n"
 msgstr ""
+"(setq meta-prefix-char 24)\n"
+"     @result{} 24\n"
 
 #. type: group
 #: keymaps.texi.orig:1244
@@ -2096,6 +2114,10 @@ msgid ""
 "                                    ;   @r{like typing @kbd{C-x b}.}\n"
 "\n"
 msgstr ""
+"(key-binding \"\\M-b\")\n"
+"     @result{} switch-to-buffer            ; @r{今や@kbd{M-b}をタイプすると}\n"
+"                                    ;   @r{@kbd{C-x b}をタイプしたようになる}\n"
+"\n"
 
 #. type: group
 #: keymaps.texi.orig:1247
@@ -2104,11 +2126,13 @@ msgid ""
 "(setq meta-prefix-char 27)          ; @r{Avoid confusion!}\n"
 "     @result{} 27                          ; @r{Restore the default value!}\n"
 msgstr ""
+"(setq meta-prefix-char 27)          ; @r{混乱を避ける!}\n"
+"     @result{} 27                          ; @r{デフォルト値をリストア!}\n"
 
 #. type: defopt
 #: keymaps.texi.orig:1253
 msgid "This translation of one event into two happens only for characters, not for other kinds of input events.  Thus, @kbd{M-@key{F1}}, a function key, is not converted into @kbd{@key{ESC} @key{F1}}."
-msgstr ""
+msgstr "この単一イベントから２イベントへの変換は文字にたいしてのみ発生し、他の種類の入力イベントには発生しない。したがって、ファンクションキー@kbd{M-@key{F1}}は@kbd{@key{ESC} @key{F1}}に変換されない。"
 
 #. type: cindex
 #: keymaps.texi.orig:1257
