@@ -516,8 +516,8 @@ Keymaps}を参照してください。
 引数@var{accept-defaults}は、@code{lookup-key}(@ref{Functions for Key
 Lookup}を参照)のようにデフォルトバインディングをチェックするかを制御する。
 
-コマンドが再マップ(@ref{Remapping
-Commands}を参照)されたとき、@code{key-binding}は通常、実際に実行されるであろう再マップされたコマンドをリターンするように、コマンドの再マップを行う。しかし、@var{no-remap}が非@code{nil}の場合、@code{key-binding}は再マップを無視して、@var{key}にたいして直接指定されたバインディングをリターンする。
+コマンドがリマップ(remap: 再マップ。@ref{Remapping
+Commands}を参照)されたとき、@code{key-binding}は通常、実際に実行されるであろうリマップされたコマンドをリターンするように、コマンドのリマップを行う。しかし、@var{no-remap}が非@code{nil}の場合、@code{key-binding}はリマップを無視して、@var{key}にたいして直接指定されたバインディングをリターンする。
 
 @var{key}がマウスイベント(もしかしたらプレフィクスイベントが先行するかもしれない)で始まる場合、照合されるマップはそのイベントの位置を元に決定される。それ以外では、それらのマップはポイント値に基づき決定される。しかし、@var{position}を指定することにより、これらをオーバーライドできる。@var{position}が非@code{nil}の場合、それはバッファー位置か@code{event-start}の値のようなイベント位置のいずれかである。その場合、照合されるマップは@var{position}に基づき決定される。
 
@@ -563,7 +563,7 @@ Properties}を参照)が埋め込まれていて、@code{keymap}または@code{l
   アクティブなキーマップの1つでキーバインディングが見つかり、そのバインディングがコマンドの場合、検索は終了し、そのコマンドが実行されます。しかし、そのバインディングが値をもつ変数、または文字列の場合、Emacsは入力キーシーケンスをその変数の値、または文字列で置き換えて、アクティブなキーマップの検索を再開します。
 @ref{Key Lookup}を参照してください。
 
-  最終的に見つかったコマンドも再マップされるかもしれません。@ref{Remapping Commands}を参照してください。
+  最終的に見つかったコマンドもリマップされるかもしれません。@ref{Remapping Commands}を参照してください。
 
 @node Controlling Active Maps
 @section Controlling the Active Keymaps
@@ -984,15 +984,12 @@ map
 C-f}にたいする新たなバインディングの格納は、実際には@code{ctl-x-map}内のエントリーを変更することにより機能し、これはデフォルトグローバルマップ内の@kbd{C-p
 C-f}と@kbd{C-x C-f}の両方のバインディングを変更する効果をもつことに注意されたい。
 
-  関数@code{substitute-key-definition}は、キーマップから特定のバインディングをもつキーをスキャンして、それらを異なるバインディングにリバインドする。より明快で、多くの場合は同じ結果を生成できる他の機能として、あるコマンドから別のコマンドへの再マップがあります(@ref{Remapping
+  関数@code{substitute-key-definition}は、キーマップから特定のバインディングをもつキーをスキャンして、それらを異なるバインディングにリバインドする。より明快で、多くの場合は同じ結果を生成できる他の機能として、あるコマンドから別のコマンドへのリマップがあります(@ref{Remapping
 Commands}を参照)。
 
 @defun substitute-key-definition olddef newdef keymap &optional oldmap
 @cindex replace bindings
-This function replaces @var{olddef} with @var{newdef} for any keys in
-@var{keymap} that were bound to @var{olddef}.  In other words, @var{olddef}
-is replaced with @var{newdef} wherever it appears.  The function returns
-@code{nil}.
+この関数は、@var{keymap}内で@var{olddef}にバインドされるすべてのキーについて、@var{olddef}を@var{newdef}に置き換える。別の言い方をすると、@var{olddef}が出現する箇所すべてを@var{newdef}に置き換える。この関数は@code{nil}をリターンする。
 
 For example, this redefines @kbd{C-x C-f}, if you do it in an Emacs with
 standard bindings:
