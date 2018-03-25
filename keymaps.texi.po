@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-25 03:10+0900\n"
+"PO-Revision-Date: 2018-03-25 16:55+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2138,93 +2138,93 @@ msgstr "この単一イベントから２イベントへの変換は文字にた
 #: keymaps.texi.orig:1257
 #, no-wrap
 msgid "changing key bindings"
-msgstr ""
+msgstr "changing key bindings"
 
 #. type: cindex
 #: keymaps.texi.orig:1258
 #, no-wrap
 msgid "rebinding"
-msgstr ""
+msgstr "rebinding"
 
 #. type: Plain text
 #: keymaps.texi.orig:1269
 msgid "The way to rebind a key is to change its entry in a keymap.  If you change a binding in the global keymap, the change is effective in all buffers (though it has no direct effect in buffers that shadow the global binding with a local one).  If you change the current buffer's local map, that usually affects all buffers using the same major mode.  The @code{global-set-key} and @code{local-set-key} functions are convenient interfaces for these operations (@pxref{Key Binding Commands}).  You can also use @code{define-key}, a more general function; then you must explicitly specify the map to change."
-msgstr ""
+msgstr "キーのリバインド(rebind: 再バインド、再束縛)は、キーマップ内でそのキーのバインディングエントリーを変更することにより行います。グローバルキーマップ内のバインディングを変更した場合、その変更は(たとえローカルバインディングによりグローバルバインディングをshadowしているバッファーでは直接影響しないとしても)すべてのバッファーに影響します。カレントバッファーのローカルマップを変更した場合は、通常は同じメジャーモードを使用するすべてのバッファーに影響します。関数@code{global-set-key}および@code{local-set-key}は、これらの操作のための使いやすいインターフェイスです(@ref{Key Binding Commands}を参照)。より汎用的な関数@code{define-key}を使用することもできます。その場合は、変更するマップを明示的に指定しなければなりません。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1273
 msgid "When choosing the key sequences for Lisp programs to rebind, please follow the Emacs conventions for use of various keys (@pxref{Key Binding Conventions})."
-msgstr ""
+msgstr "Lispプログラムでリバインドするキーシーケンスを選択するときは、さまざまなキーの使用についてのEmacsの慣習にしたがうようお願いします(@ref{Key Binding Conventions}を参照)。"
 
 #. type: cindex
 #: keymaps.texi.orig:1274
 #, no-wrap
 msgid "meta character key constants"
-msgstr ""
+msgstr "meta character key constants"
 
 #. type: cindex
 #: keymaps.texi.orig:1275
 #, no-wrap
 msgid "control character key constants"
-msgstr ""
+msgstr "control character key constants"
 
 #. type: Plain text
 #: keymaps.texi.orig:1286
 msgid "In writing the key sequence to rebind, it is good to use the special escape sequences for control and meta characters (@pxref{String Type}).  The syntax @samp{\\C-} means that the following character is a control character and @samp{\\M-} means that the following character is a meta character.  Thus, the string @code{\"\\M-x\"} is read as containing a single @kbd{M-x}, @code{\"\\C-f\"} is read as containing a single @kbd{C-f}, and @code{\"\\M-\\C-x\"} and @code{\"\\C-\\M-x\"} are both read as containing a single @kbd{C-M-x}.  You can also use this escape syntax in vectors, as well as others that aren't allowed in strings; one example is @samp{[?\\C-\\H-x home]}.  @xref{Character Type}."
-msgstr ""
+msgstr "リバインドするキーシーケンスの記述では、コントロール文字とメタ文字にたいして、特別なエスケープシーケンスを使用すると良いでしょう(@ref{String Type}を参照)。構文@samp{\\C-}は後続する文字がコントロール文字でることを意味し、@samp{\\M-}は後続する文字がメタ文字であることを意味します。したがって、文字列@code{\"\\M-x\"}は1つの@kbd{M-x}、@code{\"\\C-f\"}は1つの@kbd{C-f}、@code{\"\\M-\\C-x\"}および@code{\"\\C-\\M-x\"}は1つの@kbd{C-M-x}として読み取られます。ベクター内でも、このエスケープシーケンス、および文字列では使用できない他のエスケープシーケンスを使用できます。1例は@samp{[?\\C-\\H-x home]}です。@ref{Character Type}を参照してください。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1294
 msgid "The key definition and lookup functions accept an alternate syntax for event types in a key sequence that is a vector: you can use a list containing modifier names plus one base event (a character or function key name).  For example, @code{(control ?a)} is equivalent to @code{?\\C-a} and @code{(hyper control left)} is equivalent to @code{C-H-left}.  One advantage of such lists is that the precise numeric codes for the modifier bits don't appear in compiled files."
-msgstr ""
+msgstr "キー定義、およびルックアップ関数は、ベクターであるようなキーシーケンス内のイベント型にたいして、別の構文を受け入れます。修飾名に基本イベント(文字かファンクションキー名)を付加したものを含むリストを使用できます。たとえば、@code{(control ?a)}は@code{?\\C-a}、@code{(hyper control left)}は@code{C-H-left}と等価です。このようなリストの利点の1つは、コンパイル済みファイル内に修飾ビットの正確な数値コードが出現しないことです。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1300
 msgid "The functions below signal an error if @var{keymap} is not a keymap, or if @var{key} is not a string or vector representing a key sequence.  You can use event types (symbols) as shorthand for events that are lists.  The @code{kbd} function (@pxref{Key Sequences}) is a convenient way to specify the key sequence."
-msgstr ""
+msgstr "以下の関数は、@var{keymap}がキーマップでない場合、および@var{key}がキーシーケンスを表す文字列やベクターでない場合はエラーをシグナルします。リストであるようなイベントにたいする略記として、イベント型(シンボル)を使用できます。@code{kbd}関数(@ref{Key Sequences}を参照)は、キーシーケンスを指定するための便利な方法です。"
 
 #. type: defun
 #: keymaps.texi.orig:1301
 #, no-wrap
 msgid "define-key keymap key binding"
-msgstr ""
+msgstr "define-key keymap key binding"
 
 #. type: defun
 #: keymaps.texi.orig:1308
 msgid "This function sets the binding for @var{key} in @var{keymap}.  (If @var{key} is more than one event long, the change is actually made in another keymap reached from @var{keymap}.)  The argument @var{binding} can be any Lisp object, but only certain types are meaningful.  (For a list of meaningful types, see @ref{Key Lookup}.)  The value returned by @code{define-key} is @var{binding}."
-msgstr ""
+msgstr "この関数は、@var{keymap}内で@var{key}にたいするバインディングをセットする(@var{key}が長さ2以上のイベントの場合、その変更は実際は@var{keymap}から辿られる他のキーマップで行なわれる)。引数@var{binding}には任意のLispオブジェクトを指定できるが、意味があるのは特定のオブジェクトだけである(意味のある型のリストは、@ref{Key Lookup}を参照のこと)。@code{define-key}のリターン値は@var{binding}である。"
 
 #. type: defun
 #: keymaps.texi.orig:1312
 msgid "If @var{key} is @code{[t]}, this sets the default binding in @var{keymap}.  When an event has no binding of its own, the Emacs command loop uses the keymap's default binding, if there is one."
-msgstr ""
+msgstr "@var{key}が@code{[t]}の場合、これは@var{keymap}内でデフォルトバインディングをセットする。イベントが自身のバインディングをもたないとき、そのキーマップ内にデフォルトバインディングが存在するなら、Emacsコマンドループはそれを使用する。"
 
 #. type: cindex
 #: keymaps.texi.orig:1313
 #, no-wrap
 msgid "invalid prefix key error"
-msgstr ""
+msgstr "invalid prefix key error"
 
 #. type: cindex
 #: keymaps.texi.orig:1314
 #, no-wrap
 msgid "key sequence error"
-msgstr ""
+msgstr "key sequence error"
 
 #. type: defun
 #: keymaps.texi.orig:1319
 msgid "Every prefix of @var{key} must be a prefix key (i.e., bound to a keymap)  or undefined; otherwise an error is signaled.  If some prefix of @var{key} is undefined, then @code{define-key} defines it as a prefix key so that the rest of @var{key} can be defined as specified."
-msgstr ""
+msgstr "@var{key}のすべてのプレフィクスは、プレフィクスキー(キーマップにバインドされる)、または未定義でなけらばならず、それ以外はエラーがシグナルされる。@var{key}のいくつかのプレフィクスが未定義の場合は、@code{define-key}はそれをプレフィクスキーとして定義するので、残りの@var{key}は指定されたように定義できる。"
 
 #. type: defun
 #: keymaps.texi.orig:1324
 msgid "If there was previously no binding for @var{key} in @var{keymap}, the new binding is added at the beginning of @var{keymap}.  The order of bindings in a keymap makes no difference for keyboard input, but it does matter for menu keymaps (@pxref{Menu Keymaps})."
-msgstr ""
+msgstr "前に@var{keymap}内で@var{key}にたいするバインディングが存在しなかった場合は、新たなバインディングが@var{keymap}の先頭に追加される。キーマップ内のバインディングの順序はキーボード入力にたいし影響を与えないが、メニューキーマップにたいしては問題となる(@ref{Menu Keymaps}を参照)。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1328
 msgid "This example creates a sparse keymap and makes a number of bindings in it:"
-msgstr ""
+msgstr "以下は、sparseキーマップを作成して、その中にバインディングをいくつか作成する例である:"
 
 #. type: group
 #: keymaps.texi.orig:1333
@@ -2233,6 +2233,8 @@ msgid ""
 "(setq map (make-sparse-keymap))\n"
 "    @result{} (keymap)\n"
 msgstr ""
+"(setq map (make-sparse-keymap))\n"
+"    @result{} (keymap)\n"
 
 #. type: group
 #: keymaps.texi.orig:1337
@@ -2241,6 +2243,8 @@ msgid ""
 "(define-key map \"\\C-f\" 'forward-char)\n"
 "    @result{} forward-char\n"
 msgstr ""
+"(define-key map \"\\C-f\" 'forward-char)\n"
+"    @result{} forward-char\n"
 
 #. type: group
 #: keymaps.texi.orig:1341
@@ -2249,6 +2253,8 @@ msgid ""
 "map\n"
 "    @result{} (keymap (6 . forward-char))\n"
 msgstr ""
+"map\n"
+"    @result{} (keymap (6 . forward-char))\n"
 
 #. type: group
 #: keymaps.texi.orig:1347
@@ -2258,6 +2264,10 @@ msgid ""
 "(define-key map (kbd \"C-x f\") 'forward-word)\n"
 "    @result{} forward-word\n"
 msgstr ""
+";; @r{@kbd{C-x}にたいしsparseサブマップを作成し、\n"
+";; その中で@kbd{f}をバインドする}\n"
+"(define-key map (kbd \"C-x f\") 'forward-word)\n"
+"    @result{} forward-word\n"
 
 #. type: group
 #: keymaps.texi.orig:1354
@@ -2269,6 +2279,11 @@ msgid ""
 "        (102 . forward-word)) ;      @kbd{f}\n"
 "    (6 . forward-char))       ; @kbd{C-f}\n"
 msgstr ""
+"map\n"
+"@result{} (keymap\n"
+"    (24 keymap                ; @kbd{C-x}\n"
+"        (102 . forward-word)) ;      @kbd{f}\n"
+"    (6 . forward-char))       ; @kbd{C-f}\n"
 
 #. type: group
 #: keymaps.texi.orig:1361
@@ -2279,6 +2294,10 @@ msgid ""
 ";; @code{ctl-x-map}\n"
 "@result{} [nil @dots{} find-file @dots{} backward-kill-sentence]\n"
 msgstr ""
+";; @r{@kbd{C-p}を@code{ctl-x-map}にバインド}\n"
+"(define-key map (kbd \"C-p\") ctl-x-map)\n"
+";; @code{ctl-x-map}\n"
+"@result{} [nil @dots{} find-file @dots{} backward-kill-sentence]\n"
 
 #. type: group
 #: keymaps.texi.orig:1367
@@ -2288,6 +2307,9 @@ msgid ""
 "(define-key map (kbd \"C-p C-f\") 'foo)\n"
 "@result{} 'foo\n"
 msgstr ""
+";; @r{@code{ctl-x-map}内で@kbd{C-f}を@code{foo}にバインド}\n"
+"(define-key map (kbd \"C-p C-f\") 'foo)\n"
+"@result{} 'foo\n"
 
 #. type: group
 #: keymaps.texi.orig:1375
@@ -2300,28 +2322,34 @@ msgid ""
 "        (102 . forward-word))\n"
 "    (6 . forward-char))\n"
 msgstr ""
+"map\n"
+"@result{} (keymap     ; @r{@code{ctl-x-map}内の@code{foo}に注目}\n"
+"    (16 keymap [nil @dots{} foo @dots{} backward-kill-sentence])\n"
+"    (24 keymap\n"
+"        (102 . forward-word))\n"
+"    (6 . forward-char))\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:1383
 msgid "Note that storing a new binding for @kbd{C-p C-f} actually works by changing an entry in @code{ctl-x-map}, and this has the effect of changing the bindings of both @kbd{C-p C-f} and @kbd{C-x C-f} in the default global map."
-msgstr ""
+msgstr "@kbd{C-p C-f}にたいする新たなバインディングの格納は、実際には@code{ctl-x-map}内のエントリーを変更することにより機能し、これはデフォルトグローバルマップ内の@kbd{C-p C-f}と@kbd{C-x C-f}の両方のバインディングを変更する効果をもつことに注意されたい。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1389
 msgid "The function @code{substitute-key-definition} scans a keymap for keys that have a certain binding and rebinds them with a different binding.  Another feature which is cleaner and can often produce the same results to remap one command into another (@pxref{Remapping Commands})."
-msgstr ""
+msgstr "関数@code{substitute-key-definition}は、キーマップから特定のバインディングをもつキーをスキャンして、それらを異なるバインディングにリバインドする。より明快で、多くの場合は同じ結果を生成できる他の機能として、あるコマンドから別のコマンドへの再マップがあります(@ref{Remapping Commands}を参照)。"
 
 #. type: defun
 #: keymaps.texi.orig:1390
 #, no-wrap
 msgid "substitute-key-definition olddef newdef keymap &optional oldmap"
-msgstr ""
+msgstr "substitute-key-definition olddef newdef keymap &optional oldmap"
 
 #. type: cindex
 #: keymaps.texi.orig:1391
 #, no-wrap
 msgid "replace bindings"
-msgstr ""
+msgstr "replace bindings"
 
 #. type: defun
 #: keymaps.texi.orig:1396
