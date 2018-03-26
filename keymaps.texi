@@ -991,8 +991,7 @@ Commands}を参照)。
 @cindex replace bindings
 この関数は、@var{keymap}内で@var{olddef}にバインドされるすべてのキーについて、@var{olddef}を@var{newdef}に置き換える。別の言い方をすると、@var{olddef}が出現する箇所すべてを@var{newdef}に置き換える。この関数は@code{nil}をリターンする。
 
-For example, this redefines @kbd{C-x C-f}, if you do it in an Emacs with
-standard bindings:
+たとえば、以下をEmacsの標準バインディングで行うと、@kbd{C-x C-f}を再定義する:
 
 @smallexample
 @group
@@ -1002,11 +1001,7 @@ standard bindings:
 @end smallexample
 
 @c Emacs 19 feature
-If @var{oldmap} is non-@code{nil}, that changes the behavior of
-@code{substitute-key-definition}: the bindings in @var{oldmap} determine
-which keys to rebind.  The rebindings still happen in @var{keymap}, not in
-@var{oldmap}.  Thus, you can change one map under the control of the
-bindings in another.  For example,
+@var{oldmap}が非@code{nil}の場合は、どのキーをリバインドするかを@var{oldmap}内のバインディングが決定するよう、@code{substitute-key-definition}の動作を変更する。リバインディングは依然として@var{oldmap}ではなく、@var{keymap}で発生する。したがって、他のマップ内のバインディングの制御下で、マップを変更することができる。たとえば、
 
 @smallexample
 (substitute-key-definition
@@ -1015,10 +1010,9 @@ bindings in another.  For example,
 @end smallexample
 
 @noindent
-puts the special deletion command in @code{my-map} for whichever keys are
-globally bound to the standard deletion command.
+これは、標準的な削除コマンドにグローバルにバインドされたキーにたいして、@code{my-map}内の特別な削除コマンドを設定する。
 
-Here is an example showing a keymap before and after substitution:
+以下は、キーマップの置き換え(substitution)の前後を示す例である:
 
 @smallexample
 @group
@@ -1042,33 +1036,21 @@ map
 
 @defun suppress-keymap keymap &optional nodigits
 @cindex @code{self-insert-command} override
-This function changes the contents of the full keymap @var{keymap} by
-remapping @code{self-insert-command} to the command @code{undefined}
-(@pxref{Remapping Commands}).  This has the effect of undefining all
-printing characters, thus making ordinary insertion of text impossible.
-@code{suppress-keymap} returns @code{nil}.
+この関数は、@code{self-insert-command}をコマンド@code{undefined}にリマップ(@ref{Remapping
+Commands}を参照)することにより、fullキーマップのコンテンツを変更する。これは、すべてのプリント文字を未定義にする効果をもすので、通常のテキスト挿入は不可能になる。@code{suppress-keymap}は@code{nil}をリターンする。
 
-If @var{nodigits} is @code{nil}, then @code{suppress-keymap} defines digits
-to run @code{digit-argument}, and @kbd{-} to run @code{negative-argument}.
-Otherwise it makes them undefined like the rest of the printing characters.
+@var{nodigits}が@code{nil}の場合、@code{suppress-keymap}は数字が@code{digit-argument}、@kbd{-}が@code{negative-argument}を実行するように定義する。それ以外は、残りのプリント文字と同じように、それらの文字も未定義にする。
 
 @cindex yank suppression
 @cindex @code{quoted-insert} suppression
-The @code{suppress-keymap} function does not make it impossible to modify a
-buffer, as it does not suppress commands such as @code{yank} and
-@code{quoted-insert}.  To prevent any modification of a buffer, make it
-read-only (@pxref{Read Only Buffers}).
+@code{suppress-keymap}関数は、@code{yank}や@code{quoted-insert}のようなコマンドを抑制(suppress)しないので、バッファーの変更は可能である。バッファーの変更を防ぐには、バッファーを読み取り専用(read-only)にする(@ref{Read
+Only Buffers}を参照)。
 
-Since this function modifies @var{keymap}, you would normally use it on a
-newly created keymap.  Operating on an existing keymap that is used for some
-other purpose is likely to cause trouble; for example, suppressing
-@code{global-map} would make it impossible to use most of Emacs.
+この関数は@var{keymap}を変更するので、通常は新たに作成したキーマップにたいして使用するだろう。するだろう。他の目的のために使用されている既存のキーマップに操作を行うと、恐らくトラブルの原因となる。たとえば、@code{global-map}の抑制は、Emacsの使用をほとんど不可能に
 
-This function can be used to initialize the local keymap of a major mode for
-which insertion of text is not desirable.  But usually such a mode should be
-derived from @code{special-mode} (@pxref{Basic Major Modes}); then its
-keymap will automatically inherit from @code{special-mode-map}, which is
-already suppressed.  Here is how @code{special-mode-map} is defined:
+この関数は、テキストの挿入が望ましくないメジャーモードの、ローカルキーマップ初期科に使用され得る。しかし、そのようなモードは通常は@code{special-mode}(@ref{Basic
+Major
+Modes}を参照)から継承される。この場合、そのモードのキーマップは既に抑制済みの@code{special-mode-map}から自動的に受け継がれる。以下に@code{special-mode-map}が定義される方法を示す:
 
 @smallexample
 @group
