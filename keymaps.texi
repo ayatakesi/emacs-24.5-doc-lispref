@@ -1068,31 +1068,18 @@ Modes}を参照)から継承される。この場合、そのモードのキー�
 @section Remapping Commands
 @cindex remapping commands
 
-  A special kind of key binding can be used to @dfn{remap} one command to
-another, without having to refer to the key sequence(s) bound to the
-original command.  To use this feature, make a key binding for a key
-sequence that starts with the dummy event @code{remap}, followed by the
-command name you want to remap; for the binding, specify the new definition
-(usually a command name, but possibly any other valid definition for a key
-binding).
+  あるコマンドから他のコマンドへの@dfn{リマップ(remap)}には、特別な種類のキーバインディングが使用できます。この機能を使用するためには、ダミーイベント@code{remap}で始まり、その後にリマップしたいコマンド名が続くようなキーシーケンスにたいするキーバインディングを作成します。そして、そのバインディングにたいしては、新たな定義(通常はコマンド名だが、キーバインディングにたいして有効な他の任意の定義を指定可能)を指定します。
 
-  For example, suppose My mode provides a special command @code{my-kill-line},
-which should be invoked instead of @code{kill-line}.  To establish this, its
-mode keymap should contain the following remapping:
+  たとえば、Myモードというモードが、@code{kill-line}のかわりに呼び出される@code{my-kill-line}という特別なコマンドを提供するとします。これを設定するには、このモードのキーマップに以下のようなリマッピングが含まれるはずです:
 
 @smallexample
 (define-key my-mode-map [remap kill-line] 'my-kill-line)
 @end smallexample
 
 @noindent
-Then, whenever @code{my-mode-map} is active, if the user types @kbd{C-k}
-(the default global key sequence for @code{kill-line}) Emacs will instead
-run @code{my-kill-line}.
+その後は、@code{my-mode-map}がアクティブなときは常に、ユーザーが@kbd{C-k}(@code{kill-line}についてデフォルトのグローバルキーシーケンス)をタイプすると、Emacsはかわりに@code{my-kill-line}を実行するでしょう。
 
-  Note that remapping only takes place through active keymaps; for example,
-putting a remapping in a prefix keymap like @code{ctl-x-map} typically has
-no effect, as such keymaps are not themselves active.  In addition,
-remapping only works through a single level; in the following example,
+  リマップはアクティブなキーマップでのみ行なわれることに注意してください。たとえば、@code{ctl-x-map}のようなプレフィクスキーマップ内にリマッピングを置いても、そのようなキーマップはそれ自体がアクティブでないので、通常は効果がありません。それに加えて、リマップは1レベルを通じてのみ機能します。以下の例では、
 
 @smallexample
 (define-key my-mode-map [remap kill-line] 'my-kill-line)
@@ -1100,27 +1087,18 @@ remapping only works through a single level; in the following example,
 @end smallexample
 
 @noindent
-@code{kill-line} is @emph{not} remapped to @code{my-other-kill-line}.
-Instead, if an ordinary key binding specifies @code{kill-line}, it is
-remapped to @code{my-kill-line}; if an ordinary binding specifies
-@code{my-kill-line}, it is remapped to @code{my-other-kill-line}.
+これは@code{kill-line}を@code{my-other-kill-line}にリマップ@emph{しません}。かわりに、通常のキーバインディングが@code{kill-line}を指定する場合は、それが@code{my-kill-line}にリマップされます。通常のバインディングが@code{my-kill-line}を指定した場合は、@code{my-other-kill-line}にリマップされます。
 
-To undo the remapping of a command, remap it to @code{nil}; e.g.,
+コマンドのリマップをアンドゥするには、以下のようにそれを@code{nil}にリマップします：
 
 @smallexample
 (define-key my-mode-map [remap kill-line] nil)
 @end smallexample
 
 @defun command-remapping command &optional position keymaps
-This function returns the remapping for @var{command} (a symbol), given the
-current active keymaps.  If @var{command} is not remapped (which is the
-usual situation), or not a symbol, the function returns @code{nil}.
-@code{position} can optionally specify a buffer position or an event
-position to determine the keymaps to use, as in @code{key-binding}.
+この関数は、カレントアクティブキーマップにより与えられる、@var{command}(シンボル)にたいするリマッピングをリターンする。@var{command}がリマップされていない(これは普通の状況である)、またはシンボル以外の場合、この関数は@code{nil}をリターンする。@code{position}は、@code{key-binding}の場合と同様、使用するキーマップを決定するために、オプションバッファー位置、またはイベント位置をオプションで指定できる。
 
-If the optional argument @code{keymaps} is non-@code{nil}, it specifies a
-list of keymaps to search in.  This argument is ignored if @code{position}
-is non-@code{nil}.
+オプション引数@code{keymaps}が非@code{nil}の場合、それは検索するキーマップのリストを指定する。この引数は、@code{position}が非@code{nil}の場合は無視される。
 @end defun
 
 @node Translation Keymaps

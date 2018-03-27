@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-27 00:37+0900\n"
+"PO-Revision-Date: 2018-03-28 05:38+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2505,33 +2505,33 @@ msgstr ""
 #: keymaps.texi.orig:1493
 #, no-wrap
 msgid "remapping commands"
-msgstr ""
+msgstr "remapping commands"
 
 #. type: Plain text
 #: keymaps.texi.orig:1502
 msgid "A special kind of key binding can be used to @dfn{remap} one command to another, without having to refer to the key sequence(s) bound to the original command.  To use this feature, make a key binding for a key sequence that starts with the dummy event @code{remap}, followed by the command name you want to remap; for the binding, specify the new definition (usually a command name, but possibly any other valid definition for a key binding)."
-msgstr ""
+msgstr "あるコマンドから他のコマンドへの@dfn{リマップ(remap)}には、特別な種類のキーバインディングが使用できます。この機能を使用するためには、ダミーイベント@code{remap}で始まり、その後にリマップしたいコマンド名が続くようなキーシーケンスにたいするキーバインディングを作成します。そして、そのバインディングにたいしては、新たな定義(通常はコマンド名だが、キーバインディングにたいして有効な他の任意の定義を指定可能)を指定します。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1507
 msgid "For example, suppose My mode provides a special command @code{my-kill-line}, which should be invoked instead of @code{kill-line}.  To establish this, its mode keymap should contain the following remapping:"
-msgstr ""
+msgstr "たとえば、Myモードというモードが、@code{kill-line}のかわりに呼び出される@code{my-kill-line}という特別なコマンドを提供するとします。これを設定するには、このモードのキーマップに以下のようなリマッピングが含まれるはずです:"
 
 #. type: smallexample
 #: keymaps.texi.orig:1510
 #, no-wrap
 msgid "(define-key my-mode-map [remap kill-line] 'my-kill-line)\n"
-msgstr ""
+msgstr "(define-key my-mode-map [remap kill-line] 'my-kill-line)\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:1516
 msgid "Then, whenever @code{my-mode-map} is active, if the user types @kbd{C-k} (the default global key sequence for @code{kill-line}) Emacs will instead run @code{my-kill-line}."
-msgstr ""
+msgstr "その後は、@code{my-mode-map}がアクティブなときは常に、ユーザーが@kbd{C-k}(@code{kill-line}についてデフォルトのグローバルキーシーケンス)をタイプすると、Emacsはかわりに@code{my-kill-line}を実行するでしょう。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1522
 msgid "Note that remapping only takes place through active keymaps; for example, putting a remapping in a prefix keymap like @code{ctl-x-map} typically has no effect, as such keymaps are not themselves active.  In addition, remapping only works through a single level; in the following example,"
-msgstr ""
+msgstr "リマップはアクティブなキーマップでのみ行なわれることに注意してください。たとえば、@code{ctl-x-map}のようなプレフィクスキーマップ内にリマッピングを置いても、そのようなキーマップはそれ自体がアクティブでないので、通常は効果がありません。それに加えて、リマップは1レベルを通じてのみ機能します。以下の例では、"
 
 #. type: smallexample
 #: keymaps.texi.orig:1526
@@ -2540,38 +2540,40 @@ msgid ""
 "(define-key my-mode-map [remap kill-line] 'my-kill-line)\n"
 "(define-key my-mode-map [remap my-kill-line] 'my-other-kill-line)\n"
 msgstr ""
+"(define-key my-mode-map [remap kill-line] 'my-kill-line)\n"
+"(define-key my-mode-map [remap my-kill-line] 'my-other-kill-line)\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:1533
 msgid "@code{kill-line} is @emph{not} remapped to @code{my-other-kill-line}.  Instead, if an ordinary key binding specifies @code{kill-line}, it is remapped to @code{my-kill-line}; if an ordinary binding specifies @code{my-kill-line}, it is remapped to @code{my-other-kill-line}."
-msgstr ""
+msgstr "これは@code{kill-line}を@code{my-other-kill-line}にリマップ@emph{しません}。かわりに、通常のキーバインディングが@code{kill-line}を指定する場合は、それが@code{my-kill-line}にリマップされます。通常のバインディングが@code{my-kill-line}を指定した場合は、@code{my-other-kill-line}にリマップされます。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1535
 msgid "To undo the remapping of a command, remap it to @code{nil}; e.g.,"
-msgstr ""
+msgstr "コマンドのリマップをアンドゥするには、以下のようにそれを@code{nil}にリマップします："
 
 #. type: smallexample
 #: keymaps.texi.orig:1538
 #, no-wrap
 msgid "(define-key my-mode-map [remap kill-line] nil)\n"
-msgstr ""
+msgstr "(define-key my-mode-map [remap kill-line] nil)\n"
 
 #. type: defun
 #: keymaps.texi.orig:1540
 #, no-wrap
 msgid "command-remapping command &optional position keymaps"
-msgstr ""
+msgstr "command-remapping command &optional position keymaps"
 
 #. type: defun
 #: keymaps.texi.orig:1547
 msgid "This function returns the remapping for @var{command} (a symbol), given the current active keymaps.  If @var{command} is not remapped (which is the usual situation), or not a symbol, the function returns @code{nil}.  @code{position} can optionally specify a buffer position or an event position to determine the keymaps to use, as in @code{key-binding}."
-msgstr ""
+msgstr "この関数は、カレントアクティブキーマップにより与えられる、@var{command}(シンボル)にたいするリマッピングをリターンする。@var{command}がリマップされていない(これは普通の状況である)、またはシンボル以外の場合、この関数は@code{nil}をリターンする。@code{position}は、@code{key-binding}の場合と同様、使用するキーマップを決定するために、オプションバッファー位置、またはイベント位置をオプションで指定できる。"
 
 #. type: defun
 #: keymaps.texi.orig:1551
 msgid "If the optional argument @code{keymaps} is non-@code{nil}, it specifies a list of keymaps to search in.  This argument is ignored if @code{position} is non-@code{nil}."
-msgstr ""
+msgstr "オプション引数@code{keymaps}が非@code{nil}の場合、それは検索するキーマップのリストを指定する。この引数は、@code{position}が非@code{nil}の場合は無視される。"
 
 #. type: section
 #: keymaps.texi.orig:1554
