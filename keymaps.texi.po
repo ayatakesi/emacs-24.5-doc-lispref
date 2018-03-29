@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-28 05:38+0900\n"
+"PO-Revision-Date: 2018-03-29 17:36+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2579,118 +2579,118 @@ msgstr "オプション引数@code{keymaps}が非@code{nil}の場合、それは
 #: keymaps.texi.orig:1554
 #, no-wrap
 msgid "Keymaps for Translating Sequences of Events"
-msgstr ""
+msgstr "Keymaps for Translating Sequences of Events"
 
 #. type: cindex
 #: keymaps.texi.orig:1555
 #, no-wrap
 msgid "translation keymap"
-msgstr ""
+msgstr "translation keymap"
 
 #. type: cindex
 #: keymaps.texi.orig:1556
 #, no-wrap
 msgid "keymaps for translating events"
-msgstr ""
+msgstr "keymaps for translating events"
 
 #. type: Plain text
 #: keymaps.texi.orig:1563
 msgid "When the @code{read-key-sequence} function reads a key sequence (@pxref{Key Sequence Input}), it uses @dfn{translation keymaps} to translate certain event sequences into others.  The translation keymaps are @code{input-decode-map}, @code{local-function-key-map}, and @code{key-translation-map} (in order of priority)."
-msgstr ""
+msgstr "@code{read-key-sequence}関数がキーシーケンス(@ref{Key Sequence Input}を参照)を読み取るときは、特定のイベントシーケンスを他のものに変換(translate)するために、@dfn{変換キーマップ(translation keymaps)}を使用します。@code{input-decode-map}、@code{local-function-key-map}、@code{key-translation-map}(優先順)は変換キーマップです。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1572
 msgid "Translation keymaps have the same structure as other keymaps, but are used differently: they specify translations to make while reading key sequences, rather than bindings for complete key sequences.  As each key sequence is read, it is checked against each translation keymap.  If one of the translation keymaps ``binds'' @var{k} to a vector @var{v}, then whenever @var{k} appears as a sub-sequence @emph{anywhere} in a key sequence, that sub-sequence is replaced with the events in @var{v}."
-msgstr ""
+msgstr "変換キーマップは、他のキーマップと同じ構造をもちますが、使われ方は異なります。変換キーマップは、キーシーケンスを読み取るときに、コンプリートキーシーケンスにたいするバインディングではなく、キーシーケンスに行う変換を指定します。キーシーケンスが読み取られると、それらのキーシーケンスは変換キーマップにたいしてチェックされます。ある変換キーマップが@var{k}をベクター@var{v}に``バインド''する場合、キーシーケンス内の@emph{どこか}にサブシーケンスとして@var{k}が出現すると、それは@var{v}ないのでイベントに置き換えられます。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1581
 msgid "For example, VT100 terminals send @kbd{@key{ESC} O P} when the keypad key @key{PF1} is pressed.  On such terminals, Emacs must translate that sequence of events into a single event @code{pf1}.  This is done by ``binding'' @kbd{@key{ESC} O P} to @code{[pf1]} in @code{input-decode-map}.  Thus, when you type @kbd{C-c @key{PF1}} on the terminal, the terminal emits the character sequence @kbd{C-c @key{ESC} O P}, and @code{read-key-sequence} translates this back into @kbd{C-c @key{PF1}} and returns it as the vector @code{[?\\C-c pf1]}."
-msgstr ""
+msgstr "たとえば、キーパッドキー@key{PF1}が押下されたとき、VT100端末は@kbd{@key{ESC} O P}を送信します。そのような端末では、Emacsはそのイベントシーケンスを単一イベント@code{pf1}に変換しなければなりません。これは、@code{input-decode-map}内で@kbd{@key{ESC} O P}を@code{[pf1]}に``バインド''することにより行われます。したがって、その端末上で@kbd{C-c @key{PF1}}をタイプしたとき、端末は文字シーケンス@kbd{C-c @key{ESC} O P}を発行し、@code{read-key-sequence}がそれを@kbd{C-c @key{PF1}}に変換してベクター@code{[?\\C-c pf1]}としてリターンします。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1585
 msgid "Translation keymaps take effect only after Emacs has decoded the keyboard input (via the input coding system specified by @code{keyboard-coding-system}).  @xref{Terminal I/O Encoding}."
-msgstr ""
+msgstr "変換キーマップは、(@code{keyboard-coding-system}で指定された入力コーディングシステムを通じて)Emacsがキーボード入力をデコードした直後だけ効果をもちます。@ref{Terminal I/O Encoding}を参照してください。"
 
 #. type: defvar
 #: keymaps.texi.orig:1586
 #, no-wrap
 msgid "input-decode-map"
-msgstr ""
+msgstr "input-decode-map"
 
 #. type: defvar
 #: keymaps.texi.orig:1589
 msgid "This variable holds a keymap that describes the character sequences sent by function keys on an ordinary character terminal."
-msgstr ""
+msgstr "この変数は、通常の文字端末上のファンクションキーから送信された文字シーケンスを記述するキーマップを保持する。"
 
 #. type: defvar
 #: keymaps.texi.orig:1596
 msgid "The value of @code{input-decode-map} is usually set up automatically according to the terminal's Terminfo or Termcap entry, but sometimes those need help from terminal-specific Lisp files.  Emacs comes with terminal-specific files for many common terminals; their main purpose is to make entries in @code{input-decode-map} beyond those that can be deduced from Termcap and Terminfo.  @xref{Terminal-Specific}."
-msgstr ""
+msgstr "@code{input-decode-map}の値は、通常はその端末のTerminfoかTermcapのエントリーに応じて、自動的にセットアップされるが、Lispの端末仕様ファイルの助けが必要なときもある。Emacsには、多くの一般的な端末の端末仕様ファイルが同梱されている。これらのファイルの主な目的は、TermcapやTerminfoから推定できないエントリーを@code{input-decode-map}内に作成することである。@ref{Terminal-Specific}を参照のこと。"
 
 #. type: defvar
 #: keymaps.texi.orig:1598
 #, no-wrap
 msgid "local-function-key-map"
-msgstr ""
+msgstr "local-function-key-map"
 
 #. type: defvar
 #: keymaps.texi.orig:1603
 msgid "This variable holds a keymap similar to @code{input-decode-map} except that it describes key sequences which should be translated to alternative interpretations that are usually preferred.  It applies after @code{input-decode-map} and before @code{key-translation-map}."
-msgstr ""
+msgstr "この変数は、@code{input-decode-map}と同じようにキーマップを保持するが、通常優先される解釈候補(alternative interpretation)に変換されるべきキーシーケンスを記述するキーマップを保持する。このキーマップは@code{input-decode-map}の後、@code{key-translation-map}の前に適用される。"
 
 #. type: defvar
 #: keymaps.texi.orig:1608
 msgid "Entries in @code{local-function-key-map} are ignored if they conflict with bindings made in the minor mode, local, or global keymaps.  I.e., the remapping only applies if the original key sequence would otherwise not have any binding."
-msgstr ""
+msgstr "@code{local-function-key-map}内のエントリーは、マイナーモード、ローカルキーマップ、グローバルキーマップによるバインディングと衝突する場合は無視される。つまり、元のキーシーケンスが他にバインディングをもたない場合だけ、リマッピングが適用される。"
 
 #. type: defvar
 #: keymaps.texi.orig:1611
 msgid "@code{local-function-key-map} inherits from @code{function-key-map}, but the latter should not be used directly."
-msgstr ""
+msgstr "@code{local-function-key-map}が@code{function-key-map}を継承するが、@code{function-key-map}を直接使用すべきではない。"
 
 #. type: defvar
 #: keymaps.texi.orig:1613
 #, no-wrap
 msgid "key-translation-map"
-msgstr ""
+msgstr "key-translation-map"
 
 #. type: defvar
 #: keymaps.texi.orig:1619
 msgid "This variable is another keymap used just like @code{input-decode-map} to translate input events into other events.  It differs from @code{input-decode-map} in that it goes to work after @code{local-function-key-map} is finished rather than before; it receives the results of translation by @code{local-function-key-map}."
-msgstr ""
+msgstr "この変数は、入力イベントを他のイベントに変換するために、@code{input-decode-map}と同じように使用される、別のキーマップを保持する。@code{input-decode-map}との違いは、@code{local-function-key-map}の前ではなく、後に機能する点である。このキーマップは、@code{local-function-key-map}による変換結果を受け取る。"
 
 #. type: defvar
 #: keymaps.texi.orig:1628
 msgid "Just like @code{input-decode-map}, but unlike @code{local-function-key-map}, this keymap is applied regardless of whether the input key-sequence has a normal binding.  Note however that actual key bindings can have an effect on @code{key-translation-map}, even though they are overridden by it.  Indeed, actual key bindings override @code{local-function-key-map} and thus may alter the key sequence that @code{key-translation-map} receives.  Clearly, it is better to avoid this type of situation."
-msgstr ""
+msgstr "@code{input-decode-map}と同様、ただし@code{local-function-key-map}とは異なり、このキーマップは入力キーシーケンスが通常のバインディングをもつかどうかかに関わらず適用される。しかし、このキーマップによりキーバインディングがオーバーライドされても、@code{key-translation-map}では実際のキーバインディングが効果をもち得ることに注意されたい。確かに、実際のキーバインディングは@code{local-function-key-map}をオーバーライドし、したがって@code{key-translation-map}が受け取るキーシーケンスは変更されるだろう。明確にするためには、このような類の状況は避けたほうがよい。"
 
 #. type: defvar
 #: keymaps.texi.orig:1632
 msgid "The intent of @code{key-translation-map} is for users to map one character set to another, including ordinary characters normally bound to @code{self-insert-command}."
-msgstr ""
+msgstr "@code{key-translation-map}は、通常は@code{self-insert-command}にバインディングされるような通常文字を含めて、ユーザーがある文字を他の文字にマップすることを意図している。"
 
 #. type: cindex
 #: keymaps.texi.orig:1634
 #, no-wrap
 msgid "key translation function"
-msgstr ""
+msgstr "key translation function"
 
 #. type: Plain text
 #: keymaps.texi.orig:1640
 msgid "You can use @code{input-decode-map}, @code{local-function-key-map}, and @code{key-translation-map} for more than simple aliases, by using a function, instead of a key sequence, as the ``translation'' of a key.  Then this function is called to compute the translation of that key."
-msgstr ""
+msgstr "キーシーケンスのかわりにキーの``変換''として関数を使用することにより、シンプルなエイリアスより多くのことに@code{input-decode-map}、@code{local-function-key-map}、@code{key-translation-map}を使用できます。その場合、この関数はそのキーの変換を計算するために呼び出されます。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1645
 msgid "The key translation function receives one argument, which is the prompt that was specified in @code{read-key-sequence}---or @code{nil} if the key sequence is being read by the editor command loop.  In most cases you can ignore the prompt value."
-msgstr ""
+msgstr "キー変換関数は、引数を1つ受け取ります。この引数は@code{read-key-sequence}内で指定されるプロンプトです。キーシーケンスがエディターコマンドループに読み取られる場合は、@code{nil}です。ほとんどの場合、プロンプト値は無視できます。"
 
 #. type: Plain text
 #: keymaps.texi.orig:1649
 msgid "If the function reads input itself, it can have the effect of altering the event that follows.  For example, here's how to define @kbd{C-c h} to turn the character that follows into a Hyper character:"
-msgstr ""
+msgstr "関数が自身で入力を読み取る場合、その関数は後続のイベントを変更する効果をもつことができます。たとえば、以下は@kbd{C-c h}をハイパー文字に後続する文字とするために定義する方法の例です:"
 
 #. type: group
 #: keymaps.texi.orig:1659
@@ -2705,6 +2705,14 @@ msgid ""
 "                (add-event-modifier \"H-\" e))))))\n"
 "\n"
 msgstr ""
+"(defun hyperify (prompt)\n"
+"  (let ((e (read-event)))\n"
+"    (vector (if (numberp e)\n"
+"                (logior (lsh 1 24) e)\n"
+"              (if (memq 'hyper (event-modifiers e))\n"
+"                  e\n"
+"                (add-event-modifier \"H-\" e))))))\n"
+"\n"
 
 #. type: group
 #: keymaps.texi.orig:1667
@@ -2719,12 +2727,20 @@ msgid ""
 "      (cons symbol (cdr e)))))\n"
 "\n"
 msgstr ""
+"(defun add-event-modifier (string e)\n"
+"  (let ((symbol (if (symbolp e) e (car e))))\n"
+"    (setq symbol (intern (concat string\n"
+"                                 (symbol-name symbol))))\n"
+"    (if (symbolp e)\n"
+"        symbol\n"
+"      (cons symbol (cdr e)))))\n"
+"\n"
 
 #. type: group
 #: keymaps.texi.orig:1669
 #, no-wrap
 msgid "(define-key local-function-key-map \"\\C-ch\" 'hyperify)\n"
-msgstr ""
+msgstr "(define-key local-function-key-map \"\\C-ch\" 'hyperify)\n"
 
 #. type: subsection
 #: keymaps.texi.orig:1672
