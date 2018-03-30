@@ -1191,69 +1191,60 @@ O})、@kbd{M-[}(実際は@kbd{@key{ESC} [})です。
 @node Key Binding Commands
 @section Commands for Binding Keys
 
-  This section describes some convenient interactive interfaces for changing
-key bindings.  They work by calling @code{define-key}.
+  このセクションでは、キーバインディングを変更するための便利な対話的インターフェイスを説明します。これらは@code{define-key}を呼び出すことにより機能します。
 
-  People often use @code{global-set-key} in their init files (@pxref{Init
-File}) for simple customization.  For example,
+  ユーザーはinitファイルにたいしてシンプルなカスタマイズを行うとき、しばしば@code{global-set-key}を使用します。たとえば、
 
 @smallexample
 (global-set-key (kbd "C-x C-\\") 'next-line)
 @end smallexample
 
 @noindent
-or
+または
 
 @smallexample
 (global-set-key [?\C-x ?\C-\\] 'next-line)
 @end smallexample
 
 @noindent
-or
+または
 
 @smallexample
 (global-set-key [(control ?x) (control ?\\)] 'next-line)
 @end smallexample
 
 @noindent
-redefines @kbd{C-x C-\} to move down a line.
+は、次の行に移動するように@kbd{C-x C-\}を再定義します。
 
 @smallexample
 (global-set-key [M-mouse-1] 'mouse-set-point)
 @end smallexample
 
 @noindent
-redefines the first (leftmost) mouse button, entered with the Meta key, to
-set point where you click.
+は、メタキーを押してマウスの第一ボタン(左ボタン)をクリックすると、クリックした箇所にポイントをセットするように再定義します。
 
 @cindex non-@acronym{ASCII} text in keybindings
-  Be careful when using non-@acronym{ASCII} text characters in Lisp
-specifications of keys to bind.  If these are read as multibyte text, as
-they usually will be in a Lisp file (@pxref{Loading Non-ASCII}), you must
-type the keys as multibyte too.  For instance, if you use this:
+  バインドするキーのLisp指定に非@acronym{ASCII}文字のテキストを使用するときは、注意してください。マルチバイトとして読み取られたテキストがある場合には、Lispファイル内でマルチバイトテキストが読み取られるときのように(@pxref{Loading
+Non-ASCII})、マルチバイトとしてキーをタイプしなければなりません。たとえば、
 
 @smallexample
 (global-set-key "@"o" 'my-function) ; bind o-umlaut
 @end smallexample
 
 @noindent
-or
+または
 
 @smallexample
 (global-set-key ?@"o 'my-function) ; bind o-umlaut
 @end smallexample
 
 @noindent
-and your language environment is multibyte Latin-1, these commands actually
-bind the multibyte character with code 246, not the byte code 246
-(@kbd{M-v}) sent by a Latin-1 terminal.  In order to use this binding, you
-need to teach Emacs how to decode the keyboard by using an appropriate input
-method (@pxref{Input Methods, , Input Methods, emacs, The GNU Emacs
-Manual}).
+をLatin-1のマルチバイト環境で使用した場合、これらのコマンドはLatin-1端末より送信されたバイトコード246(@kbd{M-v})ではなく、コード246のマルチバイト文字に実際にバインドされます。このバインディングを使用するためには、適切な入力メソッド(@ref{Input
+Methods, , Input Methods, emacs, The GNU Emacs
+Manual}を参照)を使用して、キーボードをデコードする方法をEmacsに教える必要があります。
 
 @deffn Command global-set-key key binding
-This function sets the binding of @var{key} in the current global map to
-@var{binding}.
+この関数は、カレントグローバルマップ内で、@var{key}のバインディングを@var{binding}にセットする。
 
 @smallexample
 @group
@@ -1266,11 +1257,9 @@ This function sets the binding of @var{key} in the current global map to
 
 @deffn Command global-unset-key key
 @cindex unbinding keys
-This function removes the binding of @var{key} from the current global map.
+この関数は、カレントグローバルマップから、@var{key}のバインディングを削除する。
 
-One use of this function is in preparation for defining a longer key that
-uses @var{key} as a prefix---which would not be allowed if @var{key} has a
-non-prefix binding.  For example:
+プレフィクスとして@var{key}を使用する、長いキーの定義の準備に使用するのも、この関数の1つの使い方である。@var{key}が非プレフィクスのようなバインディングをもつ場合、この使い方は許されないだろう。たとえば、
 
 @smallexample
 @group
@@ -1283,7 +1272,7 @@ non-prefix binding.  For example:
 @end group
 @end smallexample
 
-This function is equivalent to using @code{define-key} as follows:
+この関数は、以下のように@code{define-key}を使用するのと等しい:
 
 @smallexample
 @group
@@ -1295,8 +1284,7 @@ This function is equivalent to using @code{define-key} as follows:
 @end deffn
 
 @deffn Command local-set-key key binding
-This function sets the binding of @var{key} in the current local keymap to
-@var{binding}.
+この関数は、カレントローカルキーマップ内の@var{key}のバインディングを、@var{binding}にセットする。
 
 @smallexample
 @group
@@ -1308,7 +1296,7 @@ This function sets the binding of @var{key} in the current local keymap to
 @end deffn
 
 @deffn Command local-unset-key key
-This function removes the binding of @var{key} from the current local map.
+この関数は、カレントローカルキーマップから、@var{key}のバインディングを削除する。
 
 @smallexample
 @group
