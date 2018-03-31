@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-03-30 16:48+0900\n"
+"PO-Revision-Date: 2018-03-31 15:23+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2984,38 +2984,38 @@ msgstr ""
 #: keymaps.texi.orig:1830
 #, no-wrap
 msgid "keymaps, scanning"
-msgstr ""
+msgstr "keymaps, scanning"
 
 #. type: Plain text
 #: keymaps.texi.orig:1834
 msgid "This section describes functions used to scan all the current keymaps for the sake of printing help information."
-msgstr ""
+msgstr "このセクションでは、すべてのカレントキーマップをスキャンして、ヘルプ情報をプリントするために使用される関数を説明します。"
 
 #. type: defun
 #: keymaps.texi.orig:1835
 #, no-wrap
 msgid "accessible-keymaps keymap &optional prefix"
-msgstr ""
+msgstr "accessible-keymaps keymap &optional prefix"
 
 #. type: defun
 #: keymaps.texi.orig:1841
 msgid "This function returns a list of all the keymaps that can be reached (via zero or more prefix keys) from @var{keymap}.  The value is an association list with elements of the form @code{(@var{key} .@: @var{map})}, where @var{key} is a prefix key whose definition in @var{keymap} is @var{map}."
-msgstr ""
+msgstr "この関数は、(0個以上のプレフィクスキーを通じて)@var{keymap}から到達可能な、すべてのキーマップのリストをリターンする。リターン値は@code{(@var{key} .@: @var{map})}のような形式の要素をもつ連想配列(alist)である。ここで、@var{key}は@var{keymap}内での定義が@var{map}であるようなプレフィクスキーである。"
 
 #. type: defun
 #: keymaps.texi.orig:1846
 msgid "The elements of the alist are ordered so that the @var{key} increases in length.  The first element is always @code{([] .@: @var{keymap})}, because the specified keymap is accessible from itself with a prefix of no events."
-msgstr ""
+msgstr "alistの要素は、@var{key}の長さにたいして昇順にソートされている。1つ目の要素は、常に@code{([] .@: @var{keymap})}である。これは、指定されたキーマップがイベントなしのプレフィクスにより、自分自身からアクセス可能だからである。"
 
 #. type: defun
 #: keymaps.texi.orig:1852
 msgid "If @var{prefix} is given, it should be a prefix key sequence; then @code{accessible-keymaps} includes only the submaps whose prefixes start with @var{prefix}.  These elements look just as they do in the value of @code{(accessible-keymaps)}; the only difference is that some elements are omitted."
-msgstr ""
+msgstr "@var{prefix}が与えられた場合、それはプレフィクスキーシーケンスである。その場合には、@var{prefix}で始まるプレフィクスキーをもつサブマップだけが@code{accessible-keymaps}に含まれる。これらの要素の意味は、@code{(accessible-keymaps)}の値の場合と同様であり、いくつかの要素が省略されている点だけが異なる。"
 
 #. type: defun
 #: keymaps.texi.orig:1857
 msgid "In the example below, the returned alist indicates that the key @key{ESC}, which is displayed as @samp{^[}, is a prefix key whose definition is the sparse keymap @code{(keymap (83 .@: center-paragraph)  (115 .@: foo))}."
-msgstr ""
+msgstr "以下の例では、リターンされるalistにより、@samp{^[}と表示されるキー@key{ESC}がプレフィクスキーであり、その定義がsparseキーマップ@code{(keymap (83 .@: center-paragraph)  (115 .@: foo))}であること示される。"
 
 #. type: group
 #: keymaps.texi.orig:1866
@@ -3028,6 +3028,12 @@ msgid ""
 "          (115 . center-line))\n"
 "      (9 . tab-to-tab-stop))\n"
 msgstr ""
+"(accessible-keymaps (current-local-map))\n"
+"@result{}(([] keymap\n"
+"      (27 keymap   ; @r{以降@key{ESC}にたいするこのキーマップが繰り返されることに注意}\n"
+"          (83 . center-paragraph)\n"
+"          (115 . center-line))\n"
+"      (9 . tab-to-tab-stop))\n"
 
 #. type: group
 #: keymaps.texi.orig:1872
@@ -3037,11 +3043,14 @@ msgid ""
 "    (83 . center-paragraph)\n"
 "    (115 . foo)))\n"
 msgstr ""
+"   (\"^[\" keymap\n"
+"    (83 . center-paragraph)\n"
+"    (115 . foo)))\n"
 
 #. type: defun
 #: keymaps.texi.orig:1881
 msgid "In the following example, @kbd{C-h} is a prefix key that uses a sparse keymap starting with @code{(keymap (118 . describe-variable)@dots{})}.  Another prefix, @kbd{C-x 4}, uses a keymap which is also the value of the variable @code{ctl-x-4-map}.  The event @code{mode-line} is one of several dummy events used as prefixes for mouse actions in special parts of a window."
-msgstr ""
+msgstr "また以下の例では、@kbd{C-h}は@code{(keymap (118 . describe-variable)@dots{})}で始まるsparseキーマップを使用するプレフィクスキーである。他のプレフィクス@kbd{C-x 4}は、変数@code{ctl-x-4-map}の値でもあるキーマップを使用する。イベント@code{mode-line}は、ウィンドウの特別な箇所でのマウスイベントにたいするプレフィクスとして使用される、いくつかのダミーイベントのうちの1つである。"
 
 #. type: group
 #: keymaps.texi.orig:1887
@@ -3051,6 +3060,9 @@ msgid ""
 "@result{} (([] keymap [set-mark-command beginning-of-line @dots{}\n"
 "                   delete-backward-char])\n"
 msgstr ""
+"(accessible-keymaps (current-global-map))\n"
+"@result{} (([] keymap [set-mark-command beginning-of-line @dots{}\n"
+"                   delete-backward-char])\n"
 
 #. type: group
 #: keymaps.texi.orig:1891
@@ -3059,6 +3071,8 @@ msgid ""
 "    (\"^H\" keymap (118 . describe-variable) @dots{}\n"
 "     (8 . help-for-help))\n"
 msgstr ""
+"    (\"^H\" keymap (118 . describe-variable) @dots{}\n"
+"     (8 . help-for-help))\n"
 
 #. type: group
 #: keymaps.texi.orig:1895
@@ -3067,6 +3081,8 @@ msgid ""
 "    (\"^X\" keymap [x-flush-mouse-queue @dots{}\n"
 "     backward-kill-sentence])\n"
 msgstr ""
+"    (\"^X\" keymap [x-flush-mouse-queue @dots{}\n"
+"     backward-kill-sentence])\n"
 
 #. type: group
 #: keymaps.texi.orig:1899
@@ -3075,12 +3091,14 @@ msgid ""
 "    (\"^[\" keymap [mark-sexp backward-sexp @dots{}\n"
 "     backward-kill-word])\n"
 msgstr ""
+"    (\"^[\" keymap [mark-sexp backward-sexp @dots{}\n"
+"     backward-kill-word])\n"
 
 #. type: smallexample
 #: keymaps.texi.orig:1901
 #, no-wrap
 msgid "    (\"^X4\" keymap (15 . display-buffer) @dots{})\n"
-msgstr ""
+msgstr "    (\"^X4\" keymap (15 . display-buffer) @dots{})\n"
 
 #. type: group
 #: keymaps.texi.orig:1904
@@ -3089,74 +3107,76 @@ msgid ""
 "    ([mode-line] keymap\n"
 "     (S-mouse-2 . mouse-split-window-horizontally) @dots{}))\n"
 msgstr ""
+"    ([mode-line] keymap\n"
+"     (S-mouse-2 . mouse-split-window-horizontally) @dots{}))\n"
 
 #. type: defun
 #: keymaps.texi.orig:1909
 msgid "These are not all the keymaps you would see in actuality."
-msgstr ""
+msgstr "これらは実際に目にするであろうキーマップのすべてではない。"
 
 #. type: defun
 #: keymaps.texi.orig:1911
 #, no-wrap
 msgid "map-keymap function keymap"
-msgstr ""
+msgstr "map-keymap function keymap"
 
 #. type: defun
 #: keymaps.texi.orig:1918
 msgid "The function @code{map-keymap} calls @var{function} once for each binding in @var{keymap}.  It passes two arguments, the event type and the value of the binding.  If @var{keymap} has a parent, the parent's bindings are included as well.  This works recursively: if the parent has itself a parent, then the grandparent's bindings are also included and so on."
-msgstr ""
+msgstr "関数@code{map-keymap}は、@var{keymap}内のバインディングそれぞれにたいして1回@var{function}を呼び出す。呼び出す際の引数はイベント型と、そのバインディングの値の2つである。@var{keymap}に親キーマップがある場合は、その親キーマップのバインディングも含まれる。これは再帰的に機能する。つまり、その親キーマップ自身が親キーマップをもつ場合は、それのバインディングも含まれる、といった具合である。"
 
 #. type: defun
 #: keymaps.texi.orig:1921
 msgid "This function is the cleanest way to examine all the bindings in a keymap."
-msgstr ""
+msgstr "これは、キーマップ内のすべてのバインディングを検証する、もっとも明快な方法である。"
 
 #. type: defun
 #: keymaps.texi.orig:1923
 #, no-wrap
 msgid "where-is-internal command &optional keymap firstonly noindirect no-remap"
-msgstr ""
+msgstr "where-is-internal command &optional keymap firstonly noindirect no-remap"
 
 #. type: defun
 #: keymaps.texi.orig:1928
 msgid "This function is a subroutine used by the @code{where-is} command (@pxref{Help, , Help, emacs,The GNU Emacs Manual}).  It returns a list of all key sequences (of any length) that are bound to @var{command} in a set of keymaps."
-msgstr ""
+msgstr "この関数は、@code{where-is}コマンド(@ref{Help, , Help, emacs,The GNU Emacs Manual}を参照)により使用されるサブルーチンである。これは、キーマップのセット内で@var{command}にバインドされる、(任意の長さの)キーシーケンスすべてのリストをリターンする。"
 
 #. type: defun
 #: keymaps.texi.orig:1931
 msgid "The argument @var{command} can be any object; it is compared with all keymap entries using @code{eq}."
-msgstr ""
+msgstr "引数@var{command}には、任意のオブジェクトを指定できる。このオブジェクトは、すべてのキーマップエントリーにたいし、@code{eq}を使用して比較される。"
 
 #. type: defun
 #: keymaps.texi.orig:1937
 msgid "If @var{keymap} is @code{nil}, then the maps used are the current active keymaps, disregarding @code{overriding-local-map} (that is, pretending its value is @code{nil}).  If @var{keymap} is a keymap, then the maps searched are @var{keymap} and the global keymap.  If @var{keymap} is a list of keymaps, only those keymaps are searched."
-msgstr ""
+msgstr "@var{keymap}が@code{nil}の場合、@code{overriding-local-map}の値とは無関係に(@code{overriding-local-map}の値が@code{nil}であると装い)、カレントアクティブキーマップをマップとして使用する。@var{keymap}がキーマップの場合は、@var{keymap}とグローバルキーマップが検索されるマップとなる。@var{keymap}がキーマップのリストの場合は、それらのキーマップだけが検索される。"
 
 #. type: defun
 #: keymaps.texi.orig:1942
 msgid "Usually it's best to use @code{overriding-local-map} as the expression for @var{keymap}.  Then @code{where-is-internal} searches precisely the keymaps that are active.  To search only the global map, pass the value @code{(keymap)} (an empty keymap) as @var{keymap}."
-msgstr ""
+msgstr "@var{keymap}にたいする式としては、通常は@code{overriding-local-map}を使用するのが最善である。その場合、@code{where-is-internal}は正にアクティブなキーマップを検索する。グローバルマップだけを検索するには、@var{keymap}の値に@code{(keymap)}(空のキーマップ)を渡せばよい。"
 
 #. type: defun
 #: keymaps.texi.orig:1950
 msgid "If @var{firstonly} is @code{non-ascii}, then the value is a single vector representing the first key sequence found, rather than a list of all possible key sequences.  If @var{firstonly} is @code{t}, then the value is the first key sequence, except that key sequences consisting entirely of @acronym{ASCII} characters (or meta variants of @acronym{ASCII} characters) are preferred to all other key sequences and that the return value can never be a menu binding."
-msgstr ""
+msgstr "@var{firstonly}が@code{non-ascii}の場合、値はすべての可能なキーシーケンスのリストではなく、最初に見つかったキーシーケンスを表す単一のベクターとなる。@var{firstonly}が@code{t}の場合、値は最初のキーシーケンスだが、全体が@acronym{ASCII}文字(またはメタ修飾された@acronym{ASCII}文字)で構成されるキーシーケンスが、他のすべてのキーシーケンスに優先され、リターン値がメニューバインディングになることは決してない。"
 
 #. type: defun
 #: keymaps.texi.orig:1954
 msgid "If @var{noindirect} is non-@code{nil}, @code{where-is-internal} doesn't follow indirect keymap bindings.  This makes it possible to search for an indirect definition itself."
-msgstr ""
+msgstr "@var{noindirect}が非@code{nil}の場合、@code{where-is-internal}はインダイレクトキーマップ(indirect keymap: 間接キーマップ)のバインディングを追跡しない。これにより、インダイレクト定義自体にたいして検索が可能になる。"
 
 #. type: defun
 #: keymaps.texi.orig:1958
 msgid "The fifth argument, @var{no-remap}, determines how this function treats command remappings (@pxref{Remapping Commands}).  There are two cases of interest:"
-msgstr ""
+msgstr "5つ目の引数@var{no-remap}は、この関数がコマンドリマッピング(@ref{Remapping Commands}を参照)を扱う方法を決定する。興味深いケースが2つある:"
 
 #. type: item
 #: keymaps.texi.orig:1960
 #, no-wrap
 msgid "If a command @var{other-command} is remapped to @var{command}:"
-msgstr ""
+msgstr "コマンド@var{other-command}が@var{command}にリマップされる場合:"
 
 #. type: table
 #: keymaps.texi.orig:1966
@@ -3167,33 +3187,43 @@ msgstr ""
 #: keymaps.texi.orig:1967
 #, no-wrap
 msgid "If @var{command} is remapped to @var{other-command}:"
-msgstr ""
+msgstr "If @var{command} is remapped to @var{other-command}:"
 
 #. type: table
 #: keymaps.texi.orig:1972
 msgid "If @var{no-remap} is @code{nil}, return the bindings for @var{other-command} rather than @var{command}.  If @var{no-remap} is non-@code{nil}, return the bindings for @var{command}, ignoring the fact that it is remapped."
-msgstr ""
+msgstr "@var{no-remap}が@code{nil}の場合は、@var{command}ではなく@var{other-command}にたいするバインディングをリターンする。@var{no-remap}が非@code{nil}の場合は、リマップされていることを無視して、@var{command}にたいするバインディングをリターンする。"
 
 #. type: deffn
 #: keymaps.texi.orig:1975
 #, no-wrap
 msgid "Command describe-bindings &optional prefix buffer-or-name"
-msgstr ""
+msgstr "Command describe-bindings &optional prefix buffer-or-name"
 
 #. type: deffn
 #: keymaps.texi.orig:1979
 msgid "This function creates a listing of all current key bindings, and displays it in a buffer named @file{*Help*}.  The text is grouped by modes---minor modes first, then the major mode, then global bindings."
-msgstr ""
+msgstr "この関数は、すべてのカレントキーバインディングのリストを作成して、@file{*Help*}という名前のバッファーにそれを表示する。テキストはモードごとにグループ化され、順番はマイナーモード、メジャーモード、グローバルバインディングの順である。"
 
 #. type: deffn
 #: keymaps.texi.orig:1982
 msgid "If @var{prefix} is non-@code{nil}, it should be a prefix key; then the listing includes only keys that start with @var{prefix}."
-msgstr ""
+msgstr "@var{prefix}が非@code{nil}の場合、それはプレフィクスキーである。その場合、リストに含まれるのは@var{prefix}で始まるキーだけになる。"
 
 #. type: deffn
 #: keymaps.texi.orig:1992
 msgid "When several characters with consecutive @acronym{ASCII} codes have the same definition, they are shown together, as @samp{@var{firstchar}..@var{lastchar}}.  In this instance, you need to know the @acronym{ASCII} codes to understand which characters this means.  For example, in the default global map, the characters @samp{@key{SPC} ..@: ~} are described by a single line.  @key{SPC} is @acronym{ASCII} 32, @kbd{~} is @acronym{ASCII} 126, and the characters between them include all the normal printing characters, (e.g., letters, digits, punctuation, etc.@:); all these characters are bound to @code{self-insert-command}."
 msgstr ""
+"複数の連続する@acronym{ASCII}コードが同じ定義をもつとき、それらは@samp{@var{firstchar}..@var{lastchar}}のようにまとめて表示される。\n"
+"When several characters with consecutive  codes have the same definition, they are shown together, as \n"
+"この場合には、どの文字なのかを理解するためには？その@acronym{ASCII}コードを知っている必要がある。\n"
+"In this instance, you need to know the  codes to understand which characters this means.\n"
+"\n"
+"For example, in the default global map, the characters @samp{@key{SPC} ..@: ~} are described by a single line.\n"
+"\n"
+"@key{SPC} is @acronym{ASCII} 32, @kbd{~} is @acronym{ASCII} 126, and the characters between them include all the normal printing characters, (e.g., letters, digits, punctuation, etc.@:);\n"
+"\n"
+"all these characters are bound to @code{self-insert-command}."
 
 #. type: deffn
 #: keymaps.texi.orig:1996

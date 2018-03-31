@@ -1312,34 +1312,26 @@ Manual}を参照)を使用して、キーボードをデコードする方法を
 @cindex scanning keymaps
 @cindex keymaps, scanning
 
-  This section describes functions used to scan all the current keymaps for
-the sake of printing help information.
+  このセクションでは、すべてのカレントキーマップをスキャンして、ヘルプ情報をプリントするために使用される関数を説明します。
 
 @defun accessible-keymaps keymap &optional prefix
-This function returns a list of all the keymaps that can be reached (via
-zero or more prefix keys) from @var{keymap}.  The value is an association
-list with elements of the form @code{(@var{key} .@: @var{map})}, where
-@var{key} is a prefix key whose definition in @var{keymap} is @var{map}.
+この関数は、(0個以上のプレフィクスキーを通じて)@var{keymap}から到達可能な、すべてのキーマップのリストをリターンする。リターン値は@code{(@var{key}
+.@:
+@var{map})}のような形式の要素をもつ連想配列(alist)である。ここで、@var{key}は@var{keymap}内での定義が@var{map}であるようなプレフィクスキーである。
 
-The elements of the alist are ordered so that the @var{key} increases in
-length.  The first element is always @code{([] .@: @var{keymap})}, because
-the specified keymap is accessible from itself with a prefix of no events.
+alistの要素は、@var{key}の長さにたいして昇順にソートされている。1つ目の要素は、常に@code{([] .@:
+@var{keymap})}である。これは、指定されたキーマップがイベントなしのプレフィクスにより、自分自身からアクセス可能だからである。
 
-If @var{prefix} is given, it should be a prefix key sequence; then
-@code{accessible-keymaps} includes only the submaps whose prefixes start
-with @var{prefix}.  These elements look just as they do in the value of
-@code{(accessible-keymaps)}; the only difference is that some elements are
-omitted.
+@var{prefix}が与えられた場合、それはプレフィクスキーシーケンスである。その場合には、@var{prefix}で始まるプレフィクスキーをもつサブマップだけが@code{accessible-keymaps}に含まれる。これらの要素の意味は、@code{(accessible-keymaps)}の値の場合と同様であり、いくつかの要素が省略されている点だけが異なる。
 
-In the example below, the returned alist indicates that the key @key{ESC},
-which is displayed as @samp{^[}, is a prefix key whose definition is the
-sparse keymap @code{(keymap (83 .@: center-paragraph)  (115 .@: foo))}.
+以下の例では、リターンされるalistにより、@samp{^[}と表示されるキー@key{ESC}がプレフィクスキーであり、その定義がsparseキーマップ@code{(keymap
+(83 .@: center-paragraph)  (115 .@: foo))}であること示される。
 
 @smallexample
 @group
 (accessible-keymaps (current-local-map))
 @result{}(([] keymap
-      (27 keymap   ; @r{Note this keymap for @key{ESC} is repeated below.}
+      (27 keymap   ; @r{以降@key{ESC}にたいするこのキーマップが繰り返されることに注意}
           (83 . center-paragraph)
           (115 . center-line))
       (9 . tab-to-tab-stop))
@@ -1352,12 +1344,10 @@ sparse keymap @code{(keymap (83 .@: center-paragraph)  (115 .@: foo))}.
 @end group
 @end smallexample
 
-In the following example, @kbd{C-h} is a prefix key that uses a sparse
-keymap starting with @code{(keymap (118 . describe-variable)@dots{})}.
-Another prefix, @kbd{C-x 4}, uses a keymap which is also the value of the
-variable @code{ctl-x-4-map}.  The event @code{mode-line} is one of several
-dummy events used as prefixes for mouse actions in special parts of a
-window.
+また以下の例では、@kbd{C-h}は@code{(keymap (118
+.
+describe-variable)@dots{})}で始まるsparseキーマップを使用するプレフィクスキーである。他のプレフィクス@kbd{C-x
+4}は、変数@code{ctl-x-4-map}の値でもあるキーマップを使用する。イベント@code{mode-line}は、ウィンドウの特別な箇所でのマウスイベントにたいするプレフィクスとして使用される、いくつかのダミーイベントのうちの1つである。
 
 @smallexample
 @group
@@ -1385,46 +1375,26 @@ window.
 @end smallexample
 
 @noindent
-These are not all the keymaps you would see in actuality.
+これらは実際に目にするであろうキーマップのすべてではない。
 @end defun
 
 @defun map-keymap function keymap
-The function @code{map-keymap} calls @var{function} once for each binding in
-@var{keymap}.  It passes two arguments, the event type and the value of the
-binding.  If @var{keymap} has a parent, the parent's bindings are included
-as well.  This works recursively: if the parent has itself a parent, then
-the grandparent's bindings are also included and so on.
+関数@code{map-keymap}は、@var{keymap}内のバインディングそれぞれにたいして1回@var{function}を呼び出す。呼び出す際の引数はイベント型と、そのバインディングの値の2つである。@var{keymap}に親キーマップがある場合は、その親キーマップのバインディングも含まれる。これは再帰的に機能する。つまり、その親キーマップ自身が親キーマップをもつ場合は、それのバインディングも含まれる、といった具合である。
 
-This function is the cleanest way to examine all the bindings in a keymap.
+これは、キーマップ内のすべてのバインディングを検証する、もっとも明快な方法である。
 @end defun
 
 @defun where-is-internal command &optional keymap firstonly noindirect no-remap
-This function is a subroutine used by the @code{where-is} command
-(@pxref{Help, , Help, emacs,The GNU Emacs Manual}).  It returns a list of
-all key sequences (of any length) that are bound to @var{command} in a set
-of keymaps.
+この関数は、@code{where-is}コマンド(@ref{Help, , Help, emacs,The GNU Emacs
+Manual}を参照)により使用されるサブルーチンである。これは、キーマップのセット内で@var{command}にバインドされる、(任意の長さの)キーシーケンスすべてのリストをリターンする。
 
-The argument @var{command} can be any object; it is compared with all keymap
-entries using @code{eq}.
+引数@var{command}には、任意のオブジェクトを指定できる。このオブジェクトは、すべてのキーマップエントリーにたいし、@code{eq}を使用して比較される。
 
-If @var{keymap} is @code{nil}, then the maps used are the current active
-keymaps, disregarding @code{overriding-local-map} (that is, pretending its
-value is @code{nil}).  If @var{keymap} is a keymap, then the maps searched
-are @var{keymap} and the global keymap.  If @var{keymap} is a list of
-keymaps, only those keymaps are searched.
+@var{keymap}が@code{nil}の場合、@code{overriding-local-map}の値とは無関係に(@code{overriding-local-map}の値が@code{nil}であると装い)、カレントアクティブキーマップをマップとして使用する。@var{keymap}がキーマップの場合は、@var{keymap}とグローバルキーマップが検索されるマップとなる。@var{keymap}がキーマップのリストの場合は、それらのキーマップだけが検索される。
 
-Usually it's best to use @code{overriding-local-map} as the expression for
-@var{keymap}.  Then @code{where-is-internal} searches precisely the keymaps
-that are active.  To search only the global map, pass the value
-@code{(keymap)} (an empty keymap) as @var{keymap}.
+@var{keymap}にたいする式としては、通常は@code{overriding-local-map}を使用するのが最善である。その場合、@code{where-is-internal}は正にアクティブなキーマップを検索する。グローバルマップだけを検索するには、@var{keymap}の値に@code{(keymap)}(空のキーマップ)を渡せばよい。
 
-If @var{firstonly} is @code{non-ascii}, then the value is a single vector
-representing the first key sequence found, rather than a list of all
-possible key sequences.  If @var{firstonly} is @code{t}, then the value is
-the first key sequence, except that key sequences consisting entirely of
-@acronym{ASCII} characters (or meta variants of @acronym{ASCII} characters)
-are preferred to all other key sequences and that the return value can never
-be a menu binding.
+@var{firstonly}が@code{non-ascii}の場合、値はすべての可能なキーシーケンスのリストではなく、最初に見つかったキーシーケンスを表す単一のベクターとなる。@var{firstonly}が@code{t}の場合、値は最初のキーシーケンスだが、全体が@acronym{ASCII}文字(またはメタ修飾された@acronym{ASCII}文字)で構成されるキーシーケンスが、他のすべてのキーシーケンスに優先され、リターン値がメニューバインディングになることは決してない。
 
 If @var{noindirect} is non-@code{nil}, @code{where-is-internal} doesn't
 follow indirect keymap bindings.  This makes it possible to search for an
