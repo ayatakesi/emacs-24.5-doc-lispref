@@ -1396,16 +1396,14 @@ Manual}を参照)により使用されるサブルーチンである。これは
 
 @var{firstonly}が@code{non-ascii}の場合、値はすべての可能なキーシーケンスのリストではなく、最初に見つかったキーシーケンスを表す単一のベクターとなる。@var{firstonly}が@code{t}の場合、値は最初のキーシーケンスだが、全体が@acronym{ASCII}文字(またはメタ修飾された@acronym{ASCII}文字)で構成されるキーシーケンスが、他のすべてのキーシーケンスに優先され、リターン値がメニューバインディングになることは決してない。
 
-If @var{noindirect} is non-@code{nil}, @code{where-is-internal} doesn't
-follow indirect keymap bindings.  This makes it possible to search for an
-indirect definition itself.
+@var{noindirect}が非@code{nil}の場合、@code{where-is-internal}はインダイレクトキーマップ(indirect
+keymap: 間接キーマップ)のバインディングを追跡しない。これにより、インダイレクト定義自体にたいして検索が可能になる。
 
-The fifth argument, @var{no-remap}, determines how this function treats
-command remappings (@pxref{Remapping Commands}).  There are two cases of
-interest:
+5つ目の引数@var{no-remap}は、この関数がコマンドリマッピング(@ref{Remapping
+Commands}を参照)を扱う方法を決定する。興味深いケースが2つある:
 
 @table @asis
-@item If a command @var{other-command} is remapped to @var{command}:
+@item コマンド@var{other-command}が@var{command}にリマップされる場合:
 If @var{no-remap} is @code{nil}, find the bindings for @var{other-command}
 and treat them as though they are also bindings for @var{command}.  If
 @var{no-remap} is non-@code{nil}, include the vector @code{[remap
@@ -1413,33 +1411,20 @@ and treat them as though they are also bindings for @var{command}.  If
 finding those bindings.
 
 @item If @var{command} is remapped to @var{other-command}:
-If @var{no-remap} is @code{nil}, return the bindings for @var{other-command}
-rather than @var{command}.  If @var{no-remap} is non-@code{nil}, return the
-bindings for @var{command}, ignoring the fact that it is remapped.
+@var{no-remap}が@code{nil}の場合は、@var{command}ではなく@var{other-command}にたいするバインディングをリターンする。@var{no-remap}が非@code{nil}の場合は、リマップされていることを無視して、@var{command}にたいするバインディングをリターンする。
 @end table
 @end defun
 
 @deffn Command describe-bindings &optional prefix buffer-or-name
-This function creates a listing of all current key bindings, and displays it
-in a buffer named @file{*Help*}.  The text is grouped by modes---minor modes
-first, then the major mode, then global bindings.
+この関数は、すべてのカレントキーバインディングのリストを作成して、@file{*Help*}という名前のバッファーにそれを表示する。テキストはモードごとにグループ化され、順番はマイナーモード、メジャーモード、グローバルバインディングの順である。
 
-If @var{prefix} is non-@code{nil}, it should be a prefix key; then the
-listing includes only keys that start with @var{prefix}.
+@var{prefix}が非@code{nil}の場合、それはプレフィクスキーである。その場合、リストに含まれるのは@var{prefix}で始まるキーだけになる。
 
-When several characters with consecutive @acronym{ASCII} codes have the same
-definition, they are shown together, as
-@samp{@var{firstchar}..@var{lastchar}}.  In this instance, you need to know
-the @acronym{ASCII} codes to understand which characters this means.  For
-example, in the default global map, the characters @samp{@key{SPC} ..@: ~}
-are described by a single line.  @key{SPC} is @acronym{ASCII} 32, @kbd{~} is
-@acronym{ASCII} 126, and the characters between them include all the normal
-printing characters, (e.g., letters, digits, punctuation, etc.@:); all these
-characters are bound to @code{self-insert-command}.
+複数の連続する@acronym{ASCII}コードが同じ定義をもつとき、それらは@samp{@var{firstchar}..@var{lastchar}}のようにまとめて表示される。この場合、それがどの文字に該当するかを理解するためには、その@acronym{ASCII}コードを知っている必要がある。たとえば、デフォルトグローバルマップでは、文字@samp{@key{SPC}
+..@:
+~}は1行で記述される。@key{SPC}は@acronym{ASCII}の32，@kbd{~}は@acronym{ASCII}の126で、その間のすべての文字には、通常のプリント文字(アルファベット文字、数字、句読点など)が含まれる。これらの文字はすべて、@code{self-insert-command}にバインドされる。
 
-If @var{buffer-or-name} is non-@code{nil}, it should be a buffer or a buffer
-name.  Then @code{describe-bindings} lists that buffer's bindings, instead
-of the current buffer's.
+@var{buffer-or-name}が非@code{nil}の場合、それはバッファー、またはバッファー名である。その場合、@code{describe-bindings}はカレントバッファーのかわりに、そのバッファーのバインディングをリストする。
 @end deffn
 
 @node Menu Keymaps
