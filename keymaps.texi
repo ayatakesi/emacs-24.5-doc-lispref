@@ -1451,45 +1451,29 @@ finding those bindings.
 @cindex prompt string (of menu)
 @cindex menu item
 
-A keymap acts as a menu if it has an @dfn{overall prompt string}, which is a
-string that appears as an element of the keymap.  (@xref{Format of
-Keymaps}.)  The string should describe the purpose of the menu's commands.
-Emacs displays the overall prompt string as the menu title in some cases,
-depending on the toolkit (if any) used for displaying menus.@footnote{It is
-required for menus which do not use a toolkit, e.g., on a text terminal.}
-Keyboard menus also display the overall prompt string.
+キーマップが@dfn{overallプロンプト文字列(overall prompt
+string)}をもつ場合、そのキーマップはメニューとして動作します。overallプロンプト文字列とは、キーマップの要素として表される文字列です(@ref{Format
+of
+Keymaps}を参照)。この文字列には、メニューコマンドの目的を記述します。Emacsは、(もしあれば)メニュー表示に使用されるツールキットに応じ、メニュータイトルとしてoverallメニュー文字列を表示します@footnote{これはテキスト端末ののような、ツールキットを使用しないメニューにたいして要求されます。}。キーボードメニューもoverallプロンプト文字列を表示します。
 
-The easiest way to construct a keymap with a prompt string is to specify the
-string as an argument when you call @code{make-keymap},
-@code{make-sparse-keymap} (@pxref{Creating Keymaps}), or
-@code{define-prefix-command} (@pxref{Definition of define-prefix-command}).
-If you do not want the keymap to operate as a menu, don't specify a prompt
-string for it.
+プロンプト文字列をもつキーマップを構築するもっとも簡単な方法は、@code{make-keymap}、@code{make-sparse-keymap}(@ref{Creating
+Keymaps}を参照)、@code{define-prefix-command}(@ref{Definition of
+define-prefix-command}を参照)を呼び出すときに引数で文字列を指定する方法です。キーマップをメニューとして操作したくない場合は、これらの関数にたいしてプロンプト文字列を指定しないでください。
 
 @defun keymap-prompt keymap
-This function returns the overall prompt string of @var{keymap}, or
-@code{nil} if it has none.
+この関数は、@var{keymap}のoverallプロンプト文字列を、もしなければ@code{nil}をリターンする。
 @end defun
 
-The menu's items are the bindings in the keymap.  Each binding associates an
-event type to a definition, but the event types have no significance for the
-menu appearance.  (Usually we use pseudo-events, symbols that the keyboard
-cannot generate, as the event types for menu item bindings.)  The menu is
-generated entirely from the bindings that correspond in the keymap to these
-events.
+メニューのアイテムは、そのキーマップ内のバインディングです。各バインディングはイベント型と定義を関連付けますが、イベント型はメニューの外見に何の意味ももちません(通常は、イベント型としてキーボードが生成できない擬似イベントのシンボルをメニューアイテムのバインディングに使用する)。メニュー全体は、これらのイベントにたいするキーマップ内のバインディングから生成されます。
 
-The order of items in the menu is the same as the order of bindings in the
-keymap.  Since @code{define-key} puts new bindings at the front, you should
-define the menu items starting at the bottom of the menu and moving to the
-top, if you care about the order.  When you add an item to an existing menu,
-you can specify its position in the menu using @code{define-key-after}
-(@pxref{Modifying Menus}).
+メニュー内のアイテムの順序は、キーマップ内のバインディングの順序と同じです。@code{define-key}は新たなバインディングを先頭に置くので、メニューアイテムの順序が重要な場合は、メニューの最後から先頭へメニューアイテムを定義する必要があります。既存のメニューにアイテムを追加するときは、@code{define-key-after}を使用してメニュー内の位置を指定できます(@ref{Modifying
+Menus}を参照)。
 
 @menu
-* Simple Menu Items::        A simple kind of menu key binding.
-* Extended Menu Items::      More complex menu item definitions.
-* Menu Separators::          Drawing a horizontal line through a menu.
-* Alias Menu Items::         Using command aliases in menu items.
+* Simple Menu Items::        単純なメニューのキーバインディング。
+* Extended Menu Items::      複雑なメニューアイテムの定義。
+* Menu Separators::          メニューに水平線を描画する。
+* Alias Menu Items::         メニューアイテムにコマンドエイリアスを使用する。
 @end menu
 
 @node Simple Menu Items
