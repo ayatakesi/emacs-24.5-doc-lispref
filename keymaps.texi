@@ -1472,7 +1472,7 @@ Menus}を参照)。
 @menu
 * Simple Menu Items::        単純なメニューのキーバインディング。
 * Extended Menu Items::      複雑なメニューアイテムの定義。
-* Menu Separators::          メニューに水平線を描画する。
+* Menu Separators::          メニューに水平ラインを描画する。
 * Alias Menu Items::         メニューアイテムにコマンドエイリアスを使用する。
 @end menu
 
@@ -1584,86 +1584,74 @@ Emacsは、メニューデータ構造を再表示、または操作する任意
 @subsubsection Menu Separators
 @cindex menu separators
 
-  A menu separator is a kind of menu item that doesn't display any
-text---instead, it divides the menu into subparts with a horizontal line.  A
-separator looks like this in the menu keymap:
+  メニューセパレーターは、テキストを表示するかわりに、水平ラインでメニューをサブパーツに分割する、メニューアイテムの一種です。メニューキーマップ内で、セパレーターは以下のように見えます:
 
 @example
 (menu-item @var{separator-type})
 @end example
 
 @noindent
-where @var{separator-type} is a string starting with two or more dashes.
+ここで、@var{separator-type}は2つ以上のダッシュで始まる文字列です。
 
-  In the simplest case, @var{separator-type} consists of only dashes.  That
-specifies the default kind of separator.  (For compatibility, @code{""} and
-@code{-} also count as separators.)
+  もっとも単純なケースでは、ダッシュだけで@var{separator-type}が構成されます。これはデフォルトのセパレーターを指定します(互換性のため、@code{""}と@code{-}もセパレーターとみなされる)。
 
-  Certain other values of @var{separator-type} specify a different style of
-separator.  Here is a table of them:
+  @var{separator-type}にたいする他の特定の値は、異なるスタイルのセパレーターを指定します。以下はそれらのテーブルです:
 
 @table @code
 @item "--no-line"
 @itemx "--space"
-An extra vertical space, with no actual line.
+実際のラインではない、余分な垂直スペース。
 
 @item "--single-line"
-A single line in the menu's foreground color.
+メニューのforegroundカラーの一重ライン。
 
 @item "--double-line"
-A double line in the menu's foreground color.
+メニューのforegroundカラーの二重ライン。
 
 @item "--single-dashed-line"
-A single dashed line in the menu's foreground color.
+メニューのforegroundカラーの一重ダッシュライン。
 
 @item "--double-dashed-line"
-A double dashed line in the menu's foreground color.
+メニューのforegroundカラーの二重ダッシュライン。
 
 @item "--shadow-etched-in"
-A single line with a 3D sunken appearance.  This is the default, used
-separators consisting of dashes only.
+3Dの窪んだ外観(3D sunken appearance)をもつ一重ライン。これはダッシュだけで構成されるセパレーターに使用されるデフォルトである。
 
 @item "--shadow-etched-out"
-A single line with a 3D raised appearance.
+3Dの浮き上がった外観(3D raised appearance)をもつ一重ライン。
 
 @item "--shadow-etched-in-dash"
-A single dashed line with a 3D sunken appearance.
+3Dの窪んだ外観(3D sunken appearance)をもつ一重ダッシュライン。
 
 @item "--shadow-etched-out-dash"
-A single dashed line with a 3D raised appearance.
+3Dの浮き上がった外観(3D raised appearance)をもつ一重ダッシュライン。
 
 @item "--shadow-double-etched-in"
-Two lines with a 3D sunken appearance.
+3Dの窪んだ外観をもつ二重ライン。
 
 @item "--shadow-double-etched-out"
-Two lines with a 3D raised appearance.
+3Dの浮き上がった外観をもつ二重ライン。
 
 @item "--shadow-double-etched-in-dash"
-Two dashed lines with a 3D sunken appearance.
+3Dの窪んだ外観をもつ二重ダッシュライン。
 
 @item "--shadow-double-etched-out-dash"
-Two dashed lines with a 3D raised appearance.
+3Dの浮き上がった外観をもつ二重ダッシュライン。
 @end table
 
-  You can also give these names in another style, adding a colon after the
-double-dash and replacing each single dash with capitalization of the
-following word.  Thus, @code{"--:singleLine"}, is equivalent to
-@code{"--single-line"}.
+  2連ダッシュの後にコロンを追加して、1連ダッシュの後の単語の先頭の文字を大文字にすることにより、別のスタイルで名前を与えることもできます。つまり、@code{"--:singleLine"}は@code{"--single-line"}と等価です。
 
-  You can use a longer form to specify keywords such as @code{:enable} and
-@code{:visible} for a menu separator:
+  メニューセパレーターにたいして@code{:enable}や@code{:visible}のようなキーワードを指定するために、長い形式を使用できます。
 
 @code{(menu-item @var{separator-type} nil . @var{item-property-list})}
 
-For example:
+たとえば:
 
 @example
 (menu-item "--" nil :visible (boundp 'foo))
 @end example
 
-  Some systems and display toolkits don't really handle all of these separator
-types.  If you use a type that isn't supported, the menu displays a similar
-kind of separator that is supported.
+  いくつかのシステムおよびディスプレイツールキットは、これらすべてのセパレータータイプを実際に処理しません。サポートされないタイプのセパレーターを使用した場合、メニューはサポートされている似た種別のセパレーターを表示します。
 
 @node Alias Menu Items
 @subsubsection Alias Menu Items
