@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-03-19 02:49+0900\n"
-"PO-Revision-Date: 2018-04-02 17:48+0900\n"
+"PO-Revision-Date: 2018-04-03 01:02+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3979,23 +3979,23 @@ msgstr "この変数は、メニューの次の行を確認するために使用
 #: keymaps.texi.orig:2421
 #, no-wrap
 msgid "menu definition example"
-msgstr ""
+msgstr "menu definition example"
 
 #. type: Plain text
 #: keymaps.texi.orig:2428
 msgid "Here is a complete example of defining a menu keymap.  It is the definition of the @samp{Replace} submenu in the @samp{Edit} menu in the menu bar, and it uses the extended menu item format (@pxref{Extended Menu Items}).  First we create the keymap, and give it a name:"
-msgstr ""
+msgstr "以下は、メニューキーマップを定義する、完全な例です。これは、メニューバー内の@samp{Edit}メニューにサブメニュー@samp{Replace}を定義して、その定義内で拡張メニューフォーマット(@ref{Extended Menu Items}を参照)を使用します。例ではまずキーマップを作成して、それに名前をつけます:"
 
 #. type: smallexample
 #: keymaps.texi.orig:2431
 #, no-wrap
 msgid "(defvar menu-bar-replace-menu (make-sparse-keymap \"Replace\"))\n"
-msgstr ""
+msgstr "(defvar menu-bar-replace-menu (make-sparse-keymap \"Replace\"))\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:2435
 msgid "Next we define the menu items:"
-msgstr ""
+msgstr "次にメニューアイテムを定義します:"
 
 #. type: smallexample
 #: keymaps.texi.orig:2446
@@ -4011,26 +4011,35 @@ msgid ""
 "  '(menu-item \"--\"))\n"
 ";; @r{@dots{}}\n"
 msgstr ""
+"(define-key menu-bar-replace-menu [tags-repl-continue]\n"
+"  '(menu-item \"Continue Replace\" tags-loop-continue\n"
+"              :help \"Continue last tags replace operation\"))\n"
+"(define-key menu-bar-replace-menu [tags-repl]\n"
+"  '(menu-item \"Replace in tagged files\" tags-query-replace\n"
+"              :help \"Interactively replace a regexp in all tagged files\"))\n"
+"(define-key menu-bar-replace-menu [separator-replace-tags]\n"
+"  '(menu-item \"--\"))\n"
+";; @r{@dots{}}\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:2457
 msgid "Note the symbols which the bindings are ``made for''; these appear inside square brackets, in the key sequence being defined.  In some cases, this symbol is the same as the command name; sometimes it is different.  These symbols are treated as ``function keys'', but they are not real function keys on the keyboard.  They do not affect the functioning of the menu itself, but they are ``echoed'' in the echo area when the user selects from the menu, and they appear in the output of @code{where-is} and @code{apropos}."
-msgstr ""
+msgstr "バインディングがそのシンボルのために``作成された''ことに注意してください。これらのシンボルは、定義されるキーシーケンス内の角カッコ内に記述されます。このシンボルはコマンド名と同じときもあれば、異なることもあります。これらのシンボルは``ファンクションキー''として扱われますが、これらはキーボード上の実際のファンクションキーではありません。これらはメニュー自体の機能に影響しませんが、ユーザーがメニューから選択したときにエコーエリアに``エコー''され、@code{where-is}と@code{apropos}の出力に現れます。"
 
 #. type: Plain text
 #: keymaps.texi.orig:2463
 msgid "The menu in this example is intended for use with the mouse.  If a menu is intended for use with the keyboard, that is, if it is bound to a key sequence ending with a keyboard event, then the menu items should be bound to characters or ``real'' function keys, that can be typed with the keyboard."
-msgstr ""
+msgstr "この例のメニューは、マウスによる使用を意図しています。もしキーボードの使用を意図したメニュー、つまりキーボードイベントで終了するキーシーケンスにバインドされたメニューの場合、メニューアイテムはキーボードでタイプできる文字、または``実際''のファンクションキーにバインドされるべきです。"
 
 #. type: Plain text
 #: keymaps.texi.orig:2468
 msgid "The binding whose definition is @code{(\"--\")} is a separator line.  Like a real menu item, the separator has a key symbol, in this case @code{separator-replace-tags}.  If one menu has two separators, they must have two different key symbols."
-msgstr ""
+msgstr "定義が@code{(\"--\")}のバインディングは、セパレーターラインです。実際のメニューアイテムと同様、セパレーターはキーシンボルをもち、この例では@code{separator-replace-tags}です。1つのメニューが2つのセパレーターをもつ場合、それらは2つの異なるキーシンボルをもたなければなりません。"
 
 #. type: Plain text
 #: keymaps.texi.orig:2470
 msgid "Here is how we make this menu appear as an item in the parent menu:"
-msgstr ""
+msgstr "以下では、親メニュー内のアイテムとしてこのメニューがどのように表示されるかを記述しています:"
 
 #. type: example
 #: keymaps.texi.orig:2474
@@ -4039,16 +4048,18 @@ msgid ""
 "(define-key menu-bar-edit-menu [replace]\n"
 "  (list 'menu-item \"Replace\" menu-bar-replace-menu))\n"
 msgstr ""
+"(define-key menu-bar-edit-menu [replace]\n"
+"  (list 'menu-item \"Replace\" menu-bar-replace-menu))\n"
 
 #. type: Plain text
 #: keymaps.texi.orig:2482
 msgid "Note that this incorporates the submenu keymap, which is the value of the variable @code{menu-bar-replace-menu}, rather than the symbol @code{menu-bar-replace-menu} itself.  Using that symbol in the parent menu item would be meaningless because @code{menu-bar-replace-menu} is not a command."
-msgstr ""
+msgstr "これは、シンボル@code{menu-bar-replace-menu}自体ではなく、変数@code{menu-bar-replace-menu}の値であるサブメニューキーマップを組み込むことに注意してください。@code{menu-bar-replace-menu}はコマンドではないので、親メニューアイテムにそのシンボルを使用するのは無意味です。"
 
 #. type: Plain text
 #: keymaps.texi.orig:2485
 msgid "If you wanted to attach the same replace menu to a mouse click, you can do it this way:"
-msgstr ""
+msgstr "同じreplaceメニューをマウスクリックに割り当てたい場合は、以下のようにこれを行うことができます:"
 
 #. type: example
 #: keymaps.texi.orig:2489
@@ -4057,6 +4068,8 @@ msgid ""
 "(define-key global-map [C-S-down-mouse-1]\n"
 "   menu-bar-replace-menu)\n"
 msgstr ""
+"(define-key global-map [C-S-down-mouse-1]\n"
+"   menu-bar-replace-menu)\n"
 
 #. type: subsection
 #: keymaps.texi.orig:2492
