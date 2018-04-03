@@ -1760,38 +1760,31 @@ Menu Items}を参照)を使用します。例ではまずキーマップを作�
 @subsection The Menu Bar
 @cindex menu bar
 
-  Emacs usually shows a @dfn{menu bar} at the top of each frame.  @xref{Menu
-Bars,,,emacs, The GNU Emacs Manual}.  Menu bar items are subcommands of the
-fake ``function key'' @code{menu-bar}, as defined in the active keymaps.
+  Emacsは通常、各フレームの最上部に@dfn{メニューバー(menu bar)}を表示します。@ref{Menu Bars,,,emacs, The
+GNU Emacs
+Manual}を参照してください。メニューバーのアイテムは、アクティブキーマップ内で定義される偽りの``ファンクションキー''@code{menu-bar}のサブコマンドです。
 
-  To add an item to the menu bar, invent a fake ``function key'' of your own
-(let's call it @var{key}), and make a binding for the key sequence
-@code{[menu-bar @var{key}]}.  Most often, the binding is a menu keymap, so
-that pressing a button on the menu bar item leads to another menu.
+  メニューバーにアイテムを追加するには、自分で偽りの``ファンクションキー''(これを@var{key}と呼ぶことにしましょう)を創作して、キーシーケンス@code{[menu-bar
+@var{key}]}にたいするキーバインディングを作成します。ほとんどの場合において、そのバインディングはメニューキーマップなので、メニューバーアイテム上でボタンを押下すると、他のメニューに導かれます。
 
-  When more than one active keymap defines the same ``function key'' for the
-menu bar, the item appears just once.  If the user clicks on that menu bar
-item, it brings up a single, combined menu containing all the subcommands of
-that item---the global subcommands, the local subcommands, and the minor
-mode subcommands.
+  メニューバーにたいして同じ``ファンクションキー''を定義するアクティブなキーマップが1つ以上存在するとき、そのアイテムは1回だけ出現します。ユーザーがメニューバーのそのアイテムをクリックした場合、そのアイテムのすべてのサブコマンド---
+グローバルサブコマンド、ローカルサブコマンド、マイナーモードサブコマンドが組み合わされた単一のメニューを表示します。
 
-  The variable @code{overriding-local-map} is normally ignored when
-determining the menu bar contents.  That is, the menu bar is computed from
-the keymaps that would be active if @code{overriding-local-map} were
-@code{nil}.  @xref{Active Keymaps}.
+  変数@code{overriding-local-map}は通常、メニューバーのコンテンツを決定する際は無視されます。つまり、メニューバーは@code{overriding-local-map}が@code{nil}の場合にアクティブになるであろうキーマップから計算されます。@ref{Active
+Keymaps}を参照してください。
 
-  Here's an example of setting up a menu bar item:
+  以下は、メニューバーのアイテムをセットアップする例です:
 
 @example
 @group
-;; @r{Make a menu keymap (with a prompt string)}
-;; @r{and make it the menu bar item's definition.}
+;; @r{(プロンプト文字列とともに)メニューキーマップを作成して}
+;; @r{それをメニューバーアイテムの定義にする}
 (define-key global-map [menu-bar words]
   (cons "Words" (make-sparse-keymap "Words")))
 @end group
 
 @group
-;; @r{Define specific subcommands in this menu.}
+;; @r{メニュー内に具体的なサブコマンドを定義する}
 (define-key global-map
   [menu-bar words forward]
   '("Forward word" . forward-word))
@@ -1803,42 +1796,27 @@ the keymaps that would be active if @code{overriding-local-map} were
 @end group
 @end example
 
-  A local keymap can cancel a menu bar item made by the global keymap by
-rebinding the same fake function key with @code{undefined} as the binding.
-For example, this is how Dired suppresses the @samp{Edit} menu bar item:
+  ローカルキーマップは、グローバルキーマップにより作成されたメニューバーアイテムにたいして、同じ偽ファンクションキーを@code{undefined}にリバインドしてキャンセルすることができます。たとえば、以下はDiredが@samp{Edit}メニューバーアイテムを抑制する方法です:
 
 @example
 (define-key dired-mode-map [menu-bar edit] 'undefined)
 @end example
 
 @noindent
-Here, @code{edit} is the fake function key used by the global map for the
-@samp{Edit} menu bar item.  The main reason to suppress a global menu bar
-item is to regain space for mode-specific items.
+ここで、@code{edit}は@samp{Edit}メニューバーアイテムにたいしてグローバルキーマップにより使用される偽ファンクションキーです。グローバルメニューバーアイテムを抑制する主な理由は、モード特有のアイテムのためのスペースを確保するためです。
 
 @defvar menu-bar-final-items
-Normally the menu bar shows global items followed by items defined by the
-local maps.
+通常メニューバーナーグローバルアイテムの後にローカルマップにより定義されるアイテムを表示する。
 
-This variable holds a list of fake function keys for items to display at the
-end of the menu bar rather than in normal sequence.  The default value is
-@code{(help-menu)}; thus, the @samp{Help} menu item normally appears at the
-end of the menu bar, following local menu items.
+この変数は、通常の順番による位置ではなく、メニューの最後に表示するアイテムのための偽ファンクションキーのリストを保持する。デフォルト値は@code{(help-menu)}である。したがって、@samp{Help}メニューアイテムはメニューバーの最後、ローカルメニューアイテムの後に表示される。
 @end defvar
 
 @defvar menu-bar-update-hook
-This normal hook is run by redisplay to update the menu bar contents, before
-redisplaying the menu bar.  You can use it to update menus whose contents
-should vary.  Since this hook is run frequently, we advise you to ensure
-that the functions it calls do not take much time in the usual case.
+このノーマルフックは、メニューバーの再表示の前に、メニューバーのコンテンツを更新するための再表示により実行される。コンテンツを変化させる必要があるメニューの更新に使用できる。このフックは頻繁に実行されるので、フックが呼び出す関数は、通常の場合は長い時間を要さないことを確実にするよう助言する。
 @end defvar
 
-Next to every menu bar item, Emacs displays a key binding that runs the same
-command (if such a key binding exists).  This serves as a convenient hint
-for users who do not know the key binding.  If a command has multiple
-bindings, Emacs normally displays the first one it finds.  You can specify
-one particular key binding by assigning an @code{:advertised-binding} symbol
-property to the command.  @xref{Keys in Documentation}.
+Emacsは、すべてのメニューバーアイテムの隣に、(もしそのようなキーバインディングが存在するなら)同じコマンドを実行するキーバインディングを表示します。これは、キーバインディングを知らないユーザーにたいして便利なヒントを与える役目をもちます。コマンドが複数のバインディングをもつ場合、通常Emacsは最初に見つけたバインディングを表示します。コマンドのシンボルプロパティ@code{:advertised-binding}に割り当てることにより、特定のキーバインディングを指定できます。@ref{Keys
+in Documentation}を参照してください。
 
 @node Tool Bar
 @subsection Tool bars
