@@ -7,3 +7,6 @@ elisp.html :  control.texi functions.texi lists.texi objects.texi symbols.texi c
 	texi2any --set-customization-variable TEXI2HTML=1 elisp.texi && \
         cp -f elisp.html ~/storage/shared/Documents
 
+elisp_html/index.html : elisp.html
+	makeinfo -o elisp_html/ --html elisp.texi && \
+        cp -fr elisp_html ~/storage/shared/Documents

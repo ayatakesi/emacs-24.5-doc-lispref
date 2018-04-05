@@ -1822,92 +1822,63 @@ in Documentation}を参照してください。
 @subsection Tool bars
 @cindex tool bar
 
-  A @dfn{tool bar} is a row of clickable icons at the top of a frame, just
-below the menu bar.  @xref{Tool Bars,,,emacs, The GNU Emacs Manual}.  Emacs
-normally shows a tool bar on graphical displays.
+  @dfn{ツールバー(tool bar)}とは、フレームの最上部、メニューバー直下にある、クリック可能なアイコンの行のことです。@ref{Tool
+Bars,,,emacs, The GNU Emacs
+Manual}を参照してください。Emacsは通常、グラフィカルなディスプレイ上でツールバーを表示します。
 
-  On each frame, the frame parameter @code{tool-bar-lines} controls how many
-lines' worth of height to reserve for the tool bar.  A zero value suppresses
-the tool bar.  If the value is nonzero, and @code{auto-resize-tool-bars} is
-non-@code{nil}, the tool bar expands and contracts automatically as needed
-to hold the specified contents.  If the value is @code{grow-only}, the tool
-bar expands automatically, but does not contract automatically.
+  各フレームでは、ツールバーに何行分の高さを割り当てるかを、フレームパラメーター@code{tool-bar-lines}が制御します。値0は、ツールバーを抑制します。値が非0で、@code{auto-resize-tool-bars}が非@code{nil}の場合、指定されたコンテンツを維持するのに必要な分、ツールバーは拡大縮小されます。値が@code{grow-only}の場合、ツールバーは自動的に拡大されますが、自動的に縮小はされません。
 
-  The tool bar contents are controlled by a menu keymap attached to a fake
-``function key'' called @code{tool-bar} (much like the way the menu bar is
-controlled).  So you define a tool bar item using @code{define-key}, like
-this:
+  ツールバーのコンテンツは、(メニューバーが制御されるのと似た方法により)@code{tool-bar}と呼ばれる偽りの``ファンクションキー''に割り当てられたメニューキーマップにより制御されます。したがって、以下のように@code{define-key}を使用して、ツールバーアイテムを定義します。
 
 @example
 (define-key global-map [tool-bar @var{key}] @var{item})
 @end example
 
 @noindent
-where @var{key} is a fake ``function key'' to distinguish this item from
-other items, and @var{item} is a menu item key binding (@pxref{Extended Menu
-Items}), which says how to display this item and how it behaves.
+ここで@var{key}は、そのアイテムを他のアイテムと区別する偽``ファンクションキー''で、@var{item}はそのアイテムを表示する方法とアイテムの振る舞いを示すメニューアイテムキーバインディングです(@ref{Extended
+Menu Items}を参照)。
 
-  The usual menu keymap item properties, @code{:visible}, @code{:enable},
-@code{:button}, and @code{:filter}, are useful in tool bar bindings and have
-their normal meanings.  The @var{real-binding} in the item must be a
-command, not a keymap; in other words, it does not work to define a tool bar
-icon as a prefix key.
+  メニューキーマップの通常のプロパティ@code{:visible}、@code{:enable}、@code{:button}、@code{:filter}はツールバーバインディングでも役に立ち、いずれのプロパティも通常通りの意味をもちます。アイテム内の@var{real-binding}は、キーマップではなくコマンドでなければなりません。別の言い方をすると、これはツールバーアイコンをプレフィクスキーとして定義するようには機能しないということです。
 
-  The @code{:help} property specifies a ``help-echo'' string to display while
-the mouse is on that item.  This is displayed in the same way as
-@code{help-echo} text properties (@pxref{Help display}).
+  @code{:help}プロパティは、そのアイテム上にマウスがある間表示する、``help-echo''文字列を指定します。これは、テキストプロパティ@code{help-echo}と同じ方法で表示されます(@ref{Help
+display}を参照)。
 
-  In addition, you should use the @code{:image} property; this is how you
-specify the image to display in the tool bar:
+  これらに加えて、@code{:image}プロパティも使用するべきでしょう。これは、ツールバー内にイメージを表示するには、このプロパティを使用します。
 
 @table @code
 @item :image @var{image}
-@var{images} is either a single image specification or a vector of four
-image specifications.  If you use a vector of four, one of them is used,
-depending on circumstances:
+@var{images}は単一イメージ様式(single image specification)、または4ベクターイメージ様式(vector of
+four image specifications)で指定する。4ベクターを使用する場合、状況に応じてそれらのうち1つが使用される:
 
 @table @asis
 @item item 0
-Used when the item is enabled and selected.
+アイテムが有効かつ選択されているとき使用される。
 @item item 1
-Used when the item is enabled and deselected.
+アイテムが有効かつ未選択のとき使用される。
 @item item 2
-Used when the item is disabled and selected.
+アイテムが無効かつ選択されているとき使用される。
 @item item 3
-Used when the item is disabled and deselected.
+アイテムが無効かつ未選択のとき使用される。
 @end table
 @end table
 
-The GTK+ and NS versions of Emacs ignores items 1 to 3, because disabled
-and/or deselected images are autocomputed from item 0.
+GTK+およびNSバージョンのEmacsは、無効、および/または未選択のイメージをitem0から自動的に計算するので、item1からitem3は無視されます。
 
-If @var{image} is a single image specification, Emacs draws the tool bar
-button in disabled state by applying an edge-detection algorithm to the
-image.
+@var{image}が単一イメージ様式の場合、Emacsはそのイメージにエッジ検出アルゴリズム(edge-detection
+algorithm)を適用することにより、ツールバーの無効な状態のボタンを描画します。
 
-The @code{:rtl} property specifies an alternative image to use for
-right-to-left languages.  Only the GTK+ version of Emacs supports this at
-present.
+@code{:rtl}プロパティには、右から左に記述する言語のためのイメージ候補を指定します。現在のところ、これをサポートするのはGTK+バージョンのEmacsだけです。
 
-Like the menu bar, the tool bar can display separators (@pxref{Menu
-Separators}).  Tool bar separators are vertical rather than horizontal,
-though, and only a single style is supported.  They are represented in the
-tool bar keymap by @code{(menu-item "--")} entries; properties like
-@code{:visible} are not supported for tool bar separators.  Separators are
-rendered natively in GTK+ and Nextstep tool bars; in the other cases, they
-are rendered using an image of a vertical line.
+メニューバーと同様、ツールバーはセパレーター(@ref{Menu
+Separators}を参照)を表示できます。ツールバーのセパレーターは水平ラインではなく垂直ラインであり、1つのスタイルだけがサポートされます。これらは、ツールバーキーマップ内では@code{(menu-item
+"--")}エントリーで表されます。ツールバーのセパレーターでは、@code{:visible}のようなプロパティはサポートされません。GTK+とNextstepのツールバーでは、セパレーターはネイティブに描画されます。それ以外では、セパレーターは垂直ラインイメージを使用して描画されます。
 
-The default tool bar is defined so that items specific to editing do not
-appear for major modes whose command symbol has a @code{mode-class} property
-of @code{special} (@pxref{Major Mode Conventions}).  Major modes may add
-items to the global bar by binding @code{[tool-bar @var{foo}]} in their
-local map.  It makes sense for some major modes to replace the default tool
-bar items completely, since not many can be accommodated conveniently, and
-the default bindings make this easy by using an indirection through
-@code{tool-bar-map}.
+デフォルトツールバーは、コマンドシンボルの@code{mode-class}プロパティに@code{special}をもつメジャーモードにたいしては、編集に特化したアイテムは表示されないよう定義されています(@ref{Major
+Mode Conventions}を参照)。メジャーモードは、ローカルマップ内でバインディング@code{[tool-bar
+@var{foo}]}によって、グローバルバーにアイテムを追加するかもしれません。デフォルトツールバーの多くを適宜流用するのができないかもしれないため、デフォルトツールバーを完全に置き換えることは、いくつかのメジャーモードにとっては意味があります。デフォルトバインディングで@code{tool-bar-map}を通じてインダイレクトすることにより、これを簡単に行うことができます。
 
 @defvar tool-bar-map
-By default, the global map binds @code{[tool-bar]} as follows:
+デフォルトでは、グローバルマップは@code{[tool-bar]}を以下のようにバインドする:
 
 @example
 (global-set-key [tool-bar]
@@ -1916,30 +1887,15 @@ By default, the global map binds @code{[tool-bar]} as follows:
 @end example
 
 @noindent
-The function @code{tool-bar-make-keymap}, in turn, derives the actual tool
-bar map dynamically from the value of the variable @code{tool-bar-map}.
-Hence, you should normally adjust the default (global) tool bar by changing
-that map.  Some major modes, such as Info mode, completely replace the
-global tool bar by making @code{tool-bar-map} buffer-local and setting it to
-a different keymap.
+関数@code{tool-bar-make-keymap}は、変数@code{tool-bar-map}の値より、順に実際のツールバーマップをダイナミックに継承する。したがって、通常はそのマップを変更することにより、デフォルト(グローバル)ツールバーを調整すべきである。Infoモードのようないくつかのメジャーモードは、@code{tool-bar-map}をバッファーローカルにして、それに異なるキーマップをセットすることにより、グローバルツールバーを完全に置き換える。
 @end defvar
 
-There are two convenience functions for defining tool bar items, as follows.
+以下のような、ツールバーアイテムを定義するのに便利な関数があります。
 
 @defun tool-bar-add-item icon def key &rest props
-This function adds an item to the tool bar by modifying
-@code{tool-bar-map}.  The image to use is defined by @var{icon}, which is
-the base name of an XPM, XBM or PBM image file to be located by
-@code{find-image}.  Given a value @samp{"exit"}, say, @file{exit.xpm},
-@file{exit.pbm} and @file{exit.xbm} would be searched for in that order on a
-color display.  On a monochrome display, the search order is @samp{.pbm},
-@samp{.xbm} and @samp{.xpm}.  The binding to use is the command @var{def},
-and @var{key} is the fake function key symbol in the prefix keymap.  The
-remaining arguments @var{props} are additional property list elements to add
-to the menu item specification.
+この関数は、@code{tool-bar-map}を変更することにより、ツールバーにアイテムを追加する。使用するイメージは@var{icon}により定義され、これは@code{find-image}に配置されたXPM、XBM、PBMのイメージファイルの拡張子を除いたファイル名(basename)である。たとえばカラーディスプレイ上では、値に@samp{"exit"}を与えると@file{exit.xpm}、@file{exit.pbm}、@file{exit.xbm}の順に検索されるだろう。モノクロディスプレイでは、検索は@samp{.pbm}、@samp{.xbm}、@samp{.xpm}の順になる。使用するバインディングはコマンド@var{def}で、@var{key}はプレフィクスキーマップ内の偽ファンクションキーである。残りの引数@var{props}は、メニューアイテム仕様に追加する、追加のプロパティリスト要素である。
 
-To define items in some local map, bind @code{tool-bar-map} with @code{let}
-around calls of this function:
+あるローカルマップ内にアイテムを定義するためには、この関数呼び出しの周囲の@code{let}で@code{tool-bar-map}をバインドする:
 @example
 (defvar foo-tool-bar-map
   (let ((tool-bar-map (make-sparse-keymap)))
@@ -1950,68 +1906,44 @@ around calls of this function:
 @end defun
 
 @defun tool-bar-add-item-from-menu command icon &optional map &rest props
-This function is a convenience for defining tool bar items which are
-consistent with existing menu bar bindings.  The binding of @var{command} is
-looked up in the menu bar in @var{map} (default @code{global-map}) and
-modified to add an image specification for @var{icon}, which is found in the
-same way as by @code{tool-bar-add-item}.  The resulting binding is then
-placed in @code{tool-bar-map}, so use this function only for global tool bar
-items.
+この関数は、既存のメニューバインディングと矛盾しないツールバーアイテムの定義に有用である。@var{command}のバインディングは@var{map}(デフォルトは@code{global-map})内よりルックアップ(lookup:
+照合)され、@var{icon}にたいするイメージ仕様は@code{tool-bar-add-item}と同じ方法で見つけ出される。結果のバインディングは@code{tool-bar-map}に配されるので、この関数の使用はグローバルツールバーアイテムに限定される。
 
-@var{map} must contain an appropriate keymap bound to @code{[menu-bar]}.
-The remaining arguments @var{props} are additional property list elements to
-add to the menu item specification.
+@var{map}には、@code{[menu-bar]}にバインドされた適切なキーマップが含まれていなければならない。残りの引数@var{props}は、メニューアイテム仕様に追加する、追加のプロパティリスト要素である。
 @end defun
 
 @defun tool-bar-local-item-from-menu command icon in-map &optional from-map &rest props
-This function is used for making non-global tool bar items.  Use it like
-@code{tool-bar-add-item-from-menu} except that @var{in-map} specifies the
-local map to make the definition in.  The argument @var{from-map} is like
-the @var{map} argument of @code{tool-bar-add-item-from-menu}.
+この関数は、非グローバルツールバーアイテムの作成に使用される。@var{in-map}に定義を作成するローカルマップを指定する以外は、@code{tool-bar-add-item-from-menu}と同じように使用する。引数@var{from-map}は、@code{tool-bar-add-item-from-menu}の@var{map}と同様である。
 @end defun
 
 @defvar auto-resize-tool-bars
-If this variable is non-@code{nil}, the tool bar automatically resizes to
-show all defined tool bar items---but not larger than a quarter of the
-frame's height.
+この変数が非@code{nil}の場合、定義されたすべてのツールバーアイテムを表示するために、ツールバーは自動的にリサイズ ---
+ただし、そのフレーム高さの1/4を超えてリサイズされることはない。
 
-If the value is @code{grow-only}, the tool bar expands automatically, but
-does not contract automatically.  To contract the tool bar, the user has to
-redraw the frame by entering @kbd{C-l}.
+値が@code{grow-only}の場合、ツールバーは自動的に拡張されるが、自動的に縮小はされない。ツールバーを縮小するために、ユーザーは@kbd{C-l}をエンターしてフレームを再描画する必要がある。
 
-If Emacs is built with GTK or Nextstep, the tool bar can only show one line,
-so this variable has no effect.
+GTK、またはNextstepとともにEmacsがビルドされた場合、ツールバーが表示できるのは1行だけであり、この変数は効果がない。
 @end defvar
 
 @defvar auto-raise-tool-bar-buttons
-If this variable is non-@code{nil}, tool bar items display in raised form
-when the mouse moves over them.
+この変数が非@code{nil}の場合、ツールバーアイテムの上をマウスが通過したとき、浮き上がった形式(raised form)で表示される。
 @end defvar
 
 @defvar tool-bar-button-margin
-This variable specifies an extra margin to add around tool bar items.  The
-value is an integer, a number of pixels.  The default is 4.
+この変数は、ツールバーアイテムの周囲に追加する余白(extra margin)を指定する。値はピクセル数を整数で指定し、デフォルトは4である。
 @end defvar
 
 @defvar tool-bar-button-relief
-This variable specifies the shadow width for tool bar items.  The value is
-an integer, a number of pixels.  The default is 1.
+この変数は、ツールバーアイテムの影(shadow)を指定する。値はピクセル数を整数で指定し、デフォルトは1である。
 @end defvar
 
 @defvar tool-bar-border
-This variable specifies the height of the border drawn below the tool bar
-area.  An integer specifies height as a number of pixels.  If the value is
-one of @code{internal-border-width} (the default) or @code{border-width},
-the tool bar border height corresponds to the corresponding frame parameter.
+この変数は、ツールバーエリアの下に描画するボーダー高さを指定する。値が整数の場合は、高さのピクセル数である。値が@code{internal-border-width}(デフォルト)か@code{border-width}のいずれの場合、ツールバーのボーダー高さは、そのフレームの対応するパラメーターとなる。
 @end defvar
 
-  You can define a special meaning for clicking on a tool bar item with the
-shift, control, meta, etc., modifiers.  You do this by setting up additional
-items that relate to the original item through the fake function keys.
-Specifically, the additional items should use the modified versions of the
-same fake function key used to name the original item.
+  シフト、メタ等の修飾キーを押下した状態でのツールバーアイテムのクリックにたいして、特別な意味を付与できます。偽りのファンクションキーを通じて、元のアイテムに関連する追加アイテムをセットアップすることにより、これを行うことができます。より具体的には、追加アイテムは、元のアイテムの命名に使用されたのと同じ偽ファンクションキーの修飾されたバージョンを使用するべきです。
 
-  Thus, if the original item was defined this way,
+  つまり、元のアイテムが以下のように定義されている場合、
 
 @example
 (define-key global-map [tool-bar shell]
@@ -2020,15 +1952,13 @@ same fake function key used to name the original item.
 @end example
 
 @noindent
-then here is how you can define clicking on the same tool bar image with the
-shift modifier:
+シフト修飾とともに同じツールバーイメージをクリックしたときは、以下のような方法で定義することができます:
 
 @example
 (define-key global-map [tool-bar S-shell] 'some-command)
 @end example
 
-@xref{Function Keys}, for more information about how to add modifiers to
-function keys.
+ファンクションキーにたいして修飾を追加する方法についての詳細な情報は、@ref{Function Keys}を参照してください。
 
 @node Modifying Menus
 @subsection Modifying Menus
