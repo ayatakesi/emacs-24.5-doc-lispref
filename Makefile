@@ -5,8 +5,8 @@ html:	elisp.html
 
 elisp.html :  control.texi functions.texi lists.texi objects.texi symbols.texi customize.texi hash.texi macros.texi sequences.texi variables.texi eval.texi intro.texi numbers.texi strings.texi loading.texi compile.texi debugging.texi edebug.texi streams.texi minibuf.texi commands.texi keymaps.texi
 	texi2any --set-customization-variable TEXI2HTML=1 elisp.texi && \
-        cp -f elisp.html ~/storage/shared/Documents
-
-elisp_html/index.html : elisp.html
+        cp -f elisp.html ~/storage/shared/Documents && \
 	makeinfo -o elisp_html/ --html elisp.texi && \
-        cp -fr elisp_html ~/storage/shared/Documents
+        rm -fr ~/storage/shared/Documents/elisp_html && \
+        cp -fr  elisp_html ~/storage/shared/Documents
+

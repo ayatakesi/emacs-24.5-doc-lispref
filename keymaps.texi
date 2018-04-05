@@ -1964,22 +1964,14 @@ GTK、またはNextstepとともにEmacsがビルドされた場合、ツール�
 @subsection Modifying Menus
 @cindex menu modification
 
-  When you insert a new item in an existing menu, you probably want to put it
-in a particular place among the menu's existing items.  If you use
-@code{define-key} to add the item, it normally goes at the front of the
-menu.  To put it elsewhere in the menu, use @code{define-key-after}:
+  既存のメニューに新たなアイテムを挿入するときは、そのメニューの既存のアイテムの中の特定の位置にアイテムを追加したいと思うかもしれません。@code{define-key}を使用してアイテムを追加した場合は通常、そのアイテムはメニューの先頭に追加されます。メニュー内の他の位置にアイテムを追加するには、@code{define-key-after}を使用します:
 
 @defun define-key-after map key binding &optional after
-Define a binding in @var{map} for @var{key}, with value @var{binding}, just
-like @code{define-key}, but position the binding in @var{map} after the
-binding for the event @var{after}.  The argument @var{key} should be of
-length one---a vector or string with just one element.  But @var{after}
-should be a single event type---a symbol or a character, not a sequence.
-The new binding goes after the binding for @var{after}.  If @var{after} is
-@code{t} or is omitted, then the new binding goes last, at the end of the
-keymap.  However, new bindings are added before any inherited keymap.
+@code{define-key}と同じように、@var{map}内に@var{key}にたいする値@var{binding}のバインディングを定義するが、@var{map}内でそのバインディングの位置は、イベント@var{after}にたいするバインディングの後になる。引数@var{key}は長さ1
+--- 1要素だけのベクターか文字列にすべきである。しかし@var{after}は単一のイベント型 ---
+シーケンスではないシンボルか文字にすべきである。新たなバインディングは、@var{after}にたいするバインディングの後に追加される。@var{after}が@code{t}、または省略された場合、新たなバインディングはそのキーマップの最後に追加される。しかし、新たなバインディングは、すべての継承されたキーマップの前に追加される。
 
-Here is an example:
+以下に例を示す:
 
 @example
 (define-key-after my-menu [drink]
@@ -1987,11 +1979,9 @@ Here is an example:
 @end example
 
 @noindent
-makes a binding for the fake function key @key{DRINK} and puts it right
-after the binding for @key{EAT}.
+これは、偽ファンクションキー@key{DRINK}にたいするバインディングを作成して、@key{EAT}にたいするバインディングの直後に追加する。
 
-Here is how to insert an item called @samp{Work} in the @samp{Signals} menu
-of Shell mode, after the item @code{break}:
+以下に、Shellモードの@samp{Signals}メニュー内のアイテム@code{break}の後に、@samp{Work}と呼ばれるアイテムを追加する方法を示す:
 
 @example
 (define-key-after

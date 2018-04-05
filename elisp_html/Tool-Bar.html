@@ -160,74 +160,50 @@ algorithm)を適用することにより、ツールバーの無効な状態の�
 
 <dl>
 <dt><a name="index-tool_002dbar_002dadd_002ditem_002dfrom_002dmenu"></a>Function: <strong>tool-bar-add-item-from-menu</strong> <em>command icon &amp;optional map &amp;rest props</em></dt>
-<dd><p>This function is a convenience for defining tool bar items which are
-consistent with existing menu bar bindings.  The binding of <var>command</var> is
-looked up in the menu bar in <var>map</var> (default <code>global-map</code>) and
-modified to add an image specification for <var>icon</var>, which is found in the
-same way as by <code>tool-bar-add-item</code>.  The resulting binding is then
-placed in <code>tool-bar-map</code>, so use this function only for global tool bar
-items.
+<dd><p>この関数は、既存のメニューバインディングと矛盾しないツールバーアイテムの定義に有用である。<var>command</var>のバインディングは<var>map</var>(デフォルトは<code>global-map</code>)内よりルックアップ(lookup:
+照合)され、<var>icon</var>にたいするイメージ仕様は<code>tool-bar-add-item</code>と同じ方法で見つけ出される。結果のバインディングは<code>tool-bar-map</code>に配されるので、この関数の使用はグローバルツールバーアイテムに限定される。
 </p>
-<p><var>map</var> must contain an appropriate keymap bound to <code>[menu-bar]</code>.
-The remaining arguments <var>props</var> are additional property list elements to
-add to the menu item specification.
+<p><var>map</var>には、<code>[menu-bar]</code>にバインドされた適切なキーマップが含まれていなければならない。残りの引数<var>props</var>は、メニューアイテム仕様に追加する、追加のプロパティリスト要素である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-tool_002dbar_002dlocal_002ditem_002dfrom_002dmenu"></a>Function: <strong>tool-bar-local-item-from-menu</strong> <em>command icon in-map &amp;optional from-map &amp;rest props</em></dt>
-<dd><p>This function is used for making non-global tool bar items.  Use it like
-<code>tool-bar-add-item-from-menu</code> except that <var>in-map</var> specifies the
-local map to make the definition in.  The argument <var>from-map</var> is like
-the <var>map</var> argument of <code>tool-bar-add-item-from-menu</code>.
+<dd><p>この関数は、非グローバルツールバーアイテムの作成に使用される。<var>in-map</var>に定義を作成するローカルマップを指定する以外は、<code>tool-bar-add-item-from-menu</code>と同じように使用する。引数<var>from-map</var>は、<code>tool-bar-add-item-from-menu</code>の<var>map</var>と同様である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-auto_002dresize_002dtool_002dbars"></a>Variable: <strong>auto-resize-tool-bars</strong></dt>
-<dd><p>If this variable is non-<code>nil</code>, the tool bar automatically resizes to
-show all defined tool bar items&mdash;but not larger than a quarter of the
-frame&rsquo;s height.
+<dd><p>この変数が非<code>nil</code>の場合、定義されたすべてのツールバーアイテムを表示するために、ツールバーは自動的にリサイズ &mdash;
+ただし、そのフレーム高さの1/4を超えてリサイズされることはない。
 </p>
-<p>If the value is <code>grow-only</code>, the tool bar expands automatically, but
-does not contract automatically.  To contract the tool bar, the user has to
-redraw the frame by entering <kbd>C-l</kbd>.
+<p>値が<code>grow-only</code>の場合、ツールバーは自動的に拡張されるが、自動的に縮小はされない。ツールバーを縮小するために、ユーザーは<kbd>C-l</kbd>をエンターしてフレームを再描画する必要がある。
 </p>
-<p>If Emacs is built with GTK or Nextstep, the tool bar can only show one line,
-so this variable has no effect.
+<p>GTK、またはNextstepとともにEmacsがビルドされた場合、ツールバーが表示できるのは1行だけであり、この変数は効果がない。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-auto_002draise_002dtool_002dbar_002dbuttons"></a>Variable: <strong>auto-raise-tool-bar-buttons</strong></dt>
-<dd><p>If this variable is non-<code>nil</code>, tool bar items display in raised form
-when the mouse moves over them.
+<dd><p>この変数が非<code>nil</code>の場合、ツールバーアイテムの上をマウスが通過したとき、浮き上がった形式(raised form)で表示される。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-tool_002dbar_002dbutton_002dmargin"></a>Variable: <strong>tool-bar-button-margin</strong></dt>
-<dd><p>This variable specifies an extra margin to add around tool bar items.  The
-value is an integer, a number of pixels.  The default is 4.
+<dd><p>この変数は、ツールバーアイテムの周囲に追加する余白(extra margin)を指定する。値はピクセル数を整数で指定し、デフォルトは4である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-tool_002dbar_002dbutton_002drelief"></a>Variable: <strong>tool-bar-button-relief</strong></dt>
-<dd><p>This variable specifies the shadow width for tool bar items.  The value is
-an integer, a number of pixels.  The default is 1.
+<dd><p>この変数は、ツールバーアイテムの影(shadow)を指定する。値はピクセル数を整数で指定し、デフォルトは1である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-tool_002dbar_002dborder"></a>Variable: <strong>tool-bar-border</strong></dt>
-<dd><p>This variable specifies the height of the border drawn below the tool bar
-area.  An integer specifies height as a number of pixels.  If the value is
-one of <code>internal-border-width</code> (the default) or <code>border-width</code>,
-the tool bar border height corresponds to the corresponding frame parameter.
+<dd><p>この変数は、ツールバーエリアの下に描画するボーダー高さを指定する。値が整数の場合は、高さのピクセル数である。値が<code>internal-border-width</code>(デフォルト)か<code>border-width</code>のいずれの場合、ツールバーのボーダー高さは、そのフレームの対応するパラメーターとなる。
 </p></dd></dl>
 
-<p>You can define a special meaning for clicking on a tool bar item with the
-shift, control, meta, etc., modifiers.  You do this by setting up additional
-items that relate to the original item through the fake function keys.
-Specifically, the additional items should use the modified versions of the
-same fake function key used to name the original item.
+<p>シフト、メタ等の修飾キーを押下した状態でのツールバーアイテムのクリックにたいして、特別な意味を付与できます。偽りのファンクションキーを通じて、元のアイテムに関連する追加アイテムをセットアップすることにより、これを行うことができます。より具体的には、追加アイテムは、元のアイテムの命名に使用されたのと同じ偽ファンクションキーの修飾されたバージョンを使用するべきです。
 </p>
-<p>Thus, if the original item was defined this way,
+<p>つまり、元のアイテムが以下のように定義されている場合、
 </p>
 <div class="example">
 <pre class="example">(define-key global-map [tool-bar shell]
@@ -235,21 +211,14 @@ same fake function key used to name the original item.
               :image (image :type xpm :file &quot;shell.xpm&quot;)))
 </pre></div>
 
-<p>then here is how you can define clicking on the same tool bar image with the
-shift modifier:
+<p>シフト修飾とともに同じツールバーイメージをクリックしたときは、以下のような方法で定義することができます:
 </p>
 <div class="example">
 <pre class="example">(define-key global-map [tool-bar S-shell] 'some-command)
 </pre></div>
 
-<p>See <a href="Function-Keys.html#Function-Keys">Function Keys</a>, for more information about how to add modifiers to
-function keys.
+<p>ファンクションキーにたいして修飾を追加する方法についての詳細な情報は、<a href="Function-Keys.html#Function-Keys">Function Keys</a>を参照してください。
 </p>
-<hr>
-<div class="header">
-<p>
-Next: <a href="Modifying-Menus.html#Modifying-Menus" accesskey="n" rel="next">Modifying Menus</a>, Previous: <a href="Menu-Bar.html#Menu-Bar" accesskey="p" rel="prev">Menu Bar</a>, Up: <a href="Menu-Keymaps.html#Menu-Keymaps" accesskey="u" rel="up">Menu Keymaps</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 
