@@ -1404,11 +1404,8 @@ Commands}を参照)を扱う方法を決定する。興味深いケースが2つ
 
 @table @asis
 @item コマンド@var{other-command}が@var{command}にリマップされる場合:
-If @var{no-remap} is @code{nil}, find the bindings for @var{other-command}
-and treat them as though they are also bindings for @var{command}.  If
-@var{no-remap} is non-@code{nil}, include the vector @code{[remap
-@var{other-command}]} in the list of possible key sequences, instead of
-finding those bindings.
+@var{no-remap}が@code{nil}の場合は、@var{other-command}にたいするバインディングを探して、@var{command}にたいするバインディングであるかのようにそれらを扱う。@var{no-remap}が非@code{nil}の場合は、それらのバインディングを探すかわりに、利用可能なキーシーケンスリストに、ベクター@code{[remap
+@var{other-command}]}を含める。
 
 @item If @var{command} is remapped to @var{other-command}:
 @var{no-remap}が@code{nil}の場合は、@var{command}ではなく@var{other-command}にたいするバインディングをリターンする。@var{no-remap}が非@code{nil}の場合は、リマップされていることを無視して、@var{command}にたいするバインディングをリターンする。
@@ -1993,117 +1990,85 @@ GTK、またはNextstepとともにEmacsがビルドされた場合、ツール�
 @node Easy Menu
 @subsection Easy Menu
 
-  The following macro provides a convenient way to define pop-up menus and/or
-menu bar menus.
+  以下のマクロは、ポップアップメニュー、および/またはメニューバーメニューを定義する便利な方法を提供します。
 
 @defmac easy-menu-define symbol maps doc menu
-This macro defines a pop-up menu and/or menu bar submenu, whose contents are
-given by @var{menu}.
+このマクロは、@var{menu}により与えるコンテンツのポップアップメニュー、および/またはメニューバーサブメニューを定義する。
 
-If @var{symbol} is non-@code{nil}, it should be a symbol; then this macro
-defines @var{symbol} as a function for popping up the menu (@pxref{Pop-Up
-Menus}), with @var{doc} as its documentation string.  @var{symbol} should
-not be quoted.
+@var{symbol}が非@code{nil}の場合、それはシンボルである。その場合、このマクロはドキュメント文字列@var{doc}をもつ、メニューをポップアップ(@ref{Pop-Up
+Menus}を参照)する関数として@var{symbol}をを定義する。@var{symbol}はクォートされるべきではない。
 
-Regardless of the value of @var{symbol}, if @var{maps} is a keymap, the menu
-is added to that keymap, as a top-level menu for the menu bar (@pxref{Menu
-Bar}).  It can also be a list of keymaps, in which case the menu is added
-separately to each of those keymaps.
+@var{symbol}の値とは関係なく、@var{maps}がキーマップの場合、メニューはメニューバーのトップレベルのメニュー(@ref{Menu
+Bar}を参照)として@var{maps}に追加される。これにはキーマップのリストも指定でき、その場合メニューはそれらのキーマップに個別に追加される。
 
-The first element of @var{menu} must be a string, which serves as the menu
-label.  It may be followed by any number of the following keyword-argument
-pairs:
+@var{menu}の最初の要素は文字列でなければならず、それはメニューラベルの役割をもつ。値には、以下のキーワード/引数ペアーが任意の個数続くかもしれない:
 
 @table @code
 @item :filter @var{function}
-@var{function} must be a function which, if called with one argument---the
-list of the other menu items---returns the actual items to be displayed in
-the menu.
+@var{function}は1つの引数(他のメニューアイテムのリスト)で呼び出される関数でなければならず、メニュー内に表示される実際のアイテムをリターンする。
 
 @item :visible @var{include}
-@var{include} is an expression; if it evaluates to @code{nil}, the menu is
-made invisible.  @code{:included} is an alias for @code{:visible}.
+@var{include}には式を指定する。その式が@code{nil}に評価された場合、メニューは不可視になる。@code{:included}は、@code{:visible}にたいするエイリアスである。
 
 @item :active @var{enable}
-@var{enable} is an expression; if it evaluates to @code{nil}, the menu is
-not selectable.  @code{:enable} is an alias for @code{:active}.
+@var{enable}は式を。指定する。その式が@code{nil}に評価された場合、メニューは選択不可になる。@code{:enable}は、@code{:active}にたいするエイリアスである。
 @end table
 
-The remaining elements in @var{menu} are menu items.
+@var{menu}内の残りの要素は、メニューアイテムである。
 
-A menu item can be a vector of three elements, @code{[@var{name}
-@var{callback} @var{enable}]}.  @var{name} is the menu item name (a
-string).  @var{callback} is a command to run, or an expression to evaluate,
-when the item is chosen.  @var{enable} is an expression; if it evaluates to
-@code{nil}, the item is disabled for selection.
+メニューアイテムには、3要素のベクター@code{[@var{name} @var{callback}
+@var{enable}]}を指定できる。ここで@var{name}はメニューアイテム名(文字列)、@var{callback}はアイテム選択時に実行するコマンド、または評価される式である。@var{enable}は式であり、@code{nil}に評価された場合、そのアイテムにたいする選択は無効になる。
 
-Alternatively, a menu item may have the form:
+かわりに、メニューアイテムは以下の形式をもつかもしれない:
 
 @smallexample
    [ @var{name} @var{callback} [ @var{keyword} @var{arg} ]... ]
 @end smallexample
 
 @noindent
-where @var{name} and @var{callback} have the same meanings as above, and
-each optional @var{keyword} and @var{arg} pair should be one of the
-following:
+ここで@var{name}と@var{callback}は上記と同じ意味をもち、オプションの@var{keyword}と@var{arg}の各ペアーは、以下のいずれかである:
 
 @table @code
 @item :keys @var{keys}
-@var{keys} is a keyboard equivalent to the menu item (a string).  This is
-normally not needed, as keyboard equivalents are computed automatically.
-@var{keys} is expanded with @code{substitute-command-keys} before it is
-displayed (@pxref{Keys in Documentation}).
+@var{keys}は、メニューアイテムにたいする等価なキーボード入力(文字列)である。等価なキーボード入力は自動的に計算されるので、通常は必要ない。@var{keys}は、表示される前に@code{substitute-command-keys}により展開される(@ref{Keys
+in Documentation}を参照)。
 
 @item :key-sequence @var{keys}
-@var{keys} is a hint for speeding up Emacs's first display of the menu.  It
-should be @code{nil} if you know that the menu item has no keyboard
-equivalent; otherwise it should be a string or vector specifying a keyboard
-equivalent for the menu item.
+@var{keys}は、最初にメニューを表示されるかをする際、Emacsを高速化するヒントになる。等価なキーボード入力のないことが既知の場合は、@code{nil}を指定すべきである。それ以外では、メニューアイテムにたいする等価なキーボード入力を指定する文字列、またはベクターを指定すべきである。
 
 @item :active @var{enable}
-@var{enable} is an expression; if it evaluates to @code{nil}, the item is
-make unselectable..  @code{:enable} is an alias for @code{:active}.
+@var{enable}には式を指定する。その式が@code{nil}に評価された場合、アイテムは選択不可になる。@var{enable}は、@code{:active}にたいするエイリアスである。
 
 @item :visible @var{include}
-@var{include} is an expression; if it evaluates to @code{nil}, the item is
-made invisible.  @code{:included} is an alias for @code{:visible}.
+@var{include}には式を指定する。その式が@code{nil}に評価された場合、アイテムは不可視になる。@code{:included}は、@code{:visible}にたいするエイリアスである。
 
 @item :label @var{form}
-@var{form} is an expression that is evaluated to obtain a value which serves
-as the menu item's label (the default is @var{name}).
+@var{form}は、メニューアイテムのラベル(デフォルトは@var{name})の役目をもつ値を取得するために表示される式である。
 
 @item :suffix @var{form}
-@var{form} is an expression that is dynamically evaluated and whose value is
-concatenated with the menu entry's label.
+@var{form}は、動的に評価される式であり、値はメニューエントリーのラベルに結合される。
 
 @item :style @var{style}
-@var{style} is a symbol describing the type of menu item; it should be
-@code{toggle} (a checkbox), or @code{radio} (a radio button), or anything
-else (meaning an ordinary menu item).
+@var{style}は、メニューアイテムの型を記述するシンボルであり、@code{toggle}(チェックボックス)、@code{radio}(ラジオボタン)、またはそれ以外(通常のメニューアイテムであることを意味する)のいずれかである。
 
 @item :selected @var{selected}
-@var{selected} is an expression; the checkbox or radio button is selected
-whenever the expression's value is non-@code{nil}.
+@var{selected}には式を指定し、その式の値が非@code{nil}のときはチェックボックス、またはラジオボタンが選択状態になる。
 
 @item :help @var{help}
-@var{help} is a string describing the menu item.
+@var{help}は、メニューアイテムを説明する文字列である。
 @end table
 
-Alternatively, a menu item can be a string.  Then that string appears in the
-menu as unselectable text.  A string consisting of dashes is displayed as a
-separator (@pxref{Menu Separators}).
+かわりに、メニューアイテムに文字列を指定できる。その場合、文字列は選択不可なテキストとしてメニューに表示される。ダッシュから構成される文字列は、セパレーターとして表示される(@ref{Menu
+Separators}を参照)
 
-Alternatively, a menu item can be a list with the same format as
-@var{menu}.  This is a submenu.
+かわりに、メニューアイテムに@var{menu}と同じフォーマットのリストを指定できる。これはサブメニューとなる。
 @end defmac
 
-Here is an example of using @code{easy-menu-define} to define a menu similar
-to the one defined in the example in @ref{Menu Bar}:
+以下は、@code{easy-menu-define}を使用して、@ref{Menu Bar}内で定義したメニューと同等なメニューを定義する例である:
 
 @example
 (easy-menu-define words-menu global-map
-  "Menu for word navigation commands."
+  "単語単位コマンドにたいするメニュー"
   '("Words"
      ["Forward word" forward-word]
      ["Backward word" backward-word]))

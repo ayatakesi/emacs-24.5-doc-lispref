@@ -73,136 +73,97 @@ Previous: <a href="Modifying-Menus.html#Modifying-Menus" accesskey="p" rel="prev
 <a name="Easy-Menu-1"></a>
 <h4 class="subsection">21.17.8 Easy Menu</h4>
 
-<p>The following macro provides a convenient way to define pop-up menus and/or
-menu bar menus.
+<p>以下のマクロは、ポップアップメニュー、および/またはメニューバーメニューを定義する便利な方法を提供します。
 </p>
 <dl>
 <dt><a name="index-easy_002dmenu_002ddefine"></a>Macro: <strong>easy-menu-define</strong> <em>symbol maps doc menu</em></dt>
-<dd><p>This macro defines a pop-up menu and/or menu bar submenu, whose contents are
-given by <var>menu</var>.
+<dd><p>このマクロは、<var>menu</var>により与えるコンテンツのポップアップメニュー、および/またはメニューバーサブメニューを定義する。
 </p>
-<p>If <var>symbol</var> is non-<code>nil</code>, it should be a symbol; then this macro
-defines <var>symbol</var> as a function for popping up the menu (see <a href="Pop_002dUp-Menus.html#Pop_002dUp-Menus">Pop-Up Menus</a>), with <var>doc</var> as its documentation string.  <var>symbol</var> should
-not be quoted.
+<p><var>symbol</var>が非<code>nil</code>の場合、それはシンボルである。その場合、このマクロはドキュメント文字列<var>doc</var>をもつ、メニューをポップアップ(<a href="Pop_002dUp-Menus.html#Pop_002dUp-Menus">Pop-Up Menus</a>を参照)する関数として<var>symbol</var>をを定義する。<var>symbol</var>はクォートされるべきではない。
 </p>
-<p>Regardless of the value of <var>symbol</var>, if <var>maps</var> is a keymap, the menu
-is added to that keymap, as a top-level menu for the menu bar (see <a href="Menu-Bar.html#Menu-Bar">Menu Bar</a>).  It can also be a list of keymaps, in which case the menu is added
-separately to each of those keymaps.
+<p><var>symbol</var>の値とは関係なく、<var>maps</var>がキーマップの場合、メニューはメニューバーのトップレベルのメニュー(<a href="Menu-Bar.html#Menu-Bar">Menu Bar</a>を参照)として<var>maps</var>に追加される。これにはキーマップのリストも指定でき、その場合メニューはそれらのキーマップに個別に追加される。
 </p>
-<p>The first element of <var>menu</var> must be a string, which serves as the menu
-label.  It may be followed by any number of the following keyword-argument
-pairs:
+<p><var>menu</var>の最初の要素は文字列でなければならず、それはメニューラベルの役割をもつ。値には、以下のキーワード/引数ペアーが任意の個数続くかもしれない:
 </p>
 <dl compact="compact">
 <dt><code>:filter <var>function</var></code></dt>
-<dd><p><var>function</var> must be a function which, if called with one argument&mdash;the
-list of the other menu items&mdash;returns the actual items to be displayed in
-the menu.
+<dd><p><var>function</var>は1つの引数(他のメニューアイテムのリスト)で呼び出される関数でなければならず、メニュー内に表示される実際のアイテムをリターンする。
 </p>
 </dd>
 <dt><code>:visible <var>include</var></code></dt>
-<dd><p><var>include</var> is an expression; if it evaluates to <code>nil</code>, the menu is
-made invisible.  <code>:included</code> is an alias for <code>:visible</code>.
+<dd><p><var>include</var>には式を指定する。その式が<code>nil</code>に評価された場合、メニューは不可視になる。<code>:included</code>は、<code>:visible</code>にたいするエイリアスである。
 </p>
 </dd>
 <dt><code>:active <var>enable</var></code></dt>
-<dd><p><var>enable</var> is an expression; if it evaluates to <code>nil</code>, the menu is
-not selectable.  <code>:enable</code> is an alias for <code>:active</code>.
+<dd><p><var>enable</var>は式を。指定する。その式が<code>nil</code>に評価された場合、メニューは選択不可になる。<code>:enable</code>は、<code>:active</code>にたいするエイリアスである。
 </p></dd>
 </dl>
 
-<p>The remaining elements in <var>menu</var> are menu items.
+<p><var>menu</var>内の残りの要素は、メニューアイテムである。
 </p>
-<p>A menu item can be a vector of three elements, <code>[<var>name</var>
-<var>callback</var> <var>enable</var>]</code>.  <var>name</var> is the menu item name (a
-string).  <var>callback</var> is a command to run, or an expression to evaluate,
-when the item is chosen.  <var>enable</var> is an expression; if it evaluates to
-<code>nil</code>, the item is disabled for selection.
+<p>メニューアイテムには、3要素のベクター<code>[<var>name</var> <var>callback</var>
+<var>enable</var>]</code>を指定できる。ここで<var>name</var>はメニューアイテム名(文字列)、<var>callback</var>はアイテム選択時に実行するコマンド、または評価される式である。<var>enable</var>は式であり、<code>nil</code>に評価された場合、そのアイテムにたいする選択は無効になる。
 </p>
-<p>Alternatively, a menu item may have the form:
+<p>かわりに、メニューアイテムは以下の形式をもつかもしれない:
 </p>
 <div class="smallexample">
 <pre class="smallexample">   [ <var>name</var> <var>callback</var> [ <var>keyword</var> <var>arg</var> ]... ]
 </pre></div>
 
-<p>where <var>name</var> and <var>callback</var> have the same meanings as above, and
-each optional <var>keyword</var> and <var>arg</var> pair should be one of the
-following:
+<p>ここで<var>name</var>と<var>callback</var>は上記と同じ意味をもち、オプションの<var>keyword</var>と<var>arg</var>の各ペアーは、以下のいずれかである:
 </p>
 <dl compact="compact">
 <dt><code>:keys <var>keys</var></code></dt>
-<dd><p><var>keys</var> is a keyboard equivalent to the menu item (a string).  This is
-normally not needed, as keyboard equivalents are computed automatically.
-<var>keys</var> is expanded with <code>substitute-command-keys</code> before it is
-displayed (see <a href="Keys-in-Documentation.html#Keys-in-Documentation">Keys in Documentation</a>).
+<dd><p><var>keys</var>は、メニューアイテムにたいする等価なキーボード入力(文字列)である。等価なキーボード入力は自動的に計算されるので、通常は必要ない。<var>keys</var>は、表示される前に<code>substitute-command-keys</code>により展開される(<a href="Keys-in-Documentation.html#Keys-in-Documentation">Keys in Documentation</a>を参照)。
 </p>
 </dd>
 <dt><code>:key-sequence <var>keys</var></code></dt>
-<dd><p><var>keys</var> is a hint for speeding up Emacs&rsquo;s first display of the menu.  It
-should be <code>nil</code> if you know that the menu item has no keyboard
-equivalent; otherwise it should be a string or vector specifying a keyboard
-equivalent for the menu item.
+<dd><p><var>keys</var>は、最初にメニューを表示されるかをする際、Emacsを高速化するヒントになる。等価なキーボード入力のないことが既知の場合は、<code>nil</code>を指定すべきである。それ以外では、メニューアイテムにたいする等価なキーボード入力を指定する文字列、またはベクターを指定すべきである。
 </p>
 </dd>
 <dt><code>:active <var>enable</var></code></dt>
-<dd><p><var>enable</var> is an expression; if it evaluates to <code>nil</code>, the item is
-make unselectable..  <code>:enable</code> is an alias for <code>:active</code>.
+<dd><p><var>enable</var>には式を指定する。その式が<code>nil</code>に評価された場合、アイテムは選択不可になる。<var>enable</var>は、<code>:active</code>にたいするエイリアスである。
 </p>
 </dd>
 <dt><code>:visible <var>include</var></code></dt>
-<dd><p><var>include</var> is an expression; if it evaluates to <code>nil</code>, the item is
-made invisible.  <code>:included</code> is an alias for <code>:visible</code>.
+<dd><p><var>include</var>には式を指定する。その式が<code>nil</code>に評価された場合、アイテムは不可視になる。<code>:included</code>は、<code>:visible</code>にたいするエイリアスである。
 </p>
 </dd>
 <dt><code>:label <var>form</var></code></dt>
-<dd><p><var>form</var> is an expression that is evaluated to obtain a value which serves
-as the menu item&rsquo;s label (the default is <var>name</var>).
+<dd><p><var>form</var>は、メニューアイテムのラベル(デフォルトは<var>name</var>)の役目をもつ値を取得するために表示される式である。
 </p>
 </dd>
 <dt><code>:suffix <var>form</var></code></dt>
-<dd><p><var>form</var> is an expression that is dynamically evaluated and whose value is
-concatenated with the menu entry&rsquo;s label.
+<dd><p><var>form</var>は、動的に評価される式であり、値はメニューエントリーのラベルに結合される。
 </p>
 </dd>
 <dt><code>:style <var>style</var></code></dt>
-<dd><p><var>style</var> is a symbol describing the type of menu item; it should be
-<code>toggle</code> (a checkbox), or <code>radio</code> (a radio button), or anything
-else (meaning an ordinary menu item).
+<dd><p><var>style</var>は、メニューアイテムの型を記述するシンボルであり、<code>toggle</code>(チェックボックス)、<code>radio</code>(ラジオボタン)、またはそれ以外(通常のメニューアイテムであることを意味する)のいずれかである。
 </p>
 </dd>
 <dt><code>:selected <var>selected</var></code></dt>
-<dd><p><var>selected</var> is an expression; the checkbox or radio button is selected
-whenever the expression&rsquo;s value is non-<code>nil</code>.
+<dd><p><var>selected</var>には式を指定し、その式の値が非<code>nil</code>のときはチェックボックス、またはラジオボタンが選択状態になる。
 </p>
 </dd>
 <dt><code>:help <var>help</var></code></dt>
-<dd><p><var>help</var> is a string describing the menu item.
+<dd><p><var>help</var>は、メニューアイテムを説明する文字列である。
 </p></dd>
 </dl>
 
-<p>Alternatively, a menu item can be a string.  Then that string appears in the
-menu as unselectable text.  A string consisting of dashes is displayed as a
-separator (see <a href="Menu-Separators.html#Menu-Separators">Menu Separators</a>).
+<p>かわりに、メニューアイテムに文字列を指定できる。その場合、文字列は選択不可なテキストとしてメニューに表示される。ダッシュから構成される文字列は、セパレーターとして表示される(<a href="Menu-Separators.html#Menu-Separators">Menu Separators</a>を参照)
 </p>
-<p>Alternatively, a menu item can be a list with the same format as
-<var>menu</var>.  This is a submenu.
+<p>かわりに、メニューアイテムに<var>menu</var>と同じフォーマットのリストを指定できる。これはサブメニューとなる。
 </p></dd></dl>
 
-<p>Here is an example of using <code>easy-menu-define</code> to define a menu similar
-to the one defined in the example in <a href="Menu-Bar.html#Menu-Bar">Menu Bar</a>:
+<p>以下は、<code>easy-menu-define</code>を使用して、<a href="Menu-Bar.html#Menu-Bar">Menu Bar</a>内で定義したメニューと同等なメニューを定義する例である:
 </p>
 <div class="example">
 <pre class="example">(easy-menu-define words-menu global-map
-  &quot;Menu for word navigation commands.&quot;
+  &quot;単語単位コマンドにたいするメニュー&quot;
   '(&quot;Words&quot;
      [&quot;Forward word&quot; forward-word]
      [&quot;Backward word&quot; backward-word]))
 </pre></div>
-<hr>
-<div class="header">
-<p>
-Previous: <a href="Modifying-Menus.html#Modifying-Menus" accesskey="p" rel="prev">Modifying Menus</a>, Up: <a href="Menu-Keymaps.html#Menu-Keymaps" accesskey="u" rel="up">Menu Keymaps</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 
