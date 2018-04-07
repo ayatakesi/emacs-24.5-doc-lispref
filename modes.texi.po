@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-04-06 11:33+0900\n"
-"PO-Revision-Date: 2018-04-06 12:24+0900\n"
+"PO-Revision-Date: 2018-04-08 05:46+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -130,83 +130,83 @@ msgstr "Desktop Save Mode"
 #. type: menuentry
 #: modes.texi.orig:31
 msgid "How modes can have buffer state saved between Emacs sessions."
-msgstr "Emacsセッション間でモードがバッファー上を保存する方法。"
+msgstr "Emacsセッション間でモードがバッファー状態を保存する方法。"
 
 #. type: cindex
 #: modes.texi.orig:35
 #, no-wrap
 msgid "hooks"
-msgstr ""
+msgstr "hooks"
 
 #. type: Plain text
 #: modes.texi.orig:42
 msgid "A @dfn{hook} is a variable where you can store a function or functions to be called on a particular occasion by an existing program.  Emacs provides hooks for the sake of customization.  Most often, hooks are set up in the init file (@pxref{Init File}), but Lisp programs can set them also.  @xref{Standard Hooks}, for a list of some standard hook variables."
-msgstr ""
+msgstr "@dfn{フック(hook)}とは、既存のプログラムから特定のタイミングで呼び出される関数(複数可)を格納することができる変数のことです。Emacsはカスタマイズ用にフックを提供します。ほとんどの場合は、initファイル内(@ref{Init File}を参照)でフックをセットアップしますが、Lispプログラムもフックをセットできます。標準的なフック変数のリストは、@ref{Standard Hooks}を参照してください。"
 
 #. type: cindex
 #: modes.texi.orig:43
 #, no-wrap
 msgid "normal hook"
-msgstr ""
+msgstr "normal hook"
 
 #. type: Plain text
 #: modes.texi.orig:49
 msgid "Most of the hooks in Emacs are @dfn{normal hooks}.  These variables contain lists of functions to be called with no arguments.  By convention, whenever the hook name ends in @samp{-hook}, that tells you it is normal.  We try to make all hooks normal, as much as possible, so that you can use them in a uniform way."
-msgstr ""
+msgstr "Emacsのほとんどのフックは、@dfn{ノーマルフック(normal hooks)}です。これらの変数は、引数なしで呼び出される、関数のリストを含んでいます。慣習により、フック名が@samp{-hook}で終わるフックは、そのフックがノーマルフックであることを意味します。わたしたちは、一貫した方法でフックを使用できるよう、すべてのフックが可能な限りノーマルフックとなるよう努力しています。"
 
 #. type: Plain text
 #: modes.texi.orig:57
 msgid "Every major mode command is supposed to run a normal hook called the @dfn{mode hook} as one of the last steps of initialization.  This makes it easy for a user to customize the behavior of the mode, by overriding the buffer-local variable assignments already made by the mode.  Most minor mode functions also run a mode hook at the end.  But hooks are used in other contexts too.  For example, the hook @code{suspend-hook} runs just before Emacs suspends itself (@pxref{Suspending Emacs})."
-msgstr ""
+msgstr "すべてのメジャーモードコマンドは、初期化の最終ステップの1つとして、@dfn{モードフック(mode hook)}と呼ばれるノーマルフックを実行するとみなされます。これにより、そのモードによりすでに作成されたバッファーローカル変数割り当てをオーバーライドすることにより、ユーザーがそのモードの動作をカスタマイズするのが簡単になります。ほとんどのマイナーモード関数も、最後にモードフックを実行します。しかし、フックは他のコンテキストでも使用されます。たとえばフック@code{suspend-hook}は、Emacsが自身をサスペンド(@ref{Suspending Emacs}を参照)する直前に実行されます。"
 
 #. type: Plain text
 #: modes.texi.orig:64
 msgid "The recommended way to add a hook function to a hook is by calling @code{add-hook} (@pxref{Setting Hooks}).  The hook functions may be any of the valid kinds of functions that @code{funcall} accepts (@pxref{What Is a Function}).  Most normal hook variables are initially void; @code{add-hook} knows how to deal with this.  You can add hooks either globally or buffer-locally with @code{add-hook}."
-msgstr ""
+msgstr "フックにフック関数を追加するには、@code{add-hook}(@ref{Setting Hooks}を参照)を呼び出す方法が推奨です。フック関数は、@code{funcall}(@ref{What Is a Function}を参照)が受け入れる任意の種類の関数を指定できます。ほとんどのフック変数の初期値はvoidです。@code{add-hook}は、これを扱う方法を知っています。@code{add-hook}により、グローバルフック、またはバッファーローカルフックのどちらを追加することも可能です。"
 
 #. type: cindex
 #: modes.texi.orig:65
 #, no-wrap
 msgid "abnormal hook"
-msgstr ""
+msgstr "abnormal hook"
 
 #. type: Plain text
 #: modes.texi.orig:73
 msgid "If the hook variable's name does not end with @samp{-hook}, that indicates it is probably an @dfn{abnormal hook}.  That means the hook functions are called with arguments, or their return values are used in some way.  The hook's documentation says how the functions are called.  You can use @code{add-hook} to add a function to an abnormal hook, but you must write the function to follow the hook's calling convention.  By convention, abnormal hook names end in @samp{-functions}."
-msgstr ""
+msgstr "フック変数の名前が@samp{-hook}で終わらない場合は、それが恐らく@dfn{アブノーマルフック(abnormal hook)}であることを示しています。こええは、フック関数が引数とともに呼ぶ出されること、または何らかの方法により、そのリターン値が使用されることを意味します。その関数の呼び出し方は、フックのドキュメントに記載されています。アブノーマルフックとして関数を追加するために@code{add-hook}を使用できますが、その関数はフック呼び出しの慣習にしたがって記述しななければなりません。慣習により、アブノーマルフックの名前は@samp{-functions}で終わります。"
 
 #. type: cindex
 #: modes.texi.orig:74
 #, no-wrap
 msgid "single-function hook"
-msgstr ""
+msgstr "single-function hook"
 
 #. type: Plain text
 #: modes.texi.orig:79
 msgid "If the variable's name ends in @samp{-function}, then its value is just a single function, not a list of functions.  @code{add-hook} cannot be used to modify such a @emph{single function hook}, and you have to use @code{add-function} instead (@pxref{Advising Functions})."
-msgstr ""
+msgstr "変数の名前が@samp{-function}で終わる場合、その値は関数のリストではなく単一の関数です。@code{add-hook}を、@emph{単一関数フック}のように修正して使用することはできないので、かわりに@code{add-function}を使用します(@ref{Advising Functions}を参照)。"
 
 #. type: subsection
 #: modes.texi.orig:83 modes.texi.orig:85 modes.texi.orig:86
 #, no-wrap
 msgid "Running Hooks"
-msgstr ""
+msgstr "Running Hooks"
 
 #. type: menuentry
 #: modes.texi.orig:83
 msgid "How to run a hook."
-msgstr ""
+msgstr "フックの実行方法。"
 
 #. type: subsection
 #: modes.texi.orig:83 modes.texi.orig:134 modes.texi.orig:135
 #, no-wrap
 msgid "Setting Hooks"
-msgstr ""
+msgstr "Setting Hooks"
 
 #. type: menuentry
 #: modes.texi.orig:83
 msgid "How to put functions on a hook, or remove them."
-msgstr ""
+msgstr "関数をフックに登録、削除する方法。"
 
 #. type: Plain text
 #: modes.texi.orig:91
