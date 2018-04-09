@@ -131,60 +131,44 @@ Functions}を参照)。
 @cindex major mode
 
 @cindex major mode command
-  Major modes specialize Emacs for editing particular kinds of text.  Each
-buffer has one major mode at a time.  Every major mode is associated with a
-@dfn{major mode command}, whose name should end in @samp{-mode}.  This
-command takes care of switching to that mode in the current buffer, by
-setting various buffer-local variables such as a local keymap.  @xref{Major
-Mode Conventions}.
+  メジャーモードは特定の種類のテキスト編集にEmacsを特化します。すべてのバッファーは1度に1つのメジャーモードをもちます。すべてのメジャーモードは、@dfn{メジャーモードコマンド(major
+mode
+command)}に関連付けられ、そのコマンド名は@samp{-mode}で終わるべきです。このコマンドは、ローカルキーマップのようなさまざまなバッファーローカル変数をセットすることにより、カレントバッファーないでそのモードに切り替える配慮をします。@ref{Major
+Mode Conventions}を参照してください。
 
-  The least specialized major mode is called @dfn{Fundamental mode}, which has
-no mode-specific definitions or variable settings.
+  @dfn{Fundamentalモード}と呼ばれるはもっとも特化されていないメジャーモードであり、モード特有な定義や変数セッティングをもちません。
 
 @deffn Command fundamental-mode
-This is the major mode command for Fundamental mode.  Unlike other mode
-commands, it does @emph{not} run any mode hooks (@pxref{Major Mode
-Conventions}), since you are not supposed to customize this mode.
+これは、Fundamentalモードにたいするメジャーモードコマンドである。他のモードコマンドと異なり、このモードはカスタマイズしてはならないことになっているので、モードフックは何も実行@emph{されない}(@ref{Major
+Mode Conventions}を参照)。
 @end deffn
 
-  The easiest way to write a major mode is to use the macro
-@code{define-derived-mode}, which sets up the new mode as a variant of an
-existing major mode.  @xref{Derived Modes}.  We recommend using
-@code{define-derived-mode} even if the new mode is not an obvious derivative
-of another mode, as it automatically enforces many coding conventions for
-you.  @xref{Basic Major Modes}, for common modes to derive from.
+  メジャーモードを記述するもっとも簡単な方法は、マクロ@code{define-derived-mode}を使用する方法です。これは、既存のメジャーモードを変形して、新たなモードをセットアップします。@ref{Derived
+Modes}を参照してください。@code{define-derived-mode}は多くのコーディング規約を自動的に強要するので、たとえ新たなモードが他のモードから明示的に派生されない場合でも、わたしたちは@code{define-derived-mode}の使用を推奨します。派生元とするための一般的なモードについては、@ref{Basic
+Major Modes}を参照してください。
 
-  The standard GNU Emacs Lisp directory tree contains the code for several
-major modes, in files such as @file{text-mode.el}, @file{texinfo.el},
-@file{lisp-mode.el}, and @file{rmail.el}.  You can study these libraries to
-see how modes are written.
+  標準的なGNU
+EmacsのLispディレクトリーツリーには、いくつかのメジャーモードが@file{text-mode.el}、@file{texinfo.el}、@file{lisp-mode.el}、@file{rmail.el}のようなファイルとして含まれています。モードの記述方法を確認するために、これらのライブラリーを学ぶことができます。
 
 @defopt major-mode
-The buffer-local value of this variable holds the symbol for the current
-major mode.  Its default value holds the default major mode for new
-buffers.  The standard default value is @code{fundamental-mode}.
+この変数のバッファーローカル値は、カレントのメジャーモードにたいするシンボルを保持する。この変数のデフォルト値は、新たなバッファーにたいするデフォルトのメジャーモードを保持する。標準的なデフォルト値は、@code{fundamental-mode}である。
 
-If the default value is @code{nil}, then whenever Emacs creates a new buffer
-via a command such as @kbd{C-x b} (@code{switch-to-buffer}), the new buffer
-is put in the major mode of the previously current buffer.  As an exception,
-if the major mode of the previous buffer has a @code{mode-class} symbol
-property with value @code{special}, the new buffer is put in Fundamental
-mode (@pxref{Major Mode Conventions}).
+デフォルト値が@code{nil}の場合、@kbd{C-x
+b}(@code{switch-to-buffer})のようなコマンドを通じてEmacsが新たなバッファーを作成したとき、新たなバッファーは以前カレントだったバッファーのメジャーモードになる。例外として、以前のバッファーのメジャーモードのシンボルプロパティ@code{mode-class}が値@code{special}をもつ場合、新たなバッファーはFundamentalモードになる(@ref{Major
+Mode Conventions}を参照)。
 @end defopt
 
 @menu
-* Major Mode Conventions::   Coding conventions for keymaps, etc.
-* Auto Major Mode::          How Emacs chooses the major mode automatically.
-* Mode Help::                Finding out how to use a mode.
-* Derived Modes::            Defining a new major mode based on another 
-                               major mode.
-* Basic Major Modes::        Modes that other modes are often derived from.
-* Mode Hooks::               Hooks run at the end of major mode functions.
-* Tabulated List Mode::      Parent mode for buffers containing tabulated 
-                               data.
-* Generic Modes::            Defining a simple major mode that supports 
-                               comment syntax and Font Lockmode.
-* Example Major Modes::      Text mode and Lisp modes.
+* Major Mode Conventions::   キーマップなどにたいするコーディング規約。
+* Auto Major Mode::          Emacsが自動的にメジャーモードを選択する方法。
+* Mode Help::                モードの使用方法の探し方。
+* Derived Modes::            他のメジャーモードにもとづき新たなメジャーモードを定義する。
+* Basic Major Modes::        他のモードからよく派生元とさｒｗるモード。
+* Mode Hooks::               メジャーモード関数の最後に実行されるフック。
+* Tabulated List Mode::      表形式データを含むバッファーにたいする親モード。
+* Generic Modes::            コメント構文とFont 
+                               Lockモードをサポートするシンプルなメジャーモードの定義。
+* Example Major Modes::      TextモードとLispモード。
 @end menu
 
 @node Major Mode Conventions
