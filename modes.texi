@@ -176,206 +176,129 @@ Mode Conventions}を参照)。
 @cindex major mode conventions
 @cindex conventions for writing major modes
 
-  The code for every major mode should follow various coding conventions,
-including conventions for local keymap and syntax table initialization,
-function and variable names, and hooks.
+  メジャーモードにたいするすべてのコードはさまざまなコーディング規約にしたがうべきであり、それらの規約にはローカルキーマップおよび構文テーブルの初期化、関数名や変数名、フックにたいする規約が含まれます。
 
-  If you use the @code{define-derived-mode} macro, it will take care of many
-of these conventions automatically.  @xref{Derived Modes}.  Note also that
-Fundamental mode is an exception to many of these conventions, because it
-represents the default state of Emacs.
+  @code{define-derived-mode}マクロを使用した場合は、これらの規約を自動的に配慮します。@ref{Derived
+Modes}を参照してください。Fundamentalモードは、Emacsのデフォルト状態を表すモードなにで、これらの規約が当てはまらないことに注意してください。
 
-  The following list of conventions is only partial.  Each major mode should
-aim for consistency in general with other Emacs major modes, as this makes
-Emacs as a whole more coherent.  It is impossible to list here all the
-possible points where this issue might come up; if the Emacs developers
-point out an area where your major mode deviates from the usual conventions,
-please make it compatible.
+  以下の規約リストは、ほんの一部です。一般的に、すべてのメジャーモードは、Emacs全体が首尾一貫するよう、他のEmacsメジャーモードとの一貫性を目指すべきです。ここで、この問題を洗い出すすべての想定される要点をリストするのは不可能です。Emacs開発者が、自身の開発するメジャーモードが通常の規約を逸脱する領域を示す場合は、互換性を保つようにしてください。
 
 @itemize @bullet
 @item
-Define a major mode command whose name ends in @samp{-mode}.  When called
-with no arguments, this command should switch to the new mode in the current
-buffer by setting up the keymap, syntax table, and buffer-local variables in
-an existing buffer.  It should not change the buffer's contents.
+名前が@samp{-mode}で終わるようにメジャーモードコマンドを定義する。引数なしで呼び出されたとき、このコマンドはキーマップ、構文テーブル、既存バッファーのバッファーローカル変数をセットアップして、カレントバッファーを新たなモードに切り替えるべきである。そのバッファーのコンテンツを変更するべきではない。
 
 @item
-Write a documentation string for this command that describes the special
-commands available in this mode.  @xref{Mode Help}.
+そのモードで利用できる特別なコマンドを説明するドキュメント文字列を記述する。@ref{Mode Help}を参照のこと。
 
-The documentation string may include the special documentation substrings,
-@samp{\[@var{command}]}, @samp{\@{@var{keymap}@}}, and
-@samp{\<@var{keymap}>}, which allow the help display to adapt automatically
-to the user's own key bindings.  @xref{Keys in Documentation}.
+そのユーザー自身のキーバインディングに自動的に適合してヘルプが表示されるように、ドキュメント文字列に特別なドキュメントサブストリング@samp{\[@var{command}]}、@samp{\@{@var{keymap}@}}、@samp{\<@var{keymap}>}を含めるとよいかもしれない。@ref{Keys
+in Documentation}を参照のこと。
 
 @item
-The major mode command should start by calling
-@code{kill-all-local-variables}.  This runs the normal hook
-@code{change-major-mode-hook}, then gets rid of the buffer-local variables
-of the major mode previously in effect.  @xref{Creating Buffer-Local}.
+メジャーモードコマンドは、@code{kill-all-local-variables}を呼び出すことにより開始するべきである。これは、ノーマルフック@code{change-major-mode-hook}を実行してから、前のメジャーモードで効力のあったバッファーローカル変数を解放する。@ref{Creating
+Buffer-Local}を参照のこと。
 
 @item
-The major mode command should set the variable @code{major-mode} to the
-major mode command symbol.  This is how @code{describe-mode} discovers which
-documentation to print.
+メジャーモードコマンドは、変数@code{major-mode}にメジャーモードコマンドのシンボルをセットするべきである。これは、@code{describe-mode}がプリントするドキュメントを探す手掛かりとなる。
 
 @item
-The major mode command should set the variable @code{mode-name} to the
-``pretty'' name of the mode, usually a string (but see @ref{Mode Line Data},
-for other possible forms).  The name of the mode appears in the mode line.
+メジャーモードコマンドは、変数@code{mode-name}にそのモードの``愛称(pretty
+name)''をセットするべきである(これは通常は文字列だが、他の利用可能な形式は、@ref{Mode Line
+Data}を参照のこと)。このモード名は、モードラインに表示される。
 
 @item
 @cindex functions in modes
-Since all global names are in the same name space, all the global variables,
-constants, and functions that are part of the mode should have names that
-start with the major mode name (or with an abbreviation of it if the name is
-long).  @xref{Coding Conventions}.
+すべてのグローバル名は同じネームスペースにあるので、モードの一部であるようなすべてのグローバルな変数、定数、関数は、メジャーモード名(メジャーモード名が長いようなら短縮名)で始まる名前をもつべきである。@ref{Coding
+Conventions}を参照のこと。
 
 @item
-In a major mode for editing some kind of structured text, such as a
-programming language, indentation of text according to structure is probably
-useful.  So the mode should set @code{indent-line-function} to a suitable
-function, and probably customize other variables for indentation.
-@xref{Auto-Indentation}.
+プログラム言語のような、ある種の構造型テキストを編集するためのメジャーモードでは、その構造に応じたテキストのインデントはおそらく有用であろう。したがって、そのようなモードは@code{indent-line-function}に適切な関数をセットするとともに、インデント用のその他の変数をカスタマイズすべきだろう。
 
 @item
 @cindex keymaps in modes
-The major mode should usually have its own keymap, which is used as the
-local keymap in all buffers in that mode.  The major mode command should
-call @code{use-local-map} to install this local map.  @xref{Active Keymaps},
-for more information.
+メジャーモードは通常、そのモードにあるすべてのバッファーのローカルキーマップとして使用される、自モード身のキーマップをもつべきである。メジャーモードコマンドは、そのローカルマップをインストールするために、@code{use-local-map}を呼び出すべきである。詳細は、@ref{Active
+Keymaps}を参照のこと。
 
-This keymap should be stored permanently in a global variable named
-@code{@var{modename}-mode-map}.  Normally the library that defines the mode
-sets this variable.
+このキーマップは、@code{@var{modename}-mode-map}という名前のグローバル変数に永続的に格納されるべきである。通常、そのモードを定義するライブラリーは、この変数をセットする。
 
-@xref{Tips for Defining}, for advice about how to write the code to set up
-the mode's keymap variable.
+モード用のキーマップ変数をセットアップするコードの記述する方法に関するアドバイスは、@ref{Tips for Defining}を参照のこと。
 
 @item
-The key sequences bound in a major mode keymap should usually start with
-@kbd{C-c}, followed by a control character, a digit, or @kbd{@{}, @kbd{@}},
-@kbd{<}, @kbd{>}, @kbd{:} or @kbd{;}.  The other punctuation characters are
-reserved for minor modes, and ordinary letters are reserved for users.
+メジャーモードのキーマップ内でバインドされるキーシーケンスは、通常は@kbd{C-c}で始まり、その後にコントロール文字、数字、@kbd{@{}、@kbd{@}}、@kbd{<}、@kbd{>}、@kbd{:}、@kbd{;}が続くべきである。その他の記号文字(punctuation
+characters)はマイナーモードに、通常のアルファベット文字はユーザーのために予約されている。
 
-A major mode can also rebind the keys @kbd{M-n}, @kbd{M-p} and @kbd{M-s}.
-The bindings for @kbd{M-n} and @kbd{M-p} should normally be some kind of
-``moving forward and backward'', but this does not necessarily mean cursor
-motion.
+メジャーモードは@kbd{M-n}、@kbd{M-p}、@kbd{M-s}などのキーもリバインドできる。@kbd{M-n}と@kbd{M-p}にたいするバインディングは、通常は
+``前方あるいは後方への移動''を意味するような類のものであるべきだが、これは必ずしもカーソル移動を意味する必要はない。
 
-It is legitimate for a major mode to rebind a standard key sequence if it
-provides a command that does ``the same job'' in a way better suited to the
-text this mode is used for.  For example, a major mode for editing a
-programming language might redefine @kbd{C-M-a} to ``move to the beginning
-of a function'' in a way that works better for that language.
+そのモードにより適した方法でテキストに``同じ処理''を行うコマンドを提供する場合に、メジャーモードが標準的なキーシーケンスをリバインドするのは正当性がある。たとえば、プログラム言語を編集するためのメジャーモードは、その言語にとって``関数の先頭に移動する''がより良く機能する方法で、@kbd{C-M-a}を再定義するかもしれない。
 
-It is also legitimate for a major mode to rebind a standard key sequence
-whose standard meaning is rarely useful in that mode.  For instance,
-minibuffer modes rebind @kbd{M-r}, whose standard meaning is rarely of any
-use in the minibuffer.  Major modes such as Dired or Rmail that do not allow
-self-insertion of text can reasonably redefine letters and other printing
-characters as special commands.
+ある標準的なキーシーケンスの標準的な意味が、そのモードではほとんど役に立たないような場合にも、メジャーモードが標準的なキーシーケンスをリバインドする正当性がある。たとえば、ミニバッファーモードは、@kbd{M-r}の標準的な意味はミニバッファーではほとんど使用されないので、このキーシーケンスをリバインドする。テキストの自己挿入を許さないDiredやRmailのようなメジャーモードは、アルファベット文字や、その他のプリント文字を特別なコマンドに再定義する正当性がある。
 
 @item
-Major modes for editing text should not define @key{RET} to do anything
-other than insert a newline.  However, it is ok for specialized modes for
-text that users don't directly edit, such as Dired and Info modes, to
-redefine @key{RET} to do something entirely different.
+テキストを編集するメジャーモードは、改行の挿入以外の何かに@key{RET}を定義すべきではない。しかし、ユーザーが直接テキストを編集しない、DiredやInfoのような特別なモードにたいしては、完全に異なることを行うように@key{RET}を再定義しても構わない。
 
 @item
-Major modes should not alter options that are primarily a matter of user
-preference, such as whether Auto-Fill mode is enabled.  Leave this to each
-user to decide.  However, a major mode should customize other variables so
-that Auto-Fill mode will work usefully @emph{if} the user decides to use it.
+メジャーモードは、たとえばAuto-Fillモードを有効にするか等の、主にユーザーの好みに関するオプションを変更すべきではない。それらのオプションは、ユーザーに選択に任せること。ただし、@emph{もし}ユーザーがAuto-Fillモードを使用すると決定した場合には、それが便利に機能するように、他の変数をカスタマイズすべきである。
 
 @item
 @cindex syntax tables in modes
-The mode may have its own syntax table or may share one with other related
-modes.  If it has its own syntax table, it should store this in a variable
-named @code{@var{modename}-mode-syntax-table}.  @xref{Syntax Tables}.
+モードは自身の構文テーブルをもつかもしれず、他の関連するモードと構文テーブルを共有するかもするかもしれない。モードが自身の構文テーブルをもつ場合は、@code{@var{modename}-mode-syntax-table}という名前の変数にそれを格納すべきである。@ref{Syntax
+Tables}を参照のこと。
 
 @item
-If the mode handles a language that has a syntax for comments, it should set
-the variables that define the comment syntax.  @xref{Options for Comments,,
-Options Controlling Comments, emacs, The GNU Emacs Manual}.
+コメントにたいして構文をもつ言語を扱うモードは、コメント構文を定義する変数をセットすべきである。@ref{Options for Comments,,
+Options Controlling Comments, emacs, The GNU Emacs Manual}を参照のこと。
 
 @item
 @cindex abbrev tables in modes
-The mode may have its own abbrev table or may share one with other related
-modes.  If it has its own abbrev table, it should store this in a variable
-named @code{@var{modename}-mode-abbrev-table}.  If the major mode command
-defines any abbrevs itself, it should pass @code{t} for the
-@var{system-flag} argument to @code{define-abbrev}.  @xref{Defining
-Abbrevs}.
+モードは自身のabbrevテーブルをもつかもしれず、他の関連するモードと構文テーブルを共有するかもするかもしれない。モードが自身のabbrevテーブルをもつ場合は、@code{@var{modename}-mode-abbrev-table}という名前の変数にそれを格納すべきである。メジャーモードコマンドが自身で何らかのabbrevを定義する場合は、@code{define-abbrev}の@var{system-flag}引数に@code{t}を渡すべきである。@ref{Defining
+Abbrevs}を参照のこと。
 
 @item
-The mode should specify how to do highlighting for Font Lock mode, by
-setting up a buffer-local value for the variable @code{font-lock-defaults}
-(@pxref{Font Lock Mode}).
+モードは、変数@code{font-lock-defaults}にバッファーローカルな値をセットすることにより、Font
+Lockモードにたいしてハイライトする方法を指定すべきである(@ref{Font Lock Mode}を参照)。
 
 @item
-Each face that the mode defines should, if possible, inherit from an
-existing Emacs face.  @xref{Basic Faces}, and @ref{Faces for Font Lock}.
+モードが定義するすべてのフェイスは、もし可能なら既存のEmacsフェイスを継承すべきである。@ref{Basic Faces}と@ref{Faces
+for Font Lock}を参照のこと。
 
 @item
-The mode should specify how Imenu should find the definitions or sections of
-a buffer, by setting up a buffer-local value for the variable
-@code{imenu-generic-expression}, for the two variables
-@code{imenu-prev-index-position-function} and
-@code{imenu-extract-index-name-function}, or for the variable
-@code{imenu-create-index-function} (@pxref{Imenu}).
+モードは変数@code{imenu-generic-expression}、変数@code{imenu-prev-index-position-function}
+and
+@code{imenu-extract-index-name-function}、または変数@code{imenu-create-index-function}にバッファーローカルな値をセットすることにより、Imenuがバッファー内の定義、またはセクションを探す方法を指定すべきである(@ref{Imenu}を参照)。
 
 @item
-The mode can specify a local value for @code{eldoc-documentation-function}
-to tell ElDoc mode how to handle this mode.
+モードは、@code{eldoc-documentation-function}にローカル値を指定して、ElDocモードがそのモードを処理する方法を指定できる。
 
 @item
-The mode can specify how to complete various keywords by adding one or more
-buffer-local entries to the special hook
-@code{completion-at-point-functions}.  @xref{Completion in Buffers}.
+モードは、スペシャルフック@code{completion-at-point-functions}に1つ以上のバッファーローカルエントリーを追加することにより、さまざまなキーワードの補完方法を指定できる。@ref{Completion
+in Buffers}を参照のこと。
 
 @item
 @cindex buffer-local variables in modes
-To make a buffer-local binding for an Emacs customization variable, use
-@code{make-local-variable} in the major mode command, not
-@code{make-variable-buffer-local}.  The latter function would make the
-variable local to every buffer in which it is subsequently set, which would
-affect buffers that do not use this mode.  It is undesirable for a mode to
-have such global effects.  @xref{Buffer-Local Variables}.
+Emacsのカスタマイズ変数にたいしてバッファーローカルなバインディングを作成するには、@code{make-variable-buffer-local}ではなく、メジャーモードコマンド内で@code{make-local-variable}を使用すること。関数、@code{make-variable-buffer-local}は、それ以降にカスタマイズ変数をセットするすべてのバッファーにたいしてその変数をローカルにし、そのモードを使用しないバッファーにたいしても影響があるだろう。そのようなグローバルな効果は、モードにとって好ましくない。@ref{Buffer-Local
+Variables}を参照のこと。
 
-With rare exceptions, the only reasonable way to use
-@code{make-variable-buffer-local} in a Lisp package is for a variable which
-is used only within that package.  Using it on a variable used by other
-packages would interfere with them.
+稀な例外として、Lispパッケージ内で@code{make-variable-buffer-local}を使用する唯一の正当な方法は、そのパッケージ内でのみ使用される変数にたいして使用をする場合である。他のパッケージにより使用される変数にたいしてこの関数を使用すると、干渉が起こるだろう。
 
 @item
 @cindex mode hook
 @cindex major mode hook
-Each major mode should have a normal @dfn{mode hook} named
-@code{@var{modename}-mode-hook}.  The very last thing the major mode command
-should do is to call @code{run-mode-hooks}.  This runs the normal hook
-@code{change-major-mode-after-body-hook}, the mode hook, and then the normal
-hook @code{after-change-major-mode-hook}.  @xref{Mode Hooks}.
+すべてのメジャーモードは、@code{@var{modename}-mode-hook}という名前のノーマルな@dfn{モードフック(mode
+hook)}をもつべきである。メジャーモードコマンドが一番最後に行うべきことは、@code{run-mode-hooks}の呼び出しである。これは、ノーマルフック@code{change-major-mode-after-body-hook}、モードフック、その後に@code{after-change-major-mode-hook}を実行する。@ref{Mode
+Hooks}を参照のこと。
 
 @item
-The major mode command may start by calling some other major mode command
-(called the @dfn{parent mode}) and then alter some of its settings.  A mode
-that does this is called a @dfn{derived mode}.  The recommended way to
-define one is to use the @code{define-derived-mode} macro, but this is not
-required.  Such a mode should call the parent mode command inside a
-@code{delay-mode-hooks} form.  (Using @code{define-derived-mode} does this
-automatically.)  @xref{Derived Modes}, and @ref{Mode Hooks}.
+メジャーモードコマンドは、@dfn{親モード(parent
+mode)}と呼ばれる他のいくつかのメジャーモードを呼び出すことにより開始されるかもしれず、それらのセッティングのいくつかを変更するかもしれない。これを行うモードは、@dfn{派生モード(derived
+mode)}と呼ばれる。派生モードを定義する推奨方法は、@code{define-derived-mode}マクロの使用であるが、これは必須ではない。そのようなモードは、@code{delay-mode-hooks}フォーム内で親のモードコマンドを呼び出すべきである(@code{define-derived-mode}は自動的にこれを行う)。@ref{Derived
+Modes}、および@ref{Mode Hooks}を参照のこと。
 
 @item
-If something special should be done if the user switches a buffer from this
-mode to any other major mode, this mode can set up a buffer-local value for
-@code{change-major-mode-hook} (@pxref{Creating Buffer-Local}).
+ユーザーが、そのモードのバッファーから他のモードのバッファーに切り替える際に特別な何かを行う必要がある場合、モードは@code{change-major-mode-hook}にたいしてバッファーローカル値をセットアップできる(@ref{Creating
+Buffer-Local}を参照)。
 
 @item
-If this mode is appropriate only for specially-prepared text produced by the
-mode itself (rather than by the user typing at the keyboard or by an
-external file), then the major mode command symbol should have a property
-named @code{mode-class} with value @code{special}, put on as follows:
+そのモードが、(ユーザーがキーボードでタイプしたテキストや、外部ファイルのテキストではなく)モード自身が生成する特別に用意されたテキストにたいしてのみ適す場合、メジャーモードコマンドのシンボルは、以下のように@code{mode-class}という名前のプロパティに値@code{special}をputすべきである:
 
 @kindex mode-class @r{(property)}
 @cindex @code{special} modes
@@ -384,39 +307,25 @@ named @code{mode-class} with value @code{special}, put on as follows:
 @end example
 
 @noindent
-This tells Emacs that new buffers created while the current buffer is in
-Funny mode should not be put in Funny mode, even though the default value of
-@code{major-mode} is @code{nil}.  By default, the value of @code{nil} for
-@code{major-mode} means to use the current buffer's major mode when creating
-new buffers (@pxref{Auto Major Mode}), but with such @code{special} modes,
-Fundamental mode is used instead.  Modes such as Dired, Rmail, and Buffer
-List use this feature.
+これはEmacsにたいして、カレントバッファーがFunnyモードのときに新たなバッファーを作成したとき、たとえ@code{major-mode}のデフォルト値が@code{nil}であっても、そのバッファーをFunnyモードにしないよう指示する。デフォルトでは、@code{major-mode}にたいする値@code{nil}は、新たなバッファー作成時にカレントバッファーのメジャーモードを使用することを意味するが(@ref{Auto
+Major
+Mode}を参照)、@code{special}なモードにたいしてはかわりにFundamentalモードが使用される。Dired、Rmail、Buffer
+Listのようなモードは、この機能を使用する。
 
-The function @code{view-buffer} does not enable View mode in buffers whose
-mode-class is special, because such modes usually provide their own
-View-like bindings.
+関数@code{view-buffer}は、mode-classがspecialであるようなバッファーではViewモードを有効にしない。そのようなモードは、通常は自身でViewに相当するバインディングを提供するからである。
 
-The @code{define-derived-mode} macro automatically marks the derived mode as
-special if the parent mode is special.  Special mode is a convenient parent
-for such modes to inherit from; @xref{Basic Major Modes}.
+@code{define-derived-mode}マクロは、親モードがspecialの場合は、自動的に派生モードをspecialにマークする。親モードでspecialモードが有用なら、それを継承したモードでもであろう。@ref{Basic
+Major Modes}を参照のこと。
 
 @item
-If you want to make the new mode the default for files with certain
-recognizable names, add an element to @code{auto-mode-alist} to select the
-mode for those file names (@pxref{Auto Major Mode}).  If you define the mode
-command to autoload, you should add this element in the same file that calls
-@code{autoload}.  If you use an autoload cookie for the mode command, you
-can also use an autoload cookie for the form that adds the element
-(@pxref{autoload cookie}).  If you do not autoload the mode command, it is
-sufficient to add the element in the file that contains the mode definition.
+新たなモードを、識別可能な特定のファイルにたいするデフォルトとしたい場合は、そのようなファイル名にたいしてそのモードを選択するために、@code{auto-mode-alist}に要素を追加する。autoload用にモードコマンドを定義する場合は、@code{autoload}を呼び出すのと同じファイル内にその要素を追加すべきである。モードコマンドにたいしてautoload
+cookieを使用する場合は、その要素を追加するフォームにたいしてもautoload cookieを使用できる(@ref{autoload
+cookie}を参照)。モードコマンドをautoloadしない場合は、モード定義を含むファイル内で要素を追加すれば十分である。
 
 @item
 @cindex mode loading
-The top-level forms in the file defining the mode should be written so that
-they may be evaluated more than once without adverse consequences.  For
-instance, use @code{defvar} or @code{defcustom} to set mode-related
-variables, so that they are not reinitialized if they already have a value
-(@pxref{Defining Variables}).
+悪影響を与えることなく1回以上評価されるように、モード定義はファイル内のトップレベルのフォームとして記述すべきである。たとえば、すでに値をもつ変数が再初期化されないように、モードに関連した変数をセットするときは、@code{defvar}か@code{defcustom}を使用する(@ref{Defining
+Variables}を参照)。
 
 @end itemize
 
