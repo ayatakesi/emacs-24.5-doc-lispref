@@ -457,101 +457,60 @@ Documentation}を参照)。
 @subsection Defining Derived Modes
 @cindex derived mode
 
-  The recommended way to define a new major mode is to derive it from an
-existing one using @code{define-derived-mode}.  If there is no closely
-related mode, you should inherit from either @code{text-mode},
-@code{special-mode}, or @code{prog-mode}.  @xref{Basic Major Modes}.  If
-none of these are suitable, you can inherit from @code{fundamental-mode}
-(@pxref{Major Modes}).
+  新しいメジャーモードを定義する推奨された方法は、@code{define-derived-mode}を使用して既存のメジャーモードから派生させる方法です。それほど近いモードが存在しない場合は@code{text-mode}、@code{special-mode}、または@code{prog-mode}から継承するべきです。@ref{Basic
+Major
+Modes}を参照してください。これらがどれも適切でない場合は、@code{fundamental-mode}から継承することができます(@ref{Major
+Modes}を参照)。
 
 @defmac define-derived-mode variant parent name docstring keyword-args@dots{} body@dots{}
-This macro defines @var{variant} as a major mode command, using @var{name}
-as the string form of the mode name.  @var{variant} and @var{parent} should
-be unquoted symbols.
+このマクロは、@var{variant}をメジャーモードコマンドとして定義し、@var{name}をモード名の文字列形式とする。@var{variant}と@var{parent}は、クォートされていないシンボルであること。
 
-The new command @var{variant} is defined to call the function @var{parent},
-then override certain aspects of that parent mode:
+新たなコマンド@var{variant}は、関数@var{parent}を呼び出すよう定義され、その後その親モードの特定の性質をオーバーライドする。
 
 @itemize @bullet
 @item
-The new mode has its own sparse keymap, named @code{@var{variant}-map}.
-@code{define-derived-mode} makes the parent mode's keymap the parent of the
-new map, unless @code{@var{variant}-map} is already set and already has a
-parent.
+新たなモードは、@code{@var{variant}-map}という名前の、自身のsparseキーマップ(疎キーマップ)をもつ。@code{define-derived-mode}は、@code{@var{variant}-map}がすでにセットされていて、かつすでに親をもつ場合を除き、親モードのキーマップを新たなマップの親キーマップにする。
 
 @item
-The new mode has its own syntax table, kept in the variable
-@code{@var{variant}-syntax-table}, unless you override this using the
-@code{:syntax-table} keyword (see below).  @code{define-derived-mode} makes
-the parent mode's syntax-table the parent of
-@code{@var{variant}-syntax-table}, unless the latter is already set and
-already has a parent different from the standard syntax table.
+新たなモードは、自身の構文テーブル(syntax
+table)をもち、それは変数@code{@var{variant}-syntax-table}に保持される。ただし、@code{:syntax-table}キーワード(以下参照)を使用して、これをオーバーライドした場合は異なる。@code{define-derived-mode}は、@code{@var{variant}-syntax-table}がすでにセットされていて、かつ標準的な構文テーブルよ異なる親をもつ場合を除き、ペアレントモードの構文テーブルを@code{@var{variant}-syntax-table}の親とする。
 
 @item
-The new mode has its own abbrev table, kept in the variable
-@code{@var{variant}-abbrev-table}, unless you override this using the
-@code{:abbrev-table} keyword (see below).
+新たなモードは、自身のabbrevテーブル(略語テーブル)をもち、それは変数@code{@var{variant}-abbrev-table}に保持される。ただし、@code{:abbrev-table}キーワード(以下参照)を使用して、これをオーバーライドした場合は異なる。
 
 @item
-The new mode has its own mode hook, @code{@var{variant}-hook}.  It runs this
-hook, after running the hooks of its ancestor modes, with
-@code{run-mode-hooks}, as the last thing it does. @xref{Mode Hooks}.
+新たなモードは、自身のモードフック@code{@var{variant}-hook}をもつ。これは、このフックを実行した後に、最後に@code{run-mode-hooks}により、自身の祖先のモードのフックを実行する。
 @end itemize
 
-In addition, you can specify how to override other aspects of @var{parent}
-with @var{body}.  The command @var{variant} evaluates the forms in
-@var{body} after setting up all its usual overrides, just before running the
-mode hooks.
+これらに加えて、@var{body}で@var{parent}のその他の性質をオーバーライドする方法を指定できます。コマンド@var{variant}はー、通常のオーバーライドをセットアップした後、そのモードのフックを実行する直前に@var{body}内のフォームを評価します。
 
-If @var{parent} has a non-@code{nil} @code{mode-class} symbol property, then
-@code{define-derived-mode} sets the @code{mode-class} property of
-@var{variant} to the same value.  This ensures, for example, that if
-@var{parent} is a special mode, then @var{variant} is also a special mode
-(@pxref{Major Mode Conventions}).
+@var{parent}が非@code{nil}の@code{mode-class}シンボルプロパティをもつ場合、@code{define-derived-mode}は@var{variant}の@code{mode-class}プロパティに、同じ値をセットします。これは、たとえば@var{parent}がスペシャルモードの場合は、@var{variant}もスペシャルモードになることを保証します(@ref{Major
+Mode Conventions}を参照)。
 
-You can also specify @code{nil} for @var{parent}.  This gives the new mode
-no parent.  Then @code{define-derived-mode} behaves as described above, but,
-of course, omits all actions connected with @var{parent}.
+@var{parent}にたいして@code{nil}を指定することもできます。これにより、新たなモードは親をもたなくなります。その後、@code{define-derived-mode}は上述のように振る舞いますが、当然@var{parent}につながるすべてのアクションは省略されます。
 
-The argument @var{docstring} specifies the documentation string for the new
-mode.  @code{define-derived-mode} adds some general information about the
-mode's hook, followed by the mode's keymap, at the end of this documentation
-string.  If you omit @var{docstring}, @code{define-derived-mode} generates a
-documentation string.
+引数@var{docstring}は、新たなモードにたいするドキュメント文字列を指定します。@code{define-derived-mode}は、このドキュメント文字列の最後にそのモードフックに関する一般的な情報と、その後にそのモードのキーマップを追加します。@var{docstring}を省略した場合は、@code{define-derived-mode}がドキュメント文字列を生成します。
 
-The @var{keyword-args} are pairs of keywords and values.  The values are
-evaluated.  The following keywords are currently supported:
+@var{keyword-args}は、キーワードと値のペアーです。値は評価されます。現在、以下のキーワードがサポートされています:
 
 @table @code
 @item :syntax-table
-You can use this to explicitly specify a syntax table for the new mode.  If
-you specify a @code{nil} value, the new mode uses the same syntax table as
-@var{parent}, or the standard syntax table if @var{parent} is @code{nil}.
-(Note that this does @emph{not} follow the convention used for non-keyword
-arguments that a @code{nil} value is equivalent with not specifying the
-argument.)
+新たなモードにたいする構文テーブルを明示的に指定するために、これを使用できる。@code{nil}値を指定した場合、新たなモードは@var{parent}と同じ構文テーブル、@var{parent}も@code{nil}の場合は標準的な構文テーブルを使用する(これは、@code{nil}値の非キーワード引数は引数を指定しないのと同じという通常の慣習には@emph{したがわない}ことに注意されたい)。
 
 @item :abbrev-table
-You can use this to explicitly specify an abbrev table for the new mode.  If
-you specify a @code{nil} value, the new mode uses the same abbrev table as
-@var{parent}, or @code{fundamental-mode-abbrev-table} if @var{parent} is
-@code{nil}.  (Again, a @code{nil} value is @emph{not} equivalent to not
-specifying this keyword.)
+新たなモードにたいするabbrevテーブルを明示的に指定するために、これを使用できる。@code{nil}値を指定した場合、新たなモードは@var{parent}と同じabbrevテーブル、@var{parent}も@code{nil}の場合は、@code{fundamental-mode-abbrev-table}を使用する(繰り返すが、@code{nil}値はこのキーワードを指定しないことでは@emph{ない})。
 
 @item :group
-If this is specified, the value should be the customization group for this
-mode.  (Not all major modes have one.)  Only the (still experimental and
-unadvertised) command @code{customize-mode} currently uses this.
-@code{define-derived-mode} does @emph{not} automatically define the
-specified customization group.
+これが指定された場合、値はそのモードにたいするカスタマイズグループ(customization
+group)であること(すべてのメジャーモードがカスタマイズグループをもつ訳ではない)。(まだ実験的かつ未公表だが)現在のところ、これを使用するのは@code{customize-mode}コマンドだけである。@code{define-derived-mode}は、指定されたカスタマイズグループを自動的に定義@emph{しない}。
 @end table
 
-Here is a hypothetical example:
+以下は架空の例である:
 
 @example
 (define-derived-mode hypertext-mode
   text-mode "Hypertext"
-  "Major mode for hypertext.
+  "ハイパーテキスト用のメジャーモード
 \\@{hypertext-mode-map@}"
   (setq case-fold-search nil))
 
@@ -559,13 +518,11 @@ Here is a hypothetical example:
   [down-mouse-3] 'do-hyper-link)
 @end example
 
-Do not write an @code{interactive} spec in the definition;
-@code{define-derived-mode} does that automatically.
+@code{define-derived-mode}が自動的に行うので、この定義内に@code{interactive}指定を記述してはならない。
 @end defmac
 
 @defun derived-mode-p &rest modes
-This function returns non-@code{nil} if the current major mode is derived
-from any of the major modes given by the symbols @var{modes}.
+この関数は、シンボル@var{modes}で与えられたメジャーモードのいずれかから、カレントメジャーモードが派生された場合は非@code{nil}をリターンする。
 @end defun
 
 @node Basic Major Modes
