@@ -569,57 +569,32 @@ Mode}を参照してください。
 @node Mode Hooks
 @subsection Mode Hooks
 
-  Every major mode command should finish by running the mode-independent
-normal hook @code{change-major-mode-after-body-hook}, its mode hook, and the
-normal hook @code{after-change-major-mode-hook}.  It does this by calling
-@code{run-mode-hooks}.  If the major mode is a derived mode, that is if it
-calls another major mode (the parent mode)  in its body, it should do this
-inside @code{delay-mode-hooks} so that the parent won't run these hooks
-itself.  Instead, the derived mode's call to @code{run-mode-hooks} runs the
-parent's mode hook too.  @xref{Major Mode Conventions}.
+  すべてのメジャーモードコマンドは、モード独自のノーマルフック@code{change-major-mode-after-body-hook}、そのモードのモードフック、ノーマルフック@code{after-change-major-mode-hook}を実行することにより終了すべきです。これは、@code{run-mode-hooks}を呼び出すことにより行われます。もしそのモードが派生モードなら、自身のbody内で他のメジャーモード(親モード)を呼び出す場合は、親モードが自身でこれらのフックを実行しないように、@code{delay-mode-hooks}の中でこれを行うべきです。そのかわりに、派生モードは親のモードフックも実行する、@code{run-mode-hooks}を呼び出すのです。@ref{Major
+Mode Conventions}を参照してください。
 
-  Emacs versions before Emacs 22 did not have @code{delay-mode-hooks}.
-Versions before 24 did not have @code{change-major-mode-after-body-hook}.
-When user-implemented major modes do not use @code{run-mode-hooks} and have
-not been updated to use these newer features, they won't entirely follow
-these conventions: they may run the parent's mode hook too early, or fail to
-run @code{after-change-major-mode-hook}.  If you encounter such a major
-mode, please correct it to follow these conventions.
+  Emacs 22より前のバージョンのEmacsには、@code{delay-mode-hooks}がありません。また、Emacs
+24より前のバージョンには、@code{change-major-mode-after-body-hook}がありません。ユーザー実装のメジャーモードが@code{run-mode-hooks}を使用せず、これらの新しい機能を使用するようにアップデートされていないときは、これらのメジャーモードは以下の慣習に完全にしたがわないでしょう。それらのモードは、親のモードフックをあまりに早く実行したり、@code{after-change-major-mode-hook}の実行に失敗するかもしれません。そのようなメジャーモードに遭遇した場合は、以下の慣習にしたがって修正をお願いします。
 
-  When you defined a major mode using @code{define-derived-mode}, it
-automatically makes sure these conventions are followed.  If you define a
-major mode ``by hand'', not using @code{define-derived-mode}, use the
-following functions to handle these conventions automatically.
+  @code{define-derived-mode}を使用してメジャーモードを定義したときは、自動的にこれらの慣習にしたがうことが確実になります。@code{define-derived-mode}を使用せずにメジャーモードを``手動''で定義した場合は、これらの慣習を自動的に処理するように、以下の関数を使用してください。
 
 @defun run-mode-hooks &rest hookvars
-Major modes should run their mode hook using this function.  It is similar
-to @code{run-hooks} (@pxref{Hooks}), but it also runs
-@code{change-major-mode-after-body-hook} and
-@code{after-change-major-mode-hook}.
+メジャーモード、この関数を使用してそれらのモードフックを実行すべきである。これは@code{run-hooks}(@ref{Hooks}を参照)と似ているが、@code{change-major-mode-after-body-hook}と@code{after-change-major-mode-hook}も実行する。
 
-When this function is called during the execution of a
-@code{delay-mode-hooks} form, it does not run the hooks immediately.
-Instead, it arranges for the next call to @code{run-mode-hooks} to run them.
+この関数が、@code{delay-mode-hooks}フォーム実行中に呼び出されたときは、それらのフックを即座には実行しない。かわりに、次の@code{run-mode-hooks}呼び出しでそれらを実行するようにアレンジする。
 @end defun
 
 @defmac delay-mode-hooks body@dots{}
-When one major mode command calls another, it should do so inside of
-@code{delay-mode-hooks}.
+あるメジャーモードコマンドが他のメジャーモードコマンドを呼び出すとき、それは@code{delay-mode-hooks}の内部で行われるべきである。
 
-This macro executes @var{body}, but tells all @code{run-mode-hooks} calls
-during the execution of @var{body} to delay running their hooks.  The hooks
-will actually run during the next call to @code{run-mode-hooks} after the
-end of the @code{delay-mode-hooks} construct.
+このマクロは@var{body}を実行するが、@var{body}実行中はすべての@code{run-mode-hooks}呼び出しにたいして、それらのフックの実行を遅延するよう指示する。それらのフックは、実際には@code{delay-mode-hooks}構造の最後の後、次の@code{run-mode-hooks}呼び出しの間に実行されるだろう。
 @end defmac
 
 @defvar change-major-mode-after-body-hook
-This is a normal hook run by @code{run-mode-hooks}.  It is run before the
-mode hooks.
+これは、@code{run-mode-hooks}により実行されるノーマルフックである。これは、そのモードのフックの前に実行される。
 @end defvar
 
 @defvar after-change-major-mode-hook
-This is a normal hook run by @code{run-mode-hooks}.  It is run at the very
-end of every properly-written major mode command.
+これは、@code{run-mode-hooks}により実行されるノーマルフックである。これは、すべての適切に記述されたメジャーモードコマンドの一番最後に実行される。
 @end defvar
 
 @node Tabulated List Mode
