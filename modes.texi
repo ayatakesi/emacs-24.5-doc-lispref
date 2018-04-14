@@ -601,126 +601,90 @@ Mode Conventions}を参照してください。
 @subsection Tabulated List mode
 @cindex Tabulated List mode
 
-  Tabulated List mode is a major mode for displaying tabulated data, i.e.,
-data consisting of @dfn{entries}, each entry occupying one row of text with
-its contents divided into columns.  Tabulated List mode provides facilities
-for pretty-printing rows and columns, and sorting the rows according to the
-values in each column.  It is derived from Special mode (@pxref{Basic Major
-Modes}).
+  Tabulated
+Listモードとは、表形式データ(@dfn{エントリー}から構成されるデータであり、各エントリーはそれぞれテキストの1行を占め、エントリーの内容は列に分割されるようなデータ)を表示するためのメジャーモードです。Tabulated
+Listモードは、行列の見栄えよくプリントする機能、および各列の値に応じて行をソートする機能を提供します。これは、Specialモードから派生されたモードです(@ref{Basic
+Major Modes}を参照)。
 
-  Tabulated List mode is intended to be used as a parent mode by a more
-specialized major mode.  Examples include Process Menu mode (@pxref{Process
-Information}) and Package Menu mode (@pxref{Package Menu,,, emacs, The GNU
-Emacs Manual}).
+  Tabulated Listモードは、より特化したメジャーモードの親モードとして使用されることを意図しています。例としては、Process
+Menuモード(@ref{Process Information}を参照)や、Package Menuモード(@ref{Package Menu,,,
+emacs, The GNU Emacs Manual}を参照)が含まれます。
 
 @findex tabulated-list-mode
-  Such a derived mode should use @code{define-derived-mode} in the usual way,
-specifying @code{tabulated-list-mode} as the second argument (@pxref{Derived
-Modes}).  The body of the @code{define-derived-mode} form should specify the
-format of the tabulated data, by assigning values to the variables
-documented below; then, it should call the function
-@code{tabulated-list-init-header} to initialize the header line.
+  このような派生されたモードは、@code{tabulated-list-mode}を2つ目の引数に指定して、通常の方法で@code{define-derived-mode}を使用するべきです(@ref{Derived
+Modes}を参照)。@code{define-derived-mode}フォームのbodyは、以下にドキュメントされている変数に値を割り当てることにより、表形式データのフォーマットを指定するべきです。その後、ヘッダー行を初期化するために関数@code{tabulated-list-init-header}を呼び出すべきです。
 
-  The derived mode should also define a @dfn{listing command}.  This, not the
-mode command, is what the user calls (e.g., @kbd{M-x list-processes}).  The
-listing command should create or switch to a buffer, turn on the derived
-mode, specify the tabulated data, and finally call
-@code{tabulated-list-print} to populate the buffer.
+  派生されたモードは、@dfn{リスティングコマンド}も定義するべきです。これはモードコマンドではなく、(@kbd{M-x
+list-processes}のように)ユーザーが呼び出すコマンドです。リスティングコマンドは、バッファーを作成または切り替えて、派生モードをオンにして、表形式データを指定し、最後にそのバッファーを事前設定(populate)するために@code{tabulated-list-print}を呼び出すべきです。
 
 @defvar tabulated-list-format
-This buffer-local variable specifies the format of the Tabulated List data.
-Its value should be a vector.  Each element of the vector represents a data
-column, and should be a list @code{(@var{name} @var{width} @var{sort})},
-where
+このバッファーローカル変数は、表形式データのフォーマットを指定する。値はベクターで、ベクターの各要素はデータ列を表すリスト@code{(@var{name}
+@var{width} @var{sort})}である。ここで
 
 @itemize
 @item
-@var{name} is the column's name (a string).
+@var{name}は列の名前(文字列)。
 
 @item
-@var{width} is the width to reserve for the column (an integer).  This is
-meaningless for the last column, which runs to the end of each line.
+@var{width}は列にたいして予約される文字数幅(整数)。最終列は各行の終端までなので意味がない。
 
 @item
-@var{sort} specifies how to sort entries by the column.  If @code{nil}, the
-column cannot be used for sorting.  If @code{t}, the column is sorted by
-comparing string values.  Otherwise, this should be a predicate function for
-@code{sort} (@pxref{Rearrangement}), which accepts two arguments with the
-same form as the elements of @code{tabulated-list-entries} (see below).
+@var{sort}は列によりエントリーをソートする方法を指定する。@code{nil}の場合、その列はソートに使用できない。@code{t}の場合は、列の文字列値を比較することによりソートされる。それ以外の場合は、@code{tabulated-list-entries}の要素と同じ形式の2つの引数をとる、@code{sort}にたいする述語関数(predicate
+function)であること。
 @end itemize
 @end defvar
 
 @defvar tabulated-list-entries
-This buffer-local variable specifies the entries displayed in the Tabulated
-List buffer.  Its value should be either a list, or a function.
+このバッファーローカル変数は、Tabulated Listバッファー内に表示されるエントリーを指定する。値にはリスト、または関数のいずれかであること。
 
-If the value is a list, each list element corresponds to one entry, and
-should have the form @w{@code{(@var{id} @var{contents})}}, where
+値がリストの場合、各リスト要素は1つのエントリーに対応し、@w{@code{(@var{id}
+@var{contents})}}という形式であること。ここで
 
 @itemize
 @item
-@var{id} is either @code{nil}, or a Lisp object that identifies the entry.
-If the latter, the cursor stays on the ``same'' entry when re-sorting
-entries.  Comparison is done with @code{equal}.
+@var{id}は@code{nil}、またはエントリーを識別するLispオブジェクト。Lispオブジェクトの場合には、エントリーを再ソートした際、カーソルは``同じ''エントリー上に留まる。比較は@code{equal}で行われる。
 
 @item
-@var{contents} is a vector with the same number of elements as
-@code{tabulated-list-format}.  Each vector element is either a string, which
-is inserted into the buffer as-is, or a list @code{(@var{label}
-. @var{properties})}, which means to insert a text button by calling
-@code{insert-text-button} with @var{label} and @var{properties} as arguments
-(@pxref{Making Buttons}).
+@var{contents}は、@code{tabulated-list-format}と要素数が同じベクター。ベクター要素は文字列、またはリスト。文字列の場合は、バッファーにそのまま挿入される。リスト@code{(@var{label}
+.
+@var{properties})}の場合には、@var{label}と@var{properties}を引数として@code{insert-text-button}を呼び出すことにより、テキストボタンを挿入することを意味する(@ref{Making
+Buttons}を参照)。
 
-There should be no newlines in any of these strings.
+これらの文字列には、改行を含めるべきではない。
 @end itemize
 
-Otherwise, the value should be a function which returns a list of the above
-form when called with no arguments.
+それ以外の場合、値は引数なしで呼び出され上記形式のリストをリターンする関数であること。
 @end defvar
 
 @defvar tabulated-list-revert-hook
-This normal hook is run prior to reverting a Tabulated List buffer.  A
-derived mode can add a function to this hook to recompute
-@code{tabulated-list-entries}.
+このノーマルフックはTabulated
+Listバッファーのリバートに先立ち実行される。派生モードは、@code{tabulated-list-entries}を再計算するために、このフックに関数を追加できる。
 @end defvar
 
 @defvar tabulated-list-printer
-The value of this variable is the function called to insert an entry at
-point, including its terminating newline.  The function should accept two
-arguments, @var{id} and @var{contents}, having the same meanings as in
-@code{tabulated-list-entries}.  The default value is a function which
-inserts an entry in a straightforward way; a mode which uses Tabulated List
-mode in a more complex way can specify another function.
+この変数の値は、ポイント位置にエントリー(エントリーを終端する改行を含む)を挿入するために呼び出される関数である。この関数は、@code{tabulated-list-entries}と同じ意味をもつ2つの引数@var{id}と@var{contents}を受け取る。デフォルト値は、エントリーをそのまま挿入する関数である。より複雑な方法によりTabulated
+Listモードを使用するモードは、別の関数を指定できる。
 @end defvar
 
 @defvar tabulated-list-sort-key
-The value of this variable specifies the current sort key for the Tabulated
-List buffer.  If it is @code{nil}, no sorting is done.  Otherwise, it should
-have the form @code{(@var{name} . @var{flip})}, where @var{name} is a string
-matching one of the column names in @code{tabulated-list-format}, and
-@var{flip}, if non-@code{nil}, means to invert the sort order.
+この変数の値は、Tabulated
+Listバッファーにたいするカレントのソートキーを指定する。@code{nil}の場合、ソートは行われていない。それ以外では、@code{(@var{name}
+.
+@var{flip})}という形式の値をもつ。ここで@var{name}は@code{tabulated-list-format}内の列目の1つとマッチする文字列、@var{flip}が非@code{nil}の場合は逆順でのソートを意味する。
 @end defvar
 
 @defun tabulated-list-init-header
-This function computes and sets @code{header-line-format} for the Tabulated
-List buffer (@pxref{Header Lines}), and assigns a keymap to the header line
-to allow sort entries by clicking on column headers.
+この関数は、Tabulated
+Listバッファーにたいする@code{header-line-format}を計算してセットし、列ヘッダー上でのクリックでソートを可能にするキーマップをヘッダー行に割り当てる。
 
-Modes derived from Tabulated List mode should call this after setting the
-above variables (in particular, only after setting
-@code{tabulated-list-format}).
+Tabulated
+Listから派生したモードは、上記の変数(特に@code{tabulated-list-format}をセットした後のみ)をセットした後にこれを呼び出すべきである。
 @end defun
 
 @defun tabulated-list-print &optional remember-pos
-This function populates the current buffer with entries.  It should be
-called by the listing command.  It erases the buffer, sorts the entries
-specified by @code{tabulated-list-entries} according to
-@code{tabulated-list-sort-key}, then calls the function specified by
-@code{tabulated-list-printer} to insert each entry.
+この関数は、カレントバッファーにエントリーを準備(populate)する。これはリスティングコマンドとして呼び出されるべきである。この関数は、バッファーを消去して@code{tabulated-list-entries}で指定されるエントリーを@code{tabulated-list-sort-key}にしたがってソートした後、各エントリーを挿入するために@code{tabulated-list-printer}で指定される関数を呼び出す。
 
-If the optional argument @var{remember-pos} is non-@code{nil}, this function
-looks for the @var{id} element on the current line, if any, and tries to
-move to that entry after all the entries are (re)inserted.
+オプション引数@var{remember-pos}が非@code{nil}の場合、この関数はカレント行で@var{id}要素を探して、もしあればすべてのエントリーを(再)挿入して、その後へそのエントリーの移動を試みる。
 @end defun
 
 @node Generic Modes
