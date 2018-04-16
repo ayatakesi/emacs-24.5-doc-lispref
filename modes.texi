@@ -1013,155 +1013,110 @@ Fillモードのためにデザインされています。@code{self-insert-comm
 @node Defining Minor Modes
 @subsection Defining Minor Modes
 
-  The macro @code{define-minor-mode} offers a convenient way of implementing a
-mode in one self-contained definition.
+  マクロ@code{define-minor-mode}は、1つの自己完結した定義内にモードを実装する便利な方法を提供します。
 
 @defmac define-minor-mode mode doc [init-value [lighter [keymap]]] keyword-args@dots{} body@dots{}
-This macro defines a new minor mode whose name is @var{mode} (a symbol).  It
-defines a command named @var{mode} to toggle the minor mode, with @var{doc}
-as its documentation string.
+このマクロは、名前が@var{mode}(シンボル)の新たなマイナーモードを定義する。これは、ドキュメント文字列として@var{doc}をもつ、マイナーモードをトグルするための、@var{mode}という名前のコマンドを定義する。
 
-The toggle command takes one optional (prefix) argument.  If called
-interactively with no argument it toggles the mode on or off.  A positive
-prefix argument enables the mode, any other prefix argument disables it.
-From Lisp, an argument of @code{toggle} toggles the mode, whereas an omitted
-or @code{nil} argument enables the mode.  This makes it easy to enable the
-minor mode in a major mode hook, for example.  If @var{doc} is @code{nil},
-the macro supplies a default documentation string explaining the above.
+トグルコマンドは１つのオプション(プレフィクス)引数をとる。引数なしでinteractiveに呼び出された場合は、そのモードのオンとオフをトグルする。正のプレフィクス引数はモードを有効にし、それ以外のプレフィクス引数はモードを無効にする。Lispから呼び出した場合、引数が@code{toggle}の場合はモードをトグルし、引数が省略もしくは@code{nil}の場合はモードを有効にする。これはたとえば、メジャーモードフック内でマイナーモードを有効にするのを簡便にする。@var{doc}が@code{nil}の場合、このマクロは上記を説明するデフォルトのドキュメント文字列を提供する。
 
-By default, it also defines a variable named @var{mode}, which is set to
-@code{t} or @code{nil} by enabling or disabling the mode.  The variable is
-initialized to @var{init-value}.  Except in unusual circumstances (see
-below), this value must be @code{nil}.
+デフォルトでは、これはモードを有効にすると@code{t}、無効にすると@code{nil}にセットされる、@var{mode}という名前の変数も定義する。この変数は、@var{init-value}に初期化される。通常では(以下参照)、この値は@code{nil}でなければならない。
 
-The string @var{lighter} says what to display in the mode line when the mode
-is enabled; if it is @code{nil}, the mode is not displayed in the mode line.
+文字列@var{lighter}は、モード有効時にモードライン内に何を表示するか指定する。これが@code{nil}の場合は、このモードはモードライン内に表示されない。
 
-The optional argument @var{keymap} specifies the keymap for the minor mode.
-If non-@code{nil}, it should be a variable name (whose value is a keymap), a
-keymap, or an alist of the form
+オプション引数@var{keymap}は、そのマイナーモードにたいするキーマップを指定する。非@code{nil}の場合、それは(値がキーマップであるような)変数の名前、キーマップ、または以下の形式のalistであること
 
 @example
 (@var{key-sequence} . @var{definition})
 @end example
 
 @noindent
-where each @var{key-sequence} and @var{definition} are arguments suitable
-for passing to @code{define-key} (@pxref{Changing Key Bindings}).  If
-@var{keymap} is a keymap or an alist, this also defines the variable
-@code{@var{mode}-map}.
+ここで、それぞれの@var{key-sequence}と@var{definition}は、@code{define-key}に渡すのに適した引数である(@ref{Changing
+Key
+Bindings}を参照)。@var{keymap}はキーマップまたはalistであり、これは変数@code{@var{mode}-map}も定義する。
 
-The above three arguments @var{init-value}, @var{lighter}, and @var{keymap}
-can be (partially) omitted when @var{keyword-args} are used.  The
-@var{keyword-args} consist of keywords followed by corresponding values.  A
-few keywords have special meanings:
+上記の3つの引数@var{init-value}、@var{lighter}、@var{keymap}は、@var{keyword-args}が使用されたときは、(部分的に)省略できる。@var{keyword-args}は、キーワードとその後の対応する値により構成され、いくつかのキーワードは特別な意味をもつ:
 
 @table @code
 @item :group @var{group}
-Custom group name to use in all generated @code{defcustom} forms.  Defaults
-to @var{mode} without the possible trailing @samp{-mode}.  @strong{Warning:}
-don't use this default group name unless you have written a @code{defgroup}
-to define that group properly.  @xref{Group Definitions}.
+生成されるすべての@code{defcustom}フォームで使用されるカスタムグループ名。@var{mode}(後の@samp{-mode}がある場合はそれを除く)にたいするデフォルトである。@strong{警告:}
+そのグループを定義するため@code{defgroup}を正しく記述していない場合は、このデフォルトグループ名を使用してはならない。@ref{Group
+Definitions}を参照のこと。
 
 @item :global @var{global}
-If non-@code{nil}, this specifies that the minor mode should be global
-rather than buffer-local.  It defaults to @code{nil}.
+非@code{nil}の場合、これはそのマイナーモードがバッファーローカルでなくグローバルであることを指定する。デフォルトは@code{nil}。
 
-One of the effects of making a minor mode global is that the @var{mode}
-variable becomes a customization variable.  Toggling it through the
-Customize interface turns the mode on and off, and its value can be saved
-for future Emacs sessions (@pxref{Saving Customizations,,, emacs, The GNU
-Emacs Manual}.  For the saved variable to work, you should ensure that the
-@code{define-minor-mode} form is evaluated each time Emacs starts; for
-packages that are not part of Emacs, the easiest way to do this is to
-specify a @code{:require} keyword.
+マイナーモードをグローバルにしたときの効果の1つは、@var{mode}変数がカスタマイズ変数になることである。Customizeインターフェイスを通じてこの変数をトグルするとモードがオン、またはオフになり、変数の値は将来のEmacsセッション用に保存できるようになる(@ref{Saving
+Customizations,,, emacs, The GNU Emacs
+Manual}を参照)。保存された変数が機能するためには、Emacsが開始されるたびに@code{define-minor-mode}フォームが確実に評価されるようにすべきである。Emacsの一部ではないパッケージにたいしては、@code{:require}キーワードを指定するのが、これを行う一番簡単な方法である。
 
 @item :init-value @var{init-value}
-This is equivalent to specifying @var{init-value} positionally.
+これは、@var{init-value}引数を指定するのと等しい。
 
 @item :lighter @var{lighter}
-This is equivalent to specifying @var{lighter} positionally.
+これは、@var{lighter}引数を指定するのと等しい。
 
 @item :keymap @var{keymap}
-This is equivalent to specifying @var{keymap} positionally.
+これは、@var{keymap}引数を指定するのと等しい。
 
 @item :variable @var{place}
-This replaces the default variable @var{mode}, used to store the state of
-the mode.  If you specify this, the @var{mode} variable is not defined, and
-any @var{init-value} argument is unused.  @var{place} can be a different
-named variable (which you must define yourself), or anything that can be
-used with the @code{setf} function (@pxref{Generalized Variables}).
-@var{place} can also be a cons @code{(@var{get} . @var{set})}, where
-@var{get} is an expression that returns the current state, and @var{set} is
-a function of one argument (a state) that sets it.
+これは、そのモードの状態を格納するために使用される、デフォルトの変数@var{mode}を置き換える。これを指定した場合、@var{mode}変数は定義されず、すべての@var{init-value}引数は使用されない。@var{place}は異なる名前の変数(あなた自身が定義しなければならない)、または@code{setf}関数とともに使用され得るすべてのもの(@ref{Generalized
+Variables}を参照)。@var{place}にはコンス@code{(@var{get}
+.
+@var{set})}も指定できる。ここで、@var{get}はカレント状態をリターンする式であり、@var{set}はそれをセットする1つの引数(状態)をとる関数である。
 
 @item :after-hook @var{after-hook}
-This defines a single Lisp form which is evaluated after the mode hooks have
-run.  It should not be quoted.
+これは、モードフック実行後に評価される、単一のLispフォームを定義する。これはクォートすべきでない。
 @end table
 
-Any other keyword arguments are passed directly to the @code{defcustom}
-generated for the variable @var{mode}.
+その他のすべてのキーワード引数は、変数@var{mode}にたいして生成された@code{defcustom}に直接渡される。
 
-The command named @var{mode} first performs the standard actions such as
-setting the variable named @var{mode} and then executes the @var{body}
-forms, if any.  It then runs the mode hook variable @code{@var{mode}-hook}
-and finishes by evaluating any form in @code{:after-hook}.
+@var{mode}という名前のコマンドは、最初に@var{mode}という名前の変数をセットする等の標準的な動作を処理した後に、もしあれば@var{body}フォームを実行する。それからモードフック変数@code{@var{mode}-hook}を実行し、@code{:after-hook}内のフォームを評価して終了する。
 @end defmac
 
-  The initial value must be @code{nil} except in cases where (1) the mode is
-preloaded in Emacs, or (2) it is painless for loading to enable the mode
-even though the user did not request it.  For instance, if the mode has no
-effect unless something else is enabled, and will always be loaded by that
-time, enabling it by default is harmless.  But these are unusual
-circumstances.  Normally, the initial value must be @code{nil}.
+  @var{init-value}の値は@code{nil}でなければなりません。ただし、(1)Emacsによりそのモードが事前ロードされている、または(2)たとえユーザーが要求しなくともモードを有効にするためにロードするのが容易な場合を除きます。たとえば、他の何かが有効でなければそのモードの効果がなく、常にそのタイミングでロードされるような場合は、デフォルトでそのモードを有効にすることに害はありません。しかし、この状況は通常はあり得ません。通常は、@var{init-value}の値は@code{nil}でなければならないのです。
 
 @findex easy-mmode-define-minor-mode
-  The name @code{easy-mmode-define-minor-mode} is an alias for this macro.
+  @code{easy-mmode-define-minor-mode}という名前は、このマクロにたいするエイリアスです。
 
-  Here is an example of using @code{define-minor-mode}:
+  以下は、@code{define-minor-mode}の使い方の例です:
 
 @smallexample
 (define-minor-mode hungry-mode
-  "Toggle Hungry mode.
-Interactively with no argument, this command toggles the mode.
-A positive prefix argument enables the mode, any other prefix
-argument disables it.  From Lisp, argument omitted or nil enables
-the mode, `toggle' toggles the state.
+  "Hungryモードをトグルする。
+引数なしでinteractiveに呼び出すとモードをトグルする。
+正のプレフィクス引数でモードを有効に、その他のプレフィクス引数で
+無効にする。Lispから呼び出す場合、引数を省略、またはnilなら
+モードを有効に、`toggle'なら状態をトグルする。
 
-When Hungry mode is enabled, the control delete key
-gobbles all preceding whitespace except the last.
-See the command \\[hungry-electric-delete]."
- ;; The initial value.
+Hungryモードが有効なときは、C-DELキーは、
+最後を除く先行するすべての空白を飲み込む。
+コマンド \\[hungry-electric-delete] を参照のこと。"
+ ;; 初期値
  nil
- ;; The indicator for the mode line.
+ ;; モードラインの標示
  " Hungry"
- ;; The minor mode bindings.
+ ;; マイナーモードのバインディング
  '(([C-backspace] . hungry-electric-delete))
  :group 'hunger)
 @end smallexample
 
 @noindent
-This defines a minor mode named ``Hungry mode'', a command named
-@code{hungry-mode} to toggle it, a variable named @code{hungry-mode} which
-indicates whether the mode is enabled, and a variable named
-@code{hungry-mode-map} which holds the keymap that is active when the mode
-is enabled.  It initializes the keymap with a key binding for
-@kbd{C-@key{DEL}}.  It puts the variable @code{hungry-mode} into custom
-group @code{hunger}.  There are no @var{body} forms---many minor modes don't
-need any.
+これは、``Hungry
+mode''という名前のマイナーモード、モードをトグルする@code{hungry-mode}という名前のコマンド、モードが有効かどうかを示す@code{hungry-mode}という名前の変数、モードが有効なときそのキーマップを保持する@code{hungry-mode-map}という名前の変数を定義します。これは、@kbd{C-@key{DEL}}にたいするキーバインディングでキーマップを初期化します。また、変数@code{hungry-mode}をカスタムグループ@code{hunger}に置きます。@var{body}フォームはありません
+--- 多くのマイナーモードは必要としません。
 
-  Here's an equivalent way to write it:
+  以下は、これを記述する等価な方法です:
 
 @smallexample
 (define-minor-mode hungry-mode
-  "Toggle Hungry mode.
-...rest of documentation as before..."
- ;; The initial value.
+  "Hungryモードをトグルする。
+...省略..."
+ ;; 初期値
  :init-value nil
- ;; The indicator for the mode line.
+ ;; モードラインへのインジケーター
  :lighter " Hungry"
- ;; The minor mode bindings.
+ ;; マイナーモードのバインディング
  :keymap
  '(([C-backspace] . hungry-electric-delete)
    ([C-M-backspace]
@@ -1172,29 +1127,16 @@ need any.
 @end smallexample
 
 @defmac define-globalized-minor-mode global-mode mode turn-on keyword-args@dots{}
-This defines a global toggle named @var{global-mode} whose meaning is to
-enable or disable the buffer-local minor mode @var{mode} in all buffers.  To
-turn on the minor mode in a buffer, it uses the function @var{turn-on}; to
-turn off the minor mode, it calls @var{mode} with @minus{}1 as argument.
+これは、@var{global-mode}という名前をグローバルにトグルする。この意味は、@var{mode}という名前のバッファーローカルなマイナーモードを、すべてのバッファーで有効、または無効にするということである。あるバッファー内でそのマイナーモードをオンにするには、関数@var{turn-on}を使用する。マイナーモードをオフにするには、@minus{}1を引数として@var{mode}を呼び出す。
 
-Globally enabling the mode also affects buffers subsequently created by
-visiting files, and buffers that use a major mode other than Fundamental
-mode; but it does not detect the creation of a new buffer in Fundamental
-mode.
+モードをグローバルに有効にすると、それ以降ファイルをvisitすることにより作成されるバッファー、Fundamental以外のメジャーモードを使用するバッファーにも影響がある。しかし、Fundamentalで作成される新たなバッファーは検知しない。
 
-This defines the customization option @var{global-mode}
-(@pxref{Customization}), which can be toggled in the Customize interface to
-turn the minor mode on and off.  As with @code{define-minor-mode}, you
-should ensure that the @code{define-globalized-minor-mode} form is evaluated
-each time Emacs starts, for example by providing a @code{:require} keyword.
+これは、Customizeインターフェイス内でそのマイナーモードのオン/オフを切り替える、カスタムオプション@var{global-mode}(@ref{Customization})を定義する。@code{define-minor-mode}と同様に、たとえば@code{:require}を与える等により、毎回のEmacs開始時に確実に@code{define-globalized-minor-mode}フォームが評価されるようにすべきである。
 
-Use @code{:group @var{group}} in @var{keyword-args} to specify the custom
-group for the mode variable of the global minor mode.
+グローバルマイナーモードのモード変数にたいしてカスタムグループを指定するには、@var{keyword-args}内で@code{:group
+@var{group}}を使用する。
 
-Generally speaking, when you define a globalized minor mode, you should also
-define a non-globalized version, so that people can use (or disable) it in
-individual buffers.  This also allows them to disable a globally enabled
-minor mode in a specific major mode, by using that mode's hook.
+一般的には、グローバル化されたマイナーモードを定義するときは、ユーザーがバッファーごとにモードを使用(または無効に)できるように、非グローバル版も定義すべきである。ことにより、特定のメジャーモード内でそのモードのフックを使用することにより、グローバル有効化されたマイナーモードを無効にすることができるようになる。
 @end defmac
 
 
