@@ -1231,35 +1231,21 @@ in Mode}を参照のこと。
 @node Mode Line Top
 @subsection The Top Level of Mode Line Control
 
-  The variable in overall control of the mode line is @code{mode-line-format}.
+  変数@code{mode-line-format}は、モードラインの全体的な制御を行います。
 
 @defopt mode-line-format
-The value of this variable is a mode line construct that controls the
-contents of the mode-line.  It is always buffer-local in all buffers.
+この変数の値は、モードラインのコンテンツを制御するモードライン構成である。これは、すべてのバッファーにおいて、常にバッファーローカルである。
 
-If you set this variable to @code{nil} in a buffer, that buffer does not
-have a mode line.  (A window that is just one line tall also does not
-display a mode line.)
+あるバッファー内でこの変数に@code{nil}をセットした場合、そのバッファーはモードラインをもたない(高さが1行しかないウィンドウも、モードラインを表示しない)。
 @end defopt
 
-  The default value of @code{mode-line-format} is designed to use the values
-of other variables such as @code{mode-line-position} and
-@code{mode-line-modes} (which in turn incorporates the values of the
-variables @code{mode-name} and @code{minor-mode-alist}).  Very few modes
-need to alter @code{mode-line-format} itself.  For most purposes, it is
-sufficient to alter some of the variables that @code{mode-line-format}
-either directly or indirectly refers to.
+  @code{mode-line-format}のデフォルト値は、@code{mode-line-position}や@code{mode-line-modes}(これは@code{mode-name}と@code{minor-mode-alist}の値を組み込む)のような、他の変数の値を使用するようデザインされています。@code{mode-line-format}自体を変更する必要があるモードは、ほとんどありません。ほとんどの用途にたいしては、@code{mode-line-format}が直接、または間接的に参照する、いくつかの変数を修正すれば十分です。
 
-  If you do alter @code{mode-line-format} itself, the new value should use the
-same variables that appear in the default value (@pxref{Mode Line
-Variables}), rather than duplicating their contents or displaying the
-information in another fashion.  This way, customizations made by the user
-or by Lisp programs (such as @code{display-time} and major modes) via
-changes to those variables remain effective.
+  @code{mode-line-format}l自体の変更を行った場合、新たな値は他の様式でコンテンツを複製したり情報を表示するのではなく、デフォルト値(@ref{Mode
+Line
+Variables}を参照)に現れるのと同じ変数を使用するべきです。この方法を使用すれば、ユーザーや(@code{display-time}やメジャーモードのような)Lispプログラムにより行われたカスタマイズは、それらの変数への変更を通じて、効力を保ちます。
 
-  Here is a hypothetical example of a @code{mode-line-format} that might be
-useful for Shell mode (in reality, Shell mode does not set
-@code{mode-line-format}):
+  以下は、Shellモードにたいして有用かもしれない、架空の@code{mode-line-format}の例です(実際には、Shellモードは@code{mode-line-format}をセットしない):
 
 @example
 @group
@@ -1271,8 +1257,8 @@ useful for Shell mode (in reality, Shell mode does not set
    "%b--"
 @end group
 @group
-   ;; @r{Note that this is evaluated while making the list.}
-   ;; @r{It makes a mode line construct which is just a string.}
+   ;; @r{これはリスト作成中に評価されることに注意。}
+   ;; @r{これは単なる文字列のモードライン構成を作成する。}
    (getenv "HOST")
 @end group
    ":"
@@ -1294,9 +1280,7 @@ useful for Shell mode (in reality, Shell mode does not set
 @end example
 
 @noindent
-(The variables @code{line-number-mode}, @code{column-number-mode} and
-@code{which-func-mode} enable particular minor modes; as usual, these
-variable names are also the minor mode command names.)
+(変数@code{line-number-mode}、@code{column-number-mode}、@code{which-func-mode}は特定のマイナーモードを有効にする。通例どおり、これらの変数名は、マイナーモードコマンド名でもある。)
 
 @node Mode Line Variables
 @subsection Variables Used in the Mode Line

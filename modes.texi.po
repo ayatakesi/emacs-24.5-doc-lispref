@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-04-06 11:33+0900\n"
-"PO-Revision-Date: 2018-04-20 06:14+0900\n"
+"PO-Revision-Date: 2018-04-21 01:57+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2716,49 +2716,49 @@ msgstr "たとえば、ウィンドウ最上部からのバッファー位置を
 #: modes.texi.orig:1827
 #, no-wrap
 msgid "Mode Line Top"
-msgstr ""
+msgstr "Mode Line Top"
 
 #. type: subsection
 #: modes.texi.orig:1828
 #, no-wrap
 msgid "The Top Level of Mode Line Control"
-msgstr ""
+msgstr "The Top Level of Mode Line Control"
 
 #. type: Plain text
 #: modes.texi.orig:1832
 msgid "The variable in overall control of the mode line is @code{mode-line-format}."
-msgstr ""
+msgstr "変数@code{mode-line-format}は、モードラインの全体的な制御を行います。"
 
 #. type: defopt
 #: modes.texi.orig:1833
 #, no-wrap
 msgid "mode-line-format"
-msgstr ""
+msgstr "mode-line-format"
 
 #. type: defopt
 #: modes.texi.orig:1836
 msgid "The value of this variable is a mode line construct that controls the contents of the mode-line.  It is always buffer-local in all buffers."
-msgstr ""
+msgstr "この変数の値は、モードラインのコンテンツを制御するモードライン構成である。これは、すべてのバッファーにおいて、常にバッファーローカルである。"
 
 #. type: defopt
 #: modes.texi.orig:1840
 msgid "If you set this variable to @code{nil} in a buffer, that buffer does not have a mode line.  (A window that is just one line tall also does not display a mode line.)"
-msgstr ""
+msgstr "あるバッファー内でこの変数に@code{nil}をセットした場合、そのバッファーはモードラインをもたない(高さが1行しかないウィンドウも、モードラインを表示しない)。"
 
 #. type: Plain text
 #: modes.texi.orig:1849
 msgid "The default value of @code{mode-line-format} is designed to use the values of other variables such as @code{mode-line-position} and @code{mode-line-modes} (which in turn incorporates the values of the variables @code{mode-name} and @code{minor-mode-alist}).  Very few modes need to alter @code{mode-line-format} itself.  For most purposes, it is sufficient to alter some of the variables that @code{mode-line-format} either directly or indirectly refers to."
-msgstr ""
+msgstr "@code{mode-line-format}のデフォルト値は、@code{mode-line-position}や@code{mode-line-modes}(これは@code{mode-name}と@code{minor-mode-alist}の値を組み込む)のような、他の変数の値を使用するようデザインされています。@code{mode-line-format}自体を変更する必要があるモードは、ほとんどありません。ほとんどの用途にたいしては、@code{mode-line-format}が直接、または間接的に参照する、いくつかの変数を修正すれば十分です。"
 
 #. type: Plain text
 #: modes.texi.orig:1856
 msgid "If you do alter @code{mode-line-format} itself, the new value should use the same variables that appear in the default value (@pxref{Mode Line Variables}), rather than duplicating their contents or displaying the information in another fashion.  This way, customizations made by the user or by Lisp programs (such as @code{display-time} and major modes) via changes to those variables remain effective."
-msgstr ""
+msgstr "@code{mode-line-format}l自体の変更を行った場合、新たな値は他の様式でコンテンツを複製したり情報を表示するのではなく、デフォルト値(@ref{Mode Line Variables}を参照)に現れるのと同じ変数を使用するべきです。この方法を使用すれば、ユーザーや(@code{display-time}やメジャーモードのような)Lispプログラムにより行われたカスタマイズは、それらの変数への変更を通じて、効力を保ちます。"
 
 #. type: Plain text
 #: modes.texi.orig:1860
 msgid "Here is a hypothetical example of a @code{mode-line-format} that might be useful for Shell mode (in reality, Shell mode does not set @code{mode-line-format}):"
-msgstr ""
+msgstr "以下は、Shellモードにたいして有用かもしれない、架空の@code{mode-line-format}の例です(実際には、Shellモードは@code{mode-line-format}をセットしない):"
 
 #. type: group
 #: modes.texi.orig:1869
@@ -2771,6 +2771,12 @@ msgid ""
 "   'mode-line-frame-identification\n"
 "   \"%b--\"\n"
 msgstr ""
+"(setq mode-line-format\n"
+"  (list \"-\"\n"
+"   'mode-line-mule-info\n"
+"   'mode-line-modified\n"
+"   'mode-line-frame-identification\n"
+"   \"%b--\"\n"
 
 #. type: group
 #: modes.texi.orig:1874
@@ -2780,6 +2786,9 @@ msgid ""
 "   ;; @r{It makes a mode line construct which is just a string.}\n"
 "   (getenv \"HOST\")\n"
 msgstr ""
+"   ;; @r{これはリスト作成中に評価されることに注意。}\n"
+"   ;; @r{これは単なる文字列のモードライン構成を作成する。}\n"
+"   (getenv \"HOST\")\n"
 
 #. type: example
 #: modes.texi.orig:1885
@@ -2796,6 +2805,16 @@ msgid ""
 "   \"%n\"\n"
 "   \")%]--\"\n"
 msgstr ""
+"   \":\"\n"
+"   'default-directory\n"
+"   \"   \"\n"
+"   'global-mode-string\n"
+"   \"   %[(\"\n"
+"   '(:eval (mode-line-mode-name))\n"
+"   'mode-line-process\n"
+"   'minor-mode-alist\n"
+"   \"%n\"\n"
+"   \")%]--\"\n"
 
 #. type: group
 #: modes.texi.orig:1890
@@ -2806,11 +2825,15 @@ msgid ""
 "   '(column-number-mode \"C%c--\")\n"
 "   '(-3 \"%p\")))\n"
 msgstr ""
+"   '(which-func-mode (\"\" which-func-format \"--\"))\n"
+"   '(line-number-mode \"L%l--\")\n"
+"   '(column-number-mode \"C%c--\")\n"
+"   '(-3 \"%p\")))\n"
 
 #. type: Plain text
 #: modes.texi.orig:1897
 msgid "(The variables @code{line-number-mode}, @code{column-number-mode} and @code{which-func-mode} enable particular minor modes; as usual, these variable names are also the minor mode command names.)"
-msgstr ""
+msgstr "(変数@code{line-number-mode}、@code{column-number-mode}、@code{which-func-mode}は特定のマイナーモードを有効にする。通例どおり、これらの変数名は、マイナーモードコマンド名でもある。)"
 
 #. type: subsection
 #: modes.texi.orig:1899
