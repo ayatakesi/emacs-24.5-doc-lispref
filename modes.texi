@@ -1285,129 +1285,84 @@ Variables}を参照)に現れるのと同じ変数を使用するべきです。
 @node Mode Line Variables
 @subsection Variables Used in the Mode Line
 
-  This section describes variables incorporated by the standard value of
-@code{mode-line-format} into the text of the mode line.  There is nothing
-inherently special about these variables; any other variables could have the
-same effects on the mode line if the value of @code{mode-line-format} is
-changed to use them.  However, various parts of Emacs set these variables on
-the understanding that they will control parts of the mode line; therefore,
-practically speaking, it is essential for the mode line to use them.
+  このセクションでは、@code{mode-line-format}の標準的な値として、モードラインテキストに組み込まれる変数を説明します。これらの変数は、本質的には特別なものではありません。@code{mode-line-format}が使用する変数を他の変数に変更すれば、それらはモードライン上で同様の効果をもちます。しかし、Emacsのさまざまな部分は、それらの変数がモードラインを制御するという認識の元、それらの変数をセットします。したがって、事実上モードラインがそれらの変数を使用するのは必須なのです。
 
 @defvar mode-line-mule-info
-This variable holds the value of the mode line construct that displays
-information about the language environment, buffer coding system, and
-current input method.  @xref{Non-ASCII Characters}.
+この変数は、言語環境(language environment)、バッファーコーディングシステム、カレント入力メソッド(current input
+method)に関する情報のモードライン構成の値を保持する。@ref{Non-ASCII Characters}を参照のこと。
 @end defvar
 
 @defvar mode-line-modified
-This variable holds the value of the mode line construct that displays
-whether the current buffer is modified.  Its default value displays
-@samp{**} if the buffer is modified, @samp{--} if the buffer is not
-modified, @samp{%%} if the buffer is read only, and @samp{%*} if the buffer
-is read only and modified.
+この変数は、カレントバッファーが変更されたかどうかを表示する、モードライン構成の値を保持する。デフォルト値ではバッファーが変更されていれば@samp{**}、バッファーが変更されていなければ@samp{--}、バッファーが読み取り専用なら@samp{%%}、読み取り専用だが変更されているときは@samp{%*}を表示する。
 
-Changing this variable does not force an update of the mode line.
+この変数を変更しても、モードラインは強制的に更新されない。
 @end defvar
 
 @defvar mode-line-frame-identification
-This variable identifies the current frame.  Its default value displays
-@code{" "} if you are using a window system which can show multiple frames,
-or @code{"-%F "} on an ordinary terminal which shows only one frame at a
-time.
+この変数は、カレントフレームを識別する。デフォルト値では、複製フレームを表示可能なウィンドウシステムを使用している場合は@code{"
+"}、一度に1つのフレームだけを表示する通常の端末では@code{"-%F "}を表示する。
 @end defvar
 
 @defvar mode-line-buffer-identification
-This variable identifies the buffer being displayed in the window.  Its
-default value displays the buffer name, padded with spaces to at least 12
-columns.
+この変数は、そのウィンドウ内で表示されているバッファーを識別する。デフォルト値では、少なくとも12列になるようスペースパディングされたバッファー名を表示する。
 @end defvar
 
 @defopt mode-line-position
-This variable indicates the position in the buffer.  Its default value
-displays the buffer percentage and, optionally, the buffer size, the line
-number and the column number.
+この変数は、バッファー内での位置を標示する。デフォルト値ではバッファーのパーセントを表示し、オプションでバッファーサイズ、行番号、列番号を表示する。
 @end defopt
 
 @defvar vc-mode
-The variable @code{vc-mode}, buffer-local in each buffer, records whether
-the buffer's visited file is maintained with version control, and, if so,
-which kind.  Its value is a string that appears in the mode line, or
-@code{nil} for no version control.
+変数@code{vc-mode}は、各バッファーにたいしてバッファーローカルであり、そのバッファーがvisitしているファイルがバージョンコントロールで保守されているかどうかと、保守されている場合はバージョンコントロールシステムの種別を表示する。新しいモードラインに表示される文字列、バージョンコントロールされていない場合は@code{nil}である。
 @end defvar
 
 @defopt mode-line-modes
-This variable displays the buffer's major and minor modes.  Its default
-value also displays the recursive editing level, information on the process
-status, and whether narrowing is in effect.
+この変数は、そのバッファーのメジャーモードとマイナーモードを表示する。デフォルト値では再帰編集レベル(recursive editing
+level)、プロセス状態の情報、ナローイング(narrowing)効果の有無を表示する。
 @end defopt
 
 @defvar mode-line-remote
-This variable is used to show whether @code{default-directory} for the
-current buffer is remote.
+この変数は、カレントバッファーにたいする@code{default-directory}がリモートかどうかを表示するために使用される。
 @end defvar
 
 @defvar mode-line-client
-This variable is used to identify @code{emacsclient} frames.
+この変数は、@code{emacsclient}フレームを識別するために使用される。
 @end defvar
 
-  The following three variables are used in @code{mode-line-modes}:
+  以下の3つの変数は、@code{mode-line-modes}内で使用されます:
 
 @defvar mode-name
-This buffer-local variable holds the ``pretty'' name of the current buffer's
-major mode.  Each major mode should set this variable so that the mode name
-will appear in the mode line.  The value does not have to be a string, but
-can use any of the data types valid in a mode-line construct (@pxref{Mode
-Line Data}).  To compute the string that will identify the mode name in the
-mode line, use @code{format-mode-line} (@pxref{Emulating Mode Line}).
+このバッファーローカル変数は、カレントバッファーのメジャーモードの``愛称(pretty
+name)''を保持する。モード名がモードラインに表示されるように、それぞれのメジャーモードは、この変数をセットすべきである。値は文字列である必要はなく、モードライン構成内で有効な任意のデータ型(@ref{Mode
+Line
+Data}を参照)を使用できる。モードライン内でモード名を識別する文字列の計算には、@code{format-mode-line}を使用する(@ref{Emulating
+Mode Line}を参照)。
 @end defvar
 
 @defvar mode-line-process
-This buffer-local variable contains the mode line information on process
-status in modes used for communicating with subprocesses.  It is displayed
-immediately following the major mode name, with no intervening space.  For
-example, its value in the @file{*shell*} buffer is @code{(":%s")}, which
-allows the shell to display its status along with the major mode as:
-@samp{(Shell:run)}.  Normally this variable is @code{nil}.
+このバッファーローカル変数には、そのモードにおいて、サブプロセスとの通信にたいするプロセス状態のモードライン情報が含まれる。これはメジャーモード名の直後(間のスペースはない)に表示される。たとえば、@file{*shell*}バッファーでの値は@code{(":%s")}であり、これは@samp{(Shell:run)}のように、メジャーモードとともにその状態を表示する。通常、この変数は@code{nil}である。
 @end defvar
 
 @defvar minor-mode-alist
 @anchor{Definition of minor-mode-alist}
-This variable holds an association list whose elements specify how the mode
-line should indicate that a minor mode is active.  Each element of the
-@code{minor-mode-alist} should be a two-element list:
+この変数は、マイナーモードがアクティブかをモードラインに示す方法を指定する要素をもつ、連想リスト(association
+list)を保持する。@code{minor-mode-alist}の各要素は、2要素のリストであること:
 
 @example
 (@var{minor-mode-variable} @var{mode-line-string})
 @end example
 
-More generally, @var{mode-line-string} can be any mode line construct.  It
-appears in the mode line when the value of @var{minor-mode-variable} is
-non-@code{nil}, and not otherwise.  These strings should begin with spaces
-so that they don't run together.  Conventionally, the
-@var{minor-mode-variable} for a specific mode is set to a non-@code{nil}
-value when that minor mode is activated.
+より一般的には、@var{mode-line-string}は任意のモードライン構成であり得る。@var{minor-mode-variable}の値が非@code{nil}の場合はモードラインに表示され、それ以外では表示されない。一緒に実行されないよう、これらの文字列はスペースで始まるべきである。慣例的に、特定のモードにたいする@var{minor-mode-variable}は、そのマイナーモードがアクティブになった際には、非@code{nil}値にセットされる。
 
-@code{minor-mode-alist} itself is not buffer-local.  Each variable mentioned
-in the alist should be buffer-local if its minor mode can be enabled
-separately in each buffer.
+@code{minor-mode-alist}自体はバッファーローカルではない。このalist内で参照される各変数は、そのマイナーモードをバッファーごとに個別に有効にできる場合は、バッファーローカルであること。
 @end defvar
 
 @defvar global-mode-string
-This variable holds a mode line construct that, by default, appears in the
-mode line just after the @code{which-func-mode} minor mode if set, else
-after @code{mode-line-modes}.  The command @code{display-time} sets
-@code{global-mode-string} to refer to the variable
-@code{display-time-string}, which holds a string containing the time and
-load information.
+この変数は、モードライン内でマイナーモード@code{which-func-mode}がセットされている場合はその直後、セットされていなければ@code{mode-line-modes}の後に表示されるモードライン構成を保持する(デフォルト)。コマンド@code{display-time}は、時間とロードの情報を含む文字列を保持する変数@code{display-time-string}を参照する、@code{global-mode-string}をセットする。
 
-The @samp{%M} construct substitutes the value of @code{global-mode-string},
-but that is obsolete, since the variable is included in the mode line from
-@code{mode-line-format}.
+@samp{%M}構成は、@code{global-mode-string}の値を置き換えるが、この変数は@code{mode-line-format}からモードラインにincludeされるので、時代遅れである。
 @end defvar
 
-Here is a simplified version of the default value of
-@code{mode-line-format}.  The real default value also specifies addition of
-text properties.
+以下は、@code{mode-line-format}のデフォルト値の簡略化バージョンです。実際のデフォルト値には、追加のテキストプロパティ指定も含まれます。
 
 @example
 @group
