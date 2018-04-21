@@ -1387,115 +1387,91 @@ list)を保持する。@code{minor-mode-alist}の各要素は、2要素のリス
 @node %-Constructs
 @subsection @code{%}-Constructs in the Mode Line
 
-  Strings used as mode line constructs can use certain @code{%}-constructs to
-substitute various kinds of data.  The following is a list of the defined
-@code{%}-constructs, and what they mean.
+  モードライン構成として使用される文字列は、さまざまな種類のデータを置き換えるために、@code{%}構成を使用できます。以下は、定義済みの@code{%}構成と意味のリストです。
 
-  In any construct except @samp{%%}, you can add a decimal integer after the
-@samp{%} to specify a minimum field width.  If the width is less, the field
-is padded to that width.  Purely numeric constructs (@samp{c}, @samp{i},
-@samp{I}, and @samp{l}) are padded by inserting spaces to the left, and
-others are padded by inserting spaces to the right.
+  @samp{%%}以外の構成では、フィールドの最小幅を指定するために、@samp{%}の後に10進整数を追加できます。幅がそれより小さい場合、そのフィールドは最小幅にパディングされます。純粋に数値的な構成(@samp{c}、@samp{i}、@samp{I}、@samp{l})は左側、それ以外は右側にスペースを追加してパディングされます。
 
 @table @code
 @item %b
-The current buffer name, obtained with the @code{buffer-name} function.
-@xref{Buffer Names}.
+@code{buffer-name}関数により取得されるカレントバッファー名。@ref{Buffer Names}を参照のこと。
 
 @item %c
-The current column number of point.
+ポイント位置のカレント列番号。
 
 @item %e
-When Emacs is nearly out of memory for Lisp objects, a brief message saying
-so.  Otherwise, this is empty.
+EmacsがLispオブジェクトにたいしてメモリー不足になりそうなときは、それを伝える簡略なメッセージを示す。それ以外の場合は空である。
 
 @item %f
-The visited file name, obtained with the @code{buffer-file-name} function.
-@xref{Buffer File Name}.
+@code{buffer-file-name}関数により取得される、visitしているファイル名。@ref{Buffer File
+Name}を参照のこと。
 
 @item %F
-The title (only on a window system) or the name of the selected frame.
-@xref{Basic Parameters}.
+選択されたフレームのタイトル(ウィンドウシステム上のみ)、または名前。@ref{Basic Parameters}を参照のこと。
 
 @item %i
-The size of the accessible part of the current buffer; basically @code{(-
-(point-max) (point-min))}.
+カレントバッファーのアクセス可能な範囲のサイズ。基本的には@code{(- (point-max) (point-min))}。
 
 @item %I
-Like @samp{%i}, but the size is printed in a more readable way by using
-@samp{k} for 10^3, @samp{M} for 10^6, @samp{G} for 10^9, etc., to
-abbreviate.
+@samp{%i}と同様だが、10^3は@samp{k}、10^6は@samp{M}、10^9は@samp{G}を使用して省略することにより、より読みやすい方法でサイズをプリントする。
 
 @item %l
-The current line number of point, counting within the accessible portion of
-the buffer.
+ポイント位置のカレント行番号。そのバッファーのアクセス可能な範囲内でカウントされる。
 
 @item %n
-@samp{Narrow} when narrowing is in effect; nothing otherwise (see
-@code{narrow-to-region} in @ref{Narrowing}).
+ナローイングが有効なときは@samp{Narrow}、それ以外は何も表示しない(@ref{Narrowing}の@code{narrow-to-region}を参照されたい)。
 
 @item %p
-The percentage of the buffer text above the @strong{top} of window, or
-@samp{Top}, @samp{Bottom} or @samp{All}.  Note that the default mode line
-construct truncates this to three characters.
+ウィンドウの@strong{最上部}より上にあるバッファーテキストのパーセント表示、または@samp{Top}、@samp{Bottom}、@samp{All}のいずれか。デフォルトのモードライン構成は、これを3文字に切り詰めることに注意されたい。
 
 @item %P
-The percentage of the buffer text that is above the @strong{bottom} of the
-window (which includes the text visible in the window, as well as the text
-above the top), plus @samp{Top} if the top of the buffer is visible on
-screen; or @samp{Bottom} or @samp{All}.
+ウィンドウの@strong{最下部}より上にあるバッファーテキスト(ウィンドウ内の可視なテキストと、最上部の上にあるテキスト)のパーセント表示、およびバッファーの最上部がスクリーン上で可視な場合は、それに加えて@samp{Top}。または@samp{Bottom}か@samp{All}。
 
 @item %s
-The status of the subprocess belonging to the current buffer, obtained with
-@code{process-status}.  @xref{Process Information}.
+@code{process-status}により取得される、カレントバッファーに属するサブプロセスの状態。@ref{Process
+Information}を参照のこと。
 
 @item %z
-The mnemonics of keyboard, terminal, and buffer coding systems.
+キーボード、端末、およびバッファーコーディングシステムのニーモニック。
 
 @item %Z
-Like @samp{%z}, but including the end-of-line format.
+@samp{%z}と同様だが、EOL形式(end-of-line format: 改行形式)を含む。
 
 @item %*
-@samp{%} if the buffer is read only (see @code{buffer-read-only}); @*
-@samp{*} if the buffer is modified (see @code{buffer-modified-p}); @*
-@samp{-} otherwise.  @xref{Buffer Modification}.
+バッファーが読み取り専用(@code{buffer-read-only}を参照)の場合は@samp{%}、@*
+変更されている場合(@code{buffer-modified-p}を参照)は@samp{*}、@* それ以外は@samp{-}。@ref{Buffer
+Modification}を参照のこと。
 
 @item %+
-@samp{*} if the buffer is modified (see @code{buffer-modified-p}); @*
-@samp{%} if the buffer is read only (see @code{buffer-read-only}); @*
-@samp{-} otherwise.  This differs from @samp{%*} only for a modified
-read-only buffer.  @xref{Buffer Modification}.
+バッファーが変更されている場合(@code{buffer-modified-p}を参照)は@samp{*}@*
+バッファーが読み取り専用(@code{buffer-read-only}を参照)の場合は@samp{%}、@*
+それ以外は@samp{-}。これは、読み取り専用バッファーの変更にたいしてのみ@samp{%*}と異なる。@ref{Buffer
+Modification}を参照のこと。
 
 @item %&
-@samp{*} if the buffer is modified, and @samp{-} otherwise.
+バッファーが変更されている場合は@samp{*}、それ以外は@samp{-}。
 
 @item %[
-An indication of the depth of recursive editing levels (not counting
-minibuffer levels): one @samp{[} for each editing level.  @xref{Recursive
-Editing}.
+再帰編集レベルの深さを標示する(ミニバッファーレベルは勘定しない)。1つの編集レベルが@samp{[}。@ref{Recursive
+Editing}を参照のこと。
 
 @item %]
-One @samp{]} for each recursive editing level (not counting minibuffer
-levels).
+1つの編集レベルが@samp{]}(ミニバッファーレベルは勘定しない)。
 
 @item %-
-Dashes sufficient to fill the remainder of the mode line.
+モードラインの残りを充填するのに十分なダッシュ。
 
 @item %%
-The character @samp{%}---this is how to include a literal @samp{%} in a
-string in which @code{%}-constructs are allowed.
+文字@samp{%}。@code{%}構成が許される文字列内に、リテラル@samp{%}を含めるには、この方法を使用する。
 @end table
 
-The following two @code{%}-constructs are still supported, but they are
-obsolete, since you can get the same results with the variables
-@code{mode-name} and @code{global-mode-string}.
+以下の2つの@code{%}構成はまだサポートされていますが、同じ結果を変数@code{mode-name}と@code{global-mode-string}で取得できるので、これらは時代遅れです。
 
 @table @code
 @item %m
-The value of @code{mode-name}.
+@code{mode-name}の値。
 
 @item %M
-The value of @code{global-mode-string}.
+@code{global-mode-string}の値。
 @end table
 
 @node Properties in Mode
