@@ -1478,42 +1478,29 @@ Editing}を参照のこと。
 @subsection Properties in the Mode Line
 @cindex text properties in the mode line
 
-  Certain text properties are meaningful in the mode line.  The @code{face}
-property affects the appearance of text; the @code{help-echo} property
-associates help strings with the text, and @code{keymap} can make the text
-mouse-sensitive.
+  モードライン内では、特定のテキストプロパティが意味をもちます。@code{face}プロパティは、テキストの外見に影響します。@code{help-echo}プロパティはそのテキストのヘルプ文字列に関連し、@code{keymap}によりテキストをマウスに感応させることができます。
 
-  There are four ways to specify text properties for text in the mode line:
+  モードライン内のテキストにたいしてテキストプロパティを指定するには、4つの方法があります:
 
 @enumerate
 @item
-Put a string with a text property directly into the mode line data
-structure.
+モードラインデータ構造内に、テキストプロパティをもつ文字列を直接配する。
 
 @item
-Put a text property on a mode line %-construct such as @samp{%12b}; then the
-expansion of the %-construct will have that same text property.
+@samp{%12b}のような、モードライン%構成に、テキストプロパティを配する。その場合、%構成を展開すると、同じテキストプロパティをもつことになる。
 
 @item
-Use a @code{(:propertize @var{elt} @var{props}@dots{})} construct to give
-@var{elt} a text property specified by @var{props}.
+@var{props}で指定されるテキストプロパティを@var{elt}に与えるために、@code{(:propertize @var{elt}
+@var{props}@dots{})}構成を使用する。
 
 @item
-Use a list containing @code{:eval @var{form}} in the mode line data
-structure, and make @var{form} evaluate to a string that has a text
-property.
+@var{form}がテキストプロパティをもつ文字列に評価されるように、モードラインデータ構造内に@code{:eval
+@var{form}}を含むリストを使用する。
 @end enumerate
 
-  You can use the @code{keymap} property to specify a keymap.  This keymap
-only takes real effect for mouse clicks; binding character keys and function
-keys to it has no effect, since it is impossible to move point into the mode
-line.
+  キーマップを指定するために、@code{keymap}プロパティを使用できます。このキーマップは、マウスクリックにたいしてのみ、実際の効果をもちます。モードライン内にポイントを移動させるのは不可能なので、文字キーやファンクションキーをこれにバインドしても、効果はありません。
 
-  When the mode line refers to a variable which does not have a non-@code{nil}
-@code{risky-local-variable} property, any text properties given or specified
-within that variable's values are ignored.  This is because such properties
-could otherwise specify functions to be called, and those functions could
-come from file local variables.
+  モードラインが、@code{risky-local-variable}が非@code{nil}であるようなプロパティをもつ変数を参照する場合、その変数の値により与える、または指定されるテキストプロパティは、すべて無視されます。これは、そのようなプロパティは呼び出される関数を指定するかもしれず、その関数はファイルローカル変数が由来かもしれないからです。
 
 @node Header Lines
 @subsection Window Header Lines
