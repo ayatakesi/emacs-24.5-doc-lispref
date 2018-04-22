@@ -1545,58 +1545,39 @@ header-line-format
 @section Imenu
 
 @cindex Imenu
-  @dfn{Imenu} is a feature that lets users select a definition or section in
-the buffer, from a menu which lists all of them, to go directly to that
-location in the buffer.  Imenu works by constructing a buffer index which
-lists the names and buffer positions of the definitions, or other named
-portions of the buffer; then the user can choose one of them and move point
-to it.  Major modes can add a menu bar item to use Imenu using
-@code{imenu-add-to-menubar}.
+  @dfn{Imenu}とは、バッファー内の定義やセクションをすべてリストするメニューをユーザー選択することにより、バッファー内の該当箇所に直接移動する機能です。Imenuは、定義(またはバッファーのその他の名前つき範囲)の名前とその定義のバッファー内での位置をリストする、バッファーインデックスを構築して、ユーザーがそれを選択すればポイントをおこに移動できるようにして機能します。メジャーモードは、@code{imenu-add-to-menubar}を使用して、メニューバーアイテムを追加することができます。
 
 @deffn Command imenu-add-to-menubar name
-This function defines a local menu bar item named @var{name} to run Imenu.
+この関数は、@var{name}という名前のImenuを実行するためのローカルメニューバーを定義する。
 @end deffn
 
-  The user-level commands for using Imenu are described in the Emacs Manual
-(@pxref{Imenu,, Imenu, emacs, the Emacs Manual}).  This section explains how
-to customize Imenu's method of finding definitions or buffer portions for a
-particular major mode.
+  Imenuを使用ためのユーザーレベルコマンドは、Emacsマニュアル内で説明されています(@ref{Imenu,, Imenu, emacs, the
+Emacs
+Manual}を参照)。このセクションでは、特定のメジャーモードにたいして、定義や名前つき範囲を見つける、Imenuメソッドのカスタマイズ方法を説明します。
 
-  The usual and simplest way is to set the variable
-@code{imenu-generic-expression}:
+  変数@code{imenu-generic-expression}をセットするのが通常の、そしてもっともシンプルな方法です:
 
 @defvar imenu-generic-expression
-This variable, if non-@code{nil}, is a list that specifies regular
-expressions for finding definitions for Imenu.  Simple elements of
-@code{imenu-generic-expression} look like this:
+この変数が非@code{nil}の場合、それはImenuにたいして定義を探すための正規表現を指定するリストである。シンプルな@code{imenu-generic-expression}の要素は、以下のようになる:
 
 @example
 (@var{menu-title} @var{regexp} @var{index})
 @end example
 
-Here, if @var{menu-title} is non-@code{nil}, it says that the matches for
-this element should go in a submenu of the buffer index; @var{menu-title}
-itself specifies the name for the submenu.  If @var{menu-title} is
-@code{nil}, the matches for this element go directly in the top level of the
-buffer index.
+ここで、@var{menu-title}が非@code{nil}の場合、それはこの要素にたいするマッチが、バッファーインデックスのサブメニューとなることを告げる。@var{menu-title}自体は、そのサブメニューにたいして名前を指定する。@var{menu-title}が@code{nil},の場合は、この要素にたいするマッチは、直接トップレベルのバッファーインデックスとなる。
 
-The second item in the list, @var{regexp}, is a regular expression
-(@pxref{Regular Expressions}); anything in the buffer that it matches is
-considered a definition, something to mention in the buffer index.  The
-third item, @var{index}, is a non-negative integer that indicates which
-subexpression in @var{regexp} matches the definition's name.
+このリストの2つ目の要素@var{regexp}は、正規表現である(@ref{Regular
+Expressions}を参照)。これは、バッファー内でこれにマッチするものは定義、あるいはバッファーインデックス内に記載すべき何かであると判断される。3つ目の要素@var{index}は、0以上の整数の場合は、@var{regexp}内の部分式(subexpression)が定義名にマッチすることを示します。
 
-An element can also look like this:
+以下のような要素もある:
 
 @example
 (@var{menu-title} @var{regexp} @var{index} @var{function} @var{arguments}@dots{})
 @end example
 
-Each match for this element creates an index item, and when the index item
-is selected by the user, it calls @var{function} with arguments consisting
-of the item name, the buffer position, and @var{arguments}.
+この要素にたいする各マッチはインデックスアイテムを作成し、ユーザーによりそのインデックスアイテムが選択されたとき、アイテム名、バッファー位置、および@var{arguments}から構成される引数で、@var{function}を呼び出す。
 
-For Emacs Lisp mode, @code{imenu-generic-expression} could look like this:
+Emacs Lispモードにたいしては、@code{imenu-generic-expression}は以下のようになるだろう:
 
 @c should probably use imenu-syntax-alist and \\sw rather than [-A-Za-z0-9+]
 @example
@@ -1616,116 +1597,88 @@ For Emacs Lisp mode, @code{imenu-generic-expression} could look like this:
 @end group
 @end example
 
-Setting this variable makes it buffer-local in the current buffer.
+この変数をセットすることにより、カレントバッファーにたいしてバッファーローカルになる。
 @end defvar
 
 @defvar imenu-case-fold-search
-This variable controls whether matching against the regular expressions in
-the value of @code{imenu-generic-expression} is case-sensitive: @code{t},
-the default, means matching should ignore case.
+この変数は、@code{imenu-generic-expression}の値中の正規表現マッチが、大文字小文字を区別するかどうかを制御する。@code{t},(デフォルト)の場合は、大文字小文字の違いを無視することを意味する。
 
-Setting this variable makes it buffer-local in the current buffer.
+この変数をセットすることにより、カレントバッファーにたいしてバッファーローカルになる。
 @end defvar
 
 @defvar imenu-syntax-alist
-This variable is an alist of syntax table modifiers to use while processing
-@code{imenu-generic-expression}, to override the syntax table of the current
-buffer.  Each element should have this form:
+この変数は、@code{imenu-generic-expression}処理中に、カレントバッファーの構文テーブルをオーバーライドして使用する、構文テーブル変更用のalistである。このalistの各要素は、以下の形式をもつべきである:
 
 @example
 (@var{characters} . @var{syntax-description})
 @end example
 
-The @sc{car}, @var{characters}, can be either a character or a string.  The
-element says to give that character or characters the syntax specified by
-@var{syntax-description}, which is passed to @code{modify-syntax-entry}
-(@pxref{Syntax Table Functions}).
+@sc{car}の@var{characters}には、文字または文字列を指定できる。この要素は、その文字、または文字列が@var{syntax-description}により指定される構文でありことを示し、@code{modify-syntax-entry}に渡される(@ref{Syntax
+Table Functions}を参照)。
 
-This feature is typically used to give word syntax to characters which
-normally have symbol syntax, and thus to simplify
-@code{imenu-generic-expression} and speed up matching.  For example, Fortran
-mode uses it this way:
+典型的には、この機能は通常はシンボル構文(symbol syntax)をもつ文字にたいして単語構文(word
+syntax)を与えるために使用され、それにより@code{imenu-generic-expression}が単純になり、マッチングのスピードも向上する。たとえば、Fortranモードは以下のようにこれを使用する:
 
 @example
 (setq imenu-syntax-alist '(("_$" . "w")))
 @end example
 
-The @code{imenu-generic-expression} regular expressions can then use
-@samp{\\sw+} instead of @samp{\\(\\sw\\|\\s_\\)+}.  Note that this technique
-may be inconvenient when the mode needs to limit the initial character of a
-name to a smaller set of characters than are allowed in the rest of a name.
+@code{imenu-generic-expression}の正規表現は、@samp{\\(\\sw\\|\\s_\\)+}のかわりに、@samp{\\sw+}を使用できる。このテクニックは、モードの名前として許されるより短い、頭文字に名前を制限する必要があるときは、不便かもしれないことに注意されたい。
 
-Setting this variable makes it buffer-local in the current buffer.
+この変数をセットすることにより、カレントバッファーにたいしてバッファーローカルになる。
 @end defvar
 
-  Another way to customize Imenu for a major mode is to set the variables
-@code{imenu-prev-index-position-function} and
-@code{imenu-extract-index-name-function}:
+  あるメジャーモードにたいしてImenuをカスタマイズする別の方法には、@code{imenu-prev-index-position-function}と@code{imenu-extract-index-name-function}があります:
 
 @defvar imenu-prev-index-position-function
-If this variable is non-@code{nil}, its value should be a function that
-finds the next ``definition'' to put in the buffer index, scanning backward
-in the buffer from point.  It should return @code{nil} if it doesn't find
-another ``definition'' before point.  Otherwise it should leave point at the
-place it finds a ``definition'' and return any non-@code{nil} value.
+この変数が非@code{nil}の場合、その値はポイント位置からバッファーを後方にスキャンして、バッファーインデックスに配すべき、次の``定義''を探すための関数であること。そして、ポイントより前に他の``定義''が見つからなければ、@code{nil}をリターンすべきである。見つかった場合は、``definition''を見つけた場所にポイントを残し、任意の非@code{nil}値をリターンすべきである。
 
-Setting this variable makes it buffer-local in the current buffer.
+この変数をセットすることにより、カレントバッファーにたいしてバッファーローカルになる。
 @end defvar
 
 @defvar imenu-extract-index-name-function
-If this variable is non-@code{nil}, its value should be a function to return
-the name for a definition, assuming point is in that definition as the
-@code{imenu-prev-index-position-function} function would leave it.
+この変数が非@code{nil}の場合、その値はポイントが定義中にある(@code{imenu-prev-index-position-function}関数がポイントを残す場所)という想定の元、その定義の名前をリターンする関数であること。
 
-Setting this variable makes it buffer-local in the current buffer.
+この変数をセットすることにより、カレントバッファーにたいしてバッファーローカルになる。
 @end defvar
 
-  The last way to customize Imenu for a major mode is to set the variable
-@code{imenu-create-index-function}:
+  メジャーモードにたいしてImenuをカスタマイズするための最後の方法は、変数@code{imenu-create-index-function}のセットです:
 
 @defvar imenu-create-index-function
-This variable specifies the function to use for creating a buffer index.
-The function should take no arguments, and return an index alist for the
-current buffer.  It is called within @code{save-excursion}, so where it
-leaves point makes no difference.
+この変数は、バッファーインデックスを作成するために使用する関数を指定する。この関数は、引数がをとらず、カレントバッファーにたいするインデックスalist(index
+alist)をリターンすべきである。この関数は@code{save-excursion}内で呼び出されるので、どこにポイントを残しても違いはない。
 
-The index alist can have three types of elements.  Simple elements look like
-this:
+このインデックスalistは、3つのタイプの要素をもつことができる。以下は、シンプル要素(simple element)の例である:
 
 @example
 (@var{index-name} . @var{index-position})
 @end example
 
-Selecting a simple element has the effect of moving to position
-@var{index-position} in the buffer.  Special elements look like this:
+シンプル要素の選択は、そのバッファー内の位置@var{index-position}に移動する効果をもつ。スペシャル要素(special
+element)は、以下のようなものである:
 
 @example
 (@var{index-name} @var{index-position} @var{function} @var{arguments}@dots{})
 @end example
 
-Selecting a special element performs:
+スペシャル要素の選択により、以下が処理される:
 
 @example
 (funcall @var{function}
          @var{index-name} @var{index-position} @var{arguments}@dots{})
 @end example
 
-A nested sub-alist element looks like this:
+ネストされたサブalist要素(nested sub-alist element)は、以下のようなものである:
 
 @example
 (@var{menu-title} . @var{sub-alist})
 @end example
 
-It creates the submenu @var{menu-title} specified by @var{sub-alist}.
+これは、@var{sub-alist}により指定される、サブメニュー@var{menu-title}を作成する。
 
-The default value of @code{imenu-create-index-function} is
-@code{imenu-default-create-index-function}.  This function calls the value
-of @code{imenu-prev-index-position-function} and the value of
-@code{imenu-extract-index-name-function} to produce the index alist.
-However, if either of these two variables is @code{nil}, the default
-function uses @code{imenu-generic-expression} instead.
+@code{imenu-create-index-function}のデフォルト値は、@code{imenu-default-create-index-function}である。この関数は、インデックスalistを生成するために、@code{imenu-prev-index-position-function}の値と、@code{imenu-extract-index-name-function}の値を呼び出す。しかし、これら2つ変数のいずれかが@code{nil}の場合、デフォルト関数はかわりに@code{imenu-generic-expression}を使用する。
 
-Setting this variable makes it buffer-local in the current buffer.
+この変数をセットすることにより、カレントバッファーにたいしてバッファーローカルになる。
 @end defvar
 
 @node Font Lock Mode
