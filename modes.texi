@@ -1710,73 +1710,47 @@ fontification)が発生します。これはコメントと文字列定数を見
 @node Font Lock Basics
 @subsection Font Lock Basics
 
-  There are several variables that control how Font Lock mode highlights
-text.  But major modes should not set any of these variables directly.
-Instead, they should set @code{font-lock-defaults} as a buffer-local
-variable.  The value assigned to this variable is used, if and when Font
-Lock mode is enabled, to set all the other variables.
+  Font
+Lockモードがテキストをハイライトする方法を制御する変数が、いくつかあります。しかし、メジャーモードは、これらの変数を直接セットするべきではありません。かわりに、メジャーモードはバッファーローカル変数として、@code{font-lock-defaults}をセットするべきです。Font
+Lockモードが有効なときは、他のすべての変数をセットするために、この変数に割り当てられた値が使用されます。
 
 @defvar font-lock-defaults
-This variable is set by major modes to specify how to fontify text in that
-mode.  It automatically becomes buffer-local when set.  If its value is
-@code{nil}, Font Lock mode does no highlighting, and you can use the
-@samp{Faces} menu (under @samp{Edit} and then @samp{Text Properties} in the
-menu bar) to assign faces explicitly to text in the buffer.
+この変数は、そのモード内のテキストをフォント表示する方法を指定するために、メジャーモードによりセットされる。この変数は、セットした際に自動的にバッファーローカルになる。変数の値が@code{nil}の場合、Font
+Lockモードはハイライトを行わず、バッファー内のテキストに明示的にフェイスを割り当てるために、@samp{Faces}メニュー(メニューバーの@samp{Edit}の下の@samp{Text
+Properties})を使用できる。
 
-If non-@code{nil}, the value should look like this:
+非@code{nil}の場合、値は以下のようであること:
 
 @example
 (@var{keywords} [@var{keywords-only} [@var{case-fold}
  [@var{syntax-alist} [@var{syntax-begin} @var{other-vars}@dots{}]]]])
 @end example
 
-The first element, @var{keywords}, indirectly specifies the value of
-@code{font-lock-keywords} which directs search-based fontification.  It can
-be a symbol, a variable or a function whose value is the list to use for
-@code{font-lock-keywords}.  It can also be a list of several such symbols,
-one for each possible level of fontification.  The first symbol specifies
-the @samp{mode default} level of fontification, the next symbol level 1
-fontification, the next level 2, and so on.  The @samp{mode default} level
-is normally the same as level 1.  It is used when
-@code{font-lock-maximum-decoration} has a @code{nil} value.  @xref{Levels of
-Font Lock}.
+1つ目の要素@var{keywords}は、検索ベースのフォント表示を制御する@code{font-lock-keywords}の値を、間接的に指定する。値にはシンボル、変数、または@code{font-lock-keywords}にたいして使用するリストが値であるような関数を指定できる。また、それぞれのシンボルがフォント表示の可能なレベルであるような、いくつかのシンボルからなるリストも指定できる。この場合、1つ目のシンボルはフォント表示の@samp{モードデフォルト(mode
+default)}レベル、次のシンボルはフォント表示のレベル1、その次はレベル2、のようになる。通常、@samp{モードデフォルト}レベルはレベル1と等しい。これは、@code{font-lock-maximum-decoration}が@code{nil}値をもつとき使用される。@ref{Levels
+of Font Lock}を参照のこと。
 
-The second element, @var{keywords-only}, specifies the value of the variable
-@code{font-lock-keywords-only}.  If this is omitted or @code{nil}, syntactic
-fontification (of strings and comments) is also performed.  If this is
-non-@code{nil}, syntactic fontification is not performed.  @xref{Syntactic
-Font Lock}.
+2つ目の要素@var{keywords-only}は、変数@code{font-lock-keywords-only}の値を指定する。これが省略、または@code{nil}の場合は、(文字列とコメントの)構文的フォント表示も行われる。非@code{nil}の場合は、構文的フォント表示は行われない。@ref{Syntactic
+Font Lock}を参照のこと。
 
-The third element, @var{case-fold}, specifies the value of
-@code{font-lock-keywords-case-fold-search}.  If it is non-@code{nil}, Font
-Lock mode ignores case during search-based fontification.
+3つ目の要素@var{case-fold}は、@code{font-lock-keywords-case-fold-search}の値を指定する。非@code{nil}の場合、検索ベースフォント表示の間、Font
+Lockモードは大文字小文字の違いを無視する。
 
-If the fourth element, @var{syntax-alist}, is non-@code{nil}, it should be a
-list of cons cells of the form @code{(@var{char-or-string}
-. @var{string})}.  These are used to set up a syntax table for syntactic
-fontification; the resulting syntax table is stored in
-@code{font-lock-syntax-table}.  If @var{syntax-alist} is omitted or
-@code{nil}, syntactic fontification uses the syntax table returned by the
-@code{syntax-table} function.  @xref{Syntax Table Functions}.
+4つ目の要素@var{syntax-alist}が非@code{nil}の場合、それは@code{(@var{char-or-string}
+.
+@var{string})}という形式のコンスセルのリストであること。これらは、構文的フォント表示にたいする構文テーブルのセットアップに使用される。結果となる構文テーブルは、@code{font-lock-syntax-table}に格納される。@var{syntax-alist}が省略、または@code{nil}の場合、構文的フォント表示は@code{syntax-table}関数によりリターンされる構文テーブルを使用する。@ref{Syntax
+Table Functions}を参照のこと。
 
-The fifth element, @var{syntax-begin}, specifies the value of
-@code{font-lock-beginning-of-syntax-function}.  We recommend setting this
-variable to @code{nil} and using @code{syntax-begin-function} instead.
+5つ目の要素@var{syntax-begin}は、@code{font-lock-beginning-of-syntax-function}の値を指定する。この変数は@code{nil}にセットして、かわりに@code{syntax-begin-function}の使用を推奨する。
 
-All the remaining elements (if any) are collectively called
-@var{other-vars}.  Each of these elements should have the form
-@code{(@var{variable} . @var{value})}---which means, make @var{variable}
-buffer-local and then set it to @var{value}.  You can use these
-@var{other-vars} to set other variables that affect fontification, aside
-from those you can control with the first five elements.  @xref{Other Font
-Lock Variables}.
+(もしあれば)残りすべての要素は、まとめて@var{other-vars}と呼ばれる。これらの要素はすべて、@code{(@var{variable}
+.
+@var{value})}という形式をもつべきである。これは、@var{variable}をバッファーローカルにしてから、それに@var{value}をセットすることを意味する。これら@var{other-vars}を使用して、最初の5つの要素による制御とは別に、フォント表示に影響する他の変数をセットできる。@ref{Other
+Font Lock Variables}を参照のこと。
 @end defvar
 
-  If your mode fontifies text explicitly by adding @code{font-lock-face}
-properties, it can specify @code{(nil t)} for @code{font-lock-defaults} to
-turn off all automatic fontification.  However, this is not required; it is
-possible to fontify some things using @code{font-lock-face} properties and
-set up automatic fontification for other parts of the text.
+  モードが@code{font-lock-face}プロパティ追加により明示的にテキストをフォント表示する場合は、自動的なフォント表示すべてをオフにするために、@code{font-lock-defaults}に@code{(nil
+t)}を指定できます。しかし、これは必須ではありません。@code{font-lock-face}を使用して何かをフォント表示して、それ以外の部分のテキストを自動的にフォント表示するようにセットアップするのは可能です。
 
 @node Search-based Fontification
 @subsection Search-based Fontification
