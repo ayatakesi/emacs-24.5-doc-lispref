@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-04-06 11:33+0900\n"
-"PO-Revision-Date: 2018-04-23 17:34+0900\n"
+"PO-Revision-Date: 2018-04-26 16:59+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3940,39 +3940,39 @@ msgstr "モードが@code{font-lock-face}プロパティ追加により明示的
 #. type: Plain text
 #: modes.texi.orig:2582
 msgid "The variable which directly controls search-based fontification is @code{font-lock-keywords}, which is typically specified via the @var{keywords} element in @code{font-lock-defaults}."
-msgstr ""
+msgstr "検索ベースフォント表示を直接制御する変数は、@code{font-lock-keywords}です。この変数は通常、@code{font-lock-defaults}内の要素@var{keywords}を通じて指定されます。"
 
 #. type: defvar
 #: modes.texi.orig:2583
 #, no-wrap
 msgid "font-lock-keywords"
-msgstr ""
+msgstr "font-lock-keywords"
 
 #. type: defvar
 #: modes.texi.orig:2590
 msgid "The value of this variable is a list of the keywords to highlight.  Lisp programs should not set this variable directly.  Normally, the value is automatically set by Font Lock mode, using the @var{keywords} element in @code{font-lock-defaults}.  The value can also be altered using the functions @code{font-lock-add-keywords} and @code{font-lock-remove-keywords} (@pxref{Customizing Keywords})."
-msgstr ""
+msgstr "この変数の値は、ハイライトするキーワードのリストである。Lispプログラムは、この変数を直接セッすべきでない。通常は、@code{font-lock-defaults}内の要素@var{keywords}を使用して、Font Lockモードが自動的に値をセットする。この値は、関数@code{font-lock-add-keywords}および@code{font-lock-remove-keywords}を使用して、変更されることもあり得る(@ref{Customizing Keywords}を参照)。"
 
 #. type: Plain text
 #: modes.texi.orig:2599
 msgid "Each element of @code{font-lock-keywords} specifies how to find certain cases of text, and how to highlight those cases.  Font Lock mode processes the elements of @code{font-lock-keywords} one by one, and for each element, it finds and handles all matches.  Ordinarily, once part of the text has been fontified already, this cannot be overridden by a subsequent match in the same text; but you can specify different behavior using the @var{override} element of a @var{subexp-highlighter}."
-msgstr ""
+msgstr "@code{font-lock-keywords}の各要素は、特定のケースに該当するテキストを見つける方法、およびそれらをハイライトする方法を指定します。Font Lockモードは、@code{font-lock-keywords}の要素をちくじ処理してマッチを探して、すべてのマッチを処理します。通常は、テキストの一部はすでに一度はフォント表示されており、同じテキスト内で連続するマッチによるこれをオーバーライドはできません。しかし、@var{subexp-highlighter}の要素@var{override}を使用して、異なる挙動を指定できます。"
 
 #. type: Plain text
 #: modes.texi.orig:2602
 msgid "Each element of @code{font-lock-keywords} should have one of these forms:"
-msgstr ""
+msgstr "@code{font-lock-keywords}の各要素は、以下の形式のいずれかをもつべきです:"
 
 #. type: var{#1}
 #: modes.texi.orig:2604
 #, no-wrap
 msgid "regexp"
-msgstr ""
+msgstr "regexp"
 
 #. type: table
 #: modes.texi.orig:2607
 msgid "Highlight all matches for @var{regexp} using @code{font-lock-keyword-face}.  For example,"
-msgstr ""
+msgstr "@code{font-lock-keyword-face}を使用して、@var{regexp}にたいするすべてのマッチをハイライトする。たとえば、"
 
 #. type: example
 #: modes.texi.orig:2612
@@ -3982,43 +3982,46 @@ msgid ""
 ";; @r{using @code{font-lock-keyword-face}.}\n"
 "\"\\\\<foo\\\\>\"\n"
 msgstr ""
+";; @r{@code{font-lock-keyword-face}を使用して}\n"
+";; @r{単語@samp{foo}をハイライトする}\n"
+"\"\\\\<foo\\\\>\"\n"
 
 #. type: table
 #: modes.texi.orig:2618
 msgid "Be careful when composing these regular expressions; a poorly written pattern can dramatically slow things down! The function @code{regexp-opt} (@pxref{Regexp Functions}) is useful for calculating optimal regular expressions to match several keywords."
-msgstr ""
+msgstr "これらの正規表現を作成するときは、慎重に行うこと。下手に記述されたパターンにより、スピードが劇的に低下し得る! 関数@code{regexp-opt}(@ref{Regexp Functions}を参照)は、いくつかのキーワードとマッチするために最適な正規表現の計算に有用である。"
 
 #. type: var{#1}
 #: modes.texi.orig:2619
 #, no-wrap
 msgid "function"
-msgstr ""
+msgstr "function"
 
 #. type: table
 #: modes.texi.orig:2622
 msgid "Find text by calling @var{function}, and highlight the matches it finds using @code{font-lock-keyword-face}."
-msgstr ""
+msgstr "@var{function}を呼び出すことによりテキストを探し、@code{font-lock-keyword-face}を使用して見つかったマッチをハイライトする。"
 
 #. type: table
 #: modes.texi.orig:2628
 msgid "When @var{function} is called, it receives one argument, the limit of the search; it should begin searching at point, and not search beyond the limit.  It should return non-@code{nil} if it succeeds, and set the match data to describe the match that was found.  Returning @code{nil} indicates failure of the search."
-msgstr ""
+msgstr "@var{function}は、呼び出される際に1つの引数(検索のリミット)を受け取る。検索はポイント位置から開始し、そのリミットを超えた検索は行うべきではない。これは、検索が成功した場合は非@code{nil}をリターンして、見つかったマッチを表すマッチデータをセットすべきである。@code{nil}のリターンは、検索の失敗を示す。"
 
 #. type: table
 #: modes.texi.orig:2633
 msgid "Fontification will call @var{function} repeatedly with the same limit, and with point where the previous invocation left it, until @var{function} fails.  On failure, @var{function} need not reset point in any particular way."
-msgstr ""
+msgstr "フォント表示は、前の呼び出しでポイントが残された位置から、同じリミットを用いて@var{function}を呼び出し、@var{function}が失敗するまで@var{function}を繰り返し呼び出すだろう。検索が失敗しても、何らかの特別な方法により、@var{function}がポイントをリセットする必要はない。"
 
 #. type: item
 #: modes.texi.orig:2634
 #, no-wrap
 msgid "(@var{matcher} . @var{subexp})"
-msgstr ""
+msgstr "(@var{matcher} . @var{subexp})"
 
 #. type: table
 #: modes.texi.orig:2639
 msgid "In this kind of element, @var{matcher} is either a regular expression or a function, as described above.  The @sc{cdr}, @var{subexp}, specifies which subexpression of @var{matcher} should be highlighted (instead of the entire text that @var{matcher} matched)."
-msgstr ""
+msgstr "この種の要素では、@var{matcher}は上述のregexpかfunctionのいずれかである。@sc{cdr}の@var{subexp}は、(@var{matcher}がマッチするテキスト全体のかわりに)@var{matcher}のどの部分式(subexpression)がハイライトされるべきかを指定する。"
 
 #. type: example
 #: modes.texi.orig:2644
@@ -4028,22 +4031,26 @@ msgid ""
 ";; @r{using @code{font-lock-keyword-face}.}\n"
 "(\"fu\\\\(bar\\\\)\" . 1)\n"
 msgstr ""
+";; @r{@code{font-lock-keyword-face}Hを使用して}\n"
+";; @r{@samp{bar}が@samp{fubar}の一部のときに}\n"
+";; @r{ハイライトする}\n"
+"(\"fu\\\\(bar\\\\)\" . 1)\n"
 
 #. type: table
 #: modes.texi.orig:2649
 msgid "If you use @code{regexp-opt} to produce the regular expression @var{matcher}, you can use @code{regexp-opt-depth} (@pxref{Regexp Functions}) to calculate the value for @var{subexp}."
-msgstr ""
+msgstr "正規表現@var{matcher}の生成に@code{regexp-opt}を使用する場合は、@var{subexp}にたいする値の計算に@code{regexp-opt-depth}(@ref{Regexp Functions}を参照)を使用できる。"
 
 #. type: item
 #: modes.texi.orig:2650
 #, no-wrap
 msgid "(@var{matcher} . @var{facespec})"
-msgstr ""
+msgstr "(@var{matcher} . @var{facespec})"
 
 #. type: table
 #: modes.texi.orig:2655
 msgid "In this kind of element, @var{facespec} is an expression whose value specifies the face to use for highlighting.  In the simplest case, @var{facespec} is a Lisp variable (a symbol) whose value is a face name."
-msgstr ""
+msgstr "この種の要素では、@var{facespec}の値がハイライトに使用するフェイスを指定する。もっともシンプルな例では、@var{facespec}は値がフェイス名であるようなはLisp変数(シンボル)である。"
 
 #. type: example
 #: modes.texi.orig:2660
@@ -4053,59 +4060,62 @@ msgid ""
 ";; @r{using the face which is the value of @code{fubar-face}.}\n"
 "(\"fubar\" . fubar-face)\n"
 msgstr ""
+";; @r{@code{fubar-face}の値のフェイスを使用して}\n"
+";; @r{@samp{fubar}をハイライトする}\n"
+"(\"fubar\" . fubar-face)\n"
 
 #. type: table
 #: modes.texi.orig:2663
 msgid "However, @var{facespec} can also evaluate to a list of this form:"
-msgstr ""
+msgstr "しかし、@var{facespec}は以下のような形式のリストに評価されてもよい:"
 
 #. type: example
 #: modes.texi.orig:2666
 #, no-wrap
 msgid "(face @var{face} @var{prop1} @var{val1} @var{prop2} @var{val2}@dots{})\n"
-msgstr ""
+msgstr "(face @var{face} @var{prop1} @var{val1} @var{prop2} @var{val2}@dots{})\n"
 
 #. type: table
 #: modes.texi.orig:2677
 msgid "to specify the face @var{face} and various additional text properties to put on the text that matches.  If you do this, be sure to add the other text property names that you set in this way to the value of @code{font-lock-extra-managed-props} so that the properties will also be cleared out when they are no longer appropriate.  Alternatively, you can set the variable @code{font-lock-unfontify-region-function} to a function that clears these properties.  @xref{Other Font Lock Variables}."
-msgstr ""
+msgstr "これは、マッチしたテキストにフェイス@var{face}を指定し、さまざまなテキストプロパティをputする。これを行う場合は、この方法により@code{font-lock-extra-managed-props}に値をセットする、他のテキストプロパティ名を確実に追加すること。そうすれば、それらのプロパティが妥当性を失ったとき、それらのプロパティもクリアーされるだろう。これらのプロパティをクリアーする関数を、変数@code{font-lock-unfontify-region-function}にセットすることもできる。@ref{Other Font Lock Variables}を参照のこと。"
 
 #. type: item
 #: modes.texi.orig:2678
 #, no-wrap
 msgid "(@var{matcher} . @var{subexp-highlighter})"
-msgstr ""
+msgstr "(@var{matcher} . @var{subexp-highlighter})"
 
 #. type: table
 #: modes.texi.orig:2682
 msgid "In this kind of element, @var{subexp-highlighter} is a list which specifies how to highlight matches found by @var{matcher}.  It has the form:"
-msgstr ""
+msgstr "この種の要素では、@var{subexp-highlighter}は@var{matcher}により見つかったマッチをハイライトする方法を指定するリストである。これは、以下の形式をもつ。"
 
 #. type: example
 #: modes.texi.orig:2685
 #, no-wrap
 msgid "(@var{subexp} @var{facespec} [@var{override} [@var{laxmatch}]])\n"
-msgstr ""
+msgstr "(@var{subexp} @var{facespec} [@var{override} [@var{laxmatch}]])\n"
 
 #. type: table
 #: modes.texi.orig:2691
 msgid "The @sc{car}, @var{subexp}, is an integer specifying which subexpression of the match to fontify (0 means the entire matching text).  The second subelement, @var{facespec}, is an expression whose value specifies the face, as described above."
-msgstr ""
+msgstr "@sc{car}の@var{subexp}は、マッチのどの部分式をフォント表示するかを指定する整数である(0はマッチしたテキスト全体を意味する)。これの2つ目の要素@var{facespec}は、上述したような値がフェイスを指定するような式である。"
 
 #. type: table
 #: modes.texi.orig:2701
 msgid "The last two values in @var{subexp-highlighter}, @var{override} and @var{laxmatch}, are optional flags.  If @var{override} is @code{t}, this element can override existing fontification made by previous elements of @code{font-lock-keywords}.  If it is @code{keep}, then each character is fontified if it has not been fontified already by some other element.  If it is @code{prepend}, the face specified by @var{facespec} is added to the beginning of the @code{font-lock-face} property.  If it is @code{append}, the face is added to the end of the @code{font-lock-face} property."
-msgstr ""
+msgstr "@var{subexp-highlighter}内の残りの値@var{override}と@var{laxmatch}は、オプションのフラグである。@var{override}が@code{t}の場合、この要素は前の@code{font-lock-keywords}の要素により作成された既存のフォント表示をオーバーライドできる。値が@code{keep}の場合は、すでに他の要素によりフォント表示されていない文字がフォント表示される。値が@code{prepend}の場合は、@var{facespec}により指定されたフェイスが、@code{font-lock-face}プロパティの先頭に追加される。値が@code{append}の場合は、そのフェイスが@code{font-lock-face}プロパティの最後に追加される。"
 
 #. type: table
 #: modes.texi.orig:2709
 msgid "If @var{laxmatch} is non-@code{nil}, it means there should be no error if there is no subexpression numbered @var{subexp} in @var{matcher}.  Obviously, fontification of the subexpression numbered @var{subexp} will not occur.  However, fontification of other subexpressions (and other regexps) will continue.  If @var{laxmatch} is @code{nil}, and the specified subexpression is missing, then an error is signaled which terminates search-based fontification."
-msgstr ""
+msgstr "@var{laxmatch}が非@code{nil}の場合、それは@var{matcher}内で番号付けされた部分式@var{subexp}が存在しなくても、エラーにならないことを意味する。当然、番号付けされた部分式@var{subexp}のフォント表示は発生しない。しかし、他の部分式(と他のregexp)のフォント表示は継続されるだろう。@var{laxmatch}が@code{nil}で、指定された部分式が存在しない場合は、エラーがシグナルされて検索ベースのフォント表示は終了する。"
 
 #. type: table
 #: modes.texi.orig:2711
 msgid "Here are some examples of elements of this kind, and what they do:"
-msgstr ""
+msgstr "以下はこのタイプの要素と、それが何を行うかの例である:"
 
 #. type: smallexample
 #: modes.texi.orig:2717
@@ -4117,6 +4127,11 @@ msgid ""
 "(\"foo\\\\|bar\" 0 foo-bar-face t)\n"
 "\n"
 msgstr ""
+";; @r{@code{foo-bar-face}を使用して、たとえハイライト済みでも}\n"
+";; @r{@samp{foo}と@samp{bar}をハイライトする}\n"
+";; @r{@code{foo-bar-face}は値がフェイスであるような変数であること}\n"
+"(\"foo\\\\|bar\" 0 foo-bar-face t)\n"
+"\n"
 
 #. type: smallexample
 #: modes.texi.orig:2722
@@ -4127,17 +4142,21 @@ msgid ""
 ";; @r{using the face which is the value of @code{fubar-face}.}\n"
 "(fubar-match 1 fubar-face)\n"
 msgstr ""
+";; @r{@code{fubar-face}の値のフェイスを使用して}\n"
+";; @r{関数@code{fubar-match}が見つけた各マッチの}\n"
+";; @r{最初の部分式をハイライトする}\n"
+"(fubar-match 1 fubar-face)\n"
 
 #. type: item
 #: modes.texi.orig:2724
 #, no-wrap
 msgid "(@var{matcher} . @var{anchored-highlighter})"
-msgstr ""
+msgstr "(@var{matcher} . @var{anchored-highlighter})"
 
 #. type: table
 #: modes.texi.orig:2730
 msgid "In this kind of element, @var{anchored-highlighter} specifies how to highlight text that follows a match found by @var{matcher}.  So a match found by @var{matcher} acts as the anchor for further searches specified by @var{anchored-highlighter}.  @var{anchored-highlighter} is a list of the following form:"
-msgstr ""
+msgstr "この種の要素では、@var{anchored-highlighter}は@var{matcher}が見つけたマッチに後続するテキストをハイライトする方法を指定する。つまり、@var{matcher}が見つけたマッチは、@var{anchored-highlighter}により指定されるその先の検索にたいする、アンカー(anchor)として機能する。@var{anchored-highlighter}は、以下の形式のリストである:"
 
 #. type: example
 #: modes.texi.orig:2734
@@ -4146,21 +4165,23 @@ msgid ""
 "(@var{anchored-matcher} @var{pre-form} @var{post-form}\n"
 "                        @var{subexp-highlighters}@dots{})\n"
 msgstr ""
+"(@var{anchored-matcher} @var{pre-form} @var{post-form}\n"
+"                        @var{subexp-highlighters}@dots{})\n"
 
 #. type: table
 #: modes.texi.orig:2743
 msgid "Here, @var{anchored-matcher}, like @var{matcher}, is either a regular expression or a function.  After a match of @var{matcher} is found, point is at the end of the match.  Now, Font Lock evaluates the form @var{pre-form}.  Then it searches for matches of @var{anchored-matcher} and uses @var{subexp-highlighters} to highlight these.  A @var{subexp-highlighter} is as described above.  Finally, Font Lock evaluates @var{post-form}."
-msgstr ""
+msgstr "ここで、@var{anchored-matcher}は@var{matcher}と同様、正規表現か関数である。@var{matcher}にたいするマッチを見つけた後に、ポイントはそのマッチの終端に移動する。そこで、Font Lockはフォーム@var{pre-form}を評価する。それから@var{anchored-matcher}にたいするマッチを検索し、@var{subexp-highlighters}を使用して、それらのマッチをハイライトする。@var{subexp-highlighter}については上記を参照のこと。最後にFont Lockは@var{post-form}を評価する。"
 
 #. type: table
 #: modes.texi.orig:2750
 msgid "The forms @var{pre-form} and @var{post-form} can be used to initialize before, and cleanup after, @var{anchored-matcher} is used.  Typically, @var{pre-form} is used to move point to some position relative to the match of @var{matcher}, before starting with @var{anchored-matcher}.  @var{post-form} might be used to move back, before resuming with @var{matcher}."
-msgstr ""
+msgstr "フォーム@var{pre-form}および@var{post-form}は、@var{anchored-matcher}使用時の事前の初期化、事後のクリーンアップに使用され得る。通常、@var{pre-form}は@var{anchored-matcher}を開始する前に、@var{matcher}のマッチに関連する何らかの位置にポイントを移動するために使用される。@var{post-form}は、@var{matcher}を再開する前に、ポイントを戻すために使用されるかもしれない。"
 
 #. type: table
 #: modes.texi.orig:2759
 msgid "After Font Lock evaluates @var{pre-form}, it does not search for @var{anchored-matcher} beyond the end of the line.  However, if @var{pre-form} returns a buffer position that is greater than the position of point after @var{pre-form} is evaluated, then the position returned by @var{pre-form} is used as the limit of the search instead.  It is generally a bad idea to return a position greater than the end of the line; in other words, the @var{anchored-matcher} search should not span lines."
-msgstr ""
+msgstr "@var{pre-form}を評価した後、Font Lockはその行の終端の先にたいして、@var{anchored-matcher}の検索を行わない。しかし、@var{pre-form}が@var{pre-form}評価後のポイント位置より大きいバッファー位置をリターンした場合には、かわりに@var{pre-form}によりリターンされた位置が検索リミットとして使用される。一般的に、その行の終端より大きい位置をリターンするのは、よいアイデアではない。別の言い方をすると、@var{anchored-matcher}検索は複数行にわたる(span lines)べきではないと言えよう。"
 
 #. type: smallexample
 #: modes.texi.orig:2767
@@ -4171,22 +4192,26 @@ msgid ""
 ";; @r{in the value of @code{item-face}.}\n"
 "(\"\\\\<anchor\\\\>\" \"\\\\<item\\\\>\" nil nil (0 item-face))\n"
 msgstr ""
+";; @r{@code{item-face}の値を使用して}\n"
+";; @r{単語@samp{anchor}に(同一行内で)}\n"
+";; @r{後続する単語@samp{item}をハイライトする}\n"
+"(\"\\\\<anchor\\\\>\" \"\\\\<item\\\\>\" nil nil (0 item-face))\n"
 
 #. type: table
 #: modes.texi.orig:2773
 msgid "Here, @var{pre-form} and @var{post-form} are @code{nil}.  Therefore searching for @samp{item} starts at the end of the match of @samp{anchor}, and searching for subsequent instances of @samp{anchor} resumes from where searching for @samp{item} concluded."
-msgstr ""
+msgstr "ここで、@var{pre-form}と@var{post-form}は@code{nil}である。したがって、@samp{item}にたいする検索は@samp{anchor}にたいするマッチの終端から開始され、後続する@samp{anchor}インスタンスにたいする検索は、@samp{item}にたいする検索が終了した位置から再開される。"
 
 #. type: item
 #: modes.texi.orig:2774
 #, no-wrap
 msgid "(@var{matcher} @var{highlighters}@dots{})"
-msgstr ""
+msgstr "(@var{matcher} @var{highlighters}@dots{})"
 
 #. type: table
 #: modes.texi.orig:2779
 msgid "This sort of element specifies several @var{highlighter} lists for a single @var{matcher}.  A @var{highlighter} list can be of the type @var{subexp-highlighter} or @var{anchored-highlighter} as described above."
-msgstr ""
+msgstr "この種の要素は、単一の@var{matcher}にたいして、複数の@var{highlighter}リストを指定する。@var{highlighter}リストには、上述した@var{subexp-highlighter}、または@var{anchored-highlighter}のいずれかを指定できる。"
 
 #. type: smallexample
 #: modes.texi.orig:2788
@@ -4198,38 +4223,43 @@ msgid ""
 "(\"\\\\<anchor\\\\>\" (0 anchor-face)\n"
 "                (\"\\\\<item\\\\>\" nil nil (0 item-face)))\n"
 msgstr ""
+";; @r{@code{anchor-face}の値内に現れる単語@samp{anchor}、}\n"
+";; @r{および、(同じ行の)後続の@code{item-face}の}\n"
+";; @r{ 値内に現れる単語@samp{item}をハイライトする}\n"
+"(\"\\\\<anchor\\\\>\" (0 anchor-face)\n"
+"                (\"\\\\<item\\\\>\" nil nil (0 item-face)))\n"
 
 #. type: item
 #: modes.texi.orig:2790
 #, no-wrap
 msgid "(eval . @var{form})"
-msgstr ""
+msgstr "(eval . @var{form})"
 
 #. type: table
 #: modes.texi.orig:2794
 msgid "Here @var{form} is an expression to be evaluated the first time this value of @code{font-lock-keywords} is used in a buffer.  Its value should have one of the forms described in this table."
-msgstr ""
+msgstr "ここで@var{form}は、バッファー内でこの@code{font-lock-keywords}の値が最初に使用されるときに評価される式である。この値は、上述のこのテーブルで説明した、いずれかの形式をもつべきである。"
 
 #. type: Plain text
 #: modes.texi.orig:2799
 msgid "@strong{Warning:} Do not design an element of @code{font-lock-keywords} to match text which spans lines; this does not work reliably.  For details, see @xref{Multiline Font Lock}."
-msgstr ""
+msgstr "@strong{警告:} 複数行にわたるテキストにたいするマッチさせるために、@code{font-lock-keywords}の要素をデザインしてはならない。これは確実に機能するとは言えない。詳細は、@ref{Multiline Font Lock}を参照のこと。"
 
 #. type: Plain text
 #: modes.texi.orig:2803
 msgid "You can use @var{case-fold} in @code{font-lock-defaults} to specify the value of @code{font-lock-keywords-case-fold-search} which says whether search-based fontification should be case-insensitive."
-msgstr ""
+msgstr "検索ベースのフォント表示が大文字小文字を区別すべきかどうかを告げる@code{font-lock-keywords-case-fold-search}の値を指定するために、@code{font-lock-defaults}内で@var{case-fold}を使用できる。"
 
 #. type: defvar
 #: modes.texi.orig:2804
 #, no-wrap
 msgid "font-lock-keywords-case-fold-search"
-msgstr ""
+msgstr "font-lock-keywords-case-fold-search"
 
 #. type: defvar
 #: modes.texi.orig:2807
 msgid "Non-@code{nil} means that regular expression matching for the sake of @code{font-lock-keywords} should be case-insensitive."
-msgstr ""
+msgstr "非@code{nil}は、@code{font-lock-keywords}のための正規表現マッチングが、大文字小文字を区別すべきではないことを意味する。"
 
 #. type: subsection
 #: modes.texi.orig:2810
