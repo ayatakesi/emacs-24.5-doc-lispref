@@ -1952,72 +1952,49 @@ Lockモードを有効にすることにより、@var{keywords}が@code{font-loc
 @node Other Font Lock Variables
 @subsection Other Font Lock Variables
 
-  This section describes additional variables that a major mode can set by
-means of @var{other-vars} in @code{font-lock-defaults} (@pxref{Font Lock
-Basics}).
+  このセクションでは、@code{font-lock-defaults}内の@var{other-vars}を用いて、メジャーモードがセットできる追加の変数について説明します(@ref{Font
+Lock Basics}を参照)。
 
 @defvar font-lock-mark-block-function
-If this variable is non-@code{nil}, it should be a function that is called
-with no arguments, to choose an enclosing range of text for refontification
-for the command @kbd{M-o M-o} (@code{font-lock-fontify-block}).
+この変数が非@code{nil}の場合、それはコマンド@kbd{M-o
+M-o}(@code{font-lock-fontify-block})で再フォント表示するテキスト範囲を選択するために、引数なしで呼び出される関数であること。
 
-The function should report its choice by placing the region around it.  A
-good choice is a range of text large enough to give proper results, but not
-too large so that refontification becomes slow.  Typical values are
-@code{mark-defun} for programming modes or @code{mark-paragraph} for textual
-modes.
+この関数は、結果を報告するために、選択されたテキスト範囲にリージョンを配すべきである。正しい結果を与えるのに十分、かつ再フォント表示が低速にならない程度のテキスト範囲を選択するのがよい。プログラミングのモードにたいしては@code{mark-defun}、テキストを扱うモードにたいしては@code{mark-paragraph}が典型的な値である。
 @end defvar
 
 @defvar font-lock-extra-managed-props
-This variable specifies additional properties (other than
-@code{font-lock-face}) that are being managed by Font Lock mode.  It is used
-by @code{font-lock-default-unfontify-region}, which normally only manages
-the @code{font-lock-face} property.  If you want Font Lock to manage other
-properties as well, you must specify them in a @var{facespec} in
-@code{font-lock-keywords} as well as add them to this list.
-@xref{Search-based Fontification}.
+この変数は、(@code{font-lock-face}以外の)Font
+Lockにより管理される追加プロパティを指定する。これらの追加プロパティは、通常は@code{font-lock-face}プロパティだけを管理する、@code{font-lock-default-unfontify-region}により使用される。他のプロパティも同様にFont
+Lockに管理させたい場合は、このリストに追加するのと同じように、@code{font-lock-keywords}内の@var{facespec}内でもこれらを指定しなければならない。@ref{Search-based
+Fontification}を参照のこと。
 @end defvar
 
 @defvar font-lock-fontify-buffer-function
-Function to use for fontifying the buffer.  The default value is
-@code{font-lock-default-fontify-buffer}.
+そのバッファーをフォント表示するために使用する関数。デフォルト値は@code{font-lock-default-fontify-buffer}。
 @end defvar
 
 @defvar font-lock-unfontify-buffer-function
-Function to use for unfontifying the buffer.  This is used when turning off
-Font Lock mode.  The default value is
-@code{font-lock-default-unfontify-buffer}.
+そのバッファーを非フォント表示するために使用する関数。デフォルト値は@code{font-lock-default-unfontify-buffer}。
 @end defvar
 
 @defvar font-lock-fontify-region-function
-Function to use for fontifying a region.  It should take two arguments, the
-beginning and end of the region, and an optional third argument
-@var{verbose}.  If @var{verbose} is non-@code{nil}, the function should
-print status messages.  The default value is
-@code{font-lock-default-fontify-region}.
+リージョンをフォント表示するための関数。この関数は、リージョンの開始と終了の2つを引数にとり、オプションで3つ目の引数@var{verbose}をとるべきである。@var{verbose}が非@code{nil}の場合、その関数はステータスメッセージをプリントすべきである。デフォルト値は@code{font-lock-default-fontify-region}。
 @end defvar
 
 @defvar font-lock-unfontify-region-function
-Function to use for unfontifying a region.  It should take two arguments,
-the beginning and end of the region.  The default value is
-@code{font-lock-default-unfontify-region}.
+リージョンを非フォント表示するための関数。この関数は、リージョンの開始と終了の2つを引数にとるべきである。デフォルト値は@code{font-lock-default-unfontify-region}。
 @end defvar
 
 @defun jit-lock-register function &optional contextual
-This function tells Font Lock mode to run the Lisp function @var{function}
-any time it has to fontify or refontify part of the current buffer.  It
-calls @var{function} before calling the default fontification functions, and
-gives it two arguments, @var{start} and @var{end}, which specify the region
-to be fontified or refontified.
+この関数は、カレントバッファーの一部をフォント表示/非表示する必要がある任意のタイミングで、Font
+LockモードがLisp関数@var{function}を実行することを宣言する。これは、デフォルトのフォント表示関数が呼び出される前に、フォント表示/非表示するリージョンを指定する2つの引数@var{start}と@var{end}で@var{function}を呼び出す。
 
-The optional argument @var{contextual}, if non-@code{nil}, forces Font Lock
-mode to always refontify a syntactically relevant part of the buffer, and
-not just the modified lines.  This argument can usually be omitted.
+オプション引数@var{contextual}が非@code{nil}の場合は、行が更新されたときに限らず、そのバッファーの構文的に関連する部分を常にフォント表示するよう、Font
+Lockモードに強制する。この引数は、通常は省略できる。
 @end defun
 
 @defun jit-lock-unregister function
-If @var{function} was previously registered as a fontification function
-using @code{jit-lock-register}, this function unregisters it.
+以前に@code{jit-lock-register}を使用して、フォント表示関数として@var{function}を登録した場合は、その関数を未登録にする。
 @end defun
 
 @node Levels of Font Lock
