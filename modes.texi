@@ -2258,35 +2258,22 @@ Indent}を参照)。いくつかのモードでは、@emph{右}へのインデ�
 @subsection Simple Minded Indentation Engine
 @cindex SMIE
 
-SMIE is a package that provides a generic navigation and indentation
-engine.  Based on a very simple parser using an ``operator precedence
-grammar'', it lets major modes extend the sexp-based navigation of Lisp to
-non-Lisp languages as well as provide a simple to use but reliable
-auto-indentation.
+SMIEは、一般的な操作とインデントを提供するエンジンです。これは``演算子順位文法(operator precedence
+grammar)''を使用する、非常にシンプルなパーサーにもとづいたエンジンであり、メジャーモードがLispのS式ベースの操作を非Lisp言語に拡張するのを助け、同様にシンプルに使用できるにも関わらず、信頼できる自動インデントを提供します。
 
-Operator precedence grammar is a very primitive technology for parsing
-compared to some of the more common techniques used in compilers.  It has
-the following characteristics: its parsing power is very limited, and it is
-largely unable to detect syntax errors, but it has the advantage of being
-algorithmically efficient and able to parse forward just as well as
-backward.  In practice that means that SMIE can use it for indentation based
-on backward parsing, that it can provide both @code{forward-sexp} and
-@code{backward-sexp} functionality, and that it will naturally work on
-syntactically incorrect code without any extra effort.  The downside is that
-it also means that most programming languages cannot be parsed correctly
-using SMIE, at least not without resorting to some special tricks
-(@pxref{SMIE Tricks}).
+演算子順位文法は、コンパイラー内で使用されるより一般的なパーサーと比較すると、非常に原始的なパーステクノロジーです。このパーサーには次のような特徴があります。このパーサーのパース能力は非常に限定的で、大概は構文エラーを検出できません。しかし、アルゴリズム的に前方パースと同様に後方パースを効果的に行うことが可能です。実際にそれはSMIEが後方パースにもとづくインデントを使用でき、@code{forward-sexp}と@code{backward-sexp}の両方の機能を提供できるとともに、特別な努力を要さずに構文的に不正なコードにたいして自然に機能するであろうことを意味します。欠点は、ほとんどのプログラミング言語は、少なくとも何らかの特別なトリック(@ref{SMIE
+Tricks}を参照)で再分類しなければ、SMIEを使用して正しくパースできないことも意味するからです。
 
 @menu
-* SMIE setup::               SMIE setup and features.
-* Operator Precedence Grammars::  A very simple parsing technique.
-* SMIE Grammar::             Defining the grammar of a language.
-* SMIE Lexer::               Defining tokens.
-* SMIE Tricks::              Working around the parser's limitations.
-* SMIE Indentation::         Specifying indentation rules.
-* SMIE Indentation Helpers::  Helper functions for indentation rules.
-* SMIE Indentation Example::  Sample indentation rules.
-* SMIE Customization::       Customizing indentation.
+* SMIE setup::               SMIEのセットアップと機能。
+* Operator Precedence Grammars::  非常にシンプルなパース技術。
+* SMIE Grammar::             言語の文法を定義する。
+* SMIE Lexer::               トークンの定義。
+* SMIE Tricks::              パーサー制限の回避策。
+* SMIE Indentation::         インデントルールの指定。
+* SMIE Indentation Helpers::  インデントルールにたいするヘルパー関数。
+* SMIE Indentation Example::  インデントルールの例。
+* SMIE Customization::       インデントのカスタマイズ。
 @end menu
 
 @node SMIE setup
