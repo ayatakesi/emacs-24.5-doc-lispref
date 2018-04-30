@@ -2308,18 +2308,14 @@ table)、@var{rules-function}は@code{smie-rules-function}で使用されるイ�
 @node Operator Precedence Grammars
 @subsubsection Operator Precedence Grammars
 
-SMIE's precedence grammars simply give to each token a pair of precedences:
-the left-precedence and the right-precedence.  We say @code{T1 < T2} if the
-right-precedence of token @code{T1} is less than the left-precedence of
-token @code{T2}.  A good way to read this @code{<} is as a kind of
-parenthesis: if we find @code{... T1 something T2 ...} then that should be
-parsed as @code{... T1 (something T2 ...} rather than as @code{... T1
-something) T2 ...}.  The latter interpretation would be the case if we had
-@code{T1 > T2}.  If we have @code{T1 = T2}, it means that token T2 follows
-token T1 in the same syntactic construction, so typically we have
-@code{"begin" = "end"}.  Such pairs of precedences are sufficient to express
-left-associativity or right-associativity of infix operators, nesting of
-tokens like parentheses and many other cases.
+SMIEの演算子順位文法は、各トークンにたいしてシンプルに左優先(left-precedence)と右優先(right-precedence)という順位ペアーを与えます。トークン@code{T1}の右優先が、トークン@code{T2}の左優先より小さい場合は、@code{T1
+< T2}であると言うことにしましょう。これを解読するには、@code{<}をカッコの一種だとみなすのがよい方法です。@code{... T1
+something T2 ...}を見つけたら、これは@code{... T1 something) T2 ...}ではなく@code{... T1
+(something T2 ...}とパースされるべきです。@code{... T1 something) T2
+...}と解釈するのは、@code{T1 > T2}を見つけた場合でしょう。@code{T1 =
+T2}を見つけた場合、それはトークンT2とその後のトークンT1が同じ構文構成にあり、通常は@code{"begin" =
+"end"}を得ます。このような優先順位のペアーは、2項演算子(infix
+operator)、カッコのようなネストされたトークン、およびその他多くのケースにたいして左結合(left-associativity)や右結合(right-associativity)を表現するのに十分です。
 
 @c Let's leave this undocumented to leave it more open for change!
 @c @defvar smie-grammar
@@ -2329,64 +2325,43 @@ tokens like parentheses and many other cases.
 @c @end defvar
 
 @defun smie-prec2->grammar table
-This function takes a @emph{prec2} grammar @var{table} and returns an alist
-suitable for use in @code{smie-setup}.  The @emph{prec2} @var{table} is
-itself meant to be built by one of the functions below.
+この関数は、@emph{prec2}文法@var{table}を引数にとり、@code{smie-setup}で使用するのに適したalistをリターンする。@emph{prec2}文法@var{table}は、それ自体が以下の関数のいずれかによりビルドされることを意図している。
 @end defun
 
 @defun smie-merge-prec2s &rest tables
-This function takes several @emph{prec2} @var{tables} and merges them into a
-new @emph{prec2} table.
+この関数は、複数の@emph{prec2}文法@var{tables}を、新たな@emph{prec2}テーブルにマージする。
 @end defun
 
 @defun smie-precs->prec2 precs
-This function builds a @emph{prec2} table from a table of precedences
-@var{precs}.  @var{precs} should be a list, sorted by precedence (for
-example @code{"+"} will come before @code{"*"}), of elements of the form
-@code{(@var{assoc} @var{op} ...)}, where each @var{op} is a token that acts
-as an operator; @var{assoc} is their associativity, which can be either
-@code{left}, @code{right}, @code{assoc}, or @code{nonassoc}.  All operators
-in a given element share the same precedence level and associativity.
+この関数は、順位テーブル@var{precs}から@emph{prec2}テーブルをビルドする。@var{precs}は優先順(たとえば@code{"+"}は@code{"*"}より前にくる)にソートされたリストで、要素は@code{(@var{assoc}
+@var{op}
+...)}の形式であること。ここで、@var{op}は演算子として振る舞うトークン、@var{assoc}はそれらの結合法則であり、@code{left}、@code{right}、@code{assoc}、@code{nonassoc}のいずれかである。与えられた要素内のすべての演算子は、同じ優先レベルと結合法則を共有する。
 @end defun
 
 @defun smie-bnf->prec2 bnf &rest resolvers
-This function lets you specify the grammar using a BNF notation.  It accepts
-a @var{bnf} description of the grammar along with a set of conflict
-resolution rules @var{resolvers}, and returns a @emph{prec2} table.
+この関数により、BNF記法を使用した文法を指定することができる。これは、その文法の@var{bnf}表記と、同様に競合解決ルール@var{resolvers}を受け取り、@emph{prec2}テーブルをリターンする。
 
-@var{bnf} is a list of nonterminal definitions of the form
-@code{(@var{nonterm} @var{rhs1} @var{rhs2} ...)} where each @var{rhs} is a
-(non-empty) list of terminals (aka tokens) or non-terminals.
+@var{bnf}は@code{(@var{nonterm} @var{rhs1} @var{rhs2}
+...)}という形式の非終端定義で、各@var{rhs}は終端記号(トークンとも呼ばれる)、または非終端記号の(空でない)リストである。
 
-Not all grammars are accepted:
+すべての文法が許される訳ではない:
 @itemize
 @item
-An @var{rhs} cannot be an empty list (an empty list is never needed, since
-SMIE allows all non-terminals to match the empty string anyway).
+@var{rhs}に空のリストは指定できない(いずれにせよSMIEは空文字列にマッチさせるためにすべての非終端記号を許すので、空リストが必要になることは決してない)。
 @item
-An @var{rhs} cannot have 2 consecutive non-terminals: each pair of
-non-terminals needs to be separated by a terminal (aka token).  This is a
-fundamental limitation of operator precedence grammars.
+@var{rhs}の後に連続する2つの非終端記号は指定できない。非終端記号の各ペアーは終端記号(もしくはトークン)で区切られる必要がある。これは、演算子順位文法の基本的な制約である。
 @end itemize
 
-Additionally, conflicts can occur:
+さらに、競合が発生し得る:
 @itemize
 @item
-The returned @emph{prec2} table holds constraints between pairs of tokens,
-and for any given pair only one constraint can be present: T1 < T2, T1 = T2,
-or T1 > T2.
+リターンされる@emph{prec2}テーブルはトークンのペアー間の制約を保持し、与えられた任意のペアーはT1 < T2、T1 = T2、T1 >
+T2のいずれかのうち、ただ1つの制約を与えることができる。
 @item
-A token can be an @code{opener} (something similar to an open-paren), a
-@code{closer} (like a close-paren), or @code{neither} of the two (e.g., an
-infix operator, or an inner token like @code{"else"}).
+トークンは、@code{opener}(開きカッコに似た何か)、@code{closer}(閉じカッコのようなもの)、またはこれら2つのいずれでもない@code{neither}(2項演算子や@code{"else"}のようなinnerトークン)である。
 @end itemize
 
-Precedence conflicts can be resolved via @var{resolvers}, which is a list of
-@emph{precs} tables (see @code{smie-precs->prec2}): for each precedence
-conflict, if those @code{precs} tables specify a particular constraint, then
-the conflict is resolved by using this constraint instead, else a conflict
-is reported and one of the conflicting constraints is picked arbitrarily and
-the others are simply ignored.
+順位の競合は、@var{resolvers}を通じて解決され得る。これは@emph{precs}テーブル(@code{smie-precs->prec2}を参照)のリストである。それぞれの順位競合にたいして、これらの@code{precs}テーブルが特定の制約を指定している場合は、かわりにこの制約により競合が解決され、それ以外は競合する制約のうち任意の1つが報告され、他は単に無視される。
 @end defun
 
 @node SMIE Grammar
