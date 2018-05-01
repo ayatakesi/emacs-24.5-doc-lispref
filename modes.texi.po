@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-04-06 11:33+0900\n"
-"PO-Revision-Date: 2018-04-30 23:36+0900\n"
+"PO-Revision-Date: 2018-05-01 14:09+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -5229,24 +5229,24 @@ msgstr "順位の競合は、@var{resolvers}を通じて解決され得る。こ
 #: modes.texi.orig:3531
 #, no-wrap
 msgid "Defining the Grammar of a Language"
-msgstr ""
+msgstr "Defining the Grammar of a Language"
 
 #. type: cindex
 #: modes.texi.orig:3532
 #, no-wrap
 msgid "SMIE grammar"
-msgstr ""
+msgstr "SMIE grammar"
 
 #. type: cindex
 #: modes.texi.orig:3533
 #, no-wrap
 msgid "grammar, SMIE"
-msgstr ""
+msgstr "grammar, SMIE"
 
 #. type: Plain text
 #: modes.texi.orig:3540
 msgid "The usual way to define the SMIE grammar of a language is by defining a new global variable that holds the precedence table by giving a set of BNF rules.  For example, the grammar definition for a small Pascal-like language could look like:"
-msgstr ""
+msgstr "ある言語にたいしてSMIE文法を定義する通常の方法は、順位のテーブルを保持する新たなグローバル変数を定義して、BNFルールのセットを与える方法です。たとえば、小規模なPascal風言語の文法定義は、以下のようになるでしょう:"
 
 #. type: group
 #: modes.texi.orig:3546
@@ -5257,6 +5257,10 @@ msgid ""
 "  (smie-prec2->grammar\n"
 "   (smie-bnf->prec2\n"
 msgstr ""
+"(require 'smie)\n"
+"(defvar sample-smie-grammar\n"
+"  (smie-prec2->grammar\n"
+"   (smie-bnf->prec2\n"
 
 #. type: group
 #: modes.texi.orig:3558
@@ -5273,6 +5277,16 @@ msgid ""
 "           (\"(\" exps \")\"))\n"
 "      (exps (exps \",\" exps) (exp)))\n"
 msgstr ""
+"    '((id)\n"
+"      (inst (\"begin\" insts \"end\")\n"
+"            (\"if\" exp \"then\" inst \"else\" inst)\n"
+"            (id \":=\" exp)\n"
+"            (exp))\n"
+"      (insts (insts \";\" insts) (inst))\n"
+"      (exp (exp \"+\" exp)\n"
+"           (exp \"*\" exp)\n"
+"           (\"(\" exps \")\"))\n"
+"      (exps (exps \",\" exps) (exp)))\n"
 
 #. type: group
 #: modes.texi.orig:3563
@@ -5282,46 +5296,49 @@ msgid ""
 "    '((assoc \",\"))\n"
 "    '((assoc \"+\") (assoc \"*\")))))\n"
 msgstr ""
+"    '((assoc \";\"))\n"
+"    '((assoc \",\"))\n"
+"    '((assoc \"+\") (assoc \"*\")))))\n"
 
 #. type: Plain text
 #: modes.texi.orig:3568 modes.texi.orig:3900
 msgid "A few things to note:"
-msgstr ""
+msgstr "注意すべき点がいくつかあります:"
 
 #. type: itemize
 #: modes.texi.orig:3575
 msgid "The above grammar does not explicitly mention the syntax of function calls: SMIE will automatically allow any sequence of sexps, such as identifiers, balanced parentheses, or @code{begin ... end} blocks to appear anywhere anyway."
-msgstr ""
+msgstr "上記の文法は、関数呼び出しの構文に明示的に言及していない。SMIEは識別子、対応がとれたカッコ(balanced parentheses)、または@code{begin ... end}ブロックのようなsexpの任意のシーケンスが、どこに、どのように出現しても、自動的にそれを許容するだろう。"
 
 #. type: itemize
 #: modes.texi.orig:3579
 msgid "The grammar category @code{id} has no right hand side: this does not mean that it can match only the empty string, since as mentioned any sequence of sexps can appear anywhere anyway."
-msgstr ""
+msgstr "文法カテゴリー@code{id}は、右側に何ももたない。これは、@code{id}が空文字列だけにマッチ可能なことを意味しない。なぜなら上述のように、任意のsexpシーケンスは、どこに、どのような方法でも出現するからである。"
 
 #. type: itemize
 #: modes.texi.orig:3584
 msgid "Because non terminals cannot appear consecutively in the BNF grammar, it is difficult to correctly handle tokens that act as terminators, so the above grammar treats @code{\";\"} as a statement @emph{separator} instead, which SMIE can handle very well."
-msgstr ""
+msgstr "BNF文法では非終端記号が連続して出現し得ないので、終端記号として作用するトークンを正しく扱うのが困難なので、上述の文法では、SMIEが容易に扱える@code{\";\"}を、@emph{セパレーター(separator)}ステートメントのかわりとして扱っている。"
 
 #. type: itemize
 #: modes.texi.orig:3589
 msgid "Separators used in sequences (such as @code{\",\"} and @code{\";\"} above)  are best defined with BNF rules such as @code{(foo (foo \"separator\" foo) ...)} which generate precedence conflicts which are then resolved by giving them an explicit @code{(assoc \"separator\")}."
-msgstr ""
+msgstr "シーケンス内で使用される、(上記の@code{\",\"}や@code{\";\"}のような)セパレーターは、BNFルールでは@code{(foo (foo \"separator\" foo) ...)}のように定義するのが最善である。これは、順位の競合を生成するが、明示的に@code{(assoc \"separator\")}を与えることにより解決される、"
 
 #. type: itemize
 #: modes.texi.orig:3595
 msgid "The @code{(\"(\" exps \")\")} rule was not needed to pair up parens, since SMIE will pair up any characters that are marked as having paren syntax in the syntax table.  What this rule does instead (together with the definition of @code{exps}) is to make it clear that @code{\",\"} should not appear outside of parentheses."
-msgstr ""
+msgstr "SMIEは、構文テーブル(syntax table)内でカッコ構文(paren syntax)をもつようにマークされたー任意の文字をペアーにするだろうから、@code{(\"(\" exps \")\")}ルールにカッコをペアーにする必要はなかった。(@code{exps}の定義と併せて)このルールはかわりに、@code{\",\"}がカッコの外に出現すべきではないことを明確にする。"
 
 #. type: itemize
 #: modes.texi.orig:3599
 msgid "Rather than have a single @emph{precs} table to resolve conflicts, it is preferable to have several tables, so as to let the BNF part of the grammar specify relative precedences where possible."
-msgstr ""
+msgstr "競合解決のための@emph{precs}テーブルは、単一のテーブルより複数のテーブルをもつほうが、可能な場合は文法のBNF部分が関連する順位を指定できるので、優れている。"
 
 #. type: itemize
 #: modes.texi.orig:3605
 msgid "Unless there is a very good reason to prefer @code{left} or @code{right}, it is usually preferable to mark operators as associative, using @code{assoc}.  For that reason @code{\"+\"} and @code{\"*\"} are defined above as @code{assoc}, although the language defines them formally as left associative."
-msgstr ""
+msgstr "@code{left}または@code{right}を選択すること優るという明白な理由がない場合は、通常は@code{assoc}を使用して演算子を結合演算子(associative)とマークするほうが優れている。この理由により、上述の@code{\"+\"}と@code{\"*\"}は、たとえその言語がそれらを形式上は左結合(left associative)と定義していても、@code{assoc}として定義されている。"
 
 #. type: subsubsection
 #: modes.texi.orig:3608
