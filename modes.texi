@@ -2428,21 +2428,12 @@ associative)と定義していても、@code{assoc}として定義されてい�
 @cindex SMIE lexer
 @cindex defining tokens, SMIE
 
-SMIE comes with a predefined lexical analyzer which uses syntax tables in
-the following way: any sequence of characters that have word or symbol
-syntax is considered a token, and so is any sequence of characters that have
-punctuation syntax.  This default lexer is often a good starting point but
-is rarely actually correct for any given language.  For example, it will
-consider @code{"2,+3"} to be composed of 3 tokens: @code{"2"}, @code{",+"},
-and @code{"3"}.
+SMIEには、事前定義された字句解析プログラムが付属しており、それは次の方法で構文テーブルを使用します:
+文字の任意のシーケンスは、トークンとみなせる単語構文(word syntax)、またはシンボル構文(symbol
+syntax)をもち、句読点構文(punctuation
+syntax)をもつ任意の文字シーケンスもトークンとみなされます。このデフォルトのlexerは、開始ポイントとして適している場合が多々ありますが、任意の与えられた言語にたいして、実際に正しいことは稀です。たとえば、これは@code{"2,+3"}が3つのトークン@code{"2"}、@code{",+"}、@code{"3"}から構成されていると判断するでしょう。
 
-To describe the lexing rules of your language to SMIE, you need 2 functions,
-one to fetch the next token, and another to fetch the previous token.  Those
-functions will usually first skip whitespace and comments and then look at
-the next chunk of text to see if it is a special token.  If so it should
-skip the token and return a description of this token.  Usually this is
-simply the string extracted from the buffer, but it can be anything you
-want.  For example:
+あなたの言語のlexerルールをSMIEにたいして説明するためには、次のトークンをfetchする関数と、前のトークンをfetchする関数の、2つの関数が必要になります。これらの関数は通常、最初に空白文字とコメントをスキップして、その後に次のテキストchunk(塊)を調べて、それが特別なトークンか確認します。これは通常、バッファーから単に抽出された文字列ですが、あなたが望む他の何かでも構いません。たとえば:
 @example
 @group
 (defvar sample-keywords-regexp
@@ -2474,11 +2465,7 @@ want.  For example:
 @end group
 @end example
 
-Notice how those lexers return the empty string when in front of
-parentheses.  This is because SMIE automatically takes care of the
-parentheses defined in the syntax table.  More specifically if the lexer
-returns @code{nil} or an empty string, SMIE tries to handle the
-corresponding text as a sexp according to syntax tables.
+これらのlexerがカッコの前にあるとき、空文字列をリターンする方法に注目してください。これは、SMIEが構文テーブル内で定義されているカッコにたいして、自動的に配慮するからです。より厳密には、lexerが@code{nil}、または空文字列をリターンした場合、SMIEは構文テーブルにしたがい、対応するテキストをsexpとして処理します。
 
 @node SMIE Tricks
 @subsubsection Living With a Weak Parser
