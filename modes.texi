@@ -2470,13 +2470,9 @@ syntax)をもつ任意の文字シーケンスもトークンとみなされま�
 @node SMIE Tricks
 @subsubsection Living With a Weak Parser
 
-The parsing technique used by SMIE does not allow tokens to behave
-differently in different contexts.  For most programming languages, this
-manifests itself by precedence conflicts when converting the BNF grammar.
+SMIEが使用するパーステクニックは、異なるコンテキストでトークンが異なる振る舞いをすることを許しません。ほとんどのプログラミング言語にたいして、これは順位の競合によりBNF文法を変換するとき明らかになります。
 
-Sometimes, those conflicts can be worked around by expressing the grammar
-slightly differently.  For example, for Modula-2 it might seem natural to
-have a BNF grammar that looks like this:
+その文法を若干異なるように表現することにより、これらの競合を回避できる場合があります。たとえばModula-2にたいしては、以下のようなBNF文法をもつのが自然に思えるかもしれません:
 
 @example
   ...
@@ -2489,11 +2485,10 @@ have a BNF grammar that looks like this:
   ...
 @end example
 
-But this will create conflicts for @code{"ELSE"}: on the one hand, the IF
-rule implies (among many other things) that @code{"ELSE" = "END"}; but on
-the other hand, since @code{"ELSE"} appears within @code{cases}, which
-appears left of @code{"END"}, we also have @code{"ELSE" > "END"}.  We can
-solve the conflict either by using:
+しかし、これは@code{"ELSE"}にたいする競合を生み出すでしょう。その一方でIFルールは、(他の多くのものの中でも特に)@code{"ELSE"
+=
+"END"}を暗示します。しかしその一方では、@code{"ELSE"}は@code{cases}内に出現しますが、@code{cases}は@code{"END"}の左に出現するので、わたしたちは@code{"ELSE"
+> "END"}も得ることになります。これは、以下を使用して解決できます:
 @example
   ...
   (inst ("IF" exp "THEN" insts "ELSE" insts "END")
@@ -2503,7 +2498,7 @@ solve the conflict either by using:
   (cases (cases "|" cases) (caselabel ":" insts))
   ...
 @end example
-or
+または
 @example
   ...
   (inst ("IF" exp "THEN" else "END")
@@ -2514,22 +2509,13 @@ or
   ...
 @end example
 
-Reworking the grammar to try and solve conflicts has its downsides, tho,
-because SMIE assumes that the grammar reflects the logical structure of the
-code, so it is preferable to keep the BNF closer to the intended abstract
-syntax tree.
+文法を書き換えによる競合の解決には欠点があります。なぜなら、SMIEはその文法がコードの論理的構造を反映すると仮定するからです。そのため、BNFと意図する抽象的構文木の関係を密接に保つことが望まれます。
 
-Other times, after careful consideration you may conclude that those
-conflicts are not serious and simply resolve them via the @var{resolvers}
-argument of @code{smie-bnf->prec2}.  Usually this is because the grammar is
-simply ambiguous: the conflict does not affect the set of programs described
-by the grammar, but only the way those programs are parsed.  This is
-typically the case for separators and associative infix operators, where you
-want to add a resolver like @code{'((assoc "|"))}.  Another case where this
-can happen is for the classic @emph{dangling else} problem, where you will
-use @code{'((assoc "else" "then"))}.  It can also happen for cases where the
-conflict is real and cannot really be resolved, but it is unlikely to pose a
-problem in practice.
+注意深く考慮した後に、これらの競合は深刻ではなく、@code{smie-bnf->prec2}の@var{resolvers}引数を通じて解決する決心する場合もあるでしょう。これは通常、その文法が単に不明瞭だからです。その文法により記述されるプログラムセットは競合の影響を受けませんが、それらのプログラムにたいする唯一の方法はパースだけです。@code{'((assoc
+"|"))}のようなリゾルバ(resolver:
+解決するもの)を追加したいと望むような場合、通常それはセパレーターと2項結合演算子にたいするケースです。これが発生し得る他のケースは、@code{'((assoc
+"else" "then"))}を使用するような場合における、古典的な@emph{ぶら下がりelse問題dangling else
+problem}です。これは実際に競合があり解決不能だが、実際のところ問題が発生しそうにないケースにたいしても、発生し得ます。
 
 Finally, in many cases some conflicts will remain despite all efforts to
 restructure the grammar.  Do not despair: while the parser cannot be made
