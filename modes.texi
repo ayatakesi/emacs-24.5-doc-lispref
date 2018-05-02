@@ -2517,16 +2517,7 @@ SMIEが使用するパーステクニックは、異なるコンテキストで�
 "else" "then"))}を使用するような場合における、古典的な@emph{ぶら下がりelse問題dangling else
 problem}です。これは実際に競合があり解決不能だが、実際のところ問題が発生しそうにないケースにたいしても、発生し得ます。
 
-Finally, in many cases some conflicts will remain despite all efforts to
-restructure the grammar.  Do not despair: while the parser cannot be made
-more clever, you can make the lexer as smart as you want.  So, the solution
-is then to look at the tokens involved in the conflict and to split one of
-those tokens into 2 (or more) different tokens.  E.g., if the grammar needs
-to distinguish between two incompatible uses of the token @code{"begin"},
-make the lexer return different tokens (say @code{"begin-fun"} and
-@code{"begin-plain"}) depending on which kind of @code{"begin"} it finds.
-This pushes the work of distinguishing the different cases to the lexer,
-which will thus have to look at the surrounding text to find ad-hoc clues.
+最後に、多くのケースでは、すべての文法再構築努力にも関わらず、いくつかの競合が残るでしょう。しかし失望しないでください。パーサーをより賢くすることはできませんが、あなたの望むようにlexerをスマートにすることは可能です。その方法は、競合が発生したら競合を引き起こしたトークンを調べて、それらのうちの1つを2つ以上の異なるトークンに分割する方法です。たとえば、トークン@code{"begin"}にたいする互換性のない2つの使用を文法が区別する必要があり、見つかった@code{"begin"}の種類により、lexerに異なるトークン(たとえば@code{"begin-fun"}と@code{"begin-plain"})をリターンさせる場合です。これはlexerにたいして、異なるケースを区別する処理を強い、そのためにlexerは特別な手がかりを見つけるために、周囲のテキストを調べる必要があるでしょう。
 
 @node SMIE Indentation
 @subsubsection Specifying Indentation Rules
