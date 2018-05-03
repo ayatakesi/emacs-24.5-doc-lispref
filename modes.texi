@@ -2567,60 +2567,45 @@ SMIEのインデントルールは、2つの引数@var{method}と@var{arg}をと
 @node SMIE Indentation Helpers
 @subsubsection Helper Functions for Indentation Rules
 
-SMIE provides various functions designed specifically for use in the
-indentation rules function (several of those functions break if used in
-another context).  These functions all start with the prefix
-@code{smie-rule-}.
+SMIEは、インデントを決定する関数内で使用するために特別にデザインされた、さまざまな関数を提供します(これらの関数のうちのいくつかは、異なるコンテキスト内で使用された場合は中断する)。これらの関数はすべて、プレフィックス@code{smie-rule-}で始まります。
 
 @defun smie-rule-bolp
-Return non-@code{nil} if the current token is the first on the line.
+カレントトークンが行の先頭にある場合は、非@code{nil}をリターンする。
 @end defun
 
 @defun smie-rule-hanging-p
-Return non-@code{nil} if the current token is @emph{hanging}.  A token is
-@emph{hanging} if it is the last token on the line and if it is preceded by
-other tokens: a lone token on a line is not hanging.
+カレントトークンが@emph{hanging(ぶら下がり)}の場合は、非@code{nil}をリターンする。トークンがその行の最後のトークンであり、他のトークンが先行する場合、そのトークンは@emph{hanging}である。行に単独のトークンはhangingではない。
 @end defun
 
 @defun smie-rule-next-p &rest tokens
-Return non-@code{nil} if the next token is among @var{tokens}.
+次のトークンが@var{tokens}内にある場合は、非@code{nil}をリターンする。
 @end defun
 
 @defun smie-rule-prev-p &rest tokens
-Return non-@code{nil} if the previous token is among @var{tokens}.
+前のトークンが@var{tokens}内にある場合は、非@code{nil}をリターンする。
 @end defun
 
 @defun smie-rule-parent-p &rest parents
-Return non-@code{nil} if the current token's parent is among @var{parents}.
+カレントトークンのparentが@var{parents}内にある場合は、非@code{nil}をリターンする。
 @end defun
 
 @defun smie-rule-sibling-p
-Return non-@code{nil} if the current token's parent is actually a sibling.
-This is the case for example when the parent of a @code{","} is just the
-previous @code{","}.
+カレントトークンのparentが実際はsibling(兄弟)の場合は、非@code{nil}をリターンする。たとえば@code{","}のparentが直前の@code{","}のような場合が該当する。
 @end defun
 
 @defun smie-rule-parent &optional offset
-Return the proper offset to align the current token with the parent.  If
-non-@code{nil}, @var{offset} should be an integer giving an additional
-offset to apply.
+カレントトークンをparentとアライン(align:
+桁揃え)するための適切なオフセットをリターンする。@var{offset}が非@code{nil}の場合、それは追加オフセットとして適用される整数であること。
 @end defun
 
 @defun smie-rule-separator method
-Indent current token as a @emph{separator}.
+@emph{セパレーター(separator)}としてカレントトークンをインデントする。
 
-By @emph{separator}, we mean here a token whose sole purpose is to separate
-various elements within some enclosing syntactic construct, and which does
-not have any semantic significance in itself (i.e., it would typically not
-exist as a node in an abstract syntax tree).
+ここでの@emph{セパレーター}は、周囲を取り囲む何らかの構文構造内でさまざまな要素を区切ることを唯一の目的とするトークンであり、それ自体は何も意味をもたないトークン(通常は抽象構文木内でノードとして存在しない)を意味する。
 
-Such a token is expected to have an associative syntax and be closely tied
-to its syntactic parent.  Typical examples are @code{","} in lists of
-arguments (enclosed inside parentheses), or @code{";"} in sequences of
-instructions (enclosed in a @code{@{...@}} or @code{begin...end} block).
+このようなトークンは結合構文をもち、その構文的parentと密に結び付けられることが期待される。典型的な例としては引数リスト内の@code{","}(カッコで括られた内部)、または命令文シーケンス内の@code{";"}(@code{@{...@}}や@code{begin...end}で括られたブロックの内部)が挙げられる。
 
-@var{method} should be the method name that was passed to
-`smie-rules-function'.
+@var{method}は、`smie-rules-function'に渡されるメソッド名であること。
 @end defun
 
 @node SMIE Indentation Example
