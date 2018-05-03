@@ -37,45 +37,29 @@ Manual}を参照してください。
 @cindex writing a documentation string
 @cindex string, writing a doc string
 
-  A documentation string is written using the Lisp syntax for strings, with
-double-quote characters surrounding the text.  It is, in fact, an actual
-Lisp string.  When the string appears in the proper place in a function or
-variable definition, it serves as the function's or variable's
-documentation.
+  ドキュメント文字列は、テキストをダブルクォート文字で囲んだ、文字列にたいするLisp構文を使用して記述されます。実はこれは実際のLisp文字列です。関数または変数の定義内の適切な箇所に文字列があると、それは関数または変数のドキュメントの役割を果たします。
 
 @cindex @code{function-documentation} property
-  In a function definition (a @code{lambda} or @code{defun} form), the
-documentation string is specified after the argument list, and is normally
-stored directly in the function object.  @xref{Function Documentation}.  You
-can also put function documentation in the @code{function-documentation}
-property of a function name (@pxref{Accessing Documentation}).
+  関数定義(@code{lambda}や@code{defun}フォーム)の中では、ドキュメント文字列は引数リストの後に指定され、通常は関数オブジェクト内に直接格納されます。@ref{Function
+Documentation}を参照してください。関数名の@code{function-documentation}プロパティに関数ドキュメントをputすることもできます(@ref{Accessing
+Documentation}を参照)。
 
 @cindex @code{variable-documentation} property
-  In a variable definition (a @code{defvar} form), the documentation string is
-specified after the initial value.  @xref{Defining Variables}.  The string
-is stored in the variable's @code{variable-documentation} property.
+  変数定義(@code{defvar}フォーム)の中では、ドキュメント文字列は初期値の後に指定されます。@ref{Defining
+Variables}を参照してください。この文字列は、その変数の@code{variable-documentation}プロパティに格納されます。
 
 @cindex @file{DOC} (documentation) file
-  Sometimes, Emacs does not keep documentation strings in memory.  There are
-two such circumstances.  Firstly, to save memory, the documentation for
-preloaded functions and variables (including primitives) is kept in a file
-named @file{DOC}, in the directory specified by @code{doc-directory}
-(@pxref{Accessing Documentation}).  Secondly, when a function or variable is
-loaded from a byte-compiled file, Emacs avoids loading its documentation
-string (@pxref{Docs and Compilation}).  In both cases, Emacs looks up the
-documentation string from the file only when needed, such as when the user
-calls @kbd{C-h f} (@code{describe-function}) for a function.
+  Emacsがメモリー内にドキュメント文字列を保持しないときがあります。それには、2つの状況があります。1つ目はメモリーを節約するためで、事前ロードされた関数および変数(プリミティブを含む)のドキュメントは、@code{doc-directory}で指定されたディレクトリー内の、@file{DOC}という名前のファイルに保持されます(@ref{Accessing
+Documentation}を参照)。2つ目は関数または変数がバイトコンパイルされたファイルからロードされたときで、Emacsはそれらのドキュメント文字列のロードを無効にします(@ref{Docs
+and Compilation}を参照)。どちらの場合も、ある関数にたいしてユーザーが@kbd{C-h
+f}(@code{describe-function})を呼び出したときなど、Emacsは必要なときだけファイルのドキュメント文字列を照会します。
 
-  Documentation strings can contain special @dfn{key substitution sequences},
-referring to key bindings which are looked up only when the user views the
-documentation.  This allows the help commands to display the correct keys
-even if a user rearranges the default key bindings.  @xref{Keys in
-Documentation}.
+  ドキュメント文字列には、ユーザーがドキュメントを閲覧するときのみ照会されるキーバインディングを参照する、特別な@dfn{キー置換シーケンス(key
+substitution
+sequences)}を含めることができます。これにより、たとえユーザーがデフォルトのキーバインディングを変更していても、ヘルプコマンドが正しいキーを表示できるようになります。
 
-  In the documentation string of an autoloaded command (@pxref{Autoload}),
-these key-substitution sequences have an additional special effect: they
-cause @kbd{C-h f} on the command to trigger autoloading.  (This is needed
-for correctly setting up the hyperlinks in the @file{*Help*} buffer.)
+  オートロードされたコマンド(@ref{Autoload}を参照)のドキュメント文字列では、これらのキー置換シーケンスは特別な効果をもち、そのコマンドにたいする@kbd{C-h
+f}により、オートロードをトリガーします(これは@file{*Help*}バッファー内のハイパーリンクを正しくセットアップするために必要となる)。
 
 @node Accessing Documentation
 @section Access to Documentation Strings
