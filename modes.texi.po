@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-04-06 11:33+0900\n"
-"PO-Revision-Date: 2018-05-02 10:41+0900\n"
+"PO-Revision-Date: 2018-05-03 16:20+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -5542,83 +5542,83 @@ msgstr "最後に、多くのケースでは、すべての文法再構築努力
 #: modes.texi.orig:3744
 #, no-wrap
 msgid "Specifying Indentation Rules"
-msgstr ""
+msgstr "Specifying Indentation Rules"
 
 #. type: cindex
 #: modes.texi.orig:3745
 #, no-wrap
 msgid "indentation rules, SMIE"
-msgstr ""
+msgstr "indentation rules, SMIE"
 
 #. type: Plain text
 #: modes.texi.orig:3751
 msgid "Based on the provided grammar, SMIE will be able to provide automatic indentation without any extra effort.  But in practice, this default indentation style will probably not be good enough.  You will want to tweak it in many different cases."
-msgstr ""
+msgstr "提供された文法にもとづき、他に特別なことを行わなくても、SMIEは自動的なインデントを提供できるでしょう。しかし実際には、このデフォルトのインデントスタイルでは、恐らく十分ではありません。多くの異なる状況において、これを微調整したいと思うかもしれません。"
 
 #. type: Plain text
 #: modes.texi.orig:3766
 msgid "SMIE indentation is based on the idea that indentation rules should be as local as possible.  To this end, it relies on the idea of @emph{virtual} indentation, which is the indentation that a particular program point would have if it were at the beginning of a line.  Of course, if that program point is indeed at the beginning of a line, its virtual indentation is its current indentation.  But if not, then SMIE uses the indentation algorithm to compute the virtual indentation of that point.  Now in practice, the virtual indentation of a program point does not have to be identical to the indentation it would have if we inserted a newline before it.  To see how this works, the SMIE rule for indentation after a @code{@{} in C does not care whether the @code{@{} is standing on a line of its own or is at the end of the preceding line.  Instead, these different cases are handled in the indentation rule that decides how to indent before a @code{@{}."
-msgstr ""
+msgstr "SMIEのインデントは、インデントルールは可能な限りローカルであるべきという考えにもとづきます。@emph{バーチャルインデント(virtual indentation)}という考えによって、この目的を達成します。これは、特定のプログラムポイント(program point)は行頭にバーチャルインデントがある場合は、それをもつだろう、という発想です。もちろん、そのプログラムポイントが正に行頭にある場合は、そのプログラムポイントのバーチャルインデントは、プログラムポイントのカレントのインデントです。しかしそうでない場合は、SMIEがそのポイントのバーチャルインデントを計算するために、インデントアルゴリズムを使用します。ところで実際には、あるプログラムポイントのバーチャルインデントは、その前に改行を挿入した場合にプログラムポイントがもつであろうインデントと等しい必要はありません。これが機能する方法を確認するためには、Cにおける@code{@{}の後のSMIEのインデントルールは、@code{@{}がインデントする行自体にあるか、あるいは前の行の終端にあるかを配慮しないことが挙げられます。かわりに、これらの異なるケースは、@code{@{}の前のインデントを決定するインデントルール内で処理されます。"
 
 #. type: Plain text
 #: modes.texi.orig:3779
 msgid "Another important concept is the notion of @emph{parent}: The @emph{parent} of a token, is the head token of the nearest enclosing syntactic construct.  For example, the parent of an @code{else} is the @code{if} to which it belongs, and the parent of an @code{if}, in turn, is the lead token of the surrounding construct.  The command @code{backward-sexp} jumps from a token to its parent, but there are some caveats: for @emph{openers} (tokens which start a construct, like @code{if}), you need to start with point before the token, while for others you need to start with point after the token.  @code{backward-sexp} stops with point before the parent token if that is the @emph{opener} of the token of interest, and otherwise it stops with point after the parent token."
-msgstr ""
+msgstr "他の重要な考え方として、@emph{parent}の概念があります。あるトークン@emph{parent}は、周囲にある直近の構文構造の代表トークン(head token)です。たとえば、@code{else}のparentは、それが属する@code{if}であり、@code{if}のparentは周囲を取り囲む構造の先導トークン(lead token)です。コマンド@code{backward-sexp}は、あるトークンからトークンのparentにジャンプしますが、注意点がいくつかあります。@emph{opener}(@code{if}のような、ある構造を開始するトークン)にたいしては、他のトークンではそのトークンの後のポイントから開始する必要があるのにたいして、opnerではそのトークンの前のポイントから開始する必要があります。@code{backward-sexp}はparentトークンがそのトークンの@emph{opener}の場合はparentトークンの前のポイントで停止し、それ以外ではparentトークンの後のポイントで停止します。"
 
 #. type: Plain text
 #: modes.texi.orig:3783
 msgid "SMIE indentation rules are specified using a function that takes two arguments @var{method} and @var{arg} where the meaning of @var{arg} and the expected return value depend on @var{method}."
-msgstr ""
+msgstr "SMIEのインデントルールは、2つの引数@var{method}と@var{arg}をとる関数により指定されます。ここで@var{arg}の値と期待されるリターン値は、@var{method}に依存します。"
 
 #. type: Plain text
 #: modes.texi.orig:3785
 msgid "@var{method} can be:"
-msgstr ""
+msgstr "@var{method}は、以下のいずれかを指定できます:"
 
 #. type: itemize
 #: modes.texi.orig:3789
 msgid "@code{:after}, in which case @var{arg} is a token and the function should return the @var{offset} to use for indentation after @var{arg}."
-msgstr ""
+msgstr "@code{:after}: この場合、@var{arg}はトークンであり、関数は@var{arg}の後に使用するインデントにたいする@var{offset}をリターンすべきである。"
 
 #. type: itemize
 #: modes.texi.orig:3792
 msgid "@code{:before}, in which case @var{arg} is a token and the function should return the @var{offset} to use to indent @var{arg} itself."
-msgstr ""
+msgstr "@code{:before}: この場合、@var{arg}はトークンであり、関数は@var{arg}自体に使用するインデントの@var{offset}をリターンすべきである。"
 
 #. type: itemize
 #: modes.texi.orig:3797
 msgid "@code{:elem}, in which case the function should return either the offset to use to indent function arguments (if @var{arg} is the symbol @code{arg}) or the basic indentation step (if @var{arg} is the symbol @code{basic})."
-msgstr ""
+msgstr "@code{:elem}: この場合、関数は関数の引数に使用するインデントのオフセット(@var{arg}が@code{arg}の場合)、または基本的のインデントステップ(@var{arg}が@code{basic}の場合)、のいずれかをリターンすべきである。"
 
 #. type: itemize
 #: modes.texi.orig:3801
 msgid "@code{:list-intro}, in which case @var{arg} is a token and the function should return non-@code{nil} if the token is followed by a list of expressions (not separated by any token) rather than an expression."
-msgstr ""
+msgstr "@code{:list-intro}: この場合、@var{arg}はトークンであり、関数はそのトークンの後が単一の式ではなく、(任意のトークンにより区切られない)式のリストが続く場合は非@code{nil}をリターンすべきである。"
 
 #. type: Plain text
 #: modes.texi.orig:3807
 msgid "When @var{arg} is a token, the function is called with point just before that token.  A return value of @code{nil} always means to fallback on the default behavior, so the function should return @code{nil} for arguments it does not expect."
-msgstr ""
+msgstr "@var{arg}がトークンのとき、関数はそのトークンの直前のポイントで呼び出されます。リターン値@code{nil}は常にデフォルトの振る舞いへのフォールバックを意味するので、関数は期待した引数でないときは@code{nil}をリターンするべきです。"
 
 #. type: Plain text
 #: modes.texi.orig:3809
 msgid "@var{offset} can be:"
-msgstr ""
+msgstr "@var{offset}は、以下のいずれかを指定できます:"
 
 #. type: itemize
 #: modes.texi.orig:3812
 msgid "@code{nil}: use the default indentation rule."
-msgstr ""
+msgstr "@code{nil}: デフォルトのインデントルールを使用する。"
 
 #. type: itemize
 #: modes.texi.orig:3814
 msgid "@code{(column . @var{column})}: indent to column @var{column}."
-msgstr ""
+msgstr "@code{(column . @var{column})}: 列@var{column}にインデントする。"
 
 #. type: itemize
 #: modes.texi.orig:3817
 msgid "@var{number}: offset by @var{number}, relative to a base token which is the current token for @code{:after} and its parent for @code{:before}."
-msgstr ""
+msgstr "@var{number}: 基本トークン(base token: @code{:after}にたいするカレントトークンであり、かつ@code{:before}にたいしてparentであるようなトークン)にたいして相対的な、@var{number}によるオフセット。"
 
 #. type: subsubsection
 #: modes.texi.orig:3820
