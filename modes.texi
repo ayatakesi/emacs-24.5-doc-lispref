@@ -2716,23 +2716,15 @@ SMIEにより提供されるインデントを使用するモードを使って�
 @section Desktop Save Mode
 @cindex desktop save mode
 
-@dfn{Desktop Save Mode} is a feature to save the state of Emacs from one
-session to another.  The user-level commands for using Desktop Save Mode are
-described in the GNU Emacs Manual (@pxref{Saving Emacs Sessions,,, emacs,
-the GNU Emacs Manual}).  Modes whose buffers visit a file, don't have to do
-anything to use this feature.
+@dfn{Desktop Saveモード}とは、あるセッションから別のセッションへ、Emacs状態を保存する機能です。Desktop
+Saveモードの使用に関するユーザーレベルのコマンドについては、GNU Emacsマニュアルに記載されています(@ref{Saving Emacs
+Sessions,,, emacs, the GNU Emacs
+Manual}を参照)。バッファーでファイルをvisitしているモードでは、この機能を使うために何も行う必要はありません。
 
-For buffers not visiting a file to have their state saved, the major mode
-must bind the buffer local variable @code{desktop-save-buffer} to a
-non-@code{nil} value.
+ファイルをvisitしていないバッファーについて状態を保存するには、そのメジャーモードがバッファーローカル変数@code{desktop-save-buffer}を非@code{nil}値にバインドしなければなりません。
 
 @defvar desktop-save-buffer
-If this buffer-local variable is non-@code{nil}, the buffer will have its
-state saved in the desktop file at desktop save.  If the value is a
-function, it is called at desktop save with argument @var{desktop-dirname},
-and its value is saved in the desktop file along with the state of the
-buffer for which it was called.  When file names are returned as part of the
-auxiliary information, they should be formatted using the call
+このバッファーローカル変数が非@code{nil}の場合は、デスクトップ保存時にそのバッファー状態がdesktopファイルに保存される。値が関数の場合、その関数はデスクトップ保存時に引数@var{desktop-dirname}で呼び出され、関数が呼び出されたバッファーの状態とともに、関数の値がdesktopファイルに保存される。補助的な情報の一部としてファイル名がリターンされたとき、それらは以下を呼び出してフォーマットされるべきである
 
 @example
 (desktop-file-name @var{file-name} @var{desktop-dirname})
@@ -2740,24 +2732,21 @@ auxiliary information, they should be formatted using the call
 
 @end defvar
 
-For buffers not visiting a file to be restored, the major mode must define a
-function to do the job, and that function must be listed in the alist
-@code{desktop-buffer-mode-handlers}.
+ファイルをvisitしていないバッファーがリストアされるようにするには、その初を行う関数をメジャーモードが定義しなければならず、その関数はalist
+@code{desktop-buffer-mode-handlers}にリストされなければならない。
 
 @defvar desktop-buffer-mode-handlers
-Alist with elements
+以下を要素にもつalistである
 
 @example
 (@var{major-mode} . @var{restore-buffer-function})
 @end example
 
-The function @var{restore-buffer-function} will be called with argument list
+関数@var{restore-buffer-function}は、以下の引数リストで呼び出されるだろう
 
 @example
 (@var{buffer-file-name} @var{buffer-name} @var{desktop-buffer-misc})
 @end example
 
-and it should return the restored buffer.  Here @var{desktop-buffer-misc} is
-the value returned by the function optionally bound to
-@code{desktop-save-buffer}.
+この関数は、リストアされたバッファーをリターンすべきである。ここで、@var{desktop-buffer-misc}は、オプションで@code{desktop-save-buffer}にバインドされる関数によりリターンされる値である。
 @end defvar
