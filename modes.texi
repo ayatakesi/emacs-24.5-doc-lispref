@@ -2611,7 +2611,7 @@ SMIEは、インデントを決定する関数内で使用するために特別�
 @node SMIE Indentation Example
 @subsubsection Sample Indentation Rules
 
-Here is an example of an indentation function:
+以下は、インデント関数の例です:
 
 @example
 (defun sample-smie-rules (kind token)
@@ -2631,15 +2631,10 @@ Here is an example of an indentation function:
 
 @itemize
 @item
-The first case indicates the basic indentation increment to use.  If
-@code{sample-indent-basic} is @code{nil}, then SMIE uses the global setting
-@code{smie-indent-basic}.  The major mode could have set
-@code{smie-indent-basic} buffer-locally instead, but that is discouraged.
+最初のcaseは、使用する基本的なインデントの増分を示す。@code{sample-indent-basic}が@code{nil}の場合、SMIEはグローバルセッティング@code{smie-indent-basic}を使用する。メジャーモードがかわりに@code{smie-indent-basic}をバッファーローカルにセットするかもしれないが、これは勧められない。
 
 @item
-The rule for the token @code{","} make SMIE try to be more clever when the
-comma separator is placed at the beginning of lines.  It tries to outdent
-the separator so as to align the code after the comma; for example:
+トークン@code{","}にたいするルールにより、カンマセパレーターが行頭にある場合に、SMIEをより賢明に振る舞わせようとしている。これはセパレーターのインデントを解除(outdent)、カンマの後のコードにアラインされるよう試みる。たとえば:
 
 @example
 x = longfunctionname (
@@ -2649,24 +2644,17 @@ x = longfunctionname (
 @end example
 
 @item
-The rule for indentation after @code{":="} exists because otherwise SMIE
-would treat @code{":="} as an infix operator and would align the right
-argument with the left one.
+@code{":="}の後のインデントのルールは、そうしなければSMIEが@code{":="}を2項演算子として扱い、左の引数に併せて右の引数をアラインするであろうから、このルールが存在する。
 
 @item
-The rule for indentation before @code{"begin"} is an example of the use of
-virtual indentation: This rule is used only when @code{"begin"} is hanging,
-which can happen only when @code{"begin"} is not at the beginning of a
-line.  So this is not used when indenting @code{"begin"} itself but only
-when indenting something relative to this @code{"begin"}.  Concretely, this
-rule changes the indentation from:
+@code{"begin"}の前のインデントのルールは、バーチャルインデントの使用例である。このルールは@code{"begin"}がhangingのときだけ使用され、これは@code{"begin"}が行頭にないときのみ発生し得る。そのため、これは@code{"begin"}自体のインデントには使用されないが、この@code{"begin"}に関連する何かをインデントするときだけ使用される。このルールは、具体的には以下のフォームを:
 
 @example
     if x > 0 then begin
             dosomething(x);
         end
 @end example
-to
+以下に変更する
 @example
     if x > 0 then begin
         dosomething(x);
@@ -2674,15 +2662,10 @@ to
 @end example
 
 @item
-The rule for indentation before @code{"if"} is similar to the one for
-@code{"begin"}, but where the purpose is to treat @code{"else if"} as a
-single unit, so as to align a sequence of tests rather than indent each test
-further to the right.  This function does this only in the case where the
-@code{"if"} is not placed on a separate line, hence the
-@code{smie-rule-bolp} test.
+@code{"if"}の前のインデントのルールは@code{"begin"}のインデントルールと似ているが、ここでの目的は@code{"else
+if"}を1単位として扱うことにあり、それにより各テストより右にインデントされずに、一連のテストにアラインされる。この関数は@code{smie-rule-bolp}をテストして、@code{"if"}が別の行にないときだけこれを行う。
 
-If we know that the @code{"else"} is always aligned with its @code{"if"} and
-is always at the beginning of a line, we can use a more efficient rule:
+@code{"else"}が、それの属する@code{"if"}にたいして常にアラインされ、かつそれが常に行頭であるることが判っている場合は、より効果的なルールを使用できる:
 @example
 ((equal token "if")
  (and (not (smie-rule-bolp))
@@ -2692,9 +2675,7 @@ is always at the beginning of a line, we can use a more efficient rule:
         (cons 'column (current-column)))))
 @end example
 
-The advantage of this formulation is that it reuses the indentation of the
-previous @code{"else"}, rather than going all the way back to the first
-@code{"if"} of the sequence.
+この式の利点は、これがシーケンスの最初の@code{"if"}まで戻ってすべてをやり直すのではなく、前の@code{"else"}のインデントを再利用することである。
 @end itemize
 
 @c In some sense this belongs more in the Emacs manual.

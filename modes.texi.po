@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-04-06 11:33+0900\n"
-"PO-Revision-Date: 2018-05-03 18:09+0900\n"
+"PO-Revision-Date: 2018-05-03 18:56+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -5738,12 +5738,12 @@ msgstr "@var{method}は、`smie-rules-function'に渡されるメソッド名で
 #: modes.texi.orig:3881
 #, no-wrap
 msgid "Sample Indentation Rules"
-msgstr ""
+msgstr "Sample Indentation Rules"
 
 #. type: Plain text
 #: modes.texi.orig:3884
 msgid "Here is an example of an indentation function:"
-msgstr ""
+msgstr "以下は、インデント関数の例です:"
 
 #. type: example
 #: modes.texi.orig:3896
@@ -5760,16 +5760,26 @@ msgid ""
 "     (and (not (smie-rule-bolp)) (smie-rule-prev-p \"else\")\n"
 "          (smie-rule-parent)))))\n"
 msgstr ""
+"(defun sample-smie-rules (kind token)\n"
+"  (pcase (cons kind token)\n"
+"    (`(:elem . basic) sample-indent-basic)\n"
+"    (`(,_ . \",\") (smie-rule-separator kind))\n"
+"    (`(:after . \":=\") sample-indent-basic)\n"
+"    (`(:before . ,(or `\"begin\" `\"(\" `\"@{\")))\n"
+"     (if (smie-rule-hanging-p) (smie-rule-parent)))\n"
+"    (`(:before . \"if\")\n"
+"     (and (not (smie-rule-bolp)) (smie-rule-prev-p \"else\")\n"
+"          (smie-rule-parent)))))\n"
 
 #. type: itemize
 #: modes.texi.orig:3908
 msgid "The first case indicates the basic indentation increment to use.  If @code{sample-indent-basic} is @code{nil}, then SMIE uses the global setting @code{smie-indent-basic}.  The major mode could have set @code{smie-indent-basic} buffer-locally instead, but that is discouraged."
-msgstr ""
+msgstr "最初のcaseは、使用する基本的なインデントの増分を示す。@code{sample-indent-basic}が@code{nil}の場合、SMIEはグローバルセッティング@code{smie-indent-basic}を使用する。メジャーモードがかわりに@code{smie-indent-basic}をバッファーローカルにセットするかもしれないが、これは勧められない。"
 
 #. type: itemize
 #: modes.texi.orig:3914
 msgid "The rule for the token @code{\",\"} make SMIE try to be more clever when the comma separator is placed at the beginning of lines.  It tries to outdent the separator so as to align the code after the comma; for example:"
-msgstr ""
+msgstr "トークン@code{\",\"}にたいするルールにより、カンマセパレーターが行頭にある場合に、SMIEをより賢明に振る舞わせようとしている。これはセパレーターのインデントを解除(outdent)、カンマの後のコードにアラインされるよう試みる。たとえば:"
 
 #. type: example
 #: modes.texi.orig:3920
@@ -5780,16 +5790,20 @@ msgid ""
 "      , arg2\n"
 "    );\n"
 msgstr ""
+"x = longfunctionname (\n"
+"        arg1\n"
+"      , arg2\n"
+"    );\n"
 
 #. type: itemize
 #: modes.texi.orig:3926
 msgid "The rule for indentation after @code{\":=\"} exists because otherwise SMIE would treat @code{\":=\"} as an infix operator and would align the right argument with the left one."
-msgstr ""
+msgstr "@code{\":=\"}の後のインデントのルールは、そうしなければSMIEが@code{\":=\"}を2項演算子として扱い、左の引数に併せて右の引数をアラインするであろうから、このルールが存在する。"
 
 #. type: itemize
 #: modes.texi.orig:3934
 msgid "The rule for indentation before @code{\"begin\"} is an example of the use of virtual indentation: This rule is used only when @code{\"begin\"} is hanging, which can happen only when @code{\"begin\"} is not at the beginning of a line.  So this is not used when indenting @code{\"begin\"} itself but only when indenting something relative to this @code{\"begin\"}.  Concretely, this rule changes the indentation from:"
-msgstr ""
+msgstr "@code{\"begin\"}の前のインデントのルールは、バーチャルインデントの使用例である。このルールは@code{\"begin\"}がhangingのときだけ使用され、これは@code{\"begin\"}が行頭にないときのみ発生し得る。そのため、これは@code{\"begin\"}自体のインデントには使用されないが、この@code{\"begin\"}に関連する何かをインデントするときだけ使用される。このルールは、具体的には以下のフォームを:"
 
 #. type: example
 #: modes.texi.orig:3939
@@ -5799,11 +5813,14 @@ msgid ""
 "            dosomething(x);\n"
 "        end\n"
 msgstr ""
+"    if x > 0 then begin\n"
+"            dosomething(x);\n"
+"        end\n"
 
 #. type: itemize
 #: modes.texi.orig:3941
 msgid "to"
-msgstr ""
+msgstr "以下に変更する"
 
 #. type: example
 #: modes.texi.orig:3945
@@ -5813,16 +5830,19 @@ msgid ""
 "        dosomething(x);\n"
 "    end\n"
 msgstr ""
+"    if x > 0 then begin\n"
+"        dosomething(x);\n"
+"    end\n"
 
 #. type: itemize
 #: modes.texi.orig:3954
 msgid "The rule for indentation before @code{\"if\"} is similar to the one for @code{\"begin\"}, but where the purpose is to treat @code{\"else if\"} as a single unit, so as to align a sequence of tests rather than indent each test further to the right.  This function does this only in the case where the @code{\"if\"} is not placed on a separate line, hence the @code{smie-rule-bolp} test."
-msgstr ""
+msgstr "@code{\"if\"}の前のインデントのルールは@code{\"begin\"}のインデントルールと似ているが、ここでの目的は@code{\"else if\"}を1単位として扱うことにあり、それにより各テストより右にインデントされずに、一連のテストにアラインされる。この関数は@code{smie-rule-bolp}をテストして、@code{\"if\"}が別の行にないときだけこれを行う。"
 
 #. type: itemize
 #: modes.texi.orig:3958
 msgid "If we know that the @code{\"else\"} is always aligned with its @code{\"if\"} and is always at the beginning of a line, we can use a more efficient rule:"
-msgstr ""
+msgstr "@code{\"else\"}が、それの属する@code{\"if\"}にたいして常にアラインされ、かつそれが常に行頭であるることが判っている場合は、より効果的なルールを使用できる:"
 
 #. type: example
 #: modes.texi.orig:3965
@@ -5835,11 +5855,17 @@ msgid ""
 "        (sample-smie-backward-token)\n"
 "        (cons 'column (current-column)))))\n"
 msgstr ""
+"((equal token \"if\")\n"
+" (and (not (smie-rule-bolp))\n"
+"      (smie-rule-prev-p \"else\")\n"
+"      (save-excursion\n"
+"        (sample-smie-backward-token)\n"
+"        (cons 'column (current-column)))))\n"
 
 #. type: itemize
 #: modes.texi.orig:3970
 msgid "The advantage of this formulation is that it reuses the indentation of the previous @code{\"else\"}, rather than going all the way back to the first @code{\"if\"} of the sequence."
-msgstr ""
+msgstr "この式の利点は、これがシーケンスの最初の@code{\"if\"}まで戻ってすべてをやり直すのではなく、前の@code{\"else\"}のインデントを再利用することである。"
 
 #. type: subsubsection
 #: modes.texi.orig:3974
