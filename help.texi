@@ -66,24 +66,14 @@ f}により、オートロードをトリガーします(これは@file{*Help*}�
 @cindex accessing documentation strings
 
 @defun documentation-property symbol property &optional verbatim
-This function returns the documentation string recorded in @var{symbol}'s
-property list under property @var{property}.  It is most often used to look
-up the documentation strings of variables, for which @var{property} is
-@code{variable-documentation}.  However, it can also be used to look up
-other kinds of documentation, such as for customization groups (but for
-function documentation, use the @code{documentation} function, below).
+この関数は、プロパティ@var{property}配下の@var{symbol}のプロパティリスト内に記録されたドキュメント文字列をリターンする。ほとんどの場合、これは@var{property}を@code{variable-documentation}にして、変数のドキュメント文字列の照会に使用される。しかし、カスタマイゼーショングループのような、他の種類のドキュメント照会にも使用できる(が、関数のドキュメントには、以下の@code{documentation}関数を使用する)。
 
-If the property value refers to a documentation string stored in the
-@file{DOC} file or a byte-compiled file, this function looks up that string
-and returns it.
+そのプロパティの値が@file{DOC}ファイルやバイトコンパイル済みファイルに格納されたドキュメント文字列を参照する場合、この関数はその文字列を照会して、それをリターンする。
 
-If the property value isn't @code{nil}, isn't a string, and doesn't refer to
-text in a file, then it is evaluated as a Lisp expression to obtain a
-string.
+プロパティの値が@code{nil}や文字列以外で、ファイル内のテキストも参照しない場合は、文字列を取得するLisp式として評価される。
 
-Finally, this function passes the string through
-@code{substitute-command-keys} to substitute key bindings (@pxref{Keys in
-Documentation}).  It skips this step if @var{verbatim} is non-@code{nil}.
+最終的に、この関数はキーバインディングを置換するために、文字列を@code{substitute-command-keys}に引き渡す(@ref{Keys
+in Documentation}を参照)。@var{verbatim}が非@code{nil}の場合、このステップはスキップされる。
 
 @smallexample
 @group
@@ -103,53 +93,38 @@ Documentation}).  It skips this step if @var{verbatim} is non-@code{nil}.
 @end defun
 
 @defun documentation function &optional verbatim
-This function returns the documentation string of @var{function}.  It
-handles macros, named keyboard macros, and special forms, as well as
-ordinary functions.
+この関数は、@var{function}のドキュメント文字列をリターンする。この関数はマクロ、名前付きキーボードマクロ、およびスペシャルフォームも通常の関数と同様に処理する。
 
-If @var{function} is a symbol, this function first looks for the
-@code{function-documentation} property of that symbol; if that has a
-non-@code{nil} value, the documentation comes from that value (if the value
-is not a string, it is evaluated).
+@var{function}がシンボルの場合は、そのシンボルの@code{function-documentation}プロパティを最初に調べる。それが非@code{nil}値をもつなら、その値(プロパティの値が文字列以外の場合は、それを評価した値)がドキュメントとなる。
 
-If @var{function} is not a symbol, or if it has no
-@code{function-documentation} property, then @code{documentation} extracts
-the documentation string from the actual function definition, reading it
-from a file if called for.
+@var{function}がシンボル以外、あるいは@code{function-documentation}プロパティをもたない場合、@code{documentation}は必要ならファイルを読み込んで、実際の関数定義のドキュメント文字列を抽出する。
 
-Finally, unless @var{verbatim} is non-@code{nil}, this function calls
-@code{substitute-command-keys}.  The result is the documentation string to
-return.
+最後に、@var{verbatim}が@code{nil}なら、この関数は@code{substitute-command-keys}を呼び出す。結果はリターンするための文字列である。
 
-The @code{documentation} function signals a @code{void-function} error if
-@var{function} has no function definition.  However, it is OK if the
-function definition has no documentation string.  In that case,
-@code{documentation} returns @code{nil}.
+@code{documentation}関数は、@var{function}が関数定義をもたない場合は、@code{void-function}エラーをシグナルする。しかし、関数定義がドキュメントをもたない場合は問題ない。その場合、@code{documentation}は@code{nil}をリターンする。
 @end defun
 
 @defun face-documentation face
-This function returns the documentation string of @var{face} as a face.
+この関数は、@var{face}のドキュメント文字列をフェイスとしてリターンする。
 @end defun
 
-Here is an example of using the two functions, @code{documentation} and
-@code{documentation-property}, to display the documentation strings for
-several symbols in a @file{*Help*} buffer.
+以下は、@code{documentation}と@code{documentation-property}を使用した例で、いくつかのシンボルのドキュメント文字列を@file{*Help*}バッファー内に表示します。
 
 @anchor{describe-symbols example}
 @smallexample
 @group
 (defun describe-symbols (pattern)
-  "Describe the Emacs Lisp symbols matching PATTERN.
-All symbols that have PATTERN in their name are described
-in the `*Help*' buffer."
+  "PATTERNにマッチするEmacs Lispシンボルを説明する。
+名前にPATTERNをもつすべてのシンボルの説明が
+`*Help*'バッファーに表示される。"
   (interactive "sDescribe symbols matching: ")
   (let ((describe-func
          (function
           (lambda (s)
 @end group
 @group
-            ;; @r{Print description of symbol.}
-            (if (fboundp s)             ; @r{It is a function.}
+            ;; @r{シンボルの説明をプリントする}
+            (if (fboundp s)             ; @r{これは関数}
                 (princ
                  (format "%s\t%s\n%s\n\n" s
                    (if (commandp s)
@@ -166,7 +141,7 @@ in the `*Help*' buffer."
                    (or (documentation s)
                        "not documented"))))
 
-            (if (boundp s)              ; @r{It is a variable.}
+            (if (boundp s)              ; @r{これは変数}
 @end group
 @group
                 (princ
@@ -182,7 +157,7 @@ in the `*Help*' buffer."
 @end group
 
 @group
-    ;; @r{Build a list of symbols that match pattern.}
+    ;; @r{PATTERNにマッチするシンボルのリストを構築}
     (mapatoms (function
                (lambda (sym)
                  (if (string-match pattern (symbol-name sym))
@@ -190,15 +165,14 @@ in the `*Help*' buffer."
 @end group
 
 @group
-    ;; @r{Display the data.}
+    ;; @r{データを表示}
     (help-setup-xref (list 'describe-symbols pattern) (interactive-p))
     (with-help-window (help-buffer)
       (mapcar describe-func (sort sym-list 'string<)))))
 @end group
 @end smallexample
 
-  The @code{describe-symbols} function works like @code{apropos}, but provides
-more information.
+  @code{describe-symbols}関数は@code{apropos}のように機能しますが、より多くの情報を提供します。
 
 @smallexample
 @group
@@ -236,24 +210,17 @@ When the `track-eol' feature is doing its job, the value is 9999.
 
 @anchor{Definition of Snarf-documentation}
 @defun Snarf-documentation filename
-This function is used when building Emacs, just before the runnable Emacs is
-dumped.  It finds the positions of the documentation strings stored in the
-file @var{filename}, and records those positions into memory in the function
-definitions and variable property lists.  @xref{Building Emacs}.
+この関数は、Emacsビルド時の実行可能なEmacsダンプ直前に使用される。これは、ファイル@var{filename}内に格納されたドキュメント文字列の位置を探して、メモリー上の関数定義および変数のプロパティリスト内にそれらの位置を記録する。@ref{Building
+Emacs}を参照のこと。
 
-Emacs reads the file @var{filename} from the @file{emacs/etc} directory.
-When the dumped Emacs is later executed, the same file will be looked for in
-the directory @code{doc-directory}.  Usually @var{filename} is @code{"DOC"}.
+Emacsは、@file{emacs/etc}ディレクトリーから、ファイル@var{filename}を読み込む。その後、ダンプされたEmacs実行時に、ディレクトリー@code{doc-directory}内の同じファイルを照会する。@var{filename}は通常@code{"DOC"}である。
 @end defun
 
 @defvar doc-directory
-This variable holds the name of the directory which should contain the file
-@code{"DOC"} that contains documentation strings for built-in and preloaded
-functions and variables.
+この変数は、ビルトインおよび事前ロードされた関数および変数のドキュメント文字列を含む、ファイル@code{"DOC"}があるべきディレクトリーの名前を保持する。
 
-In most cases, this is the same as @code{data-directory}.  They may be
-different when you run Emacs from the directory where you built it, without
-actually installing it.  @xref{Definition of data-directory}.
+ほとんどの場合、これは@code{data-directory}と同一である。実際にインストールしたEmacsではなく、EmacswpeyビルドしたディレクトリーからEmacsを実行したときは、異なるかもしれない。@ref{Definition
+of data-directory}を参照のこと。
 @end defvar
 
 @node Keys in Documentation

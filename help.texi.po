@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-05-03 21:54+0900\n"
-"PO-Revision-Date: 2018-05-04 05:46+0900\n"
+"PO-Revision-Date: 2018-05-04 10:11+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -172,39 +172,39 @@ msgstr "オートロードされたコマンド(@ref{Autoload}を参照)のド�
 #: help.texi.orig:92
 #, no-wrap
 msgid "Access to Documentation Strings"
-msgstr ""
+msgstr "Access to Documentation Strings"
 
 #. type: cindex
 #: help.texi.orig:93
 #, no-wrap
 msgid "accessing documentation strings"
-msgstr ""
+msgstr "accessing documentation strings"
 
 #. type: defun
 #: help.texi.orig:95
 #, no-wrap
 msgid "documentation-property symbol property &optional verbatim"
-msgstr ""
+msgstr "documentation-property symbol property &optional verbatim"
 
 #. type: defun
 #: help.texi.orig:103
 msgid "This function returns the documentation string recorded in @var{symbol}'s property list under property @var{property}.  It is most often used to look up the documentation strings of variables, for which @var{property} is @code{variable-documentation}.  However, it can also be used to look up other kinds of documentation, such as for customization groups (but for function documentation, use the @code{documentation} function, below)."
-msgstr ""
+msgstr "この関数は、プロパティ@var{property}配下の@var{symbol}のプロパティリスト内に記録されたドキュメント文字列をリターンする。ほとんどの場合、これは@var{property}を@code{variable-documentation}にして、変数のドキュメント文字列の照会に使用される。しかし、カスタマイゼーショングループのような、他の種類のドキュメント照会にも使用できる(が、関数のドキュメントには、以下の@code{documentation}関数を使用する)。"
 
 #. type: defun
 #: help.texi.orig:107
 msgid "If the property value refers to a documentation string stored in the @file{DOC} file or a byte-compiled file, this function looks up that string and returns it."
-msgstr ""
+msgstr "そのプロパティの値が@file{DOC}ファイルやバイトコンパイル済みファイルに格納されたドキュメント文字列を参照する場合、この関数はその文字列を照会して、それをリターンする。"
 
 #. type: defun
 #: help.texi.orig:111
 msgid "If the property value isn't @code{nil}, isn't a string, and doesn't refer to text in a file, then it is evaluated as a Lisp expression to obtain a string."
-msgstr ""
+msgstr "プロパティの値が@code{nil}や文字列以外で、ファイル内のテキストも参照しない場合は、文字列を取得するLisp式として評価される。"
 
 #. type: defun
 #: help.texi.orig:116
 msgid "Finally, this function passes the string through @code{substitute-command-keys} to substitute key bindings (@pxref{Keys in Documentation}).  It skips this step if @var{verbatim} is non-@code{nil}."
-msgstr ""
+msgstr "最終的に、この関数はキーバインディングを置換するために、文字列を@code{substitute-command-keys}に引き渡す(@ref{Keys in Documentation}を参照)。@var{verbatim}が非@code{nil}の場合、このステップはスキップされる。"
 
 #. type: group
 #: help.texi.orig:122
@@ -214,6 +214,9 @@ msgid ""
 "   'variable-documentation)\n"
 "     @result{} \"Non-nil once command line has been processed\"\n"
 msgstr ""
+"(documentation-property 'command-line-processed\n"
+"   'variable-documentation)\n"
+"     @result{} \"Non-nil once command line has been processed\"\n"
 
 #. type: group
 #: help.texi.orig:126
@@ -222,6 +225,8 @@ msgid ""
 "(symbol-plist 'command-line-processed)\n"
 "     @result{} (variable-documentation 188902)\n"
 msgstr ""
+"(symbol-plist 'command-line-processed)\n"
+"     @result{} (variable-documentation 188902)\n"
 
 #. type: group
 #: help.texi.orig:130
@@ -230,58 +235,60 @@ msgid ""
 "(documentation-property 'emacs 'group-documentation)\n"
 "     @result{} \"Customization of the One True Editor.\"\n"
 msgstr ""
+"(documentation-property 'emacs 'group-documentation)\n"
+"     @result{} \"Customization of the One True Editor.\"\n"
 
 #. type: defun
 #: help.texi.orig:134
 #, no-wrap
 msgid "documentation function &optional verbatim"
-msgstr ""
+msgstr "documentation function &optional verbatim"
 
 #. type: defun
 #: help.texi.orig:138
 msgid "This function returns the documentation string of @var{function}.  It handles macros, named keyboard macros, and special forms, as well as ordinary functions."
-msgstr ""
+msgstr "この関数は、@var{function}のドキュメント文字列をリターンする。この関数はマクロ、名前付きキーボードマクロ、およびスペシャルフォームも通常の関数と同様に処理する。"
 
 #. type: defun
 #: help.texi.orig:143
 msgid "If @var{function} is a symbol, this function first looks for the @code{function-documentation} property of that symbol; if that has a non-@code{nil} value, the documentation comes from that value (if the value is not a string, it is evaluated)."
-msgstr ""
+msgstr "@var{function}がシンボルの場合は、そのシンボルの@code{function-documentation}プロパティを最初に調べる。それが非@code{nil}値をもつなら、その値(プロパティの値が文字列以外の場合は、それを評価した値)がドキュメントとなる。"
 
 #. type: defun
 #: help.texi.orig:148
 msgid "If @var{function} is not a symbol, or if it has no @code{function-documentation} property, then @code{documentation} extracts the documentation string from the actual function definition, reading it from a file if called for."
-msgstr ""
+msgstr "@var{function}がシンボル以外、あるいは@code{function-documentation}プロパティをもたない場合、@code{documentation}は必要ならファイルを読み込んで、実際の関数定義のドキュメント文字列を抽出する。"
 
 #. type: defun
 #: help.texi.orig:152
 msgid "Finally, unless @var{verbatim} is non-@code{nil}, this function calls @code{substitute-command-keys}.  The result is the documentation string to return."
-msgstr ""
+msgstr "最後に、@var{verbatim}が@code{nil}なら、この関数は@code{substitute-command-keys}を呼び出す。結果はリターンするための文字列である。"
 
 #. type: defun
 #: help.texi.orig:157
 msgid "The @code{documentation} function signals a @code{void-function} error if @var{function} has no function definition.  However, it is OK if the function definition has no documentation string.  In that case, @code{documentation} returns @code{nil}."
-msgstr ""
+msgstr "@code{documentation}関数は、@var{function}が関数定義をもたない場合は、@code{void-function}エラーをシグナルする。しかし、関数定義がドキュメントをもたない場合は問題ない。その場合、@code{documentation}は@code{nil}をリターンする。"
 
 #. type: defun
 #: help.texi.orig:159
 #, no-wrap
 msgid "face-documentation face"
-msgstr ""
+msgstr "face-documentation face"
 
 #. type: defun
 #: help.texi.orig:162
 msgid "This function returns the documentation string of @var{face} as a face."
-msgstr ""
+msgstr "この関数は、@var{face}のドキュメント文字列をフェイスとしてリターンする。"
 
 #. type: Plain text
 #: help.texi.orig:167
 msgid "Here is an example of using the two functions, @code{documentation} and @code{documentation-property}, to display the documentation strings for several symbols in a @file{*Help*} buffer."
-msgstr ""
+msgstr "以下は、@code{documentation}と@code{documentation-property}を使用した例で、いくつかのシンボルのドキュメント文字列を@file{*Help*}バッファー内に表示します。"
 
 #. type: anchor{#1}
 #: help.texi.orig:169
 msgid "describe-symbols example"
-msgstr ""
+msgstr "describe-symbols example"
 
 #. type: group
 #: help.texi.orig:179
@@ -296,6 +303,14 @@ msgid ""
 "         (function\n"
 "          (lambda (s)\n"
 msgstr ""
+"(defun describe-symbols (pattern)\n"
+"  \"PATTERNにマッチするEmacs Lispシンボルを説明する。\n"
+"名前にPATTERNをもつすべてのシンボルの説明が\n"
+"`*Help*'バッファーに表示される。\"\n"
+"  (interactive \"sDescribe symbols matching: \")\n"
+"  (let ((describe-func\n"
+"         (function\n"
+"          (lambda (s)\n"
 
 #. type: group
 #: help.texi.orig:194
@@ -315,6 +330,19 @@ msgid ""
 "                           \"Keys: none\"))\n"
 "                     \"Function\")\n"
 msgstr ""
+"            ;; @r{シンボルの説明をプリントする}\n"
+"            (if (fboundp s)             ; @r{これは関数}\n"
+"                (princ\n"
+"                 (format \"%s\\t%s\\n%s\\n\\n\" s\n"
+"                   (if (commandp s)\n"
+"                       (let ((keys (where-is-internal s)))\n"
+"                         (if keys\n"
+"                             (concat\n"
+"                              \"Keys: \"\n"
+"                              (mapconcat 'key-description\n"
+"                                         keys \" \"))\n"
+"                           \"Keys: none\"))\n"
+"                     \"Function\")\n"
 
 #. type: group
 #: help.texi.orig:198
@@ -324,12 +352,15 @@ msgid ""
 "                       \"not documented\"))))\n"
 "\n"
 msgstr ""
+"                   (or (documentation s)\n"
+"                       \"not documented\"))))\n"
+"\n"
 
 #. type: group
 #: help.texi.orig:200
 #, no-wrap
 msgid "            (if (boundp s)              ; @r{It is a variable.}\n"
-msgstr ""
+msgstr "            (if (boundp s)              ; @r{これは変数}\n"
 
 #. type: group
 #: help.texi.orig:206
@@ -340,6 +371,10 @@ msgid ""
 "                   (if (custom-variable-p s)\n"
 "                       \"Option \" \"Variable\")\n"
 msgstr ""
+"                (princ\n"
+"                 (format \"%s\\t%s\\n%s\\n\\n\" s\n"
+"                   (if (custom-variable-p s)\n"
+"                       \"Option \" \"Variable\")\n"
 
 #. type: group
 #: help.texi.orig:212
@@ -350,6 +385,10 @@ msgid ""
 "                       \"not documented\")))))))\n"
 "        sym-list)\n"
 msgstr ""
+"                   (or (documentation-property\n"
+"                         s 'variable-documentation)\n"
+"                       \"not documented\")))))))\n"
+"        sym-list)\n"
 
 #. type: group
 #: help.texi.orig:220
@@ -361,6 +400,11 @@ msgid ""
 "                 (if (string-match pattern (symbol-name sym))\n"
 "                     (setq sym-list (cons sym sym-list))))))\n"
 msgstr ""
+"    ;; @r{PATTERNにマッチするシンボルのリストを構築}\n"
+"    (mapatoms (function\n"
+"               (lambda (sym)\n"
+"                 (if (string-match pattern (symbol-name sym))\n"
+"                     (setq sym-list (cons sym sym-list))))))\n"
 
 #. type: group
 #: help.texi.orig:227
@@ -371,11 +415,15 @@ msgid ""
 "    (with-help-window (help-buffer)\n"
 "      (mapcar describe-func (sort sym-list 'string<)))))\n"
 msgstr ""
+"    ;; @r{データを表示}\n"
+"    (help-setup-xref (list 'describe-symbols pattern) (interactive-p))\n"
+"    (with-help-window (help-buffer)\n"
+"      (mapcar describe-func (sort sym-list 'string<)))))\n"
 
 #. type: Plain text
 #: help.texi.orig:232
 msgid "The @code{describe-symbols} function works like @code{apropos}, but provides more information."
-msgstr ""
+msgstr "@code{describe-symbols}関数は@code{apropos}のように機能しますが、より多くの情報を提供します。"
 
 #. type: group
 #: help.texi.orig:236
@@ -383,7 +431,7 @@ msgstr ""
 msgid ""
 "(describe-symbols \"goal\")\n"
 "\n"
-msgstr ""
+msgstr "(describe-symbols \"goal\")\n\n"
 
 #. type: group
 #: help.texi.orig:240
@@ -393,6 +441,9 @@ msgid ""
 "goal-column     Option\n"
 "Semipermanent goal column for vertical motion, as set by @dots{}\n"
 msgstr ""
+"---------- Buffer: *Help* ----------\n"
+"goal-column     Option\n"
+"Semipermanent goal column for vertical motion, as set by @dots{}\n"
 
 #. type: group
 #: help.texi.orig:247
@@ -412,6 +463,11 @@ msgid ""
 "so that C-n and C-p resume vertical motion.\n"
 "The goal column is stored in the variable `goal-column'.\n"
 msgstr ""
+"Those commands will move to this position in the line moved to\n"
+"rather than trying to keep the same horizontal position.\n"
+"With a non-nil argument, clears out the goal column\n"
+"so that C-n and C-p resume vertical motion.\n"
+"The goal column is stored in the variable `goal-column'.\n"
 
 #. type: group
 #: help.texi.orig:264
@@ -424,43 +480,49 @@ msgid ""
 "When the `track-eol' feature is doing its job, the value is 9999.\n"
 "---------- Buffer: *Help* ----------\n"
 msgstr ""
+"temporary-goal-column   Variable\n"
+"Current goal column for vertical motion.\n"
+"It is the column where point was\n"
+"at the start of current run of vertical motion commands.\n"
+"When the `track-eol' feature is doing its job, the value is 9999.\n"
+"---------- Buffer: *Help* ----------\n"
 
 #. type: anchor{#1}
 #: help.texi.orig:268
 msgid "Definition of Snarf-documentation"
-msgstr ""
+msgstr "Definition of Snarf-documentation"
 
 #. type: defun
 #: help.texi.orig:268
 #, no-wrap
 msgid "Snarf-documentation filename"
-msgstr ""
+msgstr "Snarf-documentation filename"
 
 #. type: defun
 #: help.texi.orig:274
 msgid "This function is used when building Emacs, just before the runnable Emacs is dumped.  It finds the positions of the documentation strings stored in the file @var{filename}, and records those positions into memory in the function definitions and variable property lists.  @xref{Building Emacs}."
-msgstr ""
+msgstr "この関数は、Emacsビルド時の実行可能なEmacsダンプ直前に使用される。これは、ファイル@var{filename}内に格納されたドキュメント文字列の位置を探して、メモリー上の関数定義および変数のプロパティリスト内にそれらの位置を記録する。@ref{Building Emacs}を参照のこと。"
 
 #. type: defun
 #: help.texi.orig:279
 msgid "Emacs reads the file @var{filename} from the @file{emacs/etc} directory.  When the dumped Emacs is later executed, the same file will be looked for in the directory @code{doc-directory}.  Usually @var{filename} is @code{\"DOC\"}."
-msgstr ""
+msgstr "Emacsは、@file{emacs/etc}ディレクトリーから、ファイル@var{filename}を読み込む。その後、ダンプされたEmacs実行時に、ディレクトリー@code{doc-directory}内の同じファイルを照会する。@var{filename}は通常@code{\"DOC\"}である。"
 
 #. type: defvar
 #: help.texi.orig:281
 #, no-wrap
 msgid "doc-directory"
-msgstr ""
+msgstr "doc-directory"
 
 #. type: defvar
 #: help.texi.orig:285
 msgid "This variable holds the name of the directory which should contain the file @code{\"DOC\"} that contains documentation strings for built-in and preloaded functions and variables."
-msgstr ""
+msgstr "この変数は、ビルトインおよび事前ロードされた関数および変数のドキュメント文字列を含む、ファイル@code{\"DOC\"}があるべきディレクトリーの名前を保持する。"
 
 #. type: defvar
 #: help.texi.orig:289
 msgid "In most cases, this is the same as @code{data-directory}.  They may be different when you run Emacs from the directory where you built it, without actually installing it.  @xref{Definition of data-directory}."
-msgstr ""
+msgstr "ほとんどの場合、これは@code{data-directory}と同一である。実際にインストールしたEmacsではなく、EmacswpeyビルドしたディレクトリーからEmacsを実行したときは、異なるかもしれない。@ref{Definition of data-directory}を参照のこと。"
 
 #. type: section
 #: help.texi.orig:292
