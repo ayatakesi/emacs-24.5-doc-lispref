@@ -305,19 +305,13 @@ Tips}を参照してください。
 @section Describing Characters for Help Messages
 @cindex describe characters and events
 
-  These functions convert events, key sequences, or characters to textual
-descriptions.  These descriptions are useful for including arbitrary text
-characters or key sequences in messages, because they convert non-printing
-and whitespace characters to sequences of printing characters.  The
-description of a non-whitespace printing character is the character itself.
+  以下の関数はイベント、キーシーケンス、文字をテキスト表記(textual
+descriptions)に変換します。これらの変換された表記は、メッセージ内に任意のテキスト文字やキーシーケンスを含める場合に有用です。なぜなら非プリント文字や空白文字は、プリント文字シーケンスに変換されるからです。空白文字以外のプリント文字は、その文字自身が表記になります。
 
 @defun key-description sequence &optional prefix
 @cindex Emacs event standard notation
-This function returns a string containing the Emacs standard notation for
-the input events in @var{sequence}.  If @var{prefix} is non-@code{nil}, it
-is a sequence of input events leading up to @var{sequence} and is included
-in the return value.  Both arguments may be strings, vectors or lists.
-@xref{Input Events}, for more information about valid events.
+この関数は、@var{sequence}内の入力イベントにたいして、Emacsの標準表記を含む文字列をリターンする。@var{prefix}が非@code{nil}の場合、それは@var{sequence}に前置される入力イベントシーケンスであり、リターン値にも含まれる。引数はどちらも文字列、ベクター、またはリストかもしれない。有効なイベントに関する詳細は、@ref{Input
+Events}を参照のこと。
 
 @smallexample
 @group
@@ -330,7 +324,7 @@ in the return value.  Both arguments may be strings, vectors or lists.
 @end group
 @end smallexample
 
-  See also the examples for @code{single-key-description}, below.
+  以下の@code{single-key-description}の例も参照されたい。
 @end defun
 
 @defun single-key-description event &optional no-angles
@@ -338,17 +332,10 @@ in the return value.  Both arguments may be strings, vectors or lists.
 @cindex character printing
 @cindex control character printing
 @cindex meta character printing
-This function returns a string describing @var{event} in the standard Emacs
-notation for keyboard input.  A normal printing character appears as itself,
-but a control character turns into a string starting with @samp{C-}, a meta
-character turns into a string starting with @samp{M-}, and space, tab, etc.,
-appear as @samp{SPC}, @samp{TAB}, etc.  A function key symbol appears inside
-angle brackets @samp{<@dots{}>}.  An event that is a list appears as the
-name of the symbol in the @sc{car} of the list, inside angle brackets.
+この関数は、キーボード入力にたいするEmacsの標準表記として、@var{event}を表記する文字列をリターンする。通常のプリント文字はその文字自身で表れるが、コントロール文字は@samp{C-}で始まる文字列、メタ文字は@samp{M-}で始まる文字列、スペース、タブなどは@samp{SPC}や@samp{TAB}のように変換される。ファンクションキーのシンボルは、@samp{<@dots{}>}のように角カッコ(angle
+brackets)の内側に表れる。リストであるようなイベントは、そのリストの@sc{car}内のシンボル名が、角カッコの内側に表れる。
 
-If the optional argument @var{no-angles} is non-@code{nil}, the angle
-brackets around function keys and event symbols are omitted; this is for
-compatibility with old versions of Emacs which didn't use the brackets.
+オプション引数@var{no-angles}が非@code{nil}の場合、ファンクションキーおよびイベントシンボルを括る角カッコは省略される。これは、角カッコを使用しない古いバージョンのEmacsとの互換性のためである。
 
 @smallexample
 @group
@@ -375,13 +362,7 @@ compatibility with old versions of Emacs which didn't use the brackets.
 @end defun
 
 @defun text-char-description character
-This function returns a string describing @var{character} in the standard
-Emacs notation for characters that appear in text---like
-@code{single-key-description}, except that control characters are
-represented with a leading caret (which is how control characters in Emacs
-buffers are usually displayed).  Another difference is that
-@code{text-char-description} recognizes the 2**7 bit as the Meta character,
-whereas @code{single-key-description} uses the 2**27 bit for Meta.
+この関数は、テキスト内に出現する文字にたいするEmacsの標準表記として、@var{character}を表記する文字列をリターンする。これは@code{single-key-description}と似ているが、コントロール文字にカレットが前置されて表される点が異なる(これはEmacsバッファー内でコントロール文字を表示する通常の方法である)。他にも、@code{single-key-description}が2**27ビットをメタ文字とするのにたいし、@code{text-char-description}は2**7ビットをメタ文字とする点が異なる。
 
 @smallexample
 @group
@@ -408,13 +389,8 @@ whereas @code{single-key-description} uses the 2**27 bit for Meta.
 @end defun
 
 @deffn Command read-kbd-macro string &optional need-vector
-This function is used mainly for operating on keyboard macros, but it can
-also be used as a rough inverse for @code{key-description}.  You call it
-with a string containing key descriptions, separated by spaces; it returns a
-string or vector containing the corresponding events.  (This may or may not
-be a single valid key sequence, depending on what events you use; @pxref{Key
-Sequences}.)  If @var{need-vector} is non-@code{nil}, the return value is
-always a vector.
+この関数は主にキーボードマクロを操作するために使用されるが、@code{key-description}の大雑把な意味で逆の処理にも使用できる。キー表記を含むスペース区切りの文字列でこれを呼び出すと、それに対応するイベントを含む文字列、またはベクターをリターンする。(これは単一の有効なキーシーケンスであるか否かは問わず、何のイベントを使用するかに依存する。@ref{Key
+Sequences}を参照されたい。) @var{need-vector}が非@code{nil}の場合、リターン値は常にベクターになる。
 @end deffn
 
 @node Help Functions
