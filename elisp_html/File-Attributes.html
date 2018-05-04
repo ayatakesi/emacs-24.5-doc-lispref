@@ -74,23 +74,22 @@ Next: <a href="Extended-Attributes.html#Extended-Attributes" accesskey="n" rel="
 <h4 class="subsection">24.6.4 File Attributes</h4>
 <a name="index-file-attributes"></a>
 
-<p>This section describes the functions for getting detailed
-information about a file, including the owner and group numbers, the
-number of names, the inode number, the size, and the times of access
-and modification.
+<p>This section describes the functions for getting detailed information about
+a file, including the owner and group numbers, the number of names, the
+inode number, the size, and the times of access and modification.
 </p>
 <dl>
 <dt><a name="index-file_002dnewer_002dthan_002dfile_002dp"></a>Function: <strong>file-newer-than-file-p</strong> <em>filename1 filename2</em></dt>
 <dd><a name="index-file-age"></a>
 <a name="index-file-modification-time"></a>
-<p>This function returns <code>t</code> if the file <var>filename1</var> is
-newer than file <var>filename2</var>.  If <var>filename1</var> does not
-exist, it returns <code>nil</code>.  If <var>filename1</var> does exist, but
-<var>filename2</var> does not, it returns <code>t</code>.
+<p>This function returns <code>t</code> if the file <var>filename1</var> is newer than
+file <var>filename2</var>.  If <var>filename1</var> does not exist, it returns
+<code>nil</code>.  If <var>filename1</var> does exist, but <var>filename2</var> does not, it
+returns <code>t</code>.
 </p>
-<p>In the following example, assume that the file <samp>aug-19</samp> was written
-on the 19th, <samp>aug-20</samp> was written on the 20th, and the file
-<samp>no-file</samp> doesn&rsquo;t exist at all.
+<p>In the following example, assume that the file <samp>aug-19</samp> was written on
+the 19th, <samp>aug-20</samp> was written on the 20th, and the file <samp>no-file</samp>
+doesn&rsquo;t exist at all.
 </p>
 <div class="example">
 <pre class="example">(file-newer-than-file-p &quot;aug-19&quot; &quot;aug-20&quot;)
@@ -104,76 +103,71 @@ on the 19th, <samp>aug-20</samp> was written on the 20th, and the file
 </pre></div>
 </dd></dl>
 
-<p>If the <var>filename</var> argument to the next two functions is a
-symbolic link, then these function do <em>not</em> replace it with its
-target.  However, they both recursively follow symbolic links at all
-levels of parent directories.
+<p>If the <var>filename</var> argument to the next two functions is a symbolic link,
+then these function do <em>not</em> replace it with its target.  However, they
+both recursively follow symbolic links at all levels of parent directories.
 </p>
 <dl>
 <dt><a name="index-file_002dattributes"></a>Function: <strong>file-attributes</strong> <em>filename &amp;optional id-format</em></dt>
-<dd><a name="Definition-of-file_002dattributes"></a><p>This function returns a list of attributes of file <var>filename</var>.  If
-the specified file cannot be opened, it returns <code>nil</code>.
-The optional parameter <var>id-format</var> specifies the preferred format
-of attributes <acronym>UID</acronym> and <acronym>GID</acronym> (see below)&mdash;the
-valid values are <code>'string</code> and <code>'integer</code>.  The latter is
-the default, but we plan to change that, so you should specify a
-non-<code>nil</code> value for <var>id-format</var> if you use the returned
-<acronym>UID</acronym> or <acronym>GID</acronym>.
+<dd><a name="Definition-of-file_002dattributes"></a><p>This function returns a list of attributes of file <var>filename</var>.  If the
+specified file cannot be opened, it returns <code>nil</code>.  The optional
+parameter <var>id-format</var> specifies the preferred format of attributes
+<acronym>UID</acronym> and <acronym>GID</acronym> (see below)&mdash;the valid values are
+<code>'string</code> and <code>'integer</code>.  The latter is the default, but we plan
+to change that, so you should specify a non-<code>nil</code> value for
+<var>id-format</var> if you use the returned <acronym>UID</acronym> or <acronym>GID</acronym>.
 </p>
 <p>The elements of the list, in order, are:
 </p>
 <ol start="0">
-<li> <code>t</code> for a directory, a string for a symbolic link (the name
-linked to), or <code>nil</code> for a text file.
+<li> <code>t</code> for a directory, a string for a symbolic link (the name linked to),
+or <code>nil</code> for a text file.
 
 </li><li> The number of names the file has.  Alternate names, also known as hard
 links, can be created by using the <code>add-name-to-file</code> function
 (see <a href="Changing-Files.html#Changing-Files">Changing Files</a>).
 
-</li><li> The file&rsquo;s <acronym>UID</acronym>, normally as a string.  However, if it does
-not correspond to a named user, the value is a number.
+</li><li> The file&rsquo;s <acronym>UID</acronym>, normally as a string.  However, if it does not
+correspond to a named user, the value is a number.
 
 </li><li> The file&rsquo;s <acronym>GID</acronym>, likewise.
 
 </li><li> The time of last access, as a list of four integers <code>(<var>sec-high</var>
-<var>sec-low</var> <var>microsec</var> <var>picosec</var>)</code>.  (This is similar to the
-value of <code>current-time</code>; see <a href="Time-of-Day.html#Time-of-Day">Time of Day</a>.)  Note that on
-some FAT-based filesystems, only the date of last access is recorded,
-so this time will always hold the midnight of the day of last access.
+<var>sec-low</var> <var>microsec</var> <var>picosec</var>)</code>.  (This is similar to the value
+of <code>current-time</code>; see <a href="Time-of-Day.html#Time-of-Day">Time of Day</a>.)  Note that on some FAT-based
+filesystems, only the date of last access is recorded, so this time will
+always hold the midnight of the day of last access.
 
 </li><li> <a name="index-modification-time-of-file"></a>
-The time of last modification as a list of four integers (as above).
-This is the last time when the file&rsquo;s contents were modified.
+The time of last modification as a list of four integers (as above).  This
+is the last time when the file&rsquo;s contents were modified.
 
-</li><li> The time of last status change as a list of four integers (as above).
-This is the time of the last change to the file&rsquo;s access mode bits,
-its owner and group, and other information recorded in the filesystem
-for the file, beyond the file&rsquo;s contents.
+</li><li> The time of last status change as a list of four integers (as above).  This
+is the time of the last change to the file&rsquo;s access mode bits, its owner and
+group, and other information recorded in the filesystem for the file, beyond
+the file&rsquo;s contents.
 
-</li><li> The size of the file in bytes.  This is floating point if the size is
-too large to fit in a Lisp integer.
+</li><li> The size of the file in bytes.  This is floating point if the size is too
+large to fit in a Lisp integer.
 
-</li><li> The file&rsquo;s modes, as a string of ten letters or dashes,
-as in &lsquo;<samp>ls -l</samp>&rsquo;.
+</li><li> The file&rsquo;s modes, as a string of ten letters or dashes, as in &lsquo;<samp>ls -l</samp>&rsquo;.
 
 </li><li> An unspecified value, present for backward compatibility.
 
-</li><li> The file&rsquo;s inode number.  If possible, this is an integer.  If the
-inode number is too large to be represented as an integer in Emacs
-Lisp but dividing it by <em>2^{16}</em> yields a representable integer,
-then the value has the
-form <code>(<var>high</var> . <var>low</var>)</code>, where <var>low</var> holds the low 16
-bits.  If the inode number is too wide for even that, the value is of the form
-<code>(<var>high</var> <var>middle</var> . <var>low</var>)</code>, where <code>high</code> holds
-the high bits, <var>middle</var> the middle 24 bits, and <var>low</var> the low
-16 bits.
+</li><li> The file&rsquo;s inode number.  If possible, this is an integer.  If the inode
+number is too large to be represented as an integer in Emacs Lisp but
+dividing it by <em>2^{16}</em> yields a representable integer, then the value
+has the form <code>(<var>high</var> . <var>low</var>)</code>, where <var>low</var> holds the low
+16 bits.  If the inode number is too wide for even that, the value is of the
+form <code>(<var>high</var> <var>middle</var> . <var>low</var>)</code>, where <code>high</code> holds
+the high bits, <var>middle</var> the middle 24 bits, and <var>low</var> the low 16
+bits.
 
-</li><li> The filesystem number of the device that the file is on.  Depending on
-the magnitude of the value, this can be either an integer or a cons
-cell, in the same manner as the inode number.  This element and the
-file&rsquo;s inode number together give enough information to distinguish
-any two files on the system&mdash;no two files can have the same values
-for both of these numbers.
+</li><li> The filesystem number of the device that the file is on.  Depending on the
+magnitude of the value, this can be either an integer or a cons cell, in the
+same manner as the inode number.  This element and the file&rsquo;s inode number
+together give enough information to distinguish any two files on the
+system&mdash;no two files can have the same values for both of these numbers.
 </li></ol>
 
 <p>For example, here are the file attributes for <samp>files.texi</samp>:
@@ -222,9 +216,9 @@ directory).
 </p>
 </dd>
 <dt><code>122295</code></dt>
-<dd><p>is 122295 bytes long.  (It may not contain 122295 characters, though,
-if some of the bytes belong to multibyte sequences, and also if the
-end-of-line format is CR-LF.)
+<dd><p>is 122295 bytes long.  (It may not contain 122295 characters, though, if
+some of the bytes belong to multibyte sequences, and also if the end-of-line
+format is CR-LF.)
 </p>
 </dd>
 <dt><code>&quot;-rw-rw-rw-&quot;</code></dt>
@@ -247,11 +241,10 @@ end-of-line format is CR-LF.)
 
 <dl>
 <dt><a name="index-file_002dnlinks"></a>Function: <strong>file-nlinks</strong> <em>filename</em></dt>
-<dd><p>This function returns the number of names (i.e., hard links) that
-file <var>filename</var> has.  If the file does not exist, this function
-returns <code>nil</code>.  Note that symbolic links have no effect on this
-function, because they are not considered to be names of the files
-they link to.
+<dd><p>This function returns the number of names (i.e., hard links) that file
+<var>filename</var> has.  If the file does not exist, this function returns
+<code>nil</code>.  Note that symbolic links have no effect on this function,
+because they are not considered to be names of the files they link to.
 </p>
 <div class="example">
 <pre class="example">$ ls -l foo*

@@ -75,22 +75,21 @@ Next: <a href="Directory-Names.html#Directory-Names" accesskey="n" rel="next">Di
 <a name="index-absolute-file-name"></a>
 <a name="index-relative-file-name"></a>
 
-<p>All the directories in the file system form a tree starting at the
-root directory.  A file name can specify all the directory names
-starting from the root of the tree; then it is called an
-<em>absolute</em> file name.  Or it can specify the position of the file
-in the tree relative to a default directory; then it is called a
-<em>relative</em> file name.  On Unix and GNU/Linux, an absolute file
-name starts with a &lsquo;<samp>/</samp>&rsquo; or a &lsquo;<samp>~</samp>&rsquo;
-(see <a href="Directory-Names.html#abbreviate_002dfile_002dname">abbreviate-file-name</a>), and a relative one does not.  On
-MS-DOS and MS-Windows, an absolute file name starts with a slash or a
-backslash, or with a drive specification &lsquo;<samp><var>x</var>:/</samp>&rsquo;, where
-<var>x</var> is the <em>drive letter</em>.
+<p>All the directories in the file system form a tree starting at the root
+directory.  A file name can specify all the directory names starting from
+the root of the tree; then it is called an <em>absolute</em> file name.  Or it
+can specify the position of the file in the tree relative to a default
+directory; then it is called a <em>relative</em> file name.  On Unix and
+GNU/Linux, an absolute file name starts with a &lsquo;<samp>/</samp>&rsquo; or a &lsquo;<samp>~</samp>&rsquo;
+(see <a href="Directory-Names.html#abbreviate_002dfile_002dname">abbreviate-file-name</a>), and a relative one does not.  On MS-DOS and
+MS-Windows, an absolute file name starts with a slash or a backslash, or
+with a drive specification &lsquo;<samp><var>x</var>:/</samp>&rsquo;, where <var>x</var> is the <em>drive
+letter</em>.
 </p>
 <dl>
 <dt><a name="index-file_002dname_002dabsolute_002dp"></a>Function: <strong>file-name-absolute-p</strong> <em>filename</em></dt>
-<dd><p>This function returns <code>t</code> if file <var>filename</var> is an absolute
-file name, <code>nil</code> otherwise.
+<dd><p>This function returns <code>t</code> if file <var>filename</var> is an absolute file
+name, <code>nil</code> otherwise.
 </p>
 <div class="example">
 <pre class="example">(file-name-absolute-p &quot;~rms/foo&quot;)
@@ -102,23 +101,22 @@ file name, <code>nil</code> otherwise.
 </pre></div>
 </dd></dl>
 
-<p>Given a possibly relative file name, you can convert it to an
-absolute name using <code>expand-file-name</code> (see <a href="File-Name-Expansion.html#File-Name-Expansion">File Name Expansion</a>).  This function converts absolute file names to relative
-names:
+<p>Given a possibly relative file name, you can convert it to an absolute name
+using <code>expand-file-name</code> (see <a href="File-Name-Expansion.html#File-Name-Expansion">File Name Expansion</a>).  This function
+converts absolute file names to relative names:
 </p>
 <dl>
 <dt><a name="index-file_002drelative_002dname"></a>Function: <strong>file-relative-name</strong> <em>filename &amp;optional directory</em></dt>
 <dd><p>This function tries to return a relative name that is equivalent to
 <var>filename</var>, assuming the result will be interpreted relative to
-<var>directory</var> (an absolute directory name or directory file name).
-If <var>directory</var> is omitted or <code>nil</code>, it defaults to the
-current buffer&rsquo;s default directory.
+<var>directory</var> (an absolute directory name or directory file name).  If
+<var>directory</var> is omitted or <code>nil</code>, it defaults to the current
+buffer&rsquo;s default directory.
 </p>
-<p>On some operating systems, an absolute file name begins with a device
-name.  On such systems, <var>filename</var> has no relative equivalent based
-on <var>directory</var> if they start with two different device names.  In
-this case, <code>file-relative-name</code> returns <var>filename</var> in absolute
-form.
+<p>On some operating systems, an absolute file name begins with a device name.
+On such systems, <var>filename</var> has no relative equivalent based on
+<var>directory</var> if they start with two different device names.  In this
+case, <code>file-relative-name</code> returns <var>filename</var> in absolute form.
 </p>
 <div class="example">
 <pre class="example">(file-relative-name &quot;/foo/bar&quot; &quot;/foo/&quot;)

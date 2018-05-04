@@ -75,30 +75,27 @@ Next: <a href="Information-about-Files.html#Information-about-Files" accesskey="
 <a name="index-file-locks"></a>
 <a name="index-lock-file"></a>
 
-<p>When two users edit the same file at the same time, they are likely
-to interfere with each other.  Emacs tries to prevent this situation
-from arising by recording a <em>file lock</em> when a file is being
-modified.
-Emacs can then detect the first attempt to modify a buffer visiting a
-file that is locked by another Emacs job, and ask the user what to do.
-The file lock is really a file, a symbolic link with a special name,
-stored in the same directory as the file you are editing.  (On file
-systems that do not support symbolic links, a regular file is used.)
+<p>When two users edit the same file at the same time, they are likely to
+interfere with each other.  Emacs tries to prevent this situation from
+arising by recording a <em>file lock</em> when a file is being modified.  Emacs
+can then detect the first attempt to modify a buffer visiting a file that is
+locked by another Emacs job, and ask the user what to do.  The file lock is
+really a file, a symbolic link with a special name, stored in the same
+directory as the file you are editing.  (On file systems that do not support
+symbolic links, a regular file is used.)
 </p>
-<p>When you access files using NFS, there may be a small probability that
-you and another user will both lock the same file &ldquo;simultaneously&rdquo;.
-If this happens, it is possible for the two users to make changes
-simultaneously, but Emacs will still warn the user who saves second.
-Also, the detection of modification of a buffer visiting a file changed
-on disk catches some cases of simultaneous editing; see
-<a href="Modification-Time.html#Modification-Time">Modification Time</a>.
+<p>When you access files using NFS, there may be a small probability that you
+and another user will both lock the same file &ldquo;simultaneously&rdquo;.  If this
+happens, it is possible for the two users to make changes simultaneously,
+but Emacs will still warn the user who saves second.  Also, the detection of
+modification of a buffer visiting a file changed on disk catches some cases
+of simultaneous editing; see <a href="Modification-Time.html#Modification-Time">Modification Time</a>.
 </p>
 <dl>
 <dt><a name="index-file_002dlocked_002dp"></a>Function: <strong>file-locked-p</strong> <em>filename</em></dt>
-<dd><p>This function returns <code>nil</code> if the file <var>filename</var> is not
-locked.  It returns <code>t</code> if it is locked by this Emacs process, and
-it returns the name of the user who has locked it if it is locked by
-some other job.
+<dd><p>This function returns <code>nil</code> if the file <var>filename</var> is not locked.
+It returns <code>t</code> if it is locked by this Emacs process, and it returns
+the name of the user who has locked it if it is locked by some other job.
 </p>
 <div class="example">
 <pre class="example">(file-locked-p &quot;foo&quot;)
@@ -110,17 +107,17 @@ some other job.
 <dt><a name="index-lock_002dbuffer"></a>Function: <strong>lock-buffer</strong> <em>&amp;optional filename</em></dt>
 <dd><p>This function locks the file <var>filename</var>, if the current buffer is
 modified.  The argument <var>filename</var> defaults to the current buffer&rsquo;s
-visited file.  Nothing is done if the current buffer is not visiting a
-file, or is not modified, or if the system does not support locking.
+visited file.  Nothing is done if the current buffer is not visiting a file,
+or is not modified, or if the system does not support locking.
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-unlock_002dbuffer"></a>Function: <strong>unlock-buffer</strong></dt>
-<dd><p>This function unlocks the file being visited in the current buffer,
-if the buffer is modified.  If the buffer is not modified, then
-the file should not be locked, so this function does nothing.  It also
-does nothing if the current buffer is not visiting a file, or if the
-system does not support locking.
+<dd><p>This function unlocks the file being visited in the current buffer, if the
+buffer is modified.  If the buffer is not modified, then the file should not
+be locked, so this function does nothing.  It also does nothing if the
+current buffer is not visiting a file, or if the system does not support
+locking.
 </p></dd></dl>
 
 <dl>
@@ -130,21 +127,21 @@ system does not support locking.
 
 <dl>
 <dt><a name="index-ask_002duser_002dabout_002dlock"></a>Function: <strong>ask-user-about-lock</strong> <em>file other-user</em></dt>
-<dd><p>This function is called when the user tries to modify <var>file</var>, but it
-is locked by another user named <var>other-user</var>.  The default
-definition of this function asks the user to say what to do.  The value
-this function returns determines what Emacs does next:
+<dd><p>This function is called when the user tries to modify <var>file</var>, but it is
+locked by another user named <var>other-user</var>.  The default definition of
+this function asks the user to say what to do.  The value this function
+returns determines what Emacs does next:
 </p>
 <ul>
-<li> A value of <code>t</code> says to grab the lock on the file.  Then
-this user may edit the file and <var>other-user</var> loses the lock.
+<li> A value of <code>t</code> says to grab the lock on the file.  Then this user may
+edit the file and <var>other-user</var> loses the lock.
 
-</li><li> A value of <code>nil</code> says to ignore the lock and let this
-user edit the file anyway.
+</li><li> A value of <code>nil</code> says to ignore the lock and let this user edit the
+file anyway.
 
 </li><li> <a name="index-file_002dlocked"></a>
-This function may instead signal a <code>file-locked</code> error, in which
-case the change that the user was about to make does not take place.
+This function may instead signal a <code>file-locked</code> error, in which case
+the change that the user was about to make does not take place.
 
 <p>The error message for this error looks like this:
 </p>
@@ -152,12 +149,12 @@ case the change that the user was about to make does not take place.
 <pre class="example">error&rarr; File is locked: <var>file</var> <var>other-user</var>
 </pre></div>
 
-<p>where <code>file</code> is the name of the file and <var>other-user</var> is the
-name of the user who has locked the file.
+<p>where <code>file</code> is the name of the file and <var>other-user</var> is the name
+of the user who has locked the file.
 </p></li></ul>
 
-<p>If you wish, you can replace the <code>ask-user-about-lock</code> function
-with your own version that makes the decision in another way.
+<p>If you wish, you can replace the <code>ask-user-about-lock</code> function with
+your own version that makes the decision in another way.
 </p></dd></dl>
 
 <hr>

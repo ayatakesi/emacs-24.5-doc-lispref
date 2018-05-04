@@ -75,19 +75,18 @@ Next: <a href="Truenames.html#Truenames" accesskey="n" rel="next">Truenames</a>,
 <a name="index-file-classification"></a>
 <a name="index-classification-of-file-types"></a>
 
-<p>This section describes how to distinguish various kinds of files, such
-as directories, symbolic links, and ordinary files.
+<p>This section describes how to distinguish various kinds of files, such as
+directories, symbolic links, and ordinary files.
 </p>
 <dl>
 <dt><a name="index-file_002dsymlink_002dp"></a>Function: <strong>file-symlink-p</strong> <em>filename</em></dt>
 <dd><a name="index-file-symbolic-links"></a>
-<p>If the file <var>filename</var> is a symbolic link, the
-<code>file-symlink-p</code> function returns its (non-recursive) link target
-as a string.  (The link target string is not necessarily the full
-absolute file name of the target; determining the full file name that
-the link points to is nontrivial, see below.)  If the leading
-directories of <var>filename</var> include symbolic links, this function
-recursively follows them.
+<p>If the file <var>filename</var> is a symbolic link, the <code>file-symlink-p</code>
+function returns its (non-recursive) link target as a string.  (The link
+target string is not necessarily the full absolute file name of the target;
+determining the full file name that the link points to is nontrivial, see
+below.)  If the leading directories of <var>filename</var> include symbolic
+links, this function recursively follows them.
 </p>
 <p>If the file <var>filename</var> is not a symbolic link, or does not exist,
 <code>file-symlink-p</code> returns <code>nil</code>.
@@ -105,44 +104,44 @@ recursively follows them.
      &rArr; &quot;/pub/bin&quot;
 </pre></div>
 
-<p>Note that in the third example, the function returned <samp>sym-link</samp>,
-but did not proceed to resolve it, although that file is itself a
-symbolic link.  This is what we meant by &ldquo;non-recursive&rdquo; above&mdash;the
-process of following the symbolic links does not recurse if the link
-target is itself a link.
+<p>Note that in the third example, the function returned <samp>sym-link</samp>, but
+did not proceed to resolve it, although that file is itself a symbolic
+link.  This is what we meant by &ldquo;non-recursive&rdquo; above&mdash;the process of
+following the symbolic links does not recurse if the link target is itself a
+link.
 </p>
-<p>The string that this function returns is what is recorded in the
-symbolic link; it may or may not include any leading directories.
-This function does <em>not</em> expand the link target to produce a
-fully-qualified file name, and in particular does not use the leading
-directories, if any, of the <var>filename</var> argument if the link target
-is not an absolute file name.  Here&rsquo;s an example:
+<p>The string that this function returns is what is recorded in the symbolic
+link; it may or may not include any leading directories.  This function does
+<em>not</em> expand the link target to produce a fully-qualified file name,
+and in particular does not use the leading directories, if any, of the
+<var>filename</var> argument if the link target is not an absolute file name.
+Here&rsquo;s an example:
 </p>
 <div class="example">
 <pre class="example">(file-symlink-p &quot;/foo/bar/baz&quot;)
      &rArr; &quot;some-file&quot;
 </pre></div>
 
-<p>Here, although <samp>/foo/bar/baz</samp> was given as a fully-qualified file
-name, the result is not, and in fact does not have any leading
-directories at all.  And since <samp>some-file</samp> might itself be a
-symbolic link, you cannot simply prepend leading directories to it,
-nor even naively use <code>expand-file-name</code> (see <a href="File-Name-Expansion.html#File-Name-Expansion">File Name Expansion</a>) to produce its absolute file name.
+<p>Here, although <samp>/foo/bar/baz</samp> was given as a fully-qualified file name,
+the result is not, and in fact does not have any leading directories at
+all.  And since <samp>some-file</samp> might itself be a symbolic link, you cannot
+simply prepend leading directories to it, nor even naively use
+<code>expand-file-name</code> (see <a href="File-Name-Expansion.html#File-Name-Expansion">File Name Expansion</a>) to produce its
+absolute file name.
 </p>
-<p>For this reason, this function is seldom useful if you need to
-determine more than just the fact that a file is or isn&rsquo;t a symbolic
-link.  If you actually need the file name of the link target, use
-<code>file-chase-links</code> or <code>file-truename</code>, described in
-<a href="Truenames.html#Truenames">Truenames</a>.
+<p>For this reason, this function is seldom useful if you need to determine
+more than just the fact that a file is or isn&rsquo;t a symbolic link.  If you
+actually need the file name of the link target, use <code>file-chase-links</code>
+or <code>file-truename</code>, described in <a href="Truenames.html#Truenames">Truenames</a>.
 </p></dd></dl>
 
-<p>The next two functions recursively follow symbolic links at
-all levels for <var>filename</var>.
+<p>The next two functions recursively follow symbolic links at all levels for
+<var>filename</var>.
 </p>
 <dl>
 <dt><a name="index-file_002ddirectory_002dp"></a>Function: <strong>file-directory-p</strong> <em>filename</em></dt>
-<dd><p>This function returns <code>t</code> if <var>filename</var> is the name of an
-existing directory, <code>nil</code> otherwise.
+<dd><p>This function returns <code>t</code> if <var>filename</var> is the name of an existing
+directory, <code>nil</code> otherwise.
 </p>
 <div class="example">
 <pre class="example">(file-directory-p &quot;~rms&quot;)
@@ -161,9 +160,8 @@ existing directory, <code>nil</code> otherwise.
 
 <dl>
 <dt><a name="index-file_002dregular_002dp"></a>Function: <strong>file-regular-p</strong> <em>filename</em></dt>
-<dd><p>This function returns <code>t</code> if the file <var>filename</var> exists and is
-a regular file (not a directory, named pipe, terminal, or
-other I/O device).
+<dd><p>This function returns <code>t</code> if the file <var>filename</var> exists and is a
+regular file (not a directory, named pipe, terminal, or other I/O device).
 </p></dd></dl>
 
 <hr>

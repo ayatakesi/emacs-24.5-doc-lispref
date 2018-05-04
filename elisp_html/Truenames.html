@@ -74,13 +74,13 @@ Next: <a href="File-Attributes.html#File-Attributes" accesskey="n" rel="next">Fi
 <h4 class="subsection">24.6.3 Truenames</h4>
 <a name="index-truename-_0028of-file_0029"></a>
 
-<p>The <em>truename</em> of a file is the name that you get by following
-symbolic links at all levels until none remain, then simplifying away
-&lsquo;<samp>.</samp>&rsquo; and &lsquo;<samp>..</samp>&rsquo; appearing as name components.  This results
-in a sort of canonical name for the file.  A file does not always have a
-unique truename; the number of distinct truenames a file has is equal to
-the number of hard links to the file.  However, truenames are useful
-because they eliminate symbolic links as a cause of name variation.
+<p>The <em>truename</em> of a file is the name that you get by following symbolic
+links at all levels until none remain, then simplifying away &lsquo;<samp>.</samp>&rsquo; and
+&lsquo;<samp>..</samp>&rsquo; appearing as name components.  This results in a sort of
+canonical name for the file.  A file does not always have a unique truename;
+the number of distinct truenames a file has is equal to the number of hard
+links to the file.  However, truenames are useful because they eliminate
+symbolic links as a cause of name variation.
 </p>
 <dl>
 <dt><a name="index-file_002dtruename"></a>Function: <strong>file-truename</strong> <em>filename</em></dt>
@@ -91,34 +91,31 @@ against <code>default-directory</code>.
 <p>This function does not expand environment variables.  Only
 <code>substitute-in-file-name</code> does that.  See <a href="File-Name-Expansion.html#Definition-of-substitute_002din_002dfile_002dname">Definition of substitute-in-file-name</a>.
 </p>
-<p>If you may need to follow symbolic links preceding &lsquo;<samp>..</samp>&rsquo;
-appearing as a name component, call <code>file-truename</code> without prior
-direct or indirect calls to <code>expand-file-name</code>.  Otherwise, the
-file name component immediately preceding &lsquo;<samp>..</samp>&rsquo; will be
-&ldquo;simplified away&rdquo; before <code>file-truename</code> is called.  To
-eliminate the need for a call to <code>expand-file-name</code>,
-<code>file-truename</code> handles &lsquo;<samp>~</samp>&rsquo; in the same way that
-<code>expand-file-name</code> does.  See <a href="File-Name-Expansion.html#File-Name-Expansion">Functions
-that Expand Filenames</a>.
+<p>If you may need to follow symbolic links preceding &lsquo;<samp>..</samp>&rsquo; appearing as
+a name component, call <code>file-truename</code> without prior direct or indirect
+calls to <code>expand-file-name</code>.  Otherwise, the file name component
+immediately preceding &lsquo;<samp>..</samp>&rsquo; will be &ldquo;simplified away&rdquo; before
+<code>file-truename</code> is called.  To eliminate the need for a call to
+<code>expand-file-name</code>, <code>file-truename</code> handles &lsquo;<samp>~</samp>&rsquo; in the same
+way that <code>expand-file-name</code> does.  See <a href="File-Name-Expansion.html#File-Name-Expansion">Functions that Expand Filenames</a>.
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-file_002dchase_002dlinks"></a>Function: <strong>file-chase-links</strong> <em>filename &amp;optional limit</em></dt>
-<dd><p>This function follows symbolic links, starting with <var>filename</var>,
-until it finds a file name which is not the name of a symbolic link.
-Then it returns that file name.  This function does <em>not</em> follow
-symbolic links at the level of parent directories.
+<dd><p>This function follows symbolic links, starting with <var>filename</var>, until it
+finds a file name which is not the name of a symbolic link.  Then it returns
+that file name.  This function does <em>not</em> follow symbolic links at the
+level of parent directories.
 </p>
-<p>If you specify a number for <var>limit</var>, then after chasing through
-that many links, the function just returns what it has even if that is
-still a symbolic link.
+<p>If you specify a number for <var>limit</var>, then after chasing through that
+many links, the function just returns what it has even if that is still a
+symbolic link.
 </p></dd></dl>
 
 <p>To illustrate the difference between <code>file-chase-links</code> and
-<code>file-truename</code>, suppose that <samp>/usr/foo</samp> is a symbolic link to
-the directory <samp>/home/foo</samp>, and <samp>/home/foo/hello</samp> is an
-ordinary file (or at least, not a symbolic link) or nonexistent.  Then
-we would have:
+<code>file-truename</code>, suppose that <samp>/usr/foo</samp> is a symbolic link to the
+directory <samp>/home/foo</samp>, and <samp>/home/foo/hello</samp> is an ordinary file
+(or at least, not a symbolic link) or nonexistent.  Then we would have:
 </p>
 <div class="example">
 <pre class="example">(file-chase-links &quot;/usr/foo/hello&quot;)
@@ -131,20 +128,19 @@ we would have:
 
 <dl>
 <dt><a name="index-file_002dequal_002dp"></a>Function: <strong>file-equal-p</strong> <em>file1 file2</em></dt>
-<dd><p>This function returns <code>t</code> if the files <var>file1</var> and
-<var>file2</var> name the same file.  This is similar to comparing their
-truenames, except that remote file names are also handled in an
-appropriate manner.  If <var>file1</var> or <var>file2</var> does not exist, the
-return value is unspecified.
+<dd><p>This function returns <code>t</code> if the files <var>file1</var> and <var>file2</var> name
+the same file.  This is similar to comparing their truenames, except that
+remote file names are also handled in an appropriate manner.  If <var>file1</var>
+or <var>file2</var> does not exist, the return value is unspecified.
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-file_002din_002ddirectory_002dp"></a>Function: <strong>file-in-directory-p</strong> <em>file dir</em></dt>
 <dd><p>This function returns <code>t</code> if <var>file</var> is a file in directory
-<var>dir</var>, or in a subdirectory of <var>dir</var>.  It also returns
-<code>t</code> if <var>file</var> and <var>dir</var> are the same directory.  It
-compares the truenames of the two directories.  If <var>dir</var> does not
-name an existing directory, the return value is <code>nil</code>.
+<var>dir</var>, or in a subdirectory of <var>dir</var>.  It also returns <code>t</code> if
+<var>file</var> and <var>dir</var> are the same directory.  It compares the truenames
+of the two directories.  If <var>dir</var> does not name an existing directory,
+the return value is <code>nil</code>.
 </p></dd></dl>
 
 <hr>

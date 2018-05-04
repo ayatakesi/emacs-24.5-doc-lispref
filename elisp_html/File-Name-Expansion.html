@@ -74,21 +74,20 @@ Next: <a href="Unique-File-Names.html#Unique-File-Names" accesskey="n" rel="next
 <h4 class="subsection">24.8.4 Functions that Expand Filenames</h4>
 <a name="index-expansion-of-file-names"></a>
 
-<p><em>Expanding</em> a file name means converting a relative file name to
-an absolute one.  Since this is done relative to a default directory,
-you must specify the default directory name as well as the file name
-to be expanded.  It also involves expanding abbreviations like
-<samp>~/</samp>
+<p><em>Expanding</em> a file name means converting a relative file name to an
+absolute one.  Since this is done relative to a default directory, you must
+specify the default directory name as well as the file name to be expanded.
+It also involves expanding abbreviations like <samp>~/</samp>
 (see <a href="Directory-Names.html#abbreviate_002dfile_002dname">abbreviate-file-name</a>),
 and eliminating redundancies like <samp>./</samp> and <samp><var>name</var>/../</samp>.
 </p>
 <dl>
 <dt><a name="index-expand_002dfile_002dname"></a>Function: <strong>expand-file-name</strong> <em>filename &amp;optional directory</em></dt>
 <dd><p>This function converts <var>filename</var> to an absolute file name.  If
-<var>directory</var> is supplied, it is the default directory to start with
-if <var>filename</var> is relative.  (The value of <var>directory</var> should
-itself be an absolute directory name or directory file name; it may
-start with &lsquo;<samp>~</samp>&rsquo;.)  Otherwise, the current buffer&rsquo;s value of
+<var>directory</var> is supplied, it is the default directory to start with if
+<var>filename</var> is relative.  (The value of <var>directory</var> should itself be
+an absolute directory name or directory file name; it may start with
+&lsquo;<samp>~</samp>&rsquo;.)  Otherwise, the current buffer&rsquo;s value of
 <code>default-directory</code> is used.  For example:
 </p>
 <div class="example">
@@ -100,14 +99,14 @@ start with &lsquo;<samp>~</samp>&rsquo;.)  Otherwise, the current buffer&rsquo;s
      &rArr; &quot;/usr/spool/foo&quot;
 </pre></div>
 
-<p>If the part of the combined file name before the first slash is
-&lsquo;<samp>~</samp>&rsquo;, it expands to the value of the <code>HOME</code> environment
-variable (usually your home directory).  If the part before the first
-slash is &lsquo;<samp>~<var>user</var></samp>&rsquo; and if <var>user</var> is a valid login name,
-it expands to <var>user</var>&rsquo;s home directory.
+<p>If the part of the combined file name before the first slash is &lsquo;<samp>~</samp>&rsquo;, it
+expands to the value of the <code>HOME</code> environment variable (usually your
+home directory).  If the part before the first slash is &lsquo;<samp>~<var>user</var></samp>&rsquo;
+and if <var>user</var> is a valid login name, it expands to <var>user</var>&rsquo;s home
+directory.
 </p>
-<p>Filenames containing &lsquo;<samp>.</samp>&rsquo; or &lsquo;<samp>..</samp>&rsquo; are simplified to their
-canonical form:
+<p>Filenames containing &lsquo;<samp>.</samp>&rsquo; or &lsquo;<samp>..</samp>&rsquo; are simplified to their canonical
+form:
 </p>
 <div class="example">
 <pre class="example">(expand-file-name &quot;bar/../foo&quot;)
@@ -121,9 +120,9 @@ canonical form:
      &rArr; &quot;/../home&quot;
 </pre></div>
 
-<p>This is for the sake of filesystems that have the concept of a
-&ldquo;superroot&rdquo; above the root directory <samp>/</samp>.  On other filesystems,
-<samp>/../</samp> is interpreted exactly the same as <samp>/</samp>.
+<p>This is for the sake of filesystems that have the concept of a &ldquo;superroot&rdquo;
+above the root directory <samp>/</samp>.  On other filesystems, <samp>/../</samp> is
+interpreted exactly the same as <samp>/</samp>.
 </p>
 <p>Note that <code>expand-file-name</code> does <em>not</em> expand environment
 variables; only <code>substitute-in-file-name</code> does that:
@@ -133,11 +132,10 @@ variables; only <code>substitute-in-file-name</code> does that:
      &rArr; &quot;/xcssun/users/rms/lewis/$HOME/foo&quot;
 </pre></div>
 
-<p>Note also that <code>expand-file-name</code> does not follow symbolic links
-at any level.  This results in a difference between the way
-<code>file-truename</code> and <code>expand-file-name</code> treat &lsquo;<samp>..</samp>&rsquo;.
-Assuming that &lsquo;<samp>/tmp/bar</samp>&rsquo; is a symbolic link to the directory
-&lsquo;<samp>/tmp/foo/bar</samp>&rsquo; we get:
+<p>Note also that <code>expand-file-name</code> does not follow symbolic links at any
+level.  This results in a difference between the way <code>file-truename</code>
+and <code>expand-file-name</code> treat &lsquo;<samp>..</samp>&rsquo;.  Assuming that &lsquo;<samp>/tmp/bar</samp>&rsquo;
+is a symbolic link to the directory &lsquo;<samp>/tmp/foo/bar</samp>&rsquo; we get:
 </p>
 <div class="example">
 <pre class="example">(file-truename &quot;/tmp/bar/../myfile&quot;)
@@ -146,19 +144,19 @@ Assuming that &lsquo;<samp>/tmp/bar</samp>&rsquo; is a symbolic link to the dire
      &rArr; &quot;/tmp/myfile&quot;
 </pre></div>
 
-<p>If you may need to follow symbolic links preceding &lsquo;<samp>..</samp>&rsquo;, you
-should make sure to call <code>file-truename</code> without prior direct or
-indirect calls to <code>expand-file-name</code>.  See <a href="Truenames.html#Truenames">Truenames</a>.
+<p>If you may need to follow symbolic links preceding &lsquo;<samp>..</samp>&rsquo;, you should
+make sure to call <code>file-truename</code> without prior direct or indirect
+calls to <code>expand-file-name</code>.  See <a href="Truenames.html#Truenames">Truenames</a>.
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-default_002ddirectory"></a>Variable: <strong>default-directory</strong></dt>
 <dd><p>The value of this buffer-local variable is the default directory for the
-current buffer.  It should be an absolute directory name; it may start
-with &lsquo;<samp>~</samp>&rsquo;.  This variable is buffer-local in every buffer.
+current buffer.  It should be an absolute directory name; it may start with
+&lsquo;<samp>~</samp>&rsquo;.  This variable is buffer-local in every buffer.
 </p>
-<p><code>expand-file-name</code> uses the default directory when its second
-argument is <code>nil</code>.
+<p><code>expand-file-name</code> uses the default directory when its second argument
+is <code>nil</code>.
 </p>
 <p>The value is always a string ending with a slash.
 </p>
@@ -170,38 +168,36 @@ argument is <code>nil</code>.
 
 <dl>
 <dt><a name="index-substitute_002din_002dfile_002dname"></a>Function: <strong>substitute-in-file-name</strong> <em>filename</em></dt>
-<dd><a name="Definition-of-substitute_002din_002dfile_002dname"></a><p>This function replaces environment variable references in
-<var>filename</var> with the environment variable values.  Following
-standard Unix shell syntax, &lsquo;<samp>$</samp>&rsquo; is the prefix to substitute an
-environment variable value.  If the input contains &lsquo;<samp>$$</samp>&rsquo;, that is
-converted to &lsquo;<samp>$</samp>&rsquo;; this gives the user a way to &ldquo;quote&rdquo; a
-&lsquo;<samp>$</samp>&rsquo;.
+<dd><a name="Definition-of-substitute_002din_002dfile_002dname"></a><p>This function replaces environment variable references in <var>filename</var>
+with the environment variable values.  Following standard Unix shell syntax,
+&lsquo;<samp>$</samp>&rsquo; is the prefix to substitute an environment variable value.  If the
+input contains &lsquo;<samp>$$</samp>&rsquo;, that is converted to &lsquo;<samp>$</samp>&rsquo;; this gives the user
+a way to &ldquo;quote&rdquo; a &lsquo;<samp>$</samp>&rsquo;.
 </p>
 <p>The environment variable name is the series of alphanumeric characters
-(including underscores) that follow the &lsquo;<samp>$</samp>&rsquo;.  If the character following
-the &lsquo;<samp>$</samp>&rsquo; is a &lsquo;<samp>{</samp>&rsquo;, then the variable name is everything up to the
-matching &lsquo;<samp>}</samp>&rsquo;.
+(including underscores) that follow the &lsquo;<samp>$</samp>&rsquo;.  If the character
+following the &lsquo;<samp>$</samp>&rsquo; is a &lsquo;<samp>{</samp>&rsquo;, then the variable name is everything
+up to the matching &lsquo;<samp>}</samp>&rsquo;.
 </p>
 <p>Calling <code>substitute-in-file-name</code> on output produced by
 <code>substitute-in-file-name</code> tends to give incorrect results.  For
-instance, use of &lsquo;<samp>$$</samp>&rsquo; to quote a single &lsquo;<samp>$</samp>&rsquo; won&rsquo;t work
-properly, and &lsquo;<samp>$</samp>&rsquo; in an environment variable&rsquo;s value could lead
-to repeated substitution.  Therefore, programs that call this function
-and put the output where it will be passed to this function need to
-double all &lsquo;<samp>$</samp>&rsquo; characters to prevent subsequent incorrect
-results.
+instance, use of &lsquo;<samp>$$</samp>&rsquo; to quote a single &lsquo;<samp>$</samp>&rsquo; won&rsquo;t work properly,
+and &lsquo;<samp>$</samp>&rsquo; in an environment variable&rsquo;s value could lead to repeated
+substitution.  Therefore, programs that call this function and put the
+output where it will be passed to this function need to double all &lsquo;<samp>$</samp>&rsquo;
+characters to prevent subsequent incorrect results.
 </p>
-<p>Here we assume that the environment variable <code>HOME</code>, which holds
-the user&rsquo;s home directory name, has value &lsquo;<samp>/xcssun/users/rms</samp>&rsquo;.
+<p>Here we assume that the environment variable <code>HOME</code>, which holds the
+user&rsquo;s home directory name, has value &lsquo;<samp>/xcssun/users/rms</samp>&rsquo;.
 </p>
 <div class="example">
 <pre class="example">(substitute-in-file-name &quot;$HOME/foo&quot;)
      &rArr; &quot;/xcssun/users/rms/foo&quot;
 </pre></div>
 
-<p>After substitution, if a &lsquo;<samp>~</samp>&rsquo; or a &lsquo;<samp>/</samp>&rsquo; appears immediately
-after another &lsquo;<samp>/</samp>&rsquo;, the function discards everything before it (up
-through the immediately preceding &lsquo;<samp>/</samp>&rsquo;).
+<p>After substitution, if a &lsquo;<samp>~</samp>&rsquo; or a &lsquo;<samp>/</samp>&rsquo; appears immediately after
+another &lsquo;<samp>/</samp>&rsquo;, the function discards everything before it (up through the
+immediately preceding &lsquo;<samp>/</samp>&rsquo;).
 </p>
 <div class="example">
 <pre class="example">(substitute-in-file-name &quot;bar/~/foo&quot;)
