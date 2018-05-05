@@ -167,24 +167,18 @@ Only Buffers}を参照のこと。
 @node Subroutines of Visiting
 @subsection Subroutines of Visiting
 
-  The @code{find-file-noselect} function uses two important subroutines which
-are sometimes useful in user Lisp code: @code{create-file-buffer} and
-@code{after-find-file}.  This section explains how to use them.
+  @code{find-file-noselect}関数は、2つの重要なサブルーチン@code{create-file-buffer}および@code{after-find-file}を使用します。これらはユーザーのLispコードでも役に立つことがあります。このセクションでは、それらの使い方について説明します。
 
 @c FIXME This does not describe the default behavior, because
 @c uniquify is enabled by default and advises this function.
 @c This is confusing.  uniquify should be folded into the function proper.
 @defun create-file-buffer filename
-This function creates a suitably named buffer for visiting @var{filename},
-and returns it.  It uses @var{filename} (sans directory)  as the name if
-that name is free; otherwise, it appends a string such as @samp{<2>} to get
-an unused name.  See also @ref{Creating Buffers}.  Note that the
-@file{uniquify} library affects the result of this function.
-@xref{Uniquify,,, emacs, The GNU Emacs Manual}.
+この関数は、@var{filename}のvisitにたいして適切な名前のバッファーを作成して、それをリターンする。これは@var{filename}(ディレクトリー含まず)の名前がフリーならバッファー名にそれを使用し、フリーでなければ未使用の名前を取得するために@samp{<2>}のような文字列を付加する。@ref{Creating
+Buffers}も参照のこと。@file{uniquify}ライブラリーは、この関数の結果に影響を与えることに注意されたい。@ref{Uniquify,,,
+emacs, The GNU Emacs Manual}を参照のこと。
 
-@strong{Please note:} @code{create-file-buffer} does @emph{not} associate
-the new buffer with a file and does not select the buffer.  It also does not
-use the default major mode.
+@strong{注意してください:}
+@code{create-file-buffer}はファイルに新たなバッファーを@emph{関連付けません}。バッファーの選択もせず、さらにデフォルトのメジャーモードも使用しません。
 
 @example
 @group
@@ -201,40 +195,28 @@ use the default major mode.
 @end group
 @end example
 
-This function is used by @code{find-file-noselect}.  It uses
-@code{generate-new-buffer} (@pxref{Creating Buffers}).
+この関数は、@code{find-file-noselect}により使用される。この関数自身は@code{generate-new-buffer}を使用する(@ref{Creating
+Buffers}を参照)。
 @end defun
 
 @defun after-find-file &optional error warn noauto after-find-file-from-revert-buffer nomodes
-This function sets the buffer major mode, and parses local variables
-(@pxref{Auto Major Mode}).  It is called by @code{find-file-noselect} and by
-the default revert function (@pxref{Reverting}).
+この関数は、バッファーのメジャーモードをセットして、ローカル変数をパースする(@ref{Auto Major
+Mode}を参照)。これは@code{find-file-noselect}、およびデフォルトのリバート関数(@ref{Reverting}を参照)により呼び出される。
 
 @cindex new file message
 @cindex file open error
-If reading the file got an error because the file does not exist, but its
-directory does exist, the caller should pass a non-@code{nil} value for
-@var{error}.  In that case, @code{after-find-file} issues a warning:
-@samp{(New file)}.  For more serious errors, the caller should usually not
-call @code{after-find-file}.
+ファイルが存在しない理由によりファイルの読み込みがエラーを受け取るが、ディレクトリーは存在する場合、呼び出し側は@var{error}にたいして非@code{nil}値を綿すべきである。この場合、@code{after-find-file}は警告@samp{(New
+file)}を発する。より深刻なエラーにたいしては、呼び出し側は通常は@code{after-find-file}を呼び出すべきでない。
 
-If @var{warn} is non-@code{nil}, then this function issues a warning if an
-auto-save file exists and is more recent than the visited file.
+@var{warn}が非@code{nil}の場合、もしauto-saveファイルが存在し、かつそれがvisitされているファイルより新しいなら、この関数は警告を発する。
 
-If @var{noauto} is non-@code{nil}, that says not to enable or disable
-Auto-Save mode.  The mode remains enabled if it was enabled before.
+@var{noauto}が非@code{nil}の場合、それはAuto-Saveモードを有効、または無効にしないことを告げる。以前にAuto-Saveモードが有効ならば、有効のまま留まる。
 
-If @var{after-find-file-from-revert-buffer} is non-@code{nil}, that means
-this call was from @code{revert-buffer}.  This has no direct effect, but
-some mode functions and hook functions check the value of this variable.
+@var{after-find-file-from-revert-buffer}が非@code{nil}の場合、それはこの関数が@code{revert-buffer}から呼び出されたことを意味する。これに直接的な効果はないが、モード関数およびフック関数の中には、この変数の値をチェックするものがいくつかある。
 
-If @var{nomodes} is non-@code{nil}, that means don't alter the buffer's
-major mode, don't process local variables specifications in the file, and
-don't run @code{find-file-hook}.  This feature is used by
-@code{revert-buffer} in some cases.
+@var{nomodes}が非@code{nil}の場合、それはバッファーのメジャーモードを変更せず、ファイル内のローカル変数指定を処理せず、@code{find-file-hook}を実行しないことを意味する。この機能は、あるケースにおいて@code{revert-buffer}により使用される。
 
-The last thing @code{after-find-file} does is call all the functions in the
-list @code{find-file-hook}.
+@code{after-find-file}が最後に行うのは、リスト@code{find-file-hook}内のすべての関数を呼び出すことである。
 @end defun
 
 @node Saving Buffers
