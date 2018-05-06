@@ -161,7 +161,7 @@ Only Buffers}を参照のこと。
 @end defvar
 
 @defvar find-file-literally
-このバッファーローカル変数が非@code{nil}値にセットされた場合、@code{save-buffer}はあたかもそのバッファーがリテラリー、つまり何の変換も行わずにファイルをvisitしていたかのように振る舞う。コマンド@code{find-file-literally}は、この変数のローカル値をセットするが、その他の等価な関数およびコマンドも、たとえばファイル終端への改行の自動追加を避けるために、同様にこれを行うことができる。この変数は永続的にローカルなので、メジャーモードの変更により影響を受けない。
+このバッファーローカル変数が非@code{nil}値にセットされた場合、@code{save-buffer}はあたかもそのバッファーがリテラリー、つまり何の変換も行わずにファイルをvisitしていたかのように振る舞う。コマンド@code{find-file-literally}は、この変数のローカル値をセットするが、その他の等価な関数およびコマンドも、たとえばファイル終端への改行の自動追加を避けるために、同様にこれを行うことができる。この変数は恒久的にローカルなので、メジャーモードの変更により影響を受けない。
 @end defvar
 
 @node Subroutines of Visiting
@@ -223,181 +223,102 @@ file)}を発する。より深刻なエラーにたいしては、呼び出し�
 @section Saving Buffers
 @cindex saving buffers
 
-  When you edit a file in Emacs, you are actually working on a buffer that is
-visiting that file---that is, the contents of the file are copied into the
-buffer and the copy is what you edit.  Changes to the buffer do not change
-the file until you @dfn{save} the buffer, which means copying the contents
-of the buffer into the file.
+  Emacs内でファイルを編集とき、実際にはそのファイルをvisitしているバッファーにたいして編集を行っています。つまり、ファイルのコンテンツをバッファーにコピーして、編集しているのはそのコピーなのです。そのバッファーにを変更しても、バッファーを@dfn{保存(save)}するまでファイルは変更されません。保存とは、バッファーのコンテンツをファイルにコピーすることを意味します。
 
 @deffn Command save-buffer &optional backup-option
-This function saves the contents of the current buffer in its visited file
-if the buffer has been modified since it was last visited or saved.
-Otherwise it does nothing.
+この関数は、バッファーが最後にvisitされたとき、または保存されたときから変更されている場合は、カレントバッファーのコンテンツを、バッファーによりvisitされているファイルに保存し、変更されていなければ何も行わない。
 
-@code{save-buffer} is responsible for making backup files.  Normally,
-@var{backup-option} is @code{nil}, and @code{save-buffer} makes a backup
-file only if this is the first save since visiting the file.  Other values
-for @var{backup-option} request the making of backup files in other
-circumstances:
+@code{save-buffer}は、バックアップファイルの作成に責任を負う。通常、@var{backup-option}は@code{nil}であり、@code{save-buffer}はファイルをvisit以降、それが最初の保存の場合のみバックアップファイルを作成する。@var{backup-option}にたいする他の値は、別の条件によるバックアップファイル作成を要求する:
 
 @itemize @bullet
 @item
-With an argument of 4 or 64, reflecting 1 or 3 @kbd{C-u}'s, the
-@code{save-buffer} function marks this version of the file to be backed up
-when the buffer is next saved.
+引数4は1つの@kbd{C-u}を、引数64は3つの@kbd{C-u}を示すので、@code{save-buffer}はバッファーの次回保存時にこのバージョンのファイルがバックアップされるようマークする。
 
 @item
-With an argument of 16 or 64, reflecting 2 or 3 @kbd{C-u}'s, the
-@code{save-buffer} function unconditionally backs up the previous version of
-the file before saving it.
+引数16は2つの@kbd{C-u}を、引数64は3つの@kbd{C-u}を示すので、@code{save-buffer}関数はそれを保存する前に、前バージョンのファイルを無条件にバックアップする。
 
 @item
-With an argument of 0, unconditionally do @emph{not} make any backup file.
+引数0は、無条件にバックアップファイルを何も@emph{作成しない}。
 @end itemize
 @end deffn
 
 @deffn Command save-some-buffers &optional save-silently-p pred
 @anchor{Definition of save-some-buffers}
-This command saves some modified file-visiting buffers.  Normally it asks
-the user about each buffer.  But if @var{save-silently-p} is non-@code{nil},
-it saves all the file-visiting buffers without querying the user.
+このコマンドは、ファイルをvisitしている変更されたバッファーのいくつかを保存する。これは通常、各バッファーごとにユーザーに確認を求める。しかし、@var{save-silently-p}が非@code{nil}の場合は、ユーザーに質問せずにファイルをvisitしているすべてのバッファーを保存する。
 
-The optional @var{pred} argument controls which buffers to ask about (or to
-save silently if @var{save-silently-p} is non-@code{nil}).  If it is
-@code{nil}, that means to ask only about file-visiting buffers.  If it is
-@code{t}, that means also offer to save certain other non-file
-buffers---those that have a non-@code{nil} buffer-local value of
-@code{buffer-offer-save} (@pxref{Killing Buffers}).  A user who says
-@samp{yes} to saving a non-file buffer is asked to specify the file name to
-use.  The @code{save-buffers-kill-emacs} function passes the value @code{t}
-for @var{pred}.
+オプション引数@var{pred}は、どのバッファーで確認を求めるか(または@var{save-silently-p}が非@code{nil}の場合は、どのバッファーで確認せずに保存するか)を制御する。これが@code{nil}の場合、それはファイルをvisitしているバッファーにたいしてのみ確認を求めることを意味する。@code{t}の場合、それは、@code{buffer-offer-save}のバッファーローカル値が@code{nil}であるような、非ファイルバッファー以外の特定のバッファーの保存も提案することを意味する(@ref{Killing
+Buffers}を参照)。ユーザーが、非ファイルバッファーの保存にたいして@samp{yes}と応えると、保存に使用するファイル名の指定を求める。@code{save-buffers-kill-emacs}関数は、@var{pred}にたいして値@code{t}を渡す。
 
-If @var{pred} is neither @code{t} nor @code{nil}, then it should be a
-function of no arguments.  It will be called in each buffer to decide
-whether to offer to save that buffer.  If it returns a non-@code{nil} value
-in a certain buffer, that means do offer to save that buffer.
+@var{pred}が@code{t}と@code{nil}のどちらでもない場合、それは引数なしの関数であること。その関数は、そのバッファーの保存するを提案するか否かを決定するために、バッファーごとに呼び出されるだろう。これが特定のバッファーで非@code{nil}値をリターンした場合は、バッファーの保存を提案することを意味する。
 @end deffn
 
 @deffn Command write-file filename &optional confirm
 @anchor{Definition of write-file}
-This function writes the current buffer into file @var{filename}, makes the
-buffer visit that file, and marks it not modified.  Then it renames the
-buffer based on @var{filename}, appending a string like @samp{<2>} if
-necessary to make a unique buffer name.  It does most of this work by
-calling @code{set-visited-file-name} (@pxref{Buffer File Name}) and
-@code{save-buffer}.
+この関数は、カレントバッファーをファイル@var{filename}に書き込み、バッファーがそのファイルをvisitしていることにして、未変更とマークする。次に@var{filename}にもとづいてバッファー名をリネームする。バッファー名を一意にするため、必要なら@samp{<2>}のような文字列を付加する。処理のほとんどは、@code{set-visited-file-name}(@ref{Buffer
+File Name}を参照)、および@code{save-buffer}を呼び出すことにより行われる。
 
-If @var{confirm} is non-@code{nil}, that means to ask for confirmation
-before overwriting an existing file.  Interactively, confirmation is
-required, unless the user supplies a prefix argument.
+@var{confirm}が非@code{nil}の場合、それは既存のファイルを上書きする前に確認を求めることを意味する。ユーザーがプレフィックス引数を与えない場合、interactiveに確認が求められる。
 
-If @var{filename} is an existing directory, or a symbolic link to one,
-@code{write-file} uses the name of the visited file, in directory
-@var{filename}.  If the buffer is not visiting a file, it uses the buffer
-name instead.
+@var{filename}が既存のディレクトリーであったり、既存のディレクトリーへのシンボリックリンクの場合、@code{write-file}はディレクトリー@var{filename}内でvisitされているファイルの名前を使用する。そのバッファーがファイルをvisitしていない場合は、かわりにバッファーの名前を使用する。
 @end deffn
 
-  Saving a buffer runs several hooks.  It also performs format conversion
-(@pxref{Format Conversion}).
+  バッファーの保存により、複数のフックが実行される。これはフォーマット変換も処理する(@ref{Format Conversion}を参照)。
 
 @defvar write-file-functions
-The value of this variable is a list of functions to be called before
-writing out a buffer to its visited file.  If one of them returns
-non-@code{nil}, the file is considered already written and the rest of the
-functions are not called, nor is the usual code for writing the file
-executed.
+この変数の値は、バッファーをvisitされているファイルに書き出す前に呼び出される、関数のリストである。それらのうちのいずれかが非@code{nil}をリターンした場合、そのファイルは書き込み済みだと判断され、残りの関数は呼び出されないし、ファイルを書き込むための通常のコードも実行されない。
 
-If a function in @code{write-file-functions} returns non-@code{nil}, it is
-responsible for making a backup file (if that is appropriate).  To do so,
-execute the following code:
+@code{write-file-functions}内の関数が非@code{nil}をリターンした場合、(それが適切であれば)その関数はファイルをバックアップする責任を負う。これを行うには、以下のコードを実行する:
 
 @example
 (or buffer-backed-up (backup-buffer))
 @end example
 
-You might wish to save the file modes value returned by @code{backup-buffer}
-and use that (if non-@code{nil}) to set the mode bits of the file that you
-write.  This is what @code{save-buffer} normally does. @xref{Making
-Backups,, Making Backup Files}.
+@code{backup-buffer}によりリターンされるファイルモードの値を保存して、(もし非@code{nil}なら)書き込むファイルのモードビットをセットしたいと思うかもしれない。これは正に@code{save-buffer}が通常行うことである。@ref{Making
+Backups,, Making Backup Files}を参照のこと。
 
-The hook functions in @code{write-file-functions} are also responsible for
-encoding the data (if desired): they must choose a suitable coding system
-and end-of-line conversion (@pxref{Lisp and Coding Systems}), perform the
-encoding (@pxref{Explicit Encoding}), and set @code{last-coding-system-used}
-to the coding system that was used (@pxref{Encoding and I/O}).
+@code{write-file-functions}内のフック関数は、データのエンコード(が望ましければ)にも責任を負う。これらは適切なコーディングシステムと改行規則(@ref{Lisp
+and Coding Systems}を参照)を選択してエンコード(@ref{Explicit
+Encoding}を参照)を処理し、使用されていたコーディングシステム(@ref{Encoding and
+I/O}を参照)を@code{last-coding-system-used}にセットしなければならない。
 
-If you set this hook locally in a buffer, it is assumed to be associated
-with the file or the way the contents of the buffer were obtained.  Thus the
-variable is marked as a permanent local, so that changing the major mode
-does not alter a buffer-local value.  On the other hand, calling
-@code{set-visited-file-name} will reset it.  If this is not what you want,
-you might like to use @code{write-contents-functions} instead.
+バッファー内でこのフックをローカルにセットした場合、バッファーはそのファイル、またはバッファーのコンテンツを取得したファイルに類するものに関連付けられる。このようにして、変数は恒久的にローカルであるとマークされるので、メジャーモードの変更がバッファーローカルな値を変更することはない。その一方で、@code{set-visited-file-name}を呼び出すことにより、変数はリセットされるだろう。これを望まない場合は、かわりに@code{write-contents-functions}を使用したいと思うだろう。
 
-Even though this is not a normal hook, you can use @code{add-hook} and
-@code{remove-hook} to manipulate the list.  @xref{Hooks}.
+たとえこれがノーマルフックでないとしても、このリストを操作するために@code{add-hook}および@code{remove-hook}を使用することはできる。@ref{Hooks}を参照のこと。
 @end defvar
 
 @c Emacs 19 feature
 @defvar write-contents-functions
-This works just like @code{write-file-functions}, but it is intended for
-hooks that pertain to the buffer's contents, not to the particular visited
-file or its location.  Such hooks are usually set up by major modes, as
-buffer-local bindings for this variable.  This variable automatically
-becomes buffer-local whenever it is set; switching to a new major mode
-always resets this variable, but calling @code{set-visited-file-name} does
-not.
+これは正に@code{write-file-functions}と同様に機能するが、こちらはvisitしている特定のファイルやファイルの場所ではなく、バッファーのコンテンツに関連するフックを意図している。そのようなフックは、この変数にたいするバッファーローカルなバインディングとして、通常はメジャーモードにより作成される。この変数は、セットされた際は、常に自動的にバッファーローカルになる。新たなメジャーモードへの切り替えは、常にこの変数をリセットするが、@code{set-visited-file-name}の呼び出しではリセットされない。
 
-If any of the functions in this hook returns non-@code{nil}, the file is
-considered already written and the rest are not called and neither are the
-functions in @code{write-file-functions}.
+このフック内の関数のいずれかが非@code{nil}をリターンした場合、そのファイルはすでに書き込み済みとみなされ、残りの関数は呼び出されず、@code{write-file-functions}内の関数も呼び出されない。
 @end defvar
 
 @defopt before-save-hook
-This normal hook runs before a buffer is saved in its visited file,
-regardless of whether that is done normally or by one of the hooks described
-above.  For instance, the @file{copyright.el} program uses this hook to make
-sure the file you are saving has the current year in its copyright notice.
+このノーマルフックは、visitしているファイルにバッファーが保存される前に実行される。保存が通常の方法で行われるか、あるいは上述のフックのいずれかで行われたかは問題にしない。たとえば、@file{copyright.el}プログラムは、ファイルの保存において、それの著作権表示が今年であることを確認するために、このフックを使用する。
 @end defopt
 
 @c Emacs 19 feature
 @defopt after-save-hook
-This normal hook runs after a buffer has been saved in its visited file.
-One use of this hook is in Fast Lock mode; it uses this hook to save the
-highlighting information in a cache file.
+このノーマルフックは、visitしているファイルにバッファーを保存した後に実行される。このフックの使用例の1つは、Fast
+Lockモードにある。このモードは、キャッシュファイルにハイライト情報を保存するために、このフックを使用している。
 @end defopt
 
 @defopt file-precious-flag
-If this variable is non-@code{nil}, then @code{save-buffer} protects against
-I/O errors while saving by writing the new file to a temporary name instead
-of the name it is supposed to have, and then renaming it to the intended
-name after it is clear there are no errors.  This procedure prevents
-problems such as a lack of disk space from resulting in an invalid file.
+この変数が非@code{nil}の場合、@code{save-buffer}は保存ファイルがもつ名前のかわりに、一時的な名前で新たなファイルに書き込み、エラーがないと明確になった後にファイルを意図する名前にリネームすることにより、保存中のI/Oエラーから防御する。この手順は、無効なファイルが原因となるディスク容量逼迫のような問題を防ぐ。
 
-As a side effect, backups are necessarily made by copying.  @xref{Rename or
-Copy}.  Yet, at the same time, saving a precious file always breaks all hard
-links between the file you save and other file names.
+副作用として、バックアップ作成にコピーが必要になる。@ref{Rename or
+Copy}を参照のこと。しかし同時に、この高価なファイル保存により、保存したファイルと他のファイル名との間のすべてのハードリンクは切断される。
 
-Some modes give this variable a non-@code{nil} buffer-local value in
-particular buffers.
+いくつかのモードは、特定のバッファーにおいて、この変数に非@code{nil}のバッファーローカル値を与える。
 @end defopt
 
 @defopt require-final-newline
-This variable determines whether files may be written out that do @emph{not}
-end with a newline.  If the value of the variable is @code{t}, then
-@code{save-buffer} silently adds a newline at the end of the buffer whenever
-it does not already end in one.  If the value is @code{visit}, Emacs adds a
-missing newline just after it visits the file.  If the value is
-@code{visit-save}, Emacs adds a missing newline both on visiting and on
-saving.  For any other non-@code{nil} value, @code{save-buffer} asks the
-user whether to add a newline each time the case arises.
+この変数は、ファイルが改行で@emph{終わらない}ように書き込まれるかどうかを決定する。変数の値が@code{t}の場合、@code{save-buffer}はバッファーの終端に改行がなければ暗黙理に改行を追加する。値が@code{visit}の場合、Emacsはファイルをvisitした直後に不足している改行を追加する。値が@code{visit-save}の場合、Emacsはvisitと保存の両方のタイミングで、不足している改行を追加する。その他の非@code{nil}値にたいしては、そのようなケースが生じるたびに、改行を追加するかどうか、@code{save-buffer}がユーザーに尋ねる。
 
-If the value of the variable is @code{nil}, then @code{save-buffer} doesn't
-add newlines at all.  @code{nil} is the default value, but a few major modes
-set it to @code{t} in particular buffers.
+変数の値が@code{nil}の場合、@code{save-buffer}は改行を追加しない。デフォルト値は@code{nil}だが、特定のバッファーでこれを@code{t}にセットするメジャーモードも少数存在する。
 @end defopt
 
-  See also the function @code{set-visited-file-name} (@pxref{Buffer File
-Name}).
+  @ref{Buffer File Name}の関数@code{set-visited-file-name}も参照されたい。
 
 @node Reading from Files
 @section Reading from Files
