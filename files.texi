@@ -361,20 +361,14 @@ File Names}を参照してください。
 @section Writing to Files
 @cindex writing to files
 
-  You can write the contents of a buffer, or part of a buffer, directly to a
-file on disk using the @code{append-to-file} and @code{write-region}
-functions.  Don't use these functions to write to files that are being
-visited; that could cause confusion in the mechanisms for visiting.
+  関数@code{append-to-file}および@code{write-region}を使用することにより、ディスク上のファイルに直接、バッファーのコンテンツ、またはバッファーの一部を書き込むことができます。visitされているファイルに書き込むために、これらの関数を使用しないでください。これにより、visitにたいするメカニズムが混乱するかもしれません。
 
 @deffn Command append-to-file start end filename
-This function appends the contents of the region delimited by @var{start}
-and @var{end} in the current buffer to the end of file @var{filename}.  If
-that file does not exist, it is created.  This function returns @code{nil}.
+この関数は、カレントバッファー内で、@var{start}と@var{end}によるリージョンのコンテンツを、ファイル@var{filename}の終端に追加する。そのファイルが存在しない場合は作成する。この関数は@code{nil}をリターンする。
 
-An error is signaled if @var{filename} specifies a nonwritable file, or a
-nonexistent file in a directory where files cannot be created.
+@var{filename}に書込不可能なファイル、またはファイルを作成不可なディレクトリー内の存在しないファイルを指定した場合は、エラーがシグナルされる。
 
-When called from Lisp, this function is completely equivalent to:
+Lispから呼び出した場合、この関数は以下と完全に等価である:
 
 @example
 (write-region start end filename t)
@@ -382,80 +376,43 @@ When called from Lisp, this function is completely equivalent to:
 @end deffn
 
 @deffn Command write-region start end filename &optional append visit lockname mustbenew
-This function writes the region delimited by @var{start} and @var{end} in
-the current buffer into the file specified by @var{filename}.
+この関数は、カレントバッファー内の@var{start}と@var{end}で区切られたリージョンを、@var{filename}で指定されたファイルに書き込む。
 
-If @var{start} is @code{nil}, then the command writes the entire buffer
-contents (@emph{not} just the accessible portion) to the file and ignores
-@var{end}.
+@var{start}が@code{nil}の場合、このコマンドはバッファーのコンテンツ全体(アクセス可能な範囲だけでは@emph{ない})をファイルに書き込み、@var{end}は無視する。
 
 @c Emacs 19 feature
-If @var{start} is a string, then @code{write-region} writes or appends that
-string, rather than text from the buffer.  @var{end} is ignored in this
-case.
+@var{start}が文字列の場合、@code{write-region}はバッファーのテキストではなく、その文字列を追加する。その場合、@var{end}は無視される。
 
-If @var{append} is non-@code{nil}, then the specified text is appended to
-the existing file contents (if any).  If @var{append} is a number,
-@code{write-region} seeks to that byte offset from the start of the file and
-writes the data from there.
+@var{append}が非@code{nil}の場合は、指定されたテキストが(もしあれば)既存のファイルコンテンツに追加される。@var{append}が数字の場合、@code{write-region}はファイル開始位置からそのバイトオフセットをseekして、データをそこに書き込む。
 
-If @var{mustbenew} is non-@code{nil}, then @code{write-region} asks for
-confirmation if @var{filename} names an existing file.  If @var{mustbenew}
-is the symbol @code{excl}, then @code{write-region} does not ask for
-confirmation, but instead it signals an error @code{file-already-exists} if
-the file already exists.
+@var{mustbenew}が非@code{nil}の場合、@code{write-region}はもし@var{filename}が既存ファイルの名前なら確認を求める。@var{mustbenew}がシンボル@code{excl}なら、ファイルがすでに存在する場合は@code{write-region}は確認を求めるかわりに、エラー@code{file-already-exists}をシグナルする。
 
-The test for an existing file, when @var{mustbenew} is @code{excl}, uses a
-special system feature.  At least for files on a local disk, there is no
-chance that some other program could create a file of the same name before
-Emacs does, without Emacs's noticing.
+@var{mustbenew}が@code{excl}のときは、存在するファイルのテストに特別なシステム機能を使用する。少なくともローカルディスク上のファイルにたいしては、Emacsがファイルを作成する前に、Emacsに通知せずに他のプログラムが同じ名前のファイルを作成することはありえない。
 
-If @var{visit} is @code{t}, then Emacs establishes an association between
-the buffer and the file: the buffer is then visiting that file.  It also
-sets the last file modification time for the current buffer to
-@var{filename}'s modtime, and marks the buffer as not modified.  This
-feature is used by @code{save-buffer}, but you probably should not use it
-yourself.
+@var{visit}が@code{t}の場合、Emacsはバッファーとファイルの関連付けを設定し、そのバッファーがそのファイルをvictimする。また、カレントバッファーにたいする最終ファイル変更日時に@var{filename}をセットして、そのバッファーを未変更としてマークする。この機能は@code{save-buffer}により使用されるが、おそらくあなた自身が使用するべきではないだろう。
 
 @c Emacs 19 feature
-If @var{visit} is a string, it specifies the file name to visit.  This way,
-you can write the data to one file (@var{filename}) while recording the
-buffer as visiting another file (@var{visit}).  The argument @var{visit} is
-used in the echo area message and also for file locking; @var{visit} is
-stored in @code{buffer-file-name}.  This feature is used to implement
-@code{file-precious-flag}; don't use it yourself unless you really know what
-you're doing.
+@var{visit}が文字列の場合、それはvisitするファイルの名前を指定する。この方法を使えば、そのバッファーが別のファイルをvisitしていると記録しつつ、１つのファイル(@var{filename})にデータを書き込むことができる。引数@var{visit}は、エコーエリアに使用される他に、ファイルのロックにも使用され、@var{visit}が@code{buffer-file-name}に格納される。この機能は、@code{file-precious-flag}の実装に使用される。自分が何をしているか本当にわかっているのでなければ、これを使用してはならない。
 
-The optional argument @var{lockname}, if non-@code{nil}, specifies the file
-name to use for purposes of locking and unlocking, overriding @var{filename}
-and @var{visit} for that purpose.
+オプション引数@var{lockname}が非@code{nil}の場合、それはロックとアンロックの目的に使用する、@var{filename}および@var{visit}をオーバーライドするファイル名を指定する。
 
-The function @code{write-region} converts the data which it writes to the
-appropriate file formats specified by @code{buffer-file-format} and also
-calls the functions in the list @code{write-region-annotate-functions}.
-@xref{Format Conversion}.
+関数@code{write-region}は、書き込むデータを@code{buffer-file-format}により指定される、適切なファイルフォーマットに変換しするとともに、リスト@code{write-region-annotate-functions}内の関数の呼び出しも行う。@ref{Format
+Conversion}を参照のこと。
 
-Normally, @code{write-region} displays the message @samp{Wrote
-@var{filename}} in the echo area.  If @var{visit} is neither @code{t} nor
-@code{nil} nor a string, then this message is inhibited.  This feature is
-useful for programs that use files for internal purposes, files that the
-user does not need to know about.
+通常、@code{write-region}はエコーエリア内にメッセージ@samp{Wrote
+@var{filename}}を表示する。@var{visit}が@code{t}、@code{nil}、文字列のいずれでもない場合、このメッセージは抑制される。この機能は、内部的な目的のために、ユーザーが知る必要がないファイルを使用する場合に有用である。
 @end deffn
 
 @defmac with-temp-file file body@dots{}
 @anchor{Definition of with-temp-file}
-The @code{with-temp-file} macro evaluates the @var{body} forms with a
-temporary buffer as the current buffer; then, at the end, it writes the
-buffer contents into file @var{file}.  It kills the temporary buffer when
-finished, restoring the buffer that was current before the
-@code{with-temp-file} form.  Then it returns the value of the last form in
-@var{body}.
+@code{with-temp-file}マクロは、一時バッファー(temporary
+buffer)をカレントバッファーとして@var{body}フォームを評価して、最後にそのバッファーのコンテンツを@var{file}に書き込む。これは終了時に一時バッファーをkillして、@code{with-temp-file}フォームの前にカレントだったバッファーをリストアする。その後、@var{body}内の最後のフォームの値をリターンする。
 
-The current buffer is restored even in case of an abnormal exit via
-@code{throw} or error (@pxref{Nonlocal Exits}).
+@code{throw}やエラーによる異常なexit(abnormal exit)でも、カレントバッファーはリストアされる(@ref{Nonlocal
+Exits}を参照)。
 
-See also @code{with-temp-buffer} in @ref{Definition of with-temp-buffer,,
-The Current Buffer}.
+@ref{Definition of with-temp-buffer,, The Current
+Buffer}の@code{with-temp-buffer}も参照のこと。
 @end defmac
 
 @node File Locks
