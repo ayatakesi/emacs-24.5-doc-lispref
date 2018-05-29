@@ -420,26 +420,14 @@ Buffer}の@code{with-temp-buffer}も参照のこと。
 @cindex file locks
 @cindex lock file
 
-  When two users edit the same file at the same time, they are likely to
-interfere with each other.  Emacs tries to prevent this situation from
-arising by recording a @dfn{file lock} when a file is being modified.  Emacs
-can then detect the first attempt to modify a buffer visiting a file that is
-locked by another Emacs job, and ask the user what to do.  The file lock is
-really a file, a symbolic link with a special name, stored in the same
-directory as the file you are editing.  (On file systems that do not support
-symbolic links, a regular file is used.)
+  2人のユーザーが同時に同じファイルを編集する際、おそらく彼らは互いに干渉しあうでしょう。Emacsは、ファイルが変更される際に@dfn{ファイルロック(file
+lock)}を記録することにより、このような状況の発生を防ぎます。そして、Emacsは他のEmacsジョブにロックされているファイルをvisitしているバッファーへの変更の最初の試みを検知して、ユーザーに何を行うか尋ねます。このファイルロックの実態は、編集中のファイルと同じディレクトリーに格納される、特別な名前をもつシンボリックリンクです(シンボリックリンクをサポートしないファイルシステムでは、通常のファイルが使用される)。
 
-  When you access files using NFS, there may be a small probability that you
-and another user will both lock the same file ``simultaneously''.  If this
-happens, it is possible for the two users to make changes simultaneously,
-but Emacs will still warn the user who saves second.  Also, the detection of
-modification of a buffer visiting a file changed on disk catches some cases
-of simultaneous editing; see @ref{Modification Time}.
+  ファイルのアクセスにNFSを使用する際には、可能性は小さいものの、他のユーザーと同じファイルを``同時''にロックするかもしれません。これが発生した場合、2人のユーザーが同時にファイルを変更することが可能になりますが、それでもEmacsは2番目に保存するユーザーにたいして警告を発するでしょう。たファイルをvisitしているバッファーで、ディスク上でファイル変更の検知により、ある種の同時編集を捕捉できます。@ref{Modification
+Time}を参照してください。
 
 @defun file-locked-p filename
-This function returns @code{nil} if the file @var{filename} is not locked.
-It returns @code{t} if it is locked by this Emacs process, and it returns
-the name of the user who has locked it if it is locked by some other job.
+この関数は、ファイル@var{filename}がロックされていなければ@code{nil}をリターンする。このEmacsプロセスによりロックされている場合は@code{t}をリターンし、他のEmacsジョブによりロックされている場合はロックしたユーザーの名前をリターンする。
 
 @example
 @group
@@ -450,57 +438,42 @@ the name of the user who has locked it if it is locked by some other job.
 @end defun
 
 @defun lock-buffer &optional filename
-This function locks the file @var{filename}, if the current buffer is
-modified.  The argument @var{filename} defaults to the current buffer's
-visited file.  Nothing is done if the current buffer is not visiting a file,
-or is not modified, or if the system does not support locking.
+この関数は、カレントバッファーが変更されている場合は、ファイル@var{filename}をロックする。引数@var{filename}のデフォルトは、カレントバッファーがvisitしているファイルである。カレントバッファーがファイルをvisitしていない、またはバッファーが変更されていない、またはシステムがロックをサポートしない場合は、何もしない。
 @end defun
 
 @defun unlock-buffer
-This function unlocks the file being visited in the current buffer, if the
-buffer is modified.  If the buffer is not modified, then the file should not
-be locked, so this function does nothing.  It also does nothing if the
-current buffer is not visiting a file, or if the system does not support
-locking.
+この関数は、カレントバッファーが変更されている場合は、バッファーによりvisitされているファイルをアンロックする。バッファーが変更されていない場合は、そのファイルはロックされてはならないので、この関数は何もしない。カレントバッファーがファイルをvisitしていない、またはシステムがロックをサポートしない場合、この関数は何もしない。
 @end defun
 
 @defopt create-lockfiles
-If this variable is @code{nil}, Emacs does not lock files.
+この変数が@code{nil}の場合、Emacsはファイルをロックしない。
 @end defopt
 
 @defun ask-user-about-lock file other-user
-This function is called when the user tries to modify @var{file}, but it is
-locked by another user named @var{other-user}.  The default definition of
-this function asks the user to say what to do.  The value this function
-returns determines what Emacs does next:
+この関数は、ユーザーが@var{file}の変更を試みたが、それが名前@var{other-user}のユーザーにロックされていたとき呼び出される。この関数のデフォルト定義は、何を行うかユーザーに尋ねる関数である。この関数がリターンする値は、Emacsが次に何を行うかを決定する:
 
 @itemize @bullet
 @item
-A value of @code{t} says to grab the lock on the file.  Then this user may
-edit the file and @var{other-user} loses the lock.
+値@code{t}は、そのファイルのロックを奪うことを意味する。その場合、@var{other-user}はロックを失い、このユーザーがファイルを編集することができる。
 
 @item
-A value of @code{nil} says to ignore the lock and let this user edit the
-file anyway.
+値@code{nil}は、ロックを無視して、とにかくユーザーがファイルを編集できるようにすることを意味する。
 
 @item
 @kindex file-locked
-This function may instead signal a @code{file-locked} error, in which case
-the change that the user was about to make does not take place.
+この関数は、かわりにエラー@code{file-locked}をシグナルする。この場合、ユーザーが行おうとしていた変更は行われない。
 
-The error message for this error looks like this:
+このエラーにたいするエラーメッセージは、以下のようになる:
 
 @example
 @error{} File is locked: @var{file} @var{other-user}
 @end example
 
 @noindent
-where @code{file} is the name of the file and @var{other-user} is the name
-of the user who has locked the file.
+ここで、@code{file}はファイル名、@var{other-user}はそのファイルのロックを所有するユーザーの名前である。
 @end itemize
 
-If you wish, you can replace the @code{ask-user-about-lock} function with
-your own version that makes the decision in another way.
+望むなら、他の方法で判定を行う独自のバージョンで、@code{ask-user-about-lock}関数を置き換えることができる。
 @end defun
 
 @node Information about Files

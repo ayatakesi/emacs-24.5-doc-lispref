@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-05-04 23:31+0900\n"
-"PO-Revision-Date: 2018-05-29 01:00+0900\n"
+"PO-Revision-Date: 2018-05-29 17:52+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -968,34 +968,34 @@ msgstr "@ref{Definition of with-temp-buffer,, The Current Buffer}の@code{with-t
 #: files.texi.orig:680
 #, no-wrap
 msgid "file locks"
-msgstr ""
+msgstr "file locks"
 
 #. type: cindex
 #: files.texi.orig:681
 #, no-wrap
 msgid "lock file"
-msgstr ""
+msgstr "lock file"
 
 #. type: Plain text
 #: files.texi.orig:692
 msgid "When two users edit the same file at the same time, they are likely to interfere with each other.  Emacs tries to prevent this situation from arising by recording a @dfn{file lock} when a file is being modified.  Emacs can then detect the first attempt to modify a buffer visiting a file that is locked by another Emacs job, and ask the user what to do.  The file lock is really a file, a symbolic link with a special name, stored in the same directory as the file you are editing.  (On file systems that do not support symbolic links, a regular file is used.)"
-msgstr ""
+msgstr "2人のユーザーが同時に同じファイルを編集する際、おそらく彼らは互いに干渉しあうでしょう。Emacsは、ファイルが変更される際に@dfn{ファイルロック(file lock)}を記録することにより、このような状況の発生を防ぎます。そして、Emacsは他のEmacsジョブにロックされているファイルをvisitしているバッファーへの変更の最初の試みを検知して、ユーザーに何を行うか尋ねます。このファイルロックの実態は、編集中のファイルと同じディレクトリーに格納される、特別な名前をもつシンボリックリンクです(シンボリックリンクをサポートしないファイルシステムでは、通常のファイルが使用される)。"
 
 #. type: Plain text
 #: files.texi.orig:700
 msgid "When you access files using NFS, there may be a small probability that you and another user will both lock the same file ``simultaneously''.  If this happens, it is possible for the two users to make changes simultaneously, but Emacs will still warn the user who saves second.  Also, the detection of modification of a buffer visiting a file changed on disk catches some cases of simultaneous editing; see @ref{Modification Time}."
-msgstr ""
+msgstr "ファイルのアクセスにNFSを使用する際には、可能性は小さいものの、他のユーザーと同じファイルを``同時''にロックするかもしれません。これが発生した場合、2人のユーザーが同時にファイルを変更することが可能になりますが、それでもEmacsは2番目に保存するユーザーにたいして警告を発するでしょう。たファイルをvisitしているバッファーで、ディスク上でファイル変更の検知により、ある種の同時編集を捕捉できます。@ref{Modification Time}を参照してください。"
 
 #. type: defun
 #: files.texi.orig:701
 #, no-wrap
 msgid "file-locked-p filename"
-msgstr ""
+msgstr "file-locked-p filename"
 
 #. type: defun
 #: files.texi.orig:706
 msgid "This function returns @code{nil} if the file @var{filename} is not locked.  It returns @code{t} if it is locked by this Emacs process, and it returns the name of the user who has locked it if it is locked by some other job."
-msgstr ""
+msgstr "この関数は、ファイル@var{filename}がロックされていなければ@code{nil}をリターンする。このEmacsプロセスによりロックされている場合は@code{t}をリターンし、他のEmacsジョブによりロックされている場合はロックしたユーザーの名前をリターンする。"
 
 #. type: group
 #: files.texi.orig:711
@@ -1004,92 +1004,94 @@ msgid ""
 "(file-locked-p \"foo\")\n"
 "     @result{} nil\n"
 msgstr ""
+"(file-locked-p \"foo\")\n"
+"     @result{} nil\n"
 
 #. type: defun
 #: files.texi.orig:715
 #, no-wrap
 msgid "lock-buffer &optional filename"
-msgstr ""
+msgstr "lock-buffer &optional filename"
 
 #. type: defun
 #: files.texi.orig:720
 msgid "This function locks the file @var{filename}, if the current buffer is modified.  The argument @var{filename} defaults to the current buffer's visited file.  Nothing is done if the current buffer is not visiting a file, or is not modified, or if the system does not support locking."
-msgstr ""
+msgstr "この関数は、カレントバッファーが変更されている場合は、ファイル@var{filename}をロックする。引数@var{filename}のデフォルトは、カレントバッファーがvisitしているファイルである。カレントバッファーがファイルをvisitしていない、またはバッファーが変更されていない、またはシステムがロックをサポートしない場合は、何もしない。"
 
 #. type: defun
 #: files.texi.orig:722
 #, no-wrap
 msgid "unlock-buffer"
-msgstr ""
+msgstr "unlock-buffer"
 
 #. type: defun
 #: files.texi.orig:728
 msgid "This function unlocks the file being visited in the current buffer, if the buffer is modified.  If the buffer is not modified, then the file should not be locked, so this function does nothing.  It also does nothing if the current buffer is not visiting a file, or if the system does not support locking."
-msgstr ""
+msgstr "この関数は、カレントバッファーが変更されている場合は、バッファーによりvisitされているファイルをアンロックする。バッファーが変更されていない場合は、そのファイルはロックされてはならないので、この関数は何もしない。カレントバッファーがファイルをvisitしていない、またはシステムがロックをサポートしない場合、この関数は何もしない。"
 
 #. type: defopt
 #: files.texi.orig:730
 #, no-wrap
 msgid "create-lockfiles"
-msgstr ""
+msgstr "create-lockfiles"
 
 #. type: defopt
 #: files.texi.orig:732
 msgid "If this variable is @code{nil}, Emacs does not lock files."
-msgstr ""
+msgstr "この変数が@code{nil}の場合、Emacsはファイルをロックしない。"
 
 #. type: defun
 #: files.texi.orig:734
 #, no-wrap
 msgid "ask-user-about-lock file other-user"
-msgstr ""
+msgstr "ask-user-about-lock file other-user"
 
 #. type: defun
 #: files.texi.orig:739
 msgid "This function is called when the user tries to modify @var{file}, but it is locked by another user named @var{other-user}.  The default definition of this function asks the user to say what to do.  The value this function returns determines what Emacs does next:"
-msgstr ""
+msgstr "この関数は、ユーザーが@var{file}の変更を試みたが、それが名前@var{other-user}のユーザーにロックされていたとき呼び出される。この関数のデフォルト定義は、何を行うかユーザーに尋ねる関数である。この関数がリターンする値は、Emacsが次に何を行うかを決定する:"
 
 #. type: itemize
 #: files.texi.orig:744
 msgid "A value of @code{t} says to grab the lock on the file.  Then this user may edit the file and @var{other-user} loses the lock."
-msgstr ""
+msgstr "値@code{t}は、そのファイルのロックを奪うことを意味する。その場合、@var{other-user}はロックを失い、このユーザーがファイルを編集することができる。"
 
 #. type: itemize
 #: files.texi.orig:748
 msgid "A value of @code{nil} says to ignore the lock and let this user edit the file anyway."
-msgstr ""
+msgstr "値@code{nil}は、ロックを無視して、とにかくユーザーがファイルを編集できるようにすることを意味する。"
 
 #. type: kindex
 #: files.texi.orig:750
 #, no-wrap
 msgid "file-locked"
-msgstr ""
+msgstr "file-locked"
 
 #. type: itemize
 #: files.texi.orig:753
 msgid "This function may instead signal a @code{file-locked} error, in which case the change that the user was about to make does not take place."
-msgstr ""
+msgstr "この関数は、かわりにエラー@code{file-locked}をシグナルする。この場合、ユーザーが行おうとしていた変更は行われない。"
 
 #. type: itemize
 #: files.texi.orig:755
 msgid "The error message for this error looks like this:"
-msgstr ""
+msgstr "このエラーにたいするエラーメッセージは、以下のようになる:"
 
 #. type: example
 #: files.texi.orig:758
 #, no-wrap
 msgid "@error{} File is locked: @var{file} @var{other-user}\n"
-msgstr ""
+msgstr "@error{} File is locked: @var{file} @var{other-user}\n"
 
 #. type: itemize
 #: files.texi.orig:763
 msgid "where @code{file} is the name of the file and @var{other-user} is the name of the user who has locked the file."
-msgstr ""
+msgstr "ここで、@code{file}はファイル名、@var{other-user}はそのファイルのロックを所有するユーザーの名前である。"
 
 #. type: defun
 #: files.texi.orig:767
 msgid "If you wish, you can replace the @code{ask-user-about-lock} function with your own version that makes the decision in another way."
-msgstr ""
+msgstr "望むなら、他の方法で判定を行う独自のバージョンで、@code{ask-user-about-lock}関数を置き換えることができる。"
 
 #. type: cindex
 #: files.texi.orig:771
