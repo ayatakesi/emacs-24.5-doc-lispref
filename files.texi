@@ -480,25 +480,19 @@ Time}を参照してください。
 @section Information about Files
 @cindex file, information about
 
-  This section describes the functions for retrieving various types of
-information about files (or directories or symbolic links), such as whether
-a file is readable or writable, and its size.  These functions all take
-arguments which are file names.  Except where noted, these arguments need to
-specify existing files, or an error is signaled.
+  このセクションでは、ファイル(またはディレクトリーやシンボリックリンク)に関して、ファイルが読み込み可能か、書き込み可能か、あるいはファイルのサイズなｍのような、さまざまなタイプの情報を取得する関数を説明します。これらの関数はすべて、引数にファイルの名前を取ります。注記した場合を除き、これらの引数には既存のファイルを指定する必要があり、ファイルが存在しない場合はエラーをシグナルします。
 
 @cindex file names, trailing whitespace
 @cindex trailing blanks in file names
-  Be careful with file names that end in spaces.  On some filesystems
-(notably, MS-Windows), trailing whitespace characters in file names are
-silently and automatically ignored.
+  スペースで終わるファイル名には気をつけてください。いくつかのファイルシステム(特にMS-Windows)では、ファイル名の末尾の空白文字は、暗黙かつ自動的に無視されます。
 
 @menu
-* Testing Accessibility::    Is a given file readable? Writable?
-* Kinds of Files::           Is it a directory? A symbolic link?
-* Truenames::                Eliminating symbolic links from a file name.
-* File Attributes::          File sizes, modification times, etc.
-* Extended Attributes::      Extended file attributes for access control.
-* Locating Files::           How to find a file in standard places.
+* Testing Accessibility::    そのファイルは読み取り可能か？書き込み可能か？
+* Kinds of Files::           それはディレクトリー？それともシンボリックリンク？
+* Truenames::                シンボリックリンクが行き着くファイル名。
+* File Attributes::          ファイルのサイズ？更新日時など。
+* Extended Attributes::      アクセス制御にたいするファイル属性の拡張。
+* Locating Files::           標準的な場所でファイルを見つける方法。
 @end menu
 
 @node Testing Accessibility
@@ -506,53 +500,32 @@ silently and automatically ignored.
 @cindex accessibility of a file
 @cindex file accessibility
 
-  These functions test for permission to access a file for reading, writing,
-or execution.  Unless explicitly stated otherwise, they recursively follow
-symbolic links for their file name arguments, at all levels (at the level of
-the file itself and at all levels of parent directories).
+  以下の関数は、あるファイルを読み取り、書き込み、実行するための権限をテストします。明示しない限り、これらの関数はファイル名引数にたいするシンボリックリンクを、すべてのレベル(ファイル自身のレベルおよび親ディレクトリーのレベル)において再帰的に辿ります。
 
-  On some operating systems, more complex sets of access permissions can be
-specified, via mechanisms such as Access Control Lists (ACLs).
-@xref{Extended Attributes}, for how to query and set those permissions.
+  いくつかのオペレーティングシステムでは、ACL(Access Control Lists:
+アクセス制御リスト)のような機構を通じて、より複雑なアクセス権限セットが指定できます。それらの権限にたいする問い合わせやセットの方法については、@ref{Extended
+Attributes}を参照してください。
 
 @defun file-exists-p filename
-This function returns @code{t} if a file named @var{filename} appears to
-exist.  This does not mean you can necessarily read the file, only that you
-can find out its attributes.  (On Unix and GNU/Linux, this is true if the
-file exists and you have execute permission on the containing directories,
-regardless of the permissions of the file itself.)
+この関数は、ファイル名@var{filename}が存在しているようなら@code{t}をリターンする。これは、そのファイルが読み取り可能である必要はなく、ファイルの属性を調べることが可能なこと意味する(UnixおよびGNU/Linuではなく、そのファイルが存在し、かつそのファイルを含むディレクトリーの実行権限をもつ場合に@code{t}となり、そのファイル自体の権限は無関係である)。
 
-If the file does not exist, or if access control policies prevent you from
-finding its attributes, this function returns @code{nil}.
+ファイルが存在しない、またはACLポリシーがファイル属性を調べることを禁止する場合、この関数は@code{nil}をリターンする。
 
-Directories are files, so @code{file-exists-p} returns @code{t} when given a
-directory name.  However, symbolic links are treated specially;
-@code{file-exists-p} returns @code{t} for a symbolic link name only if the
-target file exists.
+ディレクトリーはファイルなので、ディレクトリー名が与えられた場合、@code{file-exists-p}は@code{t}をリターンする。しかし、シンボリックリンクは特別に扱われる。@code{file-exists-p}はターゲットファイルが存在する場合のみ、シンボリックリンクにたいして@code{t}をリターンする。
 @end defun
 
 @defun file-readable-p filename
-This function returns @code{t} if a file named @var{filename} exists and you
-can read it.  It returns @code{nil} otherwise.
+この関数は、@var{filename}という名前のファイルが存在し、それを読み取ることが可能な場合は@code{t}をリターンする。それ以外は@code{nil}をリターンする。
 @end defun
 
 @defun file-executable-p filename
-This function returns @code{t} if a file named @var{filename} exists and you
-can execute it.  It returns @code{nil} otherwise.  On Unix and GNU/Linux, if
-the file is a directory, execute permission means you can check the
-existence and attributes of files inside the directory, and open those files
-if their modes permit.
+この関数は、@var{filename}という名前のファイルが存在し、それを実行することが可能な場合は@code{t}をリターンする。それ以外は@code{nil}をリターンする。UnixおよびGNU/Linuxシステムでは、そのファイルがディレクトリーの場合、実行権限はディレクトリー内のファイルの存在と属性をチェックでき、ファイルのモードが許せばオープンできることを意味する。
 @end defun
 
 @defun file-writable-p filename
-This function returns @code{t} if the file @var{filename} can be written or
-created by you, and @code{nil} otherwise.  A file is writable if the file
-exists and you can write it.  It is creatable if it does not exist, but the
-specified directory does exist and you can write in that directory.
+この関数は、@var{filename}という名前のファイルに書き込み可能、または作成可能可能な場合は@code{t}をリターンする。それ以外は@code{nil}をリターンする。ファイルが存在し、それに書き込むことができるなら、ファイルは書き込み可能である。ファイルが存在せず、指定されたディレクトリーが存在して、そのディレクトリーに書き込むことができるなら、書き込み可能である。
 
-In the example below, @file{foo} is not writable because the parent
-directory does not exist, even though the user could create such a
-directory.
+以下の例では、@file{foo}は親ディレクトリーが存在しないので、たとえユーザーがそのディレクトリーを作成可能であっても、ファイルは書き込み可能ではない。
 
 @example
 @group
@@ -563,15 +536,9 @@ directory.
 @end defun
 
 @defun file-accessible-directory-p dirname
-This function returns @code{t} if you have permission to open existing files
-in the directory whose name as a file is @var{dirname}; otherwise (or if
-there is no such directory), it returns @code{nil}.  The value of
-@var{dirname} may be either a directory name (such as @file{/foo/}) or the
-file name of a file which is a directory (such as @file{/foo}, without the
-final slash).
+この関数は、ファイルとしての名前が@var{dirname}であるようなディレクトリー内にある既存のファイル和オープンする権限がある場合は、@code{t}をリターンする。それ以外(またはそのようなディレクトリーが存在しない場合)は@code{nil}をリターンする。@var{dirname}の値はディレクトリー名(@file{/foo/}など)、または名前がディレクトリー(最後のスラッシュがない@file{/foo}など)であるようなファイルである。
 
-For example, from the following we deduce that any attempt to read a file in
-@file{/foo/} will give an error:
+たとえば、以下では@file{/foo/}内の任意のファイルを読み取る試みは、エラーになると推測される:
 
 @example
 (file-accessible-directory-p "/foo")
@@ -580,23 +547,16 @@ For example, from the following we deduce that any attempt to read a file in
 @end defun
 
 @defun access-file filename string
-This function opens file @var{filename} for reading, then closes it and
-returns @code{nil}.  However, if the open fails, it signals an error using
-@var{string} as the error message text.
+この関数は、読み取り用にファイル@var{filename}をオープンして、クローズした後に@code{nil}をリターンする。しかし、オープンに失敗した場合は、@var{string}をエラーメッセージのテキストに使用して、エラーをシグナルする。
 @end defun
 
 @defun file-ownership-preserved-p filename &optional group
-This function returns @code{t} if deleting the file @var{filename} and then
-creating it anew would keep the file's owner unchanged.  It also returns
-@code{t} for nonexistent files.
+この関数は、ファイル@var{filename}を削除して、それを新たに作成しても、そのファイルの所有者が変更されずに維持される場合は、@code{t}をリターンする。これは、存在しないファイルにたいしても@code{t}をリターンする。
 
-If the optional argument @var{group} is non-@code{nil}, this function also
-checks that the file's group would be unchanged.
+オプション引数@var{group}が非@code{nil}の場合、この関数はファイルのグループが変更されないこともチェックする。
 
-If @var{filename} is a symbolic link, then, unlike the other functions
-discussed here, @code{file-ownership-preserved-p} does @emph{not} replace
-@var{filename} with its target.  However, it does recursively follow
-symbolic links at all levels of parent directories.
+@var{filename}がシンボリックリンクの場合は、ここで述べる他の関数と異なり、@code{file-ownership-preserved-p}は@var{filename}をリンク先のファイルで@emph{置き換えない}。しかし、この関数は親ディレクトリーのすべての階層において、シンボリックリンクを再帰的にフォローする(follow:
+辿る)。
 @end defun
 
 @defun file-modes filename
@@ -604,30 +564,23 @@ symbolic links at all levels of parent directories.
 @cindex file permissions
 @cindex permissions, file
 @cindex file modes
-This function returns the @dfn{mode bits} of @var{filename}---an integer
-summarizing its read, write, and execution permissions.  Symbolic links in
-@var{filename} are recursively followed at all levels.  If the file does not
-exist, the return value is @code{nil}.
+この関数は、@var{filename}の@dfn{モードビット(mode
+bits)}をリターンする。これは読み取り、書き込み、実行の権限を要約する整数である。@var{filename}でのシンボリックリンクは、すべての階層において再帰的にフォローされる。ファイルが存在しない場合のリターン値は@code{nil}である。
 
-@xref{File permissions,,, coreutils, The @sc{gnu} @code{Coreutils} Manual},
-for a description of mode bits.  For example, if the low-order bit is 1, the
-file is executable by all users; if the second-lowest-order bit is 1, the
-file is writable by all users; etc.  The highest possible value is 4095
-(7777 octal), meaning that everyone has read, write, and execute permission,
-the @acronym{SUID} bit is set for both others and group, and the sticky bit
-is set.
+モードビットの説明は、@xref{File permissions,,, coreutils, The @sc{gnu}
+@code{Coreutils}
+Manual}を参照のこと。たとえば最下位ビットが1なら、そのファイルは実行可能、2ビット目が1なら書き込み可能、...となる。設定できる最大の値は4095(8進の7777)であり、これはすべてのユーザーが読み取り、書き込み、実行の権限をもち、他のユーザーとグループにたいして@acronym{SUID}ビット、およびstickyビットがセットされる。
 
-@xref{Changing Files}, for the @code{set-file-modes} function, which can be
-used to set these permissions.
+これらの権限のセットに使用される@code{set-file-modes}関数については、@ref{Changing Files}を参照のこと。
 
 @example
 @group
 (file-modes "~/junk/diffs")
-     @result{} 492               ; @r{Decimal integer.}
+     @result{} 492               ; @r{10進整数}
 @end group
 @group
 (format "%o" 492)
-     @result{} "754"             ; @r{Convert to octal.}
+     @result{} "754"             ; @r{8進に変換した値}
 @end group
 
 @group
@@ -643,14 +596,9 @@ $ ls -l diffs
 
 @cindex MS-DOS and file modes
 @cindex file modes and MS-DOS
-@strong{MS-DOS note:} On MS-DOS, there is no such thing as an ``executable''
-file mode bit.  So @code{file-modes} considers a file executable if its name
-ends in one of the standard executable extensions, such as @file{.com},
-@file{.bat}, @file{.exe}, and some others.  Files that begin with the
-Unix-standard @samp{#!} signature, such as shell and Perl scripts, are also
-considered executable.  Directories are also reported as executable, for
-compatibility with Unix.  These conventions are also followed by
-@code{file-attributes} (@pxref{File Attributes}).
+@strong{MS-DOSにたいする注意:}
+MS-DOSでは、``実行可能''を表すようなファイルのモードビットは存在しない。そのため、@code{file-modes}はファイル名が@file{.com}、@file{.bat}、@file{.exe}などのような標準的な実行可能な拡張子のいずれかで終わる場合は、ファイルを実行可能であると判断する。Unix標準の@samp{#!}署名で始まるshellスクリプトやPerlスクリプトも、実行可能と判断される。Unixとの互換性のために、ディレクトリーも実行可能と報告される。@code{file-attributes}(@ref{File
+Attributes}を参照)も、これらの慣習にしたがう。
 @end defun
 
 @node Kinds of Files
