@@ -692,71 +692,42 @@ Name Expansion}を参照)を使用することもできないからである。
 @subsection Truenames
 @cindex truename (of file)
 
-  The @dfn{truename} of a file is the name that you get by following symbolic
-links at all levels until none remain, then simplifying away @samp{.}@: and
-@samp{..}@: appearing as name components.  This results in a sort of
-canonical name for the file.  A file does not always have a unique truename;
-the number of distinct truenames a file has is equal to the number of hard
-links to the file.  However, truenames are useful because they eliminate
-symbolic links as a cause of name variation.
+  ファイルの@dfn{実名(truename)}とは、全階層においてシンボリックリンクを残らずフォローした後、名前要素に出現する@samp{.}と@samp{..}を除いて簡略化した名前のことです。これは、そのファイルにたいする正規名(canonical
+name)の一種です。ファイルが常に一意な実名をもつ訳ではありません。あるファイルにたいする異なる実名の個数は、そのファイルにたいするハードリンクの個数と同じです。しかし、実名はシンボリックリンクによる名前の変動を解消するのに有用です。
 
 @defun file-truename filename
-This function returns the truename of the file @var{filename}.  If the
-argument is not an absolute file name, this function first expands it
-against @code{default-directory}.
+この関数は、ファイル@var{filename}の実名をリターンする。引数が絶対ファイル名でない場合、この関数は最初に@code{default-directory}にたいしてこれを展開する。
 
-This function does not expand environment variables.  Only
-@code{substitute-in-file-name} does that.  @xref{Definition of
-substitute-in-file-name}.
+この関数は、環境変数を展開しない。これを行うのは@code{substitute-in-file-name}だけである。@ref{Definition
+of substitute-in-file-name}を参照のこと。
 
-If you may need to follow symbolic links preceding @samp{..}@: appearing as
-a name component, call @code{file-truename} without prior direct or indirect
-calls to @code{expand-file-name}.  Otherwise, the file name component
-immediately preceding @samp{..} will be ``simplified away'' before
-@code{file-truename} is called.  To eliminate the need for a call to
-@code{expand-file-name}, @code{file-truename} handles @samp{~} in the same
-way that @code{expand-file-name} does.  @xref{File Name Expansion,,
-Functions that Expand Filenames}.
+名前要素に出現する@samp{..}に先行するシンボリックリンクリンクをフォローする必要がある場合は、直接間接を問わず@code{expand-file-name}を呼び出す前に、@code{file-truename}を呼び出すこと。そうしないと、@samp{..}の直前にある名前要素は、@code{file-truename}が呼び出される前に``簡略化''により取り除かれてしまう。@code{expand-file-name}呼び出しの必要を無くすため、@code{file-truename}は@code{expand-file-name}が行うのと同じ方法で@samp{~}を扱う。@ref{File
+Name Expansion,, Functions that Expand Filenames}を参照のこと。
 @end defun
 
 @defun file-chase-links filename &optional limit
-This function follows symbolic links, starting with @var{filename}, until it
-finds a file name which is not the name of a symbolic link.  Then it returns
-that file name.  This function does @emph{not} follow symbolic links at the
-level of parent directories.
+この関数は、@var{filename}で始まるシンボリックリンクを、シンボリックリンクではない名前のファイル名までフォローして、そのファイル名をリターンする。この関数は、親ディレクトリーの階層にあるシンボリックリンクをフォロー@emph{しない}。
 
-If you specify a number for @var{limit}, then after chasing through that
-many links, the function just returns what it has even if that is still a
-symbolic link.
+@var{limit}に数を指定した場合は、その数のリンクを追跡した後、この関数はたとえそれが依然としてシンボリックリンクであっても、それをリターンする。
 @end defun
 
-  To illustrate the difference between @code{file-chase-links} and
-@code{file-truename}, suppose that @file{/usr/foo} is a symbolic link to the
-directory @file{/home/foo}, and @file{/home/foo/hello} is an ordinary file
-(or at least, not a symbolic link) or nonexistent.  Then we would have:
+  @code{file-chase-links}と@code{file-truename}の違いを説明するために、@file{/usr/foo}がディレクトリー@file{/home/foo}へのシンボリックリンクであり、@file{/home/foo/hello}が(少なくともシンボリックリンクではない)通常ファイル、または存在しないファイルであるとします。この場合は以下のようになります:
 
 @example
 (file-chase-links "/usr/foo/hello")
-     ;; @r{This does not follow the links in the parent directories.}
+     ;; @r{親ディレクトリーのリンクはフォローしない}
      @result{} "/usr/foo/hello"
 (file-truename "/usr/foo/hello")
-     ;; @r{Assuming that @file{/home} is not a symbolic link.}
+     ;; @r{@file{/home}はシンボリックリンクではないと仮定}
      @result{} "/home/foo/hello"
 @end example
 
 @defun file-equal-p file1 file2
-This function returns @code{t} if the files @var{file1} and @var{file2} name
-the same file.  This is similar to comparing their truenames, except that
-remote file names are also handled in an appropriate manner.  If @var{file1}
-or @var{file2} does not exist, the return value is unspecified.
+この関数は、ファイル@var{file1}と@var{file2}の名前が同じファイルの場合は@code{t}をリターンする。これは、リモートファイル名も適切な方法で処理することを除き、実名の比較と似ている。@var{file1}または@var{file2}が存在しない場合、リターン値は不定である。
 @end defun
 
 @defun file-in-directory-p file dir
-This function returns @code{t} if @var{file} is a file in directory
-@var{dir}, or in a subdirectory of @var{dir}.  It also returns @code{t} if
-@var{file} and @var{dir} are the same directory.  It compares the truenames
-of the two directories.  If @var{dir} does not name an existing directory,
-the return value is @code{nil}.
+この関数は、@var{file}がディレクトリー@var{dir}内のファイル、またはサブディレクトリーの場合は、@code{t}をリターンする。また、@var{file}と@var{dir}が同じディレクトリーの場合も、@code{t}をリターンする。この関数は、2つのディレクトリーの実名を比較する。@var{dir}が既存のディレクトリーの名前でない場合、リターン値は@code{nil}である。
 @end defun
 
 @node File Attributes
