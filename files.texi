@@ -693,7 +693,7 @@ Name Expansion}を参照)を使用することもできないからである。
 @subsection Truenames
 @cindex truename (of file)
 
-  ファイルの@dfn{実名(truename)}とは、全階層においてシンボリックリンクを残らずフォローした後、名前要素に出現する@samp{.}と@samp{..}を除いて簡略化した名前のことです。これは、そのファイルにたいする正規名(canonical
+  ファイルの@dfn{実名(truename)}とは、全階層においてシンボリックリンクを残らずフォローした後、名前コンポーネントに出現する@samp{.}と@samp{..}を除いて簡略化した名前のことです。これは、そのファイルにたいする正規名(canonical
 name)の一種です。ファイルが常に一意な実名をもつ訳ではありません。あるファイルにたいする異なる実名の個数は、そのファイルにたいするハードリンクの個数と同じです。しかし、実名はシンボリックリンクによる名前の変動を解消するのに有用です。
 
 @defun file-truename filename
@@ -702,7 +702,7 @@ name)の一種です。ファイルが常に一意な実名をもつ訳ではあ
 この関数は、環境変数を展開しない。これを行うのは@code{substitute-in-file-name}だけである。@ref{Definition
 of substitute-in-file-name}を参照のこと。
 
-名前要素に出現する@samp{..}に先行するシンボリックリンクリンクをフォローする必要がある場合は、直接間接を問わず@code{expand-file-name}を呼び出す前に、@code{file-truename}を呼び出すこと。そうしないと、@samp{..}の直前にある名前要素は、@code{file-truename}が呼び出される前に``簡略化''により取り除かれてしまう。@code{expand-file-name}呼び出しの必要を無くすため、@code{file-truename}は@code{expand-file-name}が行うのと同じ方法で@samp{~}を扱う。@ref{File
+名前コンポーネントに出現する@samp{..}に先行するシンボリックリンクリンクをフォローする必要がある場合は、直接間接を問わず@code{expand-file-name}を呼び出す前に、@code{file-truename}を呼び出すこと。そうしないと、@samp{..}の直前にある名前コンポーネントは、@code{file-truename}が呼び出される前に``簡略化''により取り除かれてしまう。@code{expand-file-name}呼び出しの必要を無くすため、@code{file-truename}は@code{expand-file-name}が行うのと同じ方法で@samp{~}を扱う。@ref{File
 Name Expansion,, Functions that Expand Filenames}を参照のこと。
 @end defun
 
@@ -1070,7 +1070,7 @@ $ ls -li fo*
 @end deffn
 
 @deffn Command copy-file oldname newname &optional ok-if-exists time preserve-uid-gid preserve-extended-attributes
-このコマンドは、ファイル@var{oldname}を@var{newname}にコピーする。@var{oldname}が存在しない場合は、エラーをシグナルする。@var{newname}がディレクトリーの場合は、その最後の名前要素を保持するように、そのディレクトリーの中に@var{oldname}をコピーする。
+このコマンドは、ファイル@var{oldname}を@var{newname}にコピーする。@var{oldname}が存在しない場合は、エラーをシグナルする。@var{newname}がディレクトリーの場合は、その最後の名前コンポーネントを保持するように、そのディレクトリーの中に@var{oldname}をコピーする。
 
 @var{time}が非@code{nil}の場合、この関数は新たなファイルにたいして、古いファイルと同じ最終変更時刻を与える(これはいくつかの限られたオペレーティングシステムでのみ機能する)。時刻のセットでエラーが発生した場合、@code{copy-file}は@code{file-date-error}エラーをシグナルする。インタラクティブに呼び出された場合、プレフィックス引数は@var{time}にたいして非@code{nil}値を指定する。
 
@@ -1181,45 +1181,27 @@ Attributes}を参照されたい。
 @section File Names
 @cindex file names
 
-  Files are generally referred to by their names, in Emacs as elsewhere.  File
-names in Emacs are represented as strings.  The functions that operate on a
-file all expect a file name argument.
+  ファイルは一般的に名前で参照され、Emacsでも他と同様です。Emacsでは、ファイル名は文字列で表現されます。ファイルを操作する関数はすべて、ファイル名引数に文字列を期待します。
 
-  In addition to operating on files themselves, Emacs Lisp programs often need
-to operate on file names; i.e., to take them apart and to use part of a name
-to construct related file names.  This section describes how to manipulate
-file names.
+  ファイル自体の操作に加えて、Emacs
+Lispプログラムでファイル名を処理する必要(ファイル名の一部を取得して、関連するファイル名構築にその一部を使用する等)がしばしばあります。このセクションでは、ファイル名を扱う方法を説明します。
 
-  The functions in this section do not actually access files, so they can
-operate on file names that do not refer to an existing file or directory.
+  このセクションの関数は実際にファイルにアクセスする訳ではないので、既存のファイルやディレクトリーを参照しないファイル名を処理できます。
 
 @findex cygwin-convert-file-name-from-windows
 @findex cygwin-convert-file-name-to-windows
 @cindex MS-Windows file-name syntax
 @cindex converting file names from/to MS-Windows syntax
-  On MS-DOS and MS-Windows, these functions (like the function that actually
-operate on files) accept MS-DOS or MS-Windows file-name syntax, where
-backslashes separate the components, as well as Unix syntax; but they always
-return Unix syntax.  This enables Lisp programs to specify file names in
-Unix syntax and work properly on all systems without change.@footnote{In
-MS-Windows versions of Emacs compiled for the Cygwin environment, you can
-use the functions @code{cygwin-convert-file-name-to-windows} and
-@code{cygwin-convert-file-name-from-windows} to convert between the two
-file-name syntaxes.}
+  MS-DOSおよびMS-Windowsでは、これらの関数は(実際にファイルを操作する関数と同様)、MS-DOSおよびMS-Windowsのファイル名構文を受け入れます。この構文はUnix構文のようにバックスラッシュでコンポーネントを区切りますが、これらの関数は常にUnix構文をリターンします。これにより、Unix構文でファイル名を指定するLispプログラムが、変更なしですべてのシステムで正しく機能することが可能になるのです。@footnote{MS-WindowsバージョンのEmacsはCygwin環境用にコンパイルされており、2つのファイル名構文の変換に、@code{cygwin-convert-file-name-to-windows}と@code{cygwin-convert-file-name-from-windows}を使用できます。}
 
 @menu
-* File Name Components::     The directory part of a file name, and the 
-                               rest.
-* Relative File Names::      Some file names are relative to a current 
-                               directory.
-* Directory Names::          A directory's name as a directory is different 
-                               from its name as a file.
-* File Name Expansion::      Converting relative file names to absolute 
-                               ones.
-* Unique File Names::        Generating names for temporary files.
-* File Name Completion::     Finding the completions for a given file name.
-* Standard File Names::      If your package uses a fixed file name, how to 
-                               handle various operatingsystems simply.
+* File Name Components::     ファイル名のディレクトリー部分と、それ以外。
+* Relative File Names::      カレントディレクトリーにたいして相対的なファイル名。
+* Directory Names::          ディレクトリーとしてのディレクトリー名と、ファイルとしてのファイル名の違い。
+* File Name Expansion::      相対ファイル名から絶対ファイル名への変換。
+* Unique File Names::        一時ファイル用の名前の生成。
+* File Name Completion::     与えられたファイル名にたいする補完を探す。
+* Standard File Names::      パッケージが固定されたファイル名を使用する際に、種々のオペレーティングシステムをシンプルに処理する方法。
 @end menu
 
 @node File Name Components
