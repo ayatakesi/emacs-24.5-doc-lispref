@@ -500,14 +500,14 @@ Time}を参照してください。
 @cindex accessibility of a file
 @cindex file accessibility
 
-  以下の関数は、あるファイルを読み取り、書き込み、実行するための権限をテストします。明示しない限り、これらの関数はファイル名引数にたいするシンボリックリンクを、すべてのレベル(ファイル自身のレベルおよび親ディレクトリーのレベル)において再帰的に辿ります。
+  以下の関数は、あるファイルを読み取り、書き込み、実行するためのパーミッションをテストします。明示しない限り、これらの関数はファイル名引数にたいするシンボリックリンクを、すべてのレベル(ファイル自身のレベルおよび親ディレクトリーのレベル)において再帰的にフォローします。
 
   いくつかのオペレーティングシステムでは、ACL(Access Control Lists:
-アクセス制御リスト)のような機構を通じて、より複雑なアクセス権限セットが指定できます。それらの権限にたいする問い合わせやセットの方法については、@ref{Extended
+アクセス制御リスト)のような機構を通じて、より複雑なアクセスパーミッションセットが指定できます。それらのパーミッションにたいする問い合わせやセットの方法については、@ref{Extended
 Attributes}を参照してください。
 
 @defun file-exists-p filename
-この関数は、ファイル名@var{filename}が存在しているようなら@code{t}をリターンする。これは、そのファイルが読み取り可能である必要はなく、ファイルの属性を調べることが可能なこと意味する(UnixおよびGNU/Linuではなく、そのファイルが存在し、かつそのファイルを含むディレクトリーの実行権限をもつ場合に@code{t}となり、そのファイル自体の権限は無関係である)。
+この関数は、ファイル名@var{filename}が存在しているようなら@code{t}をリターンする。これは、そのファイルが読み取り可能である必要はなく、ファイルの属性を調べることが可能なこと意味する(UnixおよびGNU/Linuではなく、そのファイルが存在し、かつそのファイルを含むディレクトリーの実行パーミッションをもつ場合に@code{t}となり、そのファイル自体のパーミッションは無関係である)。
 
 ファイルが存在しない、またはACLポリシーがファイル属性を調べることを禁止する場合、この関数は@code{nil}をリターンする。
 
@@ -519,7 +519,7 @@ Attributes}を参照してください。
 @end defun
 
 @defun file-executable-p filename
-この関数は、@var{filename}という名前のファイルが存在し、それを実行することが可能な場合は@code{t}をリターンする。それ以外は@code{nil}をリターンする。UnixおよびGNU/Linuxシステムでは、そのファイルがディレクトリーの場合、実行権限はディレクトリー内のファイルの存在と属性をチェックでき、ファイルのモードが許せばオープンできることを意味する。
+この関数は、@var{filename}という名前のファイルが存在し、それを実行することが可能な場合は@code{t}をリターンする。それ以外は@code{nil}をリターンする。UnixおよびGNU/Linuxシステムでは、そのファイルがディレクトリーの場合、実行パーミッションはディレクトリー内のファイルの存在と属性をチェックでき、ファイルのモードが許せばオープンできることを意味する。
 @end defun
 
 @defun file-writable-p filename
@@ -536,7 +536,7 @@ Attributes}を参照してください。
 @end defun
 
 @defun file-accessible-directory-p dirname
-この関数は、ファイルとしての名前が@var{dirname}であるようなディレクトリー内にある既存のファイル和オープンする権限がある場合は、@code{t}をリターンする。それ以外(またはそのようなディレクトリーが存在しない場合)は@code{nil}をリターンする。@var{dirname}の値はディレクトリー名(@file{/foo/}など)、または名前がディレクトリー(最後のスラッシュがない@file{/foo}など)であるようなファイルである。
+この関数は、ファイルとしての名前が@var{dirname}であるようなディレクトリー内にある既存のファイルをオープンするパーミッションをもつ場合は、@code{t}をリターンする。それ以外(またはそのようなディレクトリーが存在しない場合)は@code{nil}をリターンする。@var{dirname}の値はディレクトリー名(@file{/foo/}など)、または名前がディレクトリー(最後のスラッシュがない@file{/foo}など)であるようなファイルである。
 
 たとえば、以下では@file{/foo/}内の任意のファイルを読み取る試みは、エラーになると推測される:
 
@@ -565,13 +565,14 @@ Attributes}を参照してください。
 @cindex permissions, file
 @cindex file modes
 この関数は、@var{filename}の@dfn{モードビット(mode
-bits)}をリターンする。これは読み取り、書き込み、実行の権限を要約する整数である。@var{filename}でのシンボリックリンクは、すべての階層において再帰的にフォローされる。ファイルが存在しない場合のリターン値は@code{nil}である。
+bits)}をリターンする。これは読み取り、書き込み、実行パーミッションを要約する整数である。@var{filename}でのシンボリックリンクは、すべての階層において再帰的にフォローされる。ファイルが存在しない場合のリターン値は@code{nil}である。
 
 モードビットの説明は、@xref{File permissions,,, coreutils, The @sc{gnu}
 @code{Coreutils}
-Manual}を参照のこと。たとえば最下位ビットが1なら、そのファイルは実行可能、2ビット目が1なら書き込み可能、...となる。設定できる最大の値は4095(8進の7777)であり、これはすべてのユーザーが読み取り、書き込み、実行の権限をもち、他のユーザーとグループにたいして@acronym{SUID}ビット、およびstickyビットがセットされる。
+Manual}を参照のこと。たとえば最下位ビットが1なら、そのファイルは実行可能、2ビット目が1なら書き込み可能、...となる。設定できる最大の値は4095(8進の7777)であり、これはすべてのユーザーが読み取り、書き込み、実行のパーミッションをもち、他のユーザーとグループにたいして@acronym{SUID}ビット、およびstickyビットがセットされる。
 
-これらの権限のセットに使用される@code{set-file-modes}関数については、@ref{Changing Files}を参照のこと。
+これらのパーミッションのセットに使用される@code{set-file-modes}関数については、@ref{Changing
+Files}を参照のこと。
 
 @example
 @group
@@ -905,7 +906,7 @@ $ ls -l foo*
 いくつかのオペレーティングシステムでは、それぞれのファイルを任意の@dfn{拡張ファイル属性(extended file
 attributes)}に関連付けることができます。現在のところ、Emacsは拡張ファイル属性のうち2つの特定セット(ACL: Access
 Control
-List、およびSELinuxコンテキスト)にたいする問い合わせと設定をサポートします。これらの拡張ファイル属性は、前のセクションで議論した``Unixスタイル''の基本的な権限(permission)より洗練されたファイルアクセス制御を強いるために、いくつかのシステムで利用されます。
+List、およびSELinuxコンテキスト)にたいする問い合わせと設定をサポートします。これらの拡張ファイル属性は、前のセクションで議論した``Unixスタイル''の基本的なパーミッションより洗練されたファイルアクセス制御を強いるために、いくつかのシステムで利用されます。
 
 @cindex access control list
 @cindex ACL entries
@@ -985,40 +986,30 @@ Creation}を参照)。
 @cindex linking files
 @cindex setting modes of files
 
-  The functions in this section rename, copy, delete, link, and set the modes
-(permissions) of files.
+  このセクションの関数は、ファイルのリネーム(rename:
+改名)、コピー、削除(delete)、リンク、およびモード(パーミッション)のセットを行います。
 
-  In the functions that have an argument @var{newname}, if a file by the name
-of @var{newname} already exists, the actions taken depend on the value of
-the argument @var{ok-if-already-exists}:
+  @var{newname}という引数をもつ関数では、@var{newname}という名前のファイルが既に存在する場合の振る舞いは、引数@var{ok-if-already-exists}の値に依存します。
 
 @itemize @bullet
 @item
-Signal a @code{file-already-exists} error if @var{ok-if-already-exists} is
-@code{nil}.
+@var{ok-if-already-exists}が@code{nil}の場合は、@code{file-already-exists}エラーがシグナルされる。
 
 @item
-Request confirmation if @var{ok-if-already-exists} is a number.
+@var{ok-if-already-exists}が数字の場合は、確認を求める。
 
 @item
-Replace the old file without confirmation if @var{ok-if-already-exists} is
-any other value.
+@var{ok-if-already-exists}が他の値の場合は、確認なしで古いファイルを置き換える。
 @end itemize
 
-The next four commands all recursively follow symbolic links at all levels
-of parent directories for their first argument, but, if that argument is
-itself a symbolic link, then only @code{copy-file} replaces it with its
-(recursive) target.
+以下の4つのコマンドはすべて、1つ目の引数にたいして親ディレクトリーの全階層のシンボリックリンクを再帰的にフォローしますが、その引数自体がシンボリックリンクの場合は、@code{copy-file}だけが(再帰的な)ターゲットを置き換えます。
 
 @deffn Command add-name-to-file oldname newname &optional ok-if-already-exists
 @cindex file with multiple names
 @cindex file hard link
-This function gives the file named @var{oldname} the additional name
-@var{newname}.  This means that @var{newname} becomes a new ``hard link'' to
-@var{oldname}.
+この関数は、@var{oldname}という名前のファイルに、@var{newname}という名前を追加で与える。これは@var{newname}という名前が、@var{oldname}にたいする新たな``ハードリンク''になることを意味する。
 
-In the first part of the following example, we list two files, @file{foo}
-and @file{foo3}.
+以下の例の最初の部分として、2つのファイル@file{foo}と@file{foo3}をリストする。
 
 @example
 @group
@@ -1028,8 +1019,7 @@ $ ls -li fo*
 @end group
 @end example
 
-Now we create a hard link, by calling @code{add-name-to-file}, then list the
-files again.  This shows two names for one file, @file{foo} and @file{foo2}.
+ここで、@code{add-name-to-file}を呼び出してハードリンクを作成し、再度ファイルをリストする。このリストには、1つのファイルにたいして2つの名前@file{foo}と@file{foo2}が表示される。
 
 @example
 @group
@@ -1045,16 +1035,14 @@ $ ls -li fo*
 @end group
 @end example
 
-Finally, we evaluate the following:
+最後に以下を評価する:
 
 @example
 (add-name-to-file "foo" "foo3" t)
 @end example
 
 @noindent
-and list the files again.  Now there are three names for one file:
-@file{foo}, @file{foo2}, and @file{foo3}.  The old contents of @file{foo3}
-are lost.
+そして、ファイルを再度リストする。今度は1つのファイルにたいして3つの名前@file{foo}、@file{foo2}、@file{foo3}がある。@file{foo3}の古いコンテンツは失われた。
 
 @example
 @group
@@ -1070,198 +1058,123 @@ $ ls -li fo*
 @end group
 @end example
 
-This function is meaningless on operating systems where multiple names for
-one file are not allowed.  Some systems implement multiple names by copying
-the file instead.
+この関数は、1つのファイルにたいして複数の名前をもつことが許されないオペレーティングシステムでは無意味である。いくつかのシステムでは、かわりにファイルをコピーすることにより複数の名前を実装している。
 
-See also @code{file-nlinks} in @ref{File Attributes}.
+@ref{File Attributes}の@code{file-nlinks}も参照のこと。
 @end deffn
 
 @deffn Command rename-file filename newname &optional ok-if-already-exists
-This command renames the file @var{filename} as @var{newname}.
+このコマンドは、@var{filename}を@var{newname}にリネームする。
 
-If @var{filename} has additional names aside from @var{filename}, it
-continues to have those names.  In fact, adding the name @var{newname} with
-@code{add-name-to-file} and then deleting @var{filename} has the same effect
-as renaming, aside from momentary intermediate states.
+@var{filename}が@var{filename}とは別に追加の名前をもつ場合、それらは自身の名前をもち続ける。実際のところ、@code{add-name-to-file}で名前@var{newname}を追加してから@var{filename}を削除するのは、瞬間的な遷移状態を別とすると、リネームと同じ効果がある。
 @end deffn
 
 @deffn Command copy-file oldname newname &optional ok-if-exists time preserve-uid-gid preserve-extended-attributes
-This command copies the file @var{oldname} to @var{newname}.  An error is
-signaled if @var{oldname} does not exist.  If @var{newname} names a
-directory, it copies @var{oldname} into that directory, preserving its final
-name component.
+このコマンドは、ファイル@var{oldname}を@var{newname}にコピーする。@var{oldname}が存在しない場合は、エラーをシグナルする。@var{newname}がディレクトリーの場合は、その最後の名前要素を保持するように、そのディレクトリーの中に@var{oldname}をコピーする。
 
-If @var{time} is non-@code{nil}, then this function gives the new file the
-same last-modified time that the old one has.  (This works on only some
-operating systems.)  If setting the time gets an error, @code{copy-file}
-signals a @code{file-date-error} error.  In an interactive call, a prefix
-argument specifies a non-@code{nil} value for @var{time}.
+@var{time}が非@code{nil}の場合、この関数は新たなファイルにたいして、古いファイルと同じ最終変更時刻を与える(これはいくつかの限られたオペレーティングシステムでのみ機能する)。時刻のセットでエラーが発生した場合、@code{copy-file}は@code{file-date-error}エラーをシグナルする。インタラクティブに呼び出された場合、プレフィックス引数は@var{time}にたいして非@code{nil}値を指定する。
 
-If argument @var{preserve-uid-gid} is @code{nil}, we let the operating
-system decide the user and group ownership of the new file (this is usually
-set to the user running Emacs).  If @var{preserve-uid-gid} is
-non-@code{nil}, we attempt to copy the user and group ownership of the
-file.  This works only on some operating systems, and only if you have the
-correct permissions to do so.
+引数@var{preserve-uid-gid}が@code{nil}の場合は、新たなファイルのユーザーおよびグループの所有権の決定を、オペレーティングシステムに委ねる(通常はEmacsを実行中のユーザーである)。@var{preserve-uid-gid}が非@code{nil}の場合は、そのファイルのユーザーとグループの所有権のコピーを試みる。これはいくつかのオペレーティングシステムで、かつそれを行うための正しいパーミッションをもつ場合のみ機能する。
 
-If the optional argument @var{preserve-permissions} is non-@code{nil}, this
-function copies the file modes (or ``permissions'') of @var{oldname} to
-@var{newname}, as well as the Access Control List and SELinux context (if
-any).  @xref{Information about Files}.
+オプション引数@var{preserve-permissions}が非@code{nil}の場合、この関数は@var{oldname}のファイルモード(または``パーミッション'')、同様にACL(Access
+Control List)とSELinuxコンテキストを@var{newname}にコピーする。@ref{Information about
+Files}を参照のこと。
 
-Otherwise, the file modes of @var{newname} are left unchanged if it is an
-existing file, and set to those of @var{oldname}, masked by the default file
-permissions (see @code{set-default-file-modes} below), if @var{newname} is
-to be newly created.  The Access Control List or SELinux context are not
-copied over in either case.
+それ以外では、@var{newname}が既存ファイルならファイルモードは変更されず、新たに作成された場合はデフォルトのファイルパーミッション(以下の@code{set-default-file-modes}を参照)によりマスクされる。どちらの場合も、ACLまたはSELinuxコンテキストはコピーされない。
 @end deffn
 
 @deffn Command make-symbolic-link filename newname  &optional ok-if-exists
 @pindex ln
 @kindex file-already-exists
-This command makes a symbolic link to @var{filename}, named @var{newname}.
-This is like the shell command @samp{ln -s @var{filename} @var{newname}}.
+このコマンドは、@var{filename}にたいして@var{newname}という名前のシンボリックリンクを作成する。これは、コマンド@samp{ln
+-s @var{filename} @var{newname}}と似ている。
 
-This function is not available on systems that don't support symbolic links.
+この関数は、シンボリックリンクをサポートしないシステムでは利用できない。
 @end deffn
 
 @cindex trash
 @vindex delete-by-moving-to-trash
 @deffn Command delete-file filename &optional trash
 @pindex rm
-This command deletes the file @var{filename}.  If the file has multiple
-names, it continues to exist under the other names.  If @var{filename} is a
-symbolic link, @code{delete-file} deletes only the symbolic link and not its
-target (though it does follow symbolic links at all levels of parent
-directories).
+このコマンドは、ファイル@var{filename}を削除する。ファイルが複数の名前をもつ場合は、他の名前で存在し続ける。@var{filename}がシンボリックリンクの場合、@code{delete-file}はシンボリックリンクだけを削除して、(たとえこれが親ディレクトリーの全階層のシンボリックリンクをフォローするとしても)ターゲットは削除しない。
 
-A suitable kind of @code{file-error} error is signaled if the file does not
-exist, or is not deletable.  (On Unix and GNU/Linux, a file is deletable if
-its directory is writable.)
+ファイルが存在しない、または削除できない場合は、適切な種類の@code{file-error}エラーがシグナルされる(UnixおよびGNU/Linuxでは、ファイルのディレクトリーが書き込み可能ならファイルは削除可能である)。
 
-If the optional argument @var{trash} is non-@code{nil} and the variable
-@code{delete-by-moving-to-trash} is non-@code{nil}, this command moves the
-file into the system Trash instead of deleting it.  @xref{Misc File
-Ops,,Miscellaneous File Operations, emacs, The GNU Emacs Manual}.  When
-called interactively, @var{trash} is @code{t} if no prefix argument is
-given, and @code{nil} otherwise.
+オプション引数@var{trash}が非@code{nil}、かつ変数@code{delete-by-moving-to-trash}が非@code{nil}の場合、このコマンドはファイルを削除するかわりに、システムのTrash(ゴミ箱)にファイルを移動する。@ref{Misc
+File Ops,,Miscellaneous File Operations, emacs, The GNU Emacs
+Manual}を参照のこと。インタラクティブに呼び出された際は、プレフィックス引数がない場合@var{trash}は@code{t}、それ以外は@code{nil}である。
 
-See also @code{delete-directory} in @ref{Create/Delete Dirs}.
+@ref{Create/Delete Dirs}の@code{delete-directory}も参照のこと。
 @end deffn
 
 @cindex file permissions, setting
 @cindex permissions, file
 @cindex file modes, setting
 @deffn Command set-file-modes filename mode
-This function sets the @dfn{file mode} (or @dfn{permissions}) of
-@var{filename} to @var{mode}.  It recursively follows symbolic links at all
-levels for @var{filename}.
+この関数は、@var{filename}の@dfn{ファイルモード}(または@dfn{パーミッション})を@var{mode}にセットする。この関数は、@var{filename}にたいして全階層でシンボリックリンクをフォローする。
 
-If called non-interactively, @var{mode} must be an integer.  Only the lowest
-12 bits of the integer are used; on most systems, only the lowest 9 bits are
-meaningful.  You can use the Lisp construct for octal numbers to enter
-@var{mode}.  For example,
+非インタラクティブに呼び出された場合、@var{mode}は整数でなければならない。その整数の下位12ビットだけが使用される。ほとんどのシステムでは、意味があるのは下位9ビットだけである。@var{mode}を入力刷る、Lisp構文を使用できる。たとえば、
 
 @example
 (set-file-modes #o644)
 @end example
 
 @noindent
-specifies that the file should be readable and writable for its owner,
-readable for group members, and readable for all other users.  @xref{File
-permissions,,, coreutils, The @sc{gnu} @code{Coreutils} Manual}, for a
-description of mode bit specifications.
+これは、そのファイルが所有者により読み取りと書き込み、グループメンバーにより読み取り、その他のユーザーにより読み取り可能であることを指定する。モードビットの仕様の説明は、@ref{File
+permissions,,, coreutils, The @sc{gnu} @code{Coreutils} Manual}を参照のこと。
 
-Interactively, @var{mode} is read from the minibuffer using
-@code{read-file-modes} (see below), which lets the user type in either an
-integer or a string representing the permissions symbolically.
+インタラクティブに呼び出された場合、@var{mode}は@code{read-file-modes}(以下参照)を使用してミニバッファーから読み取られる。この場合、ユーザーは整数、またはパーミッションをシンボルで表現する文字列をタイプできる。
 
-@xref{File Attributes}, for the function @code{file-modes}, which returns
-the permissions of a file.
+ファイルのパーミッションをリターンする関数@code{file-modes}については、@ref{File Attributes}を参照のこと。
 @end deffn
 
 @defun set-default-file-modes mode
 @cindex umask
-This function sets the default permissions for new files created by Emacs
-and its subprocesses.  Every file created with Emacs initially has these
-permissions, or a subset of them (@code{write-region} will not grant execute
-permissions even if the default file permissions allow execution).  On Unix
-and GNU/Linux, the default permissions are given by the bitwise complement
-of the ``umask'' value.
+この関数は、EmacsおよびEmacsのサブプロセスが新たに作成するファイルに、デフォルトのパーミッションをセットする。Emacsにより作成されたすべてのファイルはこれらのパーミッション、およびそれらのサブセットとなるパーミッションをもつ(デフォルトファイルパーミッションが実行を許可しても、@code{write-region}は実行パーミッションを付与しないだろう)。UnixおよびGNU/Linuxでは、デフォルトのパーミッションは``umask''の値のビット単位の補数で与えられる。
 
-The argument @var{mode} should be an integer which specifies the
-permissions, similar to @code{set-file-modes} above.  Only the lowest 9 bits
-are meaningful.
+引数@var{mode}は上記の@code{set-file-modes}と同様、パーミッションを指定する整数であること。下位9ビットだけに意味がある。
 
-The default file permissions have no effect when you save a modified version
-of an existing file; saving a file preserves its existing permissions.
+デフォルトのファイルパーミッションは、既存ファイルの変更されたバージョンを保存する際は効果がない。ファイルの保存では、既存のパーミッションが保持される。
 @end defun
 
 @defun default-file-modes
-This function returns the default file permissions, as an integer.
+この関数は、デフォルトのファイルモードを整数でリターンする。
 @end defun
 
 @defun read-file-modes &optional prompt base-file
-This function reads a set of file mode bits from the minibuffer.  The first
-optional argument @var{prompt} specifies a non-default prompt.  Second
-second optional argument @var{base-file} is the name of a file on whose
-permissions to base the mode bits that this function returns, if what the
-user types specifies mode bits relative to permissions of an existing file.
+この関数は、ミニバッファーからファイルモードビットのセットを読み取る。1つ目のオプション引数@var{prompt}は非デフォルトのプロンプトを指定する。2つ目のオプション引数@var{base-file}は、ユーザーが既存ファイルのパーミッションに相対的なモードビット指定をタイプした場合に、この関数がリターンするモードビッの元となる権限をもつファイルの名前を指定する。
 
-If user input represents an octal number, this function returns that
-number.  If it is a complete symbolic specification of mode bits, as in
-@code{"u=rwx"}, the function converts it to the equivalent numeric value
-using @code{file-modes-symbolic-to-number} and returns the result.  If the
-specification is relative, as in @code{"o+g"}, then the permissions on which
-the specification is based are taken from the mode bits of @var{base-file}.
-If @var{base-file} is omitted or @code{nil}, the function uses @code{0} as
-the base mode bits.  The complete and relative specifications can be
-combined, as in @code{"u+r,g+rx,o+r,g-w"}.  @xref{File permissions,,,
-coreutils, The @sc{gnu} @code{Coreutils} Manual}, for a description of file
-mode specifications.
+ユーザー入力が8進数で表される場合、この関数はその数字をリターンする。それが@code{"u=rwx"}のようなモードビットの完全なシンボル指定の場合、この関数は@code{file-modes-symbolic-to-number}を使用して、それを等価な数字に変換し、結果をリターンする。@code{"o+g"}のように相対的な指定の場合、その指定の元となるパーミッションは、@var{base-file}のモードビットから取得される。@var{base-file}が省略、または@code{nil}の場合、この関数は元となるモードビットとして@code{0}を使用する。完全指定および相対指定は、@code{"u+r,g+rx,o+r,g-w"}のように組み合わせることができる。ファイルモード指定の説明は、@ref{File
+permissions,,, coreutils, The @sc{gnu} @code{Coreutils} Manual}を参照のこと。
 @end defun
 
 @defun file-modes-symbolic-to-number modes &optional base-modes
-This function converts a symbolic file mode specification in @var{modes}
-into the equivalent integer.  If the symbolic specification is based on an
-existing file, that file's mode bits are taken from the optional argument
-@var{base-modes}; if that argument is omitted or @code{nil}, it defaults to
-0, i.e., no access rights at all.
+この関数は、@var{modes}内のシンボルによるファイルモード指定を、等価な整数に変換する。シンボル指定が既存ファイルにもとづく場合は、オプション引数@var{base-modes}からそのファイルのモードビットが取得される。その引数が省略、または@code{nil}の場合は、0(すべてのアクセスが許可されない)がデフォルトになる。
 @end defun
 
 @defun set-file-times filename &optional time
-This function sets the access and modification times of @var{filename} to
-@var{time}.  The return value is @code{t} if the times are successfully set,
-otherwise it is @code{nil}.  @var{time} defaults to the current time and
-must be in the format returned by @code{current-time} (@pxref{Time of Day}).
+この関数は、@var{filename}のアクセス時刻と変更時刻を@var{time}にセットする。時刻が正しくセットされれば@code{t}、それ以外は@code{nil}がリターン値となる。@var{time}のデフォルトはカレント時刻であり、@code{current-time}がリターンするフォーマットでなければならない(@ref{Time
+of Day}を参照)。
 @end defun
 
 @defun set-file-extended-attributes filename attribute-alist
-This function sets the Emacs-recognized extended file attributes for
-@code{filename}.  The second argument @var{attribute-alist} should be an
-alist of the same form returned by @code{file-extended-attributes}.
-@xref{Extended Attributes}.
+この関数は、@code{filename}にたいしてEmacsが認識する拡張ファイル属性をセットする。2つ目の引数@var{attribute-alist}は、@code{file-extended-attributes}がリターンするalistと同じ形式であること。@ref{Extended
+Attributes}を参照のこと。
 @end defun
 
 @defun set-file-selinux-context filename context
-This function sets the SELinux security context for @var{filename} to
-@var{context}.  The @var{context} argument should be a list
-@code{(@var{user} @var{role} @var{type} @var{range})}, where each element is
-a string.  @xref{Extended Attributes}.
+この関数は、@var{filename}にたいするSELinuxセキュリティコンテキストに@var{context}をセットする。@var{context}引数は、各要素が文字列であるような@code{(@var{user}
+@var{role} @var{type} @var{range})}というリストであること。@ref{Extended
+Attributes}を参照されたい。
 
-The function returns @code{t} if it succeeds in setting the SELinux context
-of @var{filename}.  It returns @code{nil} if the context was not set (e.g.,
-if SELinux is disabled, or if Emacs was compiled without SELinux support).
+この関数は、@var{filename}のSELinuxコンテキストのセットに成功した場合は@code{t}をリターンする。コンテキストがセットされなかった場合(SELinuxが無効、またはEmacsがSELinuxサポートなしでコンパイルされた場合等)は、@code{nil}をリターンする。
 @end defun
 
 @defun set-file-acl filename acl
-This function sets the Access Control List for @var{filename} to @var{acl}.
-The @var{acl} argument should have the same form returned by the function
-@code{file-acl}.  @xref{Extended Attributes}.
+この関数は、@var{filename}にたいするACLに@var{acl}をセットする。@var{acl}引数は、関数@code{file-acl}がリターンするのと同じ形式であること。@ref{Extended
+Attributes}を参照されたい。
 
-The function returns @code{t} if it successfully sets the ACL of
-@var{filename}, @code{nil} otherwise.
+この関数は@var{filename}のACLのセットに成功したら@code{t}、それ以外は@code{nil}をリターンする。
 @end defun
 
 @node File Names
@@ -2189,12 +2102,9 @@ the directory contains any files, @code{delete-directory} signals an error.
 @code{delete-directory} only follows symbolic links at the level of parent
 directories.
 
-If the optional argument @var{trash} is non-@code{nil} and the variable
-@code{delete-by-moving-to-trash} is non-@code{nil}, this command moves the
-file into the system Trash instead of deleting it.  @xref{Misc File
-Ops,,Miscellaneous File Operations, emacs, The GNU Emacs Manual}.  When
-called interactively, @var{trash} is @code{t} if no prefix argument is
-given, and @code{nil} otherwise.
+オプション引数@var{trash}が非@code{nil}、かつ変数@code{delete-by-moving-to-trash}が非@code{nil}の場合、このコマンドはファイルを削除するかわりに、システムのTrash(ゴミ箱)にファイルを移動する。@ref{Misc
+File Ops,,Miscellaneous File Operations, emacs, The GNU Emacs
+Manual}を参照のこと。インタラクティブに呼び出された際は、プレフィックス引数がない場合@var{trash}は@code{t}、それ以外は@code{nil}である。
 @end deffn
 
 @node Magic File Names
