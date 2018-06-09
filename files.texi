@@ -1210,43 +1210,33 @@ Lispプログラムでファイル名を処理する必要(ファイル名の一
 @cindex nondirectory part (of file name)
 @cindex version number (in file name)
 
-  The operating system groups files into directories.  To specify a file, you
-must specify the directory and the file's name within that directory.
-Therefore, Emacs considers a file name as having two main parts: the
-@dfn{directory name} part, and the @dfn{nondirectory} part (or @dfn{file
-name within the directory}).  Either part may be empty.  Concatenating these
-two parts reproduces the original file name.
+  オペレーティングシステムは、ファイルをディレクトリーにグループ化します。あるファイルを指定するためには、ディレクトリーと、そのディレクトリー内でのファイルの名前を指定しなければなりません。それゆえ、Emacsはファイル名を@dfn{ディレクトリー名}パートと@dfn{非ディレクトリー}(または@dfn{ディレクトリー内ファイル名})パートという、2つの主要パートから判断します。どちらのパートも空の場合があり得ます。これら2つのパートを結合することにより、元のファイル名が再作成されます。
 
-  On most systems, the directory part is everything up to and including the
-last slash (backslash is also allowed in input on MS-DOS or MS-Windows); the
-nondirectory part is the rest.
+  ほとんどのシステムでは、最後のスラッシュ(MS-DOSおよびMS-Windowsではバックスラッシュも許される)までのすべてがディレクトリーパートです。残りが非ディレクトリーパートです。
 
-  For some purposes, the nondirectory part is further subdivided into the name
-proper and the @dfn{version number}.  On most systems, only backup files
-have version numbers in their names.
+  ある目的のために、非ディレクトリーパートはさらに正式名称(the name
+proper)と@dfn{バージョン番号}に細分されます。ほとんどのシステムでは、名前にバージョン番号をもつのは、バックアップファイルだけです。
 
 @defun file-name-directory filename
-This function returns the directory part of @var{filename}, as a directory
-name (@pxref{Directory Names}), or @code{nil} if @var{filename} does not
-include a directory part.
+この関数は、@var{filename}のディレクトリーパートをディレクトリー名(@ref{Directory
+Names}を参照)としてリターンする。@var{filename}がディレクトリーパートを含まない場合は、@code{nil}をリターンする。
 
-On GNU and Unix systems, a string returned by this function always ends in a
-slash.  On MS-DOS it can also end in a colon.
+GNUおよびUnixシステムでは、この関数がリターンする文字列は常にスラッシュで終わる。MS-DOSでは、コロンで終わることもあり得る。
 
 @example
 @group
-(file-name-directory "lewis/foo")  ; @r{Unix example}
+(file-name-directory "lewis/foo")  ; @r{Unixの例}
      @result{} "lewis/"
 @end group
 @group
-(file-name-directory "foo")        ; @r{Unix example}
+(file-name-directory "foo")        ; @r{Unixの例}
      @result{} nil
 @end group
 @end example
 @end defun
 
 @defun file-name-nondirectory filename
-This function returns the nondirectory part of @var{filename}.
+この関数は、@var{filename}の非ディレクトリーパートをリターンする。
 
 @example
 @group
@@ -1265,12 +1255,9 @@ This function returns the nondirectory part of @var{filename}.
 @end defun
 
 @defun file-name-sans-versions filename &optional keep-backup-version
-This function returns @var{filename} with any file version numbers, backup
-version numbers, or trailing tildes discarded.
+この関数は、任意のファイルバージョン番号、バックアップバージョン番号、末尾のチルダを取り除いて@var{filename}をリターンする。
 
-If @var{keep-backup-version} is non-@code{nil}, then true file version
-numbers understood as such by the file system are discarded from the return
-value, but backup version numbers are kept.
+@var{keep-backup-version}が非@code{nil}の場合は、ファイルシステムなどが理解するような真のファイルバージョン番号は破棄されるが、バックアップバージョン番号は保持される。
 
 @example
 @group
@@ -1289,26 +1276,15 @@ value, but backup version numbers are kept.
 @end defun
 
 @defun file-name-extension filename &optional period
-This function returns @var{filename}'s final ``extension'', if any, after
-applying @code{file-name-sans-versions} to remove any version/backup part.
-The extension, in a file name, is the part that follows the last @samp{.} in
-the last name component (minus any version/backup part).
+この関数は、@var{filename}からもしあればすべてのバージョン番号とバックアップ番号を取り除いた後、終端の``拡張子(extension)''をリターンする。ファイル名の拡張子とは、最後の名前コンポーネント(からすべてのバージョン番号とバックアップ番号を取り去った後)の最後の@samp{.}に後続するパートである。
 
-This function returns @code{nil} for extensionless file names such as
-@file{foo}.  It returns @code{""} for null extensions, as in @file{foo.}.
-If the last component of a file name begins with a @samp{.}, that @samp{.}
-doesn't count as the beginning of an extension.  Thus, @file{.emacs}'s
-``extension'' is @code{nil}, not @samp{.emacs}.
+この関数は、@file{foo}のような拡張子のないファイル名にたいしては、@code{nil}をリターンする。@file{foo.}のようなnull拡張子にたいしては、@code{""}をリターンする。ファイル名の最終コンポーネントが@samp{.}で始まる場合、その@samp{.}は拡張子の開始とはみなされない。したがって、@file{.emacs}の拡張子は@samp{.emacs}ではなく@code{nil}である。
 
-If @var{period} is non-@code{nil}, then the returned value includes the
-period that delimits the extension, and if @var{filename} has no extension,
-the value is @code{""}.
+@var{period}が非@code{nil}の場合、拡張子を区切るピリオドもリターン値に含まれるようにななる。その場合、もし@var{filename}が拡張子をもたないなら、リターン値は@code{""}である。
 @end defun
 
 @defun file-name-sans-extension filename
-This function returns @var{filename} minus its extension, if any.  The
-version/backup part, if present, is only removed if the file has an
-extension.  For example,
+この関数は、もしあれば@var{filename}から拡張子を除いてリターンする。もしバージョン番号またはバックアップ番号があるなら、ファイルが拡張子をもつ場合のみ、それを削除する。たとえば、
 
 @example
 (file-name-sans-extension "foo.lose.c")
@@ -1325,20 +1301,18 @@ extension.  For example,
      @result{} "~/foo.~3~"
 @end example
 
-Note that the @samp{.~3~} in the two last examples is the backup part, not
-an extension.
+最後の2つの例の@samp{.~3~}は、拡張子ではなくバックアップ番号であることに注意。
 @end defun
 
 @defun file-name-base &optional filename
-This function is the composition of @code{file-name-sans-extension} and
-@code{file-name-nondirectory}.  For example,
+この関数は、@code{file-name-sans-extension}と@code{file-name-nondirectory}を組み合わせたものである。たとえば、
 
 @example
 (file-name-base "/my/home/foo.c")
     @result{} "foo"
 @end example
 
-The @var{filename} argument defaults to @code{buffer-file-name}.
+@var{filename}引数のデフォルトは、@code{buffer-file-name}である。
 @end defun
 
 @node Relative File Names
