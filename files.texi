@@ -1320,20 +1320,11 @@ GNUおよびUnixシステムでは、この関数がリターンする文字列�
 @cindex absolute file name
 @cindex relative file name
 
-  All the directories in the file system form a tree starting at the root
-directory.  A file name can specify all the directory names starting from
-the root of the tree; then it is called an @dfn{absolute} file name.  Or it
-can specify the position of the file in the tree relative to a default
-directory; then it is called a @dfn{relative} file name.  On Unix and
-GNU/Linux, an absolute file name starts with a @samp{/} or a @samp{~}
-(@pxref{abbreviate-file-name}), and a relative one does not.  On MS-DOS and
-MS-Windows, an absolute file name starts with a slash or a backslash, or
-with a drive specification @samp{@var{x}:/}, where @var{x} is the @dfn{drive
-letter}.
+  ファイルシステム内のすべてのディレクトリーは、ルートディレクトリーから開始されるツリーを形成します。このツリーのルートから開始されるすべてのディレクトリー名により、ファイル名を指定でき、それを@dfn{絶対(absolute)}ファイル名と呼びます。デフォルトディレクトリーからの相対的なツリー中の位置でファイルを指定するこでき、それは@dfn{相対(relative)}ファイル名と呼ばれます。UnixおよびGNU/Linuxでは、絶対ファイル名は@samp{/}または@samp{~}で始まり、相対ファイル名は違います(@ref{abbreviate-file-name}を参照)。MS-DOSおよびMS-Windowsでは、絶対ファイル名はスラッシュ、バックスラッシュ、またはドライブ指定@samp{@var{x}:/}で始まります。ここで@var{x}は@dfn{ドライブ文字(drive
+letter)}です。
 
 @defun file-name-absolute-p filename
-This function returns @code{t} if file @var{filename} is an absolute file
-name, @code{nil} otherwise.
+この関数は、@var{filename}が絶対ファイル名の場合は@code{t}、それ以外は@code{nil}をリターンする。
 
 @example
 @group
@@ -1351,21 +1342,13 @@ name, @code{nil} otherwise.
 @end example
 @end defun
 
-  Given a possibly relative file name, you can convert it to an absolute name
-using @code{expand-file-name} (@pxref{File Name Expansion}).  This function
-converts absolute file names to relative names:
+  相対ファイル名が与えられた場合は、@code{expand-file-name}を使用して、それを絶対ファイル名に変換できます(@ref{File
+Name Expansion}を参照)。この関数は、絶対ファイル名を相対ファイル名に変換します:
 
 @defun file-relative-name filename &optional directory
-This function tries to return a relative name that is equivalent to
-@var{filename}, assuming the result will be interpreted relative to
-@var{directory} (an absolute directory name or directory file name).  If
-@var{directory} is omitted or @code{nil}, it defaults to the current
-buffer's default directory.
+この関数は、@var{directory}(絶対ディレクトリー名またはディレクトリーファイル名)から相対的な結果となると仮定して、@var{filename}と等価な相対ファイル名のリターンを試みる。@var{directory}が省略、または@code{nil}の場合、カレントバッファーのデフォルトディレクトリーがデフォルトとなる。
 
-On some operating systems, an absolute file name begins with a device name.
-On such systems, @var{filename} has no relative equivalent based on
-@var{directory} if they start with two different device names.  In this
-case, @code{file-relative-name} returns @var{filename} in absolute form.
+絶対ファイル名がデバイス名で始まるオペレーティングシステムが、いくつか存在する。そのようなシステムでは、2つの異なるデバイス名から開始される@var{filename}は、@var{directory}にもとづく等価な相対ファイル名をもたない。この場合、@code{file-relative-name}は絶対形式で@var{filename}をリターンする。
 
 @example
 (file-relative-name "/foo/bar" "/foo/")
