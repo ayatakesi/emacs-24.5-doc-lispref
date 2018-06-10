@@ -1363,29 +1363,15 @@ Name Expansion}を参照)。この関数は、絶対ファイル名を相対フ�
 @cindex directory name
 @cindex file name of directory
 
-  A @dfn{directory name} is the name of a directory.  A directory is actually
-a kind of file, so it has a file name, which is related to the directory
-name but not identical to it.  (This is not quite the same as the usual Unix
-terminology.)  These two different names for the same entity are related by
-a syntactic transformation.  On GNU and Unix systems, this is simple: a
-directory name ends in a slash, whereas the directory's name as a file lacks
-that slash.  On MS-DOS the relationship is more complicated.
+  @dfn{ディレクトリー名(directory
+name)}とは、ディレクトリーの名前のことです。ディレクトリーは実際にはファイルの一種なので、ファイル名をもちます。これはディレクトリー名と関連がありますが、同一ではありません(これは、Unixの通常の用語とは異なる)。同じ実体にたいするこれら2つの異なる名前は、構文的な変換により関連付けられます。GNUおよびUnixシステムでは、ことは単純です。ディレクトリー名はスラッシュで終わり、ファイルとしてのディレクトリーの名前には、そのスラッシュがありません。MS-DOSでは、この関連付けはより複雑です。
 
-  The difference between a directory name and its name as a file is subtle but
-crucial.  When an Emacs variable or function argument is described as being
-a directory name, a file name of a directory is not acceptable.  When
-@code{file-name-directory} returns a string, that is always a directory
-name.
+  ディレクトリー名と、ファイルとしてのディレクトリーの名前の違いは、些細ですが重要です。Emacsの変数、または関数の引数を記述する際、それがディレクトリー名であるとしており、ディレクトリーのファイル名は許されません。@code{file-name-directory}が文字列をリターンするときは、常にディレクトリー名です。
 
-  The following two functions convert between directory names and file names.
-They do nothing special with environment variable substitutions such as
-@samp{$HOME}, and the constructs @samp{~}, @samp{.} and @samp{..}.
+  以下の2つの関数は、ディレクトリー名とファイル名の間で変換を行います。これらの関数は、@samp{$HOME}のような環境変数や、@samp{~}、@samp{.}、@samp{..}などの構文にたいして、特別なことは何も行いません。
 
 @defun file-name-as-directory filename
-This function returns a string representing @var{filename} in a form that
-the operating system will interpret as the name of a directory.  On most
-systems, this means appending a slash to the string (if it does not already
-end in one).
+この関数は、オペレーティングシステムがディレクトリーの名前と解釈する形式で、@var{filename}を表す文字列をリターンする。ほとんどのシステムでは、(もし終端にそれがなければ)これは文字列にスラッシュを追加することを意味する。
 
 @example
 @group
@@ -1396,9 +1382,7 @@ end in one).
 @end defun
 
 @defun directory-file-name dirname
-This function returns a string representing @var{dirname} in a form that the
-operating system will interpret as the name of a file.  On most systems,
-this means removing the final slash (or backslash) from the string.
+この関数は、オペレーティングシステムがファイルの名前と解釈する形式で、@var{dirname}を表す文字列をリターンする。ほとんどのシステムでは、これは文字列から最後のスラッシュ(またはバックスラッシュ)を削除することを意味する。
 
 @example
 @group
@@ -1408,28 +1392,23 @@ this means removing the final slash (or backslash) from the string.
 @end example
 @end defun
 
-  Given a directory name, you can combine it with a relative file name using
-@code{concat}:
+  ディレクトリーにたいしては、@code{concat}を使用して相対ファイルと組み合わせることができます:
 
 @example
 (concat @var{dirname} @var{relfile})
 @end example
 
 @noindent
-Be sure to verify that the file name is relative before doing that.  If you
-use an absolute file name, the results could be syntactically invalid or
-refer to the wrong file.
+これを行う前に、ファイル名が相対的であるか確認してください。絶対ファイル名を使用した場合、結果は構文的に不正になるか、間違ったファイルを参照する可能性があります。
 
-  If you want to use a directory file name in making such a combination, you
-must first convert it to a directory name using
-@code{file-name-as-directory}:
+  ディレクトリーファイル名作成にこのような組み合わせを使用したい場合は、最初に@code{file-name-as-directory}を使用して、それをディレクトリー名に変換しなければなりません:
 
 @example
 (concat (file-name-as-directory @var{dirfile}) @var{relfile})
 @end example
 
 @noindent
-Don't try concatenating a slash by hand, as in
+以下のような、手動によるスラッシュの結合を試みてはなりません
 
 @example
 ;;; @r{Wrong!}
@@ -1437,24 +1416,19 @@ Don't try concatenating a slash by hand, as in
 @end example
 
 @noindent
-because this is not portable.  Always use @code{file-name-as-directory}.
+なぜなら、これには可搬性がないからです。常に@code{file-name-as-directory}を使用してください。
 
-  To convert a directory name to its abbreviation, use this function:
+  ディレクトリー名をディレクトリーの省略名に変換するには、以下の関数を使用します:
 
 @cindex file name abbreviations
 @cindex abbreviated file names
 @defun abbreviate-file-name filename
 @anchor{abbreviate-file-name}
-This function returns an abbreviated form of @var{filename}.  It applies the
-abbreviations specified in @code{directory-abbrev-alist} (@pxref{File
-Aliases,,File Aliases, emacs, The GNU Emacs Manual}), then substitutes
-@samp{~} for the user's home directory if the argument names a file in the
-home directory or one of its subdirectories.  If the home directory is a
-root directory, it is not replaced with @samp{~}, because this does not make
-the result shorter on many systems.
+この関数は、@var{filename}の省略された形式をリターンする。これは@code{directory-abbrev-alist}(@pxref{File
+Aliases,,File Aliases, emacs, The GNU Emacs
+Manual})で指定される省略形を適用した後、引数のファイル名がユーザーのホームディレクトリー、またはそのサブディレクトリーにある場合は、それを@samp{~}に置き換える。ホームディレクトリーがルートディレクトリーの場合、多くのシステムでは結果が短縮されないので、@samp{~}で置き換えない。
 
-You can use this function for directory names and for file names, because it
-recognizes abbreviations even as part of the name.
+これは名前の一部であるような省略形さえも認識するので、ディレクトリー名とファイル名にも使用できる。
 @end defun
 
 @node File Name Expansion
