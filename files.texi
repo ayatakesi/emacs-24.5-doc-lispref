@@ -1435,22 +1435,15 @@ Manual})で指定される省略形を適用した後、引数のファイル名
 @subsection Functions that Expand Filenames
 @cindex expansion of file names
 
-  @dfn{Expanding} a file name means converting a relative file name to an
-absolute one.  Since this is done relative to a default directory, you must
-specify the default directory name as well as the file name to be expanded.
-It also involves expanding abbreviations like @file{~/}
+  ファイル名の@dfn{展開(expanding)}とは、相対ファイル名を絶対ファイル名に変換することを意味します。これはデフォルトディレクトリーから相対的に行われるため、展開されるファイル名と同様、デフォルトディレクトリーも指定しなければなりません。これは@file{~/}のような省略形
 @ifnottex
-(@pxref{abbreviate-file-name}),
+(@ref{abbreviate-file-name}を参照)、
 @end ifnottex
-and eliminating redundancies like @file{./} and @file{@var{name}/../}.
+の展開、および@file{./}や@file{@var{name}/../}のような冗長さの排除も行います。
+も展開します。
 
 @defun expand-file-name filename &optional directory
-This function converts @var{filename} to an absolute file name.  If
-@var{directory} is supplied, it is the default directory to start with if
-@var{filename} is relative.  (The value of @var{directory} should itself be
-an absolute directory name or directory file name; it may start with
-@samp{~}.)  Otherwise, the current buffer's value of
-@code{default-directory} is used.  For example:
+この関数は、@var{filename}を絶対ファイル名に変換する。@var{directory}が与えられた場合、@var{filename}が相対的なら、それは開始点となるデフォルトディレクトリーになる(@var{directory}の値は、それ自体が絶対ディレクトリー名、またはディレクトリーファイル名であるべきで、それは@samp{~}で始まるかもしれない)。それ以外では、カレントバッファーの@code{default-directory}の値が使用される。たとえば:
 
 @example
 @group
@@ -1467,14 +1460,9 @@ an absolute directory name or directory file name; it may start with
 @end group
 @end example
 
-If the part of the combined file name before the first slash is @samp{~}, it
-expands to the value of the @env{HOME} environment variable (usually your
-home directory).  If the part before the first slash is @samp{~@var{user}}
-and if @var{user} is a valid login name, it expands to @var{user}'s home
-directory.
+結合されたファイル名の最初のスラッシュの前が@samp{~}の場合は、環境変数@env{HOME}(通常はユーザーのホームディレクトリー)の値に展開される。最初のスラッシュの前が@samp{~@var{user}}で、かつ@var{user}が有効なログイン名の場合は、@var{user}のホームディレクトリーに展開される。
 
-Filenames containing @samp{.} or @samp{..} are simplified to their canonical
-form:
+@samp{.}または@samp{..}を含むファイル名は、正規化形式に簡略化される:
 
 @example
 @group
@@ -1483,7 +1471,7 @@ form:
 @end group
 @end example
 
-In some cases, a leading @samp{..} component can remain in the output:
+出力に@samp{..}コンポーネントが残り得る場合もある:
 
 @example
 @group
@@ -1493,12 +1481,9 @@ In some cases, a leading @samp{..} component can remain in the output:
 @end example
 
 @noindent
-This is for the sake of filesystems that have the concept of a ``superroot''
-above the root directory @file{/}.  On other filesystems, @file{/../} is
-interpreted exactly the same as @file{/}.
+これは、ルートディレクトリー@file{/}の上位の``スーパールート(superroot)''という概念をもつファイルシステムのためのものである。その他のファイルシステムでは、@file{/../}は@file{/}とまったく同じに解釈される。
 
-Note that @code{expand-file-name} does @emph{not} expand environment
-variables; only @code{substitute-in-file-name} does that:
+@code{expand-file-name}は環境変数を展開@emph{しない}ことに注意。@code{substitute-in-file-name}だけが、それを行う。
 
 @example
 @group
@@ -1507,10 +1492,7 @@ variables; only @code{substitute-in-file-name} does that:
 @end group
 @end example
 
-Note also that @code{expand-file-name} does not follow symbolic links at any
-level.  This results in a difference between the way @code{file-truename}
-and @code{expand-file-name} treat @samp{..}.  Assuming that @samp{/tmp/bar}
-is a symbolic link to the directory @samp{/tmp/foo/bar} we get:
+@code{expand-file-name}は、あらゆる階層においてシンボリックリンクをフォローしないことにも注意。これは@samp{..}の扱いが@code{file-truename}と@code{expand-file-name}で異なることに起因する。@samp{/tmp/bar}がディレクトリー@samp{/tmp/foo/bar}にたいするシンボリックリンクであると仮定すると:
 
 @example
 @group
@@ -1523,20 +1505,15 @@ is a symbolic link to the directory @samp{/tmp/foo/bar} we get:
 @end group
 @end example
 
-If you may need to follow symbolic links preceding @samp{..}, you should
-make sure to call @code{file-truename} without prior direct or indirect
-calls to @code{expand-file-name}.  @xref{Truenames}.
+直接間接を問わず、事前に@code{expand-file-name}を呼び出さずに@samp{..}に先行するシンボリックリンクをフォローする必要があるかもしれない場合は、それを呼び出さずに確実に@code{file-truename}を呼び出すべきである。@ref{Truenames}を参照のこと。
 @end defun
 
 @defvar default-directory
-The value of this buffer-local variable is the default directory for the
-current buffer.  It should be an absolute directory name; it may start with
-@samp{~}.  This variable is buffer-local in every buffer.
+このバッファーローカル変数の値は、カレントバッファーにたいするデフォルトディレクトリーである。これは絶対ディレクトリー名であること。これは@samp{~}で始まるかもしれない。この変数は、すべてのバッファーにおいてバッファーローカルである。
 
-@code{expand-file-name} uses the default directory when its second argument
-is @code{nil}.
+2つ目の引数が@code{nil}の場合、@code{expand-file-name}はデフォルトディレクトリーを使用する。
 
-The value is always a string ending with a slash.
+値は常にスラッシュで終わる文字列である。
 
 @example
 @group
@@ -1548,28 +1525,15 @@ default-directory
 
 @defun substitute-in-file-name filename
 @anchor{Definition of substitute-in-file-name}
-This function replaces environment variable references in @var{filename}
-with the environment variable values.  Following standard Unix shell syntax,
-@samp{$} is the prefix to substitute an environment variable value.  If the
-input contains @samp{$$}, that is converted to @samp{$}; this gives the user
-a way to ``quote'' a @samp{$}.
+この関数は、@var{filename}内で参照される環境変数を、環境変数の値に置き換える。標準的なUnixシェル構文にしたがい、
+@samp{$}は環境変数値置き換えのプレフィックスである。入力に@samp{$$}が含まれる場合、それ@samp{$}に置き換えられる。これにより、ユーザーが@samp{$}を``クォート''する手段が与えられる。
 
-The environment variable name is the series of alphanumeric characters
-(including underscores) that follow the @samp{$}.  If the character
-following the @samp{$} is a @samp{@{}, then the variable name is everything
-up to the matching @samp{@}}.
+環境変数名は@samp{$}の後に続く一連の英数字(アンダースコアを含む)である。@samp{$}の後続文字が、@samp{@{}の場合はマッチする@samp{@}}までのすべてが変数名である。
 
-Calling @code{substitute-in-file-name} on output produced by
-@code{substitute-in-file-name} tends to give incorrect results.  For
-instance, use of @samp{$$} to quote a single @samp{$} won't work properly,
-and @samp{$} in an environment variable's value could lead to repeated
-substitution.  Therefore, programs that call this function and put the
-output where it will be passed to this function need to double all @samp{$}
-characters to prevent subsequent incorrect results.
+@code{substitute-in-file-name}により生成された出力で@code{substitute-in-file-name}を呼び出すと、不正な結果となる傾向がある。たとえば、単一の@samp{$}をクォートするための@samp{$$}の使用は正しく機能しないだろうし、環境変数値の中の@samp{$}は再帰的な置換を導くだろう。したがって、この関数を呼び出して、出力をこの関数に渡すプログラムは、その後の不正な結果を防ぐために、すべての@samp{$}文字を二重化する必要がある。
 
 @c Wordy to avoid overfull hbox.  --rjc 15mar92
-Here we assume that the environment variable @env{HOME}, which holds the
-user's home directory name, has value @samp{/xcssun/users/rms}.
+以下では、ユーザーのホームディレクトリー名を保持する環境変数@env{HOME}は、値@samp{/xcssun/users/rms}をもつとする。
 
 @example
 @group
@@ -1578,9 +1542,7 @@ user's home directory name, has value @samp{/xcssun/users/rms}.
 @end group
 @end example
 
-After substitution, if a @samp{~} or a @samp{/} appears immediately after
-another @samp{/}, the function discards everything before it (up through the
-immediately preceding @samp{/}).
+置き換え後は、@samp{/}の直後に@samp{~}や別の@samp{/}が出現した場合、この関数は、@samp{/}の前にあるすべてを無視する。
 
 @example
 @group
@@ -1590,7 +1552,7 @@ immediately preceding @samp{/}).
 @group
 (substitute-in-file-name "/usr/local/$HOME/foo")
      @result{} "/xcssun/users/rms/foo"
-     ;; @r{@file{/usr/local/} has been discarded.}
+     ;; @r{@file{/usr/local/}は無視された}
 @end group
 @end example
 
