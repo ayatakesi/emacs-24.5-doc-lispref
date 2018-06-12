@@ -1552,7 +1552,7 @@ default-directory
 @group
 (substitute-in-file-name "/usr/local/$HOME/foo")
      @result{} "/xcssun/users/rms/foo"
-     ;; @r{@file{/usr/local/}は無視された}
+     ;; @r{@file{/usr/local/}は破棄された}
 @end group
 @end example
 
@@ -1563,25 +1563,17 @@ default-directory
 @cindex unique file names
 @cindex temporary files
 
-  Some programs need to write temporary files.  Here is the usual way to
-construct a name for such a file:
+  一時ファイルに書き込む必要があるプログラムが、いくつかあります。以下は、そのようなファイルを構築する、便利な方法です:
 
 @example
 (make-temp-file @var{name-of-application})
 @end example
 
 @noindent
-The job of @code{make-temp-file} is to prevent two different users or two
-different jobs from trying to use the exact same file name.
+@code{make-temp-file}の役目は、2人の異なるユーザー、またはジョブが、完全に一致する名前のファイルの使用を防ぐことです。
 
 @defun make-temp-file prefix &optional dir-flag suffix
-This function creates a temporary file and returns its name.  Emacs creates
-the temporary file's name by adding to @var{prefix} some random characters
-that are different in each Emacs job.  The result is guaranteed to be a
-newly created empty file.  On MS-DOS, this function can truncate the
-@var{string} prefix to fit into the 8+3 file-name limits.  If @var{prefix}
-is a relative file name, it is expanded against
-@code{temporary-file-directory}.
+この関数は、一時ファイルを作成して、その名前をリターンする。Emacsは、Emacsの各ジョブごとに異なるランダムないくつかの文字を@var{prefix}に追加することにより、一時ファイルの名前を作成する。結果として新たに空のファイルが作成されることが保障される。MS-DOSでは、8+3のファイル名制限に適合するよう、文字列@var{string}は切り詰められる可能性がある。@var{prefix}が相対ファイル名の場合、それは@code{temporary-file-directory}にたいして展開される。
 
 @example
 @group
@@ -1590,58 +1582,34 @@ is a relative file name, it is expanded against
 @end group
 @end example
 
-When @code{make-temp-file} returns, the file has been created and is empty.
-At that point, you should write the intended contents into the file.
+@code{make-temp-file}がリターンした際、一時ファイルは空で作成される。この時点で、そのファイルに意図するコンテンツを書き込むべきである。
 
-If @var{dir-flag} is non-@code{nil}, @code{make-temp-file} creates an empty
-directory instead of an empty file.  It returns the file name, not the
-directory name, of that directory.  @xref{Directory Names}.
+@var{dir-flag}が@code{nil}の場合、@code{make-temp-file}は空のファイルのかわりに、空のディレクトリーを作成する。これはディレクトリー名ではなく、ディレクトリーのファイル名をリターンする。@ref{Directory
+Names}を参照のこと。
 
-If @var{suffix} is non-@code{nil}, @code{make-temp-file} adds it at the end
-of the file name.
+@var{suffix}が非@code{nil}の場合、@code{make-temp-file}はそれをファイル名の最後に追加する。
 
-To prevent conflicts among different libraries running in the same Emacs,
-each Lisp program that uses @code{make-temp-file} should have its own
-@var{prefix}.  The number added to the end of @var{prefix} distinguishes
-between the same application running in different Emacs jobs.  Additional
-added characters permit a large number of distinct names even in one Emacs
-job.
+同じEmacs内で実行される異なるライブラリー間での競合を防ぐために、@code{make-temp-file}を使用する各Lispプログラムがプログラム自身の@var{prefix}を使用するべきである。@var{prefix}の最後に追加される数字は、異なるEmacsジョブ内で実行される、同じアプリケーションを区別する。追加される文字により、同一のEmacsジョブ内でも、多数の名前を区別することが可能になる。
 @end defun
 
-  The default directory for temporary files is controlled by the variable
-@code{temporary-file-directory}.  This variable gives the user a uniform way
-to specify the directory for all temporary files.  Some programs use
-@code{small-temporary-file-directory} instead, if that is non-@code{nil}.
-To use it, you should expand the prefix against the proper directory before
-calling @code{make-temp-file}.
+  一時ファイル用のデフォルトディレクトリーは、変数@code{temporary-file-directory}により制御されます。この変数により、すべての一時ファイルにたいして、ユーザーがディレクトリーを指定する、一貫した方法が与えられます。@code{small-temporary-file-directory}が非@code{nil}の場合は、かわりにそれを使うプログラムもいくつかあります。これを使う場合は、@code{make-temp-file}を呼び出す前に、正しいディレクトリーにたいしてプレフィックスを展開するべきです。
 
 @defopt temporary-file-directory
 @cindex @env{TMPDIR} environment variable
 @cindex @env{TMP} environment variable
 @cindex @env{TEMP} environment variable
-This variable specifies the directory name for creating temporary files.
-Its value should be a directory name (@pxref{Directory Names}), but it is
-good for Lisp programs to cope if the value is a directory's file name
-instead.  Using the value as the second argument to @code{expand-file-name}
-is a good way to achieve that.
+この変数は、一時ファイル作成用のディレクトリー名を指定する。値はディレクトリー名であるべきだが、もし値がディレクトリーのファイル名(@ref{Directory
+Names}を参照)ならば、Lispプログラムがかわりに対処すればよい。@code{expand-file-name}の2つ目の引数としてその値を使用するのは、それを達成するよい方法である。
 
-The default value is determined in a reasonable way for your operating
-system; it is based on the @env{TMPDIR}, @env{TMP} and @env{TEMP}
-environment variables, with a fall-back to a system-dependent name if none
-of these variables is defined.
+デフォルト値は、オペレーティングシステムにたいして適切な方法により決定される。これは環境変数@env{TMPDIR}、@env{TMP}、@env{TEMP}にもとづき、これらの変数が定義されていなければ、システム依存の名前にフォールバックする。
 
-Even if you do not use @code{make-temp-file} to create the temporary file,
-you should still use this variable to decide which directory to put the file
-in.  However, if you expect the file to be small, you should use
-@code{small-temporary-file-directory} first if that is non-@code{nil}.
+一時ファイルの作成に@code{make-temp-file}を使用しない場合でも、一時ファイルを置くディレクトリーを判断するために、依然としてこの変数を使用するべきである。しかし、一時ファイルが小さくなることを求める場合は、@code{small-temporary-file-directory}が非@code{nil}ならば、それを使用するべきである。
 @end defopt
 
 @defopt small-temporary-file-directory
-This variable specifies the directory name for creating certain temporary
-files, which are likely to be small.
+この変数は、小さいかもしれない特定の一時ファイル作成用のディレクトリー名を指定する。
 
-If you want to write a temporary file which is likely to be small, you
-should compute the directory like this:
+小さくなるかもしれない一時ファイルに書き込みたい場合は、以下のようにディレクトリーを計算するべきである:
 
 @example
 (make-temp-file
@@ -1652,18 +1620,10 @@ should compute the directory like this:
 @end defopt
 
 @defun make-temp-name base-name
-This function generates a string that can be used as a unique file name.
-The name starts with @var{base-name}, and has several random characters
-appended to it, which are different in each Emacs job.  It is like
-@code{make-temp-file} except that (i) it just constructs a name, and does
-not create a file, and (ii) @var{base-name} should be an absolute file name
-(on MS-DOS, this function can truncate @var{base-name} to fit into the 8+3
-file-name limits).
+この関数は、一意なファイル名として使用できる文字列を生成する。この名前は@var{base-name}で始まり、それに各Emacsジョブごとに異なる、複数のランダムな文字を追加したものである。これは@code{make-temp-file}と似ているが、(i)名前だけを作成し、ファイルは作成しない、(ii)@var{base-name}は絶対ファイル名であること、という点が異なる(MS-DOSシステムでは、8+3ファイル名制限に適合するよう、@var{base-name}が切り詰められる)。
 
-@strong{Warning:} In most cases, you should not use this function; use
-@code{make-temp-file} instead! This function is susceptible to a race
-condition, between the @code{make-temp-name} call and the creation of the
-file, which in some cases may cause a security hole.
+@strong{警告:} この関数を使用するべきではない。かわりに@code{make-temp-file}を使用すること!
+この関数は、競合状態の影響を受けやすい。@code{make-temp-name}呼び出しと一時ファイル作成のタイムラグは、セキュリティーホールとなる場合があるかもしれない。
 @end defun
 
 @node File Name Completion
