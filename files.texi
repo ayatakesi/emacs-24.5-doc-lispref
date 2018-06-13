@@ -1631,24 +1631,15 @@ Names}を参照)ならば、Lispプログラムがかわりに対処すればよ
 @cindex file name completion subroutines
 @cindex completion, file name
 
-  This section describes low-level subroutines for completing a file name.
-For higher level functions, see @ref{Reading File Names}.
+  このセクションでは、ファイル名を補完するための、低レベルサブルーチンについて説明します。より高レベルの関数については、@ref{Reading File
+Names}を参照してください。
 
 @defun file-name-all-completions partial-filename directory
-This function returns a list of all possible completions for a file whose
-name starts with @var{partial-filename} in directory @var{directory}.  The
-order of the completions is the order of the files in the directory, which
-is unpredictable and conveys no useful information.
+この関数は、ディレクトリー@var{directory}内で、@var{partial-filename}で始まる名前のファイルにたいして、すべての補完可能なリストをリターンする。補完の順番はそのディレクトリー内でのファイル順序であり、これは予測不能で何の情報ももたない。
 
-The argument @var{partial-filename} must be a file name containing no
-directory part and no slash (or backslash on some systems).  The current
-buffer's default directory is prepended to @var{directory}, if
-@var{directory} is not absolute.
+引数@var{partial-filename}は非ディレクトリーパートを含むファイル名でなければならず、スラッシュ(いくつかのシステムではバックスラッシュ)が含まれていてはならない。@var{directory}が絶対ディレクトリーでない場合は、@var{directory}の前にカレントバッファーのデフォルトディレクトリーが追加される。
 
-In the following example, suppose that @file{~rms/lewis} is the current
-default directory, and has five files whose names begin with @samp{f}:
-@file{foo}, @file{file~}, @file{file.c}, @file{file.c.~1~}, and
-@file{file.c.~2~}.
+以下の例では、@file{~rms/lewis}がカレントデフォルトディレクトリーで、名前が@samp{f}で始まる5つのファイル@file{foo}、@file{file~}、@file{file.c}、@file{file.c.~1~}、@file{file.c.~2~}があるものとする:
 
 @example
 @group
@@ -1665,20 +1656,11 @@ default directory, and has five files whose names begin with @samp{f}:
 @end defun
 
 @defun file-name-completion filename directory &optional predicate
-This function completes the file name @var{filename} in directory
-@var{directory}.  It returns the longest prefix common to all file names in
-directory @var{directory} that start with @var{filename}.  If
-@var{predicate} is non-@code{nil} then it ignores possible completions that
-don't satisfy @var{predicate}, after calling that function with one
-argument, the expanded absolute file name.
+この関数は、ディレクトリー@var{directory}内で、ファイル名@var{filename}を補完する。これはディレクトリー@var{directory}内で、@var{filename}で始まるすべてのファイル名にたいして、最長の共通プレフィックスをリターンする。@var{predicate}が非@code{nil}の場合は、この関数を1引数で呼び出して絶対ファイル名に展開後、@var{predicate}を満足しない補完候補を無視する。
 
-If only one match exists and @var{filename} matches it exactly, the function
-returns @code{t}.  The function returns @code{nil} if directory
-@var{directory} contains no name starting with @var{filename}.
+マッチが1つだけ存在し、かつ@var{filename}が正確にそれにマッチする場合、関数は@code{t}をリターンする。関数は、ディレクトリー@var{directory}が@var{filename}で始まる名前のファイルを含まない場合は、@code{nil}をリターンする。
 
-In the following example, suppose that the current default directory has
-five files whose names begin with @samp{f}: @file{foo}, @file{file~},
-@file{file.c}, @file{file.c.~1~}, and @file{file.c.~2~}.
+以下の例では、@file{~rms/lewis}がカレントデフォルトディレクトリーで、名前が@samp{f}で始まる5つのファイル@file{foo}、@file{file~}、@file{file.c}、@file{file.c.~1~}、@file{file.c.~2~}があるものとする:
 
 @example
 @group
@@ -1704,12 +1686,9 @@ five files whose names begin with @samp{f}: @file{foo}, @file{file~},
 @end defun
 
 @defopt completion-ignored-extensions
-@code{file-name-completion} usually ignores file names that end in any
-string in this list.  It does not ignore them when all the possible
-completions end in one of these suffixes.  This variable has no effect on
-@code{file-name-all-completions}.
+@code{file-name-completion}は通常、このリスト内の任意の文字列で終わるファイル名を無視する。すべての可能な補完がこれらのサフィックスのいずれか1つで終わるときは、それらを無視しない。この変数は、@code{file-name-all-completions}に影響しない。
 
-A typical value might look like this:
+典型的な値は、以下のようになる:
 
 @example
 @group
@@ -1718,10 +1697,7 @@ completion-ignored-extensions
 @end group
 @end example
 
-If an element of @code{completion-ignored-extensions} ends in a slash
-@samp{/}, it signals a directory.  The elements which do @emph{not} end in a
-slash will never match a directory; thus, the above value will not filter
-out a directory named @file{foo.elc}.
+@code{completion-ignored-extensions}のある要素がスラッシュ@samp{/}で終わる場合、それはディレクトリーを示す。スラッシュで@emph{終わらない}要素がディレクトリーにマッチすることは決してない。したがって、上記の値は@file{foo.elc}という名前のディレクトリーを除外しないだろう。
 @end defopt
 
 @node Standard File Names

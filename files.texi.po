@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-05-04 23:31+0900\n"
-"PO-Revision-Date: 2018-06-13 09:22+0900\n"
+"PO-Revision-Date: 2018-06-14 05:11+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3794,39 +3794,39 @@ msgstr "@strong{警告:} この関数を使用するべきではない。かわ�
 #: files.texi.orig:2402
 #, no-wrap
 msgid "file name completion subroutines"
-msgstr ""
+msgstr "file name completion subroutines"
 
 #. type: cindex
 #: files.texi.orig:2403
 #, no-wrap
 msgid "completion, file name"
-msgstr ""
+msgstr "completion, file name"
 
 #. type: Plain text
 #: files.texi.orig:2407
 msgid "This section describes low-level subroutines for completing a file name.  For higher level functions, see @ref{Reading File Names}."
-msgstr ""
+msgstr "このセクションでは、ファイル名を補完するための、低レベルサブルーチンについて説明します。より高レベルの関数については、@ref{Reading File Names}を参照してください。"
 
 #. type: defun
 #: files.texi.orig:2408
 #, no-wrap
 msgid "file-name-all-completions partial-filename directory"
-msgstr ""
+msgstr "file-name-all-completions partial-filename directory"
 
 #. type: defun
 #: files.texi.orig:2414
 msgid "This function returns a list of all possible completions for a file whose name starts with @var{partial-filename} in directory @var{directory}.  The order of the completions is the order of the files in the directory, which is unpredictable and conveys no useful information."
-msgstr ""
+msgstr "この関数は、ディレクトリー@var{directory}内で、@var{partial-filename}で始まる名前のファイルにたいして、すべての補完可能なリストをリターンする。補完の順番はそのディレクトリー内でのファイル順序であり、これは予測不能で何の情報ももたない。"
 
 #. type: defun
 #: files.texi.orig:2419
 msgid "The argument @var{partial-filename} must be a file name containing no directory part and no slash (or backslash on some systems).  The current buffer's default directory is prepended to @var{directory}, if @var{directory} is not absolute."
-msgstr ""
+msgstr "引数@var{partial-filename}は非ディレクトリーパートを含むファイル名でなければならず、スラッシュ(いくつかのシステムではバックスラッシュ)が含まれていてはならない。@var{directory}が絶対ディレクトリーでない場合は、@var{directory}の前にカレントバッファーのデフォルトディレクトリーが追加される。"
 
 #. type: defun
 #: files.texi.orig:2424
 msgid "In the following example, suppose that @file{~rms/lewis} is the current default directory, and has five files whose names begin with @samp{f}: @file{foo}, @file{file~}, @file{file.c}, @file{file.c.~1~}, and @file{file.c.~2~}."
-msgstr ""
+msgstr "以下の例では、@file{~rms/lewis}がカレントデフォルトディレクトリーで、名前が@samp{f}で始まる5つのファイル@file{foo}、@file{file~}、@file{file.c}、@file{file.c.~1~}、@file{file.c.~2~}があるものとする:"
 
 #. type: group
 #: files.texi.orig:2430
@@ -3836,6 +3836,9 @@ msgid ""
 "     @result{} (\"foo\" \"file~\" \"file.c.~2~\"\n"
 "                \"file.c.~1~\" \"file.c\")\n"
 msgstr ""
+"(file-name-all-completions \"f\" \"\")\n"
+"     @result{} (\"foo\" \"file~\" \"file.c.~2~\"\n"
+"                \"file.c.~1~\" \"file.c\")\n"
 
 #. type: group
 #: files.texi.orig:2435
@@ -3844,27 +3847,29 @@ msgid ""
 "(file-name-all-completions \"fo\" \"\")\n"
 "     @result{} (\"foo\")\n"
 msgstr ""
+"(file-name-all-completions \"fo\" \"\")\n"
+"     @result{} (\"foo\")\n"
 
 #. type: defun
 #: files.texi.orig:2439
 #, no-wrap
 msgid "file-name-completion filename directory &optional predicate"
-msgstr ""
+msgstr "file-name-completion filename directory &optional predicate"
 
 #. type: defun
 #: files.texi.orig:2446
 msgid "This function completes the file name @var{filename} in directory @var{directory}.  It returns the longest prefix common to all file names in directory @var{directory} that start with @var{filename}.  If @var{predicate} is non-@code{nil} then it ignores possible completions that don't satisfy @var{predicate}, after calling that function with one argument, the expanded absolute file name."
-msgstr ""
+msgstr "この関数は、ディレクトリー@var{directory}内で、ファイル名@var{filename}を補完する。これはディレクトリー@var{directory}内で、@var{filename}で始まるすべてのファイル名にたいして、最長の共通プレフィックスをリターンする。@var{predicate}が非@code{nil}の場合は、この関数を1引数で呼び出して絶対ファイル名に展開後、@var{predicate}を満足しない補完候補を無視する。"
 
 #. type: defun
 #: files.texi.orig:2450
 msgid "If only one match exists and @var{filename} matches it exactly, the function returns @code{t}.  The function returns @code{nil} if directory @var{directory} contains no name starting with @var{filename}."
-msgstr ""
+msgstr "マッチが1つだけ存在し、かつ@var{filename}が正確にそれにマッチする場合、関数は@code{t}をリターンする。関数は、ディレクトリー@var{directory}が@var{filename}で始まる名前のファイルを含まない場合は、@code{nil}をリターンする。"
 
 #. type: defun
 #: files.texi.orig:2455
 msgid "In the following example, suppose that the current default directory has five files whose names begin with @samp{f}: @file{foo}, @file{file~}, @file{file.c}, @file{file.c.~1~}, and @file{file.c.~2~}."
-msgstr ""
+msgstr "以下の例では、@file{~rms/lewis}がカレントデフォルトディレクトリーで、名前が@samp{f}で始まる5つのファイル@file{foo}、@file{file~}、@file{file.c}、@file{file.c.~1~}、@file{file.c.~2~}があるものとする:"
 
 #. type: group
 #: files.texi.orig:2460
@@ -3873,6 +3878,8 @@ msgid ""
 "(file-name-completion \"fi\" \"\")\n"
 "     @result{} \"file\"\n"
 msgstr ""
+"(file-name-completion \"fi\" \"\")\n"
+"     @result{} \"file\"\n"
 
 #. type: group
 #: files.texi.orig:2465
@@ -3881,6 +3888,8 @@ msgid ""
 "(file-name-completion \"file.c.~1\" \"\")\n"
 "     @result{} \"file.c.~1~\"\n"
 msgstr ""
+"(file-name-completion \"file.c.~1\" \"\")\n"
+"     @result{} \"file.c.~1~\"\n"
 
 #. type: group
 #: files.texi.orig:2470
@@ -3889,6 +3898,8 @@ msgid ""
 "(file-name-completion \"file.c.~1~\" \"\")\n"
 "     @result{} t\n"
 msgstr ""
+"(file-name-completion \"file.c.~1~\" \"\")\n"
+"     @result{} t\n"
 
 #. type: group
 #: files.texi.orig:2475
@@ -3897,22 +3908,24 @@ msgid ""
 "(file-name-completion \"file.c.~3\" \"\")\n"
 "     @result{} nil\n"
 msgstr ""
+"(file-name-completion \"file.c.~3\" \"\")\n"
+"     @result{} nil\n"
 
 #. type: defopt
 #: files.texi.orig:2479
 #, no-wrap
 msgid "completion-ignored-extensions"
-msgstr ""
+msgstr "completion-ignored-extensions"
 
 #. type: defopt
 #: files.texi.orig:2484
 msgid "@code{file-name-completion} usually ignores file names that end in any string in this list.  It does not ignore them when all the possible completions end in one of these suffixes.  This variable has no effect on @code{file-name-all-completions}."
-msgstr ""
+msgstr "@code{file-name-completion}は通常、このリスト内の任意の文字列で終わるファイル名を無視する。すべての可能な補完がこれらのサフィックスのいずれか1つで終わるときは、それらを無視しない。この変数は、@code{file-name-all-completions}に影響しない。"
 
 #. type: defopt
 #: files.texi.orig:2486
 msgid "A typical value might look like this:"
-msgstr ""
+msgstr "典型的な値は、以下のようになる:"
 
 #. type: group
 #: files.texi.orig:2491
@@ -3921,11 +3934,13 @@ msgid ""
 "completion-ignored-extensions\n"
 "     @result{} (\".o\" \".elc\" \"~\" \".dvi\")\n"
 msgstr ""
+"completion-ignored-extensions\n"
+"     @result{} (\".o\" \".elc\" \"~\" \".dvi\")\n"
 
 #. type: defopt
 #: files.texi.orig:2498
 msgid "If an element of @code{completion-ignored-extensions} ends in a slash @samp{/}, it signals a directory.  The elements which do @emph{not} end in a slash will never match a directory; thus, the above value will not filter out a directory named @file{foo.elc}."
-msgstr ""
+msgstr "@code{completion-ignored-extensions}のある要素がスラッシュ@samp{/}で終わる場合、それはディレクトリーを示す。スラッシュで@emph{終わらない}要素がディレクトリーにマッチすることは決してない。したがって、上記の値は@file{foo.elc}という名前のディレクトリーを除外しないだろう。"
 
 #. type: Plain text
 #: files.texi.orig:2511
