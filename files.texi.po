@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-05-04 23:31+0900\n"
-"PO-Revision-Date: 2018-06-14 05:27+0900\n"
+"PO-Revision-Date: 2018-06-15 09:03+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3945,23 +3945,23 @@ msgstr "@code{completion-ignored-extensions}のある要素がスラッシュ@sa
 #. type: Plain text
 #: files.texi.orig:2511
 msgid "Sometimes, an Emacs Lisp program needs to specify a standard file name for a particular use---typically, to hold configuration data specified by the current user.  Usually, such files should be located in the directory specified by @code{user-emacs-directory}, which is @file{~/.emacs.d} by default (@pxref{Init File}).  For example, abbrev definitions are stored by default in @file{~/.emacs.d/abbrev_defs}.  The easiest way to specify such a file name is to use the function @code{locate-user-emacs-file}."
-msgstr ""
+msgstr "Emacs Lispプログラムが特定の用途のために標準的なファイル名を指定する必要がある場合があります。典型的には、カレントユーザーにより指定された設定データを保持する場合がそうです。そのようなファイルは通常、@code{user-emacs-directory}により指定されるディレクトリーに置かれ、デフォルトでは@file{~/.emacs.d}です(@ref{Init File}を参照)。たとえば、abbrev(abbreviation: 省略形)の定義は、デフォルトでは@file{~/.emacs.d/abbrev_defs}に格納されます。このようなファイル名を指定するには、関数@code{locate-user-emacs-file}を使用するのが、もっとも簡単な方法です。"
 
 #. type: defun
 #: files.texi.orig:2512
 #, no-wrap
 msgid "locate-user-emacs-file base-name &optional old-name"
-msgstr ""
+msgstr "locate-user-emacs-file base-name &optional old-name"
 
 #. type: defun
 #: files.texi.orig:2518
 msgid "This function returns an absolute file name for an Emacs-specific configuration or data file.  The argument @file{base-name} should be a relative file name.  The return value is the absolute name of a file in the directory specified by @code{user-emacs-directory}; if that directory does not exist, this function creates it."
-msgstr ""
+msgstr "この関数は、Emacs特有の設定ファイル、またはデータファイルにたいする絶対ファイル名をリターンする。引数@file{base-name}は、ソファイル名であること。リターン値は、@code{user-emacs-directory}で指定されるディレクトリー内の絶対ファイル名である。このディレクトリーが存在しない場合、この関数はディレクトリーを作成する。"
 
 #. type: defun
 #: files.texi.orig:2528
 msgid "If the optional argument @var{old-name} is non-@code{nil}, it specifies a file in the user's home directory, @file{~/@var{old-name}}.  If such a file exists, the return value is the absolute name of that file, instead of the file specified by @var{base-name}.  This argument is intended to be used by Emacs packages to provide backward compatibility.  For instance, prior to the introduction of @code{user-emacs-directory}, the abbrev file was located in @file{~/.abbrev_defs}.  Here is the definition of @code{abbrev-file-name}:"
-msgstr ""
+msgstr "オプション引数@var{old-name}が非@code{nil}の場合、それはユーザーのホームディレクトリー内のファイル@file{~/@var{old-name}}を指定する。そのようなファイルが存在する場合、リターン値は@var{base-name}で指定されるファイルではなく、そのファイルの絶対ファイル名となる。これは、Emacsパッケージが後方互換を提供するために使用されることを意図した引数である。たとえば、@code{user-emacs-directory}導入前、abbrevファイルは@file{~/.abbrev_defs}に置かれていた。以下は、@code{abbrev-file-name}の定義である:"
 
 #. type: example
 #: files.texi.orig:2535
@@ -3973,38 +3973,43 @@ msgid ""
 "  @dots{}\n"
 "  :type 'file)\n"
 msgstr ""
+"(defcustom abbrev-file-name\n"
+"  (locate-user-emacs-file \"abbrev_defs\" \".abbrev_defs\")\n"
+"  \"Default name of file from which to read abbrevs.\"\n"
+"  @dots{}\n"
+"  :type 'file)\n"
 
 #. type: Plain text
 #: files.texi.orig:2541
 msgid "A lower-level function for standardizing file names, which @code{locate-user-emacs-file} uses as a subroutine, is @code{convert-standard-filename}."
-msgstr ""
+msgstr "ファイル名の標準化のための低レベル関数は@code{convert-standard-filename}で、これはサブルーチンとして@code{locate-user-emacs-file}により使用される。"
 
 #. type: defun
 #: files.texi.orig:2542
 #, no-wrap
 msgid "convert-standard-filename filename"
-msgstr ""
+msgstr "convert-standard-filename filename"
 
 #. type: defun
 #: files.texi.orig:2545
 msgid "This function returns a file name based on @var{filename}, which fits the conventions of the current operating system."
-msgstr ""
+msgstr "この関数は、@var{filename}にもとづき、カレントオペレーティングシステムの慣習に適合するファイル名をリターンする。"
 
 #. type: defun
 #: files.texi.orig:2552
 msgid "On GNU and Unix systems, this simply returns @var{filename}.  On other operating systems, it may enforce system-specific file name conventions; for example, on MS-DOS this function performs a variety of changes to enforce MS-DOS file name limitations, including converting any leading @samp{.} to @samp{_} and truncating to three characters after the @samp{.}."
-msgstr ""
+msgstr "GNUおよびUnixシステムでは、これは単に@var{filename}をリターンする。その他のオペレーティングシステムでは、システム固有のファイル名規約にしたがうだろう。たとえばMS-DOSでは、この関数はMS-DOSファイル名制限にしたがうよう、先頭の@samp{.}を@samp{_}に変換したり、@samp{.}の後続の文字を3文字に切り詰める等、さまざまな変更を行う。"
 
 #. type: defun
 #: files.texi.orig:2556
 msgid "The recommended way to use this function is to specify a name which fits the conventions of GNU and Unix systems, and pass it to @code{convert-standard-filename}."
-msgstr ""
+msgstr "この関数でGNUおよびUnixシステムの慣習に適合する名前を指定して、それを@code{convert-standard-filename}に渡すのが推奨される使用方法である。"
 
 #. type: cindex
 #: files.texi.orig:2560
 #, no-wrap
 msgid "directory-oriented functions"
-msgstr ""
+msgstr "directory-oriented functions"
 
 #. type: cindex
 #: files.texi.orig:2561
