@@ -1773,51 +1773,27 @@ of file-attributes}を参照)。
 @defun file-expand-wildcards pattern &optional full
 この関数は、ワイルドカードパッケージ@var{pattern}を展開して、それにマッチするファイル名のリストをリターンする。
 
-If @var{pattern} is written as an absolute file name, the values are
-absolute also.
+絶対ファイル名として@var{pattern}が記述された場合は、値も絶対ファイル名になる。
 
-If @var{pattern} is written as a relative file name, it is interpreted
-relative to the current default directory.  The file names returned are
-normally also relative to the current default directory.  However, if
-@var{full} is non-@code{nil}, they are absolute.
+@var{pattern}が相対ファイル名で記述されている場合、それはカレントデフォルトディレクトリーにたいして相対的に解釈される。リターンされるファイル名も、通常はカレントデフォルトディレクトリーにたいする相対ファイル名になる。しかし@var{full}が非@code{nil}の場合は、絶対ファイル名がリターンされる。
 @end defun
 
 @defun insert-directory file switches &optional wildcard full-directory-p
-This function inserts (in the current buffer) a directory listing for
-directory @var{file}, formatted with @code{ls} according to @var{switches}.
-It leaves point after the inserted text.  @var{switches} may be a string of
-options, or a list of strings representing individual options.
+この関数は、@code{ls}の@var{switches}に対応するフォーマットで、(カレントバッファー内に)ディレクトリー@var{file}のディレクトリーリストを挿入する。これは、挿入したテキストの後にポイントを残す。@var{switches}にはオプション文字列、または個別のオプションを表す文字列リストを指定できる。
 
-The argument @var{file} may be either a directory name or a file
-specification including wildcard characters.  If @var{wildcard} is
-non-@code{nil}, that means treat @var{file} as a file specification with
-wildcards.
+引数@var{file}にはディレクトリー名、またはワイルドカード文字を含むファイル名を指定できる。@var{wildcard}が非@code{nil}の場合、@var{file}はワイルドカードを伴うファイル指定として扱われることを意味する。
 
-If @var{full-directory-p} is non-@code{nil}, that means the directory
-listing is expected to show the full contents of a directory.  You should
-specify @code{t} when @var{file} is a directory and switches do not contain
-@samp{-d}.  (The @samp{-d} option to @code{ls} says to describe a directory
-itself as a file, rather than showing its contents.)
+@var{full-directory-p}が非@code{nil}の場合、ディレクトリーリストにたいしてディレクトリーの完全なコンテンツ表示を要求することを意味する。@var{file}がディレクトリーで、スイッチに@samp{-d}が含まれないときは、@code{t}を指定するべきである(@code{ls}へのオプション@samp{-d}は、ディレクトリーのコンテンツではなく、ファイルとしてディレクトリーを表示するよう指定する)。
 
-On most systems, this function works by running a directory listing program
-whose name is in the variable @code{insert-directory-program}.  If
-@var{wildcard} is non-@code{nil}, it also runs the shell specified by
-@code{shell-file-name}, to expand the wildcards.
+ほとんどのシステムでは、この関数は変数@code{insert-directory-program}の名前のディレクトリーリスト用プログラムを実行することにより機能する。@var{wildcard}が非@code{nil}の場合は、ワイルドカード展開するために、@code{shell-file-name}で指定されるシェルの実行も行う。
 
-MS-DOS and MS-Windows systems usually lack the standard Unix program
-@code{ls}, so this function emulates the standard Unix program @code{ls}
-with Lisp code.
+MS-DOSおよびMS-Windowsシステムは、標準的なUnixプログラム@code{ls}を欠くので、この関数はLispコードで@code{ls}をエミュレートする。
 
-As a technical detail, when @var{switches} contains the long @samp{--dired}
-option, @code{insert-directory} treats it specially, for the sake of dired.
-However, the normally equivalent short @samp{-D} option is just passed on to
-@code{insert-directory-program}, as any other option.
+技術的な詳細としては、@var{switches}にロングオプション@samp{--dired}が含まれる際に@code{insert-directory}は、diredのためにこれを特別に扱う。しかし他のオプションと同様、通常は等価なショートオプション@samp{-D}が単に@code{insert-directory-program}に渡されるだけである。
 @end defun
 
 @defvar insert-directory-program
-This variable's value is the program to run to generate a directory listing
-for the function @code{insert-directory}.  It is ignored on systems which
-generate the listing with Lisp code.
+この変数の値は、関数@code{insert-directory}用にディレクトリーリストを生成するプログラムである。この値は、Lispコードでリストを生成するシステムでは無視される。
 @end defvar
 
 @node Create/Delete Dirs
