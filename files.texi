@@ -1801,51 +1801,34 @@ MS-DOSおよびMS-Windowsシステムは、標準的なUnixプログラム@code{
 @cindex creating, copying and deleting directories
 @c Emacs 19 features
 
-  Most Emacs Lisp file-manipulation functions get errors when used on files
-that are directories.  For example, you cannot delete a directory with
-@code{delete-file}.  These special functions exist to create and delete
-directories.
+  Emacs
+Lispのファイル操作関数のほとんどは、ディレクトリーであるようなファイルに使用されたときはエラーとなります。たとえば、@code{delete-file}でディレクトリーの削除はできません。以下のスペシャルカは、ディレクトリーの作成と削除を行うために存在します。
 
 @findex mkdir
 @deffn Command make-directory dirname &optional parents
-This command creates a directory named @var{dirname}.  If @var{parents} is
-non-@code{nil}, as is always the case in an interactive call, that means to
-create the parent directories first, if they don't already exist.
+このコマンドは、@var{dirname}という名前のディレクトリーを作成する。@var{parents}が非@code{nil}の場合(インタラクティブな呼び出しでは、常に非@code{nil}となる)、その親ディレクトリーがまだ存在しなければ、最初にそれを作成することを意味する。
 
-@code{mkdir} is an alias for this.
+@code{mkdir}は、これにたいするエイリアスである。
 @end deffn
 
 @deffn Command copy-directory dirname newname &optional keep-time parents copy-contents
-This command copies the directory named @var{dirname} to @var{newname}.  If
-@var{newname} names an existing directory, @var{dirname} will be copied to a
-subdirectory there.
+このコマンドは、@var{dirname}という名前のディレクトリーを、@var{newname}にコピーする。@var{newname}が既存のディレクトリーの場合、@var{dirname}はそれのサブディレクトリーにコピーされるだろう。
 
-It always sets the file modes of the copied files to match the corresponding
-original file.
+これは、常にコピーされるファイルのファイルモードを、対応する元のファイルモードに一致させる。
 
-The third argument @var{keep-time} non-@code{nil} means to preserve the
-modification time of the copied files.  A prefix arg makes @var{keep-time}
-non-@code{nil}.
+3つ目の引数@var{keep-time}が非@code{nil}の場合は、コピーされるファイルの修正時刻を保持することを意味する。プレフィックス引数を与えると、@var{keep-time}が非@code{nil}になる。
 
-The fourth argument @var{parents} says whether to create parent directories
-if they don't exist.  Interactively, this happens by default.
+4つ目の引数@var{parents}は、親ディレクトリーが存在しない場合に作成するかどうかを指定する。インタラクティブな場合、これはデフォルトで発生する。
 
-The fifth argument @var{copy-contents}, if non-@code{nil}, means to copy the
-contents of @var{dirname} directly into @var{newname} if the latter is an
-existing directory, instead of copying @var{dirname} into it as a
-subdirectory.
+5つ目の引数@var{copy-contents}が非@code{nil}の場合、それは@var{newname}が既存のディレクトリーならば、そのサブディレクトリーとして@var{dirname}をコピーするかわりに、@var{dirname}のコンテンツを@var{newname}にコピーする。
 @end deffn
 
 @cindex trash
 @vindex delete-by-moving-to-trash
 @deffn Command delete-directory dirname &optional recursive trash
-This command deletes the directory named @var{dirname}.  The function
-@code{delete-file} does not work for files that are directories; you must
-use @code{delete-directory} for them.  If @var{recursive} is @code{nil}, and
-the directory contains any files, @code{delete-directory} signals an error.
+このコマンドは、@var{dirname}という名前のディレクトリーを削除する。関数@code{delete-file}はディレクトリーであるようなファイルにたいしては機能しない。それらにたいしては、@code{delete-directory}を使用しなければならない。@var{recursive}が@code{nil}で、ディレクトリー内にファイルが存在する場合、@code{delete-directory}はエラーをシグナルする。
 
-@code{delete-directory} only follows symbolic links at the level of parent
-directories.
+@code{delete-directory}は、親ディレクトリーの階層のシンボリックリンクだけをフォローする。
 
 オプション引数@var{trash}が非@code{nil}、かつ変数@code{delete-by-moving-to-trash}が非@code{nil}の場合、このコマンドはファイルを削除するかわりに、システムのTrash(ゴミ箱)にファイルを移動する。@ref{Misc
 File Ops,,Miscellaneous File Operations, emacs, The GNU Emacs
