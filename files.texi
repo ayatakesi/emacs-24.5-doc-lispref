@@ -1839,182 +1839,136 @@ Manual}を参照のこと。インタラクティブに呼び出された際は�
 @section Making Certain File Names ``Magic''
 @cindex magic file names
 
-  You can implement special handling for certain file names.  This is called
-making those names @dfn{magic}.  The principal use for this feature is in
-implementing access to remote files (@pxref{Remote Files,, Remote Files,
-emacs, The GNU Emacs Manual}).
+  特定のファイル名にたいして、特別な処理を実装できます。これは、それらの名前の@dfn{magic}化と呼ばれます。この機能は主に、リモートファイルにたいするアクセスの実装に使用されます(@ref{Remote
+Files,, Remote Files, emacs, The GNU Emacs Manual}を参照)。
 
-  To define a kind of magic file name, you must supply a regular expression to
-define the class of names (all those that match the regular expression),
-plus a handler that implements all the primitive Emacs file operations for
-file names that match.
+  magicファイル名を定義するには、名前クラスを定義するための正規表現、およびそれにマッチするファイル名にたいするEmacsファイル操作プリミティブすべてを実装するハンドラーを定義しなければなりません。
 
 @cindex file handler
 @vindex file-name-handler-alist
-  The variable @code{file-name-handler-alist} holds a list of handlers,
-together with regular expressions that determine when to apply each
-handler.  Each element has this form:
+  変数@code{file-name-handler-alist}は各ハンドラーに適用するときを決定する正規表現とともに、ハンドラーのリストを保持します。各要素は、以下の形式をもちます:
 
 @example
 (@var{regexp} . @var{handler})
 @end example
 
 @noindent
-All the Emacs primitives for file access and file name transformation check
-the given file name against @code{file-name-handler-alist}.  If the file
-name matches @var{regexp}, the primitives handle that file by calling
-@var{handler}.
+ファイルアクセス、およびファイル名変換にたいするすべてのEmacsプリミティブは、@code{file-name-handler-alist}にたいして与えられたファイル名をチェックします。そのファイル名が@var{regexp}にマッチした場合、そのプリミティブが@var{handler}を呼び出してファイルを処理します。
 
-  The first argument given to @var{handler} is the name of the primitive, as a
-symbol; the remaining arguments are the arguments that were passed to that
-primitive.  (The first of these arguments is most often the file name
-itself.)  For example, if you do this:
+  @var{handler}の1つ目の引数には、プリミティブの名前をシンボルとして与えます。残りの引数は、そのプリミティブに引数として渡されます(これらの引数の1つ目は、ほとんどの場合はファイル名自体である)。たとえば以下を行い:
 
 @example
 (file-exists-p @var{filename})
 @end example
 
 @noindent
-and @var{filename} has handler @var{handler}, then @var{handler} is called
-like this:
+@var{filename}がハンドラー@var{handler}をもつ場合、@var{handler}は以下のように呼び出されます:
 
 @example
 (funcall @var{handler} 'file-exists-p @var{filename})
 @end example
 
-  When a function takes two or more arguments that must be file names, it
-checks each of those names for a handler.  For example, if you do this:
+  関数が2つ以上の引数をとる場合、それらはファイル名でなければならず、関数はそれらのファイル名それぞれにたいしてハンドラーをチェックします。たとえば、
 
 @example
 (expand-file-name @var{filename} @var{dirname})
 @end example
 
 @noindent
-then it checks for a handler for @var{filename} and then for a handler for
-@var{dirname}.  In either case, the @var{handler} is called like this:
+以下を行った場合は、@var{filename}にたいするハンドラーをチェックした後、@var{dirname}にたいするハンドラーをチェックします。どちらの場合も、@var{handler}は以下のように呼び出されます:
 
 @example
 (funcall @var{handler} 'expand-file-name @var{filename} @var{dirname})
 @end example
 
 @noindent
-The @var{handler} then needs to figure out whether to handle @var{filename}
-or @var{dirname}.
+その後、@var{handler}は@var{filename}と@var{dirname}のどちらを処理するか解決する必要があります。
 
-  If the specified file name matches more than one handler, the one whose
-match starts last in the file name gets precedence.  This rule is chosen so
-that handlers for jobs such as uncompression are handled first, before
-handlers for jobs such as remote file access.
+  指定されたファイル名が2つ以上のハンドラーにマッチする場合は、ファイル名内で最後に開始するマッチが優先されます。リモートファイルアクセスのようなジョブにたいするハンドラーに先立ち、解凍のようなジョブにたいするハンドラーが最初に処理されるように、このルールが選択されました。
 
-  Here are the operations that a magic file name handler gets to handle:
+  以下は、magicファイル名ハンドラーが処理する操作です:
 
 @ifnottex
 @noindent
 @c Not sure why it was here:   @code{find-file-noselect},@*
-@code{access-file}, @code{add-name-to-file},
-@code{byte-compiler-base-file-name},@* @code{copy-directory},
-@code{copy-file}, @code{delete-directory}, @code{delete-file},
-@code{diff-latest-backup-file}, @code{directory-file-name},
-@code{directory-files}, @code{directory-files-and-attributes},
-@code{dired-compress-file}, @code{dired-uncache},@* @code{expand-file-name},
-@code{file-accessible-directory-p}, @code{file-acl}, @code{file-attributes},
-@code{file-directory-p}, @code{file-equal-p}, @code{file-executable-p},
-@code{file-exists-p}, @code{file-in-directory-p}, @code{file-local-copy},
-@code{file-modes}, @code{file-name-all-completions},
-@code{file-name-as-directory}, @code{file-name-completion},
-@code{file-name-directory}, @code{file-name-nondirectory},
-@code{file-name-sans-versions}, @code{file-newer-than-file-p},
-@code{file-notify-add-watch}, @code{file-notify-rm-watch},
-@code{file-ownership-preserved-p}, @code{file-readable-p},
-@code{file-regular-p}, @code{file-remote-p}, @code{file-selinux-context},
-@code{file-symlink-p}, @code{file-truename}, @code{file-writable-p},
-@code{find-backup-file-name}, @code{get-file-buffer},
-@code{insert-directory}, @code{insert-file-contents},@* @code{load},
-@code{make-auto-save-file-name}, @code{make-directory},
-@code{make-directory-internal}, @code{make-symbolic-link},@*
-@code{process-file}, @code{rename-file}, @code{set-file-acl},
-@code{set-file-modes}, @code{set-file-selinux-context},
-@code{set-file-times}, @code{set-visited-file-modtime},
-@code{shell-command}, @code{start-file-process},
-@code{substitute-in-file-name},@* @code{unhandled-file-name-directory},
-@code{vc-registered}, @code{verify-visited-file-modtime},@*
-@code{write-region}.
+@code{access-file}、@code{add-name-to-file}、@code{byte-compiler-base-file-name}、@*
+@code{copy-directory}、@code{copy-file}、@code{delete-directory}、@code{delete-file}、@code{diff-latest-backup-file}、@code{directory-file-name}、@code{directory-files}、@code{directory-files-and-attributes}、@code{dired-compress-file}、@code{dired-uncache}、@*
+@code{expand-file-name}、@code{file-accessible-directory-p}、@code{file-acl}、@code{file-attributes}、@code{file-directory-p}、@code{file-equal-p}、@code{file-executable-p}、@code{file-exists-p}、@code{file-in-directory-p}、@code{file-local-copy}、@code{file-modes}、@code{file-name-all-completions}、@code{file-name-as-directory}、@code{file-name-completion}、@code{file-name-directory}、@code{file-name-nondirectory}、@code{file-name-sans-versions}、@code{file-newer-than-file-p}、@code{file-notify-add-watch}、@code{file-notify-rm-watch}、@code{file-ownership-preserved-p}、@code{file-readable-p}、@code{file-regular-p}、@code{file-remote-p}、@code{file-selinux-context}、@code{file-symlink-p}、@code{file-truename}、@code{file-writable-p}、@code{find-backup-file-name}、@code{get-file-buffer}、@code{insert-directory}、@code{insert-file-contents}、@*
+@code{load}、@code{make-auto-save-file-name}、@code{make-directory}、@code{make-directory-internal}、@code{make-symbolic-link}、@*
+@code{process-file}、@code{rename-file}、@code{set-file-acl}、@code{set-file-modes}、@code{set-file-selinux-context}、@code{set-file-times}、@code{set-visited-file-modtime}、@code{shell-command}、@code{start-file-process}、@code{substitute-in-file-name}、@*
+@code{unhandled-file-name-directory}、@code{vc-registered}、@code{verify-visited-file-modtime}、@*
+@code{write-region}
 @end ifnottex
 @iftex
 @noindent
 @flushleft
 @c Not sure why it was here:   @code{find-file-noselect},
-@code{access-file}, @code{add-name-to-file},
-@code{byte-com@discretionary{}{}{}piler-base-file-name},
-@code{copy-directory}, @code{copy-file},
-@code{delete-directory}, @code{delete-file},
-@code{diff-latest-backup-file},
-@code{directory-file-name},
-@code{directory-files},
-@code{directory-files-and-at@discretionary{}{}{}tributes},
-@code{dired-compress-file}, @code{dired-uncache},
-@code{expand-file-name},
-@code{file-accessible-direc@discretionary{}{}{}tory-p},
-@code{file-acl},
-@code{file-attributes},
-@code{file-direc@discretionary{}{}{}tory-p},
-@code{file-equal-p},
-@code{file-executable-p}, @code{file-exists-p},
-@code{file-in-directory-p},
-@code{file-local-copy},
-@code{file-modes}, @code{file-name-all-completions},
-@code{file-name-as-directory},
-@code{file-name-completion},
-@code{file-name-directory},
-@code{file-name-nondirec@discretionary{}{}{}tory},
-@code{file-name-sans-versions}, @code{file-newer-than-file-p},
-@code{file-notify-add-watch}, @code{file-notify-rm-watch},
-@code{file-ownership-pre@discretionary{}{}{}served-p},
-@code{file-readable-p}, @code{file-regular-p},
-@code{file-remote-p}, @code{file-selinux-context},
-@code{file-symlink-p}, @code{file-truename}, @code{file-writable-p},
-@code{find-backup-file-name},
-@code{get-file-buffer},
-@code{insert-directory},
-@code{insert-file-contents},
-@code{load},
-@code{make-auto-save-file-name},
-@code{make-direc@discretionary{}{}{}tory},
-@code{make-direc@discretionary{}{}{}tory-internal},
-@code{make-symbolic-link},
-@code{process-file},
-@code{rename-file}, @code{set-file-acl}, @code{set-file-modes},
-@code{set-file-selinux-context}, @code{set-file-times},
-@code{set-visited-file-modtime}, @code{shell-command},
-@code{start-file-process},
-@code{substitute-in-file-name},
-@code{unhandled-file-name-directory},
-@code{vc-regis@discretionary{}{}{}tered},
-@code{verify-visited-file-modtime},
-@code{write-region}.
+@code{access-file}、@code{add-name-to-file}、
+@code{byte-com@discretionary{}{}{}piler-base-file-name}、
+@code{copy-directory}、@code{copy-file}、
+@code{delete-directory}、@code{delete-file}、
+@code{diff-latest-backup-file}、
+@code{directory-file-name}、
+@code{directory-files}、
+@code{directory-files-and-at@discretionary{}{}{}tributes}、
+@code{dired-compress-file}、@code{dired-uncache}、
+@code{expand-file-name}、
+@code{file-accessible-direc@discretionary{}{}{}tory-p}、
+@code{file-acl}、
+@code{file-attributes}、
+@code{file-direc@discretionary{}{}{}tory-p}、
+@code{file-equal-p}、
+@code{file-executable-p}、@code{file-exists-p}、
+@code{file-in-directory-p}、
+@code{file-local-copy}、
+@code{file-modes}、@code{file-name-all-completions}、
+@code{file-name-as-directory}、
+@code{file-name-completion}、
+@code{file-name-directory}、
+@code{file-name-nondirec@discretionary{}{}{}tory}、
+@code{file-name-sans-versions}、@code{file-newer-than-file-p}、
+@code{file-notify-add-watch}、@code{file-notify-rm-watch}、
+@code{file-ownership-pre@discretionary{}{}{}served-p}、
+@code{file-readable-p}、@code{file-regular-p}、
+@code{file-remote-p}、@code{file-selinux-context}、
+@code{file-symlink-p}、@code{file-truename}、@code{file-writable-p}、
+@code{find-backup-file-name}、
+@code{get-file-buffer}、
+@code{insert-directory}、
+@code{insert-file-contents}、
+@code{load}、
+@code{make-auto-save-file-name}、
+@code{make-direc@discretionary{}{}{}tory}、
+@code{make-direc@discretionary{}{}{}tory-internal}、
+@code{make-symbolic-link}、
+@code{process-file}、
+@code{rename-file}、@code{set-file-acl}、@code{set-file-modes}、
+@code{set-file-selinux-context}、@code{set-file-times}、
+@code{set-visited-file-modtime}、@code{shell-command}、
+@code{start-file-process}、
+@code{substitute-in-file-name}、
+@code{unhandled-file-name-directory}、
+@code{vc-regis@discretionary{}{}{}tered}、
+@code{verify-visited-file-modtime}、
+@code{write-region}
 @end flushleft
 @end iftex
 
-  Handlers for @code{insert-file-contents} typically need to clear the
-buffer's modified flag, with @code{(set-buffer-modified-p nil)}, if the
-@var{visit} argument is non-@code{nil}.  This also has the effect of
-unlocking the buffer if it is locked.
+  @code{insert-file-contents}にたいするハンドラーは通常、@var{visit}引数が非@code{nil}の場合は、@code{(set-buffer-modified-p
+nil)}によりそのバッファーの変更フラグをクリアーする必要があります。これには、もしそのバッファーがロックされていたら、ロックを解除する効果もあります。
 
-  The handler function must handle all of the above operations, and possibly
-others to be added in the future.  It need not implement all these
-operations itself---when it has nothing special to do for a certain
-operation, it can reinvoke the primitive, to handle the operation ``in the
-usual way''.  It should always reinvoke the primitive for an operation it
-does not recognize.  Here's one way to do this:
+  ハンドラー関数は上記すべての操作を処理しなければならず、他の操作が将来追加される可能性もあります。これらの操作自体すべてを実装する必要はありません
+---
+特定の操作にたいして特別なことを行う必要がないときは、その操作を``通常の方法''で処理するよう、そのプリミティブを再呼び出しできます。認識できない操作にたいしては、常にそのプリミティブを再呼び出しするべきです。以下は、これを行う方法の1つです:
 
 @smallexample
 (defun my-file-handler (operation &rest args)
-  ;; @r{First check for the specific operations}
-  ;; @r{that we have special handling for.}
+  ;; @r{特別に処理する必要がある、}
+  ;; @r{特別な操作を最初にチェックする}
   (cond ((eq operation 'insert-file-contents) @dots{})
         ((eq operation 'write-region) @dots{})
         @dots{}
-        ;; @r{Handle any operation we don't know about.}
+        ;; @r{関知しないその他の操作を処理する}
         (t (let ((inhibit-file-name-handlers
                   (cons 'my-file-handler
                         (and (eq inhibit-file-name-operation operation)
@@ -2023,128 +1977,58 @@ does not recognize.  Here's one way to do this:
              (apply operation args)))))
 @end smallexample
 
-  When a handler function decides to call the ordinary Emacs primitive for the
-operation at hand, it needs to prevent the primitive from calling the same
-handler once again, thus leading to an infinite recursion.  The example
-above shows how to do this, with the variables
-@code{inhibit-file-name-handlers} and @code{inhibit-file-name-operation}.
-Be careful to use them exactly as shown above; the details are crucial for
-proper behavior in the case of multiple handlers, and for operations that
-have two file names that may each have handlers.
+  ハンドラー関数が通常のEmacsプリミティブを呼び出す決定をした際は、無限再起を引き起こすような、同一ハンドラーからのプリミティブの再呼び出しを防ぐ必要があります。上記の例では、変数@code{inhibit-file-name-handlers}と@code{inhibit-file-name-operation}により、これを行う方法を示しています。上記の例のように、これらを正確に使用するよう、注意してください。複数ハンドラーの正しい振る舞い、およびそれぞれがハンドラーをもつかもしれない2つのファイル名にたいする操作にたいする詳細は、非常に重要です。
 
 @kindex safe-magic (@r{property})
-  Handlers that don't really do anything special for actual access to the
-file---such as the ones that implement completion of host names for remote
-file names---should have a non-@code{nil} @code{safe-magic} property.  For
-instance, Emacs normally ``protects'' directory names it finds in
-@code{PATH} from becoming magic, if they look like magic file names, by
-prefixing them with @samp{/:}.  But if the handler that would be used for
-them has a non-@code{nil} @code{safe-magic} property, the @samp{/:} is not
-added.
+  ファイルへの実アクセスにたいして実際には特別なことを行わないハンドラー(たとえばリモートファイル名にたいしてホスト名の補完を実装するハンドラーなど)は、@code{safe-magic}プロパティに非@code{nil}をもつべきです。たとえば、Emacsは通常は@code{PATH}内で見い出されるようなディレクトリーが、プレフィックス@samp{/:}によりmagicファイル名に見えるような場合に、magicファイル名にならないよう``保護''します。しかし、@code{safe-magic}プロパティに非@code{nil}をもつハンドラーがそれらにたいして使用された場合、@samp{/:}は追加されません。
 
 @kindex operations (@r{property})
-  A file name handler can have an @code{operations} property to declare which
-operations it handles in a nontrivial way.  If this property has a
-non-@code{nil} value, it should be a list of operations; then only those
-operations will call the handler.  This avoids inefficiency, but its main
-purpose is for autoloaded handler functions, so that they won't be loaded
-except when they have real work to do.
+  ファイル名ハンドラーは、普通とは異なる方法でそれを処理(handle)するのが、どの操作(operation)なのかを宣言するために、@code{operations}プロパティをもつことができます。このプロパティが非@code{nil}値をもつ場合、それは操作のリストであるべきです。その場合は、それらの操作だけがハンドラーを呼び出すでしょう。これは無駄を省きますが、主な目的はオートロードされるハンドラー関数が実際に処理を行うとき以外はロードされないようにすることです。
 
-  Simply deferring all operations to the usual primitives does not work.  For
-instance, if the file name handler applies to @code{file-exists-p}, then it
-must handle @code{load} itself, because the usual @code{load} code won't
-work properly in that case.  However, if the handler uses the
-@code{operations} property to say it doesn't handle @code{file-exists-p},
-then it need not handle @code{load} nontrivially.
+  通常のプリミティブにたいして、単にすべての操作を延期するのは、機能しません。たとえば、ファイル名ハンドラーが@code{file-exists-p}にたいして適用された場合は、通常の@code{load}コードは正しく機能しないでしょうから、ハンドラー自身で@code{load}を処理しなければなりません。しかし、ハンドラーが@code{file-exists-p}プロパティを使用して、@code{file-exists-p}を処理しないことを宣言した場合は、普通とは異なる方法で@code{load}を処理する必要はなくなります。
 
 @defvar inhibit-file-name-handlers
-This variable holds a list of handlers whose use is presently inhibited for
-a certain operation.
+この変数は、特定の操作にたいして現在のところ使用を抑制されているハンドラーのリストを保持する。
 @end defvar
 
 @defvar inhibit-file-name-operation
-The operation for which certain handlers are presently inhibited.
+特定のハンドラーにたいして、現在のところ抑制されている操作。
 @end defvar
 
 @defun find-file-name-handler file operation
-This function returns the handler function for file name @var{file}, or
-@code{nil} if there is none.  The argument @var{operation} should be the
-operation to be performed on the file---the value you will pass to the
-handler as its first argument when you call it.  If @var{operation} equals
-@code{inhibit-file-name-operation}, or if it is not found in the
-@code{operations} property of the handler, this function returns @code{nil}.
+この関数は、@var{file}というファイル名にたいするハンドラー関数、それが存在しなければ@code{nil}をリターンする。引数@var{operation}は、そのファイルを処理する操作であること。これは、ハンドラー呼び出し時に1つ目の引数として渡すことになる値である。@var{operation}が@code{inhibit-file-name-operation}と等しい、またはそのハンドラーの@code{operations}内に存在しない場合、この関数は@code{nil}をリターンする。
 @end defun
 
 @defun file-local-copy filename
-This function copies file @var{filename} to an ordinary non-magic file on
-the local machine, if it isn't on the local machine already.  Magic file
-names should handle the @code{file-local-copy} operation if they refer to
-files on other machines.  A magic file name that is used for other purposes
-than remote file access should not handle @code{file-local-copy}; then this
-function will treat the file as local.
+この関数は、ファイル@var{filename}がまだローカルマシン上にない場合は、それをローカルマシン上の通常の非magicファイルにコピーする。magicファイル名は、それらが他のマシン上のファイルを参照する場合は、@code{file-local-copy}操作を処理するべきである。リモートファイルアクセス以外の目的にたいして使用されるmagicファイル名は、@code{file-local-copy}を処理するべきではない。その場合、この関数はそのファイルをローカルファイルとして扱うだろう。
 
-If @var{filename} is local, whether magic or not, this function does nothing
-and returns @code{nil}.  Otherwise it returns the file name of the local
-copy file.
+@var{filename}がローカルの場合、それがmagicか否かにかかわらず、この関数は何も行わずに、@code{nil}をリターンする。それ以外では、ローカルコピーファイルのファイル名をリターンする。
 @end defun
 
 @defun file-remote-p filename &optional identification connected
-This function tests whether @var{filename} is a remote file.  If
-@var{filename} is local (not remote), the return value is @code{nil}.  If
-@var{filename} is indeed remote, the return value is a string that
-identifies the remote system.
+この関数は、@var{filename}がリモートファイルかどうかをテストする。@var{filename}がローカル(リモートではない)の場合、リターン値は@code{nil}である。@var{filename}が正にリモートの場合、リターン値はそのリモートシステムを識別する文字列である。
 
-This identifier string can include a host name and a user name, as well as
-characters designating the method used to access the remote system.  For
-example, the remote identifier string for the filename
-@code{/sudo::/some/file} is @code{/sudo:root@@localhost:}.
+この識別子文字列は、ホスト名とユーザー名、およびリモートシステムへのアクセスに使用されるメソッドを表す文字列も同様に含めることができる。たとえば、ファイル名@code{/sudo::/some/file}にたいするリモート識別子文字列は、@code{/sudo:root@@localhost:}となる。
 
-If @code{file-remote-p} returns the same identifier for two different
-filenames, that means they are stored on the same file system and can be
-accessed locally with respect to each other.  This means, for example, that
-it is possible to start a remote process accessing both files at the same
-time.  Implementers of file handlers need to ensure this principle is valid.
+2つの異なるファイルにたいして@code{file-remote-p}が同じ識別子をリターンした場合は、それらが同じファイルシステム上に格納されていて、互いに配慮しつつアクセス可能であることを意味する。これはたとえば、同時に両方のファイルにアクセスするリモートプロセスを開始することが可能なことを意味する。ファイルハンドラーの実装者は、この方式を保証する必要がある。
 
-@var{identification} specifies which part of the identifier shall be
-returned as string.  @var{identification} can be the symbol @code{method},
-@code{user} or @code{host}; any other value is handled like @code{nil} and
-means to return the complete identifier string.  In the example above, the
-remote @code{user} identifier string would be @code{root}.
+@var{identification}は、文字列としてリターンされるべき識別子の一部を指定する。@var{identification}には@code{method}、@code{user}、@code{host}のシンボルを指定できる。他の値はすべて@code{nil}のように扱われ、それは完全な識別子文字列をリターンすることを意味する。上記の例では、リモートの@code{user}識別子文字列は、@code{root}になるだろう。
 
-If @var{connected} is non-@code{nil}, this function returns @code{nil} even
-if @var{filename} is remote, if Emacs has no network connection to its
-host.  This is useful when you want to avoid the delay of making connections
-when they don't exist.
+@var{connected}が非@code{nil}の場合、たとえ@var{filename}がリモートであっても、Emacsがそのホストにたいする接続をもたない場合、この関数は@code{nil}をリターンする。これは、接続が存在しない際の接続の遅延を回避したいときに有用である。
 @end defun
 
 @defun unhandled-file-name-directory filename
-This function returns the name of a directory that is not magic.  It uses
-the directory part of @var{filename} if that is not magic.  For a magic file
-name, it invokes the file name handler, which therefore decides what value
-to return.  If @var{filename} is not accessible from a local process, then
-the file name handler should indicate it by returning @code{nil}.
+この関数は、magicではないディレクトリーの名前をリターンする。これは、@var{filename}がmagicでなければ、それのディレクトリーパートを使用する。magicファイル名にたいしては、何の値をリターンするかを決定するために、ファイル名ハンドラーを呼び出す。@var{filename}がローカルプロセスからアクセス不能な場合、ファイル名ハンドラーは@code{nil}をリターンすることにより、それを示すべきである。
 
-This is useful for running a subprocess; every subprocess must have a
-non-magic directory to serve as its current directory, and this function is
-a good way to come up with one.
+これは、サブプロセスの実行に有用である。すべてのサブプロセスは、自身が属すカレントディレクトリーとして非magicディレクトリーをもたなければならず、この関数はそれを導出するよい手段である。
 @end defun
 
 @defopt remote-file-name-inhibit-cache
-The attributes of remote files can be cached for better performance.  If
-they are changed outside of Emacs's control, the cached values become
-invalid, and must be reread.
+リモートファイルの属性は、よりよいパフォーマンスのためにキャッシュすることができる。キャッシュがEmacsの制御外で変更された場合、そのキャッシュ値は無効になり、再読込しなければならない。
 
-When this variable is set to @code{nil}, cached values are never expired.
-Use this setting with caution, only if you are sure nothing other than Emacs
-ever changes the remote files.  If it is set to @code{t}, cached values are
-never used.  This is the safest value, but could result in performance
-degradation.
+この変数が@code{nil}にセットされていると、キャッシュ値は決して失効しない。このセッティングは、Emacs以外にリモートファイルを変更するものがないことが確実な場合のみ、慎重に使用すること。これが@code{t}にセットされていると、キャッシュ値は決して使用されない。これはもっとも安全な値であるが、パフォーマンスは低下するかもしれない。
 
-A compromise is to set it to a positive number.  This means that cached
-values are used for that amount of seconds since they were cached.  If a
-remote file is checked regularly, it might be a good idea to let-bind this
-variable to a value less than the time period between consecutive checks.
-For example:
+折衷的な値としては、これを正の数字にセットする。これは、キャッシュされてからその数字の秒数の間は、キャッシュ値を使用することを意味する。リモートファイルが定期的にチェックされる場合には、この変数を定期的なチェックの間隔より小さい値にletバインドするのは、よい考えかもしれない。たとえば:
 
 @example
 (defun display-time-file-nonempty-p (file)
