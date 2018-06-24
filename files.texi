@@ -2060,30 +2060,27 @@ conversion)}を行う基本的な関数、すなわちファイルをバッフ�
 @node Format Conversion Overview
 @subsection Overview
 @noindent
-The function @code{insert-file-contents}:
+関数@code{insert-file-contents}:
 
 @itemize
-@item initially, inserts bytes from the file into the buffer;
-@item decodes bytes to characters as appropriate;
-@item processes formats as defined by entries in @code{format-alist}; and
-@item calls functions in @code{after-insert-file-functions}.
+@item 最初に、ファイルからバイトをバッファーに挿入し、
+@item バイトを適切な文字にデコードした後、
+@item @code{format-alist}のエントリーにより定義されているようにフォーマット処理して、
+@item @code{after-insert-file-functions}内の関数を呼び出す。
 @end itemize
 
 @noindent
-The function @code{write-region}:
+関数@code{write-region}:
 
 @itemize
-@item initially, calls functions in @code{write-region-annotate-functions};
-@item processes formats as defined by entries in @code{format-alist};
-@item encodes characters to bytes as appropriate; and
-@item modifies the file with the bytes.
+@item 最初に、@code{write-region-annotate-functions}内の関数を呼び出し、
+@item @code{format-alist}のエントリーにより定義されているようにフォーマット処理して、
+@item 文字を適切なバイトにエンコードした後、
+@item そのバイトでファイルを変更する。
 @end itemize
 
-  This shows the symmetry of the lowest-level operations; reading and writing
-handle things in opposite order.  The rest of this section describes the two
-facilities surrounding the three variables named above, as well as some
-related functions.  @ref{Coding Systems}, for details on character encoding
-and decoding.
+  これは、もっとも低レベルでの操作を対照的に示したもので、対象の読み取りと書き込みの処理が逆順で対応しています。このセクションの残りでは、上記で名前のでた3つの変数を取り囲む2つの機能と、いくつかの関連する関数を説明します。文字のエンコードとデコードについての詳細は、@ref{Coding
+Systems}を参照してください。
 
 @node Format Conversion Round-Trip
 @subsection Round-Trip Specification
