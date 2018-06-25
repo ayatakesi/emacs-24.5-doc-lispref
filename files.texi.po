@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-05-04 23:31+0900\n"
-"PO-Revision-Date: 2018-06-25 09:43+0900\n"
+"PO-Revision-Date: 2018-06-25 11:50+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -4241,7 +4241,7 @@ msgstr "@code{delete-directory}は、親ディレクトリーの階層のシン�
 #: files.texi.orig:2732
 #, no-wrap
 msgid "Making Certain File Names ``Magic''"
-msgstr ""
+msgstr "Making Certain File Names ``Magic''"
 
 #. type: cindex
 #: files.texi.orig:2733
@@ -4730,9 +4730,8 @@ msgstr "Piecemeal: Format Conversion Piecemeal"
 
 #. type: menuentry
 #: files.texi.orig:3101
-#, fuzzy
 msgid "Specifying non-paired conversion."
-msgstr "Specifying non-paired conversion."
+msgstr "非ペアー変換の指定。"
 
 #. type: node
 #: files.texi.orig:3103
@@ -4813,7 +4812,7 @@ msgstr "これは、もっとも低レベルでの操作を対照的に示した
 #: files.texi.orig:3131
 #, no-wrap
 msgid "Format Conversion Round-Trip"
-msgstr ""
+msgstr "Format Conversion Round-Trip"
 
 #. type: subsection
 #: files.texi.orig:3132
@@ -5066,98 +5065,98 @@ msgstr "この変数は、自動保存(auto-saving)にたいして使用する�
 #: files.texi.orig:3298
 #, no-wrap
 msgid "Format Conversion Piecemeal"
-msgstr ""
+msgstr "Format Conversion Piecemeal"
 
 #. type: subsection
 #: files.texi.orig:3299
 #, no-wrap
 msgid "Piecemeal Specification"
-msgstr ""
+msgstr "Piecemeal Specification"
 
 #. type: Plain text
 #: files.texi.orig:3305
 msgid "In contrast to the round-trip specification described in the previous subsection (@pxref{Format Conversion Round-Trip}), you can use the variables @code{after-insert-file-functions} and @code{write-region-annotate-functions} to separately control the respective reading and writing conversions."
-msgstr ""
+msgstr "前のサブセクション(@ref{Format Conversion Round-Trip}を参照)で説明したラウンドトリップ指定とは対照的に、変数@code{after-insert-file-functions}と@code{write-region-annotate-functions}を使用して、読み取りと書き込みの変換を個別に制御できます。"
 
 #. type: Plain text
 #: files.texi.orig:3311
 msgid "Conversion starts with one representation and produces another representation.  When there is only one conversion to do, there is no conflict about what to start with.  However, when there are multiple conversions involved, conflict may arise when two conversions need to start with the same data."
-msgstr ""
+msgstr "変換は、ある表現を起点として、他の表現を生成します。これを行う変換が1つだけのときは、何を起点とするかに関して競合は存在しません。しかし、複数の変換呼び出しが存在する場合、同じデータを起点にする必要がある2つの変換の間に、競合が発生するかもしれません。"
 
 #. type: Plain text
 #: files.texi.orig:3319
 msgid "This situation is best understood in the context of converting text properties during @code{write-region}.  For example, the character at position 42 in a buffer is @samp{X} with a text property @code{foo}.  If the conversion for @code{foo} is done by inserting into the buffer, say, @samp{FOO:}, then that changes the character at position 42 from @samp{X} to @samp{F}.  The next conversion will start with the wrong data straight away."
-msgstr ""
+msgstr "この状況を理解するには、@code{write-region}中のテキストプロパティの変換コンテキストが最善です。たとえば、あるバッファーの位置42の文字が@samp{X}で、それのテキストプロパティが@code{foo}だとします。@code{foo}にたいする変換が、たとえばそのバッファーに@samp{FOO:}を挿入することにより行われる場合、それは位置42の文字@samp{X}を@samp{F}に変更します。そして次の変換は、間違ったデータを起点に開始されるでしょう。"
 
 #. type: Plain text
 #: files.texi.orig:3324
 msgid "To avoid conflict, cooperative conversions do not modify the buffer, but instead specify @dfn{annotations}, a list of elements of the form @code{(@var{position} . @var{string})}, sorted in order of increasing @var{position}."
-msgstr ""
+msgstr "競合を避けるためには、協調的な変換がバッファーを変更せずに、@var{position}昇順でソートされた、@code{(@var{position} . @var{string})}という形式の要素をもつリストを、@dfn{注釈(annotations)}に指定します。"
 
 #. type: Plain text
 #: files.texi.orig:3330
 msgid "If there is more than one conversion, @code{write-region} merges their annotations destructively into one sorted list.  Later, when the text from the buffer is actually written to the file, it intermixes the specified annotations at the corresponding positions.  All this takes place without modifying the buffer."
-msgstr ""
+msgstr "2つ以上の変換が存在する場合、@code{write-region}はそれらの注釈を、1つのソート済みリストに破壊的にマージします。後でそのバッファーのテキストを実際にファイルに書き込む際に、対応する位置にある指定された注釈を混合します。これはすべて、バッファーを変更せずに行われます。"
 
 #. type: Plain text
 #: files.texi.orig:3346
 msgid "In contrast, when reading, the annotations intermixed with the text are handled immediately.  @code{insert-file-contents} sets point to the beginning of some text to be converted, then calls the conversion functions with the length of that text.  These functions should always return with point at the beginning of the inserted text.  This approach makes sense for reading because annotations removed by the first converter can't be mistakenly processed by a later converter.  Each conversion function should scan for the annotations it recognizes, remove the annotation, modify the buffer text (to set a text property, for example), and return the updated length of the text, as it stands after those changes.  The value returned by one function becomes the argument to the next function."
-msgstr ""
+msgstr "これとは対照的に、読み取り時にはそのテキストの混合された注釈は、即座に処理されます。@code{insert-file-contents}は、変更される何らかのテキストの先頭にポイントをセットしてから、そのテキストの長さで変換関数を呼び出します。これらの関数は常に、挿入されるテキストの先頭のポイントをリターンするべきです。最初の変換により注釈が削除されても、その後の変換が誤って処理することはないので、このアプローチは読み取りに際しては正しく機能します。すべての変換関数は、それが認識する注釈のスキャン、その注釈の削除、バッファーテキストの変更(たとえばテキストプロパティのセット等)、およびそれらの変更に由来する更新されたテキスト長のリターンを行うべきです。１つの関数によりリターンされた値は、次の関数への引数になります。"
 
 #. type: defvar
 #: files.texi.orig:3347
 #, no-wrap
 msgid "write-region-annotate-functions"
-msgstr ""
+msgstr "write-region-annotate-functions"
 
 #. type: defvar
 #: files.texi.orig:3352
 msgid "A list of functions for @code{write-region} to call.  Each function in the list is called with two arguments: the start and end of the region to be written.  These functions should not alter the contents of the buffer.  Instead, they should return annotations."
-msgstr ""
+msgstr "@code{write-region}にたいして呼び出す、関数のリスト。リスト内の各関数は、書き込まれるリージョンの開始と終了の、2つの引数で呼び出される。これらの関数は、そのバッファーのコンテンツを変更するべきではない。かわりに注釈をリターンすること。"
 
 #. type: defvar
 #: files.texi.orig:3360
 msgid "As a special case, a function may return with a different buffer current.  Emacs takes this to mean that the current buffer contains altered text to be output.  It therefore changes the @var{start} and @var{end} arguments of the @code{write-region} call, giving them the values of @code{point-min} and @code{point-max} in the new buffer, respectively.  It also discards all previous annotations, because they should have been dealt with by this function."
-msgstr ""
+msgstr "特別なケースとして、関数がカレントと異なるバッファーをリターンするかもしれない。Emacsはこれを、カレントバッファーが出力される変更されたテキストを含むものとして理解する。つまり、Emacsは@code{write-region}呼び出しの引数@var{start}と@var{end}を、新たなバッファーの@code{point-min}と@code{point-max}に変更して与える。さらに、以前のすべての注釈はこの関数により処理されるので、Emacsはそれらの破棄も行う。"
 
 #. type: defvar
 #: files.texi.orig:3362
 #, no-wrap
 msgid "write-region-post-annotation-function"
-msgstr ""
+msgstr "write-region-post-annotation-function"
 
 #. type: defvar
 #: files.texi.orig:3366
 msgid "The value of this variable, if non-@code{nil}, should be a function.  This function is called, with no arguments, after @code{write-region} has completed."
-msgstr ""
+msgstr "この変数の値が非@code{nil}の場合、それは関数であること。この関数は、@code{write-region}完了後に引数なしで呼び出される。"
 
 #. type: defvar
 #: files.texi.orig:3372
 msgid "If any function in @code{write-region-annotate-functions} returns with a different buffer current, Emacs calls @code{write-region-post-annotation-function} more than once.  Emacs calls it with the last buffer that was current, and again with the buffer before that, and so on back to the original buffer."
-msgstr ""
+msgstr "@code{write-region-annotate-functions}内のある関数がカレントと異なるバッファーをリターンした場合、Emacsは@code{write-region-post-annotation-function}を複数回呼び出す。Emacsは最後にカレントだったバッファーでそれを呼び出し、その前にカレントだったバッファーで再度これを呼び出す、...のようにして元のバッファーに戻る。"
 
 #. type: defvar
 #: files.texi.orig:3377
 msgid "Thus, a function in @code{write-region-annotate-functions} can create a buffer, give this variable the local value of @code{kill-buffer} in that buffer, set up the buffer with altered text, and make the buffer current.  The buffer will be killed after @code{write-region} is done."
-msgstr ""
+msgstr "したがって、@code{write-region-annotate-functions}内の関数は、バッファーを作成して、@code{kill-buffer}のそのバッファーでのローカル値にこの変数を与え、変更されたテキストでそのバッファーをセットアップして、そのバッファーをカレントにすることができる。そのバッファーは、@code{write-region}完了後にkillされるだろう。"
 
 #. type: defvar
 #: files.texi.orig:3379
 #, no-wrap
 msgid "after-insert-file-functions"
-msgstr ""
+msgstr "after-insert-file-functions"
 
 #. type: defvar
 #: files.texi.orig:3387
 msgid "Each function in this list is called by @code{insert-file-contents} with one argument, the number of characters inserted, and with point at the beginning of the inserted text.  Each function should leave point unchanged, and return the new character count describing the inserted text as modified by the function."
-msgstr ""
+msgstr "このリスト内の各関数は、挿入されるテキストの先頭にポイントがある状態で、挿入される文字数を１つの引数として、@code{insert-file-contents}により呼び出される。すべての関数はポイントを未変更のまま、その関数によって変更された、挿入後テキストの新たな文字数をリターンするべきである。"
 
 #. type: Plain text
 #: files.texi.orig:3393
 msgid "We invite users to write Lisp programs to store and retrieve text properties in files, using these hooks, and thus to experiment with various data formats and find good ones.  Eventually we hope users will produce good, general extensions we can install in Emacs."
-msgstr ""
+msgstr "わたしたちは、ユーザーがファイル内にテキストプロパティを格納したりそれらを取得するために、そしてさまざまなデータフォーマットを体験することにより、適切なフォーマットを見つけるために、これらのフックを使用してLispプログラムを記述することを推奨します。最終的には、わたしたちがEmacs内にインストールできる、良質で汎用性のある拡張をユーザーが開発することを望みます。"
 
 #. type: Plain text
 #: files.texi.orig:3397
 msgid "We suggest not trying to handle arbitrary Lisp objects as text property names or values---because a program that general is probably difficult to write, and slow.  Instead, choose a set of possible data types that are reasonably flexible, and not too hard to encode."
-msgstr ""
+msgstr "わたしたちは、テキストプロパティの名前や値として、任意のLispオブジェクトの処理を試みることは推奨しません --- なぜなら汎用的なプログラムはおそらく記述が困難で、かつ低速だからです。かわりに、十分な柔軟性をもち、エンコードが難しすぎない、想定されるデータ型のセットを選択してください。"
