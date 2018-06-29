@@ -45,40 +45,25 @@ backup)を要求することもできます。その場合は、新たなバッ�
 @cindex making backup files
 
 @defun backup-buffer
-  This function makes a backup of the file visited by the current buffer, if
-appropriate.  It is called by @code{save-buffer} before saving the buffer
-the first time.
+  この関数は、もしそれが適切であれば、カレントバッファーにvisitされているファイルのバックアップを作成する。これは、最初のバッファー保存を行う前に、@code{save-buffer}により呼び出される。
 
-If a backup was made by renaming, the return value is a cons cell of the
-form (@var{modes} @var{extra-alist} @var{backupname}), where @var{modes} are
-the mode bits of the original file, as returned by @code{file-modes}
-(@pxref{Testing Accessibility}), @var{extra-alist} is an alist describing
-the original file's extended attributes, as returned by
-@code{file-extended-attributes} (@pxref{Extended Attributes}), and
-@var{backupname} is the name of the backup.
+リネームによりバックアップが作成された場合、リターン値は(@var{modes} @var{extra-alist}
+@var{backupname})という形式のコンスセルである。ここで@var{modes}は、@code{file-modes}(@ref{Testing
+Accessibility}を参照)でリターンされるような元ファイルのモードビット、@var{extra-alist}は@code{file-extended-attributes}(@ref{Extended
+Attributes}を参照)によりリターンされるような元ファイルの拡張属性を示すalist、そして@var{backupname}はバックアップの名前である。
 
-In all other cases (i.e., if a backup was made by copying or if no backup
-was made), this function returns @code{nil}.
+他のすべての場合(コピーによりバックアップが作成された、またはバックアップが作成されなかった)、この関数は@code{nil}をリターンする。
 @end defun
 
 @defvar buffer-backed-up
-  This buffer-local variable says whether this buffer's file has been backed
-up on account of this buffer.  If it is non-@code{nil}, the backup file has
-been written.  Otherwise, the file should be backed up when it is next saved
-(if backups are enabled).  This is a permanent local;
-@code{kill-all-local-variables} does not alter@tie{}it.
+  このバッファーローカル変数は、そのバッファーのファイルがバッファーによりバックアップされたかどうかを明示する。非@code{nil}の場合、バックアップファイルは書き込み済みであり、それ以外では、(バックアップが有効なら)次回保存時にファイルはバックアップされる。この変数は永続的にローカルであり、@code{kill-all-local-variables}はそれを変更しない。
 @end defvar
 
 @defopt make-backup-files
-This variable determines whether or not to make backup files.  If it is
-non-@code{nil}, then Emacs creates a backup of each file when it is saved
-for the first time---provided that @code{backup-inhibited} is @code{nil}
-(see below).
+この変数は、バックアップファイルを作成するかどうかを決定する。非@code{nil}の場合、Emacsは初回保存時にすべてのファイルのバックアップを作成する
+--- ただし@code{backup-inhibited}が@code{nil}の場合(以下参照)。
 
-The following example shows how to change the @code{make-backup-files}
-variable only in the Rmail buffers and not elsewhere.  Setting it @code{nil}
-stops Emacs from making backups of these files, which may save disk space.
-(You would put this code in your init file.)
+以下の例は、Rmailバッファーだけで変数@code{make-backup-files}を変更して、それ以外では変更しない方法を示す。この変数を@code{nil}にセットすると、Emacsはそれらのファイルのバックアップ作成をストップし、それはディスク容量の消費を節約するだろう(あなたは、このコードをinitファイルに配置したいと思うかもしれない)。
 
 @smallexample
 @group
@@ -89,64 +74,39 @@ stops Emacs from making backups of these files, which may save disk space.
 @end defopt
 
 @defvar backup-enable-predicate
-This variable's value is a function to be called on certain occasions to
-decide whether a file should have backup files.  The function receives one
-argument, an absolute file name to consider.  If the function returns
-@code{nil}, backups are disabled for that file.  Otherwise, the other
-variables in this section say whether and how to make backups.
+この変数の値は、あるファイルがバックアップファイルをもつべきかどうかを決定する、特定の機会に呼び出される関数である。関数は、判断すべき絶対ファイル名という、1つの引数を受け取る。この関数が@code{nil}をリターンした場合、そのファイルにたいするバックアップは無効になる。それ以外では、このセクション内の他の変数がバックアップ作成の是非と方法を指定する。
 
 @findex normal-backup-enable-predicate
-The default value is @code{normal-backup-enable-predicate}, which checks for
-files in @code{temporary-file-directory} and
-@code{small-temporary-file-directory}.
+デフォルト値は@code{normal-backup-enable-predicate}で、これは@code{temporary-file-directory}と@code{small-temporary-file-directory}内のファイルをチェックする。
 @end defvar
 
 @defvar backup-inhibited
-If this variable is non-@code{nil}, backups are inhibited.  It records the
-result of testing @code{backup-enable-predicate} on the visited file name.
-It can also coherently be used by other mechanisms that inhibit backups
-based on which file is visited.  For example, VC sets this variable
-non-@code{nil} to prevent making backups for files managed with a version
-control system.
+この変数が非@code{nil}の場合、バックアップは抑止される。これは、visitされているファイル名にたいする@code{backup-enable-predicate}のテスト結果を記録する。さらに、visitされているファイルにたいするバックアップ抑止にもとづくその他機構によっても、使用され得る。たとえば、VCはバージョンコントロールシステムに管理されるファイルのバックアップを防ぐために、この変数を非@code{nil}にセットする。
 
-This is a permanent local, so that changing the major mode does not lose its
-value.  Major modes should not set this variable---they should set
-@code{make-backup-files} instead.
+これは永続的にローカルなので、メジャーモード変更により値は失われない。メジャーモードはこの変数ではなく、かわりに@code{make-backup-files}をセットするべきである。
 @end defvar
 
 @defopt backup-directory-alist
-This variable's value is an alist of filename patterns and backup directory
-names.  Each element looks like
+この変数の値は、ファイル名パターンとバックアップディレクトリー名のalistである。各要素は以下の形式をもつ
 @smallexample
 (@var{regexp} . @var{directory})
 @end smallexample
 
 @noindent
-Backups of files with names matching @var{regexp} will be made in
-@var{directory}.  @var{directory} may be relative or absolute.  If it is
-absolute, so that all matching files are backed up into the same directory,
-the file names in this directory will be the full name of the file backed up
-with all directory separators changed to @samp{!} to prevent clashes.  This
-will not work correctly if your filesystem truncates the resulting name.
+名前が@var{regexp}にマッチするファイルのバックアップが、@var{directory}内に作成されるだろう。@var{directory}には相対ディレクトリー、または絶対ディレクトリーを指定できる。絶対ディレクトリーの場合は、マッチするすべてのファイルが同じディレクトリー内にバックアップされる。このディレクトリー内でのファイル名は、クラッシュを避けるために、バックアップされるファイルの完全名のすべてのディレクトリー区切りは、@samp{!}に変更される。結果の名前を切り詰めるファイルシステムでは、これは正しく機能しないだろう。
 
-For the common case of all backups going into one directory, the alist
-should contain a single element pairing @samp{"."} with the appropriate
-directory name.
+すべてのバックアップが単一のディレクトリーで行われる一般的なケースでは、alistは@samp{"."}と適切なディレクトリーからなるペアーの、単一の要素を含むべきである。
 
-If this variable is @code{nil} (the default), or it fails to match a
-filename, the backup is made in the original file's directory.
+この変数が@code{nil}(デフォルト)、またはファイル名のマッチに失敗した場合、バックアップは元のファイルのディレクトリーに作成される。
 
-On MS-DOS filesystems without long names this variable is always ignored.
+長いファイル名のないMS-DOSファイルシステムでは、この変数は常に無視される。
 @end defopt
 
 @defopt make-backup-file-name-function
-This variable's value is a function to use for making backup file names.
-The function @code{make-backup-file-name} calls it.  @xref{Backup Names,,
-Naming Backup Files}.
+この変数の値は、バックアップファイル名を作成する関数である。関数@code{make-backup-file-name}は、これを呼び出す。@ref{Backup
+Names,, Naming Backup Files}を参照のこと。
 
-This could be buffer-local to do something special for specific files.  If
-you change it, you may need to change @code{backup-file-name-p} and
-@code{file-name-sans-versions} too.
+特定のファイルにたいして特別なことを行うために、これをバッファーローカルにすることもできる。変更する場合は、@code{backup-file-name-p}と@code{file-name-sans-versions}も変更する必要があるかもしれない。
 @end defopt
 
 

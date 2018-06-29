@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-06-25 18:31+0900\n"
-"PO-Revision-Date: 2018-06-28 07:16+0900\n"
+"PO-Revision-Date: 2018-06-30 07:05+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -134,61 +134,61 @@ msgstr "バックアップファイル名の計算方法とカスタマイズ。
 #: backups.texi.orig:52
 #, no-wrap
 msgid "Making Backup Files"
-msgstr ""
+msgstr "Making Backup Files"
 
 #. type: cindex
 #: backups.texi.orig:53
 #, no-wrap
 msgid "making backup files"
-msgstr ""
+msgstr "making backup files"
 
 #. type: defun
 #: backups.texi.orig:55
 #, no-wrap
 msgid "backup-buffer"
-msgstr ""
+msgstr "backup-buffer"
 
 #. type: defun
 #: backups.texi.orig:59
 msgid "This function makes a backup of the file visited by the current buffer, if appropriate.  It is called by @code{save-buffer} before saving the buffer the first time."
-msgstr ""
+msgstr "この関数は、もしそれが適切であれば、カレントバッファーにvisitされているファイルのバックアップを作成する。これは、最初のバッファー保存を行う前に、@code{save-buffer}により呼び出される。"
 
 #. type: defun
 #: backups.texi.orig:67
 msgid "If a backup was made by renaming, the return value is a cons cell of the form (@var{modes} @var{extra-alist} @var{backupname}), where @var{modes} are the mode bits of the original file, as returned by @code{file-modes} (@pxref{Testing Accessibility}), @var{extra-alist} is an alist describing the original file's extended attributes, as returned by @code{file-extended-attributes} (@pxref{Extended Attributes}), and @var{backupname} is the name of the backup."
-msgstr ""
+msgstr "リネームによりバックアップが作成された場合、リターン値は(@var{modes} @var{extra-alist} @var{backupname})という形式のコンスセルである。ここで@var{modes}は、@code{file-modes}(@ref{Testing Accessibility}を参照)でリターンされるような元ファイルのモードビット、@var{extra-alist}は@code{file-extended-attributes}(@ref{Extended Attributes}を参照)によりリターンされるような元ファイルの拡張属性を示すalist、そして@var{backupname}はバックアップの名前である。"
 
 #. type: defun
 #: backups.texi.orig:70
 msgid "In all other cases (i.e., if a backup was made by copying or if no backup was made), this function returns @code{nil}."
-msgstr ""
+msgstr "他のすべての場合(コピーによりバックアップが作成された、またはバックアップが作成されなかった)、この関数は@code{nil}をリターンする。"
 
 #. type: defvar
 #: backups.texi.orig:72
 #, no-wrap
 msgid "buffer-backed-up"
-msgstr ""
+msgstr "buffer-backed-up"
 
 #. type: defvar
 #: backups.texi.orig:78
 msgid "This buffer-local variable says whether this buffer's file has been backed up on account of this buffer.  If it is non-@code{nil}, the backup file has been written.  Otherwise, the file should be backed up when it is next saved (if backups are enabled).  This is a permanent local; @code{kill-all-local-variables} does not alter@tie{}it."
-msgstr ""
+msgstr "このバッファーローカル変数は、そのバッファーのファイルがバッファーによりバックアップされたかどうかを明示する。非@code{nil}の場合、バックアップファイルは書き込み済みであり、それ以外では、(バックアップが有効なら)次回保存時にファイルはバックアップされる。この変数は永続的にローカルであり、@code{kill-all-local-variables}はそれを変更しない。"
 
 #. type: defopt
 #: backups.texi.orig:80
 #, no-wrap
 msgid "make-backup-files"
-msgstr ""
+msgstr "make-backup-files"
 
 #. type: defopt
 #: backups.texi.orig:85
 msgid "This variable determines whether or not to make backup files.  If it is non-@code{nil}, then Emacs creates a backup of each file when it is saved for the first time---provided that @code{backup-inhibited} is @code{nil} (see below)."
-msgstr ""
+msgstr "この変数は、バックアップファイルを作成するかどうかを決定する。非@code{nil}の場合、Emacsは初回保存時にすべてのファイルのバックアップを作成する --- ただし@code{backup-inhibited}が@code{nil}の場合(以下参照)。"
 
 #. type: defopt
 #: backups.texi.orig:90
 msgid "The following example shows how to change the @code{make-backup-files} variable only in the Rmail buffers and not elsewhere.  Setting it @code{nil} stops Emacs from making backups of these files, which may save disk space.  (You would put this code in your init file.)"
-msgstr ""
+msgstr "以下の例は、Rmailバッファーだけで変数@code{make-backup-files}を変更して、それ以外では変更しない方法を示す。この変数を@code{nil}にセットすると、Emacsはそれらのファイルのバックアップ作成をストップし、それはディスク容量の消費を節約するだろう(あなたは、このコードをinitファイルに配置したいと思うかもしれない)。"
 
 #. type: group
 #: backups.texi.orig:95
@@ -197,97 +197,99 @@ msgid ""
 "(add-hook 'rmail-mode-hook\n"
 "          (lambda () (setq-local make-backup-files nil)))\n"
 msgstr ""
+"(add-hook 'rmail-mode-hook\n"
+"          (lambda () (setq-local make-backup-files nil)))\n"
 
 #. type: defvar
 #: backups.texi.orig:99
 #, no-wrap
 msgid "backup-enable-predicate"
-msgstr ""
+msgstr "backup-enable-predicate"
 
 #. type: defvar
 #: backups.texi.orig:105
 msgid "This variable's value is a function to be called on certain occasions to decide whether a file should have backup files.  The function receives one argument, an absolute file name to consider.  If the function returns @code{nil}, backups are disabled for that file.  Otherwise, the other variables in this section say whether and how to make backups."
-msgstr ""
+msgstr "この変数の値は、あるファイルがバックアップファイルをもつべきかどうかを決定する、特定の機会に呼び出される関数である。関数は、判断すべき絶対ファイル名という、1つの引数を受け取る。この関数が@code{nil}をリターンした場合、そのファイルにたいするバックアップは無効になる。それ以外では、このセクション内の他の変数がバックアップ作成の是非と方法を指定する。"
 
 #. type: findex
 #: backups.texi.orig:106
 #, no-wrap
 msgid "normal-backup-enable-predicate"
-msgstr ""
+msgstr "normal-backup-enable-predicate"
 
 #. type: defvar
 #: backups.texi.orig:110
 msgid "The default value is @code{normal-backup-enable-predicate}, which checks for files in @code{temporary-file-directory} and @code{small-temporary-file-directory}."
-msgstr ""
+msgstr "デフォルト値は@code{normal-backup-enable-predicate}で、これは@code{temporary-file-directory}と@code{small-temporary-file-directory}内のファイルをチェックする。"
 
 #. type: defvar
 #: backups.texi.orig:112
 #, no-wrap
 msgid "backup-inhibited"
-msgstr ""
+msgstr "backup-inhibited"
 
 #. type: defvar
 #: backups.texi.orig:119
 msgid "If this variable is non-@code{nil}, backups are inhibited.  It records the result of testing @code{backup-enable-predicate} on the visited file name.  It can also coherently be used by other mechanisms that inhibit backups based on which file is visited.  For example, VC sets this variable non-@code{nil} to prevent making backups for files managed with a version control system."
-msgstr ""
+msgstr "この変数が非@code{nil}の場合、バックアップは抑止される。これは、visitされているファイル名にたいする@code{backup-enable-predicate}のテスト結果を記録する。さらに、visitされているファイルにたいするバックアップ抑止にもとづくその他機構によっても、使用され得る。たとえば、VCはバージョンコントロールシステムに管理されるファイルのバックアップを防ぐために、この変数を非@code{nil}にセットする。"
 
 #. type: defvar
 #: backups.texi.orig:123
 msgid "This is a permanent local, so that changing the major mode does not lose its value.  Major modes should not set this variable---they should set @code{make-backup-files} instead."
-msgstr ""
+msgstr "これは永続的にローカルなので、メジャーモード変更により値は失われない。メジャーモードはこの変数ではなく、かわりに@code{make-backup-files}をセットするべきである。"
 
 #. type: defopt
 #: backups.texi.orig:125
 #, no-wrap
 msgid "backup-directory-alist"
-msgstr ""
+msgstr "backup-directory-alist"
 
 #. type: defopt
 #: backups.texi.orig:128
 msgid "This variable's value is an alist of filename patterns and backup directory names.  Each element looks like"
-msgstr ""
+msgstr "この変数の値は、ファイル名パターンとバックアップディレクトリー名のalistである。各要素は以下の形式をもつ"
 
 #. type: smallexample
 #: backups.texi.orig:130
 #, no-wrap
 msgid "(@var{regexp} . @var{directory})\n"
-msgstr ""
+msgstr "(@var{regexp} . @var{directory})\n"
 
 #. type: defopt
 #: backups.texi.orig:140
 msgid "Backups of files with names matching @var{regexp} will be made in @var{directory}.  @var{directory} may be relative or absolute.  If it is absolute, so that all matching files are backed up into the same directory, the file names in this directory will be the full name of the file backed up with all directory separators changed to @samp{!} to prevent clashes.  This will not work correctly if your filesystem truncates the resulting name."
-msgstr ""
+msgstr "名前が@var{regexp}にマッチするファイルのバックアップが、@var{directory}内に作成されるだろう。@var{directory}には相対ディレクトリー、または絶対ディレクトリーを指定できる。絶対ディレクトリーの場合は、マッチするすべてのファイルが同じディレクトリー内にバックアップされる。このディレクトリー内でのファイル名は、クラッシュを避けるために、バックアップされるファイルの完全名のすべてのディレクトリー区切りは、@samp{!}に変更される。結果の名前を切り詰めるファイルシステムでは、これは正しく機能しないだろう。"
 
 #. type: defopt
 #: backups.texi.orig:144
 msgid "For the common case of all backups going into one directory, the alist should contain a single element pairing @samp{\".\"} with the appropriate directory name."
-msgstr ""
+msgstr "すべてのバックアップが単一のディレクトリーで行われる一般的なケースでは、alistは@samp{\".\"}と適切なディレクトリーからなるペアーの、単一の要素を含むべきである。"
 
 #. type: defopt
 #: backups.texi.orig:147
 msgid "If this variable is @code{nil} (the default), or it fails to match a filename, the backup is made in the original file's directory."
-msgstr ""
+msgstr "この変数が@code{nil}(デフォルト)、またはファイル名のマッチに失敗した場合、バックアップは元のファイルのディレクトリーに作成される。"
 
 #. type: defopt
 #: backups.texi.orig:150
 msgid "On MS-DOS filesystems without long names this variable is always ignored."
-msgstr ""
+msgstr "長いファイル名のないMS-DOSファイルシステムでは、この変数は常に無視される。"
 
 #. type: defopt
 #: backups.texi.orig:152
 #, no-wrap
 msgid "make-backup-file-name-function"
-msgstr ""
+msgstr "make-backup-file-name-function"
 
 #. type: defopt
 #: backups.texi.orig:156
 msgid "This variable's value is a function to use for making backup file names.  The function @code{make-backup-file-name} calls it.  @xref{Backup Names,, Naming Backup Files}."
-msgstr ""
+msgstr "この変数の値は、バックアップファイル名を作成する関数である。関数@code{make-backup-file-name}は、これを呼び出す。@ref{Backup Names,, Naming Backup Files}を参照のこと。"
 
 #. type: defopt
 #: backups.texi.orig:160
 msgid "This could be buffer-local to do something special for specific files.  If you change it, you may need to change @code{backup-file-name-p} and @code{file-name-sans-versions} too."
-msgstr ""
+msgstr "特定のファイルにたいして特別なことを行うために、これをバッファーローカルにすることもできる。変更する場合は、@code{backup-file-name-p}と@code{file-name-sans-versions}も変更する必要があるかもしれない。"
 
 #. type: subsection
 #: backups.texi.orig:164
