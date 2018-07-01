@@ -161,61 +161,42 @@ Buffers}を参照してください。
 @subsection Making and Deleting Numbered Backup Files
 @cindex numbered backups
 
-  If a file's name is @file{foo}, the names of its numbered backup versions
-are @file{foo.~@var{v}~}, for various integers @var{v}, like this:
-@file{foo.~1~}, @file{foo.~2~}, @file{foo.~3~}, @dots{}, @file{foo.~259~},
-and so on.
+  ファイルの名前が@file{foo}の場合、番号付きバックアップのバージョン名は@file{foo.~@var{v}~}となります。@var{v}は@file{foo.~1~}、@file{foo.~2~}、@file{foo.~3~}、@dots{}、@file{foo.~259~}のように、さまざまな整数です。
 
 @defopt version-control
-This variable controls whether to make a single non-numbered backup file or
-multiple numbered backups.
+この変数は、単一の非番号付きバックアップファイルを作成するか、それとも複数の番号付きバックアップを作成するかを制御する。
 
 @table @asis
 @item @code{nil}
-Make numbered backups if the visited file already has numbered backups;
-otherwise, do not.  This is the default.
+visitされたファイルが番号付きバックアップの場合は番号付きバックアップを作成し、それ以外は作成しない。これがデフォルトである。
 
 @item @code{never}
-Do not make numbered backups.
+番号付きバックアップを作成しない。
 
 @item @var{anything else}
-Make numbered backups.
+番号付きバックアップを作成する。
 @end table
 @end defopt
 
-  The use of numbered backups ultimately leads to a large number of backup
-versions, which must then be deleted.  Emacs can do this automatically or it
-can ask the user whether to delete them.
+  番号付きバックアップを使用することにより、バックアップのバージョン番号は最終的には非常に大きな番号になるので、それらを削除しなければなりません。Emacsはこれを自動で行うことができ、ユーザーに削除するか確認することもできます。
 
 @defopt kept-new-versions
-The value of this variable is the number of newest versions to keep when a
-new numbered backup is made.  The newly made backup is included in the
-count.  The default value is@tie{}2.
+この変数の値は、新たな番号付きバックアップが作成された際に保持すべき、もっとも新しいバージョンの個数である。新たに作成されたバックアップもカウントされる。デフォルトは2。
 @end defopt
 
 @defopt kept-old-versions
-The value of this variable is the number of oldest versions to keep when a
-new numbered backup is made.  The default value is@tie{}2.
+この変数の値は、新たな番号付きバックアップが作成された際に保持すべき、もっとも古いバージョンの個数である。デフォルトは2。
 @end defopt
 
-  If there are backups numbered 1, 2, 3, 5, and 7, and both of these variables
-have the value 2, then the backups numbered 1 and 2 are kept as old versions
-and those numbered 5 and 7 are kept as new versions; backup version 3 is
-excess.  The function @code{find-backup-file-name} (@pxref{Backup Names}) is
-responsible for determining which backup versions to delete, but does not
-delete them itself.
+  番号が1、2、3、5、7のバックアップがあり、かつこれらの変数が値2をもつ場合は、番号が1と2のバックアップは古いバージョンとして保持され、番号が5と7のバックアップは新しいバージョンとして保持される。そして、番号が3のバックアップは、余分なバックアップとなる。関数@code{find-backup-file-name}(@ref{Backup
+Names}を参照)は、どのバージョンのバックアップを削除するかを決定する役目を負うが、この関数自身がバックアップを削除する訳ではない。
 
 @defopt delete-old-versions
-If this variable is @code{t}, then saving a file deletes excess backup
-versions silently.  If it is @code{nil}, that means to ask for confirmation
-before deleting excess backups.  Otherwise, they are not deleted at all.
+この変数が@code{t}の場合は、ファイルの保存により、余分なバージョンのバックアップは、暗黙里に削除される。@code{nil}の場合は、余分なバックアップの削除前に確認を求めることを意味し、それ以外では、余分なバックアップは削除されない。
 @end defopt
 
 @defopt dired-kept-versions
-This variable specifies how many of the newest backup versions to keep in
-the Dired command @kbd{.} (@code{dired-clean-directory}).  That's the same
-thing @code{kept-new-versions} specifies when you make a new backup file.
-The default is@tie{}2.
+この変数は、Dired内のコマンド@kbd{.}(ピリオド。@code{dired-clean-directory})で、もっとも新しいバージョンのバックアップをいくつ保持するかを指定する。これは、新たにバックアップファイルを作成する際に、@code{kept-new-versions}を指定するのと同等である。デフォルトは2。
 @end defopt
 
 @node Backup Names
