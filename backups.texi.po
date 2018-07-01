@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-06-25 18:31+0900\n"
-"PO-Revision-Date: 2018-07-01 22:19+0900\n"
+"PO-Revision-Date: 2018-07-02 03:57+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -516,29 +516,29 @@ msgstr "この変数は、Dired内のコマンド@kbd{.}(ピリオド。@code{di
 #: backups.texi.orig:303
 #, no-wrap
 msgid "Naming Backup Files"
-msgstr ""
+msgstr "Naming Backup Files"
 
 #. type: cindex
 #: backups.texi.orig:304
 #, no-wrap
 msgid "naming backup files"
-msgstr ""
+msgstr "naming backup files"
 
 #. type: Plain text
 #: backups.texi.orig:309
 msgid "The functions in this section are documented mainly because you can customize the naming conventions for backup files by redefining them.  If you change one, you probably need to change the rest."
-msgstr ""
+msgstr "このセクションでは、主にバックアップファイルの命名規則を再定義してカスタマイズできる関数を記載します。これらの1つを変更した場合は、おそらく残りも変更する必要があります。"
 
 #. type: defun
 #: backups.texi.orig:310
 #, no-wrap
 msgid "backup-file-name-p filename"
-msgstr ""
+msgstr "backup-file-name-p filename"
 
 #. type: defun
 #: backups.texi.orig:314
 msgid "This function returns a non-@code{nil} value if @var{filename} is a possible name for a backup file.  It just checks the name, not whether a file with the name @var{filename} exists."
-msgstr ""
+msgstr "この関数は、@var{filename}がバックアップファイルとして利用可能ならば、非@code{nil}値をリターンする。これは名前のチェックだけを行い、@var{filename}という名前のファイルが存在するかどうかはチェックしない。"
 
 #. type: group
 #: backups.texi.orig:319
@@ -547,6 +547,8 @@ msgid ""
 "(backup-file-name-p \"foo\")\n"
 "     @result{} nil\n"
 msgstr ""
+"(backup-file-name-p \"foo\")\n"
+"     @result{} nil\n"
 
 #. type: group
 #: backups.texi.orig:323
@@ -555,11 +557,13 @@ msgid ""
 "(backup-file-name-p \"foo~\")\n"
 "     @result{} 3\n"
 msgstr ""
+"(backup-file-name-p \"foo~\")\n"
+"     @result{} 3\n"
 
 #. type: defun
 #: backups.texi.orig:327 backups.texi.orig:481
 msgid "The standard definition of this function is as follows:"
-msgstr ""
+msgstr "この関数の標準的な定義は、以下のようになる:"
 
 #. type: group
 #: backups.texi.orig:334
@@ -570,32 +574,36 @@ msgid ""
 "name (numeric or not)...\"\n"
 "  (string-match \"~\\\\'\" file))\n"
 msgstr ""
+"(defun backup-file-name-p (file)\n"
+"  \"FILEがバックアップファイルなら\\\n"
+"(番号付きか否かに関わらず)非nilをリターンする\"\n"
+"  (string-match \"~\\\\'\" file))\n"
 
 #. type: defun
 #: backups.texi.orig:342
 msgid "Thus, the function returns a non-@code{nil} value if the file name ends with a @samp{~}.  (We use a backslash to split the documentation string's first line into two lines in the text, but produce just one line in the string itself.)"
-msgstr ""
+msgstr "このように、ファイル名が@samp{~}で終わる場合、この関数は非@code{nil}値をリターンする(ドキュメント文字列を分割するために、1行目でバックスラッシュを使用しているが、これはドキュメント文字列内で単一行を生成する)。"
 
 #. type: defun
 #: backups.texi.orig:345
 msgid "This simple expression is placed in a separate function to make it easy to redefine for customization."
-msgstr ""
+msgstr "この単純な式は、カスタマイズのための再定義を簡便にするために、個々の関数内に配されている。"
 
 #. type: defun
 #: backups.texi.orig:347
 #, no-wrap
 msgid "make-backup-file-name filename"
-msgstr ""
+msgstr "make-backup-file-name filename"
 
 #. type: defun
 #: backups.texi.orig:351
 msgid "This function returns a string that is the name to use for a non-numbered backup file for file @var{filename}.  On Unix, this is just @var{filename} with a tilde appended."
-msgstr ""
+msgstr "この関数は、ファイル@var{filename}の非番号付きバックアップファイル名として使用される文字列をリターンする。Unixでは、これは単に@var{filename}にチルダを追加する。"
 
 #. type: defun
 #: backups.texi.orig:354
 msgid "The standard definition of this function, on most operating systems, is as follows:"
-msgstr ""
+msgstr "ほとんどのオペレーティングシステムでは、この関数の標準的な定義は以下のようになる:"
 
 #. type: group
 #: backups.texi.orig:360
@@ -605,11 +613,14 @@ msgid ""
 "  \"Create the non-numeric backup file name for FILE...\"\n"
 "  (concat file \"~\"))\n"
 msgstr ""
+"(defun make-backup-file-name (file)\n"
+"  \"FILEにたいして非番号付きバックアップファイル名を作成する\"\n"
+"  (concat file \"~\"))\n"
 
 #. type: defun
 #: backups.texi.orig:366
 msgid "You can change the backup-file naming convention by redefining this function.  The following example redefines @code{make-backup-file-name} to prepend a @samp{.} in addition to appending a tilde:"
-msgstr ""
+msgstr "この関数を再定義することにより、バックアップファイルの命名規則を変更できる。以下は、チルダの追加に加えて、先頭に@samp{.}を追加するよう、@code{make-backup-file-name}を再定義する例である:"
 
 #. type: group
 #: backups.texi.orig:373
@@ -620,6 +631,10 @@ msgid ""
 "    (concat \".\" (file-name-nondirectory filename) \"~\")\n"
 "    (file-name-directory filename)))\n"
 msgstr ""
+"(defun make-backup-file-name (filename)\n"
+"  (expand-file-name\n"
+"    (concat \".\" (file-name-nondirectory filename) \"~\")\n"
+"    (file-name-directory filename)))\n"
 
 #. type: group
 #: backups.texi.orig:378
@@ -628,32 +643,34 @@ msgid ""
 "(make-backup-file-name \"backups.texi\")\n"
 "     @result{} \".backups.texi~\"\n"
 msgstr ""
+"(make-backup-file-name \"backups.texi\")\n"
+"     @result{} \".backups.texi~\"\n"
 
 #. type: defun
 #: backups.texi.orig:385
 msgid "Some parts of Emacs, including some Dired commands, assume that backup file names end with @samp{~}.  If you do not follow that convention, it will not cause serious problems, but these commands may give less-than-desirable results."
-msgstr ""
+msgstr "Diredコマンドのいくつかを含むEmacsの一部では、バックアップファイル名が@samp{~}で終わると仮定している。この規則にしたがわない場合、深刻な問題とはならないだろうが、それらのコマンドが若干好ましくない結果をもたらすかもしれない。"
 
 #. type: defun
 #: backups.texi.orig:387
 #, no-wrap
 msgid "find-backup-file-name filename"
-msgstr ""
+msgstr "find-backup-file-name filename"
 
 #. type: defun
 #: backups.texi.orig:394
 msgid "This function computes the file name for a new backup file for @var{filename}.  It may also propose certain existing backup files for deletion.  @code{find-backup-file-name} returns a list whose @sc{car} is the name for the new backup file and whose @sc{cdr} is a list of backup files whose deletion is proposed.  The value can also be @code{nil}, which means not to make a backup."
-msgstr ""
+msgstr "この関数は、@var{filename}の新たなバックアップファイル用のファイル名を計算する。これは、特定の既存バックアップファイルにたいする削除の提案も行うかもしれない。@code{find-backup-file-name}は、@sc{car}が新たなバックアップファイル名で、@sc{cdr}が削除を提案するバックアップファイルのリストであるようなリストをリターンする。値には@code{nil}も指定でき、これはバックアップが作成されないことを意味する。"
 
 #. type: defun
 #: backups.texi.orig:399
 msgid "Two variables, @code{kept-old-versions} and @code{kept-new-versions}, determine which backup versions should be kept.  This function keeps those versions by excluding them from the @sc{cdr} of the value.  @xref{Numbered Backups}."
-msgstr ""
+msgstr "@code{kept-old-versions}および@code{kept-new-versions}の2つの変数は、どのバージョンのバックアップを保持するべきかを決定する。この関数は、値の@sc{cdr}から該当するバージョンを除外することにより、それらを保持する。@ref{Numbered Backups}を参照のこと。"
 
 #. type: defun
 #: backups.texi.orig:403
 msgid "In this example, the value says that @file{~rms/foo.~5~} is the name to use for the new backup file, and @file{~rms/foo.~3~} is an ``excess'' version that the caller should consider deleting now."
-msgstr ""
+msgstr "以下の例の値は、新しいバックアップファイルに使用する名前が@file{~rms/foo.~5~}で、@file{~rms/foo.~3~}は呼び出し側が今削除を検討するべき``余分''なバージョンであることを示している。"
 
 #. type: group
 #: backups.texi.orig:408
@@ -662,22 +679,24 @@ msgid ""
 "(find-backup-file-name \"~rms/foo\")\n"
 "     @result{} (\"~rms/foo.~5~\" \"~rms/foo.~3~\")\n"
 msgstr ""
+"(find-backup-file-name \"~rms/foo\")\n"
+"     @result{} (\"~rms/foo.~5~\" \"~rms/foo.~3~\")\n"
 
 #. type: defun
 #: backups.texi.orig:413
 #, no-wrap
 msgid "file-newest-backup filename"
-msgstr ""
+msgstr "file-newest-backup filename"
 
 #. type: defun
 #: backups.texi.orig:416
 msgid "This function returns the name of the most recent backup file for @var{filename}, or @code{nil} if that file has no backup files."
-msgstr ""
+msgstr "この関数は、@var{filename}にたいするもっとも最近のバックアップファイル名、バックアップファイルがない場合は@code{nil}をリターンする。"
 
 #. type: defun
 #: backups.texi.orig:419
 msgid "Some file comparison commands use this function so that they can automatically compare a file with its most recent backup."
-msgstr ""
+msgstr "ファイル比較関数のいくつかは、自動的にもっとも最近のバックアップを比較できるように、この関数を使用している。"
 
 #. type: Plain text
 #: backups.texi.orig:433
