@@ -461,107 +461,64 @@ initファイルを読み込んだ後、(@code{nil}にセット済みでなけ�
 @section Reverting
 @cindex reverting buffers
 
-  If you have made extensive changes to a file and then change your mind about
-them, you can get rid of them by reading in the previous version of the file
-with the @code{revert-buffer} command.  @xref{Reverting, , Reverting a
-Buffer, emacs, The GNU Emacs Manual}.
+  あるファイルにたいして大きな変更を行った後、気が変わって元に戻したくなった場合は、@code{revert-buffer}コマンドでそのファイルの以前のバージョンを読み込むことにより、それらの変更を取り消すことができます。詳細は、@ref{Reverting,
+, Reverting a Buffer, emacs, The GNU Emacs Manual}を参照してください。
 
 @deffn Command revert-buffer &optional ignore-auto noconfirm preserve-modes
-This command replaces the buffer text with the text of the visited file on
-disk.  This action undoes all changes since the file was visited or saved.
+このコマンドは、バージョンのテキストを、ディスク上のvisitされているファイルのテキストで置き換える。これにより、ファイルがvisit、または保存された以降に行ったすべての変更は、アンドゥ(undo:
+取り消し)される。
 
-By default, if the latest auto-save file is more recent than the visited
-file, and the argument @var{ignore-auto} is @code{nil}, @code{revert-buffer}
-asks the user whether to use that auto-save instead.  When you invoke this
-command interactively, @var{ignore-auto} is @code{t} if there is no numeric
-prefix argument; thus, the interactive default is not to check the auto-save
-file.
+デフォルトでは、もっとも最近のauto-saveファイルのほうがvisitされているファイルより新しく、かつ引数@var{ignore-auto}が@code{nil}の場合、@code{revert-buffer}はユーザーにたいしてかわりにauto-saveファイルを使用するかどうか確認を求める。このコマンドをinteractiveに呼び出したとき、プレフィックス数引数が指定されていなければ、@var{ignore-auto}は@code{t}となる。つまり、interactive呼び出しは、デフォルトではauto-saveファイルのチェックを行わない。
 
-Normally, @code{revert-buffer} asks for confirmation before it changes the
-buffer; but if the argument @var{noconfirm} is non-@code{nil},
-@code{revert-buffer} does not ask for confirmation.
+@code{revert-buffer}は通常、バッファーを変更する前に確認を求める。しかし、引数@var{noconfirm}が非@code{nil}の場合、@code{revert-buffer}は確認を求めない。
 
-Normally, this command reinitializes the buffer's major and minor modes
-using @code{normal-mode}.  But if @var{preserve-modes} is non-@code{nil},
-the modes remain unchanged.
+このコマンドは通常、@code{normal-mode}を使用することにより、そのバッファーのメジャーモードとマイナーモードを再初期化する。しかし、@var{preserve-modes}が非@code{nil}の場合、モードは変更されずに残る。
 
-Reverting tries to preserve marker positions in the buffer by using the
-replacement feature of @code{insert-file-contents}.  If the buffer contents
-and the file contents are identical before the revert operation, reverting
-preserves all the markers.  If they are not identical, reverting does change
-the buffer; in that case, it preserves the markers in the unchanged text (if
-any) at the beginning and end of the buffer.  Preserving any additional
-markers would be problematical.
+リバート(revert:
+戻す、復元する)は、@code{insert-file-contents}の置き換え機能を使用することにより、バッファー内のマーカー位置の保持を試みる。バッファーのコンテンツとファイルのコンテンツがリバート操作を行う前に等しい場合、リバートはすべてのマーカーを保持する。等しくない場合、リバートによりバッファーは変更される。この場合は、(もしあれば)バッファーの最初と最後にある未変更のテキスト内にあるマーカーは保持される。他のマーカーを保持しても、それらは正しくないだろう。
 @end deffn
 
 @defvar revert-buffer-in-progress-p
-@code{revert-buffer} binds this variable to a non-@code{nil} value while it
-is working.
+@code{revert-buffer}は処理を行っている間、この変数を非@code{nil}値にバインドする。
 @end defvar
 
-You can customize how @code{revert-buffer} does its work by setting the
-variables described in the rest of this section.
+このセクションの残りの部分で説明する変数をセットすることにより、@code{revert-buffer}が処理を行う方法をカスタマイズできます。
 
 @defopt revert-without-query
-This variable holds a list of files that should be reverted without query.
-The value is a list of regular expressions.  If the visited file name
-matches one of these regular expressions, and the file has changed on disk
-but the buffer is not modified, then @code{revert-buffer} reverts the file
-without asking the user for confirmation.
+この変数は、問い合わせなしでリバートされるべきファイルのリストを保持する。値は、正規表現のリスト。visitされているファイルの名前がこれらの正規表現のいずれかにマッチし、かつバッファーが未変更だがディスク上のファイルは変更されている場合、@code{revert-buffer}はユーザーに確認を求めることなく、ファイルをリバートする。
 @end defopt
 
-  Some major modes customize @code{revert-buffer} by making buffer-local
-bindings for these variables:
+  メジャーモードのいくつかは、以下の変数をローカルにバインドすることにより、@code{revert-buffer}をカスタマイズします:
 
 @defvar revert-buffer-function
 @anchor{Definition of revert-buffer-function}
-The value of this variable is the function to use to revert this buffer.  It
-should be a function with two optional arguments to do the work of
-reverting.  The two optional arguments, @var{ignore-auto} and
-@var{noconfirm}, are the arguments that @code{revert-buffer} received.
+この変数の値は、そのバッファーをリバートするために使用する関数である。これはリバート処理を行うための、2つのオプション引数をとる関数であること。2つのオプション引数@var{ignore-auto}と@var{noconfirm}は、@code{revert-buffer}が受け取る引数である。
 
-Modes such as Dired mode, in which the text being edited does not consist of
-a file's contents but can be regenerated in some other fashion, can give
-this variable a buffer-local value that is a special function to regenerate
-the contents.
+Diredモードのような、編集されるテキストにファイルのコンテンツは含まれず、他の方式により再生成され得るモードは、この変数のバッファーローカル値に、コンテンツを再生成する特別な関数を与えることができる。
 @end defvar
 
 @defvar revert-buffer-insert-file-contents-function
-The value of this variable specifies the function to use to insert the
-updated contents when reverting this buffer.  The function receives two
-arguments: first the file name to use; second, @code{t} if the user has
-asked to read the auto-save file.
+この変数の値は、そのバッファーをリバートする際に、更新されたコンテンツの挿入に使用される関数を指定する。その関数は、2つの引数をとる。1つ目は使用するファイル名で、2つ目が@code{t}ならユーザーはauto-saveファイルの読み込みにたいして確認を求められる。
 
-The reason for a mode to change this variable instead of
-@code{revert-buffer-function} is to avoid duplicating or replacing the rest
-of what @code{revert-buffer} does: asking for confirmation, clearing the
-undo list, deciding the proper major mode, and running the hooks listed
-below.
+@code{revert-buffer-function}のかわりにこの変数をモードが変更する理由は、@code{revert-buffer}が行残りの処理(ユーザーへの確認、アンドゥリストのクリアー、適切なメジャーモードの決定、以下のフックの実行)にたいする重複や置き換えを避けるためである。
 @end defvar
 
 @defvar before-revert-hook
-This normal hook is run by the default @code{revert-buffer-function} before
-inserting the modified contents.  A custom @code{revert-buffer-function} may
-or may not run this hook.
+このノーマルフックは、変更されたコンテンツを挿入する前に、デフォルトの@code{revert-buffer-function}により実行される。カスタマイズした@code{revert-buffer-function}は、このフックを実行するかどうか判らない。
 @end defvar
 
 @defvar after-revert-hook
-This normal hook is run by the default @code{revert-buffer-function} after
-inserting the modified contents.  A custom @code{revert-buffer-function} may
-or may not run this hook.
+このノーマルフックは、変更されたコンテンツを挿入した後に、デフォルトの@code{revert-buffer-function}により実行される。カスタマイズした@code{revert-buffer-function}は、このフックを実行するかどうか判らない。
 @end defvar
 
 @c FIXME?  Move this section from arevert-xtra to here?
 @defvar buffer-stale-function
-The value of this variable specifies a function to call to check whether a
-buffer needs reverting.  The default value only handles buffers that are
-visiting files, by checking their modification time.  Buffers that are not
-visiting files require a custom function
+この変数の値は、バッファーがリバートを要するかどうかをチェックするために呼び出される関数を指定する。デフォルト値は、修正時刻をチェックすることにより、ファイルをvisitするバッファーだけを処理する。ファイルをvisitしないバッファーは、カスタム関数を要する
 @iftex
-(@pxref{Supporting additional buffers,,, emacs-xtra, Specialized Emacs
-Features}).
+(@ref{Supporting additional buffers,,, emacs-xtra, Specialized Emacs
+Features}を参照)。
 @end iftex
 @ifnottex
-(@pxref{Supporting additional buffers,,, emacs}).
+(@ref{Supporting additional buffers,,, emacs}を参照)。
 @end ifnottex
 @end defvar
