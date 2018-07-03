@@ -295,17 +295,12 @@ Backups}を参照のこと。
 @section Auto-Saving
 @c @cindex auto-saving   Lots of symbols starting with auto-save here.
 
-  Emacs periodically saves all files that you are visiting; this is called
-@dfn{auto-saving}.  Auto-saving prevents you from losing more than a limited
-amount of work if the system crashes.  By default, auto-saves happen every
-300 keystrokes, or after around 30 seconds of idle time.  @xref{Auto Save,
-Auto Save, Auto-Saving: Protection Against Disasters, emacs, The GNU Emacs
-Manual}, for information on auto-save for users.  Here we describe the
-functions used to implement auto-saving and the variables that control them.
+  Emacsは、visitしているすべてのファイルを定期的に保存します。これは@dfn{自動保存(auto-saving)}と呼ばれます。自動保存は、システムがクラッシュした場合に失われる作業量を、ある作業量以下にします。デフォルトでは、自動保存は300キーストロークごと、またはidle時の30秒後に発生します。自動保存に関するユーザー向けの情報については、@ref{Auto
+Save, Auto Save, Auto-Saving: Protection Against Disasters, emacs, The GNU
+Emacs Manual}を参照してください。ここでは、自動保存の実施に使用される関数と、それらを制御する変数について説明します。
 
 @defvar buffer-auto-save-file-name
-This buffer-local variable is the name of the file used for auto-saving the
-current buffer.  It is @code{nil} if the buffer should not be auto-saved.
+このバッファーローカル変数は、カレントバッファーの自動保存に使用されるファイル名である。そのバッファーが自動保存されるべきでない場合は、@code{nil}。
 
 @example
 @group
@@ -316,22 +311,16 @@ buffer-auto-save-file-name
 @end defvar
 
 @deffn Command auto-save-mode arg
-This is the mode command for Auto Save mode, a buffer-local minor mode.
-When Auto Save mode is enabled, auto-saving is enabled in the buffer.  The
-calling convention is the same as for other minor mode commands
-(@pxref{Minor Mode Conventions}).
+これはバッファーローカルなマイナーモードであるAuto Saveモードにたいする、モードコマンドである。Auto
+Saveモードが有効なときは、そのバッファーで自動保存が有効である。呼び出し方は、他のマイナーモードと同様(@ref{Minor Mode
+Conventions}を参照)。
 
-Unlike most minor modes, there is no @code{auto-save-mode} variable.  Auto
-Save mode is enabled if @code{buffer-auto-save-file-name} is non-@code{nil}
-and @code{buffer-saved-size} (see below) is non-zero.
+ほとんどのマイナーモードとは異なり、@code{auto-save-mode}変数は存在しない。@code{buffer-auto-save-file-name}が非@code{nil}、かつ@code{buffer-saved-size}(以下参照)が非0ならば、Auto
+Saveモードは有効である。
 @end deffn
 
 @defun auto-save-file-name-p filename
-This function returns a non-@code{nil} value if @var{filename} is a string
-that could be the name of an auto-save file.  It assumes the usual naming
-convention for auto-save files: a name that begins and ends with hash marks
-(@samp{#}) is a possible auto-save file name.  The argument @var{filename}
-should not contain a directory part.
+この関数は、@var{filename}がauto-saveファイルのような文字列の場合は、非@code{nil}をリターンする。先頭と末尾がハッシュマーク(@samp{#})の名前はauto-saveファイルの可能性があるという、auto-saveファイルにたいする通常の命名規則を想定する。引数@var{filename}は、ディレクトリーパートを含むべきではない。
 
 @example
 @group
@@ -353,22 +342,16 @@ should not contain a directory part.
 @example
 @group
 (defun auto-save-file-name-p (filename)
-  "Return non-nil if FILENAME can be yielded by..."
+  "FILENAMEが以下を満たすなら非nilをリターンする"
   (string-match "^#.*#$" filename))
 @end group
 @end example
 
-This function exists so that you can customize it if you wish to change the
-naming convention for auto-save files.  If you redefine it, be sure to
-redefine the function @code{make-auto-save-file-name} correspondingly.
+auto-saveファイルの命名規則規則を変更したいときにカスタマイズできるようにするために、この関数は存在する。これを再定義した場合は、それに対応して関数@code{make-auto-save-file-name}も忘れずに再定義すること。
 @end defun
 
 @defun make-auto-save-file-name
-This function returns the file name to use for auto-saving the current
-buffer.  This is just the file name with hash marks (@samp{#}) prepended and
-appended to it.  This function does not look at the variable
-@code{auto-save-visited-file-name} (described below); callers of this
-function should check that variable first.
+この関数は、カレントバッファーの自動保存に使用されるファイル名をリターンする。これは、ファイル名の先頭と末尾にハッシュマーク(@samp{#})を単に追加する。この関数は、変数@code{auto-save-visited-file-name}(以下参照)を調べない。呼び出し側は、まずその変数をチェックするべきである。
 
 @example
 @group
@@ -377,13 +360,13 @@ function should check that variable first.
 @end group
 @end example
 
-Here is a simplified version of the standard definition of this function:
+以下は、この関数の標準的な定義の簡略版である:
 
 @example
 @group
 (defun make-auto-save-file-name ()
-  "Return file name to use for auto-saves \
-of current buffer.."
+  "カレントバッファーの自動保存に使用される\
+ファイル名をリターンする"
   (if buffer-file-name
 @end group
 @group
@@ -397,140 +380,81 @@ of current buffer.."
 @end group
 @end example
 
-This exists as a separate function so that you can redefine it to customize
-the naming convention for auto-save files.  Be sure to change
-@code{auto-save-file-name-p} in a corresponding way.
+auto-saveファイルの命名規則をカスタマイズするために再定義できるように、これは独立した関数として存在している。ただし、これに対応した方法で@code{auto-save-file-name-p}も忘れずに変更すること。
 @end defun
 
 @defopt auto-save-visited-file-name
-If this variable is non-@code{nil}, Emacs auto-saves buffers in the files
-they are visiting.  That is, the auto-save is done in the same file that you
-are editing.  Normally, this variable is @code{nil}, so auto-save files have
-distinct names that are created by @code{make-auto-save-file-name}.
+この変数が非@code{nil}の場合、Emacsはvisit中のファイルにバッファーを自動保存する。つまり、自動保存は編集中ファイルと同じファイルにたいして行われる。通常この変数は@code{nil}なので、auto-saveファイルは@code{make-auto-save-file-name}で作成された別の名前をもつ。
 
-When you change the value of this variable, the new value does not take
-effect in an existing buffer until the next time auto-save mode is reenabled
-in it.  If auto-save mode is already enabled, auto-saves continue to go in
-the same file name until @code{auto-save-mode} is called again.
+この変数の値を変更した際は、バッファー内でauto-saveモードが再度有効になるまで、既存バッファーにたいして新たな値は効果をもたない。すでにauto-saveモードが有効な場合は、再度@code{auto-save-mode}が呼び出されるまで、同じファイルに自動保存が行われる。
 @end defopt
 
 @defun recent-auto-save-p
-This function returns @code{t} if the current buffer has been auto-saved
-since the last time it was read in or saved.
+この関数は、カレントバッファーが最後に読み込み、または保存されて以降、自動保存されていれば@code{t}をリターンする。
 @end defun
 
 @defun set-buffer-auto-saved
-This function marks the current buffer as auto-saved.  The buffer will not
-be auto-saved again until the buffer text is changed again.  The function
-returns @code{nil}.
+この関数は、カレントバッファーを自動保存済みとマークする。そのバッファーは、バッファーテキストが再度変更されるまで、自動保存されないだろう。この関数は@code{nil}をリターンする。
 @end defun
 
 @defopt auto-save-interval
-The value of this variable specifies how often to do auto-saving, in terms
-of number of input events.  Each time this many additional input events are
-read, Emacs does auto-saving for all buffers in which that is enabled.
-Setting this to zero disables autosaving based on the number of characters
-typed.
+この変数の値は、自動保存の頻度を入力イベント数で指定する。この分の入力イベント読み取りごとに、Emacsは自動保存が有効なすべてのバッファーにたいして、自動保存を行う。これを0にすると、タイプした文字数にもとづく自動保存は無効になる。
 @end defopt
 
 @defopt auto-save-timeout
-The value of this variable is the number of seconds of idle time that should
-cause auto-saving.  Each time the user pauses for this long, Emacs does
-auto-saving for all buffers in which that is enabled.  (If the current
-buffer is large, the specified timeout is multiplied by a factor that
-increases as the size increases; for a million-byte buffer, the factor is
-almost 4.)
+この変数の値は、自動保存が発生すべきidle時間の秒数である。この秒数分ユーザーが休止するたびに、Emacsは自動保存が有効なすべてのバッファーにたいして、自動保存を行う(カレントバッファーが非常に大きい場合、指定されたタイムアウトはサイズ増加とともに増加される因子で乗ぜられる。1MBのバッファーにたいして、この因子はおよそ4である)。
 
-If the value is zero or @code{nil}, then auto-saving is not done as a result
-of idleness, only after a certain number of input events as specified by
-@code{auto-save-interval}.
+値が0、または@code{nil}の場合、idle時間にもとづく自動保存は行われず、@code{auto-save-interval}で指定される入力イベント数の後のみ自動保存が行われる。
 @end defopt
 
 @defvar auto-save-hook
-This normal hook is run whenever an auto-save is about to happen.
+このノーマルフックは、自動保存が行われようとするたびに毎回実行される。
 @end defvar
 
 @defopt auto-save-default
-If this variable is non-@code{nil}, buffers that are visiting files have
-auto-saving enabled by default.  Otherwise, they do not.
+この変数が非@code{nil}の場合は、ファイルをvisitするバッファーの自動保存がデフォルトで有効になり、それ以外では有効にならない。
 @end defopt
 
 @deffn Command do-auto-save &optional no-message current-only
-This function auto-saves all buffers that need to be auto-saved.  It saves
-all buffers for which auto-saving is enabled and that have been changed
-since the previous auto-save.
+この関数は、自動保存される必要があるすべてのバッファーを自動保存する。これは自動保存が有効、かつ前回の自動保存以降に変更されたすべてのバッファーを保存する。
 
-If any buffers are auto-saved, @code{do-auto-save} normally displays a
-message saying @samp{Auto-saving...} in the echo area while auto-saving is
-going on.  However, if @var{no-message} is non-@code{nil}, the message is
-inhibited.
+いずれかのバッファーが自動保存される場合、通常@code{do-auto-save}は自動保存が行われる間、それを示すメッセージ@samp{Auto-saving...}をエコーエリアに表示する。しかし、@var{no-message}が非@code{nil}の場合、このメッセージは抑制される。
 
-If @var{current-only} is non-@code{nil}, only the current buffer is
-auto-saved.
+@var{current-only}が非@code{nil}の場合は、カレントバッファーだけが自動保存される。
 @end deffn
 
 @defun delete-auto-save-file-if-necessary &optional force
-This function deletes the current buffer's auto-save file if
-@code{delete-auto-save-files} is non-@code{nil}.  It is called every time a
-buffer is saved.
+この関数は、@code{delete-auto-save-files}が非@code{nil}なら、カレントバッファーのauto-saveファイルを削除する。これは、バッファー保存時に毎回呼び出される。
 
-Unless @var{force} is non-@code{nil}, this function only deletes the file if
-it was written by the current Emacs session since the last true save.
+@var{force}が@code{nil}の場合、この関数は最後に本当の保存が行われて以降、カレントEmacsセッションにより書き込まれたファイルだけを削除する。
 @end defun
 
 @defopt delete-auto-save-files
-This variable is used by the function
-@code{delete-auto-save-file-if-necessary}.  If it is non-@code{nil}, Emacs
-deletes auto-save files when a true save is done (in the visited file).
-This saves disk space and unclutters your directory.
+この変数は、関数@code{delete-auto-save-file-if-necessary}により使用される。これが非@code{nil}の場合、Emacsは(visitされているファイルに)本当に保存が行われたとき、auto-saveファイルを削除する。これはデスク容量を節約し、ディレクトリーを整理する。
 @end defopt
 
 @defun rename-auto-save-file
-This function adjusts the current buffer's auto-save file name if the
-visited file name has changed.  It also renames an existing auto-save file,
-if it was made in the current Emacs session.  If the visited file name has
-not changed, this function does nothing.
+この関数は、visitされているファイルの名前が変更されていれば、カレントバッファーのauto-saveファイルの名前を調整する。これは、カレントEmacsセッションでauto-saveファイルが作成されていれば、既存のauto-saveファイルもリネームする。visitされているファイルの名前が変更されていない場合、この関数は何も行わない。
 @end defun
 
 @defvar buffer-saved-size
-The value of this buffer-local variable is the length of the current buffer,
-when it was last read in, saved, or auto-saved.  This is used to detect a
-substantial decrease in size, and turn off auto-saving in response.
+このバッファーローカル変数の値は、カレントバッファーが最後に読み取り、保存、または自動保存されたときのバッファーの長さである。これは、サイズの大幅な減少の検知に使用され、それに応じて自動保存がオフに切り替えられる。
 
-If it is @minus{}1, that means auto-saving is temporarily shut off in this
-buffer due to a substantial decrease in size.  Explicitly saving the buffer
-stores a positive value in this variable, thus reenabling auto-saving.
-Turning auto-save mode off or on also updates this variable, so that the
-substantial decrease in size is forgotten.
+@minus{}1の場合、それはサイズの大幅な減少により、そのバッファーの自動保存が一時的に停止されていることを意味する。明示的な保存により、この変数に正の値が格納され、自動保存が再び有効になる。自動保存をオフやオンに切り替えることでも、またはこの変数を更新されるので、サイズの大幅な減少は忘れられてしまう。
 
-If it is @minus{}2, that means this buffer should disregard changes in
-buffer size; in particular, it should not shut off auto-saving temporarily
-due to changes in buffer size.
+@minus{}2の場合は、そのバッファーがバッファーサイズの変更を無視すべきことを意味する。特に、バッファーサイズの変更により、一時的に自動保存を停止するべきではない。
 @end defvar
 
 @defvar auto-save-list-file-name
-This variable (if non-@code{nil}) specifies a file for recording the names
-of all the auto-save files.  Each time Emacs does auto-saving, it writes two
-lines into this file for each buffer that has auto-saving enabled.  The
-first line gives the name of the visited file (it's empty if the buffer has
-none), and the second gives the name of the auto-save file.
+この変数は、(非@code{nil}の場合は)すべてのauto-saveファイルの名前を記録するファイルを指定する。Emacsが自動保存を行うたびに、そのEmacsは自動保存が有効な各バッファーごとに2行ずつ書き込みを行う。1行目はvisitされているファイルの名前(ファイルをvisitしないバッファーの場合は空)、2行目はauto-saveファイルの名前を示す。
 
-When Emacs exits normally, it deletes this file; if Emacs crashes, you can
-look in the file to find all the auto-save files that might contain work
-that was otherwise lost.  The @code{recover-session} command uses this file
-to find them.
+Emacsを正常にexitしたときは、このファイルは削除される。Emacsがクラッシュした場合は、このファイルを調べることにより、失われるはずだった作業を含む、すべてのauto-saveファイルを探すことができる。@code{recover-session}コマンドは、それらを見つけるために、このファイルを使用する。
 
-The default name for this file specifies your home directory and starts with
-@samp{.saves-}.  It also contains the Emacs process @acronym{ID} and the
-host name.
+このファイルにたいするデフォルト名は、ユーザーのホームディレクトリーの、@samp{.saves-}で始まるファイルを指定する。この名前には、Emacsのプロセス@acronym{ID}と、ホスト名も含まれる。
 @end defvar
 
 @defopt auto-save-list-file-prefix
-After Emacs reads your init file, it initializes
-@code{auto-save-list-file-name} (if you have not already set it
-non-@code{nil}) based on this prefix, adding the host name and process ID@.
-If you set this to @code{nil} in your init file, then Emacs does not
-initialize @code{auto-save-list-file-name}.
+initファイルを読み込んだ後、(@code{nil}にセット済みでなければ)Emacsはこのプレフィックスにもとづきホスト名とプロセスIDを追加して、@code{auto-save-list-file-name}を初期化する。initファイル内でこれを@code{nil}にセットした場合、Emacsは@code{auto-save-list-file-name}を初期化しない。
 @end defopt
 
 @node Reverting
