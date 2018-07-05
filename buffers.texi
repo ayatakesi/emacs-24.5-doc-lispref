@@ -12,7 +12,7 @@
 @chapter Buffers
 @cindex buffer
 
-  @dfn{バッファー(buffer)}とは、編集されるテキストを含むLispオブジェクトのことです。バッファーは、visitされるファイルを保持するために使用されます。しかし、ファイルをvisitしないバッファーも存在するかもしれません。一度に複数のバッファーが存在するかもしれませんが、@dfn{カレントバッファー(current
+  @dfn{バッファー(buffer)}とは、編集されるテキストを含むLispオブジェクトのことです。バッファーは、visitされるファイルのコンテンツを保持するために使用されます。しかし、ファイルをvisitしないバッファーも存在するかもしれません。一度に複数のバッファーが存在するかもしれませんが、@dfn{カレントバッファー(current
 buffer)}に指定できるのは、常に1つのバッファーだけです。ほとんどの編集コマンドは、カレントバッファーのコンテンツにたいして作用します。カレントバッファーを含むすべてのバッファーは、任意のウィンドウ内に表示されるときも、表示されない場合もあります。
 
 @menu
@@ -35,43 +35,23 @@ buffer)}に指定できるのは、常に1つのバッファーだけです。�
 @section Buffer Basics
 
 @ifnottex
-  A @dfn{buffer} is a Lisp object containing text to be edited.  Buffers are
-used to hold the contents of files that are being visited; there may also be
-buffers that are not visiting files.  Although several buffers normally
-exist, only one buffer is designated the @dfn{current buffer} at any time.
-Most editing commands act on the contents of the current buffer.  Each
-buffer, including the current buffer, may or may not be displayed in any
-windows.
+  @dfn{バッファー(buffer)}とは、編集されるテキストを含むLispオブジェクトのことです。バッファーは、visitされるファイルのコンテンツを保持するために使用されます。しかし、ファイルをvisitしないバッファーも存在します。一度に複数のバッファーが存在するかもしれませんが、@dfn{カレントバッファー(current
+buffer)}に指定できるのは、常に1つのバッファーだけです。ほとんどの編集コマンドは、カレントバッファーのコンテンツにたいして作用します。カレントバッファーを含むすべてのバッファーは、任意のウィンドウ内に表示されるときも、表示されない場合もあります。
 @end ifnottex
 
-  Buffers in Emacs editing are objects that have distinct names and hold text
-that can be edited.  Buffers appear to Lisp programs as a special data
-type.  You can think of the contents of a buffer as a string that you can
-extend; insertions and deletions may occur in any part of the buffer.
-@xref{Text}.
+  Emacs編集におけるバッファーは、個別に名前をもち、編集可能なテキストを保持するオブジェクトです。Lispプログラムにたいして、バッファーはスペシャルデータ型として表されます。バッファーのコンテンツを、拡張可能な文字列と考えることができます。挿入と削除は、バッファー内の任意の箇所で発生し得ます。@ref{Text}を参照してください。
 
-  A Lisp buffer object contains numerous pieces of information.  Some of this
-information is directly accessible to the programmer through variables,
-while other information is accessible only through special-purpose
-functions.  For example, the visited file name is directly accessible
-through a variable, while the value of point is accessible only through a
-primitive function.
+  Lispのバッファーオブジェクトは、多くの情報要素を含んでいます。これらの情報のいくつかは変数を通じてプログラマーが直接アクセスできるのにたいして、その他の情報は特殊な目的のための関数を通じてのみアクセスすることができます。たとえば、visitされているファイルの名前は変数を通じて直接アクセスできますが、ポイント値はプリミティブ関数からのみアクセスできます。
 
-  Buffer-specific information that is directly accessible is stored in
-@dfn{buffer-local} variable bindings, which are variable values that are
-effective only in a particular buffer.  This feature allows each buffer to
-override the values of certain variables.  Most major modes override
-variables such as @code{fill-column} or @code{comment-column} in this way.
-For more information about buffer-local variables and functions related to
-them, see @ref{Buffer-Local Variables}.
+  直接アクセス可能な、バッファー固有の情報は、@dfn{バッファーローカル(buffer-local)}な変数バインディング内に格納されます。これは、特定のバッファー内だけで効力のある変数値のことです。この機能により、それぞれのバッファーは、特定の変数の値をオーバーライドすることができます。ほとんどのメジャーモードは、この方法で@code{fill-column}や@code{comment-column}のような変数をオーバーライドしています。バッファーローカルな変数、およびそれらに関連する関数についての詳細は、@ref{Buffer-Local
+Variables}を参照してください。
 
-  For functions and variables related to visiting files in buffers, see
-@ref{Visiting Files} and @ref{Saving Buffers}.  For functions and variables
-related to the display of buffers in windows, see @ref{Buffers and Windows}.
+  バッファーからファイルをvisitする関数および変数については、@ref{Visiting Files}、および@ref{Saving
+Buffers}を参照してください。ウィンドウ内へのバッファー表示に関連する関数および変数については、@ref{Buffers and
+Windows}を参照してください。
 
 @defun bufferp object
-This function returns @code{t} if @var{object} is a buffer, @code{nil}
-otherwise.
+この関数は、@var{object}がバッファーなら@code{t}、それ以外は@code{nil}をリターンする。
 @end defun
 
 @node Current Buffer
