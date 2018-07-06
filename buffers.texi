@@ -60,19 +60,13 @@ Windows}を参照してください。
 @cindex changing to another buffer
 @cindex current buffer
 
-  There are, in general, many buffers in an Emacs session.  At any time, one
-of them is designated the @dfn{current buffer}---the buffer in which most
-editing takes place.  Most of the primitives for examining or changing text
-operate implicitly on the current buffer (@pxref{Text}).
+  一般的に、1つのEmacsセッション内には、多くのバッファーが存在します。常に、それらのうちの1つが@dfn{カレントバッファー(current
+buffer)}に指定され、ます。カレントバッファーとは、ほとんどの編集が行われるバッファーのことです。テキストを調べたり変更するプリミティブのほとんどは、暗黙的にカレントバッファーにたいして処理を行います(@ref{Text}を参照)。
 
-  Normally, the buffer displayed in the selected window is the current buffer,
-but this is not always so: a Lisp program can temporarily designate any
-buffer as current in order to operate on its contents, without changing what
-is displayed on the screen.  The most basic function for designating a
-current buffer is @code{set-buffer}.
+  通常は、選択されたウィンドウ内に表示されるバッファーがカレントバッファーですが、常にそうではありません。Lispプログラムは、バッファーのコンテンツを処理するために、スクリーン上に表示されているものを変更することなく、任意のバッファーを一時的にカレントに指定できます。カレントバッファーの指定にたいしてもっとも基本的な関数は、@code{set-buffer}です。
 
 @defun current-buffer
-This function returns the current buffer.
+この関数は、カレントバッファーをリターンする関数。
 
 @example
 @group
@@ -83,37 +77,23 @@ This function returns the current buffer.
 @end defun
 
 @defun set-buffer buffer-or-name
-This function makes @var{buffer-or-name} the current buffer.
-@var{buffer-or-name} must be an existing buffer or the name of an existing
-buffer.  The return value is the buffer made current.
+この関数は、@var{buffer-or-name}をカレントバッファーにする。@var{buffer-or-name}は既存のバッファー、または既存のバッファーの名前でなければならない。リターン値は、カレントになったバッファーである。
 
-This function does not display the buffer in any window, so the user cannot
-necessarily see the buffer.  But Lisp programs will now operate on it.
+この関数は、そのバッファーをどのウィンドウにも表示しないので、必然的にユーザーはそのバッファーを見ることはできない。しかし、Lispプログラムはその後、そのバッファーにたいして処理を行うことになるだろう。
 @end defun
 
-  When an editing command returns to the editor command loop, Emacs
-automatically calls @code{set-buffer} on the buffer shown in the selected
-window.  This is to prevent confusion: it ensures that the buffer that the
-cursor is in, when Emacs reads a command, is the buffer to which that
-command applies (@pxref{Command Loop}).  Thus, you should not use
-@code{set-buffer} to switch visibly to a different buffer; for that, use the
-functions described in @ref{Switching Buffers}.
+  編集コマンドがエディターコマンドループにリターンする際、Emacsは選択されたウィンドウ内に表示されているバッファーにたいして、自動的に@code{set-buffer}を呼び出します。これは混乱を防ぐためで、これにより、Emacsがコマンドを読み取るときに、カーソルのあるバッファーが、コマンドを適用されるバッファーになるのが保証されます(@ref{Command
+Loop}を参照)。したがって、異なるバッファーを指示して切り替える場合に、@code{set-buffer}を使用するべきではありません。これを行うためには、@ref{Switching
+Buffers}で説明されているカを使用してください。
 
-  When writing a Lisp function, do @emph{not} rely on this behavior of the
-command loop to restore the current buffer after an operation.  Editing
-commands can also be called as Lisp functions by other programs, not just
-from the command loop; it is convenient for the caller if the subroutine
-does not change which buffer is current (unless, of course, that is the
-subroutine's purpose).
+  Lisp関数を記述する際は、処理後にカレントバッファーをリストアするために、コマンドループのこの振る舞いに@emph{依存しないでください}。編集コマンドは、コマンドループだけではなく、他のプログラムからLisp関数としても呼び出されます。呼び出し側にとっては、そのサブルーチンがカレントだったバッファーを変更しないほうが便利です(もちろん、それがサブルーチンの目的でない場合ですが)。
 
-  To operate temporarily on another buffer, put the @code{set-buffer} within a
-@code{save-current-buffer} form.  Here, as an example, is a simplified
-version of the command @code{append-to-buffer}:
+  他のバッファーにたいして一時的に処理を行うには、@code{save-current-buffer}フォーム内に@code{set-buffer}を置きます。以下の例は、コマンド@code{append-to-buffer}の簡略版です:
 
 @example
 @group
 (defun append-to-buffer (buffer start end)
-  "Append the text of the region to BUFFER."
+  "リージョンのテキストをBUFFERに追加する"
   (interactive "BAppend to buffer: \nr")
   (let ((oldbuf (current-buffer)))
     (save-current-buffer
@@ -123,18 +103,14 @@ version of the command @code{append-to-buffer}:
 @end example
 
 @noindent
-Here, we bind a local variable to record the current buffer, and then
-@code{save-current-buffer} arranges to make it current again later.  Next,
-@code{set-buffer} makes the specified buffer current, and
-@code{insert-buffer-substring} copies the string from the original buffer to
-the specified (and now current) buffer.
+ここでは、カレントバッファーを記録するためにローカル変数にバインドしてから、後で@code{save-current-buffer}がそれを再びカレントにするよう、取り計らっています。次に、@code{set-buffer}が指定されたバッファーをカレントにして、@code{insert-buffer-substring}が元のバッファーの文字列を、指定された(今はカレントの)バッファーにコピーします。
 
-  Alternatively, we can use the @code{with-current-buffer} macro:
+  かわりに、@code{with-current-buffer}マクロを使用することもできます:
 
 @example
 @group
 (defun append-to-buffer (buffer start end)
-  "Append the text of the region to BUFFER."
+  "BUFFERにリージョンのテキストを追加する"
   (interactive "BAppend to buffer: \nr")
   (let ((oldbuf (current-buffer)))
     (with-current-buffer (get-buffer-create buffer)
@@ -142,21 +118,11 @@ the specified (and now current) buffer.
 @end group
 @end example
 
-  In either case, if the buffer appended to happens to be displayed in some
-window, the next redisplay will show how its text has changed.  If it is not
-displayed in any window, you will not see the change immediately on the
-screen.  The command causes the buffer to become current temporarily, but
-does not cause it to be displayed.
+  どちらの場合でも、追加されるバッファーが偶然他のウィンドウに表示されていた場合には、次回の再表示でそのテキストがどのように変更されたか表示されるでしょう。どのウィンドウにも表示されていない場合には、スクリーン上で即座に変更を目にすることはありません。コマンドはバッファーを一時的にカレントにしますが、そのことがバッファーの表示を誘因する訳ではありません。
 
-  If you make local bindings (with @code{let} or function arguments)  for a
-variable that may also have buffer-local bindings, make sure that the same
-buffer is current at the beginning and at the end of the local binding's
-scope.  Otherwise you might bind it in one buffer and unbind it in another!
+  バッファーローカルバインディングをもつ変数にたいして、(@code{let}や関数引数などで)ローカルバインディングを作成する場合は、そのローカルバインディングのスコープの最初と最後で、同じバッファーがカレントとなることを確認してください。そうしないと、あるバッファーではバインドして、他のバッファーではバインドされないことになるかもしれません!
 
-  Do not rely on using @code{set-buffer} to change the current buffer back,
-because that won't do the job if a quit happens while the wrong buffer is
-current.  For instance, in the previous example, it would have been wrong to
-do this:
+  @code{set-buffer}の使用において、カレントバッファーが戻ることに依存しないでください。なぜなら、間違ったバッファーがカレントのときにquitが発生した場合、その処理は行われないでしょう。たとえば上記の例に倣うと、以下は間違ったやり方です:
 
 @example
 @group
@@ -168,53 +134,33 @@ do this:
 @end example
 
 @noindent
-Using @code{save-current-buffer} or @code{with-current-buffer}, as we did,
-correctly handles quitting, errors, and @code{throw}, as well as ordinary
-evaluation.
+例で示したように@code{save-current-buffer}、または@code{with-current-buffer}を使用すれば、quitや@code{throw}を、通常の評価と同様に処理できます。
 
 @defspec save-current-buffer body@dots{}
-The @code{save-current-buffer} special form saves the identity of the
-current buffer, evaluates the @var{body} forms, and finally restores that
-buffer as current.  The return value is the value of the last form in
-@var{body}.  The current buffer is restored even in case of an abnormal exit
-via @code{throw} or error (@pxref{Nonlocal Exits}).
+スペシャルフォーム@code{save-current-buffer}は、カレントバッファーの識別を保存して、@var{body}フォームを評価し、最後にそのバッファーをカレントにリストアする。リターン値は、@var{body}内の最後のフォームの値である。@code{throw}やエラーを通じた異常exitの場合でも、カレントバッファーはリストアされる(@ref{Nonlocal
+Exits}を参照)。
 
-If the buffer that used to be current has been killed by the time of exit
-from @code{save-current-buffer}, then it is not made current again, of
-course.  Instead, whichever buffer was current just before exit remains
-current.
+カレントとして使用されていたバッファーが、@code{save-current-buffer}によるexit時にkillされていた場合は、それが再びカレントとなることは当然ない。かわりに、exit直前にカレントバッファーが何であれ、それがカレントになる。
 @end defspec
 
 @defmac with-current-buffer buffer-or-name body@dots{}
-The @code{with-current-buffer} macro saves the identity of the current
-buffer, makes @var{buffer-or-name} current, evaluates the @var{body} forms,
-and finally restores the current buffer.  @var{buffer-or-name} must specify
-an existing buffer or the name of an existing buffer.
+@code{with-current-buffer}マクロは、カレントバッファーの識別を保存して、@var{buffer-or-name}をカレントにし、@var{body}フォームを評価して、最後にカレントバッファーをリストアする。@var{buffer-or-name}には既存のバッファー、または既存のバッファー名を指定しなければならない。
 
-The return value is the value of the last form in @var{body}.  The current
-buffer is restored even in case of an abnormal exit via @code{throw} or
-error (@pxref{Nonlocal Exits}).
+リターン値は、@var{body}内の最後のフォームの値である。@code{throw}やエラーを通じた異常exitの場合でも、カレントバッファーはリストアされる(@ref{Nonlocal
+Exits}を参照)。
 @end defmac
 
 @defmac with-temp-buffer body@dots{}
 @anchor{Definition of with-temp-buffer}
-The @code{with-temp-buffer} macro evaluates the @var{body} forms with a
-temporary buffer as the current buffer.  It saves the identity of the
-current buffer, creates a temporary buffer and makes it current, evaluates
-the @var{body} forms, and finally restores the previous current buffer while
-killing the temporary buffer.  By default, undo information (@pxref{Undo})
-is not recorded in the buffer created by this macro (but @var{body} can
-enable that, if needed).
+@code{with-temp-buffer}マクロは、一時的なバッファーをカレントバッファーとして、@var{body}フォームを評価する。これはカレントバッファーの識別を保存して、一時的なバッファーを作成、それをカレントとして、@var{body}フォームを評価し、一時バッファーをkillする間に、以前のカレントバッファーをリストアする。
+デフォルトでは、このマクロにより作成されたバッファー内のアンドゥ情報(@ref{Undo}を参照)は記録されない(が、必要なら@var{body}でそれを有効にできる)。
 
-The return value is the value of the last form in @var{body}.  You can
-return the contents of the temporary buffer by using @code{(buffer-string)}
-as the last form.
+リターン値は、@var{body}内の最後のフォームの値である。最後のフォームとして@code{(buffer-string)}を使用することにより、一時バッファーのコンテンツをリターンできる。
 
-The current buffer is restored even in case of an abnormal exit via
-@code{throw} or error (@pxref{Nonlocal Exits}).
+@code{throw}やエラーを通じた異常exitの場合でも、カレントバッファーはリストアされる(@ref{Nonlocal Exits}を参照)。
 
-See also @code{with-temp-file} in @ref{Definition of with-temp-file,,
-Writing to Files}.
+@ref{Definition of with-temp-file,, Writing to
+Files}の@code{with-temp-file}も参照されたい。
 @end defmac
 
 @node Buffer Names
