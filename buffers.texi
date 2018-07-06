@@ -167,26 +167,17 @@ Files}の@code{with-temp-file}も参照されたい。
 @section Buffer Names
 @cindex buffer names
 
-  Each buffer has a unique name, which is a string.  Many of the functions
-that work on buffers accept either a buffer or a buffer name as an
-argument.  Any argument called @var{buffer-or-name} is of this sort, and an
-error is signaled if it is neither a string nor a buffer.  Any argument
-called @var{buffer} must be an actual buffer object, not a name.
+  それぞれのバッファーは、文字列で表される一意な名前をもちます。バッファーにたいして機能する関数の多くは、引数としてバッファーとバッファー名の両方を受け入れます。@var{buffer-or-name}という名前の引数がこのタイプで、それが文字列でもバッファーでもない場合は、エラーがシグナルされます。@var{buffer}という名前の引数は、名前ではなく実際のバッファーオブジェクトでなければなりません。
 
 @cindex hidden buffers
 @cindex buffers without undo information
-  Buffers that are ephemeral and generally uninteresting to the user have
-names starting with a space, so that the @code{list-buffers} and
-@code{buffer-menu} commands don't mention them (but if such a buffer visits
-a file, it @strong{is} mentioned).  A name starting with space also
-initially disables recording undo information; see @ref{Undo}.
+  短命でユーザーが関心をもたないようなバッファーは名前がスペースで始まり、それらについては@code{list-buffers}および@code{buffer-menu}コマンドは無視します(が、ファイルをvisitしているようなバッファーは@strong{無視されない})。スペースで始まる名前は、初期状態ではアンドゥ情報の記録も無効になっています。@ref{Undo}を参照してください。
 
 @defun buffer-name &optional buffer
-This function returns the name of @var{buffer} as a string.  @var{buffer}
-defaults to the current buffer.
+この関数は、@var{buffer}の名前を文字列としてリターンする。@var{buffer}のデフォルトは、カレントバッファーである。
 
-If @code{buffer-name} returns @code{nil}, it means that @var{buffer} has
-been killed.  @xref{Killing Buffers}.
+@code{buffer-name}が@code{nil}をリターンした場合、それは@var{buffer}がkillされていることを意味する。@ref{Killing
+Buffers}を参照のこと。
 
 @example
 @group
@@ -214,25 +205,16 @@ foo
 @end defun
 
 @deffn Command rename-buffer newname &optional unique
-This function renames the current buffer to @var{newname}.  An error is
-signaled if @var{newname} is not a string.
+この関数は、カレントバッファーを@var{newname}にリネームする。@var{newname}が文字列でない場合は、エラーをシグナルする。
 
 @c Emacs 19 feature
-Ordinarily, @code{rename-buffer} signals an error if @var{newname} is
-already in use.  However, if @var{unique} is non-@code{nil}, it modifies
-@var{newname} to make a name that is not in use.  Interactively, you can
-make @var{unique} non-@code{nil} with a numeric prefix argument.  (This is
-how the command @code{rename-uniquely} is implemented.)
+@var{newname}がすでに使用済みの場合、@code{rename-buffer}は通常はエラーをシグナルする。しかし、@var{unique}が非@code{nil}の場合は、未使用の名前となるように@var{newname}を変更する。interactiveに呼び出した場合は、プレフィックス数引数により@var{unique}に非@code{nil}を指定できる(この方法により、コマンド@code{rename-uniquely}は実装される)。
 
-This function returns the name actually given to the buffer.
+この関数は、実際にバッファーに与えられた名前をリターンする。
 @end deffn
 
 @defun get-buffer buffer-or-name
-This function returns the buffer specified by @var{buffer-or-name}.  If
-@var{buffer-or-name} is a string and there is no buffer with that name, the
-value is @code{nil}.  If @var{buffer-or-name} is a buffer, it is returned as
-given; that is not very useful, so the argument is usually a name.  For
-example:
+この関数は、@var{buffer-or-name}で指定されたバッファーをリターンする。@var{buffer-or-name}が文字列で、かつそのような名前のバッファーが存在しない場合、値は@code{nil}になる。@var{buffer-or-name}がバッファーの場合は、与えられたバッファーをリターンする。これは有用とは言い難く、引数は通常は名前である。たとえば:
 
 @example
 @group
@@ -249,22 +231,15 @@ example:
 @end group
 @end example
 
-See also the function @code{get-buffer-create} in @ref{Creating Buffers}.
+@ref{Creating Buffers}の関数@code{get-buffer-create}も参照のこと。
 @end defun
 
 @c Emacs 19 feature
 @defun generate-new-buffer-name starting-name &optional ignore
-This function returns a name that would be unique for a new buffer---but
-does not create the buffer.  It starts with @var{starting-name}, and
-produces a name not currently in use for any buffer by appending a number
-inside of @samp{<@dots{}>}.  It starts at 2 and keeps incrementing the
-number until it is not the name of an existing buffer.
+この関数は、新たなバッファーにたいして一意となるような名前をリターンする ---
+が、バッファーは作成しない。この名前は@var{starting-name}で始まり、内部が数字であるような@samp{<@dots{}>}を追加することにより、すべてのバッファーでカレントで使用されていない名前を生成する。この数字は2で始まり、既存バッファーの名前でない名前になる数字まで増加される。
 
-If the optional second argument @var{ignore} is non-@code{nil}, it should be
-a string, a potential buffer name.  It means to consider that potential
-buffer acceptable, if it is tried, even it is the name of an existing buffer
-(which would normally be rejected).  Thus, if buffers named @samp{foo},
-@samp{foo<2>}, @samp{foo<3>} and @samp{foo<4>} exist,
+オプション引数@var{ignore}が非@code{nil}の場合、それは潜在的にバッファー名であるような文字列であること。これは、たとえそれが(通常は拒絶されるであろう)既存バッファーの名前であっても、試みられた場合は、潜在的に受容可能なバッファーとして考慮することを意味する。つまり@samp{foo}、@samp{foo<2>}、@samp{foo<3>}、@samp{foo<4>}という名前のバッファーが存在する場合、
 
 @example
 (generate-new-buffer-name "foo")
@@ -275,8 +250,7 @@ buffer acceptable, if it is tried, even it is the name of an existing buffer
      @result{} "foo<5>"
 @end example
 
-See the related function @code{generate-new-buffer} in @ref{Creating
-Buffers}.
+@ref{Creating Buffers}の関連する関数@code{generate-new-buffer}も参照のこと。
 @end defun
 
 @node Buffer File Name
