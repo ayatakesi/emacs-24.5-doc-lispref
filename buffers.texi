@@ -259,18 +259,12 @@ foo
 @cindex buffer file name
 @cindex file name of buffer
 
-  The @dfn{buffer file name} is the name of the file that is visited in that
-buffer.  When a buffer is not visiting a file, its buffer file name is
-@code{nil}.  Most of the time, the buffer name is the same as the
-nondirectory part of the buffer file name, but the buffer file name and the
-buffer name are distinct and can be set independently.  @xref{Visiting
-Files}.
+  @dfn{バッファーファイル名(buffer file
+name)}とは、そのバッファーにvisitされているファイルの名前です。バッファーがファイルをvisiblyしていなければ、バッファーファイル名は@code{nil}です。大抵、バッファー名はバッファーファイル名の非ディレクトリーパートと同じですが、バッファーファイル名とバッファー名は別物であり、個別にセットすることができます。@ref{Visiting
+Files}を参照してください。
 
 @defun buffer-file-name &optional buffer
-This function returns the absolute file name of the file that @var{buffer}
-is visiting.  If @var{buffer} is not visiting any file,
-@code{buffer-file-name} returns @code{nil}.  If @var{buffer} is not
-supplied, it defaults to the current buffer.
+この関数は、@var{buffer}がvisitしているファイルの、絶対ファイル名をリターンする。@var{buffer}がファイルをvisitしていない場合、@code{buffer-file-name}は@code{nil}をリターンする。@var{buffer}が与えられない場合のデフォルトは、カレントバッファーになる。
 
 @example
 @group
@@ -281,9 +275,7 @@ supplied, it defaults to the current buffer.
 @end defun
 
 @defvar buffer-file-name
-This buffer-local variable contains the name of the file being visited in
-the current buffer, or @code{nil} if it is not visiting a file.  It is a
-permanent local variable, unaffected by @code{kill-all-local-variables}.
+このバッファーローカル変数は、カレントバッファーにvisitされているファイルの名前、ファイルをvisitしていなければ@code{nil}が含まれる。これは永続的なローカル変数であり、@code{kill-all-local-variables}の影響を受けない。
 
 @example
 @group
@@ -292,41 +284,28 @@ buffer-file-name
 @end group
 @end example
 
-It is risky to change this variable's value without doing various other
-things.  Normally it is better to use @code{set-visited-file-name} (see
-below); some of the things done there, such as changing the buffer name, are
-not strictly necessary, but others are essential to avoid confusing Emacs.
+他のさまざまな事項を変更せずに、この変数を変更するのは危険である。通常は、@code{set-visited-file-name}を使用するほうがよい(以下参照)。バッファー名の変更などのような、そこで行われることのいくつかは、絶対必要という訳ではないが、その他の事項はEmacsが混乱するのを防ぐために必要不可欠である。
 @end defvar
 
 @defvar buffer-file-truename
-This buffer-local variable holds the abbreviated truename of the file
-visited in the current buffer, or @code{nil} if no file is visited.  It is a
-permanent local, unaffected by @code{kill-all-local-variables}.
-@xref{Truenames}, and @ref{abbreviate-file-name}.
+このバッファーローカル変数は、カレントバッファーにvisitされているファイルの省略された形式の実名(truename)、ファイルをvisitしていない場合は@code{nil}を保持する。これは永続的にローカルであり、@code{kill-all-local-variables}の影響を受けない。@xref{Truenames}、および@ref{abbreviate-file-name}を参照のこと。
 @end defvar
 
 @defvar buffer-file-number
-This buffer-local variable holds the file number and directory device number
-of the file visited in the current buffer, or @code{nil} if no file or a
-nonexistent file is visited.  It is a permanent local, unaffected by
-@code{kill-all-local-variables}.
+このバッファーローカル変数は、カレントバッファーにvisitされているファイルのファイル番号(file number)とデバイス番号(device
+number)、ファイルをvisitしていない場合は@code{nil}を保持する。これは永続的にローカルであり、@code{kill-all-local-variables}の影響を受けない。
 
-The value is normally a list of the form @code{(@var{filenum}
-@var{devnum})}.  This pair of numbers uniquely identifies the file among all
-files accessible on the system.  See the function @code{file-attributes}, in
-@ref{File Attributes}, for more information about them.
+値は通常、@code{(@var{filenum}
+@var{devnum})}のような形式のリストである。この番号ペアーは、システム上でアクセス可能なすべてのファイルの中から、ファイルを一意に識別する。より詳細な情報は、@ref{File
+Attributes}の@code{file-attributes}を参照のこと。
 
-If @code{buffer-file-name} is the name of a symbolic link, then both numbers
-refer to the recursive target.
+@code{buffer-file-name}がシンボリックリンク名の場合は、どちらの番号も再帰的なターゲットを参照する。
 @end defvar
 
 @defun get-file-buffer filename
-This function returns the buffer visiting file @var{filename}.  If there is
-no such buffer, it returns @code{nil}.  The argument @var{filename}, which
-must be a string, is expanded (@pxref{File Name Expansion}), then compared
-against the visited file names of all live buffers.  Note that the buffer's
-@code{buffer-file-name} must match the expansion of @var{filename} exactly.
-This function will not recognize other names for the same file.
+この関数は、ファイル@var{filename}をvisitしているバッファーをリターンする。そのようなバッファーが存在しない場合は、@code{nil}をリターンする。引数@var{filename}は文字列でなければならず、展開(@ref{File
+Name
+Expansion}を参照)された後、killされていないすべてのバッファーがvisitしているファイル名と比較される。バッファーの@code{buffer-file-name}は、@var{filename}の展開形と正確にマッチしなければならないことに注意。この関数は、同じファイルにたいする他の名前は、認識しないだろう。
 
 @example
 @group
@@ -335,61 +314,30 @@ This function will not recognize other names for the same file.
 @end group
 @end example
 
-In unusual circumstances, there can be more than one buffer visiting the
-same file name.  In such cases, this function returns the first such buffer
-in the buffer list.
+特殊な状況下では、複数のバッファーが同じファイル名をvisitすることがあり得る。そのような場合、この関数はバッファーリスト内の最初に該当するバッファーをリターンする。
 @end defun
 
 @defun find-buffer-visiting filename &optional predicate
-This is like @code{get-file-buffer}, except that it can return any buffer
-visiting the file @emph{possibly under a different name}.  That is, the
-buffer's @code{buffer-file-name} does not need to match the expansion of
-@var{filename} exactly, it only needs to refer to the same file.  If
-@var{predicate} is non-@code{nil}, it should be a function of one argument,
-a buffer visiting @var{filename}.  The buffer is only considered a suitable
-return value if @var{predicate} returns non-@code{nil}.  If it can not find
-a suitable buffer to return, @code{find-buffer-visiting} returns @code{nil}.
+これは@code{get-file-buffer}と似ているが、そのファイルを@emph{違う名前}でvisitしているかもしれないすべてのバッファーをリターンする。つまり、バッファーの@code{buffer-file-name}は@var{filename}の展開形式と正確にマッチする必要はなく、同じファイルを参照することだけが要求される。@var{predicate}が非@code{nil}の場合、それは@var{filename}をvisitしているバッファーを1つの引数とする関数であること。そのバッファーにたいして、@var{predicate}が非@code{nil}をリターンした場合のみ、適切なリターン値と判断される。リターンすべき適切なバッファーが見つからない場合、@code{find-buffer-visiting}は@code{nil}をリターンする。
 @end defun
 
 @deffn Command set-visited-file-name filename &optional no-query along-with-file
-If @var{filename} is a non-empty string, this function changes the name of
-the file visited in the current buffer to @var{filename}.  (If the buffer
-had no visited file, this gives it one.)  The @emph{next time} the buffer is
-saved it will go in the newly-specified file.
+@var{filename}が非空文字列の場合、この関数はカレントバッファーにvisitされているファイルの名前を、@var{filename}に変更する(バッファーがファイルをvisitしていない場合は、visitするファイルとして@var{filename}を与える)。そのバッファーにたいする@emph{次回}の保存では、新たに指定されたファイルに保存されるだろう。
 
-This command marks the buffer as modified, since it does not (as far as
-Emacs knows) match the contents of @var{filename}, even if it matched the
-former visited file.  It also renames the buffer to correspond to the new
-file name, unless the new name is already in use.
+このコマンドは、たとえそのバッファーのコンテンツがその前にvisitされていたファイルとマッチしていても、(Emacsが関知するかぎり)@var{filename}のコンテンツとはマッチしないので、バッファーが変更されている(modified)とマークする。これは、その名前がすでに使用されていなければ、新たなファイル名に対応してバッファーをリネームする。
 
-If @var{filename} is @code{nil} or the empty string, that stands for ``no
-visited file''.  In this case, @code{set-visited-file-name} marks the buffer
-as having no visited file, without changing the buffer's modified flag.
+@var{filename}が@code{nil}、または空文字列の場合、それは``visitされているファイルがない''ことを意味する。この場合、@code{set-visited-file-name}はバッファーの変更フラグを変更することなく、そのバッファーがファイルをvisitしていないとマークする。
 
-Normally, this function asks the user for confirmation if there already is a
-buffer visiting @var{filename}.  If @var{no-query} is non-@code{nil}, that
-prevents asking this question.  If there already is a buffer visiting
-@var{filename}, and the user confirms or @var{no-query} is non-@code{nil},
-this function makes the new buffer name unique by appending a number inside
-of @samp{<@dots{}>} to @var{filename}.
+この関数は@var{filename}をvisitしているバッファーがすでに存在する場合は、通常はユーザーに確認を求める。しかし、@var{no-query}が非@code{nil}の場合は、この質問を行わない。@var{filename}をvisitしているバッファーがすでに存在し、かつユーザーが承認、または@var{no-query}が非@code{nil}の場合、この関数は中に数字が入った@samp{<@dots{}>}を@var{filename}に追加して、新たなバッファーの名前を一意にする。
 
-If @var{along-with-file} is non-@code{nil}, that means to assume that the
-former visited file has been renamed to @var{filename}.  In this case, the
-command does not change the buffer's modified flag, nor the buffer's
-recorded last file modification time as reported by
-@code{visited-file-modtime} (@pxref{Modification Time}).  If
-@var{along-with-file} is @code{nil}, this function clears the recorded last
-file modification time, after which @code{visited-file-modtime} returns
-zero.
+@var{along-with-file}が非@code{nil}の場合、それは前にvisitされていたファイルが@var{filename}にリネームされたと想定することを意味する。この場合、コマンドはバッファーの修正フラグを変更せず、そのバッファーの記録されている最終ファイル変更時刻を@code{visited-file-modtime}が報告する時刻(@ref{Modification
+Time}を参照)で変更もしない。@var{along-with-file}が@code{nil}の場合、この関数は@code{visited-file-modtime}が0をリターンした後に、記録済みの最終ファイル変更時刻をクリアーする。
 
-When the function @code{set-visited-file-name} is called interactively, it
-prompts for @var{filename} in the minibuffer.
+関数@code{set-visited-file-name}がinteractiveに呼び出されたときは、ミニバッファー内で@var{filename}の入力を求める。
 @end deffn
 
 @defvar list-buffers-directory
-This buffer-local variable specifies a string to display in a buffer listing
-where the visited file name would go, for buffers that don't have a visited
-file name.  Dired buffers use this variable.
+このバッファーローカル変数は、visitしているファイル名をもたないバッファーにたいして、バッファーリスト中のvisitしているファイル名を表示する場所に表示する文字列を指定する。Diredバッファーは、この変数を使用する。
 @end defvar
 
 @node Buffer Modification
