@@ -345,35 +345,23 @@ Time}を参照)で変更もしない。@var{along-with-file}が@code{nil}の場�
 @cindex buffer modification
 @cindex modification flag (of buffer)
 
-  Emacs keeps a flag called the @dfn{modified flag} for each buffer, to record
-whether you have changed the text of the buffer.  This flag is set to
-@code{t} whenever you alter the contents of the buffer, and cleared to
-@code{nil} when you save it.  Thus, the flag shows whether there are unsaved
-changes.  The flag value is normally shown in the mode line (@pxref{Mode
-Line Variables}), and controls saving (@pxref{Saving Buffers}) and
-auto-saving (@pxref{Auto-Saving}).
+  Emacsは、各バッファーにたいして、バッファーのテキストを変更したかどうかを記録するために、@dfn{変更フラグ(modified
+flag)}と呼ばれるフラグを管理しています。このフラグは、バッファーのコンテンツを変更すると常に@code{t}にセットされ、バッファーを保存したとき@code{nil}にクリアーされます。したがって、このフラグは保存されていない変更があるかどうかを表します。フラグの値は通常、モードライン内(@ref{Mode
+Line Variables}を参照)に表示され、保存(@ref{Saving
+Buffers}を参照)と自動保存(@ref{Auto-Saving}を参照)を制御します。
 
-  Some Lisp programs set the flag explicitly.  For example, the function
-@code{set-visited-file-name} sets the flag to @code{t}, because the text
-does not match the newly-visited file, even if it is unchanged from the file
-formerly visited.
+  いくつかのLispプログラムは、このフラグを明示的にセットします。たとえば、関数@code{set-visited-file-name}は、このフラグを@code{t}にセットします。なぜなら、たとえその前にvisitしていたファイルが変更されていなくても、テキストは新たにvisitされたファイルとマッチしないからです。
 
-  The functions that modify the contents of buffers are described in
-@ref{Text}.
+  バッファーのコンテンツを変更する関数については、@ref{Text}で説明されています。
 
 @defun buffer-modified-p &optional buffer
-This function returns @code{t} if the buffer @var{buffer} has been modified
-since it was last read in from a file or saved, or @code{nil} otherwise.  If
-@var{buffer} is not supplied, the current buffer is tested.
+この関数は、バッファー@var{buffer}が最後にファイルから読み込まれた、あるいは保存されてから変更されていれば@code{t}、それ以外では@code{nil}をリターンする。@var{buffer}が与えられない場合は、カレントバッファーがテストされる。
 @end defun
 
 @defun set-buffer-modified-p flag
-This function marks the current buffer as modified if @var{flag} is
-non-@code{nil}, or as unmodified if the flag is @code{nil}.
+この関数は、@var{flag}が非@code{nil}ならカレントバッファーを変更済みとしてマークし、@code{nil}なら未変更としてマークする。
 
-Another effect of calling this function is to cause unconditional redisplay
-of the mode line for the current buffer.  In fact, the function
-@code{force-mode-line-update} works by doing this:
+この関数を呼び出すことによる別の効果は、それがカレントバッファーのモードラインの無条件な再表示を引き起こすことである。実際のところ、関数@code{force-mode-line-update}は、以下を行うことにより機能する:
 
 @example
 @group
@@ -383,36 +371,21 @@ of the mode line for the current buffer.  In fact, the function
 @end defun
 
 @defun restore-buffer-modified-p flag
-Like @code{set-buffer-modified-p}, but does not force redisplay of mode
-lines.
+@code{set-buffer-modified-p}と同様だが、モードラインにたいする強制的な再表示を行わない。
 @end defun
 
 @deffn Command not-modified &optional arg
-This command marks the current buffer as unmodified, and not needing to be
-saved.  If @var{arg} is non-@code{nil}, it marks the buffer as modified, so
-that it will be saved at the next suitable occasion.  Interactively,
-@var{arg} is the prefix argument.
+このコマンドは、カレントバッファーが変更されておらず、保存する必要がないとマークする。@var{arg}が非@code{nil}の場合、これは変更されているとマークするので、次回の適切なタイミングでバッファーは保存されるだろう。interactiveに呼び出された場合、@var{arg}はプレフィックス引数である。
 
-Don't use this function in programs, since it prints a message in the echo
-area; use @code{set-buffer-modified-p} (above) instead.
+この関数は、エコーエリア内にメッセージをプリントするので、プログラム内で使用してはならない。かわりに、@code{set-buffer-modified-p}(上記)を使用すること。
 @end deffn
 
 @defun buffer-modified-tick &optional buffer
-This function returns @var{buffer}'s modification-count.  This is a counter
-that increments every time the buffer is modified.  If @var{buffer} is
-@code{nil} (or omitted), the current buffer is used.  The counter can wrap
-around occasionally.
+この関数は、@var{buffer}の変更カウント(modification-count)をリターンする。これは、バッファーが変更されるたびに増加されるカウンターである。@var{buffer}が@code{nil}(または省略)の場合は、カレントバッファーが使用される。このカウンターは、時折0にクリアーされ得る。
 @end defun
 
 @defun buffer-chars-modified-tick &optional buffer
-This function returns @var{buffer}'s character-change modification-count.
-Changes to text properties leave this counter unchanged; however, each time
-text is inserted or removed from the buffer, the counter is reset to the
-value that would be returned by @code{buffer-modified-tick}.  By comparing
-the values returned by two @code{buffer-chars-modified-tick} calls, you can
-tell whether a character change occurred in that buffer in between the
-calls.  If @var{buffer} is @code{nil} (or omitted), the current buffer is
-used.
+この関数は、@var{buffer}の文字変更に関わる変更カウントをリターンする。テキストプロパティを変更しても、このカウンターは変化しない。しかし、そのバッファーにテキストが挿入、または削除されるたびに、このカウンターは@code{buffer-modified-tick}によりリターンされるであろう値にリセットされる。@code{buffer-chars-modified-tick}を2回呼び出してリターンされる値を比較することにより、その呼び出しの間にバッファー内で文字変更があったかどうかを知ることができる。@var{buffer}が@code{nil}(または省略)の場合は、カレントバッファーが使用される。
 @end defun
 
 @node Modification Time
