@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-07-04 00:24+0900\n"
-"PO-Revision-Date: 2018-07-08 21:28+0900\n"
+"PO-Revision-Date: 2018-07-10 01:52+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -943,135 +943,135 @@ msgstr "この関数は、@var{buffer}の文字変更に関わる変更カウン
 #: buffers.texi.orig:591
 #, no-wrap
 msgid "Buffer Modification Time"
-msgstr ""
+msgstr "Buffer Modification Time"
 
 #. type: cindex
 #: buffers.texi.orig:592
 #, no-wrap
 msgid "comparing file modification time"
-msgstr ""
+msgstr "comparing file modification time"
 
 #. type: cindex
 #: buffers.texi.orig:593
 #, no-wrap
 msgid "modification time of buffer"
-msgstr ""
+msgstr "modification time of buffer"
 
 #. type: Plain text
 #: buffers.texi.orig:602
 msgid "Suppose that you visit a file and make changes in its buffer, and meanwhile the file itself is changed on disk.  At this point, saving the buffer would overwrite the changes in the file.  Occasionally this may be what you want, but usually it would lose valuable information.  Emacs therefore checks the file's modification time using the functions described below before saving the file.  (@xref{File Attributes}, for how to examine a file's modification time.)"
-msgstr ""
+msgstr "あるファイルをvisitして、そのバッファー内で変更を行って、その一方ではディスク上でファイル自身が変更されたとします。この時点でバッファーを保存すると、ファイル内の変更は上書きされるでしょう。これが正に望んでいる動作のときもありますが、通常は有用な情報が失われてしまいます。したがって、Emacsはファイルを保存する前に、以下で説明する関数を使用して、ファイルの変更時刻をチェックします(ファイルの変更時刻を調べる方法は、@ref{File Attributes}を参照)。"
 
 #. type: defun
 #: buffers.texi.orig:603
 #, no-wrap
 msgid "verify-visited-file-modtime &optional buffer"
-msgstr ""
+msgstr "verify-visited-file-modtime &optional buffer"
 
 #. type: defun
 #: buffers.texi.orig:609
 msgid "This function compares what @var{buffer} (by default, the current-buffer) has recorded for the modification time of its visited file against the actual modification time of the file as recorded by the operating system.  The two should be the same unless some other process has written the file since Emacs visited or saved it."
-msgstr ""
+msgstr "この関数は、@var{buffer}(デフォルトはカレントバッファー)にvisitされているファイルにたいして記録されている変更時刻と、オペレーティングシステムにより記録された実際の変更時刻を比較する。これら2つの時刻は、Emacsがそのファイルをvisit、もしくは保存して以降、他のプロセスにより書き込みがされていなければ、等しくなるはずである。"
 
 #. type: defun
 #: buffers.texi.orig:615
 msgid "The function returns @code{t} if the last actual modification time and Emacs's recorded modification time are the same, @code{nil} otherwise.  It also returns @code{t} if the buffer has no recorded last modification time, that is if @code{visited-file-modtime} would return zero."
-msgstr ""
+msgstr "この関数は、実際の最終変更時刻と、Emacsが記録した変更時刻が同じなら@code{t}、それ以外は@code{nil}をリターンする。そのバッファーが記録済みの最終変更時刻をもたない、すなわち@code{visited-file-modtime}が0をリターンするような場合も、@code{t}をリターンする。"
 
 #. type: defun
 #: buffers.texi.orig:622
 msgid "It always returns @code{t} for buffers that are not visiting a file, even if @code{visited-file-modtime} returns a non-zero value.  For instance, it always returns @code{t} for dired buffers.  It returns @code{t} for buffers that are visiting a file that does not exist and never existed, but @code{nil} for file-visiting buffers whose file has been deleted."
-msgstr ""
+msgstr "これは、たとえ@code{visited-file-modtime}が非0の値をリターンしたとしても、ファイルをvisitしていないバッファーにたいしては、常に@code{t}をリターンする。たとえば、diredバッファーにたいして、この関数は常に@code{t}をリターンする。また、存在せず、 以前に存在したこともなかったファイルをvisitするバッファーにたいして@code{t}をリターンするが、visitしているファイルが削除されたバッファーにたいしては@code{nil}をリターンする。"
 
 #. type: defun
 #: buffers.texi.orig:624
 #, no-wrap
 msgid "clear-visited-file-modtime"
-msgstr ""
+msgstr "clear-visited-file-modtime"
 
 #. type: defun
 #: buffers.texi.orig:629
 msgid "This function clears out the record of the last modification time of the file being visited by the current buffer.  As a result, the next attempt to save this buffer will not complain of a discrepancy in file modification times."
-msgstr ""
+msgstr "この関数は、カレントバッファーによりvisitされているファイルの最終変更時刻の記録をクリアーする。結果として、このバッファーにを次回の保存では、ファイルの変更時刻の食い違いは報告されなくなる。"
 
 #. type: defun
 #: buffers.texi.orig:633
 msgid "This function is called in @code{set-visited-file-name} and other exceptional places where the usual test to avoid overwriting a changed file should not be done."
-msgstr ""
+msgstr "この関数は@code{set-visited-file-name}、および変更済みファイルの上書きを防ぐための通常テストを行わない例外的な箇所で呼び出される。"
 
 #. type: defun
 #: buffers.texi.orig:635
 #, no-wrap
 msgid "visited-file-modtime"
-msgstr ""
+msgstr "visited-file-modtime"
 
 #. type: defun
 #: buffers.texi.orig:641
 msgid "This function returns the current buffer's recorded last file modification time, as a list of the form @code{(@var{high} @var{low} @var{microsec} @var{picosec})}.  (This is the same format that @code{file-attributes} uses to return time values; @pxref{File Attributes}.)"
-msgstr ""
+msgstr "この関数は、カレントバッファーの記録された最終ファイル変更時刻を、@code{(@var{high} @var{low} @var{microsec} @var{picosec})}のような形式のリストでリターンする(これは、@code{file-attributes}が時刻値をリターンするために使用するフォーマットと同じである。@ref{File Attributes}を参照されたい)。"
 
 #. type: defun
 #: buffers.texi.orig:649
 msgid "If the buffer has no recorded last modification time, this function returns zero.  This case occurs, for instance, if the buffer is not visiting a file or if the time has been explicitly cleared by @code{clear-visited-file-modtime}.  Note, however, that @code{visited-file-modtime} returns a list for some non-file buffers too.  For instance, in a Dired buffer listing a directory, it returns the last modification time of that directory, as recorded by Dired."
-msgstr ""
+msgstr "バッファーが最終変更時刻の記録をもたない場合、この関数は0をリターンする。これが発生するのは、たとえばバッファーがファイルをvisitしていなかったり、@code{clear-visited-file-modtime}で最終変更時刻が明示的にクリアーされた場合である。しかし@code{visited-file-modtime}は、いくつかの非ファイルバッファーにたいするリストをリターンすることに注意。たとえば、ディレクトリーをリストするDiredバッファーでは、Diredが記録するそのディレクトリーの最終変更時刻がリターンされる。"
 
 #. type: defun
 #: buffers.texi.orig:651
 msgid "If the buffer is not visiting a file, this function returns -1."
-msgstr ""
+msgstr "バッファーがファイルをvisitしていない場合、この関数は-1をリターンする。"
 
 #. type: defun
 #: buffers.texi.orig:653
 #, no-wrap
 msgid "set-visited-file-modtime &optional time"
-msgstr ""
+msgstr "set-visited-file-modtime &optional time"
 
 #. type: defun
 #: buffers.texi.orig:658
 msgid "This function updates the buffer's record of the last modification time of the visited file, to the value specified by @var{time} if @var{time} is not @code{nil}, and otherwise to the last modification time of the visited file."
-msgstr ""
+msgstr "この関数は、バッファーがvisitしているファイルの最終変更時刻の記録を、@var{time}が非@code{nil}、それ以外はvisitしているファイルの最終変更時刻により更新する。"
 
 #. type: defun
 #: buffers.texi.orig:662
 msgid "If @var{time} is neither @code{nil} nor zero, it should have the form @code{(@var{high} @var{low} @var{microsec} @var{picosec})}, the format used by @code{current-time} (@pxref{Time of Day})."
-msgstr ""
+msgstr "@var{time}が@code{nil}や0でない場合、それは@code{current-time}で使用される形式@code{(@var{high} @var{low} @var{microsec} @var{picosec})}というフォーマットであること(@ref{Time of Day}を参照)。"
 
 #. type: defun
 #: buffers.texi.orig:666
 msgid "This function is useful if the buffer was not read from the file normally, or if the file itself has been changed for some known benign reason."
-msgstr ""
+msgstr "この関数は、バッファーが通常のようにファイルから読み取られたものでない場合や、ファイル自身が害のない既知の理由により変更されている場合に有用である。"
 
 #. type: defun
 #: buffers.texi.orig:668
 #, no-wrap
 msgid "ask-user-about-supersession-threat filename"
-msgstr ""
+msgstr "ask-user-about-supersession-threat filename"
 
 #. type: defun
 #: buffers.texi.orig:674
 msgid "This function is used to ask a user how to proceed after an attempt to modify an buffer visiting file @var{filename} when the file is newer than the buffer text.  Emacs detects this because the modification time of the file on disk is newer than the last save-time of the buffer.  This means some other program has probably altered the file."
-msgstr ""
+msgstr "これは、visitしているファイル@var{filename}がバッファーのテキストより新しいときにバッファーの変更を試みた後、ユーザーに処理方法を尋ねるために使用する関数である。Emacsはディスク上のファイルの変更時刻が、バッファーを最後に保存した時刻より新しいかどうかで、これを検知する。これはおそらく、他のプログラムがそのファイルを変更したことを意味する。"
 
 #. type: kindex
 #: buffers.texi.orig:675
 #, no-wrap
 msgid "file-supersession"
-msgstr ""
+msgstr "file-supersession"
 
 #. type: defun
 #: buffers.texi.orig:680
 msgid "Depending on the user's answer, the function may return normally, in which case the modification of the buffer proceeds, or it may signal a @code{file-supersession} error with data @code{(@var{filename})}, in which case the proposed buffer modification is not allowed."
-msgstr ""
+msgstr "この関数が正常にリターンするかどうかは、ユーザーの答えに依存する。関数はバッファーの変更が処理された場合は正常にリターンし、バッファーの変更が許可されなかった場合は、データ@code{(@var{filename})}とともにエラー@code{file-supersession}をシグナルする。"
 
 #. type: defun
 #: buffers.texi.orig:684
 msgid "This function is called automatically by Emacs on the proper occasions.  It exists so you can customize Emacs by redefining it.  See the file @file{userlock.el} for the standard definition."
-msgstr ""
+msgstr "この関数は、適切なタイミングでEmacsにより自動的に呼び出される。これは、再定義することによりEmacsをカスタマイズ可能にするために存在する。標準的な定義は、ファイル@file{userlock.el}を参照されたい。"
 
 #. type: defun
 #: buffers.texi.orig:686
 msgid "See also the file locking mechanism in @ref{File Locks}."
-msgstr ""
+msgstr "@ref{File Locks}のファイルロックのメカニズムも参照のこと。"
 
 #. type: section
 #: buffers.texi.orig:689
