@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-07-04 00:24+0900\n"
-"PO-Revision-Date: 2018-07-11 00:45+0900\n"
+"PO-Revision-Date: 2018-07-14 01:43+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1184,50 +1184,50 @@ msgstr "この関数は、カレントバッファーが読み取り専用の場
 #: buffers.texi.orig:763
 #, no-wrap
 msgid "The Buffer List"
-msgstr ""
+msgstr "The Buffer List"
 
 #. type: cindex
 #: buffers.texi.orig:764
 #, no-wrap
 msgid "buffer list"
-msgstr ""
+msgstr "buffer list"
 
 #. type: cindex
 #: buffers.texi.orig:765
 #, no-wrap
 msgid "listing all buffers"
-msgstr ""
+msgstr "listing all buffers"
 
 #. type: Plain text
 #: buffers.texi.orig:772
 msgid "The @dfn{buffer list} is a list of all live buffers.  The order of the buffers in this list is based primarily on how recently each buffer has been displayed in a window.  Several functions, notably @code{other-buffer}, use this ordering.  A buffer list displayed for the user also follows this order."
-msgstr ""
+msgstr "@dfn{バッファーリスト(buffer list)}とは、すべての生きた(killされていない)バッファーのリストです。このリスト内のバッファーの順序は主に、それぞれのバッファーがウィンドウに表示されたのがどれほど最近なのかにもとづきます。いくつかの関数、特に@code{other-buffer}はこの順序を使用します。ユーザーに表示されるバッファーリストも、この順序にしたがいます。"
 
 #. type: Plain text
 #: buffers.texi.orig:781
 msgid "Creating a buffer adds it to the end of the buffer list, and killing a buffer removes it from that list.  A buffer moves to the front of this list whenever it is chosen for display in a window (@pxref{Switching Buffers}) or a window displaying it is selected (@pxref{Selecting Windows}).  A buffer moves to the end of the list when it is buried (see @code{bury-buffer}, below).  There are no functions available to the Lisp programmer which directly manipulate the buffer list."
-msgstr ""
+msgstr "バッファーを作成すると、それはバッファーリストの最後に追加され  バッファーをkillすることにより、そのリストから削除されます。ウィンドウに表示するためにバッファーが選択されたとき(@ref{Switching Buffers}を参照)、あるいはバッファーを表示するウィンドウが選択されたとき(@ref{Selecting Windows}を参照)、そのバッファーは常にこのリストの先頭に移動します。バッファーがバリー(以下の@code{bury-buffer}を参照)されたときは、このリストの最後に移動します。バッファーリストを直接操作するために利用できる、Lispプログラマー向けの関数は存在しません。"
 
 #. type: Plain text
 #: buffers.texi.orig:789
 msgid "In addition to the fundamental buffer list just described, Emacs maintains a local buffer list for each frame, in which the buffers that have been displayed (or had their windows selected) in that frame come first.  (This order is recorded in the frame's @code{buffer-list} frame parameter; see @ref{Buffer Parameters}.)  Buffers never displayed in that frame come afterward, ordered according to the fundamental buffer list."
-msgstr ""
+msgstr "説明した基本バッファーリスト(fundamental buffer list)に加えて、Emacsはそれぞれのフレームにたいしてローカルバッファーリスト(local buffer list)を保守します。ローカルバッファーリストでは、そのフレーム内で表示されていた(または選択されたウィンドウの)バッファーが先頭になります(この順序は、そのフレームのフレームパラメーター@code{buffer-list}に記録される。@ref{Buffer Parameters}を参照されたい)。そのフレームでは表示されていないフレームは後になるよう、並び順は基本バッファーリストに準じます。"
 
 #. type: defun
 #: buffers.texi.orig:790
 #, no-wrap
 msgid "buffer-list &optional frame"
-msgstr ""
+msgstr "buffer-list &optional frame"
 
 #. type: defun
 #: buffers.texi.orig:794
 msgid "This function returns the buffer list, including all buffers, even those whose names begin with a space.  The elements are actual buffers, not their names."
-msgstr ""
+msgstr "この関数は、すべてのバッファーを含むバッファーリストをリターンする(名前がスペースで始まるバッファーも含む)。リストの要素はバッファーの名前ではなく、実際のバッファーである。"
 
 #. type: defun
 #: buffers.texi.orig:799
 msgid "If @var{frame} is a frame, this returns @var{frame}'s local buffer list.  If @var{frame} is @code{nil} or omitted, the fundamental buffer list is used: the buffers appear in order of most recent display or selection, regardless of which frames they were displayed on."
-msgstr ""
+msgstr "@var{frame}がフレームの場合は、@var{frame}のローカルバッファーリストをリターンする。@var{frame}が@code{nil}、または省略された場合は、基本バッファーリストが使用される。その場合、そのバッファーを表示するフレームがどれかとは無関係に、もっとも最近に表示、または選択されたバッファーの順になる。"
 
 #. type: group
 #: buffers.texi.orig:806
@@ -1238,6 +1238,10 @@ msgid ""
 "         #<buffer  *Minibuf-1*> #<buffer buffer.c>\n"
 "         #<buffer *Help*> #<buffer TAGS>)\n"
 msgstr ""
+"(buffer-list)\n"
+"     @result{} (#<buffer buffers.texi>\n"
+"         #<buffer  *Minibuf-1*> #<buffer buffer.c>\n"
+"         #<buffer *Help*> #<buffer TAGS>)\n"
 
 #. type: group
 #: buffers.texi.orig:814
@@ -1249,11 +1253,16 @@ msgid ""
 "    @result{} (\"buffers.texi\" \" *Minibuf-1*\"\n"
 "        \"buffer.c\" \"*Help*\" \"TAGS\")\n"
 msgstr ""
+";; @r{ミニバッファーの名前が}\n"
+";;   @r{スペースで始まることに注意!}\n"
+"(mapcar (function buffer-name) (buffer-list))\n"
+"    @result{} (\"buffers.texi\" \" *Minibuf-1*\"\n"
+"        \"buffer.c\" \"*Help*\" \"TAGS\")\n"
 
 #. type: Plain text
 #: buffers.texi.orig:822
 msgid "The list returned by @code{buffer-list} is constructed specifically; it is not an internal Emacs data structure, and modifying it has no effect on the order of buffers.  If you want to change the order of buffers in the fundamental buffer list, here is an easy way:"
-msgstr ""
+msgstr "@code{buffer-list}からリターンされるリストは、それ専用に構築されたリストであり、Emacsの内部的なデータ構造ではないし、それを変更してもバッファーの並び順に影響はありません。基本バッファーリスト内のバッファーの並び順を変更したい場合に簡単なのは、以下の方法です:"
 
 #. type: example
 #: buffers.texi.orig:828
@@ -1264,111 +1273,115 @@ msgid ""
 "    (bury-buffer (car new-list))\n"
 "    (setq new-list (cdr new-list))))\n"
 msgstr ""
+"(defun reorder-buffer-list (new-list)\n"
+"  (while new-list\n"
+"    (bury-buffer (car new-list))\n"
+"    (setq new-list (cdr new-list))))\n"
 
 #. type: Plain text
 #: buffers.texi.orig:833
 msgid "With this method, you can specify any order for the list, but there is no danger of losing a buffer or adding something that is not a valid live buffer."
-msgstr ""
+msgstr "この方法により、バッファーを失ったり、有効な生きたバッファー以外の何かを追加する危険を犯さずに、リストに任意の並び順を指定できます。"
 
 #. type: Plain text
 #: buffers.texi.orig:837
 msgid "To change the order or value of a specific frame's buffer list, set that frame's @code{buffer-list} parameter with @code{modify-frame-parameters} (@pxref{Parameter Access})."
-msgstr ""
+msgstr "特定のフレームのバッファーリストの並び順や値を変更するには、@code{modify-frame-parameters}でそのフレームの@code{buffer-list}パラメーターをセットしてください(@ref{Parameter Access}を参照)。"
 
 #. type: defun
 #: buffers.texi.orig:838
 #, no-wrap
 msgid "other-buffer &optional buffer visible-ok frame"
-msgstr ""
+msgstr "other-buffer &optional buffer visible-ok frame"
 
 #. type: defun
 #: buffers.texi.orig:844
 msgid "This function returns the first buffer in the buffer list other than @var{buffer}.  Usually, this is the buffer appearing in the most recently selected window (in frame @var{frame} or else the selected frame, @pxref{Input Focus}), aside from @var{buffer}.  Buffers whose names start with a space are not considered at all."
-msgstr ""
+msgstr "この関数は、バッファーリスト中で@var{buffer}以外の最初のバッファーをリターンする。これは通常選択されたウィンドウ(フレーム@var{frame}、または選択されたフレーム。@ref{Input Focus}を参照)に、もっとも最近表示された、@var{buffer}以外のバッファーである。名前がスペースで始まるバッファーは、考慮されない。"
 
 #. type: defun
 #: buffers.texi.orig:849
 msgid "If @var{buffer} is not supplied (or if it is not a live buffer), then @code{other-buffer} returns the first buffer in the selected frame's local buffer list. (If @var{frame} is non-@code{nil}, it returns the first buffer in @var{frame}'s local buffer list instead.)"
-msgstr ""
+msgstr "@var{buffer}が与えられない(または生きたバッファーでない)場合、@code{other-buffer}は選択されたフレームのローカルバッファーリスト内の、最初のバッファーをリターンする(@var{frame}が非@code{nil}の場合は、@var{frame}のローカルバッファーリスト内の最初のバッファーをリターンする)。"
 
 #. type: defun
 #: buffers.texi.orig:854
 msgid "If @var{frame} has a non-@code{nil} @code{buffer-predicate} parameter, then @code{other-buffer} uses that predicate to decide which buffers to consider.  It calls the predicate once for each buffer, and if the value is @code{nil}, that buffer is ignored.  @xref{Buffer Parameters}."
-msgstr ""
+msgstr "@var{frame}が非@code{nil}の@code{buffer-predicate}パラメーターをもつ場合は、どのバッファーを考慮すべきかを決定するために、@code{other-buffer}はその述語を使用する。これはそれぞれのバッファーごとにその述語を一度呼び出して、値が@code{nil}ならそのバッファーは無視される。@ref{Buffer Parameters}を参照のこと。"
 
 #. type: defun
 #: buffers.texi.orig:860
 msgid "If @var{visible-ok} is @code{nil}, @code{other-buffer} avoids returning a buffer visible in any window on any visible frame, except as a last resort.  If @var{visible-ok} is non-@code{nil}, then it does not matter whether a buffer is displayed somewhere or not."
-msgstr ""
+msgstr "@var{visible-ok}が@code{nil}ならば、@code{other-buffer}はやむを得ない場合を除き、任意の可視のフレーム上のウィンドウ内で可視のバッファーをリターンすることを避ける。@var{visible-ok}が非@code{nil}の場合は、バッファーがどこかで表示されているかどうかは問題にしない。"
 
 #. type: defun
 #: buffers.texi.orig:863
 msgid "If no suitable buffer exists, the buffer @file{*scratch*} is returned (and created, if necessary)."
-msgstr ""
+msgstr "適切なバッファーが存在しない場合は、バッファー@file{*scratch*}を(必要なら作成して)リターンする。"
 
 #. type: defun
 #: buffers.texi.orig:865
 #, no-wrap
 msgid "last-buffer &optional buffer visible-ok frame"
-msgstr ""
+msgstr "last-buffer &optional buffer visible-ok frame"
 
 #. type: defun
 #: buffers.texi.orig:869
 msgid "This function returns the last buffer in @var{frame}'s buffer list other than @var{buffer}.  If @var{frame} is omitted or @code{nil}, it uses the selected frame's buffer list."
-msgstr ""
+msgstr "この関数は、@var{frame}のバッファーリスト内から、@var{buffer}以外の最後のバッファーをリターンする。@var{frame}が省略、または@code{nil}の場合は、選択されたフレームのバッファーリストを使用する。"
 
 #. type: defun
 #: buffers.texi.orig:873
 msgid "The argument @var{visible-ok} is handled as with @code{other-buffer}, see above.  If no suitable buffer can be found, the buffer @file{*scratch*} is returned."
-msgstr ""
+msgstr "引数@var{visible-ok}は、上述した@code{other-buffer}と同様に扱われる。適切なバッファーを見つけられない場合は、バッファー@file{*scratch*}がリターンされる。"
 
 #. type: deffn
 #: buffers.texi.orig:875
 #, no-wrap
 msgid "Command bury-buffer &optional buffer-or-name"
-msgstr ""
+msgstr "Command bury-buffer &optional buffer-or-name"
 
 #. type: deffn
 #: buffers.texi.orig:881
 msgid "This command puts @var{buffer-or-name} at the end of the buffer list, without changing the order of any of the other buffers on the list.  This buffer therefore becomes the least desirable candidate for @code{other-buffer} to return.  The argument can be either a buffer itself or the name of one."
-msgstr ""
+msgstr "このコマンドは、バッファーリスト内の他のバッファーの並び順を変更することなく、@var{buffer-or-name}をバッファーリストの最後に置く。つまり、このバッファーは@code{other-buffer}がリターンする候補で、もっとも期待度が低くなる。引数はバッファー自身か、バッファーの名前を指定できる。"
 
 #. type: deffn
 #: buffers.texi.orig:888
 msgid "This function operates on each frame's @code{buffer-list} parameter as well as the fundamental buffer list; therefore, the buffer that you bury will come last in the value of @code{(buffer-list @var{frame})} and in the value of @code{(buffer-list)}.  In addition, it also puts the buffer at the end of the list of buffer of the selected window (@pxref{Window History}) provided it is shown in that window."
-msgstr ""
+msgstr "この関数は、基本バッファーリストと同様に、それぞれのフレームの@code{buffer-list}パラメーターを操作する。したがってバリー(bury: 埋める、隠す)したバッファーは、@code{(buffer-list @var{frame})}および@code{(buffer-list)}の値の最後に置かれるだろう。さらに、そのバッファーが選択されたウィンドウに表示されていれば、そのウィンドウのバッファーリストの最後にバッファーを置くことも行う(@ref{Window History}を参照)。"
 
 #. type: deffn
 #: buffers.texi.orig:901
 msgid "If @var{buffer-or-name} is @code{nil} or omitted, this means to bury the current buffer.  In addition, if the current buffer is displayed in the selected window, this makes sure that the window is either deleted or another buffer is shown in it.  More precisely, if the selected window is dedicated (@pxref{Dedicated Windows}) and there are other windows on its frame, the window is deleted.  If it is the only window on its frame and that frame is not the only frame on its terminal, the frame is ``dismissed'' by calling the function specified by @code{frame-auto-hide-function} (@pxref{Quitting Windows}).  Otherwise, it calls @code{switch-to-prev-buffer} (@pxref{Window History}) to show another buffer in that window.  If @var{buffer-or-name} is displayed in some other window, it remains displayed there."
-msgstr ""
+msgstr "@var{buffer-or-name}が@code{nil}、または省略された場合は、カレントバッファーをバリーすることを意味する。加えて、カレントバッファーが選択されたウィンドウに表示されている場合は、そのウィンドウを削除するか、他のバッファーを表示する。より正確には、選択されたウィンドウが専用(dedicated)のウィンドウ(@pxref{Dedicated Windows})であり、かつそのフレーム上に他のウィンドウが存在する場合、専用ウィンドウは削除される。それがフレーム上で唯一のウィンドウであり、かつそのフレームが端末上で唯一のフレームでない場合、そのフレームは@code{frame-auto-hide-function}で指定される関数を呼び出すことにより、``開放''される(@ref{Quitting Windows}を参照)。それ以外の場合は、他のバッファーをそのウィンドウ内に表示するために、@code{switch-to-prev-buffer}を呼び出す(@ref{Window History}を参照)。@var{buffer-or-name}が他のウィンドウで表示されていた場合は、そのまま表示され続ける。"
 
 #. type: deffn
 #: buffers.texi.orig:904
 msgid "To replace a buffer in all the windows that display it, use @code{replace-buffer-in-windows}, @xref{Buffers and Windows}."
-msgstr ""
+msgstr "あるバッファーにたいして、それを表示するすべてのウィンドウでバッファーを置き換えるには、@code{replace-buffer-in-windows}を使用する。@ref{Buffers and Windows}を参照のこと。"
 
 #. type: deffn
 #: buffers.texi.orig:906
 #, no-wrap
 msgid "Command unbury-buffer"
-msgstr ""
+msgstr "Command unbury-buffer"
 
 #. type: deffn
 #: buffers.texi.orig:912
 msgid "This command switches to the last buffer in the local buffer list of the selected frame.  More precisely, it calls the function @code{switch-to-buffer} (@pxref{Switching Buffers}), to display the buffer returned by @code{last-buffer} (see above), in the selected window."
-msgstr ""
+msgstr "このコマンドは、選択されたフレームのローカルバッファーリストの最後のバッファーに切り替える。より正確には、選択されたウィンドウ内で、@code{last-buffer}(上記参照)がリターンするバッファーを表示するために、関数@code{switch-to-buffer}を呼び出す(@ref{Switching Buffers}を参照)。"
 
 #. type: defvar
 #: buffers.texi.orig:914
 #, no-wrap
 msgid "buffer-list-update-hook"
-msgstr ""
+msgstr "buffer-list-update-hook"
 
 #. type: defvar
 #: buffers.texi.orig:920
 msgid "This is a normal hook run whenever the buffer list changes.  Functions (implicitly) running this hook are @code{get-buffer-create} (@pxref{Creating Buffers}), @code{rename-buffer} (@pxref{Buffer Names}), @code{kill-buffer} (@pxref{Killing Buffers}), @code{bury-buffer} (see above) and @code{select-window} (@pxref{Selecting Windows})."
-msgstr ""
+msgstr "これは、バッファーリストが変更されたときは、常に実行されるノーマルフックである。(暗黙的に)このフックを実行する関数は@code{get-buffer-create}(@ref{Creating Buffers}を参照)、@code{rename-buffer}(@ref{Buffer Names}を参照)、@code{kill-buffer}(@ref{Killing Buffers}を参照)、@code{bury-buffer}(上記参照)、@code{select-window}(@ref{Selecting Windows}を参照)である。"
 
 #. type: cindex
 #: buffers.texi.orig:924
