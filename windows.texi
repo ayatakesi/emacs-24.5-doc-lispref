@@ -47,175 +47,118 @@
 @section Basic Concepts of Emacs Windows
 @cindex window
 
-A @dfn{window} is an area of the screen that is used to display a buffer
-(@pxref{Buffers}).  In Emacs Lisp, windows are represented by a special Lisp
-object type.
+@dfn{ウィンドウ(window)}とは、任意のバッファーを表示するために使用される、スクリーンの領域です。Emacs
+Lispでは、ウィンドウはスペシャルLispオブジェクトとして表現されます。
 
 @cindex multiple windows
-  Windows are grouped into frames (@pxref{Frames}).  Each frame contains at
-least one window; the user can subdivide it into multiple, non-overlapping
-windows to view several buffers at once.  Lisp programs can use multiple
-windows for a variety of purposes.  In Rmail, for example, you can view a
-summary of message titles in one window, and the contents of the selected
-message in another window.
+  ウィンドウは、フレームへとグループ化されます(@ref{Frames}を参照)。それぞれのフレームは、最低でも1つのウィンドウを含みます。ユーザーは、複数のバッファーを1度に閲覧するために、それを複数のオーバーラップしないウィンドウに分割することができます。Lispプログラムは、さまざまな目的にたいして、複数のウィンドウを使用できます。たとえばRmailでは、1つのウィンドウでメッセージタイトル、もう一方のウィンドウで選択したメッセージのコンテンツを閲覧できます。
 
 @cindex terminal screen
 @cindex screen of terminal
-  Emacs uses the word ``window'' with a different meaning than in graphical
-desktop environments and window systems, such as the X Window System.  When
-Emacs is run on X, each of its graphical X windows is an Emacs frame
-(containing one or more Emacs windows).  When Emacs is run on a text
-terminal, the frame fills the entire terminal screen.
+  Emacsは、グラフィカルなデスクトップ環境や、X Window
+Systemのようなウィンドウシステムとは異なる意味で、``ウィンドウ(window)''という単語を使用します。EmacsがX上で実行されているときは、XのグラフィカルなXウィンドウは、Emacsでの(1つ以上のEmacsウィンドウを含んだ)フレームになります。Emacsがテキスト端末上で実行されているときは、フレームが端末スクリーン全体を占有します。
 
 @cindex tiled windows
-  Unlike X windows, Emacs windows are @dfn{tiled}; they never overlap within
-the area of the frame.  When a window is created, resized, or deleted, the
-change in window space is taken from or given to the adjacent windows, so
-that the total area of the frame is unchanged.
+  Xのウィンドウとは異なり、Emacsのウィンドウは@dfn{タイル表示(tiled)}され、フレームの領域内でオーバーラップされることは決してありません。あるウィンドウが作成、リサイズ、削除されるとき、変更されたウィンドウスペースの変更は各ウィンドウの調整により取得・譲与されるので、そのフレームの総領域に変化はありません。
 
 @defun windowp object
-This function returns @code{t} if @var{object} is a window (whether or not
-it displays a buffer).  Otherwise, it returns @code{nil}.
+この関数は、@var{object}がウィンドウ(バッファーの表示有無に関わらず)なら@code{t}、それ以外は@code{nil}をリターンする。
 @end defun
 
 @cindex live windows
-A @dfn{live window} is one that is actually displaying a buffer in a frame.
+@dfn{生きたウィンドウ(live window)}とは、あるフレーム内で実際にバッファーを表示しているウィンドウのことです。
 
 @defun window-live-p object
-This function returns @code{t} if @var{object} is a live window and
-@code{nil} otherwise.  A live window is one that displays a buffer.
+この関数は、@var{object}が生きたウィンドウなら@code{t}、それ以外は@code{nil}をリターンする。生きたウィンドウとは、バッファーを表示するウィンドウのこと。
 @end defun
 
 @cindex internal windows
-The windows in each frame are organized into a @dfn{window tree}.
-@xref{Windows and Frames}.  The leaf nodes of each window tree are live
-windows---the ones actually displaying buffers.  The internal nodes of the
-window tree are @dfn{internal windows}, which are not live.
+各フレーム内のウィンドウは、@dfn{ウィンドウツリー(window tree)}内へと組織化されます。@ref{Windows and
+Frames}を参照してください。それぞれのウィンドウツリーのリーフノード(leaf
+nodes)は、実際にバッファーを表示している生きたウィンドウです。ウィンドウツリーの内部ノード(internal
+node)は@dfn{内部ウィンドウ(internal windows)}と呼ばれ、これらは生きたウィンドウではありません。
 
 @cindex valid windows
-   A @dfn{valid window} is one that is either live or internal.  A valid window
-can be @dfn{deleted}, i.e., removed from its frame (@pxref{Deleting
-Windows}); then it is no longer valid, but the Lisp object representing it
-might be still referenced from other Lisp objects.  A deleted window may be
-made valid again by restoring a saved window configuration (@pxref{Window
-Configurations}).
+   @dfn{有効なウィンドウ(valid
+window)}とは、生きたウィンドウか、内部ウィンドウのいずれかです。有効なウィンドウにたいしては、それを@dfn{削除(delete)}、すなわちそのウィンドウのフレームから削除することができます(@ref{Deleting
+Windows}を参照)。その場合、それは有効なウィンドウではなくなりますが、それを表すLispオブジェクトは依然として他のLispオブジェクトから参照されたままかもしれません。削除されたウィンドウは、保存されたウィンドウ設定(window
+configuration)をリストアすることにより、再び有効になるかもしれません(@ref{Window Configurations}を参照)。
 
-   You can distinguish valid windows from deleted windows with
-@code{window-valid-p}.
+   @code{window-valid-p}により、削除されたウィンドウから有効なウィンドウを区別できます。
 
 @defun window-valid-p object
-This function returns @code{t} if @var{object} is a live window, or an
-internal window in a window tree.  Otherwise, it returns @code{nil},
-including for the case where @var{object} is a deleted window.
+この関数は、@var{object}が生きたウィンドウ、またはウィンドウツリー内の内部ウィンドウの場合は、@code{t}をリターンする。それ以外(@var{object}が削除されたウィンドウの場合も含む)は、@code{nil}をリターンする。
 @end defun
 
 @cindex selected window
 @cindex window selected within a frame
-  In each frame, at any time, exactly one Emacs window is designated as
-@dfn{selected within the frame}.  For the selected frame, that window is
-called the @dfn{selected window}---the one in which most editing takes
-place, and in which the cursor for selected windows appears (@pxref{Cursor
-Parameters}).  The selected window's buffer is usually also the current
-buffer, except when @code{set-buffer} has been used (@pxref{Current
-Buffer}).  As for non-selected frames, the window selected within the frame
-becomes the selected window if the frame is ever selected.  @xref{Selecting
-Windows}.
+  それぞれのフレーム内において、常にただ1つのEmacsウィンドウが@dfn{そのフレームで選択されている(selected within the
+frame)}もとして指定されます。選択されたフレームにたいしては、そのウィンドウは@dfn{選択されたウィンドウ(selected
+window)}と呼ばれます。選択されたウィンドウは、編集のほとんどが行われるウィンドウであり、選択されたウィンドウに表示されるカーソルがあるウィンドウです(@ref{Cursor
+Parameters}を参照)。選択されたウィンドウのバッファーは通常は、@code{set-buffer}が使用された場合を除き、カレントバッファーでもあります(@ref{Current
+Buffer}を参照)。選択されていないフレームでは、そのフレームが選択されたときは、そのフレームで選択されていたウィンドウが選択されたウィンドウになります。@ref{Selecting
+Windows}を参照してください。
 
 @defun selected-window
-This function returns the selected window (which is always a live window).
+この関数は、選択されたウィンドウをリターンする(これは常に生きたウィンドウである)。
 @end defun
 
 @node Windows and Frames
 @section Windows and Frames
 
-Each window belongs to exactly one frame (@pxref{Frames}).
+ウィンドウはそれぞれ、正確に1つのフレームに属します(@ref{Frames}を参照)。
 
 @defun window-frame &optional window
-This function returns the frame that the window @var{window} belongs to.  If
-@var{window} is @code{nil}, it defaults to the selected window.
+この関数は、ウィンドウ@var{window}が属するフレームをリターンする。@var{window}が@code{nil}の場合のデフォルトは、選択されたウィンドウである。
 @end defun
 
 @defun window-list &optional frame minibuffer window
-This function returns a list of live windows belonging to the frame
-@var{frame}.  If @var{frame} is omitted or @code{nil}, it defaults to the
-selected frame.
+この関数は、フレーム@var{frame}に属する、生きたウィンドウのリストをリターンする。@var{frame}が省略、または@code{nil}の場合のデフォルトは、選択されたフレームである。
 
-The optional argument @var{minibuffer} specifies whether to include the
-minibuffer window in the returned list.  If @var{minibuffer} is @code{t},
-the minibuffer window is included.  If @var{minibuffer} is @code{nil} or
-omitted, the minibuffer window is included only if it is active.  If
-@var{minibuffer} is neither @code{nil} nor @code{t}, the minibuffer window
-is never included.
+オプション引数@var{minibuffer}は、リターンされるリストにミニバッファーウィンドウを含めるべきかどうかを指定する。@var{minibuffer}が@code{t}の場合は、ミニバッファーウィンドウが含まれる。@var{minibuffer}が@code{nil}、または省略された場合は、ミニバッファーウィンドウがアクティブのときだけ含まれる。@var{minibuffer}が@code{nil}と@code{t}以外の場合、ミニバッファーウィンドウは含まれない。
 
-The optional argument @var{window}, if non-@code{nil}, should be a live
-window on the specified frame; then @var{window} will be the first element
-in the returned list.  If @var{window} is omitted or @code{nil}, the window
-selected within the frame is the first element.
+オプション引数@var{window}が非@code{nil}の場合、それは指定されたフレーム上の生きたウィンドウであること。その場合は、@var{window}がリターンされるリストの最初の要素になる。@var{window}が省略、または@code{nil}の場合は、そのフレームの選択されたウィンドウが最初の要素になる。
 @end defun
 
 @cindex window tree
 @cindex root window
-  Windows in the same frame are organized into a @dfn{window tree}, whose leaf
-nodes are the live windows.  The internal nodes of a window tree are not
-live; they exist for the purpose of organizing the relationships between
-live windows.  The root node of a window tree is called the @dfn{root
-window}.  It can be either a live window (if the frame has just one window),
-or an internal window.
+  同一フレーム内のウィンドウは、リーフノード(leaf nodes)が生きたウィンドウであるような、@dfn{ウィンドウツリー(window
+tree)}内に組織化されます。ウィンドウツリーの内部ノード(internal
+nodes)は生きたウィンドウではありません。これらのウィンドウは、生きたウィンドウ間の関係を組織化するという目的のために存在します。ウィンドウツリーのルートノード(root
+node)は、@dfn{ルートウィンドウ(root
+window)}と呼ばれます。ルートノードは生きたウィンドウ(そのフレームにウィンドウが1つだけの場合)、または内部ウィンドウのいずれかです。
 
-  A minibuffer window (@pxref{Minibuffer Windows}) is not part of its frame's
-window tree unless the frame is a minibuffer-only frame.  Nonetheless, most
-of the functions in this section accept the minibuffer window as an
-argument.  Also, the function @code{window-tree} described at the end of
-this section lists the minibuffer window alongside the actual window tree.
+  ミニバッファーウィンドウ(@ref{Minibuffer
+Windows}を参照)は、そのフレームがミニバッファーだけのフレームでない限り、そのフレームのウィンドウツリーの一部にはなりません。にもかかわらず、このセクションのほとんどの関数は、引数としてミニバッファーウィンドウを受け付けます。さらにこのセクションの最後に説明する関数@code{window-tree}は、実際のウィンドウツリーと並列してミニバッファーウィンドウをリストします。
 
 @defun frame-root-window &optional frame-or-window
-This function returns the root window for @var{frame-or-window}.  The
-argument @var{frame-or-window} should be either a window or a frame; if
-omitted or @code{nil}, it defaults to the selected frame.  If
-@var{frame-or-window} is a window, the return value is the root window of
-that window's frame.
+この関数は、@var{frame-or-window}にたいするルートウィンドウをリターンする。引数@var{frame-or-window}は、ウィンドウかフレームのいずれかであること。これが省略、または@code{nil}の場合のデフォルトは、選択されたフレームである。@var{frame-or-window}がウィンドウの場合、リターン値はそのウィンドウのフレームのルートウィンドウである。
 @end defun
 
 @cindex parent window
 @cindex child window
 @cindex sibling window
-  When a window is split, there are two live windows where previously there
-was one.  One of these is represented by the same Lisp window object as the
-original window, and the other is represented by a newly-created Lisp window
-object.  Both of these live windows become leaf nodes of the window tree, as
-@dfn{child windows} of a single internal window.  If necessary, Emacs
-automatically creates this internal window, which is also called the
-@dfn{parent window}, and assigns it to the appropriate position in the
-window tree.  A set of windows that share the same parent are called
-@dfn{siblings}.
+  ウィンドウが分割(split)されているときは、以前は1つだった2つの生きたウィンドウが存在します。これらのうちの一方は、元のウィンドウと同じLispウィンドウオブジェクトとして表され、もう一方は新たに作成されたLispウィンドウオブジェクトとして表されます。これらの生きたウィンドウは両方とも、単一の内部ウィンドウの@dfn{子ウィンドウ(child
+windows)}として、ウィンドウツリーのリーフノードになります。もし必要なら、Emacsはこの内部ウィンドウを自動的に作成します。この内部ウィンドウは@dfn{親ウィンドウ(parent
+window)}とも呼ばれ、ウィンドウツリー内の適切な位置に配置されます。同じ親を共有するウィンドウセットは、@dfn{兄弟(sibling)}と呼ばれます。
 
 @cindex parent window
 @defun window-parent &optional window
-This function returns the parent window of @var{window}.  If @var{window} is
-omitted or @code{nil}, it defaults to the selected window.  The return value
-is @code{nil} if @var{window} has no parent (i.e., it is a minibuffer window
-or the root window of its frame).
+この関数は、@var{window}の親ウィンドウ(parent
+window)をリターンする。@var{window}が省略、または@code{nil}の場合のデフォルトは、選択されたウィンドウである。@var{window}が親をもたない(ミニバッファーウィンドウやそのフレームのルートウィンドウ)場合、リターン値は@code{nil}である。
 @end defun
 
-  Each internal window always has at least two child windows.  If this number
-falls to one as a result of window deletion, Emacs automatically deletes the
-internal window, and its sole remaining child window takes its place in the
-window tree.
+  内部ウィンドウはそれぞれ、常に最低でも2つの子ウィンドウをもちます。ウィンドウ削除によりこの数値が1になった場合、Emacsは自動的に内部ウィンドウを削除して、その残った単一の子ウィンドウがウィンドウツリー内のその位置に配置されます。
 
-  Each child window can be either a live window, or an internal window (which
-in turn would have its own child windows).  Therefore, each internal window
-can be thought of as occupying a certain rectangular @dfn{screen area}---the
-union of the areas occupied by the live windows that are ultimately
-descended from it.
+  子ウィンドウはそれぞれ生きたウィンドウ、または(次に自身の子ウィンドウをもつであろう)内部ウィンドウのいずれかです。したがって、各内部ウィンドウは、最終的にはその内部ウィンドウの子孫であるような生きたウィンドウにより占有される領域を結合した、特定の矩形@dfn{スクリーン領域(screen
+area)}を占有すると考えることができます。
 
 @cindex window combination
 @cindex vertical combination
 @cindex horizontal combination
-  For each internal window, the screen areas of the immediate children are
-arranged either vertically or horizontally (never both).  If the child
-windows are arranged one above the other, they are said to form a
-@dfn{vertical combination}; if they are arranged side by side, they are said
-to form a @dfn{horizontal combination}.  Consider the following example:
+  内部ウィンドウそれぞれにたいして、近接する子たちのスクリーン領域は、垂直(vertically)または水平(horizontally)のいずれかにより整列されます(両方で整列されることはない)。子ウィンドウが他の子ウィンドウと上下に整列される場合、それらは@dfn{垂直コンビネーション(vertical
+combination)}、左右に整列される場合は@dfn{水平コンビネーション(horizontal
+combination)}を形成すると表現されます。以下の例で考えてみましょう:
 
 @smallexample
 @group
@@ -237,131 +180,76 @@ to form a @dfn{horizontal combination}.  Consider the following example:
 @end smallexample
 
 @noindent
-The root window of this frame is an internal window, @var{W1}.  Its child
-windows form a horizontal combination, consisting of the live window
-@var{W2} and the internal window @var{W3}.  The child windows of @var{W3}
-form a vertical combination, consisting of the live windows @var{W4} and
-@var{W5}.  Hence, the live windows in this window tree are @var{W2},
-@var{W4}, and @var{W5}.
+このフレームのルートウィンドウは、内部ウィンドウ@var{W1}です。これの子ウィンドウは、生きたウィンドウ@var{W2}と内部ウィンドウ@var{W3}からなる水平コンビネーションを形成します。@var{W3}の子ウィンドウは、生きたウィンドウ@var{W4}と@var{W5}からなる垂直コンビネーションを形成します。したがって、このウィンドウツリー内の生きたウィンドウは@var{W2}、@var{W4}、および@var{W5}です。
 
-  The following functions can be used to retrieve a child window of an
-internal window, and the siblings of a child window.
+  以下の関数は、内部ウィンドウの子ウィンドウ、および子ウィンドウの兄弟を取得するのに使用できます。
 
 @defun window-top-child &optional window
-This function returns the topmost child window of @var{window}, if
-@var{window} is an internal window whose children form a vertical
-combination.  For any other type of window, the return value is @code{nil}.
+この関数は、内部ウィンドウ@var{window}の子ウィンドウが垂直コンビネーションを形成する場合は、@var{window}の一番上の子ウィンドウをリターンする。他のタイプのウィンドウにたいするリターン値は@code{nil}である。
 @end defun
 
 @defun window-left-child &optional window
-This function returns the leftmost child window of @var{window}, if
-@var{window} is an internal window whose children form a horizontal
-combination.  For any other type of window, the return value is @code{nil}.
+この関数は、内部ウィンドウ@var{window}の子ウィンドウが水平コンビネーションを形成する場合は、@var{window}の一番左の子ウィンドウをリターンする。他のタイプのウィンドウにたいするリターン値は@code{nil}である。
 @end defun
 
 @defun window-child window
-This function returns the first child window of the internal window
-@var{window}---the topmost child window for a vertical combination, or the
-leftmost child window for a horizontal combination.  If @var{window} is a
-live window, the return value is @code{nil}.
+この関数は、内部ウィンドウ@var{window}の最初の子ウィンドウをリターンする。これは、垂直コンビネーションにたいしては一番上、水平コンビネーションにたいしては一番左の子ウィンドウである。@var{window}が生きたウィンドウの場合、リターン値は@code{nil}である。
 @end defun
 
 @defun window-combined-p &optional window horizontal
-This function returns a non-@code{nil} value if and only if @var{window} is
-part of a vertical combination.  If @var{window} is omitted or @code{nil},
-it defaults to the selected one.
+この関数は、@var{window}が垂直コンビネーションの一部である場合のみ、非@code{nil}をリターンする。@var{window}が省略、または@code{nil}の場合のデフォルトは、選択されたウィンドウである。
 
-If the optional argument @var{horizontal} is non-@code{nil}, this means to
-return non-@code{nil} if and only if @var{window} is part of a horizontal
-combination.
+オプション引数@var{horizontal}が非@code{nil}ならば、@var{window}が水平コンビネーションの一部である場合のみ非@code{nil}をリターンすることを意味する。
 @end defun
 
 @defun window-next-sibling &optional window
-This function returns the next sibling of the window @var{window}.  If
-omitted or @code{nil}, @var{window} defaults to the selected window.  The
-return value is @code{nil} if @var{window} is the last child of its parent.
+この関数は、ウィンドウ@var{window}の次の兄弟をリターンする。省略または@code{nil}の場合、@var{window}のデフォルトは選択されたウィンドウになる。@var{window}が、その親の最後の子の場合、リターン値は@code{nil}である。
 @end defun
 
 @defun window-prev-sibling &optional window
-This function returns the previous sibling of the window @var{window}.  If
-omitted or @code{nil}, @var{window} defaults to the selected window.  The
-return value is @code{nil} if @var{window} is the first child of its parent.
+この関数は、ウィンドウ@var{window}の前の兄弟をリターンする。省略または@code{nil}の場合、@var{window}のデフォルトは選択されたウィンドウになる。@var{window}が、その親の最初の子の場合、リターン値は@code{nil}である。
 @end defun
 
-The functions @code{window-next-sibling} and @code{window-prev-sibling}
-should not be confused with the functions @code{next-window} and
-@code{previous-window}, which return the next and previous window,
-respectively, in the cyclic ordering of windows (@pxref{Cyclic Window
-Ordering}).
+関数@code{window-next-sibling}および@code{window-prev-sibling}を、ウィンドウのサイクル順(@ref{Cyclic
+Window
+Ordering}を参照)において次、または前のウィンドウをリターンする関数@code{next-window}および@code{previous-window}と混同しないでください。
 
-  You can use the following functions to find the first live window on a frame
-and the window nearest to a given window.
+  任意のフレーム上の最初の生きたウィンドウや、与えられたウィンドウにもっとも近いウィンドウを探すために、以下の関数を使用できます。
 
 @defun frame-first-window &optional frame-or-window
-This function returns the live window at the upper left corner of the frame
-specified by @var{frame-or-window}.  The argument @var{frame-or-window} must
-denote a window or a live frame and defaults to the selected frame.  If
-@var{frame-or-window} specifies a window, this function returns the first
-window on that window's frame.  Under the assumption that the frame from our
-canonical example is selected @code{(frame-first-window)} returns @var{W2}.
+この関数は、@var{frame-or-window}により指定されたフレームの、左上隅の生きたウィンドウをリターンする。引数@var{frame-or-window}では、ウィンドウか生きたフレームを示さなければならず、デフォルトは選択されたフレームである。@var{frame-or-window}がウィンドウを指定する場合、この関数はそのウィンドウのフレームの最初のウィンドウをリターンする。前の例のフレームが@code{(frame-first-window)}に指定されたとするならば、@var{W2}がリターンされる。
 @end defun
 
 @cindex window in direction
 @defun window-in-direction direction &optional window ignore sign wrap mini
-This function returns the nearest live window in direction @var{direction}
-as seen from the position of @code{window-point} in window @var{window}.
-The argument @var{direction} must be one of @code{above}, @code{below},
-@code{left} or @code{right}.  The optional argument @var{window} must denote
-a live window and defaults to the selected one.
+この関数は、ウィンドウ@var{window}内の位置@code{window-point}から、方向@var{direction}にあるもっとも近い生きたウィンドウをリターンする。引数@var{direction}は@code{above}、@code{below}、@code{left}、@code{right}のいずれかでなければならない。オプション引数@var{window}は生きたウィンドウを示さなければならず、デフォルトは選択されたウィンドウである。
 
-This function does not return a window whose @code{no-other-window}
-parameter is non-@code{nil} (@pxref{Window Parameters}).  If the nearest
-window's @code{no-other-window} parameter is non-@code{nil}, this function
-tries to find another window in the indicated direction whose
-@code{no-other-window} parameter is @code{nil}.  If the optional argument
-@var{ignore} is non-@code{nil}, a window may be returned even if its
-@code{no-other-window} parameter is non-@code{nil}.
+この関数は、パラメーター@code{no-other-window}が非@code{nil}のウィンドウをリターンしない(@ref{Window
+Parameters}を参照)。もっとも近いウィンドウの@code{no-other-window}パラメーターが非@code{nil}の場合、この関数は指定された方向で@code{no-other-window}パラメーターが@code{nil}の、他のウィンドウを探す。オプション引数@var{ignore}が非@code{nil}の場合は、たとえ@code{no-other-window}パラメーターが非@code{nil}のウィンドウでも、リターンされ得る。
 
-If the optional argument @var{sign} is a negative number, it means to use
-the right or bottom edge of @var{window} as reference position instead of
-@code{window-point}.  If @var{sign} is a positive number, it means to use
-the left or top edge of @var{window} as reference position.
+オプション引数@var{sign}が負の数値の場合、それは参照位置として@code{window-point}のかわりに、@var{window}の右端、または下端を使用することを意味する。@var{sign}が正の数値の場合、それは参照位置として@var{window}の左端、または上端を使用することを意味する。
 
-If the optional argument @var{wrap} is non-@code{nil}, this means to wrap
-@var{direction} around frame borders.  For example, if @var{window} is at
-the top of the frame and @var{direction} is @code{above}, then return the
-minibuffer window provided the frame has one, and a window at the bottom of
-the frame otherwise.
+オプション引数@var{wrap}が非@code{nil}の場合、それはフレームのボーダー(borders:
+枠線)を@var{direction}がラップアラウンド(wrap around:
+最後に達したら最初に戻る)することを意味する。たとえば、@var{window}はフレームの最上にあり、@var{direction}が@code{above}の場合、フレームにミニバッファーがあればミニバッファーウィンドウ、それ以外はフレーム最下のウィンドウウィンドウリターンする。
 
-If the optional argument @var{mini} is @code{nil}, this means to return the
-minibuffer window if and only if it is currently active.  If @var{mini} is
-non-@code{nil}, it returns the minibuffer window even when it's not active.
-However, if @var{wrap} non-@code{nil}, it always acts as if @var{mini} were
-@code{nil}.
+オプション引数@var{mini}が@code{nil}の場合、それはミニバッファーがカレントでアクティブな場合のみ、ミニバッファーウィンドウをリターンすることを意味する。@var{mini}が非@code{nil}ならば、たとえ非アクティブなときでもミニバッファーウィンドウをリターンする。しかし、@var{wrap}が非@code{nil}の場合は、常に@var{mini}が@code{nil}であるかのように動作する。
 
-If it doesn't find a suitable window, this function returns @code{nil}.
+適切なウィンドウが見つからない場合、この関数は@code{nil}をリターンする。
 @end defun
 
-The following function allows to retrieve the entire window tree of a frame:
+以下の関数により、任意のフレームのウィンドウツリー全体を取得できます:
 
 @defun window-tree &optional frame
-This function returns a list representing the window tree for frame
-@var{frame}.  If @var{frame} is omitted or @code{nil}, it defaults to the
-selected frame.
+この関数は、フレーム@var{frame}にたいするウィンドウツリーを表すリストをリターンする。@var{frame}が省略、または@code{nil}の場合のデフォルトは、選択されたフレームである。
 
-The return value is a list of the form @code{(@var{root} @var{mini})}, where
-@var{root} represents the window tree of the frame's root window, and
-@var{mini} is the frame's minibuffer window.
+リターン値は、@code{(@var{root}
+@var{mini})}という形式のリストである。ここで@var{root}はそのフレームのウィンドウツリーのルートウィンドウ、@var{mini}はそのフレームのミニバッファーウィンドウを表す。
 
-If the root window is live, @var{root} is that window itself.  Otherwise,
-@var{root} is a list @code{(@var{dir} @var{edges} @var{w1} @var{w2} ...)}
-where @var{dir} is @code{nil} for a horizontal combination and @code{t} for
-a vertical combination, @var{edges} gives the size and position of the
-combination, and the remaining elements are the child windows.  Each child
-window may again be a window object (for a live window) or a list with the
-same format as above (for an internal window).  The @var{edges} element is a
-list @code{(@var{left} @var{top} @var{right} @var{bottom})}, similar to the
-value returned by @code{window-edges} (@pxref{Coordinates and Windows}).
+ルートウィンドウが生きている場合、@var{root}はそのウィンドウ自身である。それ以外では、@var{root}はリスト@code{(@var{dir}
+@var{edges} @var{w1} @var{w2}
+...)}である。ここで@var{dir}は水平コンビネーションなら@code{nil}、垂直コンビネーションなら@code{t}となり、@var{edges}はそのコンビネーションのサイズと位置を与え、残りの要素は子ウィンドウである。子ウィンドウはそれぞれ、同じようにウィンドウオブジェクト(生きたウィンドウにたいして)、または上記フォーマットと同じ形式のリスト(内部ウィンドウにたいして)かもしれない。@var{edges}要素は@code{window-edges}がリターンする値のような、リスト@code{(@var{left}
+@var{top} @var{right} @var{bottom})}である(@ref{Coordinates and Windows}を参照)。
 @end defun
 
 
