@@ -429,9 +429,7 @@ Windows}を参照)は、指定できるウィンドウの最小の高さと幅�
 Windows}を参照のこと。
 @end defvar
 
-The following function tells how small a specific window can get taking into
-account the sizes of its areas and the values of @code{window-min-height},
-@code{window-min-width} and @code{window-size-fixed}.
+以降の関数は、ある特定の大きさのウィンドウにたいして、それの@code{window-min-height}と@code{window-min-width}と@code{window-size-fixed}の値と、領域のサイズを示す。
 
 @defun window-min-size &optional window horizontal ignore pixelwise
 この関数は、@var{window}の最小のサイズをリターンする。@var{window}は有効なウィンドウでなければならず、デフォルトは選択されたウィンドウ。オプション引数@var{horizontal}が非@code{nil}の場合は、@var{window}の最小の列数、それ以外は@var{window}の最小の行数をリターンすることを意味する。
@@ -450,67 +448,36 @@ account the sizes of its areas and the values of @code{window-min-height},
 @cindex changing window size
 @cindex window size, changing
 
-  This section describes functions for resizing a window without changing the
-size of its frame.  Because live windows do not overlap, these functions are
-meaningful only on frames that contain two or more windows: resizing a
-window also changes the size of a neighboring window.  If there is just one
-window on a frame, its size cannot be changed except by resizing the frame
-(@pxref{Size and Position}).
+  このセクションでは、フレームのサイズを変更せずにウィンドウのサイズを変更する関数について説明します。生きたウィンドウはオーバーラップしないので、これらの関数は2つ以上のウィンドウを含む関数上でのみ意味があります(ウィンドウのリサイズにより隣接するウィンドウのサイズも変更される)。フレーム上に単一のウィンドウしか存在しない場合には、フレームの変更以外によりウィンドウのサイズ変更はできません(@ref{Size
+and Position}を参照)。
 
-  Except where noted, these functions also accept internal windows as
-arguments.  Resizing an internal window causes its child windows to be
-resized to fit the same space.
+  注記した場合を除き、これらの関数は引数として内部ウィンドウも受け付けます。内部ウィンドウのリサイズにより、同じスペースにフィットするよう、子ウィンドウもリサイズされます。
 
 @defun window-resizable window delta &optional horizontal ignore pixelwise
-This function returns @var{delta} if the size of @var{window} can be changed
-vertically by @var{delta} lines.  If the optional argument @var{horizontal}
-is non-@code{nil}, it instead returns @var{delta} if @var{window} can be
-resized horizontally by @var{delta} columns.  It does not actually change
-the window size.
+この関数は、@var{window}のサイズが@var{delta}行により垂直に変更され得る場合は、@var{delta}をリターンする。オプション引数@var{horizontal}が非@code{nil}の場合は、@var{window}が@var{delta}列単位に水平方向にリサイズ可能ならば、かわりに@var{delta}をリターンする。これは、実際にはウィンドウのサイズを変更しない。
 
-If @var{window} is @code{nil}, it defaults to the selected window.
+@var{window}が@code{nil}の場合のデフォルトは選択されたウィンドウ。
 
-A positive value of @var{delta} means to check whether the window can be
-enlarged by that number of lines or columns; a negative value of @var{delta}
-means to check whether the window can be shrunk by that many lines or
-columns.  If @var{delta} is non-zero, a return value of 0 means that the
-window cannot be resized.
+@var{delta}が正の値の場合は、そのウィンドウが行または列の単位で拡張可能かどうかをチェックすることを意味し、@var{delta}が負の値の場合は、そのウィンドウが行または列の単位で縮小可能かどうかをチェックすることを意味する。@var{delta}が非0の場合のリターン値0は、そのウィンドウがリサイズ可能であることを意味する。
 
-Normally, the variables @code{window-min-height} and @code{window-min-width}
-specify the smallest allowable window size (@pxref{Window Sizes}).  However,
-if the optional argument @var{ignore} is non-@code{nil}, this function
-ignores @code{window-min-height} and @code{window-min-width}, as well as
-@code{window-size-fixed}.  Instead, it considers the minimum-height window
-to be one consisting of a header, a mode line and a bottom divider (if any),
-plus a text area one line tall; and a minimum-width window as one consisting
-of fringes, margins, a scroll bar and a right divider (if any), plus a text
-area two columns wide.
+通常、変数@code{window-min-height}と@code{window-min-width}は許容される最小のウィンドウサイズを指定する(@ref{Window
+Sizes}を参照)。しかし、オプション引数@var{ignore}が非@code{nil}の場合、この関数は@code{window-size-fixed}と同様に@code{window-min-height}と@code{window-min-width}を無視する。そのかわりに、ヘッダーライン、モードライン、(もしあれば)下端ディバイダーに加えて1行分の高さのテキストエリアから構成されるウィンドウを、最小高さのウィンドウとし、フリンジ、マージン、スクロールバー、(もしあれば)右ディバイダーに加えて1列分の幅のテキストエリアから構成されるウィンドウを、最小幅のウィンドウと判断する。
 
-If the optional argument @var{pixelwise} is non-@code{nil}, @var{delta} is
-interpreted as pixels.
+オプション引数@var{pixelwise}が非@code{nil}の場合、@var{delta}はピクセル単位として解釈される。
 @end defun
 
 @defun window-resize window delta &optional horizontal ignore pixelwise
-This function resizes @var{window} by @var{delta} increments.  If
-@var{horizontal} is @code{nil}, it changes the height by @var{delta} lines;
-otherwise, it changes the width by @var{delta} columns.  A positive
-@var{delta} means to enlarge the window, and a negative @var{delta} means to
-shrink it.
+この関数は、@var{window}を@var{delta}増加することによりリサイズする。@var{horizontal}が@code{nil}の場合は高さを@var{delta}行、それ以外は幅を@var{delta}行変更する。正の@var{delta}はウィンドウの拡大、負の@var{delta}は縮小を意味する。
 
-If @var{window} is @code{nil}, it defaults to the selected window.  If the
-window cannot be resized as demanded, an error is signaled.
+@var{window}が@code{nil}の場合のデフォルトは、選択されたウィンドウである。要求されたようにウィンドウをリサイズできない場合は、エラーをシグナルする。
 
-The optional argument @var{ignore} has the same meaning as for the function
-@code{window-resizable} above.
+オプション引数@var{ignore}は、上述の関数@code{window-resizable}の場合と同じ意味をもつ。
 
-If the optional argument @var{pixelwise} is non-@code{nil}, @var{delta} will
-be interpreted as pixels.
+オプション引数@var{pixelwise}が非@code{nil}の場合、@var{delta}はピクセル単位として解釈される。 
 
-The choice of which window edges this function alters depends on the values
-of the option @code{window-combination-resize} and the combination limits of
-the involved windows; in some cases, it may alter both edges.
-@xref{Recombining Windows}.  To resize by moving only the bottom or right
-edge of a window, use the function @code{adjust-window-trailing-edge}.
+この関数はどのウィンドウのエッジを変更するかの選択は、オプション@code{window-combination-resize}の値と、関連するウィンドウのコンビネーションリミット(combination
+limits: 組み合わせ制限)に依存し、両方のエッジを変更するような場合もいくつかある。@ref{Recombining
+Windows}を参照のこと。ウィンドウの下端または右端のエッジを移動することだけでリサイズするには、関数@code{adjust-window-trailing-edge}を使用すること。
 @end defun
 
 @c The commands enlarge-window, enlarge-window-horizontally,
@@ -518,132 +485,73 @@ edge of a window, use the function @code{adjust-window-trailing-edge}.
 @c Emacs manual.  They are not preferred for calling from Lisp.
 
 @defun adjust-window-trailing-edge window delta &optional horizontal pixelwise
-This function moves @var{window}'s bottom edge by @var{delta} lines.  If
-optional argument @var{horizontal} is non-@code{nil}, it instead moves the
-right edge by @var{delta} columns.  If @var{window} is @code{nil}, it
-defaults to the selected window.
+この関数は、@var{window}の下端エッジを@var{delta}行分移動する。オプション引数@var{horizontal}が非@code{nil}の場合は、かわりに右端エッジを@var{delta}列分移動する。@var{window}が@code{nil}の場合のデフォルトは、選択されたウィンドウである。
 
-If the optional argument @var{pixelwise} is non-@code{nil}, @var{delta} is
-interpreted as pixels.
+オプション引数@var{pixelwise}が非@code{nil}の場合、@var{delta}はピクセル単位として解釈される。
 
-A positive @var{delta} moves the edge downwards or to the right; a negative
-@var{delta} moves it upwards or to the left.  If the edge cannot be moved as
-far as specified by @var{delta}, this function moves it as far as possible
-but does not signal a error.
+正の@var{delta}はエッジを下方もしくは右方へ移動し、負の@var{delta}はエッジを上方もしくは左方へ移動する。@var{delta}で指定された範囲までエッジを移動できない場合、この関数はエラーをシグナルすることなく、可能な限りエッジを移動する。
 
-This function tries to resize windows adjacent to the edge that is moved.
-If this is not possible for some reason (e.g., if that adjacent window is
-fixed-size), it may resize other windows.
+この関数は、移動されたエッジに隣接するウィンドウのリサイズを試みる。何らかの理由(隣接するウィンドウが固定サイズの場合等)により、それが不可能な場合は、他のウィンドウをリサイズするかもしれない。
 @end defun
 
 @cindex pixelwise, resizing windows
 @defopt window-resize-pixelwise
-If the value of this option is non-@code{nil}, Emacs resizes windows in
-units of pixels.  This currently affects functions like @code{split-window}
-(@pxref{Splitting Windows}), @code{maximize-window}, @code{minimize-window},
-@code{fit-window-to-buffer}, @code{shrink-window-if-larger-than-buffer} (all
-listed below) and @code{fit-frame-to-buffer} (@pxref{Size and Position}).
+このオプションの値が非@code{nil}の場合、Emacsはウィンドウをピクセル単位でリサイズする。現在のところ、これは@code{split-window}(@ref{Splitting
+Windows}を参照)、@code{maximize-window}、@code{minimize-window}、@code{fit-window-to-buffer}、@code{shrink-window-if-larger-than-buffer}(すべて以下に記述)、および@code{fit-frame-to-buffer}(@ref{Size
+and Position}を参照)のような関数に影響を与える。
 
-Note that when a frame's pixel size is not a multiple of its character size,
-at least one window may get resized pixelwise even if this option is
-@code{nil}.  The default value is @code{nil}.
+あるフレームのピクセルサイズがそのフレームの文字サイズの整数倍でないときは、たとえこのオプションが@code{nil}であっても、少なくとも1つのウィンドウがピクセル単位でリサイズされるであろうことに注意されたい。デフォルト値は@code{nil}である。
 @end defopt
 
-  The following commands resize windows in more specific ways.  When called
-interactively, they act on the selected window.
+  以下のコマンドは、より具体的な方法でウィンドウをリサイズします。これらがインタラクティブに呼び出されたときは、選択されたウィンドウにたいして作用します。
 
 @deffn Command fit-window-to-buffer &optional window max-height min-height max-width min-width
-This command adjusts the height or width of @var{window} to fit the text in
-it.  It returns non-@code{nil} if it was able to resize @var{window}, and
-@code{nil} otherwise.  If @var{window} is omitted or @code{nil}, it defaults
-to the selected window.  Otherwise, it should be a live window.
+このコマンドは、@var{window}の高さまたは幅を、ウィンドウ内のテキストにフィットするように調整する。@var{window}がリサイズできた場合は非@code{nil}、それ以外は@code{nil}をリターンする。@var{window}が省略または@code{nil}の場合のデフォルトは選択されたウィンドウ、それ以外の場合は生きたウィンドウであること。
 
-If @var{window} is part of a vertical combination, this function adjusts
-@var{window}'s height.  The new height is calculated from the actual height
-of the accessible portion of its buffer.  The optional argument
-@var{max-height}, if non-@code{nil}, specifies the maximum total height that
-this function can give @var{window}.  The optional argument
-@var{min-height}, if non-@code{nil}, specifies the minimum total height that
-it can give, which overrides the variable @code{window-min-height}.  Both
-@var{max-height} and @var{min-height} are specified in lines and include
-mode and header line and a bottom divider, if any.
+@var{window}が垂直コンビネーションの一部の場合、この関数は@var{window}の高さを調整する。新たな高さは、そのウィンドウのバッファーのアクセス可能な範囲の実際の高さから計算される。オプション引数@var{max-height}が非@code{nil}の場合、それはこの関数が@var{window}に与えることができる、最大のトータル高さを指定する。オプション引数@var{min-height}が非@code{nil}の場合、それは与えることができる最小のトータル高さを指定し、それは変数@code{window-min-height}をオーバーライドする。@var{max-height}と@var{min-height}はどちらも、(もしあれば)モードライン、ヘッダーライン、下端ディバイダーを含む行数で指定する。
 
-If @var{window} is part of a horizontal combination and the value of the
-option @code{fit-window-to-buffer-horizontally} (see below) is
-non-@code{nil}, this function adjusts @var{window}'s height.  The new width
-of @var{window} is calculated from the maximum length of its buffer's lines
-that follow the current start position of @var{window}.  The optional
-argument @var{max-width} specifies a maximum width and defaults to the width
-of @var{window}'s frame.  The optional argument @var{min-width} specifies a
-minimum width and defaults to @code{window-min-width}.  Both @var{max-width}
-and @var{min-width} are specified in columns and include fringes, margins
-and scrollbars, if any.
+@var{window}が水平コンビネーションの一部で、かつオプション@code{fit-window-to-buffer-horizontally}(以下参照)の値が非@code{nil}の場合、この関数は@var{window}の幅を調整する。新たな幅は、@var{window}のカレントのスタート位置以降の、バッファーの最長の行から計算される。オプション引数@var{max-width}は最大幅を指定し、デフォルトは@var{window}のフレーム幅である。オプション引数@var{min-width}は最小幅を指定し、デフォルトは@code{window-min-width}である。@var{max-width}と@var{min-width}はどちらも、(もしあれば)フリンジ、マージン、スクロールバーを含む列数で指定する。
 
-If the option @code{fit-frame-to-buffer} (see below) is non-@code{nil}, this
-function will try to resize the frame of @var{window} to fit its contents by
-calling @code{fit-frame-to-buffer} (@pxref{Size and Position}).
+オプション@code{fit-frame-to-buffer}(以下参照)が非@code{nil}の場合、この関数は@code{fit-frame-to-buffer}(@pxref{Size
+and
+Position})を呼び出すことにより、@var{window}のコンテンツにフィットするように、@var{window}のフレームのリサイズを試みるだろう。
 @end deffn
 
 @defopt fit-window-to-buffer-horizontally
-If this is non-@code{nil}, @code{fit-window-to-buffer} can resize windows
-horizontally.  If this is @code{nil} (the default)
-@code{fit-window-to-buffer} never resizes windows horizontally.  If this is
-@code{only}, it can resize windows horizontally only.  Any other value means
-@code{fit-window-to-buffer} can resize windows in both dimensions.
+これが非@code{nil}の場合、@code{fit-window-to-buffer}はウィンドウを水平方向にリサイズできる。これが@code{nil}(デフォルト)の場合、@code{fit-window-to-buffer}はウィンドウウィンドウ決して水平方向にリサイズしない。これが@code{only}の場合は、ウィンドウを水平方向だけにリサイズできる。その他の値では、@code{fit-window-to-buffer}がウィンドウをどちらの方向にもリサイズできることを意味する。
 @end defopt
 
 @defopt fit-frame-to-buffer
-If this option is non-@code{nil}, @code{fit-window-to-buffer} can fit a
-frame to its buffer.  A frame is fit if and only if its root window is a
-live window and this option is non-@code{nil}.  If this is
-@code{horizontally}, frames are fit horizontally only.  If this is
-@code{vertically}, frames are fit vertically only.  Any other non-@code{nil}
-value means frames can be resized in both dimensions.
+このオプションが非@code{nil}の場合、@code{fit-window-to-buffer}はフレームをフレームのコンテンツにフィットさせることができる。フレームは、フレームのルートウィンドウが生きたウィンドウで、かつこのオプションが非@code{nil}の場合のみ、フィットされる。これが@code{horizontally}の場合、フレームは水平方向にのみフィットされる。これが@code{vertically}の場合、フレームは垂直方向にのみフィットされる。その他の非@code{nil}値は、フレームがどちらの方向にもフィットできることを意味する。
 @end defopt
 
 @deffn Command shrink-window-if-larger-than-buffer &optional window
-This command attempts to reduce @var{window}'s height as much as possible
-while still showing its full buffer, but no less than
-@code{window-min-height} lines.  The return value is non-@code{nil} if the
-window was resized, and @code{nil} otherwise.  If @var{window} is omitted or
-@code{nil}, it defaults to the selected window.  Otherwise, it should be a
-live window.
+このコマンドは、@var{window}にたいしてそのバッファーを完全に表示できるが、@code{window-min-height}以上の行を表示できるまで、可能な限り@var{window}の高さを縮小する。リターン値は、そのウィンドウがリサイズされれば非@code{nil}、それ以外は非@code{nil}。@var{window}が省略または@code{nil}の場合のデフォルトは、選択されたウィンドウである。それ以外では、生きたウィンドウであること。
 
-This command does nothing if the window is already too short to display all
-of its buffer, or if any of the buffer is scrolled off-screen, or if the
-window is the only live window in its frame.
+このコマンドは、そのウィンドウがバッファーのすべてを表示するにはすでに高さが低すぎる場合、バッファーのどこかがスクリーンからスクロールオフされている場合、またはそのウィンドウがフレーム内で唯一の生きたウィンドウの場合は何も行わない。
 
-This command calls @code{fit-window-to-buffer} (see above) to do its work.
+このコマンドは、自身の処理を行うために、@code{fit-window-to-buffer}(上記参照)を呼び出す。
 @end deffn
 
 
 @cindex balancing window sizes
 @deffn Command balance-windows &optional window-or-frame
-This function balances windows in a way that gives more space to full-width
-and/or full-height windows.  If @var{window-or-frame} specifies a frame, it
-balances all windows on that frame.  If @var{window-or-frame} specifies a
-window, it balances only that window and its siblings (@pxref{Windows and
-Frames}).
+この関数は、各ウィンドウにたいして完全な幅、および/または完全な高さを与えるような方法により、各ウィンドウのバランスをとる。@var{window-or-frame}にフレームを指定した場合は、そのフレーム上のすべてのウィンドウのバランスをとる。@var{window-or-frame}にウィンドウを指定した場合は、そのウィンドウとウィンドウのsiblings(兄弟)にたいしてのみのバランスをとる(@ref{Windows
+and Frames}を参照)。
 @end deffn
 
 @deffn Command balance-windows-area
-This function attempts to give all windows on the selected frame
-approximately the same share of the screen area.  Full-width or full-height
-windows are not given more space than other windows.
+この関数は、選択されたフレーム上のすべてのウィンドウにたいして、おおよそ同じスクリーンエリアを与えようと試みる。完全な幅、または高さをもつウィンドウにたいしては、他のウィンドウと比較して、より多くのスペースは与えられない。
 @end deffn
 
 @cindex maximizing windows
 @deffn Command maximize-window &optional window
-This function attempts to make @var{window} as large as possible, in both
-dimensions, without resizing its frame or deleting other windows.  If
-@var{window} is omitted or @code{nil}, it defaults to the selected window.
+この関数は、@var{window}にたいして、そのフレームをリサイズしたり、他のウィンドウを削除することなく、水平垂直の両方向において、可能な限り大きくなるように試みる。@var{window}が省略または@code{nil}の場合のデフォルトは、選択されたウィンドウである。
 @end deffn
 
 @cindex minimizing windows
 @deffn Command minimize-window &optional window
-This function attempts to make @var{window} as small as possible, in both
-dimensions, without deleting it or resizing its frame.  If @var{window} is
-omitted or @code{nil}, it defaults to the selected window.
+この関数は、@var{window}にたいして、そのフレームをリサイズしたり、そのウィンドウを削除することなく、水平垂直の両方向において、可能な限り小さくなるように試みる。@var{window}が省略または@code{nil}の場合のデフォルトは、選択されたウィンドウである。
 @end deffn
 
 
