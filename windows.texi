@@ -560,77 +560,35 @@ and Frames}を参照)。
 @cindex splitting windows
 @cindex window splitting
 
-This section describes functions for creating a new window by
-@dfn{splitting} an existing one.
+このセクションでは、既存のウィンドウを@dfn{分割(split: スプリット}することにより、新たにウィンドウを作成する関数について説明します。
 
 @defun split-window &optional window size side pixelwise
-This function creates a new live window next to the window @var{window}.  If
-@var{window} is omitted or @code{nil}, it defaults to the selected window.
-That window is ``split'', and reduced in size.  The space is taken up by the
-new window, which is returned.
+この関数は、ウィンドウ@var{window}の隣に、新たに生きたウィンドウを作成する。@var{window}が省略または@code{nil}の場合のデフォルトは、選択されたウィンドウである。そのウィンドウは``分割(split)''されて、サイズは縮小される。そのスペースは、リターンされる新たなウィンドウにより吸収される。
 
-The optional second argument @var{size} determines the sizes of @var{window}
-and/or the new window.  If it is omitted or @code{nil}, both windows are
-given equal sizes; if there is an odd line, it is allocated to the new
-window.  If @var{size} is a positive number, @var{window} is given
-@var{size} lines (or columns, depending on the value of @var{side}).  If
-@var{size} is a negative number, the new window is given @minus{}@var{size}
-lines (or columns).
+オプションの第2引数@var{size}は、@var{window}および/または新たなウィンドウのサイズを決定する。これが省略または@code{nil}の場合は、両方のウィンドウに同じサイズが割り当てられる。行数が奇数の場合、余りの1行は新たなウィンドウに割り当てられる。@var{size}が正の数値の場合、@var{window}に@var{size}の行数(@var{side}の値によっては列数)が与えられる。@var{size}が負の数値の場合、新たなウィンドウに@minus{}@var{size}の行数(または列数)が与えられる。
 
-If @var{size} is @code{nil}, this function obeys the variables
-@code{window-min-height} and @code{window-min-width} (@pxref{Window
-Sizes}).  Thus, it signals an error if splitting would result in making a
-window smaller than those variables specify.  However, a non-@code{nil}
-value for @var{size} causes those variables to be ignored; in that case, the
-smallest allowable window is considered to be one that has space for a text
-area one line tall and/or two columns wide.
+@var{size}が@code{nil}の場合、この関数は変数@code{window-min-height}と@code{window-min-width}にしたがう(@ref{Window
+Sizes}を参照)。つまり、分割によりこれらの変数の指定より小さいウィンドウが作成されるようなときは、エラーをシグナルする。しかし、@var{size}にたいして非@code{nil}値を指定すれば、これらの変数は無視される。その場合、許容される最小のウィンドウは、テキストエリアの高さが1行、および/または幅が2列のウィンドウであるとされる。
 
-Hence, if @var{size} is specified, it's the caller's responsibility to check
-whether the emanating windows are large enough to encompass all areas like a
-mode line or a scroll bar.  The function @code{window-min-size}
-(@pxref{Window Sizes}) can be used to determine the minimum requirements of
-@var{window} in this regard.  Since the new window usually ``inherits''
-areas like the mode line or the scroll bar from @var{window}, that function
-is also a good guess for the minimum size of the new window.  The caller
-should specify a smaller size only if it correspondingly removes an
-inherited area before the next redisplay.
+したがって、@var{size}が指定された場合、生成されるウィンドウがモードラインやスクロールバー等すべてのエリアを含むのに十分な大きさがあるかどうかチェックするのは、呼び出し側の責任である。これに関して、必要最小限の@var{window}を決定するために、関数@code{window-min-size}(@ref{Window
+Sizes}を参照)を使用できる。新たなウィンドウは通常、モードラインやスクロールバー等のエリアを@var{window}から``継承''するので、この関数は新たなウィンドウの最小サイズも良好に推定する。呼び出し側は、次回の再表示前にこれに応じて継承されたエリアを削除する場合のみ、より小さなサイズを指定すること。
 
-The optional third argument @var{side} determines the position of the new
-window relative to @var{window}.  If it is @code{nil} or @code{below}, the
-new window is placed below @var{window}.  If it is @code{above}, the new
-window is placed above @var{window}.  In both these cases, @var{size}
-specifies a total window height, in lines.
+オプションの第3引数@var{side}は、新たなウィンドウの位置を@var{window}から相対的に指定する。@code{nil}または@code{below}の場合、新たなウィンドウは@var{window}の下に、@code{above}の場合は@var{window}の上に配される。どちらの場合も、@var{size}はウィンドウのトータル高さを行数で指定する。
 
-If @var{side} is @code{t} or @code{right}, the new window is placed on the
-right of @var{window}.  If @var{side} is @code{left}, the new window is
-placed on the left of @var{window}.  In both these cases, @var{size}
-specifies a total window width, in columns.
+@var{side}が@code{t}または@code{right}の場合、新たなウィンドウは@var{window}の右に、@var{side}が@code{left}の場合は@var{window}の左に配される。どちらの場合も、@var{size}はウィンドウのトータル幅を列数で指定する。
 
-The optional fourth argument @var{pixelwise}, if non-@code{nil}, means to
-interpret @var{size} in units of pixels, instead of lines and columns.
+オプションの第4引数@var{pixelwise}が非@code{nil}の場合は、@var{size}を行や列ではなくピクセル単位で解釈することを意味する。
 
-If @var{window} is a live window, the new window inherits various properties
-from it, including margins and scroll bars.  If @var{window} is an internal
-window, the new window inherits the properties of the window selected within
-@var{window}'s frame.
+@var{window}が生きたウィンドウの場合、新たなウィンドウはマージンやスクロールバーを含む、さまざまなプロパティを継承する。@var{window}が内部ウィンドウ(internal
+window)の場合、新たなウィンドウは@var{window}のフレームのプロパティを継承する。
 
-The behavior of this function may be altered by the window parameters of
-@var{window}, so long as the variable @code{ignore-window-parameters} is
-@code{nil}.  If the value of the @code{split-window} window parameter is
-@code{t}, this function ignores all other window parameters.  Otherwise, if
-the value of the @code{split-window} window parameter is a function, that
-function is called with the arguments @var{window}, @var{size}, and
-@var{side}, in lieu of the usual action of @code{split-window}.  Otherwise,
-this function obeys the @code{window-atom} or @code{window-side} window
-parameter, if any.  @xref{Window Parameters}.
+変数@code{ignore-window-parameters}が@code{nil}の場合に限り、この関数の挙動は@var{window}なパラメーターにより変更されるかもしれない。ウィンドウパラメーター@code{split-window}の値が@code{t}の場合、この関数はその他すべてのウィンドウパラメーターを無視する。それ以外では、ウィンドウパラメーター@code{split-window}の値が関数の場合は、@code{split-window}の通常アクションのかわりに、引数@var{window}、@var{size}、@var{side}でその関数が呼び出される。値が関数以外の場合、この関数は(もしあれば)ウィンドウパラメーター@code{window-atom}または@code{window-side}にしたがう。@ref{Window
+Parameters}を参照のこと。
 @end defun
 
-  As an example, here is a sequence of @code{split-window} calls that yields
-the window configuration discussed in @ref{Windows and Frames}.  This
-example demonstrates splitting a live window as well as splitting an
-internal window.  We begin with a frame containing a single window (a live
-root window), which we denote by @var{W4}.  Calling @code{(split-window W4)}
-yields this window configuration:
+  例として、@ref{Windows and Frames}で議論したウィンドウ構成(window
+configuration)を得るための、一連の@code{split-window}呼び出しを以下に挙げます。この例では、生きたウィンドウの分割と、内部ウィンドウの分割も示します。最初は@var{W4}で表される、単一のウィンドウ(生きたルートウィンドウ)を含むフレームから開始します。@code{(split-window
+W4)}を呼び出すことにより、以下のウィンドウ構成が得られます。
 
 @smallexample
 @group
@@ -651,12 +609,9 @@ yields this window configuration:
 @end smallexample
 
 @noindent
-The @code{split-window} call has created a new live window, denoted by
-@var{W5}.  It has also created a new internal window, denoted by @var{W3},
-which becomes the root window and the parent of both @var{W4} and @var{W5}.
+@code{split-window}呼び出しにより、@var{W5}で示す生きたウィンドウが新たに作成されました。@var{W3}で示される内部ウィンドウも新たに作成され、これはルートウィンドウかつ@var{W4}と@var{W5}の親ウィンドウになります。
 
-  Next, we call @code{(split-window W3 nil 'left)}, passing the internal
-window @var{W3} as the argument.  The result:
+  次は、引数として内部ウィンドウ@var{W3}を渡して、@code{(split-window W3 nil 'left)}を呼び出します。
 
 @smallexample
 @group
@@ -677,36 +632,23 @@ window @var{W3} as the argument.  The result:
 @end smallexample
 
 @noindent
-A new live window @var{W2} is created, to the left of the internal window
-@var{W3}.  A new internal window @var{W1} is created, becoming the new root
-window.
+内部ウィンドウ@var{W3}の左に、生きたウィンドウ@var{W2}が新たに作成されました。そして、内部ウィンドウ@var{W1}が新たに作成され、これが新たにルートウィンドウになります。
 
-   For interactive use, Emacs provides two commands which always split the
-selected window.  These call @code{split-window} internally.
+   インタラクティブな使用にたいして、Emacsは選択されたウィンドウを常に分割するコマンドを2つ提供します。これらは内部で@code{split-window}を呼び出します。
 
 @deffn Command split-window-right &optional size
-This function splits the selected window into two side-by-side windows,
-putting the selected window on the left.  If @var{size} is positive, the
-left window gets @var{size} columns; if @var{size} is negative, the right
-window gets @minus{}@var{size} columns.
+この関数は、選択されたウィンドウが左となるような、横並びの2つのウィンドウに分割する。@var{size}が正ならば左のウィンドウが@var{size}列、負ならば右のウィンドウが@minus{}@var{size}列を与えられる。
 @end deffn
 
 @deffn Command split-window-below &optional size
-This function splits the selected window into two windows, one above the
-other, leaving the upper window selected.  If @var{size} is positive, the
-upper window gets @var{size} lines; if @var{size} is negative, the lower
-window gets @minus{}@var{size} lines.
+この関数は、選択されたウィンドウが上となるような、縦並びの2つのウィンドウに分割する。@var{size}が正ならば上のウィンドウが@var{size}行、負ならば下のウィンドウが@minus{}@var{size}行を与えられる。
 @end deffn
 
 @defopt split-window-keep-point
-If the value of this variable is non-@code{nil} (the default),
-@code{split-window-below} behaves as described above.
+この変数の値が非@code{nil}(デフォルト)なら、 @code{split-window-below}は上述のように振る舞う。
 
-If it is @code{nil}, @code{split-window-below} adjusts point in each of the
-two windows to minimize redisplay.  (This is useful on slow terminals.)  It
-selects whichever window contains the screen line that point was previously
-on.  Note that this only affects @code{split-window-below}, not the
-lower-level @code{split-window} function.
+@code{nil}の場合、@code{split-window-below}は再表示が最小となるように、2つのウィンドウの各ポイントを調節する(これは低速な端末で有用である)。これは何であれ、以前ポイントがあったスクリーン行(screen
+line)を含むウィンドウを選択する。これは低レベル@code{split-window}関数ではなく、@code{split-window-below}だけに影響することに注意。
 @end defopt
 
 @node Deleting Windows
