@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-07-15 22:35+0900\n"
-"PO-Revision-Date: 2018-08-28 21:08+0900\n"
+"PO-Revision-Date: 2018-08-29 03:45+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2441,108 +2441,108 @@ msgstr "生きたウィンドウ@var{W2}、@var{W3}、@var{W4}のいずれを削
 #: windows.texi.orig:1518
 #, no-wrap
 msgid "selecting a window"
-msgstr ""
+msgstr "selecting a window"
 
 #. type: defun
 #: windows.texi.orig:1520
 #, no-wrap
 msgid "select-window window &optional norecord"
-msgstr ""
+msgstr "select-window window &optional norecord"
 
 #. type: defun
 #: windows.texi.orig:1527
 msgid "This function makes @var{window} the selected window and the window selected within its frame (@pxref{Basic Windows}) and selects that frame.  It also makes @var{window}'s buffer (@pxref{Buffers and Windows}) current and sets that buffer's value of @code{point} to the value of @code{window-point} (@pxref{Window Point}) in @var{window}.  @var{window} must be a live window.  The return value is @var{window}."
-msgstr ""
+msgstr "この関数は、@var{window}を選択されたウィンドウにして、そのフレーム内で選択されたウィンドウとし(@ref{Basic Windows}を参照)、そのフレームを選択する。また、@var{window}のバッファー(@ref{Buffers and Windows}を参照)をカレントにして、そのバッファーの@code{point}の値(@ref{Window Point}を参照)を、@var{window}の@code{window-point}の値にセットする。@var{window}は生きたウィンドウでなければならない。リターン値は@var{window}である。"
 
 #. type: defun
 #: windows.texi.orig:1532
 msgid "By default, this function also moves @var{window}'s buffer to the front of the buffer list (@pxref{Buffer List}), and makes @var{window} the most recently selected window.  However, if the optional argument @var{norecord} is non-@code{nil}, these additional actions are omitted."
-msgstr ""
+msgstr "デフォルトでは、この関数は@var{window}のバッファーをバッファーリストの先頭(@ref{Buffer List}を参照)に移動して、@var{window}をもっとも最近選択されたウィンドウにする。しかし、オプション引数@var{norecord}が非@code{nil}の場合は、これらの追加処理は省略される。"
 
 #. type: defun
 #: windows.texi.orig:1544
 msgid "This function runs @code{buffer-list-update-hook} (@pxref{Buffer List})  unless @var{norecord} is non-@code{nil}.  Note that applications and internal routines often temporarily select a window in order to simplify coding.  As a rule, such selections (including those made by the macros @code{save-selected-window} and @code{with-selected-window} below) are not recorded thus avoiding to pollute @code{buffer-list-update-hook}.  Selections that ``really count'' are those causing a visible change in the next redisplay of @var{window}'s frame and should be always recorded.  This also means that to run a function each time a window gets selected, putting it on @code{buffer-list-update-hook} should be the right choice."
-msgstr ""
+msgstr "この関数は、@var{norecord}が@code{nil}ならば、@code{buffer-list-update-hook}(@ref{Buffer List})を実行する。コーディングを単純にするために、アプリケーションや内部ルーチンは、しばしばウィンドウを一時的に選択することがあることに注意。一般的には、そのような選択(以下のマクロ@code{save-selected-window}と@code{with-selected-window}による選択も含む)は記録されないので、@code{buffer-list-update-hook}の汚染は避けられる。選択を``実際にカウント''するのは、@var{window}のフレームの次回表示時に可視の変更が発生したときで、それらは常に記録されるべきである。これは、あるウィンドウが選択されるたびに関数を実行するためには、それを@code{buffer-list-update-hook}に配するのが良い選択であることも意味している。"
 
 #. type: cindex
 #: windows.texi.orig:1546
 #, no-wrap
 msgid "most recently selected windows"
-msgstr ""
+msgstr "most recently selected windows"
 
 #. type: Plain text
 #: windows.texi.orig:1552
 msgid "The sequence of calls to @code{select-window} with a non-@code{nil} @var{norecord} argument determines an ordering of windows by their selection time.  The function @code{get-lru-window} can be used to retrieve the least recently selected live window (@pxref{Cyclic Window Ordering})."
-msgstr ""
+msgstr "引数@var{norecord}に非@code{nil}を指定した@code{select-window}の連続呼び出しは、ウィンドウの並び順を選択時刻により決定します。関数@code{get-lru-window}は、もっとも昔に選択された生きたウィンドウ(@ref{Cyclic Window Ordering}を参照)を取得するために使用できます。"
 
 #. type: defmac
 #: windows.texi.orig:1553
 #, no-wrap
 msgid "save-selected-window forms@dots{}"
-msgstr ""
+msgstr "save-selected-window forms@dots{}"
 
 #. type: defmac
 #: windows.texi.orig:1558
 msgid "This macro records the selected frame, as well as the selected window of each frame, executes @var{forms} in sequence, then restores the earlier selected frame and windows.  It also saves and restores the current buffer.  It returns the value of the last form in @var{forms}."
-msgstr ""
+msgstr "このマクロは、選択されたフレーム、同様に各フレームの選択されたウィンドウを記録し、@var{forms}を順に実行してから、以前に選択されていたフレームとウィンドウをリストアする。これはカレントバッファーの保存とリストアも行う。リターン値は@var{forms}内の最後のフォームの値である。"
 
 #. type: defmac
 #: windows.texi.orig:1567
 msgid "This macro does not save or restore anything about the sizes, arrangement or contents of windows; therefore, if @var{forms} change them, the change persists.  If the previously selected window of some frame is no longer live at the time of exit from @var{forms}, that frame's selected window is left alone.  If the previously selected window is no longer live, then whatever window is selected at the end of @var{forms} remains selected.  The current buffer is restored if and only if it is still live when exiting @var{forms}."
-msgstr ""
+msgstr "このマクロは、ウィンドウのサイズ、コンテンツ、配置についての保存やリストアは何も行わない。したがって、@var{forms}がそれらを変更した場合、その変更は永続化される。あるフレームにおいて以前に選択されていたウィンドウが@var{forms}のexit時にもはや生きていない場合、そのフレームの選択されたウィンドウはそのまま放置される。以前に選択されていたウィンドウがもはや生きていない場合は@var{forms}の最後に選択されていたウィンドウが何であれ、それが選択されたままになる。カレントバッファー@var{forms}のexit時にそれが生きている場合のみリストアされる。"
 
 #. type: defmac
 #: windows.texi.orig:1570
 msgid "This macro changes neither the ordering of recently selected windows nor the buffer list."
-msgstr ""
+msgstr "このマクロは、もっとも最近に選択されたウィンドウとバッファーリストの順番を、どちらも変更しない。"
 
 #. type: defmac
 #: windows.texi.orig:1572
 #, no-wrap
 msgid "with-selected-window window forms@dots{}"
-msgstr ""
+msgstr "with-selected-window window forms@dots{}"
 
 #. type: defmac
 #: windows.texi.orig:1578
 msgid "This macro selects @var{window}, executes @var{forms} in sequence, then restores the previously selected window and current buffer.  The ordering of recently selected windows and the buffer list remain unchanged unless you deliberately change them within @var{forms}; for example, by calling @code{select-window} with argument @var{norecord} @code{nil}."
-msgstr ""
+msgstr "このマクロは@var{window}を選択して、@var{forms}を順に実行してから、以前に選択されていたウィンドウとカレントバッファーをリストアする。たとえば、引数@var{norecord}を@code{nil}で@code{select-window}を呼び出す等、@var{forms}内で故意に変更しない限り、もっとも最近に選択されたウィンドウとバッファーリストの順番は変更されない。"
 
 #. type: defmac
 #: windows.texi.orig:1581
 msgid "This macro does not change the order of recently selected windows or the buffer list."
-msgstr ""
+msgstr "このマクロは、もっとも最近に選択されたウィンドウとバッファーリストの順番を変更しない。"
 
 #. type: defun
 #: windows.texi.orig:1583
 #, no-wrap
 msgid "frame-selected-window &optional frame"
-msgstr ""
+msgstr "frame-selected-window &optional frame"
 
 #. type: defun
 #: windows.texi.orig:1587
 msgid "This function returns the window on @var{frame} that is selected within that frame.  @var{frame} should be a live frame; if omitted or @code{nil}, it defaults to the selected frame."
-msgstr ""
+msgstr "この関数は、フレーム@var{frame}内で選択されているウィンドウをリターンする。@var{frame}は生きたフレームであること。省略または@code{nil}の場合のデフォルトは、選択されたフレームである。"
 
 #. type: defun
 #: windows.texi.orig:1589
 #, no-wrap
 msgid "set-frame-selected-window frame window &optional norecord"
-msgstr ""
+msgstr "set-frame-selected-window frame window &optional norecord"
 
 #. type: defun
 #: windows.texi.orig:1594
 msgid "This function makes @var{window} the window selected within the frame @var{frame}.  @var{frame} should be a live frame; if @code{nil}, it defaults to the selected frame.  @var{window} should be a live window; if @code{nil}, it defaults to the selected window."
-msgstr ""
+msgstr "この関数は、@var{window}をフレーム@var{frame}内で選択されたウィンドウにする。@var{frame}は生きたフレームであること。省略または@code{nil}の場合のデフォルトは、選択されたフレームである。@var{window}は生きたウィンドウであること。省略または@code{nil}の場合のデフォルトは選択されたウィンドウである。"
 
 #. type: defun
 #: windows.texi.orig:1597
 msgid "If @var{frame} is the selected frame, this makes @var{window} the selected window."
-msgstr ""
+msgstr "@var{frame}が選択されたフレームの場合は、@var{window}を選択されたウィンドウにする。"
 
 #. type: defun
 #: windows.texi.orig:1601
 msgid "If the optional argument @var{norecord} is non-@code{nil}, this function does not alter the list of most recently selected windows, nor the buffer list."
-msgstr ""
+msgstr "オプション引数@var{norecord}が非@code{nil}の場合、この関数はもっとも最近に選択されたウィンドウのリストとバッファーリストを、どちらも変更しない。"
 
 #. type: section
 #: windows.texi.orig:1604
