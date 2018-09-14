@@ -1044,39 +1044,31 @@ Frames}を参照)。ミニバッファーがアクティブな場合は、ミニ
 @cindex minibuffer window, and @code{next-window}
 この関数は、ウィンドウのサイクル順で@var{window}の次の生きたウィンドウをリターンする。@var{window}は生きたウィンドウであること。省略または@code{nil}の場合のデフォルトは選択されたウィンドウである。
 
-The optional argument @var{minibuf} specifies whether minibuffer windows
-should be included in the cyclic ordering.  Normally, when @var{minibuf} is
-@code{nil}, a minibuffer window is included only if it is currently
-``active''; this matches the behavior of @kbd{C-x o}.  (Note that a
-minibuffer window is active as long as its minibuffer is in use; see
-@ref{Minibuffers}).
+オプション引数@var{minibuf}は、サイクル順にミニバッファーウィンドウを含めるべきかどうかを指定する。通常は、@var{minibuf}が@code{nil}のときは、ミニバッファーウィンドウがカレントで``アクティブ''な場合のみミニバッファーウィンドウが含まれる。これは、@kbd{C-x
+o}の振る舞うと合致する(ミニバッファーが使用されている限りミニバッファーウィンドウはアクティブであることに注意。@ref{Minibuffers}を参照のこと)。
 
-If @var{minibuf} is @code{t}, the cyclic ordering includes all minibuffer
-windows.  If @var{minibuf} is neither @code{t} nor @code{nil}, minibuffer
-windows are not included even if they are active.
+@var{minibuf}が@code{t}の場合、サイクル順にはすべてのミニバッファーウィンドウが含まれる。@var{minibuf}が@code{t}と@code{nil}のいずれとも異なる場合は、たとえアクティブであってもミニバッファーウィンドウは含まれない。
 
-The optional argument @var{all-frames} specifies which frames to consider:
+オプション引数@var{all-frames}は、考慮に入れるフレームを指定する:
 
 @itemize @bullet
 @item @code{nil}
-means to consider windows on @var{window}'s frame.  If the minibuffer window
-is considered (as specified by the @var{minibuf} argument), then frames that
-share the minibuffer window are considered too.
+を指定した場合は、@var{window}のフレーム上にあるウィンドウを考慮することを意味する。。(@var{minibuf}引数で指定されたことにより)ミニバッファーウィンドウが考慮される場合は、ミニバッファーウィンドウを共有するフレームも考慮される。
 
 @item @code{t}
-means to consider windows on all existing frames.
+を指定した場合は、すべての既存フレーム上のウィンドウを考慮することを意味する。
 
 @item @code{visible}
-means to consider windows on all visible frames.
+を指定した場合は、すべての可視フレーム上のウィンドウを考慮することを意味する。
 
 @item 0
-means to consider windows on all visible or iconified frames.
+を指定した場合は、可視またはアイコン化されたすべてのフレーム上のウィンドウを考慮することを意味する。
 
 @item フレーム
-means to consider windows on that specific frame.
+を指定した場合は、指定されたフレーム上のウィンドウを考慮することを意味する。
 
-@item Anything else
-means to consider windows on @var{window}'s frame, and no others.
+@item その他
+を指定した場合は、@var{window}のあるフレーム上のウィンドウを考慮し、それ以外は考慮しないことを意味する。
 @end itemize
 
 If more than one frame is considered, the cyclic ordering is obtained by
