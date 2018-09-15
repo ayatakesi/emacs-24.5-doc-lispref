@@ -1071,52 +1071,32 @@ o}の振る舞うと合致する(ミニバッファーが使用されている�
 を指定した場合は、@var{window}のあるフレーム上のウィンドウを考慮し、それ以外は考慮しないことを意味する。
 @end itemize
 
-If more than one frame is considered, the cyclic ordering is obtained by
-appending the orderings for those frames, in the same order as the list of
-all live frames (@pxref{Finding All Frames}).
+複数のフレームが考慮される場合は、すべての生きたフレームのリストの順にしたがってそれらのフレームを順に追加することにより、サイクル順を取得する(@ref{Finding
+All Frames}を参照)。
 @end defun
 
 @defun previous-window &optional window minibuf all-frames
-This function returns a live window, the one preceding @var{window} in the
-cyclic ordering of windows.  The other arguments are handled like in
-@code{next-window}.
+この関数は、ウィンドウのサイクル順において@var{window}の前に位置する、生きたウィンドウをリターンする。その他の引数は、@code{next-window}の場合と同様に処理される。
 @end defun
 
 @deffn Command other-window count &optional all-frames
-This function selects a live window, one @var{count} places from the
-selected window in the cyclic ordering of windows.  If @var{count} is a
-positive number, it skips @var{count} windows forwards; if @var{count} is
-negative, it skips @minus{}@var{count} windows backwards; if @var{count} is
-zero, that simply re-selects the selected window.  When called
-interactively, @var{count} is the numeric prefix argument.
+この関数は、ウィンドウのサイクル順において、選択されたウィンドウから@var{count}番目に位置する、生きたウィンドウをリターンする。@var{count}が正の数なら@var{count}個のウィンドウを前方にスキップし、負の数なら@minus{}@var{count}個のウィンドウを後方にスキップする。@var{count}が0の場合は、選択されたウィンドウを単に再選択する．インタラクティブに呼び出された場合、@var{count}はプレフィックス数引数である。
 
-The optional argument @var{all-frames} has the same meaning as in
-@code{next-window}, like a @code{nil} @var{minibuf} argument to
-@code{next-window}.
+オプション引数@var{all-frames}は、@code{next-window}に@code{nil}の@var{minibuf}引数を指定したときの@code{next-window}の場合と同じ意味をもつ。
 
-This function does not select a window that has a non-@code{nil}
-@code{no-other-window} window parameter (@pxref{Window Parameters}).
+この関数は、非@code{nil}のウィンドウパラメーター@code{no-other-window}をもつウィンドウを選択しない。
 @end deffn
 
 @defun walk-windows fun &optional minibuf all-frames
-This function calls the function @var{fun} once for each live window, with
-the window as the argument.
+この関数は、生きたウィンドウそれぞれにたいして、ウィンドウを引数に関数@var{fun}を呼び出す。
 
-It follows the cyclic ordering of windows.  The optional arguments
-@var{minibuf} and @var{all-frames} specify the set of windows included;
-these have the same arguments as in @code{next-window}.  If @var{all-frames}
-specifies a frame, the first window walked is the first window on that frame
-(the one returned by @code{frame-first-window}), not necessarily the
-selected window.
+これはウィンドウのサイクル順にしたがう。オプション引数@var{minibuf}と@var{all-frames}は、含まれるウィンドウセットを指定する。これらは、@code{next-window}の引数の場合と同じ意味をもつ。@var{all-frames}がフレームを指定する場合、最初に処理されるのはそのフレームの最初のウィンドウ(@code{frame-first-window}がリターンするウィンドウ)であり、選択されたウィンドウである必要はない。
 
-If @var{fun} changes the window configuration by splitting or deleting
-windows, that does not alter the set of windows walked, which is determined
-prior to calling @var{fun} for the first time.
+@var{fun}がウィンドウの分割や削除によりウィンドウ構成を変更する場合でも、処理するウィンドウセットは初回の@var{fun}呼び出しに先立ち決定されるため、変更されない。
 @end defun
 
 @defun one-window-p &optional no-mini all-frames
-This function returns @code{t} if the selected window is the only live
-window, and @code{nil} otherwise.
+この関数は、選択されたウィンドウが唯一の生きたウィンドウの場合は@code{t}、それ以外は@code{nil}をリターンする。
 
 If the minibuffer window is active, it is normally considered (so that this
 function returns @code{nil}).  However, if the optional argument
