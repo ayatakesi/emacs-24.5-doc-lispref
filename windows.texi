@@ -681,7 +681,7 @@ Parameters}を参照のこと。
 @deffn Command delete-windows-on &optional buffer-or-name frame
 この関数は、@var{buffer-or-name}を表示しているすべてのウィンドウにたいして@code{delete-window}を呼び出すことにより、それらを削除する。@var{buffer-or-name}はバッファー、またはバッファー名であること。省略または@code{nil}の場合のデフォルトはカレントバッファーである。指定されたバッファーを表示するウィンドウが存在しない場合、この関数は何も行わない。ミニバッファーが指定された場合は、エラーをシグナルする。
 
-そのバッファーの表示専用のウィンドウがあり、フレーム上でそれが唯一のウィンドウの場合、それが端末上で唯一のフレームでなければ、この関数はそのフレームも削除する。
+そのバッファーの表示に専用(dedicated)のウィンドウがあり、フレーム上でそれが唯一のウィンドウの場合、それが端末上で唯一のフレームでなければ、この関数はそのフレームも削除する。
 
 オプション引数@var{frame}は、操作を行うフレームがどれかを指定する:
 
@@ -1098,61 +1098,37 @@ All Frames}を参照)。
 @defun one-window-p &optional no-mini all-frames
 この関数は、選択されたウィンドウが唯一の生きたウィンドウの場合は@code{t}、それ以外は@code{nil}をリターンする。
 
-If the minibuffer window is active, it is normally considered (so that this
-function returns @code{nil}).  However, if the optional argument
-@var{no-mini} is non-@code{nil}, the minibuffer window is ignored even if
-active.  The optional argument @var{all-frames} has the same meaning as for
-@code{next-window}.
+ミニバッファーウィンドウがアクティブな場合、ミニバッファーウィンドウは通常は考慮される(そのため、この関数は@code{nil}をリターンする)。しかし、オプション引数@var{no-mini}が非@code{nil}の場合は、たとえアクティブであっても、ミニバッファーウィンドウは無視される。オプション引数@var{all-frames}は、@code{next-window}の場合と同じ意味をもつ。
 @end defun
 
 @cindex finding windows
-  The following functions return a window which satisfies some criterion,
-without selecting it:
+  以下は、何らかの条件を満足するウィンドウを、それらを選択することなくリターンする関数です:
 
 @cindex least recently used window
 @defun get-lru-window &optional all-frames dedicated not-selected
-This function returns a live window which is heuristically the ``least
-recently used'' window.  The optional argument @var{all-frames} has the same
-meaning as in @code{next-window}.
+この関数は、発見的には``もっとも最近に使用された''ウィンドウであるような、生きたウィンドウをリターンする。オプション引数@var{all-frames}は、@code{next-window}の場合と同じ意味をもつ。
 
-If any full-width windows are present, only those windows are considered.  A
-minibuffer window is never a candidate.  A dedicated window
-(@pxref{Dedicated Windows}) is never a candidate unless the optional
-argument @var{dedicated} is non-@code{nil}.  The selected window is never
-returned, unless it is the only candidate.  However, if the optional
-argument @var{not-selected} is non-@code{nil}, this function returns
-@code{nil} in that case.
+フル幅のウィンドウが存在する場合は、それらのウィンドウだけが考慮される。ミニバッファーが候補になることは、決してない。オプション引数@var{dedicated}が@code{nil}の場合は、専用のバッファー(@ref{Dedicated
+Windows}を参照)が候補になることは、決してない。唯一の候補が選択されたウィンドウである場合以外は、決して選択されたウィンドウをリターンしない。しかし、オプション引数@var{not-selected}が非@code{nil}ならば、そのような場合でもこの関数は@code{nil}をリターンする。
 @end defun
 
 @cindex largest window
 @defun get-largest-window &optional all-frames dedicated not-selected
-This function returns the window with the largest area (height times
-width).  The optional argument @var{all-frames} specifies the windows to
-search, and has the same meaning as in @code{next-window}.
+この関数は、もっとも大きいエリア(高さ掛ける幅)をもつウィンドウをリターンする。オプション引数@var{all-frames}は検索するウィンドウを指定し、意味は@code{next-window}の場合と同様。
 
-A minibuffer window is never a candidate.  A dedicated window
-(@pxref{Dedicated Windows}) is never a candidate unless the optional
-argument @var{dedicated} is non-@code{nil}.  The selected window is not a
-candidate if the optional argument @var{not-selected} is non-@code{nil}.  If
-the optional argument @var{not-selected} is non-@code{nil} and the selected
-window is the only candidate, this function returns @code{nil}.
+ミニバッファーウィンドウは決して候補とならない。オプション引数@var{dedicated}が@code{nil}の場合、専用ウィンドウ(@ref{Dedicated
+Windows}ウィンドウを参照)は決して候補にならない。オプション引数@var{not-selected}が非@code{nil}の場合、選択されたウィンドウは決して候補にならない。オプション引数@var{not-selected}が非@code{nil}、かつ唯一の候補が選択されたウィンドウの場合、この関数は@code{nil}をリターンする。
 
-If there are two candidate windows of the same size, this function prefers
-the one that comes first in the cyclic ordering of windows, starting from
-the selected window.
+同サイズの候補ウィンドウが2つある場合、この関数はウィンドウのサイクル順で、選択されたウィンドウから数えて最初にあるウィンドウを優先する。
 @end defun
 
 @cindex window that satisfies a predicate
 @cindex conditional selection of windows
 @defun get-window-with-predicate predicate &optional minibuf all-frames default
-This function calls the function @var{predicate} for each of the windows in
-the cyclic order of windows in turn, passing it the window as an argument.
-If the predicate returns non-@code{nil} for any window, this function stops
-and returns that window.  If no such window is found, the return value is
-@var{default} (which defaults to @code{nil}).
+この関数は、ウィンドウのサイクル順内の各ウィンドウにたいして、そのウィンドウを引数に、関数@var{predicate}を順に呼び出す。いずれかのウィンドウにたいして@var{predicate}が非@code{nil}をリターンした場合、この関数は処理を停止して、そのウィンドウをリターンする。そのようなうｌが見つからなければ、リターン値は@var{default}(これのデは@code{nil})となる。
 
-The optional arguments @var{minibuf} and @var{all-frames} specify the
-windows to search, and have the same meanings as in @code{next-window}.
+オプション引数
+@var{minibuf}と@var{all-frames}は検索するウィンドウを指定し、意味は@code{next-window}の場合と同様である。
 @end defun
 
 
