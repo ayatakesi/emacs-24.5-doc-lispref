@@ -1190,37 +1190,24 @@ Window Ordering}を参照)。そのようなウィンドウが存在しない場
 その他の値は、選択されたフレーム上のウィンドウを考慮することを意味する。
 @end itemize
 
-Note that these meanings differ slightly from those of the @var{all-frames}
-argument to @code{next-window} (@pxref{Cyclic Window Ordering}).  This
-function may be changed in a future version of Emacs to eliminate this
-discrepancy.
+これらの意味は、@code{next-window}の@var{all-frames}引数の場合とは若干異なることに注意されたい(@ref{Cyclic
+Window Ordering}を参照)。この不一致の解消のために、EEmacsの将来のバージョンにおいて、この関数は変更されるかもしれない。
 @end defun
 
 @defun get-buffer-window-list &optional buffer-or-name minibuf all-frames
-This function returns a list of all windows currently displaying
-@var{buffer-or-name}.  @var{buffer-or-name} should be a buffer or the name
-of an existing buffer.  If omitted or @code{nil}, it defaults to the current
-buffer.
+この関数は、その時点で@var{buffer-or-name}を表示する、すべてのウィンドウのリストをリターンする。@var{buffer-or-name}はバッファー、または既存バッファーの名前であること。省略または@code{nil}の場合のデフォルトは、カレントバッファーである。
 
-The arguments @var{minibuf} and @var{all-frames} have the same meanings as
-in the function @code{next-window} (@pxref{Cyclic Window Ordering}).  Note
-that the @var{all-frames} argument does @emph{not} behave exactly like in
-@code{get-buffer-window}.
+引数@var{minibuf}と@var{all-frames}は、関数@code{next-window}の場合と同じ意味をもつ(@ref{Cyclic
+Window
+Ordering}を参照)。@var{all-frames}引数は、@code{get-buffer-window}の場合と正確に同じようには@emph{振る舞わない}ことに注意すること。
 @end defun
 
 @deffn Command replace-buffer-in-windows &optional buffer-or-name
-This command replaces @var{buffer-or-name} with some other buffer, in all
-windows displaying it.  @var{buffer-or-name} should be a buffer, or the name
-of an existing buffer; if omitted or @code{nil}, it defaults to the current
-buffer.
+このコマンドは、@var{buffer-or-name}を表示しているすべてのウィンドウで、それを他の何らかのバッファーに置き換える。@var{buffer-or-name}はバッファー、または既存のバッファーの名前であること。省略または@code{nil}の場合のデフォルトは、カレントバッファーである。
 
-The replacement buffer in each window is chosen via
-@code{switch-to-prev-buffer} (@pxref{Window History}).  Any dedicated window
-displaying @var{buffer-or-name} is deleted if possible (@pxref{Dedicated
-Windows}).  If such a window is the only window on its frame and there are
-other frames on the same terminal, the frame is deleted as well.  If the
-dedicated window is the only window on the only frame on its terminal, the
-buffer is replaced anyway.
+各ウィンドウで置き換えられるバッファーは、@code{switch-to-prev-buffer}を通じて選択される(@ref{Window
+History}を参照)。@var{buffer-or-name}を表示している専用ウィンドウはすべて、可能なら削除される(@ref{Dedicated
+Windows}を参照)。そのようなウィンドウがそのフレームで唯一のウィンドウで、かつ同一端末上に他のフレームが存在する場合は、そのフレームも同様に削除される。その端末上の唯一のフレームの唯一のウィンドウの場合は、いずれにせよそのバッファーは置き換えられる。
 @end deffn
 
 
