@@ -1125,7 +1125,7 @@ Windows}ウィンドウを参照)は決して候補にならない。オプシ�
 @cindex window that satisfies a predicate
 @cindex conditional selection of windows
 @defun get-window-with-predicate predicate &optional minibuf all-frames default
-この関数は、ウィンドウのサイクル順内の各ウィンドウにたいして、そのウィンドウを引数に、関数@var{predicate}を順に呼び出す。いずれかのウィンドウにたいして@var{predicate}が非@code{nil}をリターンした場合、この関数は処理を停止して、そのウィンドウをリターンする。そのようなうｌが見つからなければ、リターン値は@var{default}(これのデは@code{nil})となる。
+この関数は、ウィンドウのサイクル順内の各ウィンドウにたいして、そのウィンドウを引数に、関数@var{predicate}を順に呼び出す。いずれかのウィンドウにたいして@var{predicate}が非@code{nil}をリターンした場合、この関数は処理を停止して、そのウィンドウをリターンする。そのようなうｌが見つからなければ、リターン値は@var{default}(これのデフォルトは@code{nil})となる。
 
 オプション引数
 @var{minibuf}と@var{all-frames}は検索するウィンドウを指定し、意味は@code{next-window}の場合と同様である。
@@ -1138,76 +1138,56 @@ Windows}ウィンドウを参照)は決して候補にならない。オプシ�
 @cindex windows, controlling precisely
 @cindex buffers, controlled in windows
 
-  This section describes low-level functions for examining and setting the
-contents of windows.  @xref{Switching Buffers}, for higher-level functions
-for displaying a specific buffer in a window.
+  このセクションでは、ウィンドウのコンテンツを調べたりセットするための、低レベルな関数を説明します。ウィンドウ内に特定のバッファーを表示するための高レベルな関数については、@ref{Switching
+Buffers}を参照してください。
 
 @defun window-buffer &optional window
-This function returns the buffer that @var{window} is displaying.  If
-@var{window} is omitted or @code{nil} it defaults to the selected window.
-If @var{window} is an internal window, this function returns @code{nil}.
+この関数は、@var{window}が表示しているバッファーをリターンする。@var{window}が省略または@code{nil}の場合のデフォルトは、選択されたウィンドウである。@var{window}が内部ウィンドウの場合、この関数は@code{nil}をリターンする。
 @end defun
 
 @defun set-window-buffer window buffer-or-name &optional keep-margins
-This function makes @var{window} display @var{buffer-or-name}.  @var{window}
-should be a live window; if @code{nil}, it defaults to the selected window.
-@var{buffer-or-name} should be a buffer, or the name of an existing buffer.
-This function does not change which window is selected, nor does it directly
-change which buffer is current (@pxref{Current Buffer}).  Its return value
-is @code{nil}.
+この関数は、
+@var{window}に@var{buffer-or-name}ウィンドウ表示させる。@var{window}は生きたウィンドウであること。@code{nil}の場合のデフォルトは、選択されたウィンドウである。@var{buffer-or-name}は、バッファー、あるいは既存のバッファー名であること。この関数は、選択されていたウィンドウを変更せず、カレントバッファーも直接は変更しない(@ref{Current
+Buffer}を参照)。リターン値は@code{nil}である。
 
-If @var{window} is @dfn{strongly dedicated} to a buffer and
-@var{buffer-or-name} does not specify that buffer, this function signals an
-error.  @xref{Dedicated Windows}.
+@var{window}が、あるバッファーにたいして@dfn{特に専用}で、かつ@var{buffer-or-name}がそのバッファーを指定しない場合、この関数はエラーをシグナルする。@ref{Dedicated
+Windows}を参照のこと。
 
-By default, this function resets @var{window}'s position, display margins,
-fringe widths, and scroll bar settings, based on the local variables in the
-specified buffer.  However, if the optional argument @var{keep-margins} is
-non-@code{nil}, it leaves the display margins and fringe widths unchanged.
+デフォルトでは、この関数は指定されたバッファーのローカル変数にもとづいて、@var{window}の位置、ディスプレイマージン、フリンジ幅、スクロールバーのセッティングをリセットする。しかし、オプション引数@var{keep-margins}が非@code{nil}の場合は、ディスプレイマージンとフリンジ幅は未変更のままにする。
 
-When writing an application, you should normally use the higher-level
-functions described in @ref{Switching Buffers}, instead of calling
-@code{set-window-buffer} directly.
+アプリケーションを記述する際は、直接@code{set-window-buffer}を呼び出すのではなく、通常は@ref{Switching
+Buffers}で説明する高レベルの関数を使用するべきである。
 
-This runs @code{window-scroll-functions}, followed by
-@code{window-configuration-change-hook}.  @xref{Window Hooks}.
+これは、@code{window-scroll-functions}の後に@code{window-configuration-change-hook}を実行する。@ref{Window
+Hooks}を参照のこと。
 @end defun
 
 @defvar buffer-display-count
-This buffer-local variable records the number of times a buffer has been
-displayed in a window.  It is incremented each time @code{set-window-buffer}
-is called for the buffer.
+このバッファーローカル変数は、ウィンドウ内にバッファーが表示された回数を記録する。。これは、そのバッファーにたいして@code{set-window-buffer}が呼び出されるたびに増分される
 @end defvar
 
 @defvar buffer-display-time
-This buffer-local variable records the time at which a buffer was last
-displayed in a window.  The value is @code{nil} if the buffer has never been
-displayed.  It is updated each time @code{set-window-buffer} is called for
-the buffer, with the value returned by @code{current-time} (@pxref{Time of
-Day}).
+このバッファーローカル変数は、バッファーがウィンドウに最後に表示された時刻を記録する。バッファーが表示されたことがない場合は、@code{nil}をリターンする。これは、そのバッファーにたいして@code{set-window-buffer}が呼び出されるたびに、@code{current-time}がリターンする値により更新される(@ref{Time
+of Day}を参照)。
 @end defvar
 
 @defun get-buffer-window &optional buffer-or-name all-frames
-This function returns the first window displaying @var{buffer-or-name} in
-the cyclic ordering of windows, starting from the selected window
-(@pxref{Cyclic Window Ordering}).  If no such window exists, the return
-value is @code{nil}.
+この関数は、ウィンドウのサイクル順内で、選択されたウィンドウを起点に、@var{buffer-or-name}を表示する最初のウィンドウをリターンする.<(@ref{Cyclic
+Window Ordering}を参照)。そのようなウィンドウが存在しない場合、リターン値は@code{nil}となる。
 
-@var{buffer-or-name} should be a buffer or the name of a buffer; if omitted
-or @code{nil}, it defaults to the current buffer.  The optional argument
-@var{all-frames} specifies which windows to consider:
+@var{buffer-or-name}はバッファーか、バッファーの名前であること。省略または@code{nil}の場合のデフォルトは、カレントバッファーである。オプション引数@var{all-frames}は、考慮するウィンドウを指定する。
 
 @itemize @bullet
 @item
-@code{t} means consider windows on all existing frames.
+@code{t}は、すべての既存フレーム上のウィンドウを考慮することを意味する。
 @item
-@code{visible} means consider windows on all visible frames.
+@code{visible}は、すべての可視フレーム上のウィンドウを考慮することを意味する。
 @item
-0 means consider windows on all visible or iconified frames.
+0は、すべての可視またはアイコン化されたフレーム上のウィンドウを考慮することを意味する。
 @item
-A frame means consider windows on that frame only.
+フレームを指定した場合は、そのフレーム上のウィンドウだけを考慮することを意味する。
 @item
-Any other value means consider windows on the selected frame.
+その他の値は、選択されたフレーム上のウィンドウを考慮することを意味する。
 @end itemize
 
 Note that these meanings differ slightly from those of the @var{all-frames}
@@ -1500,11 +1480,11 @@ last non-minibuffer frame.)
 @item
 @code{t} means consider windows on all frames.
 @item
-@code{visible} means consider windows on all visible frames.
+@code{visible}は、すべての可視フレーム上のウィンドウを考慮することを意味する。
 @item
-0 means consider windows on all visible or iconified frames.
+0は、すべての可視またはアイコン化されたフレーム上のウィンドウを考慮することを意味する。
 @item
-A frame means consider windows on that frame only.
+フレームを指定した場合は、そのフレーム上のウィンドウだけを考慮することを意味する。
 @end itemize
 
 Note that these meanings differ slightly from those of the @var{all-frames}
