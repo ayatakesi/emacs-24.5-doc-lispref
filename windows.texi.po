@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-07-15 22:35+0900\n"
-"PO-Revision-Date: 2018-09-17 05:37+0900\n"
+"PO-Revision-Date: 2018-09-18 19:16+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2977,92 +2977,92 @@ msgstr "各ウィンドウで置き換えられるバッファーは、@code{swi
 #: windows.texi.orig:1887
 #, no-wrap
 msgid "Switching to a Buffer in a Window"
-msgstr ""
+msgstr "Switching to a Buffer in a Window"
 
 #. type: cindex
 #: windows.texi.orig:1888
 #, no-wrap
 msgid "switching to a buffer"
-msgstr ""
+msgstr "switching to a buffer"
 
 #. type: cindex
 #: windows.texi.orig:1889
 #, no-wrap
 msgid "displaying a buffer"
-msgstr ""
+msgstr "displaying a buffer"
 
 #. type: Plain text
 #: windows.texi.orig:1896
 msgid "This section describes high-level functions for switching to a specified buffer in some window.  In general, ``switching to a buffer'' means to (1) show the buffer in some window, (2) make that window the selected window (and its frame the selected frame), and (3) make the buffer the current buffer."
-msgstr ""
+msgstr "このセクションでは、あるウィンドウ内で特定のバッファーにスイッチするための、高レベルな関数について説明します。``バッファーをスイッチする''とは一般的に、(1)そのバッファーをあるウィンドウに表示して、(2)そのウィンドウを選択されたウィンドウとし(かつそのフレームを選択されたフレームとし、(3)そのバッファーウィンドウカレントバッファーにすることを意味します。"
 
 #. type: Plain text
 #: windows.texi.orig:1904
 msgid "Do @emph{not} use these functions to make a buffer temporarily current just so a Lisp program can access or modify it.  They have side-effects, such as changing window histories (@pxref{Window History}), which will surprise the user if used that way.  If you want to make a buffer current to modify it in Lisp, use @code{with-current-buffer}, @code{save-current-buffer}, or @code{set-buffer}.  @xref{Current Buffer}."
-msgstr ""
+msgstr "Lispプログラムがアクセスや変更できるように、バッファーを一時的にカレントにするのにこれらの関数を@emph{使用しないでください}。これらはウィンドウヒストリー(@ref{Window History}を参照)の変更のような副作用をもつので、そのような方法での使用はユーザーを驚かせることになるでしょう。バッファーをLispで変更するためにカレントにしたい場合は@code{with-current-buffer}、@code{save-current-buffer}、@code{set-buffer}を使用します。@ref{Current Buffer}を参照してください。"
 
 #. type: deffn
 #: windows.texi.orig:1905
 #, no-wrap
 msgid "Command switch-to-buffer buffer-or-name &optional norecord force-same-window"
-msgstr ""
+msgstr "Command switch-to-buffer buffer-or-name &optional norecord force-same-window"
 
 #. type: deffn
 #: windows.texi.orig:1910
 msgid "This command attempts to display @var{buffer-or-name} in the selected window and make it the current buffer.  It is often used interactively (as the binding of @kbd{C-x b}), as well as in Lisp programs.  The return value is the buffer switched to."
-msgstr ""
+msgstr "このコマンドは、選択されたウィンドウ内で@var{buffer-or-name}を表示して、それをカレントバッファーにしようと試みる。これはよくインタラクティブ(@kbd{C-x b}のバインディングで)に使用され、同様にLispプログラムでも使用される。リターン値はスイッチしたバッファーである。"
 
 #. type: deffn
 #: windows.texi.orig:1917 windows.texi.orig:2003
 msgid "If @var{buffer-or-name} is @code{nil}, it defaults to the buffer returned by @code{other-buffer} (@pxref{Buffer List}).  If @var{buffer-or-name} is a string that is not the name of any existing buffer, this function creates a new buffer with that name; the new buffer's major mode is determined by the variable @code{major-mode} (@pxref{Major Modes})."
-msgstr ""
+msgstr "@var{buffer-or-name}が@code{nil}の場合のデフォルトは、@code{other-buffer}によりリターンされるバッファーになる(@ref{Buffer List}を参照)。@var{buffer-or-name}が既存のバッファーの名前でない文字列の場合、この関数はその名前で新たにバッファーを作成する。新たなバッファーのメジャーモードは、変数@code{major-mode}により決定される(@ref{Major Modes}を参照)。"
 
 #. type: deffn
 #: windows.texi.orig:1922
 msgid "Normally, the specified buffer is put at the front of the buffer list---both the global buffer list and the selected frame's buffer list (@pxref{Buffer List}).  However, this is not done if the optional argument @var{norecord} is non-@code{nil}."
-msgstr ""
+msgstr "通常は、指定されたバッファーはバッファーリスト --- グローバルバッファーリストと選択されたフレームのバッファーリストの両方の先頭に置かれる(@ref{Buffer List}を参照)。しかし、オプション引数@var{norecord}が非@code{nil}なら、これは行われない。"
 
 #. type: deffn
 #: windows.texi.orig:1931
 msgid "Sometimes, @code{switch-to-buffer} may be unable to display the buffer in the selected window.  This happens if the selected window is a minibuffer window, or if the selected window is strongly dedicated to its buffer (@pxref{Dedicated Windows}).  In that case, the command normally tries to display the buffer in some other window, by invoking @code{pop-to-buffer} (see below).  However, if the optional argument @var{force-same-window} is non-@code{nil}, it signals an error instead."
-msgstr ""
+msgstr "@code{switch-to-buffer}が、選択されたウィンドウ内にバッファーを表示するのが不可能なことが時折ある。これは、選択されたウィンドウがミニバッファーウィンドウの場合や、選択されたウィンドウがそのバッファーにたいして特に専用な場合に発生する(@ref{Dedicated Windows}を参照)。この場合、このコマンドは@code{pop-to-buffer}(以下参照)を呼び出すことにより、通常は何か他のウィンドウにそのバッファーの表示を試みる。しかし、オプション引数が非@code{nil}なら、かわりにエラーをシグナルする。"
 
 #. type: Plain text
 #: windows.texi.orig:1935
 msgid "By default, @code{switch-to-buffer} shows the buffer at its position of @code{point}.  This behavior can be tuned using the following option."
-msgstr ""
+msgstr "デフォルトでは、@code{switch-to-buffer}はバッファーの@code{point}位置でバッファーを表示します。この振る舞いは、以下のオプションを使用して調整できます。"
 
 #. type: defopt
 #: windows.texi.orig:1936
 #, no-wrap
 msgid "switch-to-buffer-preserve-window-point"
-msgstr ""
+msgstr "switch-to-buffer-preserve-window-point"
 
 #. type: defopt
 #: windows.texi.orig:1945
 msgid "If this variable is @code{nil}, @code{switch-to-buffer} displays the buffer specified by @var{buffer-or-name} at the position of that buffer's @code{point}.  If this variable is @code{already-displayed}, it tries to display the buffer at its previous position in the selected window, provided the buffer is currently displayed in some other window on any visible or iconified frame.  If this variable is @code{t}, @code{switch-to-buffer} unconditionally tries to display the buffer at its previous position in the selected window."
-msgstr ""
+msgstr "この変数が@code{nil}の場合、@code{switch-to-buffer}は@var{buffer-or-name}により指定されたバッファーを、そのバッファーの@code{point}位置で表示する。この変数が@code{already-displayed}なら、そのバッファーが任意の可視またはアイコン化されたフレーム上の他のウィンドウで表示されている場合は、選択されたウィンドウ内の以前の位置でのバッファーの表示を試みる。この変数が@code{t}なら、@code{switch-to-buffer}は選択されたウィンドウ内の以前の位置でそのバッファーを表示しようと試みる。"
 
 #. type: defopt
 #: windows.texi.orig:1950
 msgid "This variable is ignored if the buffer is already displayed in the selected window or never appeared in it before, or if @code{switch-to-buffer} calls @code{pop-to-buffer} to display the buffer."
-msgstr ""
+msgstr "この変数は、バッファーがすでに選択されたウィンドウに表示されているか、これまで表示されたことがない、またはバッファーを表示するために@code{switch-to-buffer}が@code{pop-to-buffer}を呼び出した場合は無視される。"
 
 #. type: Plain text
 #: windows.texi.orig:1954
 msgid "The next two commands are similar to @code{switch-to-buffer}, except for the described features."
-msgstr ""
+msgstr "以下の2つのコマンドは、説明している機能以外は@code{switch-to-buffer}と類似しています。"
 
 #. type: deffn
 #: windows.texi.orig:1955
 #, no-wrap
 msgid "Command switch-to-buffer-other-window buffer-or-name &optional norecord"
-msgstr ""
+msgstr "Command switch-to-buffer-other-window buffer-or-name &optional norecord"
 
 #. type: deffn
 #: windows.texi.orig:1959
 msgid "This function displays the buffer specified by @var{buffer-or-name} in some window other than the selected window.  It uses the function @code{pop-to-buffer} internally (see below)."
-msgstr ""
+msgstr "この関数は、@var{buffer-or-name}で指定されたバッファーを、選択されたウィンドウ以外の、別のウィンドウに表示する。これは関数@code{pop-to-buffer}(以下参照)を内部で使用する。"
 
 #. type: deffn
 #: windows.texi.orig:1963
