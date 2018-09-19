@@ -1246,59 +1246,39 @@ Windows}を参照)。この場合、このコマンドは@code{pop-to-buffer}(�
 この変数は、バッファーがすでに選択されたウィンドウに表示されているか、これまで表示されたことがない、またはバッファーを表示するために@code{switch-to-buffer}が@code{pop-to-buffer}を呼び出した場合は無視される。
 @end defopt
 
-The next two commands are similar to @code{switch-to-buffer}, except for the
-described features.
+以下の2つのコマンドは、説明している機能以外は@code{switch-to-buffer}と類似しています。
 
 @deffn Command switch-to-buffer-other-window buffer-or-name &optional norecord
-This function displays the buffer specified by @var{buffer-or-name} in some
-window other than the selected window.  It uses the function
-@code{pop-to-buffer} internally (see below).
+この関数は、@var{buffer-or-name}で指定されたバッファーを、選択されたウィンドウ以外の、別のウィンドウに表示する。これは関数@code{pop-to-buffer}(以下参照)を内部で使用する。
 
-If the selected window already displays the specified buffer, it continues
-to do so, but another window is nonetheless found to display it as well.
+選択されたウィンドウが指定されたバッファーをすでに表示している場合は表示を続けるが、見つかった他のウィンドウも同様にそのバッファーを表示する。
 
-The @var{buffer-or-name} and @var{norecord} arguments have the same meanings
-as in @code{switch-to-buffer}.
+引数@var{buffer-or-name}と@var{norecord}は、@code{switch-to-buffer}の場合と同じ意味をもつ。
 @end deffn
 
 @deffn Command switch-to-buffer-other-frame buffer-or-name &optional norecord
-This function displays the buffer specified by @var{buffer-or-name} in a new
-frame.  It uses the function @code{pop-to-buffer} internally (see below).
+この関数は、@var{buffer-or-name}で指定されたバッファーを、新たなフレームに表示する。これは関数@code{pop-to-buffer}(以下参照)を内部で使用する。
 
-If the specified buffer is already displayed in another window, in any frame
-on the current terminal, this switches to that window instead of creating a
-new frame.  However, the selected window is never used for this.
+指定されたバッファーがすでにカレント端末上の任意のフレームの他のウィンドウに表示されている場合、これはフレームを新たに作成せずにそのウィンドウに切り替える。しかし、これを行うために選択されたウィンドウを使用することは決してない。
 
-The @var{buffer-or-name} and @var{norecord} arguments have the same meanings
-as in @code{switch-to-buffer}.
+引数@var{buffer-or-name}と@var{norecord}は、@code{switch-to-buffer}の場合と同じ意味をもつ。
 @end deffn
 
-The above commands use the function @code{pop-to-buffer}, which flexibly
-displays a buffer in some window and selects that window for editing.  In
-turn, @code{pop-to-buffer} uses @code{display-buffer} for displaying the
-buffer.  Hence, all the variables affecting @code{display-buffer} will
-affect it as well.  @xref{Choosing Window}, for the documentation of
-@code{display-buffer}.
+上述したコマンドは、任意のウィンドウにバッファーを柔軟に表示して、編集用にそのウィンドウを選択する関数@code{pop-to-buffer}を使用しています。次に、@code{pop-to-buffer}はバッファーの表示に@code{display-buffer}を使用します。したがって、@code{display-buffer}に影響する変数も、同様に影響します。@code{display-buffer}のドキュメントについては、@ref{Choosing
+Window}を参照してください。
 
 @deffn Command pop-to-buffer buffer-or-name &optional action norecord
-This function makes @var{buffer-or-name} the current buffer and displays it
-in some window, preferably not the window previously selected.  It then
-selects the displaying window.  If that window is on a different graphical
-frame, that frame is given input focus if possible (@pxref{Input Focus}).
-The return value is the buffer that was switched to.
+この関数は、@var{buffer-or-name}をカレントバッファーにして、なるべく前に選択されていたウィンドウではないウィンドウにそれを表示する。そしてその後に、表示しているウィンドウを選択する。そのウィンドウが別のグラフィカルなフレーム上にある場合は、可能ならそのフレームが入力フォーカスを与えられる(@ref{Input
+Focus}を参照)。リターン値は、切り替えたバッファーである。
 
 @var{buffer-or-name}が@code{nil}の場合のデフォルトは、@code{other-buffer}によりリターンされるバッファーになる(@ref{Buffer
 List}を参照)。@var{buffer-or-name}が既存のバッファーの名前でない文字列の場合、この関数はその名前で新たにバッファーを作成する。新たなバッファーのメジャーモードは、変数@code{major-mode}により決定される(@ref{Major
 Modes}を参照)。
 
-If @var{action} is non-@code{nil}, it should be a display action to pass to
-@code{display-buffer} (@pxref{Choosing Window}).  Alternatively, a
-non-@code{nil}, non-list value means to pop to a window other than the
-selected one---even if the buffer is already displayed in the selected
-window.
+@var{action}が非@code{nil}の場合、それは@code{display-buffer}に渡す表示アクションであること(@ref{Choosing
+Window}を参照)。非@code{nil}、非リスト値の場合は、たとえそのバッファーがすでに選択されたウィンドウに表示されていたとしても、選択されたウィンドウではなく、ウィンドウをポップ(pop)することを意味する。
 
-Like @code{switch-to-buffer}, this function updates the buffer list unless
-@var{norecord} is non-@code{nil}.
+@code{switch-to-buffer}と同様、@var{norecord}が@code{nil}なら、この関数はバッファーリストを更新する。
 @end deffn
 
 
