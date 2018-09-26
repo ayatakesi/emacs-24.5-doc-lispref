@@ -1516,119 +1516,71 @@ Window Options}を参照)。
 @node Choosing Window Options
 @section Additional Options for Displaying Buffers
 
-The behavior of the standard display actions of @code{display-buffer}
-(@pxref{Choosing Window}) can be modified by a variety of user options.
+@code{display-buffer}の標準のディスプレイアクション(@pxref{Choosing
+Window})は、さまざまなユーザーオプションにより変更が可能です。
 
 @defopt pop-up-windows
-If the value of this variable is non-@code{nil}, @code{display-buffer} is
-allowed to split an existing window to make a new window for displaying in.
-This is the default.
+この変数の値が非@code{nil}の場合、@code{display-buffer}は表示のために既存のバッファーを分割して新たなウィンドウの作成を許される。
 
-This variable is provided mainly for backward compatibility.  It is obeyed
-by @code{display-buffer} via a special mechanism in
-@code{display-buffer-fallback-action}, which only calls the action function
-@code{display-buffer-pop-up-window} (@pxref{Display Action Functions}) when
-the value is @code{nil}.  It is not consulted by
-@code{display-buffer-pop-up-window} itself, which the user may specify
-directly in @code{display-buffer-alist} etc.
+この変数は、主に後方互換のために提供される。値が@code{nil}のときは、アクション関数@code{display-buffer-pop-up-window}(@ref{Display
+Action
+Functions}を参照)を呼び出すだけの@code{display-buffer-fallback-action}内の特別なメカニズムを経由して、@code{display-buffer}にしたがう。この変数は、@code{display-buffer-alist}等により直接指定できる、@code{display-buffer-pop-up-window}自体からは参照されない。
 @end defopt
 
 @defopt split-window-preferred-function
-This variable specifies a function for splitting a window, in order to make
-a new window for displaying a buffer.  It is used by the
-@code{display-buffer-pop-up-window} action function to actually split the
-window (@pxref{Display Action Functions}).
+この変数は、バッファーを表示する新たなウィンドウを作成するための、ウィンドウを分割する関数を指定する。これは、実際にウィンドウを分割するために、アクション関数@code{display-buffer-pop-up-window}により使用される(@ref{Display
+Action Functions}を参照)。
 
-The default value is @code{split-window-sensibly}, which is documented
-below.  The value must be a function that takes one argument, a window, and
-return either a new window (which will be used to display the desired
-buffer) or @code{nil} (which means the splitting failed).
+デフォルト値は@code{split-window-sensibly}で、これは以下で記述する。値は、ウィンドウを引数とする関数でなければならず、(要求されたバッファーを表示するために使用されるであろう)新たなウィンドウ、または@code{nil}(分割の失敗を意味する)をリターンしなければならない。
 @end defopt
 
 @defun split-window-sensibly window
-This function tries to split @var{window}, and return the newly created
-window.  If @var{window} cannot be split, it returns @code{nil}.
+この関数は、@var{window}を分割して、新たに作成したウィンドウをリターンする。@var{window}を分割できなければ、@code{nil}をリターンする。
 
-This function obeys the usual rules that determine when a window may be
-split (@pxref{Splitting Windows}).  It first tries to split by placing the
-new window below, subject to the restriction imposed by
-@code{split-height-threshold} (see below), in addition to any other
-restrictions.  If that fails, it tries to split by placing the new window to
-the right, subject to @code{split-width-threshold} (see below).  If that
-fails, and the window is the only window on its frame, this function again
-tries to split and place the new window below, disregarding
-@code{split-height-threshold}.  If this fails as well, this function gives
-up and returns @code{nil}.
+この関数は、ウィンドウが分割できるかどうか判断する際の、通常のルールにしたがう(@ref{Splitting
+Windows}を参照)。最初にまず、@code{split-height-threshold}(以下参照)、およびその他が課す制約の元、新たなウィンドウが下になるように分割を試みる。これが失敗したら、@code{split-width-threshold}(以下参照)が課す制約の元、新たなウィンドウが右になるように分割を試みる。これが失敗して、かつそのウィンドウがそのフレームの唯一のウィンドウの場合、この関数は@code{split-height-threshold}を無視して、新たなウィンドウが下になるよう、再度分割を試みる。これも同様に失敗したら、この関数は諦めて@code{nil}をリターンする。
 @end defun
 
 @defopt split-height-threshold
-This variable, used by @code{split-window-sensibly}, specifies whether to
-split the window placing the new window below.  If it is an integer, that
-means to split only if the original window has at least that many lines.  If
-it is @code{nil}, that means not to split this way.
+これは@code{split-window-sensibly}により使用される変数であり、ウィンドウを分割して新たなウィンドウを下に配置するかどうかを指定する。整数の場合は、元のウィンドウが最低でもその行数なければ分割しないことを意味する。@code{nil}の場合は、この方法では分割しないことを意味する。
 @end defopt
 
 @defopt split-width-threshold
-This variable, used by @code{split-window-sensibly}, specifies whether to
-split the window placing the new window to the right.  If the value is an
-integer, that means to split only if the original window has at least that
-many columns.  If the value is @code{nil}, that means not to split this way.
+これは@code{split-window-sensibly}により使用される変数であり、ウィンドウを分割して新たなウィンドウを右に配置するかどうかを指定する。整数の場合は、元のウィンドウが最低でもその列数なければ分割しないことを意味する。@code{nil}の場合は、この方法では分割しないことを意味する。
 @end defopt
 
 @defopt pop-up-frames
-If the value of this variable is non-@code{nil}, that means
-@code{display-buffer} may display buffers by making new frames.  The default
-is @code{nil}.
+この変数の値が非@code{nil}の場合、新たにフレームを作成することにより@code{display-buffer}がバッファーを表示できることを意味する。デフォルトは@code{nil}。
 
-A non-@code{nil} value also means that when @code{display-buffer} is looking
-for a window already displaying @var{buffer-or-name}, it can search any
-visible or iconified frame, not just the selected frame.
+非@code{nil}値は、@code{display-buffer}がすでに@var{buffer-or-name}を表示しているウィンドウを探す際に、選択されたフレームだけでなく、可視およびアイコン化されたフレームを検索できることも意味する。
 
-This variable is provided mainly for backward compatibility.  It is obeyed
-by @code{display-buffer} via a special mechanism in
-@code{display-buffer-fallback-action}, which calls the action function
-@code{display-buffer-pop-up-frame} (@pxref{Display Action Functions})  if
-the value is non-@code{nil}.  (This is done before attempting to split a
-window.)  This variable is not consulted by
-@code{display-buffer-pop-up-frame} itself, which the user may specify
-directly in @code{display-buffer-alist} etc.
+この変数は主に、後方互換のために提供されている。値が非@code{nil}のときは、アクション関数@code{display-buffer-pop-up-frame}(@ref{Display
+Action
+Functions}を参照)を呼び出すだけの@code{display-buffer-fallback-action}内の特別なメカニズムを経由して、@code{display-buffer}にしたがう。この変数は、@code{display-buffer-alist}等により直接指定できる、@code{display-buffer-pop-up-window}自体からは参照されない(これはウィンドウの分割前に行われる)。この変数は、@code{display-buffer-alist}等により直接指定できる、@code{display-buffer-pop-up-frame}自体からは参照されない。
 @end defopt
 
 @defopt pop-up-frame-function
-This variable specifies a function for creating a new frame, in order to
-make a new window for displaying a buffer.  It is used by the
-@code{display-buffer-pop-up-frame} action function (@pxref{Display Action
-Functions}).
+この変数は、バッファーを表示する新たなウィンドウを作成するための、フレームを作成する関数を指定する。これは、アクション関数@code{display-buffer-pop-up-frame}により使用される(@ref{Display
+Action Functions}を参照)。
 
-The value should be a function that takes no arguments and returns a frame,
-or @code{nil} if no frame could be created.  The default value is a function
-that creates a frame using the parameters specified by
-@code{pop-up-frame-alist} (see below).
+値は、フレームまたはフレームを作成できなかった場合は@code{nil}をリターンする、引数をとらない関数であること。デフォルト値は、@code{pop-up-frame-alist}(以下参照)により指定されるパラメーターを使用してフレームを作成する関数である。
 @end defopt
 
 @defopt pop-up-frame-alist
-This variable holds an alist of frame parameters (@pxref{Frame Parameters}),
-which is used by the default function in @code{pop-up-frame-function} to
-make a new frame.  The default is @code{nil}.
+この変数は、フレームを新たに作成するための@code{pop-up-frame-function}のデフォルト関数により使用される、フレームパラメーター(@ref{Frame
+Parameters}を参照)のalistを保持する。デフォルトは@code{nil}。
 @end defopt
 
 @defopt same-window-buffer-names
-A list of buffer names for buffers that should be displayed in the selected
-window.  If a buffer's name is in this list, @code{display-buffer} handles
-the buffer by showing it in the selected window.
+選択されたウィンドウ内に表示されるべきバッファー名のリスト。このリスト内にバッファーの名前がある場合、@code{display-buffer}は選択されたウィンドウ内にそのバッファーを表示することにより、そのバッファーを処理する。
 @end defopt
 
 @defopt same-window-regexps
-A list of regular expressions that specify buffers that should be displayed
-in the selected window.  If the buffer's name matches any of the regular
-expressions in this list, @code{display-buffer} handles the buffer by
-showing it in the selected window.
+選択されたウィンドウ内に表示されるバッファーを指定する、正規表現のリスト。バッファー名がこのリスト内の正規表現のいずれかにマッチする場合、@code{display-buffer}は選択されたウィンドウ内にそのバッファーを表示することにより、そのバッファーを処理する。
 @end defopt
 
 @defun same-window-p buffer-name
-This function returns @code{t} if displaying a buffer named
-@var{buffer-name} with @code{display-buffer} would put it in the selected
-window.
+この関数は、@var{buffer-name}という名前のバッファーを@code{display-buffer}で表示する場合、それが選択されたウィンドウ内に表示されるバッファーなら@code{t}をリターンする。
 @end defun
 
 @node Window History
