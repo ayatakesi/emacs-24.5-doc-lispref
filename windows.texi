@@ -1234,7 +1234,8 @@ Modes}を参照)。
 グローバルバッファーリストと選択されたフレームのバッファーリストの両方の先頭に置かれる(@ref{Buffer
 List}を参照)。しかし、オプション引数@var{norecord}が非@code{nil}なら、これは行われない。
 
-@code{switch-to-buffer}が、選択されたウィンドウ内にバッファーを表示するのが不可能なことが時折ある。これは、選択されたウィンドウがミニバッファーウィンドウの場合や、選択されたウィンドウがそのバッファーにたいして特に専用な場合に発生する(@ref{Dedicated
+@code{switch-to-buffer}が、選択されたウィンドウ内にバッファーを表示するのが不可能なことが時折ある。これは、選択されたウィンドウがミニバッファーウィンドウの場合や、選択されたウィンドウがそのバッファーにたいして特に専用(strongly
+dedicated)な場合に発生する(@ref{Dedicated
 Windows}を参照)。この場合、このコマンドは@code{pop-to-buffer}(以下参照)を呼び出すことにより、通常は何か他のウィンドウにそのバッファーの表示を試みる。しかし、オプション引数が非@code{nil}なら、かわりにエラーをシグナルする。
 @end deffn
 
@@ -1647,55 +1648,32 @@ List}を参照)からバッファーの表示を試みる。
 @section Dedicated Windows
 @cindex dedicated window
 
-Functions for displaying a buffer can be told to not use specific windows by
-marking these windows as @dfn{dedicated} to their buffers.
-@code{display-buffer} (@pxref{Choosing Window}) never uses a dedicated
-window for displaying another buffer in it.  @code{get-lru-window} and
-@code{get-largest-window} (@pxref{Cyclic Window Ordering}) do not consider
-dedicated windows as candidates when their @var{dedicated} argument is
-non-@code{nil}.  The behavior of @code{set-window-buffer} (@pxref{Buffers
-and Windows}) with respect to dedicated windows is slightly different, see
-below.
+バッファーを表示する関数は、特定のウィンドウが、そのウィンドウのバッファーにたいして@dfn{専用(dedicated)}であるとマークすることにより、使用しないよう告げることができます。@code{display-buffer}(@ref{Choosing
+Window}を参照)は、他のバッファーの表示に、専用バッファーを決して使用しません。 and
+@code{get-largest-window}(@pxref{Cyclic Window
+Ordering})は、@var{dedicated}引数が非@code{nil}のときは、専用ウィンドウを候補とみなしません。専用ウィンドウにたいする配慮に関して、@code{set-window-buffer}(@ref{Buffers
+and Windows}を参照)の挙動は若干異なります。以下を参照してください。
 
-   Functions supposed to remove a buffer from a window or a window from a frame
-can behave specially when a window they operate on is dedicated.  We will
-distinguish three basic cases, namely where (1) the window is not the only
-window on its frame, (2) the window is the only window on its frame but
-there are other frames on the same terminal left, and (3)  the window is the
-only window on the only frame on the same terminal.
+   ウィンドウからバッファー、およびフレームからウィンドウを削除することを意図した関数は、処理するウィンドウが専用ウィンドウのときは特別な挙動を示す可能性があります。ここでは3つの基本ケース、すなわち(1)そのウィンドウがフレーム上で唯一のウィンドウの場合、(2)ウィンドウはフレーム上で唯一のウィンドウだが同一端末上に別のフレームがある場合、(3)そのウィンドウが同一端末上で唯一のフレームの唯一のウィンドウの場合、を明確に区別することにします。
 
 @c FIXME: Does replace-buffer-in-windows _delete_ a window in case (1)?
-   In particular, @code{delete-windows-on} (@pxref{Deleting Windows})  handles
-case (2) by deleting the associated frame and case (3) by showing another
-buffer in that frame's only window.  The function
-@code{replace-buffer-in-windows} (@pxref{Buffers and Windows}) which is
-called when a buffer gets killed, deletes the window in case (1) and behaves
-like @code{delete-windows-on} otherwise.
+   特に、@code{delete-windows-on}(@ref{Deleting
+Windows}を参照)は関連するフレームを削除する際にケース(2)を、フレーム上で唯一のウィンドウに他のバッファーを表示する際にケース(3)を処理します。バッファーがキルされる際に呼び出される関数@code{replace-buffer-in-windows}(@pxref{Buffers
+and Windows})は、ケース(1)ではウィンドウを削除して、それ以外では@code{delete-windows-on}のように振る舞います。
 
-   When @code{bury-buffer} (@pxref{Buffer List}) operates on the selected
-window (which shows the buffer that shall be buried), it handles case (2) by
-calling @code{frame-auto-hide-function} (@pxref{Quitting Windows}) to deal
-with the selected frame.  The other two cases are handled as with
-@code{replace-buffer-in-windows}.
+   @code{bury-buffer}(@ref{Buffer
+List}を参照)が選択されたウィンドウを操作する際は、選択されたフレームを処理するために、@code{frame-auto-hide-function}(@ref{Quitting
+Windows}を参照)を呼び出すことにより、ケース(2)を取り扱います。他の2つのケースは、@code{replace-buffer-in-windows}と同様に処理されます。
 
 @defun window-dedicated-p &optional window
-This function returns non-@code{nil} if @var{window} is dedicated to its
-buffer and @code{nil} otherwise.  More precisely, the return value is the
-value assigned by the last call of @code{set-window-dedicated-p} for
-@var{window}, or @code{nil} if that function was never called with
-@var{window} as its argument.  The default for @var{window} is the selected
-window.
+この関数は、@var{window}がそのバッファーにたいして専用なら非@code{nil}、それ以外は@code{nil}をリターンする。より正確には、最後の@code{set-window-dedicated-p}呼び出しで割り当てられた値、または@code{set-window-dedicated-p}が@var{window}を引数として呼び出されたことがない場合は@code{nil}がリターン値となる。@var{window}のデフォルトは、選択されたウィンドウである。
 @end defun
 
 @defun set-window-dedicated-p window flag
-This function marks @var{window} as dedicated to its buffer if @var{flag} is
-non-@code{nil}, and non-dedicated otherwise.
+この関数は、@var{flag}が非@code{nil}なら@var{window}がそのバッファーに専用とマークし、それ以外は非専用とマークする。
 
-As a special case, if @var{flag} is @code{t}, @var{window} becomes
-@dfn{strongly} dedicated to its buffer.  @code{set-window-buffer} signals an
-error when the window it acts upon is strongly dedicated to its buffer and
-does not already display the buffer it is asked to display.  Other functions
-do not treat @code{t} differently from any non-@code{nil} value.
+特別なケースとして、@var{flag}が@code{t}の場合、@var{window}はそのバッファーにたいして@dfn{特に専用(strongly
+dedicated)}となる。@code{set-window-buffer}は、処理対象のウィンドウが特に専用のウィンドウで、かつ表示を要求されたバッファーが表示済みでない場合は、エラーをシグナルする。その他の関数は、@code{t}を他の非@code{nil}値と区別して扱わない。
 @end defun
 
 
