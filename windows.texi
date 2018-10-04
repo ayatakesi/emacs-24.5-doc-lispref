@@ -1749,58 +1749,38 @@ Frames}を参照)、フレームを変更せずに残す@code{ignore}、また�
 @cindex position in window
 @cindex point in window
 
-  Each window has its own value of point (@pxref{Point}), independent of the
-value of point in other windows displaying the same buffer.  This makes it
-useful to have multiple windows showing one buffer.
+  それぞれのウィンドウは独自のポイント値(@ref{Point}を参照)をもっており、同じバッファーを表示する他のウィンドウの間でも、それぞれのポイント値は独立しています。これは、1つのバッファーを複数ウィンドウで表示するのに有用です。
 
 @itemize @bullet
 @item
-The window point is established when a window is first created; it is
-initialized from the buffer's point, or from the window point of another
-window opened on the buffer if such a window exists.
+ウィンドウポイント(window
+point)は、ウィンドウが最初に作成されたときに設定される。ウィンドウポイントはバッファーのポイント、またはそのバッファーからオープンされたウィンドウがあればそのウィンドウのウィンドウポイントより初期化される。
 
 @item
-Selecting a window sets the value of point in its buffer from the window's
-value of point.  Conversely, deselecting a window sets the window's value of
-point from that of the buffer.  Thus, when you switch between windows that
-display a given buffer, the point value for the selected window is in effect
-in the buffer, while the point values for the other windows are stored in
-those windows.
+ウィンドウ選択により、ウィンドウのポイント値からそのバッファーのポイント値がセットされる。反対に、ウィンドウの非選択により、ウィンドウのポイント値にバッファーのポイント値がセットされる。つまり、与えられたバッファーを表示するウィンドウ間で切り替えを行ったときは、そのバッファーでは選択されたウィンドウのポイント値が効力をもつが、他のウィンドウのポイント値はそのウィンドウに格納される。
 
 @item
-As long as the selected window displays the current buffer, the window's
-point and the buffer's point always move together; they remain equal.
+選択されたウィンドウがカレントバッファーの表示を続ける限り、そのウィンドウのポイントとバッファーのポイントは常に同時に移動し、等しくあり続ける。
 @end itemize
 
 @cindex cursor
-   As far as the user is concerned, point is where the cursor is, and when the
-user switches to another buffer, the cursor jumps to the position of point
-in that buffer.
+   ユーザーが関与し続ける限りポイントはカーソル位置にあり、ユーザーが他のバッファーに切り替えた際には、カーソルはそのバッファーのポイント位置にジャンプします。
 
 @defun window-point &optional window
-This function returns the current position of point in @var{window}.  For a
-nonselected window, this is the value point would have (in that window's
-buffer) if that window were selected.  The default for @var{window} is the
-selected window.
+この関数は、@var{window}内のカレントのポイント位置をリターンする。選択されていないウィンドウにたいしては、そのウィンドウが選択された場合の、(そのウィンドウのバッファーの)ポイント値である。@var{window}にたいするデフォルトは、選択されたウィンドウである。
 
-When @var{window} is the selected window, the value returned is the value of
-point in that window's buffer.  Strictly speaking, it would be more correct
-to return the ``top-level'' value of point, outside of any
-@code{save-excursion} forms.  But that value is hard to find.
+@var{window}が選択されたウィンドウのときのリターン値は、そのウィンドウのバッファーのポイント値である。厳密には、すべての@code{save-excursion}フォームの外側の``トップレベル''のポイント値のほうが、より正確であろう。しかし、この値は見つかるのが困難である。
 @end defun
 
 @defun set-window-point window position
-This function positions point in @var{window} at position @var{position} in
-@var{window}'s buffer.  It returns @var{position}.
+この関数は、@var{window}内のポイントを、@var{window}のバッファー内の位置@var{position}に配置する。リターン値は@var{position}である。
 
-If @var{window} is selected, this simply does @code{goto-char} in
-@var{window}'s buffer.
+@var{window}が選択されている場合は、単に@var{window}内で@code{goto-char}を行う。
 @end defun
 
 @defvar window-point-insertion-type
-This variable specifies the marker insertion type (@pxref{Marker Insertion
-Types}) of @code{window-point}.  The default is @code{nil}, so
-@code{window-point} will stay behind text inserted there.
+この変数は、@code{window-point}のマーカー挿入型(@ref{Marker Insertion
+Types}を参照)を指定する。デフォルトは@code{nil}で、@code{window-point}は挿入されたテキストの後に留まるだろう。
 @end defvar
 
 @node Window Start and End
