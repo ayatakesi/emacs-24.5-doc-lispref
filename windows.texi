@@ -1788,85 +1788,43 @@ Types}を参照)を指定する。デフォルトは@code{nil}で、@code{window
 @cindex window start position
 @cindex display-start position
 
-  Each window maintains a marker used to keep track of a buffer position that
-specifies where in the buffer display should start.  This position is called
-the @dfn{display-start} position of the window (or just the @dfn{start}).
-The character after this position is the one that appears at the upper left
-corner of the window.  It is usually, but not inevitably, at the beginning
-of a text line.
+  ウィンドウはそれぞれ、バッファー位置を追跡するために、バッファー内で表示を開始すべき位置を指定するマーカーを保守しています。この位置は、そのウィンドウの@dfn{display-start(表示開始)}、または単に@dfn{start(開始)}と呼ばれます。この位置の後の文字が、ウィンドウの左上隅に表示される文字となります。これは通常はテキスト行の先頭になりますが、必須ではありません。
 
-  After switching windows or buffers, and in some other cases, if the window
-start is in the middle of a line, Emacs adjusts the window start to the
-start of a line.  This prevents certain operations from leaving the window
-start at a meaningless point within a line.  This feature may interfere with
-testing some Lisp code by executing it using the commands of Lisp mode,
-because they trigger this readjustment.  To test such code, put it into a
-command and bind the command to a key.
+  ウィンドウやバッファーを切り替えた後、およびいくつかのケースにおいては、ウィンドウが行の途中で開始される場合は、Emacsがィンドウの開始を行の開始に調整します。これは、行中で無意味な位置のウィンドウ開始のまま、特定の操作が行われるのを防ぐためです。この機能は、Lispモードのコマンドを使用して実行することによりある種のLispコードをテストする場合は、それらのコマンドがこの再調整を誘発するために邪魔になるかもしれません。そのようなコードをテストするためには、それをコマンド内に記述して、何らかのキーにバインドしてください。
 
 @defun window-start &optional window
 @cindex window top line
-This function returns the display-start position of window @var{window}.  If
-@var{window} is @code{nil}, the selected window is used.
+この関数は、ウィンドウ@var{window}の表示開始位置をリターンする。@var{window}が@code{nil}なら、選択されたウィンドウが使用される。
 
-When you create a window, or display a different buffer in it, the
-display-start position is set to a display-start position recently used for
-the same buffer, or to @code{point-min} if the buffer doesn't have any.
+ウィンドウを作成したり、他のバッファーをウィンドウ内に表示する際、display-start位置は同じバッファーにたいしてもっとも最近に使用されたdisplay-start位置か、そのバッファーがそれをもたなければ@code{point-min}にセットされる。
 
-Redisplay updates the window-start position (if you have not specified it
-explicitly since the previous redisplay)---to make sure point appears on the
-screen.  Nothing except redisplay automatically changes the window-start
-position; if you move point, do not expect the window-start position to
-change in response until after the next redisplay.
+ポイントがスクリーン上に確実に現れるように、再表示はwindow-start位置を更新する(前の再表示以降にwindow-start位置を明示的に指定していない場合)。再表示以外に、window-start位置を自動的に変更するものはない。ポイントを移動した場合は、次の再表示後までポイントの移動に応じてwindow-startが変更されるのを期待してはならない。
 @end defun
 
 @cindex window end position
 @defun window-end &optional window update
-This function returns the position where display of its buffer ends in
-@var{window}.  The default for @var{window} is the selected window.
+この関数は、@var{window}のバッファーの最後を表示する位置をリターンする。@var{window}にたいするデフォルトは、選択されたウィンドウである。
 
-Simply changing the buffer text or moving point does not update the value
-that @code{window-end} returns.  The value is updated only when Emacs
-redisplays and redisplay completes without being preempted.
+バッファーテキストの単なる変更やポイントの移動では、@code{window-end}がリターンする値は更新されない。この値は、Emacsが再表示を行い、それが妨害されることなく再表示が完了したときのみ更新される。
 
-If the last redisplay of @var{window} was preempted, and did not finish,
-Emacs does not know the position of the end of display in that window.  In
-that case, this function returns @code{nil}.
+@var{window}の最後の再表示が妨害されて完了しなかった場合、Emacsはそのウィンドウ内の表示のend位置を知らない。この場合、関数は@code{nil}をリターンする。
 
-If @var{update} is non-@code{nil}, @code{window-end} always returns an
-up-to-date value for where display ends, based on the current
-@code{window-start} value.  If a previously saved value of that position is
-still valid, @code{window-end} returns that value; otherwise it computes the
-correct value by scanning the buffer text.
+@var{update}が非@code{nil}の場合、@code{window-end}は@code{window-start}のカレント値にもとづき、どこが表示のendかにたいして最新の値をリターンする。以前に保存された位置の値がまだ有効なら、@code{window-end}はその値をリターンする。それ以外は、バッファーのテキストをスキャンして、正しい値を計算する。
 
-Even if @var{update} is non-@code{nil}, @code{window-end} does not attempt
-to scroll the display if point has moved off the screen, the way real
-redisplay would do.  It does not alter the @code{window-start} value.  In
-effect, it reports where the displayed text will end if scrolling is not
-required.
+たとえ@var{update}が非@code{nil}でも、@code{window-end}はポイントが画面外に移動していても、実際の再表示が行うような表示のスクロールを試みない。これは、@code{window-start}の値を変更しない。これは実際には、スクロールが要求されない場合の表示されたテキストのendがどこかを報告する。
 @end defun
 
 @defun set-window-start window position &optional noforce
-This function sets the display-start position of @var{window} to
-@var{position} in @var{window}'s buffer.  It returns @var{position}.
+この関数は、@var{window}のdisplay-start位置を、@var{window}のバッファーの@var{position}にセットする。リターン値は、@var{position}である。
 
-The display routines insist that the position of point be visible when a
-buffer is displayed.  Normally, they change the display-start position (that
-is, scroll the window) whenever necessary to make point visible.  However,
-if you specify the start position with this function using @code{nil} for
-@var{noforce}, it means you want display to start at @var{position} even if
-that would put the location of point off the screen.  If this does place
-point off screen, the display routines move point to the left margin on the
-middle line in the window.
+表示ルーチンは、バッファーが表示されたときに、ポイント位置が可視になることを強要する。通常これらは、ポイントを可視にするために必要なときは常に、display-start位置を変更(つまりウィンドウをスクロール)する。しかし、この関数で@var{noforce}に@code{nil}を使用してstart位置を指定した場合は、たとえポイントを画面外になるような場所に配したとしても、@var{position}での表示開始を望んでいることを意味する。これによりポイントが画面外に配された場合、表示ルーチンはポイントをウィンドウ内の中央行の左マージンに移動する。
 
-For example, if point @w{is 1} and you set the start of the window @w{to
-37}, the start of the next line, point will be ``above'' the top of the
-window.  The display routines will automatically move point if it is still 1
-when redisplay occurs.  Here is an example:
+たとえば、ポイントが@w{1}のときにウィンドウのstartを次行の開始@w{37}にセットした場合、ポイントはウィンドウの最上端の``上''になるだろう。表示ルーチンは、再表示が発生したときにポイントが1のままなら、ポイントを動かすことになる。以下に例を示す:
 
 @example
 @group
-;; @r{Here is what @samp{foo} looks like before executing}
-;;   @r{the @code{set-window-start} expression.}
+;; @r{以下は式@code{set-window-start}実行前}
+;;   @r{@samp{foo}}の様子である
 @end group
 
 @group
@@ -1891,8 +1849,8 @@ when redisplay occurs.  Here is an example:
 @end group
 
 @group
-;; @r{Here is what @samp{foo} looks like after executing}
-;;   @r{the @code{set-window-start} expression.}
+;; @r{以下は式@code{set-window-start}実行後の}
+;;   @r{@samp{foo}の様子である}
 ---------- Buffer: foo ----------
 2
 3
@@ -1903,43 +1861,27 @@ when redisplay occurs.  Here is an example:
 @end group
 @end example
 
-If @var{noforce} is non-@code{nil}, and @var{position} would place point off
-screen at the next redisplay, then redisplay computes a new window-start
-position that works well with point, and thus @var{position} is not used.
+@var{noforce}が非@code{nil}で、かつ次回の再表示でポイントが画面外に配される場合、再表示はポイントと協調して機能する位置となるような新たなwindow-startを計算するので、@var{position}は使用されない。
 @end defun
 
 @defun pos-visible-in-window-p &optional position window partially
-This function returns non-@code{nil} if @var{position} is within the range
-of text currently visible on the screen in @var{window}.  It returns
-@code{nil} if @var{position} is scrolled vertically out of view.  Locations
-that are partially obscured are not considered visible unless
-@var{partially} is non-@code{nil}.  The argument @var{position} defaults to
-the current position of point in @var{window}; @var{window}, to the selected
-window.  If @var{position} is @code{t}, that means to check the last visible
-position in @var{window}.
+この関数は、@var{window}内の@var{position}が画面上カレントで可視のテキスト範囲内にある場合は、非@code{nil}をリターンし、@var{position}が表示範囲のスクロール外にある場合は、@code{nil}をリターンする。@var{partially}が@code{nil}なら、部分的に不明瞭な位置は可視とは判断されない。引数@var{position}のデフォルトは、@var{window}内のポイントのカレント位置で、@var{window}のデフォルトは選択されたウィンドウである。@var{position}が@code{t}なら、それは@var{window}の最後に可視だった位置をチェックすることを意味する。
 
-This function considers only vertical scrolling.  If @var{position} is out
-of view only because @var{window} has been scrolled horizontally,
-@code{pos-visible-in-window-p} returns non-@code{nil} anyway.
-@xref{Horizontal Scrolling}.
+この関数は、垂直スクロールだけを考慮する。
+This function considers only vertical scrolling.
+@var{window}が水平にスクロールされたことだけの理由で@var{position}が表示範囲外の場合は、いずれにせよ@code{pos-visible-in-window-p}は非@code{nil}をリターンする。@ref{Horizontal
+Scrolling}を参照のこと。
 
-If @var{position} is visible, @code{pos-visible-in-window-p} returns
-@code{t} if @var{partially} is @code{nil}; if @var{partially} is
-non-@code{nil}, and the character following @var{position} is fully visible,
-it returns a list of the form @code{(@var{x} @var{y})}, where @var{x} and
-@var{y} are the pixel coordinates relative to the top left corner of the
-window; otherwise it returns an extended list of the form @code{(@var{x}
-@var{y} @var{rtop} @var{rbot} @var{rowh} @var{vpos})}, where @var{rtop} and
-@var{rbot} specify the number of off-window pixels at the top and bottom of
-the row at @var{position}, @var{rowh} specifies the visible height of that
-row, and @var{vpos} specifies the vertical position (zero-based row number)
-of that row.
+@var{position}が可視で@var{partially}が@code{nil}なら、@code{pos-visible-in-window-p}は@code{t}をリターンする。@var{partially}が非@code{nil}で@var{position}以降の文字が完全に可視の場合は、@code{(@var{x}
+@var{y})}という形式のリストをリターンする。ここで@var{x}と@var{y}は、ウィンドウの左上隅からの相対的なピクセル座標である。@var{position}以降の文字が完全に可視ではない場合は、拡張された形式のリスト@code{(@var{x}
+@var{y} @var{rtop} @var{rbot} @var{rowh}
+@var{vpos})}をリターンする。ここで@var{rtop}と@var{rbot}は@var{position}でウィンドウ外となった上端と下端のピクセル数、@var{rowh}はその行の可視な部分の高さ、@var{vpos}はその行の垂直位置(0基準の行番号)を指定する。
 
-Here is an example:
+以下に例を示す:
 
 @example
 @group
-;; @r{If point is off the screen now, recenter it now.}
+;; @r{ポイントが画面外ならrecenterする}
 (or (pos-visible-in-window-p
      (point) (selected-window))
     (recenter 0))
@@ -1948,27 +1890,13 @@ Here is an example:
 @end defun
 
 @defun window-line-height &optional line window
-This function returns the height of text line @var{line} in @var{window}.
-If @var{line} is one of @code{header-line} or @code{mode-line},
-@code{window-line-height} returns information about the corresponding line
-of the window.  Otherwise, @var{line} is a text line number starting from
-0.  A negative number counts from the end of the window.  The default for
-@var{line} is the current line in @var{window}; the default for @var{window}
-is the selected window.
+この関数は、@var{window}内のテキスト行@var{line}の高さをリターンする。@var{line}が@code{header-line}、@code{mode-line}、@code{window-line-height}のいずれかの場合は、そのウィンドウの対応する行についての情報をリターンする。それ以外では、@var{line}は0から始まるテキスト行番号である。負数の場合は、そのウィンドウのendから数える。@var{line}にたいするデフォルトは、@var{window}内のカレント行、@var{window}にたいするデフォルトは、選択されたウィンドウである。
 
-If the display is not up to date, @code{window-line-height} returns
-@code{nil}.  In that case, @code{pos-visible-in-window-p} may be used to
-obtain related information.
+表示が最新でなければ、@code{window-line-height}は@code{nil}をリターンする。その場合は、関連する情報を入手するために、@code{pos-visible-in-window-p}を使用できる。
 
-If there is no line corresponding to the specified @var{line},
-@code{window-line-height} returns @code{nil}.  Otherwise, it returns a list
-@code{(@var{height} @var{vpos} @var{ypos} @var{offbot})}, where @var{height}
-is the height in pixels of the visible part of the line, @var{vpos} and
-@var{ypos} are the vertical position in lines and pixels of the line
-relative to the top of the first text line, and @var{offbot} is the number
-of off-window pixels at the bottom of the text line.  If there are
-off-window pixels at the top of the (first)  text line, @var{ypos} is
-negative.
+指定された@var{line}に対応する行がなければ、@code{window-line-height}は@code{nil}をリターンする。それ以外では、リスト@code{(@var{height}
+@var{vpos} @var{ypos}
+@var{offbot})}をリターンする。ここで@var{height}はその行の可視部分のピクセル高さ、@var{vpos}と@var{ypos}は最初のテキスト行上端からのその行への相対的な垂直位置の行数とピクセル数、@var{offbot}はそのテキスト行下端のウィンドウ外のピクセル数である。(最初の)テキスト行上端にウィンドウ外のピクセルがある場合、@var{ypos}は負となる。
 @end defun
 
 @node Textual Scrolling
