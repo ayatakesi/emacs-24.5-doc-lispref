@@ -2280,46 +2280,26 @@ loop''で上から下に読み取るため、水平スクロールの効果は�
 @cindex window configurations
 @cindex saving window information
 
-A @dfn{window configuration} records the entire layout of one frame---all
-windows, their sizes, which buffers they contain, how those buffers are
-scrolled, and their values of point and the mark; also their fringes,
-margins, and scroll bar settings.  It also includes the value of
-@code{minibuffer-scroll-window}.  As a special exception, the window
-configuration does not record the value of point in the selected window for
-the current buffer.
+@dfn{ウィンドウ構成(window configuration)}とは1つのフレーム上全体のレイアウト ---
+すべてのウィンドウ、およびそれらのサイズ、どんなバッファーを含んでいるか、それらのバッファーがスクロールされる方法、ポイント値とマーク値を記録し、フリンジ、マージン、スクロールバーのセッティングも記録します。これには@code{minibuffer-scroll-window}の値も含まれます。特別な例外として、ウィンドウ構成には選択されたウィンドウのカレントバッファーのポイント値は記録されません。
 
-  You can bring back an entire frame layout by restoring a previously saved
-window configuration.  If you want to record the layout of all frames
-instead of just one, use a frame configuration instead of a window
-configuration.  @xref{Frame Configurations}.
+  以前に保存されたウィンドウ構成をリストアすることにより、フレーム全体のレイアウトを取り戻すことができます。1つだけではなくすべてのフレームのレイアウトを記録したい場合は、ウィンドウ構成のかわりに、フレーム構成(frame
+configuration)を使用します。@ref{Frame Configurations}を参照してください。
 
 @defun current-window-configuration &optional frame
-This function returns a new object representing @var{frame}'s current window
-configuration.  The default for @var{frame} is the selected frame.  The
-variable @code{window-persistent-parameters} specifies which window
-parameters (if any) are saved by this function.  @xref{Window Parameters}.
+この関数は、@var{frame}のカレントのウィンドウ構成を表す新たなオブジェクトをリターンする。@var{frame}のデフォルトは選択されたフレームである。変数@code{window-persistent-parameters}は、この関数により保存されるウィンドウパラメーター(もしあれば)を指定する。@ref{Window
+Parameters}を参照のこと。
 @end defun
 
 @defun set-window-configuration configuration
-This function restores the configuration of windows and buffers as specified
-by @var{configuration}, for the frame that @var{configuration} was created
-for.
+この関数は、@var{configuration}が作成されたフレームにたいして、ウィンドウとバッファーの構成を@var{configuration}で指定された構成にリストアする。
 
-The argument @var{configuration} must be a value that was previously
-returned by @code{current-window-configuration}.  The configuration is
-restored in the frame from which @var{configuration} was made, whether that
-frame is selected or not.  This always counts as a window size change and
-triggers execution of the @code{window-size-change-functions} (@pxref{Window
-Hooks}), because @code{set-window-configuration} doesn't know how to tell
-whether the new configuration actually differs from the old one.
+引数@var{configuration}は、以前に@code{current-window-configuration}がリターンした値でなければならない。この構成は、そのフレームが選択されているか否かに関わらず、@var{configuration}が作成時のフレームから、当該フレームにリストアされる。これは常にウィンドウのサイズ変更とみなされ、@code{window-size-change-functions}(@ref{Window
+Hooks}を参照)の実行をトリガーする。なぜなら、@code{set-window-configuration}は、新たな構成が古い構成と実際に異なるかを示す方法を知らないからである。
 
-If the frame from which @var{configuration} was saved is dead, all this
-function does is restore the three variables @code{window-min-height},
-@code{window-min-width} and @code{minibuffer-scroll-window}.  In this case,
-the function returns @code{nil}.  Otherwise, it returns @code{t}.
+@var{configuration}が保存されたフレームが死んでいる(生きていない)場合、この関数が行うのは3つの変数@code{window-min-height}、@code{window-min-width}、@code{minibuffer-scroll-window}のリストアだけである。この場合、関数は@code{nil}をリターンし、それ以外は@code{t}をリターンする。
 
-Here is a way of using this function to get the same effect as
-@code{save-window-excursion}:
+以下は、@code{save-window-excursion}と同様な効果を得るためにこの関数を使用する例である:
 
 @example
 @group
@@ -2333,87 +2313,50 @@ Here is a way of using this function to get the same effect as
 @end defun
 
 @defmac save-window-excursion forms@dots{}
-This macro records the window configuration of the selected frame, executes
-@var{forms} in sequence, then restores the earlier window configuration.
-The return value is the value of the final form in @var{forms}.
+このマクロは、選択されたフレームのウィンドウ構成を記録して、@var{forms}を順に実行してから、以前のウィンドウ構成をリストアする。リターン値は、@var{forms}内の最後のフォームの値である。
 
-Most Lisp code should not use this macro; @code{save-selected-window} is
-typically sufficient.  In particular, this macro cannot reliably prevent the
-code in @var{forms} from opening new windows, because new windows might be
-opened in other frames (@pxref{Choosing Window}), and
-@code{save-window-excursion} only saves and restores the window
-configuration on the current frame.
+Lispコードのほとんどは、このマクロを使用すべきではない。大抵は@code{save-selected-window}で十分である。特に、このマクロは@var{forms}内で新たなウィンドウをオープンするコードを確実に防ぐことができず、新たなウィンドウは別のフレーム内でオープンされるかもしれないが(@ref{Choosing
+Window}を参照)、@code{save-window-excursion}が保存およびリストアするのは、カレントフレーム上のウィンドウ構成だけだからである。
 
-Do not use this macro in @code{window-size-change-functions}; exiting the
-macro triggers execution of @code{window-size-change-functions}, leading to
-an endless loop.
+このマクロを@code{window-size-change-functions}内で使用してはならない。このマクロをexitすることにより@code{window-size-change-functions}の実行がトリガーされるが、これは無限ループを引き起こす。
 @end defmac
 
 @defun window-configuration-p object
-This function returns @code{t} if @var{object} is a window configuration.
+この関数は、@var{object}がウィンドウ構成なら@code{t}をリターンする。
 @end defun
 
 @defun compare-window-configurations config1 config2
-This function compares two window configurations as regards the structure of
-windows, but ignores the values of point and mark and the saved scrolling
-positions---it can return @code{t} even if those aspects differ.
+この関数は、ポイント値、マーク値、保存されたスクロール位置を無視して(これらの観点が異なっても@code{t}をリターンし得る)、ウィンドウ構造の観点から2つのウィンドウ構成を比較する。
 
-The function @code{equal} can also compare two window configurations; it
-regards configurations as unequal if they differ in any respect, even a
-saved point or mark.
+関数@code{equal}も2つのウィンドウ構成を比較できる。これはすべての点から、たとえ1つでも異なるものがあれば等しい構成とはみなさず、たとえ保存されたポイント値やマーク値が異なるだけでも、等しくないとみなす。
 @end defun
 
 @defun window-configuration-frame config
-This function returns the frame for which the window configuration
-@var{config} was made.
+この関数は、ウィンドウ構成@var{config}が作成されたフレームをリターンする。
 @end defun
 
-  Other primitives to look inside of window configurations would make sense,
-but are not implemented because we did not need them.  See the file
-@file{winner.el} for some more operations on windows configurations.
+  ウィンドウ構成の内部を調べる他のプリミティブも有用かもしれませんが、わたしたちはこれらを必要としないので実装されていません。ウィンドウ構成にたいしてより多くの操作を知りたい場合は、ファイル@file{winner.el}を参照してください。
 
-  The objects returned by @code{current-window-configuration} die together
-with the Emacs process.  In order to store a window configuration on disk
-and read it back in another Emacs session, you can use the functions
-described next.  These functions are also useful to clone the state of a
-frame into an arbitrary live window (@code{set-window-configuration}
-effectively clones the windows of a frame into the root window of that very
-frame only).
+  @code{current-window-configuration}がリターンするオブジェクトは、Emacsプロセスとともに終焉します。ウィンドウ構成をディスク上に格納して、それを別のEmacsセッションに読み戻すために、次に説明する関数を使用できます。これらの関数は、フレームの状態を任意の生きたウィンドウにクローンする場合も有用です(@code{set-window-configuration}はフレームのウィンドウを、そのフレームのルートウィンドウだけに効果的にクローンする)。
 
 @cindex window state
 @defun window-state-get &optional window writable
-This function returns the state of @var{window} as a Lisp object.  The
-argument @var{window} must be a valid window and defaults to the root window
-of the selected frame.
+この関数は、@var{window}の状態をLispオブジェクトとしてリターンする。引数@var{window}は有効なウィンドウでなければならず、デフォルトは選択されたフレームのルートウィンドウである。
 
-If the optional argument @var{writable} is non-@code{nil}, this means to not
-use markers for sampling positions like @code{window-point} or
-@code{window-start}.  This argument should be non-@code{nil} when the state
-will be written to disk and read back in another session.
+オプション引数@var{writable}が非@code{nil}の場合、それは@code{window-point}や@code{window-start}のようなサンプリング位置にたいするマーカーを使用しないことを意味する。この状態をディスクに書き込んで別のセッションに読み戻す場合は、この引数は非@code{nil}であること。
 
-Together, the argument @var{writable} and the variable
-@code{window-persistent-parameters} specify which window parameters are
-saved by this function.  @xref{Window Parameters}.
+引数@var{writable}と変数@code{window-persistent-parameters}の両方で、この関数によりどのウィンドウパラメーターが保存されるかを指定する。@ref{Window
+Parameters}を参照のこと。
 @end defun
 
-The value returned by @code{window-state-get} can be used in the same
-session to make a clone of a window in another window.  It can be also
-written to disk and read back in another session.  In either case, use the
-following function to restore the state of the window.
+@code{window-state-get}によりリターンされる値は、同一セッション内の他のウィンドウ内にあるウィンドウのクローンを作成するために使用できます。これはディスクに書き込んで、別のセッションに読み戻すこともできます。どちらの場合でも、ウィンドウの状態をリストアするためには以下の関数を使用します。
 
 @defun window-state-put state &optional window ignore
-This function puts the window state @var{state} into @var{window}.  The
-argument @var{state} should be the state of a window returned by an earlier
-invocation of @code{window-state-get}, see above.  The optional argument
-@var{window} can be either a live window or an internal window
-(@pxref{Windows and Frames}) and defaults to the selected one.  If
-@var{window} is not live, it is replaced by a live window before putting
-@var{state} into it.
+この関数は、ウィンドウ状態@var{state}を@var{window}内にputする。引数@var{state}は以前に呼び出した@code{window-state-get}がリターンしたウィンドウ状態であること。オプション引数@var{window}には生きたウィンドウ、または内部ウィンドウ(@ref{Windows
+and
+Frames}を参照)のいずれかを指定でき、デフォルトは選択されたウィンドウである。@var{window}が生きていない場合は、@var{state}をputする前に生きたウィンドウに置き換える。
 
-If the optional argument @var{ignore} is non-@code{nil}, it means to ignore
-minimum window sizes and fixed-size restrictions.  If @var{ignore} is
-@code{safe}, this means windows can get as small as one line and/or two
-columns.
+オプション引数@var{ignore}が非@code{nil}の場合、それは最小ウィンドウサイズと固定サイズの制限を無視することを意味する。@var{ignore}が@code{safe}なら、それは1行および/または2列まで、できる限り小さくできることを意味する。
 @end defun
 
 
