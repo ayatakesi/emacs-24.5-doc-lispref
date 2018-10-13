@@ -304,41 +304,29 @@ transparency)をサポートする場合には、パラメーター@code{alpha}�
 @node Parameter Access
 @subsection Access to Frame Parameters
 
-These functions let you read and change the parameter values of a frame.
+以下の関数により、フレームのパラメーター値の読み取りと変更ができます。
 
 @defun frame-parameter frame parameter
-This function returns the value of the parameter @var{parameter} (a symbol)
-of @var{frame}.  If @var{frame} is @code{nil}, it returns the selected
-frame's parameter.  If @var{frame} has no setting for @var{parameter}, this
-function returns @code{nil}.
+この関数は、@var{frame}のパラメーター@var{parameter}(シンボル)の値をリターンする。@var{frame}が@code{nil}なら、選択されたフレームのパラメーターをリターンする。@var{frame}が@var{parameter}にたいするセッティングをもたない場合、この関数は@code{nil}をリターンする。
 @end defun
 
 @defun frame-parameters &optional frame
-The function @code{frame-parameters} returns an alist listing all the
-parameters of @var{frame} and their values.  If @var{frame} is @code{nil} or
-omitted, this returns the selected frame's parameters
+関数@code{frame-parameters}は、@var{frame}のすべてのパラメーターとその値をリストするalistをリターンする。@var{frame}が省略または@code{nil}の場合は、選択されたフレームのパラメーターをリターンする。
 @end defun
 
 @defun modify-frame-parameters frame alist
-This function alters the parameters of frame @var{frame} based on the
-elements of @var{alist}.  Each element of @var{alist} has the form
-@code{(@var{parm} . @var{value})}, where @var{parm} is a symbol naming a
-parameter.  If you don't mention a parameter in @var{alist}, its value
-doesn't change.  If @var{frame} is @code{nil}, it defaults to the selected
-frame.
+この関数は、@var{alist}の要素にもとづきフレーム@var{frame}のパラメーターを変更する。@var{alist}内の要素はそれぞれ@code{(@var{parm}
+. @var{value})}という形式をもち、ここで@var{parm}はパラメーターを名付けるシンボルである。
+@var{alist}内に指定されないパラメーターの値は変更されない。@var{frame}が@code{nil}の場合のデフォルトは、選択されたフレームである。
 @end defun
 
 @defun set-frame-parameter frame parm value
-This function sets the frame parameter @var{parm} to the specified
-@var{value}.  If @var{frame} is @code{nil}, it defaults to the selected
-frame.
+この関数は、フレームパラメーター@var{parm}に、指定された@var{value}をセットする。@var{frame}が@code{nil}の場合のデフォルトは、選択されたフレームである。
 @end defun
 
 @defun modify-all-frames-parameters alist
-This function alters the frame parameters of all existing frames according
-to @var{alist}, then modifies @code{default-frame-alist} (and, if necessary,
-@code{initial-frame-alist}) to apply the same parameter values to frames
-that will be created henceforth.
+この関数は、
+@var{alist}に応じて既存のフレームすべてのフレームパラメーターを変更してから、今後に作成されるフレームに同じパラメーター値を適用するために、@code{default-frame-alist}(と必要なら@code{initial-frame-alist})を変更する。
 @end defun
 
 @node Initial Parameters
