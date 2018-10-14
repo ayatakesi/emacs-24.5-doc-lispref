@@ -504,23 +504,20 @@ Parameters, user-position}を参照)が@code{top}および@code{left}が行う�
 @cindex layout parameters of frames
 @cindex frame layout parameters
 
-  These frame parameters enable or disable various parts of the frame, or
-control their sizes.
+  以下のフレームパラメーターにより、フレームのさまざまなパーツを有効または無効にしたり、サイズを制御できます。
 
 @table @code
 @vindex border-width, a frame parameter
 @item border-width
-The width in pixels of the frame's border.
+ピクセル単位でのフレームのボーダー幅。
 
 @vindex internal-border-width, a frame parameter
 @item internal-border-width
-The distance in pixels between text (or fringe) and the frame's border.
+テキスト(またはフリンジ)とフレームボーダーとのピクセル単位による距離。
 
 @vindex vertical-scroll-bars, a frame parameter
 @item vertical-scroll-bars
-Whether the frame has scroll bars for vertical scrolling, and which side of
-the frame they should be on.  The possible values are @code{left},
-@code{right}, and @code{nil} for no scroll bars.
+フレームが垂直スクロール用のスクロールバーをもつべきか否か、スクロールバーをフレームのどちら側に置くか。可能な値は@code{left}、@code{right}、スクロールバーなしは@code{nil}。
 
 @ignore
 @vindex horizontal-scroll-bars, a frame parameter
@@ -532,64 +529,47 @@ implemented.
 
 @vindex scroll-bar-width, a frame parameter
 @item scroll-bar-width
-The width of vertical scroll bars, in pixels, or @code{nil} meaning to use
-the default width.
+垂直スクロールバーのピクセル単位による幅。@code{nil}はデフォルト幅の使用を意味する。
 
 @vindex left-fringe, a frame parameter
 @vindex right-fringe, a frame parameter
 @item left-fringe
 @itemx right-fringe
-The default width of the left and right fringes of windows in this frame
-(@pxref{Fringes}).  If either of these is zero, that effectively removes the
-corresponding fringe.
+そのフレーム内のウィンドウの左右フリンジのデフォルト幅(@ref{Fringes}を参照)。いずれかが0なら、対応するフリンジを削除する効果がある。
+If either of these is zero, that effectively removes the corresponding
+fringe.
 
-When you use @code{frame-parameter} to query the value of either of these
-two frame parameters, the return value is always an integer.  When using
-@code{set-frame-parameter}, passing a @code{nil} value imposes an actual
-default value of 8 pixels.
+これら2つのフレームパラメーターの値を問い合わせるために@code{frame-parameter}を使用する際、リターン値は常に整数となる。@code{nil}値を渡して@code{set-frame-parameter}を使用する際は、実際のデフォルト値8ピクセルが課せられる。
 
-The combined fringe widths must add up to an integral number of columns, so
-the actual default fringe widths for the frame, as reported by
-@code{frame-parameter}, may be larger than what you specify.  Any extra
-width is distributed evenly between the left and right fringe.  However, you
-can force one fringe or the other to a precise width by specifying that
-width as a negative integer.  If both widths are negative, only the left
-fringe gets the specified width.
+合成済みフリンジ幅は列数の合計数まで加算されなければならないので、@code{frame-parameter}の応答値は指定値より大きくなるかもしれない。左右のフリンジ間には、余分な幅が均等に配分される。しかし、フリンジのいずれか幅に負の整数を指定することにより、フリンジに正確な幅を強制できる。どちらのフリンジ幅も負の場合は、左フリンジだけが指定された幅となる。
 
 @vindex right-divider-width, a frame parameter
 @item right-divider-width
-The width (thickness) reserved for the right divider (@pxref{Window
-Dividers}) of any window on the frame, in pixels.  A value of zero means to
-not draw right dividers.
+フレーム上のすべてのウィンドウの右ディバイダー(@ref{Window
+Dividers}を参照)用に予約される、ピクセル単位の幅(厚さ)。値0は右ディバイダーを描画しないことを意味する。
 
 @vindex bottom-divider-width, a frame parameter
 @item bottom-divider-width
-The width (thickness) reserved for the bottom divider (@pxref{Window
-Dividers}) of any window on the frame, in pixels.  A value of zero means to
-not draw bottom dividers.
+フレーム上のすべてのウィンドウの下ディバイダー(@ref{Window
+Dividers}を参照)用に予約される、ピクセル単位の幅(厚さ)。値0は下ディバイダーを描画しないことを意味する。
 
 @vindex menu-bar-lines frame parameter
 @item menu-bar-lines
-The number of lines to allocate at the top of the frame for a menu bar.  The
-default is 1 if Menu Bar mode is enabled, and 0 otherwise.  @xref{Menu
-Bars,,,emacs, The GNU Emacs Manual}.
+メニューバー用にフレーム上端に割り当てる行数。Menu Barモードが有効の場合のデフォルトは1、それ以外は0である。@ref{Menu
+Bars,,,emacs, The GNU Emacs Manual}を参照のこと。
 
 @vindex tool-bar-lines frame parameter
 @item tool-bar-lines
-The number of lines to use for the tool bar.  The default is 1 if Tool Bar
-mode is enabled, and 0 otherwise.  @xref{Tool Bars,,,emacs, The GNU Emacs
-Manual}.
+ツールバー用に使用する行数。Tool Barモードが有効の場合のデフォルトは1、それ以外は0である。@xref{Tool Bars,,,emacs,
+The GNU Emacs Manual}を参照のこと。
 
 @vindex tool-bar-position frame parameter
 @item tool-bar-position
-The position of the tool bar.  Currently only for the GTK tool bar.  Value
-can be one of @code{top}, @code{bottom} @code{left}, @code{right}.  The
-default is @code{top}.
+ツールバーの位置。現在のところGTKツールバーのみ。可能な値は@code{top}、@code{bottom}、@code{left}、@code{right}。デフォルトは@code{top}。
 
 @vindex line-spacing, a frame parameter
 @item line-spacing
-Additional space to leave below each text line, in pixels (a positive
-integer).  @xref{Line Height}, for more information.
+各テキスト行配下に残す、ピクセル単位の追加スペース(正の整数)。詳細は@ref{Line Height}を参照のこと。
 @end table
 
 @node Buffer Parameters
