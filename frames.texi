@@ -577,36 +577,26 @@ The GNU Emacs Manual}を参照のこと。
 @cindex frame, which buffers to display
 @cindex buffers to display on frame
 
-  These frame parameters, meaningful on all kinds of terminals, deal with
-which buffers have been, or should, be displayed in the frame.
+  以下は、フレーム内でどのバッファーが表示されているか、されるべきかを扱うためのフレームパラメーターで、すべての種類の端末上で意味があります。
 
 @table @code
 @vindex minibuffer, a frame parameter
 @item minibuffer
-Whether this frame has its own minibuffer.  The value @code{t} means yes,
-@code{nil} means no, @code{only} means this frame is just a minibuffer.  If
-the value is a minibuffer window (in some other frame), the frame uses that
-minibuffer.
+そのフレームが自身のミニバッファーをもつか否か。もつ場合は@code{t}、もたない場合は@code{nil}、@code{only}ならそのフレームが正にミニバッファーであることを意味する。値が(別フレーム内の)ミニバッファーウィンドウの場合、そのフレームはそのミニバッファーを使用する。
 
-This frame parameter takes effect when the frame is created, and can not be
-changed afterwards.
+このフレームパラメーターはフレーム作成時に効果があち、その後は変更できない。
 
 @vindex buffer-predicate, a frame parameter
 @item buffer-predicate
-The buffer-predicate function for this frame.  The function
-@code{other-buffer} uses this predicate (from the selected frame) to decide
-which buffers it should consider, if the predicate is not @code{nil}.  It
-calls the predicate with one argument, a buffer, once for each buffer; if
-the predicate returns a non-@code{nil} value, it considers that buffer.
+このフレームにたいする、buffer-predicate関数。関数@code{other-buffer}は、どのバッファーを考慮すべきか決定するために、(選択されたフレームから)この述語が@code{nil}でなければ、これを使用する。これは各バッファーにたいして、そのバッファーを唯一の引数として、この述語を1回呼び出す。この述語が非@code{nil}値をリターンしたら、そのバッファーは考慮される。
 
 @vindex buffer-list, a frame parameter
 @item buffer-list
-A list of buffers that have been selected in this frame, ordered
-most-recently-selected first.
+そのフレーム内で選択されているバッファーの、もっとも最近選択されたバッファーが先頭になるような順のリスト。
 
 @vindex unsplittable, a frame parameter
 @item unsplittable
-If non-@code{nil}, this frame's window is never split automatically.
+非@code{nil}なら、このフレームのウィンドウは決して自動的に分割されることはない。
 @end table
 
 @node Management Parameters
