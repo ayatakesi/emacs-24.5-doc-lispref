@@ -603,61 +603,45 @@ The GNU Emacs Manual}を参照のこと。
 @subsubsection Window Management Parameters
 @cindex window manager interaction, and frame parameters
 
-  The following frame parameters control various aspects of the frame's
-interaction with the window manager.  They have no effect on text terminals.
+  以下のフレームパラメーターは、ウィンドウマネージャーとフレームとの相互作用のさまざまな面を制御します。これらは、テキスト端末上では効果がありません。
 
 @table @code
 @vindex visibility, a frame parameter
 @item visibility
-The state of visibility of the frame.  There are three possibilities:
-@code{nil} for invisible, @code{t} for visible, and @code{icon} for
-iconified.  @xref{Visibility of Frames}.
+フレームの可視性(visibility)の状態。可能な値は3つあり、@code{nil}は不可視、@code{t}は可視、@code{icon}はアイコン化されていることを意味する。@ref{Visibility
+of Frames}を参照のこと。
 
 @vindex auto-raise, a frame parameter
 @item auto-raise
-If non-@code{nil}, Emacs automatically raises the frame when it is
-selected.  Some window managers do not allow this.
+非@code{nil}なら、Emacsはそのフレーム選択時に自動的にそれを前面に移動(raise)する。これを許さないウィンドウマネージャーがいくつかある。
 
 @vindex auto-lower, a frame parameter
 @item auto-lower
-If non-@code{nil}, Emacs automatically lowers the frame when it is
-deselected.  Some window managers do not allow this.
+非@code{nil}なら、Emacsはそのフレームの選択解除時に自動的にそれを背面に移動(lower)する。これを許さないウィンドウマネージャーがいくつかある。
 
 @vindex icon-type, a frame parameter
 @item icon-type
-The type of icon to use for this frame.  If the value is a string, that
-specifies a file containing a bitmap to use; @code{nil} specifies no icon
-(in which case the window manager decides what to show); any other
-non-@code{nil} value specifies the default Emacs icon.
+そのフレームに使用するアイコンのタイプ。値が文字列の場合、それは使用するビットマップを含むファイルを指定し、@code{nil}はアイコンなしを指定する(何を表示するかはウィンドウマネージャーが決定する)。その他の非@code{nil}値は、デフォルトのEmacsアイコンを指定する。
 
 @vindex icon-name, a frame parameter
 @item icon-name
-The name to use in the icon for this frame, when and if the icon appears.
-If this is @code{nil}, the frame's title is used.
+このフレームにたいするアイコンで使用する名前。アイコンを表示する場合は、その際に表示される。これが@code{nil}なら、フレームのタイトルが使用される。
 
 @vindex window-id, a frame parameter
 @item window-id
-The ID number which the graphical display uses for this frame.  Emacs
-assigns this parameter when the frame is created; changing the parameter has
-no effect on the actual ID number.
+グラフィカルディスプレイがこのフレームにたいして使用するID番号。Emacsは、フレーム作成時にこのパラメーターを割り当てる。このパラメーターを変更しても、実際のID番号に効果はない。
 
 @vindex outer-window-id, a frame parameter
 @item outer-window-id
-The ID number of the outermost window-system window in which the frame
-exists.  As with @code{window-id}, changing this parameter has no actual
-effect.
+そのフレームが存在する最外殻のウィンドウシステムのウィンドウのID番号。@code{window-id}と同様、このパラメーターを変更しても実際の効果はない。
 
 @vindex wait-for-wm, a frame parameter
 @item wait-for-wm
-If non-@code{nil}, tell Xt to wait for the window manager to confirm
-geometry changes.  Some window managers, including versions of Fvwm2 and
-KDE, fail to confirm, so Xt hangs.  Set this to @code{nil} to prevent
-hanging with those window managers.
+非@code{nil}なら、ジオメトリー変更を確認するために、ウィンドウマネージャーを待機するようXtに指示する。Fvwm2およびKDEのバージョンを含むウィンドウマネージャーのいくつかは確認に失敗するので、Xtがハングする。これらウィンドウマネージャーのハングを防ぐために、これを@code{nil}にセットする。
 
 @vindex sticky, a frame parameter
 @item sticky
-If non-@code{nil}, the frame is visible on all virtual desktops on systems
-with virtual desktops.
+非@code{nil}なら、仮想デスクトップを伴うシステム上のすべての仮想デスクトップ上で、そのフレームが可視になる。
 
 @ignore
 @vindex parent-id, a frame parameter
