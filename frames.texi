@@ -658,64 +658,48 @@ it and see if it works.)
 @subsubsection Cursor Parameters
 @cindex cursor, and frame parameters
 
-  This frame parameter controls the way the cursor looks.
+  このフレームパラメーター!、カーソルの外見を制御します。
 
 @table @code
 @vindex cursor-type, a frame parameter
 @item cursor-type
-How to display the cursor.  Legitimate values are:
+カーソルの表示方法。適正な値は:
 
 @table @code
 @item box
-Display a filled box.  (This is the default.)
+塗りつぶされた四角形(filled box)を表示する(デフォルト)。
 @item hollow
-Display a hollow box.
+中抜きの四角形(hollow box)を表示する。
 @item nil
-Don't display a cursor.
+カーソルウィンドウ表示しない。
 @item bar
-Display a vertical bar between characters.
+文字間に垂直バー(vertical bar)を表示する。
 @item (bar . @var{width})
-Display a vertical bar @var{width} pixels wide between characters.
+文字間に幅が@var{width}ピクセルの垂直バー(vertical bar)を表示する。
 @item hbar
-Display a horizontal bar.
+文字間に水平バー(horizontal bar)を表示する。
 @item (hbar . @var{height})
-Display a horizontal bar @var{height} pixels high.
+文字間に高さが@var{height}ピクセルの水平バー(horizontal bar)を表示する。
 @end table
 @end table
 
 @vindex cursor-type
-The @code{cursor-type} frame parameter may be overridden by the variables
-@code{cursor-type} and @code{cursor-in-non-selected-windows}:
+フレームパラメーター@code{cursor-type}は、変数@code{cursor-type}および@code{cursor-in-non-selected-windows}によりオーバーライドされるかもしれません。
 
 @defvar cursor-type
-This buffer-local variable controls how the cursor looks in a selected
-window showing the buffer.  If its value is @code{t}, that means to use the
-cursor specified by the @code{cursor-type} frame parameter.  Otherwise, the
-value should be one of the cursor types listed above, and it overrides the
-@code{cursor-type} frame parameter.
+このバッファーローカル変数は、選択されたウィンドウ内で表示されているそのバッファーのカーソルの外見を制御する。この値が@code{t}なら、それはフレームパラメーター@code{cursor-type}で指定されたカーソルのーを使用することを意味する。それ以外では、値は上記リストのカーソルタイプのいずれかであるべきで、これはフレームパラメーター@code{cursor-type}をオーバーライドする。
 @end defvar
 
 @defopt cursor-in-non-selected-windows
-This buffer-local variable controls how the cursor looks in a window that is
-not selected.  It supports the same values as the @code{cursor-type} frame
-parameter; also, @code{nil} means don't display a cursor in nonselected
-windows, and @code{t} (the default)  means use a standard modification of
-the usual cursor type (solid box becomes hollow box, and bar becomes a
-narrower bar).
+このバッファーローカル変数は、選択されていないウィンドウ内でのカーソルの外見を制御する。これは、フレームパラメーター@code{cursor-type}と同じ値をサポートする。さらに、@code{nil}は選択されていないウィンドウ内にはカーソルを表示せず、@code{t}は通常のカーソルタイプの標準的な変更(塗りつぶされた四角形は中抜きの四角形に、バーはより細いバーにする)の使用を意味する。
 @end defopt
 
 @defopt blink-cursor-alist
-This variable specifies how to blink the cursor.  Each element has the form
-@code{(@var{on-state} . @var{off-state})}.  Whenever the cursor type equals
-@var{on-state} (comparing using @code{equal}), the corresponding
-@var{off-state} specifies what the cursor looks like when it blinks
-``off''.  Both @var{on-state} and @var{off-state} should be suitable values
-for the @code{cursor-type} frame parameter.
+この変数は、カーソルのブリンク(blink: 点滅)方法を指定する。各要素は@code{(@var{on-state}
+.
+@var{off-state})}という形式をもつ。カーソルタイプが@var{on-state}と等しい(@code{equal}を用いて比較)ときは常に、これに対応する@var{off-state}がブリンクが``off''の際のカーソルの外見を指定する。@var{on-state}と@var{off-state}はどちらもフレームパラメーター@code{cursor-type}に適した値であること。
 
-There are various defaults for how to blink each type of cursor, if the type
-is not mentioned as an @var{on-state} here.  Changes in this variable do not
-take effect immediately, only when you specify the @code{cursor-type} frame
-parameter.
+それぞれのカーソルタイプのブリンク方法にたいして、そのタイプがここで@var{on-state}として指定されていなければ、さまざまなデフォルトが存在する。フレームパラメーター@code{cursor-type}で指定した際に限り、この変数内での変更は即座に効果を発揮しない。
 @end defopt
 
 @node Font and Color Parameters
