@@ -706,129 +706,91 @@ it and see if it works.)
 @subsubsection Font and Color Parameters
 @cindex font and color, frame parameters
 
-  These frame parameters control the use of fonts and colors.
+  以下のフレームパラメーターは、フォントとカラーの使用を制御します。
 
 @table @code
 @vindex font-backend, a frame parameter
 @item font-backend
-A list of symbols, specifying the @dfn{font backends} to use for drawing
-fonts in the frame, in order of priority.  On X, there are currently two
-available font backends: @code{x} (the X core font driver) and @code{xft}
-(the Xft font driver).  On MS-Windows, there are currently two available
-font backends: @code{gdi} and @code{uniscribe} (@pxref{Windows Fonts,,,
-emacs, The GNU Emacs Manual}).  On other systems, there is only one
-available font backend, so it does not make sense to modify this frame
-parameter.
+フレーム内でフォントの描画に使用するための@dfn{フォントバックエンド(font
+backends)}を指定する、優先順のシンボルのリスト。Xでは現在のところ、@code{x}(X core font
+driver)と@code{xft}(Xft font
+driver)の2つの利用可能なフォントバックエンドがある。MS-Windowsでは現在のところ、@code{gdi}と@code{uniscribe}の2つの利用可能なフォントバックエンドがある(@ref{Windows
+Fonts,,, emacs, The GNU Emacs
+Manual}を参照)。その他のシステムでは利用可能なフォントバックエンドは1つだけなので、このフレームパラメーターを変更しても意味がない。
 
 @vindex background-mode, a frame parameter
 @item background-mode
-This parameter is either @code{dark} or @code{light}, according to whether
-the background color is a light one or a dark one.
+このパラメーターは@code{dark}か@code{light}のいずれかで、それぞれバックグラウンドを暗く(dark)するか、明るく(light)するかに対応する。
 
 @vindex tty-color-mode, a frame parameter
 @item tty-color-mode
 @cindex standard colors for character terminals
-This parameter overrides the terminal's color support as given by the
-system's terminal capabilities database in that this parameter's value
-specifies the color mode to use on a text terminal.  The value can be either
-a symbol or a number.  A number specifies the number of colors to use (and,
-indirectly, what commands to issue to produce each color).  For example,
-@code{(tty-color-mode . 8)} specifies use of the ANSI escape sequences for 8
-standard text colors.  A value of -1 turns off color support.
+このパラメーターは端末上で使用するカラーモードを指定し、、そのシステムの端末機能データベース(terminal capabilities
+database、termcap)により与えられた端末のカラーサポートを、その値でオーバーライドする。値にはシンボルか数値を指定できる。数値の場合は、使用するカラー数(および間接的にはそれぞれのカラーを生成するためのコマンド)を指定する。たとえば@code{(tty-color-mode
+. 8)}は、標準的なテキストカラーにたいしてANSIエスケープシーケンスの使用を指定する。値-1はカラーサポートをオフに切り替える。
 
-If the parameter's value is a symbol, it specifies a number through the
-value of @code{tty-color-mode-alist}, and the associated number is used
-instead.
+このパラメーターの値がシンボルの場合、それは@code{tty-color-mode-alist}の値を通じた数値を指定するもので、かわりにそのシンボルに割り当てられた数値が使用される。
 
 @vindex screen-gamma, a frame parameter
 @item screen-gamma
 @cindex gamma correction
-If this is a number, Emacs performs ``gamma correction'' which adjusts the
-brightness of all colors.  The value should be the screen gamma of your
-display.
+これが数値の場合、Emacsはすべてのカラーの輝度を調整する``ガンマ補正(gamma
+correction)''を行う。値はディスプレイのスクリーンのガンマであること。
 
-Usual PC monitors have a screen gamma of 2.2, so color values in Emacs, and
-in X windows generally, are calibrated to display properly on a monitor with
-that gamma value.  If you specify 2.2 for @code{screen-gamma}, that means no
-correction is needed.  Other values request correction, designed to make the
-corrected colors appear on your screen the way they would have appeared
-without correction on an ordinary monitor with a gamma value of 2.2.
+通常のPCモニター／あスクリーンガンマが2.2なので、EmacsおよびXウィンドウのカラー値は一般的にそのガンマ値のモニター上で正しく表示するよう校正されている。@code{screen-gamma}にたいして2.2を指定した場合、それは補正が不必要であることを意味する。その他の値は、通常のモニター上でガンマ値2.2で表示されるであろう、補正されたカラーがスクリーン上に表示されるように意図された補正を要求する。
 
-If your monitor displays colors too light, you should specify a
-@code{screen-gamma} value smaller than 2.2.  This requests correction that
-makes colors darker.  A screen gamma value of 1.5 may give good results for
-LCD color displays.
+モニターが表示するカラーが明るすぎる場合は、@code{screen-gamma}に2.2より小さい値を指定するべきである。これは、カラーをより暗くする補正を要求する。スクリーンガンマの値1.5は、LCDカラーディスプレイにたいして、よい結果を与えるだろう。
 
 @vindex alpha, a frame parameter
 @item alpha
 @cindex opacity, frame
 @cindex transparency, frame
 @vindex frame-alpha-lower-limit
-This parameter specifies the opacity of the frame, on graphical displays
-that support variable opacity.  It should be an integer between 0 and 100,
-where 0 means completely transparent and 100 means completely opaque.  It
-can also have a @code{nil} value, which tells Emacs not to set the frame
-opacity (leaving it to the window manager).
+このパラメーターは、可変透明度(variable opacity)をサポートするグラフィカルディスプレイ上での、そのフレームの透明度を指定する(訳注:
+opacityを訳すと逆の不透明度だが、このような場合は一般的に透明度と訳すようなので、それに倣う)。これは0から100の整数であるべきで、0は完全な透明、100hは完全な不透明を意味する。@code{nil}値をもつこともでき、これはEmacsにフレームのopacityをセットしない(ウィンドウマネージャーに委ねる)よう告げる。
 
-To prevent the frame from disappearing completely from view, the variable
-@code{frame-alpha-lower-limit} defines a lower opacity limit.  If the value
-of the frame parameter is less than the value of this variable, Emacs uses
-the latter.  By default, @code{frame-alpha-lower-limit} is 20.
+フレームが完全に見えなくなるのを防ぐために、変数@code{frame-alpha-lower-limit}は透明度の最低限度を定義する。フレームパラメーターの値がこの変数の値より小さい場合、Emacsは後者を使用する。デフォルトの@code{frame-alpha-lower-limit}は20。
 
-The @code{alpha} frame parameter can also be a cons cell
-@code{(@samp{active} . @samp{inactive})}, where @samp{active} is the opacity
-of the frame when it is selected, and @samp{inactive} is the opacity when it
-is not selected.
+フレームパラメーター@code{alpha}にはコンスセル@code{(@samp{active}
+.
+@samp{inactive})}も指定できる。ここで、@samp{active}は選択時のフレームの透明度、@samp{inactive}は未選択時の透明度である。
 @end table
 
-The following frame parameters are semi-obsolete in that they are
-automatically equivalent to particular face attributes of particular faces
-(@pxref{Standard Faces,,, emacs, The Emacs Manual}):
+以下は、特定のフェイスの特定のフェイス属性と自動的に等しくなるので、凖時代遅れとなったフレームパラメーターです(@ref{Standard
+Faces,,, emacs, The Emacs Manual}を参照)。
 
 @table @code
 @vindex font, a frame parameter
 @item font
-The name of the font for displaying text in the frame.  This is a string,
-either a valid font name for your system or the name of an Emacs fontset
-(@pxref{Fontsets}).  It is equivalent to the @code{font} attribute of the
-@code{default} face.
+フレーム内でテキストを表示するためのフォントの名前。これはシステムで有効なフォント名、またはEmacsフォントセット名(@ref{Fontsets}を参照)のいずれかであるような文字列である。これは、@code{default}フェイスの@code{font}属性と等価である。
 
 @vindex foreground-color, a frame parameter
 @item foreground-color
-The color to use for the image of a character.  It is equivalent to the
-@code{:foreground} attribute of the @code{default} face.
+文字のイメージに使用するカラー。これは、@code{default}フェイスの@code{:foreground}属性と等価である。
 
 @vindex background-color, a frame parameter
 @item background-color
-The color to use for the background of characters.  It is equivalent to the
-@code{:background} attribute of the @code{default} face.
+文字のバックグラウンドに使用するカラー。これは、@code{default}フェイスの@code{:background}属性と等価である。
 
 @vindex mouse-color, a frame parameter
 @item mouse-color
-The color for the mouse pointer.  It is equivalent to the @code{:background}
-attribute of the @code{mouse} face.
+マウスポインターのカラー。これは@code{mouse}フェイスの@code{:background}属性と等価である。
 
 @vindex cursor-color, a frame parameter
 @item cursor-color
-The color for the cursor that shows point.  It is equivalent to the
-@code{:background} attribute of the @code{cursor} face.
+ポイントを表示するカーソルのカラー。これは、@code{cursor}フェイスの@code{:background}属性と等価である。
 
 @vindex border-color, a frame parameter
 @item border-color
-The color for the border of the frame.  It is equivalent to the
-@code{:background} attribute of the @code{border} face.
+これは、フレームのボーダーのカラーと等価である。これは、@code{border}フェイスの@code{:background}属性と等価である。
 
 @vindex scroll-bar-foreground, a frame parameter
 @item scroll-bar-foreground
-If non-@code{nil}, the color for the foreground of scroll bars.  It is
-equivalent to the @code{:foreground} attribute of the @code{scroll-bar}
-face.
+非@code{nil}の場合は、スクロールバーのフォアグラウンドカラー。これは、@code{scroll-bar}フェイスの@code{:foreground}属性と等価である。
 
 @vindex scroll-bar-background, a frame parameter
 @item scroll-bar-background
-If non-@code{nil}, the color for the background of scroll bars.  It is
-equivalent to the @code{:background} attribute of the @code{scroll-bar}
-face.
+非@code{nil}の場合は、スクロールバーのバックグラウンドカラー。これは、@code{scroll-bar}フェイスの@code{:background}属性と等価である。
 @end table
 
 @node Size and Position
