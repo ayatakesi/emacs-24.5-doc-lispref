@@ -934,7 +934,7 @@ parameters)}は主に、端末ローカル変数を格納するための便利�
 @item background-mode
 端末のバックグラウンドカラーの区分で、@code{light}か@code{dark}のいずれか。
 @item normal-erase-is-backspace
-値は1か0で、これはその端末上で@code{normal-erase-is-backspace-mode}がオンまたはオフのいずれかに切り替えられたかに依存する。@ref{DEL
+値は1か0で、これはその端末上で@code{normal-erase-is-backspace-mode}がオンまたはオフのいずれに切り替えられたかに依存する。@ref{DEL
 Does Not Delete,,, emacs, The Emacs Manual}を参照のこと。
 @item terminal-initted
 端末の初期化後に、端末固有の初期化関数にセットされる。
@@ -944,37 +944,23 @@ Does Not Delete,,, emacs, The Emacs Manual}を参照のこと。
 @section Frame Titles
 @cindex frame title
 
-  Every frame has a @code{name} parameter; this serves as the default for the
-frame title which window systems typically display at the top of the frame.
-You can specify a name explicitly by setting the @code{name} frame property.
+  それぞれのフレームには@code{name}というパラメーターがあります。これは、ウィンドウシステムが通常フレーム上端に表示するフレームタイトルにたいする、デフォルトとしての役割をもちます。フレームプロパティ@code{name}をセットすることにより、明示的に名前を指定できます。
 
-  Normally you don't specify the name explicitly, and Emacs computes the frame
-name automatically based on a template stored in the variable
-@code{frame-title-format}.  Emacs recomputes the name each time the frame is
-redisplayed.
+  通常は名前を明示的に指定せず、Emacsが変数@code{frame-title-format}に格納されたテンプレートにもとづき、自動的にフレーム名を計算します。Emacsはフレームが再表示されるたびに、毎回名前を再計算します。
 
 @defvar frame-title-format
-This variable specifies how to compute a name for a frame when you have not
-explicitly specified one.  The variable's value is actually a mode line
-construct, just like @code{mode-line-format}, except that the @samp{%c} and
-@samp{%l} constructs are ignored.  @xref{Mode Line Data}.
+この変数は、フレーム名が明示的に指定されないときに、フレーム名を計算する方法を指定する。この変数の値は、実際には@code{mode-line-format}のようなモードライン構成(mode
+line construct)だが、@samp{%c}および@samp{%l}の構成は無視される。@ref{Mode Line Data}を参照のこと。
 @end defvar
 
 @defvar icon-title-format
-This variable specifies how to compute the name for an iconified frame, when
-you have not explicitly specified the frame title.  This title appears in
-the icon itself.
+この変数は、フレームタイトルを明示的に指定しないときの、アイコン化されたフレームの名前の計算方法を指定する。このタイトルはアイコン自体に表示される。
 @end defvar
 
 @defvar multiple-frames
-This variable is set automatically by Emacs.  Its value is @code{t} when
-there are two or more frames (not counting minibuffer-only frames or
-invisible frames).  The default value of @code{frame-title-format} uses
-@code{multiple-frames} so as to put the buffer name in the frame title only
-when there is more than one frame.
+この変数はEmacsにより自動的にセットされる。フレームが2つ以上(ミニバッファーのみのフレームと不可視のフレームは勘定に入らない)のとき、値は@code{t}となる。@code{frame-title-format}のデフォルト値は、フレームが複数存在する場合のみ、フレーム名にバッファー名を入れるために、@code{multiple-frames}を使用する。
 
-The value of this variable is not guaranteed to be accurate except while
-processing @code{frame-title-format} or @code{icon-title-format}.
+この変数の値は、@code{frame-title-format}と@code{icon-title-format}の処理中を除き、正確である保証はない。
 @end defvar
 
 @node Deleting Frames
