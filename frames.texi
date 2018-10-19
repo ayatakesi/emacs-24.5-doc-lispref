@@ -989,47 +989,40 @@ Events}を参照してください。
 @cindex frames, scanning all
 
 @defun frame-list
-This function returns a list of all the live frames, i.e., those that have
-not been deleted.  It is analogous to @code{buffer-list} for buffers, and
-includes frames on all terminals.  The list that you get is newly created,
-so modifying the list doesn't have any effect on the internals of Emacs.
+この関数は、すべての生きたフレーム(削除されていないフレーム)のリストをリターンする。これはバッファーにたいする@code{buffer-list}に類似しており、すべての端末上のフレームが含まれる。リターンされるリストは新たに作成されたものであり、このリストを変更してもEmacs内部への影響はない。
 @end defun
 
 @defun visible-frame-list
-This function returns a list of just the currently visible frames.
-@xref{Visibility of Frames}.  Frames on text terminals always count as
-``visible'', even though only the selected one is actually displayed.
+この関数はカレントで可視なフレームだけのリストをリターンする。@xref{Visibility of
+Frames}を参照のこと。テキスト端末上のフレームは、実際に表示されるのが選択されたフレームだけだとしても、常に``可視''であるとみなされる。
 @end defun
 
 @defun next-frame &optional frame minibuf
-This function lets you cycle conveniently through all the frames on the
-current display from an arbitrary starting point.  It returns the ``next''
-frame after @var{frame} in the cycle.  If @var{frame} is omitted or
-@code{nil}, it defaults to the selected frame (@pxref{Input Focus}).
+この関数は、カレントディスプレイ上そすべてのフレームを、任意のフレームを開始点としいぇ巡回するのに便利である。これは、そのその巡回サイクル上で@var{frame}の``次''に該当するフレームをリターンする。@var{frame}が省略または@code{nil}の場合のデフォルトは、選択されたフレーム(@ref{Input
+Focus}を参照)である。
 
-The second argument, @var{minibuf}, says which frames to consider:
+2つ目の引数@var{minibuf}は、どのフレームを考慮するかを示す:
 
 @table @asis
 @item @code{nil}
-Exclude minibuffer-only frames.
+ミニバッファーのみのフレームを除外。
 @item @code{visible}
-Consider all visible frames.
+すべての可視フレームを考慮する。
 @item 0
-Consider all visible or iconified frames.
-@item a window
-Consider only the frames using that particular window as their minibuffer.
-@item anything else
-Consider all frames.
+すべての可視およびアイコン化されたフレームを考慮する。
+@item ウィンドウ
+特定のウィンドウをミニバッファーとして使用するフレームだけを考慮する。
+@item その他
+すべてのフレームを考慮する。
 @end table
 @end defun
 
 @defun previous-frame &optional frame minibuf
-Like @code{next-frame}, but cycles through all frames in the opposite
-direction.
+@code{next-frame}と同様だが、すべてのフレームを逆方向に巡回する。
 @end defun
 
-  See also @code{next-window} and @code{previous-window}, in @ref{Cyclic
-Window Ordering}.
+  @ref{Cyclic Window
+Ordering}の@code{next-window}と@code{previous-window}も参照してください。
 
 @node Minibuffers and Frames
 @section Minibuffers and Frames
