@@ -967,33 +967,22 @@ line construct)だが、@samp{%c}および@samp{%l}の構成は無視される�
 @section Deleting Frames
 @cindex deleting frames
 
-  A @dfn{live frame} is one that has not been deleted.  When a frame is
-deleted, it is removed from its terminal display, although it may continue
-to exist as a Lisp object until there are no more references to it.
+  @dfn{生きたフレーム(live
+frame)}とは、削除されていないフレームのことです。フレームが削除される際は、たとえそれへの参照元がなくなるまでLispオブジェクトとして存在し続けるとしても、端末ディスプレイからは削除されます。
 
 @deffn Command delete-frame &optional frame force
 @vindex delete-frame-functions
-This function deletes the frame @var{frame}.  Unless @var{frame} is a
-tooltip, it first runs the hook @code{delete-frame-functions} (each function
-gets one argument, @var{frame}).  By default, @var{frame} is the selected
-frame.
+この関数は、フレーム@var{frame}を削除する。@var{frame}がツールチップでなければ、まずフック@code{delete-frame-functions}を実行する(フックの各関数は唯一の引数として@var{frame}を受け取る)。デフォルトでは、@var{frame}は選択されたフレームである。
 
-A frame cannot be deleted if its minibuffer is used by other frames.
-Normally, you cannot delete a frame if all other frames are invisible, but
-if @var{force} is non-@code{nil}, then you are allowed to do so.
+ミニバッファーが別のフレームに使用されているフレームは削除できない。通常、他のフレームすべてが不可視の場合、フレームは削除できないが、@var{force}が非@code{nil}なら、削除が可能になる。
 @end deffn
 
 @defun frame-live-p frame
-The function @code{frame-live-p} returns non-@code{nil} if the frame
-@var{frame} has not been deleted.  The possible non-@code{nil} return values
-are like those of @code{framep}.  @xref{Frames}.
+関数@code{frame-live-p}は、フレーム@var{frame}が削除されていなければ、非@code{nil}をリターンする。リターンされ得る非@code{nil}の値は、@code{framep}と同様である。@ref{Frames}を参照のこと。
 @end defun
 
-  Some window managers provide a command to delete a window.  These work by
-sending a special message to the program that operates the window.  When
-Emacs gets one of these commands, it generates a @code{delete-frame} event,
-whose normal definition is a command that calls the function
-@code{delete-frame}.  @xref{Misc Events}.
+  いくつかのウィンドウマネージャーは、ウィンドウを削除するコマンドを提供します。これらは、そのウィンドウを操作するプログラムに特別なメッセージを送ることにより機能します。Emacsがそれらメッセージのいずれかを受け取ったときは、@code{delete-frame}イベントを生成します。このイベントの通常の定義は、関数@code{delete-frame}を呼び出すコマンドです。@ref{Misc
+Events}を参照してください。
 
 @node Finding All Frames
 @section Finding All Frames
