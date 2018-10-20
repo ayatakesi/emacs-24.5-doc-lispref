@@ -1125,52 +1125,35 @@ Events}を参照してください。
 @cindex minimized frame
 @cindex frame visibility
 
-A frame on a graphical display may be @dfn{visible}, @dfn{invisible}, or
-@dfn{iconified}.  If it is visible, its contents are displayed in the usual
-manner.  If it is iconified, its contents are not displayed, but there is a
-little icon somewhere to bring the frame back into view (some window
-managers refer to this state as @dfn{minimized} rather than @dfn{iconified},
-but from Emacs' point of view they are the same thing).  If a frame is
-invisible, it is not displayed at all.
+グラフィカルなディスプレイ上のフレームは@dfn{可視(visible)}、@dfn{不可視(invisible)}、または@dfn{アイコン化(iconified)}されているかもしれません。可視なら、そのコンテンツは通常の方法により表示されます。アイコン化されている場合、そのコンテンツは表示されませんが、ビュー内にフレームを戻すための小さいアイコンがどこかにあります(いくつかのウィンドウマネージャーは、この状態を@dfn{アイコン化}ではなく@dfn{最小化}と呼ぶが、Emacsの見地ではこれらは同等である)。フレームが不可視なら、それはまったく表示されません。
 
-  Visibility is meaningless on text terminals, since only the selected one is
-actually displayed in any case.
+  テキスト端末では、いつでも実際に表示されるのはただ1つの選択されたフレームだけなので、可視性に意味はありません。
 
 @defun frame-visible-p frame
-This function returns the visibility status of frame @var{frame}.  The value
-is @code{t} if @var{frame} is visible, @code{nil} if it is invisible, and
-@code{icon} if it is iconified.
+この関数は、フレーム@var{frame}の可視性の状態をリターンする。値は、@var{frame}が可視なら@code{t}、不可視なら@code{nil}、アイコン化されている場合は@code{icon}になる。
 
-On a text terminal, all frames are considered ``visible'' for the purposes
-of this function, even though only one frame is displayed.  @xref{Raising
-and Lowering}.
+テキスト端末上では、たとえ1つのフレームだけが表示されているとしても、この関数の目的にたいしては、すべてのフレームが``可視''とみなされる。@ref{Raising
+and Lowering}を参照のこと。
 @end defun
 
 @deffn Command iconify-frame &optional frame
-This function iconifies frame @var{frame}.  If you omit @var{frame}, it
-iconifies the selected frame.
+この関数は、フレーム@var{frame}をアイコン化する。@var{frame}を省略した場合は、選択されたフレームをアイコン化する。
 @end deffn
 
 @deffn Command make-frame-visible &optional frame
-This function makes frame @var{frame} visible.  If you omit @var{frame}, it
-makes the selected frame visible.  This does not raise the frame, but you
-can do that with @code{raise-frame} if you wish (@pxref{Raising and
-Lowering}).
+この関数は、フレーム@var{frame}を可視にする。@var{frame}を省略した場合は、選択されたフレームを可視にする。これはフレームを前面に移動しないが、望むなら@code{raise-frame}でそれを行うことができる(@ref{Raising
+and Lowering}を参照)。
 @end deffn
 
 @deffn Command make-frame-invisible &optional frame force
-This function makes frame @var{frame} invisible.  If you omit @var{frame},
-it makes the selected frame invisible.
+この関数は、フレーム@var{frame}を不可視にする。@var{frame}を省略した場合は、選択されたフレームを不可視にする。
 
-Unless @var{force} is non-@code{nil}, this function refuses to make
-@var{frame} invisible if all other frames are invisible..
+@var{force}が@code{nil}なら、この関数は他のすべてのフレームが不可視の場合は、@var{frame}を不可視にするのを拒絶する。
 @end deffn
 
-  The visibility status of a frame is also available as a frame parameter.
-You can read or change it as such.  @xref{Management Parameters}.  The user
-can also iconify and deiconify frames with the window manager.  This happens
-below the level at which Emacs can exert any control, but Emacs does provide
-events that you can use to keep track of such changes.  @xref{Misc Events}.
+  フレームの可視性の状態は、フレームパラメーターとしても利用可能である。つまりフレームパラメーターとして読み取りと変更ができる。@ref{Management
+Parameters}を参照のこと。ウィンドウマネージャーによりユーザーがフレームのアイコン化や非アイコン化を行うこともできる。これは、Emacsが何らかの制御を及ぼすのが可能なレベルより下のレベルにおいて発生するが、Emacsはそのような変化を追跡するために使用するイベントを提供する。@ref{Misc
+Events}を参照のこと。
 
 @node Raising and Lowering
 @section Raising and Lowering Frames
