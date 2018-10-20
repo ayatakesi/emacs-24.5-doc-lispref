@@ -1160,41 +1160,30 @@ Events}を参照のこと。
 
 @cindex raising a frame
 @cindex lowering a frame
-  Most window systems use a desktop metaphor.  Part of this metaphor is the
-idea that system-level windows (e.g., Emacs frames) are stacked in a
-notional third dimension perpendicular to the screen surface.  Where two
-overlap, the one higher up covers the one underneath.  You can @dfn{raise}
-or @dfn{lower} a frame using the functions @code{raise-frame} and
-@code{lower-frame}.
+  ほとんどのウィンドウシステムは、デスクトップというメタファー(metaphor:
+比喩的概念)を使用します。このメタファーの一部は、システムレベルのウィンドウ(Emacsではフレーム)が、スクリーン表面に向かって、概念的3次元の垂直方向に積まれていくというアイデアです。2つが重なる箇所では、より高い一方が、より低い一方を覆い隠します。関数@code{raise-frame}および@code{lower-frame}を使用して、フレームを@dfn{前面に移動(raise:
+より高い位置へ上げる)}したり@dfn{背面に移動(lower: より低い位置へ移動)}したりすることができます。
 
 @deffn Command raise-frame &optional frame
-This function raises frame @var{frame} (default, the selected frame).  If
-@var{frame} is invisible or iconified, this makes it visible.
+この関数は、フレーム@var{frame}(デフォルトは選択されたフレーム)を前面に移動する。@var{frame}が不可視もしくはアイコン化されている場合は、それを可視にする。
 @end deffn
 
 @deffn Command lower-frame &optional frame
-This function lowers frame @var{frame} (default, the selected frame).
+この関数は、フレーム@var{frame}(デフォルトは選択されたフレーム)を背面に移動する。
 @end deffn
 
 @defopt minibuffer-auto-raise
-If this is non-@code{nil}, activation of the minibuffer raises the frame
-that the minibuffer window is in.
+これが非@code{nil}なら、ミニバッファーをアクティブにすることにより、ミニバッファーウィンドウのあるフレームが前面に移動される。
 @end defopt
 
-  On window systems, you can also enable auto-raising (on frame selection) or
-auto-lowering (on frame deselection) using frame parameters.
-@xref{Management Parameters}.
+  ウィンドウシステム上では、フレームパラメーターを使用して、(フレーム選択時に)auto-raising、(フレーム選択解除時に)auto-loweringを有効にできます。@ref{Management
+Parameters}を参照してください。
 
 @cindex top frame
-  The concept of raising and lowering frames also applies to text terminal
-frames.  On each text terminal, only the top frame is displayed at any one
-time.
+  フレームを前面または背面に移動するという概念は、テキスト端末のフレームにも適用できます。各テキスト端末上で、一度に表示されるのは、常に最前面のフレームだけです。
 
 @defun tty-top-frame terminal
-This function returns the top frame on @var{terminal}.  @var{terminal}
-should be a terminal object, a frame (meaning that frame's terminal), or
-@code{nil} (meaning the selected frame's terminal).  If it does not refer to
-a text terminal, the return value is @code{nil}.
+この関数は、@var{terminal}上の最前面のフレームをリターンする。@var{terminal}は端末オブジェクト、フレーム(そのフレームの端末を意味する)、または@code{nil}(選択されたフレームの端末を意味する)であること。これがテキスト端末を参照しなければ、リターン値は@code{nil}となる。
 @end defun
 
 @node Frame Configurations
