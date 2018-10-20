@@ -1267,55 +1267,36 @@ normally belong in the specified rectangle.
 @cindex mouse position
 @cindex position of mouse
 
-  The functions @code{mouse-position} and @code{set-mouse-position} give
-access to the current position of the mouse.
+  関数@code{mouse-position}および@code{set-mouse-position}は、マウスのカレント位置にたいするアクセスを提供します。
 
 @defun mouse-position
-This function returns a description of the position of the mouse.  The value
-looks like @code{(@var{frame} @var{x} . @var{y})}, where @var{x} and @var{y}
-are integers giving the position in characters relative to the top left
-corner of the inside of @var{frame}.
+この関数は、マウス位置の記述をリターンする。値は@code{(@var{frame} @var{x}
+. @var{y})}のような形式で、@var{x}と@var{y}は@var{frame}内部の左上隅から相対的な位置を文字単位で与える整数である。
 @end defun
 
 @defvar mouse-position-function
-If non-@code{nil}, the value of this variable is a function for
-@code{mouse-position} to call.  @code{mouse-position} calls this function
-just before returning, with its normal return value as the sole argument,
-and it returns whatever this function returns to it.
+非@code{nil}なら、この変数の値は@code{mouse-position}にたいして呼び出される関数である。@code{mouse-position}はリターン直前には、自身の通常のリターン値を唯一の引数としてこの関数を呼び出し、それが何であれその関数がリターンしたものをリターンする。
 
-This abnormal hook exists for the benefit of packages like
-@file{xt-mouse.el} that need to do mouse handling at the Lisp level.
+このアブノーマルフックは、@file{xt-mouse.el}のようにLispレベルでマウス処理を行う必要があるパッケージのために存在する。
 @end defvar
 
 @defun set-mouse-position frame x y
-This function @dfn{warps the mouse} to position @var{x}, @var{y} in frame
-@var{frame}.  The arguments @var{x} and @var{y} are integers, giving the
-position in characters relative to the top left corner of the inside of
-@var{frame}.  If @var{frame} is not visible, this function does nothing.
-The return value is not significant.
+この関数は、フレーム@var{frame}内の位置@var{x}、@var{y}に@dfn{マウスをワープ}させる。引数@var{x}と@var{y}は、@var{frame}内部の左上隅から相対的な位置を文字単位で与える整数である。@var{frame}が不可視なら、この関数は何も行わない。リターン値に意味はない。
 @end defun
 
 @defun mouse-pixel-position
-This function is like @code{mouse-position} except that it returns
-coordinates in units of pixels rather than units of characters.
+この関数は@code{mouse-position}と似ているが、文字単位ではなくピクセル単位の座標をリターンする。
 @end defun
 
 @defun set-mouse-pixel-position frame x y
-This function warps the mouse like @code{set-mouse-position} except that
-@var{x} and @var{y} are in units of pixels rather than units of characters.
-These coordinates are not required to be within the frame.
+この関数は@code{set-mouse-position}のようにマウスをワープするが、@var{x}と@var{y}が文字単位ではなくピクセル単位であることを除く。これらの座標が、そのフレーム内にあることは要求されない。
 
-If @var{frame} is not visible, this function does nothing.  The return value
-is not significant.
+@var{frame}が不可視なら、この関数は何も行わない。リターン値に意味はない。
 @end defun
 
 @defun frame-pointer-visible-p &optional frame
-This predicate function returns non-@code{nil} if the mouse pointer
-displayed on @var{frame} is visible; otherwise it returns @code{nil}.
-@var{frame} omitted or @code{nil} means the selected frame.  This is useful
-when @code{make-pointer-invisible} is set to @code{t}: it allows to know if
-the pointer has been hidden.  @xref{Mouse Avoidance,,,emacs, The Emacs
-Manual}.
+この述語関数は、@var{frame}上に表示されたマウスポインターが可視なら非@code{nil}、それ以外は@code{nil}をリターンする。@var{frame}が省略または@code{nil}なら、それは選択されたフレームを意味する。これは、@code{make-pointer-invisible}が@code{t}にセットされているとき有用である。これにより、ポインターが隠されていることを知ることができる。@ref{Mouse
+Avoidance,,,emacs, The Emacs Manual}を参照のこと。
 @end defun
 
 @need 3000
