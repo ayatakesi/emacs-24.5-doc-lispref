@@ -1209,35 +1209,23 @@ Configurations}を参照)を記録します。
 @cindex mouse tracking
 @c @cindex tracking the mouse   Duplicates track-mouse
 
-  Sometimes it is useful to @dfn{track} the mouse, which means to display
-something to indicate where the mouse is and move the indicator as the mouse
-moves.  For efficient mouse tracking, you need a way to wait until the mouse
-actually moves.
+  マウスを@dfn{トラック(track:
+追跡)}するのが有用なことが時折あります。マウスのトラックとは、マウスの位置を示す何かを表示して、マウス移動とともにそのインジケーターを移動する、という意味です。効果的にマウスをトラックするためには、マウスが実際に移動するまで待機する手段が必要になります。
 
-  The convenient way to track the mouse is to ask for events to represent
-mouse motion.  Then you can wait for motion by waiting for an event.  In
-addition, you can easily handle any other sorts of events that may occur.
-That is useful, because normally you don't want to track the mouse
-forever---only until some other event, such as the release of a button.
+  マウスをトラックする便利なのは、マウスのモーション(motion:
+移動)を表すイベントを問い合わせる方法です。その後は、そのイベントを待機することにより、モーションを待機できます。加えて、発生し得る他の類のイベントも、簡単に処理できます。ボタンのリリースのような何か他のイベントだけを待機してマウスを永久にトラックするは通常は望ましくないので、これは有用です。
 
 @defspec track-mouse body@dots{}
-This special form executes @var{body}, with generation of mouse motion
-events enabled.  Typically, @var{body} would use @code{read-event} to read
-the motion events and modify the display accordingly.  @xref{Motion Events},
-for the format of mouse motion events.
+このスペシャルフォームは、マウスモーションイベントの生成を有効にして、@var{body}を実行する。通常、@var{body}はモーションイベントを読み取るために@code{read-event}を使用し、それに対応して表示を変更する。マウスモーションイベントのフォーマットについては、@ref{Motion
+Events}を参照のこと。
 
-The value of @code{track-mouse} is that of the last form in @var{body}.  You
-should design @var{body} to return when it sees the up-event that indicates
-the release of the button, or whatever kind of event means it is time to
-stop tracking.
+@code{track-mouse}の値は、@var{body}内の最後のフォームの値である。ボタンのリリースを示すup-event、またはトラックを止めるべきタイミングを意味する類のイベントを確認した際にはリターンするよう、@var{body}をデザインするべきである。
 @end defspec
 
-The usual purpose of tracking mouse motion is to indicate on the screen the
-consequences of pushing or releasing a button at the current position.
+マウスモーションをトラックする通常の目的は、それ以降に発生するボタンのプッシュやリリースをカレント位置に示すことです。
 
-In many cases, you can avoid the need to track the mouse by using the
-@code{mouse-face} text property (@pxref{Special Properties}).  That works at
-a much lower level and runs more smoothly than Lisp-level mouse tracking.
+多くの場合は、テキストプロパティ@code{mouse-face}(@ref{Special
+Properties}を参照)を使用することにより、マウスをトラックする必要性を回避できます。これは、より低レベルで機能し、かつLispレベルのマウストラッキングよりスムーズに実行されます。
 
 @ignore
 @c These are not implemented yet.
