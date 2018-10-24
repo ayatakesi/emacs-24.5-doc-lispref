@@ -1475,83 +1475,50 @@ EmacsがMS-Windows上で実行されている際は、一般的にX選択はサ�
 @cindex color names
 @cindex specify color
 @cindex numerical RGB color specification
-  A color name is text (usually in a string) that specifies a color.  Symbolic
-names such as @samp{black}, @samp{white}, @samp{red}, etc., are allowed; use
-@kbd{M-x list-colors-display} to see a list of defined names.  You can also
-specify colors numerically in forms such as @samp{#@var{rgb}} and
-@samp{RGB:@var{r}/@var{g}/@var{b}}, where @var{r} specifies the red level,
-@var{g} specifies the green level, and @var{b} specifies the blue level.
-You can use either one, two, three, or four hex digits for @var{r}; then you
-must use the same number of hex digits for all @var{g} and @var{b} as well,
-making either 3, 6, 9 or 12 hex digits in all.  (See the documentation of
-the X Window System for more details about numerical RGB specification of
-colors.)
+  カラー名(color
+name)とは、カラーを指定するテキスト(通常は文字列)です。@samp{black}、@samp{white}、@samp{red}等が指定できます。定義された名前のリストは、@kbd{M-x
+list-colors-display}を使用して確認できます。@samp{#@var{rgb}}や@samp{RGB:@var{r}/@var{g}/@var{b}}のような、数値的な形式でカラーを指定することもできます。ここで、@var{r}は赤(red)、@var{g}は緑(green)、@var{b}は青(blue)のレベルを指定します。1桁、2桁、3桁、または4桁の16進数を@var{r}に使用できます。その後、@var{g}と@var{b}には同じ桁数の16進数を同様に使用しなければなりません。これにより、総桁数が3､6､9､または12桁の16進数となります(カラーの数値的なRGB指定についての詳細は、Xウィンドウシステムのドキュメントを参照されたい)。
 
-  These functions provide a way to determine which color names are valid, and
-what they look like.  In some cases, the value depends on the @dfn{selected
-frame}, as described below; see @ref{Input Focus}, for the meaning of the
-term ``selected frame''.
+  以下の関数は、有効なカラー名と、それらの外見を判断する手段を提供します。以下で説明するように、その値は@dfn{選択されたフレーム(selected
+frame)}に依存する場合があります。``選択されたフレーム''という用語の意味については、@ref{Input Focus}を参照してください。
 
-  To read user input of color names with completion, use @code{read-color}
-(@pxref{High-Level Completion, read-color}).
+  補完付きでカラー名のユーザー入力を読み取るには、@code{read-color}を使用します(@ref{High-Level Completion,
+read-color}を参照)。
 
 @defun color-defined-p color &optional frame
-This function reports whether a color name is meaningful.  It returns
-@code{t} if so; otherwise, @code{nil}.  The argument @var{frame} says which
-frame's display to ask about; if @var{frame} is omitted or @code{nil}, the
-selected frame is used.
+この関数は、カラー名が有意かどうかを報告する。もし有意なら@code{t}、それ以外は@code{nil}をリターンする。引数@var{frame}は、どのフレームの表示にたいして問い合わせるかを指定する。@var{frame}が省略または@code{nil}の場合は、選択されたフレームが使用される。
 
-Note that this does not tell you whether the display you are using really
-supports that color.  When using X, you can ask for any defined color on any
-kind of display, and you will get some result---typically, the closest it
-can do.  To determine whether a frame can really display a certain color,
-use @code{color-supported-p} (see below).
+これは、使用しているディスプレイがそのカラーをサポートするかどうかは告げないことに注意。X使用時には、すべての種類のディスプレイ上のすべての定義されたカラーを問い合わせることができ、何らかの結果(通常は可能な限り近いカラー)を得ることができるでしょう。あるフレームが特定のカラーを実際に表示できるかどうか判断するためには、@code{color-supported-p}(以下参照)を使用してください。
 
 @findex x-color-defined-p
-This function used to be called @code{x-color-defined-p}, and that name is
-still supported as an alias.
+この関数は、以前は@code{x-color-defined-p}と呼ばれており、その名前は今でもエイリアスとしてサポートされている。
 @end defun
 
 @defun defined-colors &optional frame
-This function returns a list of the color names that are defined and
-supported on frame @var{frame} (default, the selected frame).  If
-@var{frame} does not support colors, the value is @code{nil}.
+この関数は、@var{frame}(デフォルトは選択されたフレーム)上で定義かつサポートされるカラー名のリストをリターンする。@var{frame}がカラーをサポートしなければ、値は@code{nil}となる。
 
 @findex x-defined-colors
-This function used to be called @code{x-defined-colors}, and that name is
-still supported as an alias.
+この関数は、以前は@code{x-defined-colors}と呼ばれており、その名前は今でもエイリアスとしてサポートされている。
 @end defun
 
 @defun color-supported-p color &optional frame background-p
-This returns @code{t} if @var{frame} can really display the color
-@var{color} (or at least something close to it).  If @var{frame} is omitted
-or @code{nil}, the question applies to the selected frame.
+これは、@var{frame}が実際にカラー@var{color}(または最低でもそれに近いカラー)を表示可能なら@code{t}をリターンする。@var{frame}が省略または@code{nil}なら、この問いは選択されたフレームに適用される。
 
-Some terminals support a different set of colors for foreground and
-background.  If @var{background-p} is non-@code{nil}, that means you are
-asking whether @var{color} can be used as a background; otherwise you are
-asking whether it can be used as a foreground.
+フォアグラウンドおよびバックグラウンドにたいして異なるカラーセットをサポートする端末がいくつかある。@var{background-p}が非@code{nil}の場合、それは@var{color}がバックグラウンドとして、それ以外はフォアグラウンドとして使用可能かどうかを問うことを意味する。
 
-The argument @var{color} must be a valid color name.
+引数@var{color}は、有効なカラー名でなければならない。
 @end defun
 
 @defun color-gray-p color &optional frame
-This returns @code{t} if @var{color} is a shade of gray, as defined on
-@var{frame}'s display.  If @var{frame} is omitted or @code{nil}, the
-question applies to the selected frame.  If @var{color} is not a valid color
-name, this function returns @code{nil}.
+これは、@var{color}が@var{frame}のディスプレイ上の定義として、グレイスケールなら@code{t}をリターンする。@var{frame}が省略または@code{nil}なら、この問いは選択されたフレームに適用される。@var{color}が有効なカラー名でなければ、この関数は@code{nil}をリターンする。
 @end defun
 
 @defun color-values color &optional frame
 @cindex rgb value
-This function returns a value that describes what @var{color} should ideally
-look like on @var{frame}.  If @var{color} is defined, the value is a list of
-three integers, which give the amount of red, the amount of green, and the
-amount of blue.  Each integer ranges in principle from 0 to 65535, but some
-displays may not use the full range.  This three-element list is called the
-@dfn{rgb values} of the color.
+この関数は、@var{frame}上で理想的には@var{color}がどのように見えるべきかを記述する値をリターンする。@var{color}が定義済みの場合、値は赤、緑、青の割合を与える3つの整数からなるリストである。それぞれの整数の範囲は原則として0から65535だが、この範囲全体を使用しないディスプレイもいくつか存在するだろう。この3要素のリストは、カラーの@dfn{RGB値(rgb
+values)}と呼ばれる。
 
-If @var{color} is not defined, the value is @code{nil}.
+@var{color}が未定義なら、値は@code{nil}である。
 
 @example
 (color-values "black")
@@ -1566,13 +1533,10 @@ If @var{color} is not defined, the value is @code{nil}.
      @result{} nil
 @end example
 
-The color values are returned for @var{frame}'s display.  If @var{frame} is
-omitted or @code{nil}, the information is returned for the selected frame's
-display.  If the frame cannot display colors, the value is @code{nil}.
+カラーの値は、@var{frame}のディスプレイにたいしてリターンされる。@var{frame}が省略または@code{nil}の場合、この情報は選択されたフレームのディスプレイにたいしてリターンされる。このフレームがカラーを表示できない場合、値は@code{nil}となる。
 
 @findex x-color-values
-This function used to be called @code{x-color-values}, and that name is
-still supported as an alias.
+この関数は、以前は@code{x-color-values}と呼ばれており、その名前は今でもエイリアスとしてサポートされている。
 @end defun
 
 @node Text Terminal Colors
