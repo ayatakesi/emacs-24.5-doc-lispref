@@ -1486,7 +1486,7 @@ frame)}に依存する場合があります。``選択されたフレーム''と
 read-color}を参照)。
 
 @defun color-defined-p color &optional frame
-この関数は、カラー名が有意かどうかを報告する。もし有意なら@code{t}、それ以外は@code{nil}をリターンする。引数@var{frame}は、どのフレームの表示にたいして問い合わせるかを指定する。@var{frame}が省略または@code{nil}の場合は、選択されたフレームが使用される。
+この関数は、カラー名が有意かどうかを報告する。もし有意なら@code{t}、それ以外は@code{nil}をリターンする。引数@var{frame}は、どのフレームのディスプレイにたいして問い合わせるかを指定する。@var{frame}が省略または@code{nil}の場合は、選択されたフレームが使用される。
 
 これは、使用しているディスプレイがそのカラーをサポートするかどうかは告げないことに注意。X使用時には、すべての種類のディスプレイ上のすべての定義されたカラーを問い合わせることができ、何らかの結果(通常は可能な限り近いカラー)を得ることができるでしょう。あるフレームが特定のカラーを実際に表示できるかどうか判断するためには、@code{color-supported-p}(以下参照)を使用してください。
 
@@ -1543,62 +1543,38 @@ values)}と呼ばれる。
 @section Text Terminal Colors
 @cindex colors on text terminals
 
-  Text terminals usually support only a small number of colors, and the
-computer uses small integers to select colors on the terminal.  This means
-that the computer cannot reliably tell what the selected color looks like;
-instead, you have to inform your application which small integers correspond
-to which colors.  However, Emacs does know the standard set of colors and
-will try to use them automatically.
+  通常、テキスト端末は少しのカラーしかサポートせず、コンピューターはカラー選択に小さい整数を使用します。これは、選択したカラーがどのように見えるかコンピューターが信頼性をもって告げることができず、どのカラーがどのような小さい整数に対応するかという情報を、をアプリケーションに伝える必要があることを意味します。しかし、Emacsは標準的なカラーセットを知っており、それらの自動的な使用を試みるでしょう。
 
-  The functions described in this section control how terminal colors are used
-by Emacs.
+  このセクションで説明する関数は、Emacsが端末カラーを使用する方法を制御します。
 
-  Several of these functions use or return @dfn{rgb values}, described in
-@ref{Color Names}.
+  これらの関数のうちのいくつかは、@ref{Color Names}で説明した@dfn{RGB値(rgb values)}を使用またはリターンします。
 
-  These functions accept a display (either a frame or the name of a terminal)
-as an optional argument.  We hope in the future to make Emacs support
-different colors on different text terminals; then this argument will
-specify which terminal to operate on (the default being the selected frame's
-terminal; @pxref{Input Focus}).  At present, though, the @var{frame}
-argument has no effect.
+  これらの関数は、オプション引数としてディスプレイ(フレームまたは端末名のいずれか)を受け取ります。わたしたちは将来、異なる端末上で異なるカラーをEmacsにサポートさせたいと望んでいます。そうすれば、この引数はどの端末を処理するか(デフォルトは選択されたフレームの端末。@ref{Input
+Focus}を参照のこと)を指定するようになるでしょう。しかし現在のところ、@var{frame}引数に効果はありません。
 
 @defun tty-color-define name number &optional rgb frame
-This function associates the color name @var{name} with color number
-@var{number} on the terminal.
+この関数は、カラー名@var{name}を、その端末上のカラー値@var{number}に関連付ける。
 
-The optional argument @var{rgb}, if specified, is an rgb value, a list of
-three numbers that specify what the color actually looks like.  If you do
-not specify @var{rgb}, then this color cannot be used by
-@code{tty-color-approximate} to approximate other colors, because Emacs will
-not know what it looks like.
+オプション引数@var{rgb}が指定された場合、それはそのカラーが実際にどのように見えるかを指定する、3つの数値のリストからなるRGB値である。@var{rgb}を指定しない場合、Emacsはそれがどのように見えるか知らないので、そのカラーを他のカラーに近似するために@code{tty-color-approximate}で使用することができない。
 @end defun
 
 @defun tty-color-clear &optional frame
-This function clears the table of defined colors for a text terminal.
+この関数は、テキスト端末の定義済みカラーのテーブルをクリアーする。
 @end defun
 
 @defun tty-color-alist &optional frame
-This function returns an alist recording the known colors supported by a
-text terminal.
+この関数は、テキスト端末がサポートする既知のカラーを記録したalistをリターンする。
 
-Each element has the form @code{(@var{name} @var{number} . @var{rgb})} or
-@code{(@var{name} @var{number})}.  Here, @var{name} is the color name,
-@var{number} is the number used to specify it to the terminal.  If present,
-@var{rgb} is a list of three color values (for red, green, and blue) that
-says what the color actually looks like.
+それぞれの要素は、@code{(@var{name} @var{number} . @var{rgb})}または@code{(@var{name}
+@var{number})}という形式をもつ。ここで、@var{name}はカラー名、@var{number}はその端末でカラー指定に使用される数値である。@var{rgb}が与えられた場合、それはそのカラーが実際にどのように見えるかを告げる3つのカラー値(赤、緑、青)のリストである。
 @end defun
 
 @defun tty-color-approximate rgb &optional frame
-This function finds the closest color, among the known colors supported for
-@var{display}, to that described by the rgb value @var{rgb} (a list of color
-values).  The return value is an element of @code{tty-color-alist}.
+この関数は、@var{display}にたいしてサポートされた既知のカラーの中から、RGB値@var{rgb}(カラー値のリスト)で記述されたもっとも近いカラーを探す。リターン値は、@code{tty-color-alist}の要素である。
 @end defun
 
 @defun tty-color-translate color &optional frame
-This function finds the closest color to @var{color} among the known colors
-supported for @var{display} and returns its index (an integer).  If the name
-@var{color} is not defined, the value is @code{nil}.
+この関数は、@var{display}にたいしてサポートされた既知のカラーの中から、もっとも近いカラーのインデックス(整数)をリターンする。名前@var{color}が未定義なら、値は@code{nil}となる。
 @end defun
 
 @node Resources
