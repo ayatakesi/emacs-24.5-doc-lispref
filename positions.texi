@@ -101,47 +101,36 @@ Point}を参照してください。
 @node Character Motion
 @subsection Motion by Characters
 
-  These functions move point based on a count of characters.  @code{goto-char}
-is the fundamental primitive; the other functions use that.
+  以下の関数は、文字数にもとづいてポイントを移動します。 @code{goto-char}は基本的なプリミティブで、その他の関数はこれを使用しています。
 
 @deffn Command goto-char position
 @c This behavior used to be documented until 2013/08.
-This function sets point in the current buffer to the value @var{position}.
+この関数は、カレントバッファー内のポイントの値を@var{position}にセットする。
 @ignore
 If @var{position} is less than 1, it moves point to the beginning of
 the buffer.  If @var{position} is greater than the length of the
 buffer, it moves point to the end.
 @end ignore
 
-If narrowing is in effect, @var{position} still counts from the beginning of
-the buffer, but point cannot go outside the accessible portion.  If
-@var{position} is out of range, @code{goto-char} moves point to the
-beginning or the end of the accessible portion.
+ナローイングが効力をもつ場合でも、@var{position}は依然としてバッファー先頭から数えられるが、ポイントをアクセス可能な範囲外に移動することはできない。@var{position}が範囲外の場合、@code{goto-char}はアクセス可能な範囲の先頭または終端にポイントを移動する。
 
-When this function is called interactively, @var{position} is the numeric
-prefix argument, if provided; otherwise it is read from the minibuffer.
+この関数がインタラクティブに呼び出された際は、@var{position}の値は数プレフィクス引数、プレフィクス引数が与えられなかった場合はミニバッファーから値を読み取る。
 
-@code{goto-char} returns @var{position}.
+@code{goto-char}は@var{position}をリターンする。
 @end deffn
 
 @deffn Command forward-char &optional count
 @c @kindex beginning-of-buffer
 @c @kindex end-of-buffer
-This function moves point @var{count} characters forward, towards the end of
-the buffer (or backward, towards the beginning of the buffer, if @var{count}
-is negative).  If @var{count} is @code{nil}, the default is 1.
+この関数は前方、すなわちバッファーの終端方向にポイントを@var{count}文字移動する(@var{count}が負なら後方、すなわちバッファーの先頭方向にポイントを移動する)。@var{count}が@code{nil}の場合のデフォルトは1。
 
-If this attempts to move past the beginning or end of the buffer (or the
-limits of the accessible portion, when narrowing is in effect), it signals
-an error with error symbol @code{beginning-of-buffer} or
-@code{end-of-buffer}.
+バッファー(ナローイングが効力をもつ場合はアクセス可能な範囲の境界)の先頭または終端を超えて移動を試みた場合はエラーシンボル@code{beginning-of-buffer}または@code{end-of-buffer}のエラーをシグナルする。
 
-In an interactive call, @var{count} is the numeric prefix argument.
+インタラクティブな呼び出しでは、数プレフィクス引数が@var{count}となる。
 @end deffn
 
 @deffn Command backward-char &optional count
-This is just like @code{forward-char} except that it moves in the opposite
-direction.
+移動方向が逆であることを除き、これは@code{forward-char}と同様である。
 @end deffn
 
 @node Word Motion
@@ -316,7 +305,7 @@ number of lines actually moved.  If you attempt to move down five lines from
 the beginning of a buffer that has only three lines, point stops at the end
 of the last line, and the value will be 2.
 
-In an interactive call, @var{count} is the numeric prefix argument.
+インタラクティブな呼び出しでは、数プレフィクス引数が@var{count}となる。
 @end deffn
 
 @defun count-lines start end
@@ -500,7 +489,7 @@ would appear on that screen line if the window were tall enough.  This will
 probably cause the next redisplay to scroll to bring that location onto the
 screen.
 
-In an interactive call, @var{count} is the numeric prefix argument.
+インタラクティブな呼び出しでは、数プレフィクス引数が@var{count}となる。
 
 The value returned is the window line number point has moved to, with the
 top line in the window numbered 0.
