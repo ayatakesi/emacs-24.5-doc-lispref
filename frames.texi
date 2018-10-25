@@ -1580,50 +1580,33 @@ Focus}を参照のこと)を指定するようになるでしょう。しかし�
 @node Resources
 @section X Resources
 
-This section describes some of the functions and variables for querying and
-using X resources, or their equivalent on your operating system.  @xref{X
-Resources,, X Resources, emacs, The GNU Emacs Manual}, for more information
-about X resources.
+このセクションでは、Xリソース、または他のオペレーティングシステム上での等価物を問い合わせたり使用する関数および変数をいくつか説明します。Xリソースにたいする詳細な情報は、@ref{X
+Resources,, X Resources, emacs, The GNU Emacs Manual}を参照してください。
 
 @defun x-get-resource attribute class &optional component subclass
-The function @code{x-get-resource} retrieves a resource value from the X
-Window defaults database.
+関数@code{x-get-resource}は、Xウィンドウのデフォルトデータベースからリソース値を取得する。
 
-Resources are indexed by a combination of a @dfn{key} and a @dfn{class}.
-This function searches using a key of the form
-@samp{@var{instance}.@var{attribute}} (where @var{instance} is the name
-under which Emacs was invoked), and using @samp{Emacs.@var{class}} as the
-class.
+リソースは、@dfn{キー(key)}と@dfn{クラス(class)}の組み合わせによりインデックス付けされている。この関数は、@samp{@var{instance}.@var{attribute}}という形式をキー(@var{instance}はEmacsが呼び出されたときの名前)、クラスとして@samp{Emacs.@var{class}}として使用することにより検索を行う。
 
-The optional arguments @var{component} and @var{subclass} add to the key and
-the class, respectively.  You must specify both of them or neither.  If you
-specify them, the key is
-@samp{@var{instance}.@var{component}.@var{attribute}}, and the class is
-@samp{Emacs.@var{class}.@var{subclass}}.
+オプション引数@var{component}および@var{subclass}は、それぞれキーおよびクラスを追加する。指定する場合は両方を指定するか、さもなくばどちらも指定してはならない。これらを指定した場合、キーは@samp{@var{instance}.@var{component}.@var{attribute}}、クラスは@samp{Emacs.@var{class}.@var{subclass}}となる。
 @end defun
 
 @defvar x-resource-class
-This variable specifies the application name that @code{x-get-resource}
-should look up.  The default value is @code{"Emacs"}.  You can examine X
-resources for application names other than ``Emacs'' by binding this
-variable to some other string, around a call to @code{x-get-resource}.
+この変数は、@code{x-get-resource}が照会すべきアプリケーション名を指定する。デフォルト値は@code{"Emacs"}。@code{x-get-resource}の呼び出し周辺で、この変数を``Emacs''以外の文字列にバインドすることにより、アプリケーション名にたいしてXリソースを調べることができる。
 @end defvar
 
 @defvar x-resource-name
-This variable specifies the instance name that @code{x-get-resource} should
-look up.  The default value is the name Emacs was invoked with, or the value
-specified with the @samp{-name} or @samp{-rn} switches.
+この変数は、@code{x-get-resource}が照会すべきインスタンス名を指定する。デフォルト値はEmacs呼び出し時の名前、またはスイッチ@samp{-name}または@samp{-rn}で指定された値である。
 @end defvar
 
-To illustrate some of the above, suppose that you have the line:
+上述のいくつかを説明するために、Xリソースファイル(通常は@file{~/.Xdefaults}や@file{~/.Xresources})内に以下のような行があるとしましょう:
 
 @example
 xterm.vt100.background: yellow
 @end example
 
 @noindent
-in your X resources file (whose name is usually @file{~/.Xdefaults} or
-@file{~/.Xresources}).  Then:
+その場合は:
 
 @example
 @group
@@ -1639,8 +1622,7 @@ in your X resources file (whose name is usually @file{~/.Xdefaults} or
 @end example
 
 @defvar inhibit-x-resources
-If this variable is non-@code{nil}, Emacs does not look up X resources, and
-X resources do not have any effect when creating new frames.
+この変数が非@code{nil}なら、EmacsはXリソースを照会せず、新たなフレーム作成時にXリソースは何も効果をもたない。
 @end defvar
 
 @node Display Feature Testing
