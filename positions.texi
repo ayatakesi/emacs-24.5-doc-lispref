@@ -136,49 +136,33 @@ buffer, it moves point to the end.
 @node Word Motion
 @subsection Motion by Words
 
-  These functions for parsing words use the syntax table to decide whether a
-given character is part of a word.  @xref{Syntax Tables}.
+  以下の関数は、与えられた文字が単語の一部なのかどうかを判断するための構文テーブルを使用して単語を解析します。@ref{Syntax
+Tables}を参照してください。
 
 @deffn Command forward-word &optional count
-This function moves point forward @var{count} words (or backward if
-@var{count} is negative).  If @var{count} is omitted or @code{nil}, it
-defaults to 1.
+この関数は、@var{count}の単語数分ポイントを前方に移動する。(@var{count}が負なら後方に移動する)。@var{count}が省略または@code{nil}の場合のデフォルトは1。
 
-``Moving one word'' means moving until point crosses a word-constituent
-character and then encounters a word-separator character.  However, this
-function cannot move point past the boundary of the accessible portion of
-the buffer, or across a field boundary (@pxref{Fields}).  The most common
-case of a field boundary is the end of the prompt in the minibuffer.
+``単語1つ移動''とは、単語構成文字を横断して、単語区切り文字に遭遇するまでポイントを移動することを意味する。しかし、この関数はバッファーのアクセス可能範囲の境界およびフィールド境界(@ref{Fields}を参照)を超えてポイントを移動できない。フィールド境界のもっとも一般的な例は、ミニバッファー内のプロンプト終端である。
 
-If it is possible to move @var{count} words, without being stopped
-prematurely by the buffer boundary or a field boundary, the value is
-@code{t}.  Otherwise, the return value is @code{nil} and point stops at the
-buffer boundary or field boundary.
+バッファー境界またはフィールド境界により途中で停止することなく単語@var{count}個分の移動が可能なら、値は@code{t}となる。それ以外ではリターン値は@code{nil}で、ポイントはバッファー境界またはフィールド境界で停止する。
 
-If @code{inhibit-field-text-motion} is non-@code{nil}, this function ignores
-field boundaries.
+@code{inhibit-field-text-motion}が非@code{nil}なら、この関数はフィールド境界を無視する。
 
-In an interactive call, @var{count} is specified by the numeric prefix
-argument.
+インタラクティブに呼び出された場合、@var{count}は数プレフィクス引数により指定される。
 @end deffn
 
 @deffn Command backward-word &optional count
-This function is just like @code{forward-word}, except that it moves
-backward until encountering the front of a word, rather than forward.
+この関数は、単語の前に遭遇するまで、前方ではなく後方に移動することを除き、@code{forward-word}と同様である。
 @end deffn
 
 @defopt words-include-escapes
 @c Emacs 19 feature
-This variable affects the behavior of @code{forward-word} and everything
-that uses it.  If it is non-@code{nil}, then characters in the ``escape''
-and ``character quote'' syntax classes count as part of words.  Otherwise,
-they do not.
+この変数は、@code{forward-word}とそれを使用するすべての関数の挙動に影響する。これが非@code{nil}なら、構文クラス``エスケープ(escape)''および``クォート文字(character
+quote)''内の文字は、単語の一部とみなされる。それ以外では、単語の一部とはみなされない。
 @end defopt
 
 @defvar inhibit-field-text-motion
-If this variable is non-@code{nil}, certain motion functions including
-@code{forward-word}, @code{forward-sentence}, and @code{forward-paragraph}
-ignore field boundaries.
+この変数が非@code{nil}なら@code{forward-word}、@code{forward-sentence}、@code{forward-paragraph}を含む特定のモーション関数は、フィールド境界を無視する。
 @end defvar
 
 @node Buffer End Motion
