@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-10-26 01:29+0900\n"
-"PO-Revision-Date: 2018-10-26 20:21+0900\n"
+"PO-Revision-Date: 2018-10-29 07:04+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -843,163 +843,163 @@ msgstr "@ref{Near Point}の関数@code{bolp}と@code{eolp}も参照してくだ�
 #: positions.texi.orig:467
 #, no-wrap
 msgid "Motion by Screen Lines"
-msgstr ""
+msgstr "Motion by Screen Lines"
 
 #. type: cindex
 #: positions.texi.orig:468
 #, no-wrap
 msgid "screen lines, moving by"
-msgstr ""
+msgstr "screen lines, moving by"
 
 #. type: Plain text
 #: positions.texi.orig:476
 msgid "The line functions in the previous section count text lines, delimited only by newline characters.  By contrast, these functions count screen lines, which are defined by the way the text appears on the screen.  A text line is a single screen line if it is short enough to fit the width of the selected window, but otherwise it may occupy several screen lines."
-msgstr ""
+msgstr "前のセクションの行関数は、改行文字で区切られたテキスト行だけを数えました。対照的に、以下の関数はスクリーン行を数えます。スクリーン行は、スクリーン上でテキストが表示される方法にしたがって定義されます。あるテキスト行1行が、選択されたウィンドウの幅にフィット可能な程に十分短ければ、それはスクリーン行で1行になりますが、それ以外は複数のスクリーン行になり得ます。"
 
 #. type: Plain text
 #: positions.texi.orig:481
 msgid "In some cases, text lines are truncated on the screen rather than continued onto additional screen lines.  In these cases, @code{vertical-motion} moves point much like @code{forward-line}.  @xref{Truncation}."
-msgstr ""
+msgstr "テキスト行が追加スクリーン行に継続されずに、そのスクリーンで切り詰められる(truncated)場合があります。そのような場合は、@code{vertical-motion}で@code{forward-line}のようにポイントを移動します。@ref{Truncation}を参照してください。"
 
 #. type: Plain text
 #: positions.texi.orig:488
 msgid "Because the width of a given string depends on the flags that control the appearance of certain characters, @code{vertical-motion} behaves differently, for a given piece of text, depending on the buffer it is in, and even on the selected window (because the width, the truncation flag, and display table may vary between windows).  @xref{Usual Display}."
-msgstr ""
+msgstr "文字列が与えられた場合、その幅は、文字の外見を制御するフラグに依存するため、与えられたテキスト断片にたいして、たとえそれが選択されたウィンドウ上でさえも(幅、切り詰め有無、ディスプレイテーブルはウィンドウごとに異なり得るので)、そのテキストがあるバッファーに応じて、@code{vertical-motion}の挙動は異なります。@ref{Usual Display}を参照してください。"
 
 #. type: Plain text
 #: positions.texi.orig:491
 msgid "These functions scan text to determine where screen lines break, and thus take time proportional to the distance scanned."
-msgstr ""
+msgstr "以下の関数は、スクリーン行のブレーク位置を判断するためにテキストをスキャンするため、スキャンする長さに比例して時間を要します。"
 
 #. type: defun
 #: positions.texi.orig:496
 #, no-wrap
 msgid "vertical-motion count &optional window"
-msgstr ""
+msgstr "vertical-motion count &optional window"
 
 #. type: defun
 #: positions.texi.orig:500
 msgid "This function moves point to the start of the screen line @var{count} screen lines down from the screen line containing point.  If @var{count} is negative, it moves up instead."
-msgstr ""
+msgstr "この関数は、ポイントのあるスクリーン行からスクリーン行で@var{count}行下に移動して、そのスクリーン行の先頭にポイントを移動する。@var{count}が負なら、かわりに上に移動する。"
 
 #. type: defun
 #: positions.texi.orig:509
 msgid "The @var{count} argument can be a cons cell, @code{(@var{cols} . @var{lines})}, instead of an integer.  Then the function moves by @var{lines} screen lines, and puts point @var{cols} columns from the visual start of that screen line.  Note that @var{cols} are counted from the @emph{visual} start of the line; if the window is scrolled horizontally (@pxref{Horizontal Scrolling}), the column on which point will end is in addition to the number of columns by which the text is scrolled."
-msgstr ""
+msgstr "@var{count}引数には、整数のかわりにコンスセル@code{(@var{cols} . @var{lines})}を指定できる。その場合、関数はスクリーン行で@var{lines}行移動して、そのスクリーン行の視覚的な行頭(visual start)から@var{cols}列目にポイントを置く。@var{cols}は、その行の@emph{視覚的(visual)}な開始から数えられることに注意。そのウィンドウが水平スクロール(@ref{Horizontal Scrolling}を参照)されている場合には、ポイントが置かれる列は、スクロールされたテキストの列数が加えられるだろう。"
 
 #. type: defun
 #: positions.texi.orig:513
 msgid "The return value is the number of screen lines over which point was moved.  The value may be less in absolute value than @var{count} if the beginning or end of the buffer was reached."
-msgstr ""
+msgstr "リターン値は、ポイントが移動したスクリーン行の行数である。バッファーの先頭か終端に到達していたら、この値は絶対値では@var{count}より小になるかもしれない。"
 
 #. type: defun
 #: positions.texi.orig:518
 msgid "The window @var{window} is used for obtaining parameters such as the width, the horizontal scrolling, and the display table.  But @code{vertical-motion} always operates on the current buffer, even if @var{window} currently displays some other buffer."
-msgstr ""
+msgstr "ウィンドウ@var{window}引数幅、水平スクロール、ディスプレイテーブルのようなパラメーターの取得に使用される。しかし@code{vertical-motion}は、たとえ@var{window}がカレントで他のバッファーを表示していたとしても常に、カレントバッファーにたいして処理を行う。"
 
 #. type: defun
 #: positions.texi.orig:520
 #, no-wrap
 msgid "count-screen-lines &optional beg end count-final-newline window"
-msgstr ""
+msgstr "count-screen-lines &optional beg end count-final-newline window"
 
 #. type: defun
 #: positions.texi.orig:527
 msgid "This function returns the number of screen lines in the text from @var{beg} to @var{end}.  The number of screen lines may be different from the number of actual lines, due to line continuation, the display table, etc.  If @var{beg} and @var{end} are @code{nil} or omitted, they default to the beginning and end of the accessible portion of the buffer."
-msgstr ""
+msgstr "この関数は、@var{beg}から@var{end}のテキスト内のスクリーン行の行数をリターンする。スクリーン行数は行継続やディスプレイテーブル等により、実際の行数とは異なるかもしれない。@var{beg}および@var{end}が@code{nil}、または省略された場合のデフォルトは、そのバッファーのアクセス可能範囲の先頭と終端である。"
 
 #. type: defun
 #: positions.texi.orig:530
 msgid "If the region ends with a newline, that is ignored unless the optional third argument @var{count-final-newline} is non-@code{nil}."
-msgstr ""
+msgstr "そのリージョンが改行で終わる場合、オプションの第3引数@var{count-final-newline}が@code{nil}なら、それは無視される。"
 
 #. type: defun
 #: positions.texi.orig:534
 msgid "The optional fourth argument @var{window} specifies the window for obtaining parameters such as width, horizontal scrolling, and so on.  The default is to use the selected window's parameters."
-msgstr ""
+msgstr "オプションの第4引数@var{window}は、幅や水平スクロール等のパラメーターを取得するウィンドウを指定する。デフォルトは、選択されたウィンドウのパラメーターを使用する。"
 
 #. type: defun
 #: positions.texi.orig:539
 msgid "Like @code{vertical-motion}, @code{count-screen-lines} always uses the current buffer, regardless of which buffer is displayed in @var{window}.  This makes possible to use @code{count-screen-lines} in any buffer, whether or not it is currently displayed in some window."
-msgstr ""
+msgstr "@code{vertical-motion}と同様、@code{count-screen-lines}は@var{window}内にどのバッファーが表示されていようと、常にカレントバッファーを使用する。これにより、バッファーが何らかのウィンドウにカレントで表示されているか否かにかかわらず、任意にバッファーにたいして@code{count-screen-lines}の使用が可能になる。"
 
 #. type: deffn
 #: positions.texi.orig:541
 #, no-wrap
 msgid "Command move-to-window-line count"
-msgstr ""
+msgstr "Command move-to-window-line count"
 
 #. type: deffn
 #: positions.texi.orig:548
 msgid "This function moves point with respect to the text currently displayed in the selected window.  It moves point to the beginning of the screen line @var{count} screen lines from the top of the window.  If @var{count} is negative, that specifies a position @w{@minus{}@var{count}} lines from the bottom (or the last line of the buffer, if the buffer ends above the specified screen position)."
-msgstr ""
+msgstr "この関数は、選択されたウィンドウ内にカレントで表示されているテキストに応じてポイントを移動する。これは、ウィンドウ上端からスクリーン行で@var{count}行目の先頭にポイントを移動する。@var{count}が負なら、それはバッファー下端(バッファーが指定されたスクリーン位置の上で終わる場合はバッファーの最終行)から、@w{@minus{}@var{count}}行目の位置を指定する。"
 
 #. type: deffn
 #: positions.texi.orig:555
 msgid "If @var{count} is @code{nil}, then point moves to the beginning of the line in the middle of the window.  If the absolute value of @var{count} is greater than the size of the window, then point moves to the place that would appear on that screen line if the window were tall enough.  This will probably cause the next redisplay to scroll to bring that location onto the screen."
-msgstr ""
+msgstr "@var{count}が@code{nil}の場合、ポイントはウィンドウ中央の行の先頭に移動する。@var{count}の絶対値がウィンドウサイズより大なら、ウィンドウが十分に高かったならそのスクリーン行は表示されていたであろう位置に、ポイントを移動する。これは、おそらく次回の再表示の際に、その箇所がスクリーン上になるようなスクロールを発生させるだろう。"
 
 #. type: deffn
 #: positions.texi.orig:560
 msgid "The value returned is the window line number point has moved to, with the top line in the window numbered 0."
-msgstr ""
+msgstr "リターン値は、ウィンドウ上端行を0とする、ポイントが移動した先の行番号である。"
 
 #. type: defun
 #: positions.texi.orig:562
 #, no-wrap
 msgid "compute-motion from frompos to topos width offsets window"
-msgstr ""
+msgstr "compute-motion from frompos to topos width offsets window"
 
 #. type: defun
 #: positions.texi.orig:568
 msgid "This function scans the current buffer, calculating screen positions.  It scans the buffer forward from position @var{from}, assuming that is at screen coordinates @var{frompos}, to position @var{to} or coordinates @var{topos}, whichever comes first.  It returns the ending buffer position and screen coordinates."
-msgstr ""
+msgstr "この関数は、カレントバッファーをスキャンして、スクリーン位置を計算する。これは位置@var{from}がスクリーン座標@var{frompos}にあると仮定して、そこから位置@var{to}または座標@var{topos}のいずれか先に到達したほうまで、バッファーを前方にスキャンする。これはスキャン終了のバッファー位置と、スクリーン座標をリターンする。"
 
 #. type: defun
 #: positions.texi.orig:571
 msgid "The coordinate arguments @var{frompos} and @var{topos} are cons cells of the form @code{(@var{hpos} . @var{vpos})}."
-msgstr ""
+msgstr "座標引数@var{frompos}および@var{topos}は、@code{(@var{hpos} . @var{vpos})}という形式のコンスセルである。"
 
 #. type: defun
 #: positions.texi.orig:576
 msgid "The argument @var{width} is the number of columns available to display text; this affects handling of continuation lines.  @code{nil} means the actual number of usable text columns in the window, which is equivalent to the value returned by @code{(window-width window)}."
-msgstr ""
+msgstr "引数@var{width}は、テキストを表示するために利用可能な列数である。これは、継続行の処理に影響する。@code{nil}は、そのウィンドウ内で使用可能な実際のテキスト列数で、@code{(window-width window)}がリターンする値と等しい。"
 
 #. type: defun
 #: positions.texi.orig:585
 msgid "The argument @var{offsets} is either @code{nil} or a cons cell of the form @code{(@var{hscroll} . @var{tab-offset})}.  Here @var{hscroll} is the number of columns not being displayed at the left margin; most callers get this by calling @code{window-hscroll}.  Meanwhile, @var{tab-offset} is the offset between column numbers on the screen and column numbers in the buffer.  This can be nonzero in a continuation line, when the previous screen lines' widths do not add up to a multiple of @code{tab-width}.  It is always zero in a non-continuation line."
-msgstr ""
+msgstr "引数@var{offsets}は@code{nil}、または@code{(@var{hscroll} . @var{tab-offset})}という形式のコンスセルのいずれかである。ここで@var{hscroll}は、左マージンのために表示されない列数であり、呼び出し側のほとんどは@code{window-hscroll}を呼び出すことにより、これを取得する。一方@var{tab-offset}は、スクリーン上の列数と、バッファー内の列数の間のオフセットである。これは継続行において、前のスクリーン行の幅が@code{tab-width}の整数倍でないときは、非0になる可能性がある。非継続行では、これは常に0である。"
 
 #. type: defun
 #: positions.texi.orig:589
 msgid "The window @var{window} serves only to specify which display table to use.  @code{compute-motion} always operates on the current buffer, regardless of what buffer is displayed in @var{window}."
-msgstr ""
+msgstr "ウィンドウ@var{window}の役割は、使用するディスプレイテーブルの指定することだけである。@code{compute-motion}は、@var{window}内に表示されているのがどのバッファーであろうと、カレントバッファーを処理する。"
 
 #. type: defun
 #: positions.texi.orig:591
 msgid "The return value is a list of five elements:"
-msgstr ""
+msgstr "リターン値は、5つの要素をもつリストである:"
 
 #. type: example
 #: positions.texi.orig:594
 #, no-wrap
 msgid "(@var{pos} @var{hpos} @var{vpos} @var{prevhpos} @var{contin})\n"
-msgstr ""
+msgstr "(@var{pos} @var{hpos} @var{vpos} @var{prevhpos} @var{contin})\n"
 
 #. type: defun
 #: positions.texi.orig:600
 msgid "Here @var{pos} is the buffer position where the scan stopped, @var{vpos} is the vertical screen position, and @var{hpos} is the horizontal screen position."
-msgstr ""
+msgstr "ここで、@var{pos}はスキャンが停止したバッファー位置、@var{vpos}は垂直スクリーン位置、@var{hpos}は水平スクリーン位置である。"
 
 #. type: defun
 #: positions.texi.orig:604
 msgid "The result @var{prevhpos} is the horizontal position one character back from @var{pos}.  The result @var{contin} is @code{t} if the last line was continued after (or within) the previous character."
-msgstr ""
+msgstr "結果@var{prevhpos}は、@var{pos}から1文字戻った水平位置である。結果@var{contin}は、最後の行が前の文字の後(または中)から継続されていれば、@code{t}となる。"
 
 #. type: defun
 #: positions.texi.orig:611
 msgid "For example, to find the buffer position of column @var{col} of screen line @var{line} of a certain window, pass the window's display start location as @var{from} and the window's upper-left coordinates as @var{frompos}.  Pass the buffer's @code{(point-max)} as @var{to}, to limit the scan to the end of the accessible portion of the buffer, and pass @var{line} and @var{col} as @var{topos}.  Here's a function that does this:"
-msgstr ""
+msgstr "たとえば、あるウィンドウのスクリーン行@var{line}の列@var{col}のバッファー位置を求めるには、そのウィンドウのdisplay-start(表示開始)位置を@var{from}、そのウィンドウの左上隅の座標を@var{frompos}として渡す。スキャンをそのバッファーのアクセス可能範囲の終端に制限するために、バッファーの@code{(point-max)}を@var{to}に、@var{line}と@var{col}を@var{topos}に渡す。以下は、これを行う関数である:"
 
 #. type: example
 #: positions.texi.orig:621
@@ -1014,46 +1014,54 @@ msgid ""
 "                       (cons (window-hscroll) 0)\n"
 "                       (selected-window))))\n"
 msgstr ""
+"(defun coordinates-of-position (col line)\n"
+"  (car (compute-motion (window-start)\n"
+"                       '(0 . 0)\n"
+"                       (point-max)\n"
+"                       (cons col line)\n"
+"                       (window-width)\n"
+"                       (cons (window-hscroll) 0)\n"
+"                       (selected-window))))\n"
 
 #. type: defun
 #: positions.texi.orig:626
 msgid "When you use @code{compute-motion} for the minibuffer, you need to use @code{minibuffer-prompt-width} to get the horizontal position of the beginning of the first screen line.  @xref{Minibuffer Contents}."
-msgstr ""
+msgstr "ミニバッファーにたいして@code{compute-motion}を使う際は、最初のスクリーン行の先頭の水平位置を取得するために、@code{minibuffer-prompt-width}を使用する必要がある。"
 
 #. type: subsection
 #: positions.texi.orig:629
 #, no-wrap
 msgid "Moving over Balanced Expressions"
-msgstr ""
+msgstr "Moving over Balanced Expressions"
 
 #. type: cindex
 #: positions.texi.orig:630
 #, no-wrap
 msgid "sexp motion"
-msgstr ""
+msgstr "sexp motion"
 
 #. type: cindex
 #: positions.texi.orig:631
 #, no-wrap
 msgid "Lisp expression motion"
-msgstr ""
+msgstr "Lisp expression motion"
 
 #. type: cindex
 #: positions.texi.orig:632
 #, no-wrap
 msgid "list motion"
-msgstr ""
+msgstr "list motion"
 
 #. type: cindex
 #: positions.texi.orig:633
 #, no-wrap
 msgid "balanced parenthesis motion"
-msgstr ""
+msgstr "balanced parenthesis motion"
 
 #. type: Plain text
 #: positions.texi.orig:642
 msgid "Here are several functions concerned with balanced-parenthesis expressions (also called @dfn{sexps} in connection with moving across them in Emacs).  The syntax table controls how these functions interpret various characters; see @ref{Syntax Tables}.  @xref{Parsing Expressions}, for lower-level primitives for scanning sexps or parts of sexps.  For user-level commands, see @ref{Parentheses,, Commands for Editing with Parentheses, emacs, The GNU Emacs Manual}."
-msgstr ""
+msgstr "Here are several functions concerned with balanced-parenthesis expressions (also called @dfn{sexps} in connection with moving across them in Emacs).  The syntax table controls how these functions interpret various characters; see @ref{Syntax Tables}.  @xref{Parsing Expressions}, for lower-level primitives for scanning sexps or parts of sexps.  For user-level commands, see @ref{Parentheses,, Commands for Editing with Parentheses, emacs, The GNU Emacs Manual}."
 
 #. type: deffn
 #: positions.texi.orig:643
