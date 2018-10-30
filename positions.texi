@@ -558,9 +558,9 @@ comes back" twice.
 @cindex excursion
 
   プログラム中の限定された部分で、ポイントを``一時的''に移動するのが便利なことが時折あります。これは@dfn{エクスカーション(excursion:
-遠足、小旅行)}と呼ばれ、スペシャルフォーム@code{save-excursion}により行います。この構成は、カレントバッファーの初期アイデンティティー、ポイントおよびマークの値を記憶して、そのエクスカーション完了時にそれらをリストアします。これはプログラムのある部分において、プログラムの他の部分に影響を与えることなくポイントを移動する標準的な手段であり、EmacsのLispソース内では何度も使用されています。
+遠足、小旅行)}と呼ばれ、スペシャルフォーム@code{save-excursion}により行います。この構成は、初期のカレントバッファー自体、ポイントおよびマークの値を記憶して、そのエクスカーション完了時にそれらをリストアします。これはプログラムのある部分において、プログラムの他の部分に影響を与えることなくポイントを移動する標準的な手段であり、EmacsのLispソース内では何度も使用されています。
 
-  カレントバッファーのアイデンティティーのみの保存およびリストアが必要な場合は、かわりに@code{save-current-buffer}や@code{with-current-buffer}を使用してください(@ref{Current
+  カレントバッファー自体のみの保存およびリストアが必要な場合は、かわりに@code{save-current-buffer}や@code{with-current-buffer}を使用してください(@ref{Current
 Buffer}を参照)。ウィンドウ構成の保存やリストアが必要なら、@ref{Window Configurations}および@ref{Frame
 Configurations}で説明されているフォームを参照してください。 
 
@@ -601,7 +601,7 @@ Warning: Use `with-current-buffer' rather than
 保存されたポイント値に隣接する通常のテキスト挿入は、それがすべてのマーカーを再配置するのと同様、保存されたポイントカーを再配置します。より正確には、保存される値は挿入タイプ@code{nil}のマーカーです。@ref{Marker
 Insertion Types}を参照してください。したがって、保存されたポイント値のリストア時は、通常は挿入されたテキストの直前になります。
 
-  たとえ@code{save-excursion}がマーク位置を保存しても、バッファーを変更する関数が@code{deactivate-mark}をセットするのを禁止しないため、そのコマンド完了後にマークの非アクティブ家が効力を発揮します。@ref{The
+  たとえ@code{save-excursion}がマーク位置を保存しても、バッファーを変更する関数が@code{deactivate-mark}をセットするのを禁止しないため、そのコマンド完了後にマークの非アクティブ化が効力を発揮します。@ref{The
 Mark}を参照してください。
 
 @node Narrowing
@@ -610,52 +610,32 @@ Mark}を参照してください。
 @cindex restriction (in a buffer)
 @cindex accessible portion (of a buffer)
 
-  @dfn{Narrowing} means limiting the text addressable by Emacs editing
-commands to a limited range of characters in a buffer.  The text that
-remains addressable is called the @dfn{accessible portion} of the buffer.
+  @dfn{ナローイング(narrowing)}とは、Emacs編集コマンドがアドレス指定可能なテキストを、あるバッファー内の制限された文字範囲に限定することを意味します。アドレス可能なテキストは、そのバッファーの@dfn{アクセス可能範囲(accessible
+portion)}と呼ばれます。
 
-  Narrowing is specified with two buffer positions, which become the beginning
-and end of the accessible portion.  For most editing commands and
-primitives, these positions replace the values of the beginning and end of
-the buffer.  While narrowing is in effect, no text outside the accessible
-portion is displayed, and point cannot move outside the accessible portion.
-Note that narrowing does not alter actual buffer positions (@pxref{Point});
-it only determines which positions are considered the accessible portion of
-the buffer.  Most functions refuse to operate on text that is outside the
-accessible portion.
+  ナローイングは2つのバッファー位置により指定され、それがアクセス可能範囲の開始と終了になります。ほとんどの編集コマンドおよびプリミティブにたいし、これらの位置はそれぞれそのバッファーの先頭と終端に置き換えられます。ナローイングが効果をもつ間、アクセス可能範囲外のテキストは表示されず、その外部にポイントを移動することはできません。ナローイングは実際のバッファー位置(@ref{Point}を参照)を変更しないことに注意してください。ほとんどの関数は、アクセス可能範囲外のテキストにたいする操作を受け付けません。
 
-  Commands for saving buffers are unaffected by narrowing; they save the
-entire buffer regardless of any narrowing.
+  バッファーを保存するコマンドは、ナローイングの影響を受けません。どんなナローイングであろうと、それらはバッファー全体を保存します。
 
-  If you need to display in a single buffer several very different types of
-text, consider using an alternative facility described in @ref{Swapping
-Text}.
+  単一バッファー内に、タイプが大きく異なるテキストを複数表示する必要がある場合は、@ref{Swapping
+Text}で説明する代替機能の使用を考慮してみてください。
 
 @deffn Command narrow-to-region start end
-This function sets the accessible portion of the current buffer to start at
-@var{start} and end at @var{end}.  Both arguments should be character
-positions.
+この関数は、アクセス可能範囲の開始と終了に、カレントバッファーの@var{start}と@var{end}をセットする。どちらの引数も、文字位置で指定すること。
 
-In an interactive call, @var{start} and @var{end} are set to the bounds of
-the current region (point and the mark, with the smallest first).
+インタラクティブな呼び出しでは、@var{start}と@var{end}はカレントリージョン(ポイントとマークで、小さいほうが前者)にセットされる。
 @end deffn
 
 @deffn Command narrow-to-page &optional move-count
-This function sets the accessible portion of the current buffer to include
-just the current page.  An optional first argument @var{move-count}
-non-@code{nil} means to move forward or backward by @var{move-count} pages
-and then narrow to one page.  The variable @code{page-delimiter} specifies
-where pages start and end (@pxref{Standard Regexps}).
+この関数は、カレントページだけを含むように、カレントバッファーのアクセス可能範囲をセットする。1つ目のオプション引数@var{move-count}が非@code{nil}の場合は、@var{move-count}で前方または後方へ移動後に、1ページにナローすることを意味する。変数@code{page-delimiter}は、ページの開始と終了の位置を指定する(@ref{Standard
+Regexps}を参照)。
 
-In an interactive call, @var{move-count} is set to the numeric prefix
-argument.
+インタラクティブな呼び出しでは、@var{move-count}には数プレフィクス引数がセットされる。
 @end deffn
 
 @deffn Command widen
 @cindex widening
-This function cancels any narrowing in the current buffer, so that the
-entire contents are accessible.  This is called @dfn{widening}.  It is
-equivalent to the following expression:
+この関数は、カレントバッファーにたいするすべてのナローイングをキャンセルする。これは@dfn{ワイドニング(widening)}と呼ばれる。これは、以下の式と等価である:
 
 @example
 (narrow-to-region 1 (1+ (buffer-size)))
@@ -663,40 +643,23 @@ equivalent to the following expression:
 @end deffn
 
 @defun buffer-narrowed-p
-This function returns non-@code{nil} if the buffer is narrowed, and
-@code{nil} otherwise.
+この関数は、そのバッファーがナローされていれば非@code{nil}、それ以外は@code{nil}をリターンする。
 @end defun
 
 @defspec save-restriction body@dots{}
-This special form saves the current bounds of the accessible portion,
-evaluates the @var{body} forms, and finally restores the saved bounds, thus
-restoring the same state of narrowing (or absence thereof) formerly in
-effect.  The state of narrowing is restored even in the event of an abnormal
-exit via @code{throw} or error (@pxref{Nonlocal Exits}).  Therefore, this
-construct is a clean way to narrow a buffer temporarily.
+このスペシャルフォームは、アクセス可能範囲のカレントのバインドを保存して@var{body}を評価し、以前に有効だったナローイング(またはナローイングのない状態)と同じ状態になるよう最後に保存されたバインドをリストアする。ナローイングの状態は、@code{throw}またはエラーを通じたアブノーマルexit(@ref{Nonlocal
+Exits}を参照)イベント内においても、リストアされる。したがって、この構成は一時的にバッファーをナローする明快な手段である。
 
-The value returned by @code{save-restriction} is that returned by the last
-form in @var{body}, or @code{nil} if no body forms were given.
+@code{save-restriction}がリターンする値は、@var{body}内の最後のフォームのリターン値、または@var{body}フォームが与えられなければ@code{nil}である。
 
 @c Wordy to avoid overfull hbox.  --rjc 16mar92
-@strong{Caution:} it is easy to make a mistake when using the
-@code{save-restriction} construct.  Read the entire description here before
-you try it.
+@strong{注意:} @code{save-restriction}使用時は間違いを起こしやすい。これを試みる前にここでの説明全体を通読すること。
 
-If @var{body} changes the current buffer, @code{save-restriction} still
-restores the restrictions on the original buffer (the buffer whose
-restrictions it saved from), but it does not restore the identity of the
-current buffer.
+@var{body}がカレントバッファーを変更する場合でも、@code{save-restriction}は依然として元のバッファー(その制限が保存されたバッファー)上の制限をリストアするが、カレントバッファー自体はリストアしない。
 
-@code{save-restriction} does @emph{not} restore point and the mark; use
-@code{save-excursion} for that.  If you use both @code{save-restriction} and
-@code{save-excursion} together, @code{save-excursion} should come first (on
-the outside).  Otherwise, the old point value would be restored with
-temporary narrowing still in effect.  If the old point value were outside
-the limits of the temporary narrowing, this would fail to restore it
-accurately.
+@code{save-restriction}は、ポイントとマークを@emph{リストアしない}。これを行うには@code{save-excursion}を使用する。@code{save-restriction}と@code{save-excursion}の両方を共に使用するなら、始め(外側)に@code{save-excursion}を記述すること。それ以外では、一時的なナローイング影響下で古いポイント値がリストアされる。古いポイント値が一時的なナローイング境界外なら、それを実際にリストアするのは失敗するだろう。
 
-Here is a simple example of correct use of @code{save-restriction}:
+以下は、@code{save-restriction}の正しい使い方の簡単な例である:
 
 @example
 @group
