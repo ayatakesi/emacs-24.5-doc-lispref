@@ -510,37 +510,22 @@ syntax)が続くのがdefunである。
 @subsection Skipping Characters
 @cindex skipping characters
 
-  The following two functions move point over a specified set of characters.
-For example, they are often used to skip whitespace.  For related functions,
-see @ref{Motion and Syntax}.
+  以下の2つの関数は、指定された文字セットを超えてポイントを移動します。これらの関数は、たとえば空白文字をスキップするためによく使用されます。関連する関数については、@ref{Motion
+and Syntax}を参照してください。
 
-These functions convert the set string to multibyte if the buffer is
-multibyte, and they convert it to unibyte if the buffer is unibyte, as the
-search functions do (@pxref{Searching and Matching}).
+これらの関数は検索関数(@ref{Searching and
+Matching}を参照)が行うように、そのバッファーがマルチバイト(multibyte)ならマルチバイトに、ユニバイト(unibyte)ならユニバイトに、そのセットト文字列を変換します。
 
 @defun skip-chars-forward character-set &optional limit
-This function moves point in the current buffer forward, skipping over a
-given set of characters.  It examines the character following point, then
-advances point if the character matches @var{character-set}.  This continues
-until it reaches a character that does not match.  The function returns the
-number of characters moved over.
+この関数は、与えられた文字セットをスキップして、カレントバッファー内のポイント前方に移動する。これはポイントの後の文字を調べて、その文字が@var{character-set}にマッチすればポイントを進める。そして、マッチしない文字に到達するまで、これを継続する。この関数は、超えて移動した文字数をリターンする。
 
-The argument @var{character-set} is a string, like the inside of a
-@samp{[@dots{}]} in a regular expression except that @samp{]} does not
-terminate it, and @samp{\} quotes @samp{^}, @samp{-} or @samp{\}.  Thus,
-@code{"a-zA-Z"} skips over all letters, stopping before the first nonletter,
-and @code{"^a-zA-Z"} skips nonletters stopping before the first letter.  See
-@xref{Regular Expressions}.  Character classes can also be used, e.g.,
-@code{"[:alnum:]"}.  See @pxref{Char Classes}.
+引数@var{character-set}が、正規表現での@samp{[@dots{}]}内部と同様だが、@samp{]}で終端されず、@samp{\}が@samp{^}、@samp{-}、@samp{\}をクォートする点が異なる。つまり、@code{"a-zA-Z"}はすべての英字をスキップして最初の非英字の前で停止し、@code{"^a-zA-Z"}はすべての非英字をスキップして最初の英字の前で停止する。@ref{Regular
+Expressions}を参照のこと。@code{"[:alnum:]"}のような文字クラスも使用できる。@pxref{Char
+Classes}を参照されたい。
 
-If @var{limit} is supplied (it must be a number or a marker), it specifies
-the maximum position in the buffer that point can be skipped to.  Point will
-stop at or before @var{limit}.
+@var{limit}(数字かマーカー)が与えられた場合、それはポイントがスキップして到達できる、そのバッファー内の最大位置を指定する。ポイントは@var{limit}、または@var{limit}の前でストップするだろう。
 
-In the following example, point is initially located directly before the
-@samp{T}.  After the form is evaluated, point is located at the end of that
-line (between the @samp{t} of @samp{hat} and the newline).  The function
-skips all letters and spaces, but not newlines.
+以下の例では、ポイントは最初@samp{T}の直前に置かれている。フォーム評価後、ポイントはその行の末尾(@samp{hat}の@samp{t}と改行の間)に置かれる。この関数は、すべての英字とスペースをスキップするが、改行はスキップしない。
 
 @example
 @group
@@ -563,12 +548,9 @@ comes back" twice.
 @end defun
 
 @defun skip-chars-backward character-set &optional limit
-This function moves point backward, skipping characters that match
-@var{character-set}, until @var{limit}.  It is just like
-@code{skip-chars-forward} except for the direction of motion.
+この関数は、@var{limit}に至るまで@var{character-set}にマッチする文字をスキップして、ポイントを後方に移動する。これは@code{skip-chars-forward}と同様だが、ポイントを移動する方向が異なる。
 
-The return value indicates the distance traveled.  It is an integer that is
-zero or less.
+リターン値は、移動した距離を示す。これは、0以上の整数である。
 @end defun
 
 @node Excursions
