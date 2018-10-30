@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-10-26 01:29+0900\n"
-"PO-Revision-Date: 2018-10-31 01:22+0900\n"
+"PO-Revision-Date: 2018-10-31 05:02+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1333,51 +1333,51 @@ msgstr "リターン値は、移動した距離を示す。これは、0以上�
 #: positions.texi.orig:805
 #, no-wrap
 msgid "excursion"
-msgstr ""
+msgstr "excursion"
 
 #. type: Plain text
 #: positions.texi.orig:815
 msgid "It is often useful to move point ``temporarily'' within a localized portion of the program.  This is called an @dfn{excursion}, and it is done with the @code{save-excursion} special form.  This construct remembers the initial identity of the current buffer, and its values of point and the mark, and restores them after the excursion completes.  It is the standard way to move point within one part of a program and avoid affecting the rest of the program, and is used thousands of times in the Lisp sources of Emacs."
-msgstr ""
+msgstr "プログラム中の限定された部分で、ポイントを``一時的''に移動するのが便利なことが時折あります。これは@dfn{エクスカーション(excursion: 遠足、小旅行)}と呼ばれ、スペシャルフォーム@code{save-excursion}により行います。この構成は、カレントバッファーの初期アイデンティティー、ポイントおよびマークの値を記憶して、そのエクスカーション完了時にそれらをリストアします。これはプログラムのある部分において、プログラムの他の部分に影響を与えることなくポイントを移動する標準的な手段であり、EmacsのLispソース内では何度も使用されています。"
 
 #.  frameset?
 #. type: Plain text
 #: positions.texi.orig:821
 msgid "If you only need to save and restore the identity of the current buffer, use @code{save-current-buffer} or @code{with-current-buffer} instead (@pxref{Current Buffer}).  If you need to save or restore window configurations, see the forms described in @ref{Window Configurations} and in @ref{Frame Configurations}."
-msgstr ""
+msgstr "カレントバッファーのアイデンティティーのみの保存およびリストアが必要な場合は、かわりに@code{save-current-buffer}や@code{with-current-buffer}を使用してください(@ref{Current Buffer}を参照)。ウィンドウ構成の保存やリストアが必要なら、@ref{Window Configurations}および@ref{Frame Configurations}で説明されているフォームを参照してください。"
 
 #. type: defspec
 #: positions.texi.orig:822
 #, no-wrap
 msgid "save-excursion body@dots{}"
-msgstr ""
+msgstr "save-excursion body@dots{}"
 
 #. type: cindex
 #: positions.texi.orig:823
 #, no-wrap
 msgid "mark excursion"
-msgstr ""
+msgstr "mark excursion"
 
 #. type: cindex
 #: positions.texi.orig:824
 #, no-wrap
 msgid "point excursion"
-msgstr ""
+msgstr "point excursion"
 
 #. type: defspec
 #: positions.texi.orig:830
 msgid "This special form saves the identity of the current buffer and the values of point and the mark in it, evaluates @var{body}, and finally restores the buffer and its saved values of point and the mark.  All three saved values are restored even in case of an abnormal exit via @code{throw} or error (@pxref{Nonlocal Exits})."
-msgstr ""
+msgstr "このスペシャルフォームは、カレントバッファー自体、およびポイント値とマーク値を保存して@var{body}を評価し、最後にバッファーおよび保存したポイントとマークの値をリストアする。@code{throw}またはエラーを通じたアブノーマルexit(@ref{Nonlocal Exits}を参照)の場合でも、保存された3つすべての値はリストアされる。"
 
 #. type: defspec
 #: positions.texi.orig:833
 msgid "The value returned by @code{save-excursion} is the result of the last form in @var{body}, or @code{nil} if no body forms were given."
-msgstr ""
+msgstr "@code{save-excursion}がリターンする値は@var{body}内の最後のフォームの結果、または@var{body}フォームが与えられなければ@code{nil}をリターンする。"
 
 #. type: Plain text
 #: positions.texi.orig:841
 msgid "Because @code{save-excursion} only saves point and mark for the buffer that was current at the start of the excursion, any changes made to point and/or mark in other buffers, during the excursion, will remain in effect afterward.  This frequently leads to unintended consequences, so the byte compiler warns if you call @code{set-buffer} during an excursion:"
-msgstr ""
+msgstr "@code{save-excursion}は、エクスカーション開始時にカレントだったバッファーのポイントとマークだけを保存ため、そのエクスカーション中に変更された他のバッファーのポイントおよび/またはマークは、その後も効果が残るでしょう。これはしばしば予期せぬ結果を招くので、エクスカーション中に@code{set-buffer}を呼び出した場合、バイトコンパイラーは警告を発します:"
 
 #. type: example
 #: positions.texi.orig:845
@@ -1386,11 +1386,13 @@ msgid ""
 "Warning: Use `with-current-buffer' rather than\n"
 "         save-excursion+set-buffer\n"
 msgstr ""
+"Warning: Use `with-current-buffer' rather than\n"
+"         save-excursion+set-buffer\n"
 
 #. type: Plain text
 #: positions.texi.orig:850
 msgid "To avoid such problems, you should call @code{save-excursion} only after setting the desired current buffer, as in the following example:"
-msgstr ""
+msgstr "このような問題を避けるには、以下の例のように望むカレントバッファーをセット後にのみ@code{save-excursion}を呼び出すべきです:"
 
 #. type: group
 #: positions.texi.orig:859
@@ -1403,27 +1405,33 @@ msgid ""
 "      (goto-char (point-max))\n"
 "      (insert string))))\n"
 msgstr ""
+"(defun append-string-to-buffer (string buffer)\n"
+"  \"BUFFER末尾にSTRINGを追加\"\n"
+"  (with-current-buffer buffer\n"
+"    (save-excursion\n"
+"      (goto-char (point-max))\n"
+"      (insert string))))\n"
 
 #. type: cindex
 #: positions.texi.orig:862
 #, no-wrap
 msgid "window excursions"
-msgstr ""
+msgstr "window excursions"
 
 #. type: Plain text
 #: positions.texi.orig:865
 msgid "Likewise, @code{save-excursion} does not restore window-buffer correspondences altered by functions such as @code{switch-to-buffer}."
-msgstr ""
+msgstr "同じように、@code{save-excursion}は@code{switch-to-buffer}のような関数が変更したウィンドウ/バッファーの対応をリストアしません。"
 
 #. type: Plain text
 #: positions.texi.orig:872
 msgid "@strong{Warning:} Ordinary insertion of text adjacent to the saved point value relocates the saved value, just as it relocates all markers.  More precisely, the saved value is a marker with insertion type @code{nil}.  @xref{Marker Insertion Types}.  Therefore, when the saved point value is restored, it normally comes before the inserted text."
-msgstr ""
+msgstr "@strong{警告:} 保存されたポイント値に隣接する通常のテキスト挿入は、それがすべてのマーカーを再配置するのと同様、保存されたポイントカーを再配置します。より正確には、保存される値は挿入タイプ@code{nil}のマーカーです。@ref{Marker Insertion Types}を参照してください。したがって、保存されたポイント値のリストア時は、通常は挿入されたテキストの直前になります。"
 
 #. type: Plain text
 #: positions.texi.orig:877
 msgid "Although @code{save-excursion} saves the location of the mark, it does not prevent functions which modify the buffer from setting @code{deactivate-mark}, and thus causing the deactivation of the mark after the command finishes.  @xref{The Mark}."
-msgstr ""
+msgstr "たとえ@code{save-excursion}がマーク位置を保存しても、バッファーを変更する関数が@code{deactivate-mark}をセットするのを禁止しないため、そのコマンド完了後にマークの非アクティブ化が効力を発揮します。@ref{The Mark}を参照してください。"
 
 #. type: cindex
 #: positions.texi.orig:880

@@ -557,38 +557,23 @@ comes back" twice.
 @section Excursions
 @cindex excursion
 
-  It is often useful to move point ``temporarily'' within a localized portion
-of the program.  This is called an @dfn{excursion}, and it is done with the
-@code{save-excursion} special form.  This construct remembers the initial
-identity of the current buffer, and its values of point and the mark, and
-restores them after the excursion completes.  It is the standard way to move
-point within one part of a program and avoid affecting the rest of the
-program, and is used thousands of times in the Lisp sources of Emacs.
+  プログラム中の限定された部分で、ポイントを``一時的''に移動するのが便利なことが時折あります。これは@dfn{エクスカーション(excursion:
+遠足、小旅行)}と呼ばれ、スペシャルフォーム@code{save-excursion}により行います。この構成は、カレントバッファーの初期アイデンティティー、ポイントおよびマークの値を記憶して、そのエクスカーション完了時にそれらをリストアします。これはプログラムのある部分において、プログラムの他の部分に影響を与えることなくポイントを移動する標準的な手段であり、EmacsのLispソース内では何度も使用されています。
 
-  If you only need to save and restore the identity of the current buffer, use
-@code{save-current-buffer} or @code{with-current-buffer} instead
-(@pxref{Current Buffer}).  If you need to save or restore window
-configurations, see the forms described in @ref{Window Configurations} and
-in @ref{Frame Configurations}. 
+  カレントバッファーのアイデンティティーのみの保存およびリストアが必要な場合は、かわりに@code{save-current-buffer}や@code{with-current-buffer}を使用してください(@ref{Current
+Buffer}を参照)。ウィンドウ構成の保存やリストアが必要なら、@ref{Window Configurations}および@ref{Frame
+Configurations}で説明されているフォームを参照してください。 
 
 @defspec save-excursion body@dots{}
 @cindex mark excursion
 @cindex point excursion
-This special form saves the identity of the current buffer and the values of
-point and the mark in it, evaluates @var{body}, and finally restores the
-buffer and its saved values of point and the mark.  All three saved values
-are restored even in case of an abnormal exit via @code{throw} or error
-(@pxref{Nonlocal Exits}).
+このスペシャルフォームは、カレントバッファー自体、およびポイント値とマーク値を保存して@var{body}を評価し、最後にバッファーおよび保存したポイントとマークの値をリストアする。@code{throw}またはエラーを通じたアブノーマルexit(@ref{Nonlocal
+Exits}を参照)の場合でも、保存された3つすべての値はリストアされる。
 
-The value returned by @code{save-excursion} is the result of the last form
-in @var{body}, or @code{nil} if no body forms were given.
+@code{save-excursion}がリターンする値は@var{body}内の最後のフォームの結果、または@var{body}フォームが与えられなければ@code{nil}をリターンする。
 @end defspec
 
-  Because @code{save-excursion} only saves point and mark for the buffer that
-was current at the start of the excursion, any changes made to point and/or
-mark in other buffers, during the excursion, will remain in effect
-afterward.  This frequently leads to unintended consequences, so the byte
-compiler warns if you call @code{set-buffer} during an excursion:
+  @code{save-excursion}は、エクスカーション開始時にカレントだったバッファーのポイントとマークだけを保存ため、そのエクスカーション中に変更された他のバッファーのポイントおよび/またはマークは、その後も効果が残るでしょう。これはしばしば予期せぬ結果を招くので、エクスカーション中に@code{set-buffer}を呼び出した場合、バイトコンパイラーは警告を発します:
 
 @example
 Warning: Use `with-current-buffer' rather than
@@ -596,13 +581,12 @@ Warning: Use `with-current-buffer' rather than
 @end example
 
 @noindent
-To avoid such problems, you should call @code{save-excursion} only after
-setting the desired current buffer, as in the following example:
+このような問題を避けるには、以下の例のように望むカレントバッファーをセット後にのみ@code{save-excursion}を呼び出すべきです:
 
 @example
 @group
 (defun append-string-to-buffer (string buffer)
-  "Append STRING to the end of BUFFER."
+  "BUFFER末尾にSTRINGを追加"
   (with-current-buffer buffer
     (save-excursion
       (goto-char (point-max))
@@ -611,19 +595,14 @@ setting the desired current buffer, as in the following example:
 @end example
 
 @cindex window excursions
-  Likewise, @code{save-excursion} does not restore window-buffer
-correspondences altered by functions such as @code{switch-to-buffer}.
+  同じように、@code{save-excursion}は@code{switch-to-buffer}のような関数が変更したウィンドウ/バッファーの対応をリストアしません。
 
-  @strong{Warning:} Ordinary insertion of text adjacent to the saved point
-value relocates the saved value, just as it relocates all markers.  More
-precisely, the saved value is a marker with insertion type @code{nil}.
-@xref{Marker Insertion Types}.  Therefore, when the saved point value is
-restored, it normally comes before the inserted text.
+  @strong{警告:}
+保存されたポイント値に隣接する通常のテキスト挿入は、それがすべてのマーカーを再配置するのと同様、保存されたポイントカーを再配置します。より正確には、保存される値は挿入タイプ@code{nil}のマーカーです。@ref{Marker
+Insertion Types}を参照してください。したがって、保存されたポイント値のリストア時は、通常は挿入されたテキストの直前になります。
 
-  Although @code{save-excursion} saves the location of the mark, it does not
-prevent functions which modify the buffer from setting
-@code{deactivate-mark}, and thus causing the deactivation of the mark after
-the command finishes.  @xref{The Mark}.
+  たとえ@code{save-excursion}がマーク位置を保存しても、バッファーを変更する関数が@code{deactivate-mark}をセットするのを禁止しないため、そのコマンド完了後にマークの非アクティブ家が効力を発揮します。@ref{The
+Mark}を参照してください。
 
 @node Narrowing
 @section Narrowing
