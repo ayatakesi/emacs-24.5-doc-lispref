@@ -432,43 +432,32 @@ window)}がリターンする値と等しい。
 @cindex list motion
 @cindex balanced parenthesis motion
 
-  Here are several functions concerned with balanced-parenthesis expressions
-(also called @dfn{sexps} in connection with moving across them in Emacs).
-The syntax table controls how these functions interpret various characters;
-see @ref{Syntax Tables}.  @xref{Parsing Expressions}, for lower-level
-primitives for scanning sexps or parts of sexps.  For user-level commands,
-see @ref{Parentheses,, Commands for Editing with Parentheses, emacs, The GNU
-Emacs Manual}.
+  以下は、バランスの取れたカッコ式(balanced-parenthesis。これらの式を横断して移動することと関連して、Emacsでは@dfn{sexp(S式)}とも呼ばれる)と関連する、いくつかの関数です。これらの関数がさまざまな文字を処理する方法は、構文テーブル(syntax
+table)が制御します。@ref{Syntax
+Tables}を参照してください。sexp、またはその一部にたいする低レベルのプリミティブについては、@ref{Parsing
+Expressions}を参照してください。ユーザーレベルのコマンドについては、@ref{Parentheses,, Commands for
+Editing with Parentheses, emacs, The GNU Emacs Manual}を参照してください。
 
 @deffn Command forward-list &optional arg
-This function moves forward across @var{arg} (default 1) balanced groups of
-parentheses.  (Other syntactic entities such as words or paired string
-quotes are ignored.)
+この関数は、バランスの取れたカッコのグループを、@var{arg}(デフォルトは1)グループ前方に移動する(単語やクォート文字のペアーでクォートされた文字列は無視される)。
 @end deffn
 
 @deffn Command backward-list &optional arg
-This function moves backward across @var{arg} (default 1) balanced groups of
-parentheses.  (Other syntactic entities such as words or paired string
-quotes are ignored.)
+この関数は、バランスの取れたカッコのグループを、@var{arg}(デフォルトは1)グループ後方に移動する(単語やクォート文字のペアーでクォートされた文字列は無視される)。
 @end deffn
 
 @deffn Command up-list &optional arg
-This function moves forward out of @var{arg} (default 1) levels of
-parentheses.  A negative argument means move backward but still to a less
-deep spot.
+この関数は、カッコを@var{arg}(デフォルトは1)レベル外側前方に移動する。負の引数では後方に移動するが、同様に浅いレベルに移動する。
 @end deffn
 
 @deffn Command down-list &optional arg
-This function moves forward into @var{arg} (default 1) levels of
-parentheses.  A negative argument means move backward but still go deeper in
-parentheses (@minus{}@var{arg} levels).
+この関数は、カッコを@var{arg}(デフォルトは1)レベル内側前方に移動する。負の引数では後方に移動するが、同様に深いレベル(@minus{}@var{arg}レベル)に移動する。
 @end deffn
 
 @deffn Command forward-sexp &optional arg
-This function moves forward across @var{arg} (default 1) balanced
-expressions.  Balanced expressions include both those delimited by
-parentheses and other kinds, such as words and string constants.
-@xref{Parsing Expressions}.  For example,
+この関数は、バランスの取れた式(balanced
+expressions)を、@var{arg}(デフォルトは1)前方に移動する。バランスの取れた式にはカッコ等で区切られた式、および単語や文字列定数のようなものも含まれる。@ref{Parsing
+Expressions}を参照のこと。たとえば、
 
 @example
 @group
@@ -489,48 +478,32 @@ parentheses and other kinds, such as words and string constants.
 @end deffn
 
 @deffn Command backward-sexp &optional arg
-This function moves backward across @var{arg} (default 1) balanced
-expressions.
+この関数は、バランスの取れた式(balanced expressions)を、@var{arg}(デフォルトは1)後方に移動する。
 @end deffn
 
 @deffn Command beginning-of-defun &optional arg
-This function moves back to the @var{arg}th beginning of a defun.  If
-@var{arg} is negative, this actually moves forward, but it still moves to
-the beginning of a defun, not to the end of one.  @var{arg} defaults to 1.
+この関数は、後方に@var{arg}番目のdefunの先頭に移動する。@var{arg}が負なら、実際には前方に移動するが、defunの終端ではなく先頭に移動することは変わらない。@var{arg}のデフォルトは1。
 @end deffn
 
 @deffn Command end-of-defun &optional arg
-This function moves forward to the @var{arg}th end of a defun.  If @var{arg}
-is negative, this actually moves backward, but it still moves to the end of
-a defun, not to the beginning of one.  @var{arg} defaults to 1.
+この関数は、前方に@var{arg}番目のdefunの終端に移動する。@var{arg}が負なら、実際には後方に移動するが、defunの先頭ではなく終端に移動することは変わらない。@var{arg}のデフォルトは1。
 @end deffn
 
 @defopt defun-prompt-regexp
-If non-@code{nil}, this buffer-local variable holds a regular expression
-that specifies what text can appear before the open-parenthesis that starts
-a defun.  That is to say, a defun begins on a line that starts with a match
-for this regular expression, followed by a character with open-parenthesis
-syntax.
+非@code{nil}なら、このバッファーローカル変数はdefunの始まりとなる開きカッコの前に出現し得るテキストを指定する正規表現を保持する。つまりd、この正規表現にたいするマッチで始まり、その後に開きカッコ構文(open-parenthesis
+syntax)が続くのがdefunである。
 @end defopt
 
 @defopt open-paren-in-column-0-is-defun-start
-If this variable's value is non-@code{nil}, an open parenthesis in column 0
-is considered to be the start of a defun.  If it is @code{nil}, an open
-parenthesis in column 0 has no special meaning.  The default is @code{t}.
+この変数の値が非@code{nil}なら、列0にある開きカッコはdefunの始まりとみなされる。@code{nil}の場合、列0の開きカッコは特別な意味をもたない。デフォルトは@code{t}。
 @end defopt
 
 @defvar beginning-of-defun-function
-If non-@code{nil}, this variable holds a function for finding the beginning
-of a defun.  The function @code{beginning-of-defun} calls this function
-instead of using its normal method, passing it its optional argument.  If
-the argument is non-@code{nil}, the function should move back by that many
-functions, like @code{beginning-of-defun} does.
+非@code{nil}なら、この変数はdefunの開始を見つける関数を保持する。関数@code{beginning-of-defun}は、通常の手法を使うかわりに、その関数に自身のオプション引数を渡して、その関数を呼び出す。その引数が非@code{nil}なら、その関数はその回数分の関数呼び出しにより、@code{beginning-of-defun}が行うように後方に移動すること。
 @end defvar
 
 @defvar end-of-defun-function
-If non-@code{nil}, this variable holds a function for finding the end of a
-defun.  The function @code{end-of-defun} calls this function instead of
-using its normal method.
+非@code{nil}なら、この変数はdefunの終端を見つける関数を保持する。関数@code{end-of-defun}は、通常の手法を使うかわりに、その関数を呼び出す。
 @end defvar
 
 @node Skipping Characters
