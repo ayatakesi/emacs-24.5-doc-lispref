@@ -116,15 +116,13 @@ m1
 @cindex creating markers
 @cindex marker creation
 
-  When you create a new marker, you can make it point nowhere, or point to the
-present position of point, or to the beginning or end of the accessible
-portion of the buffer, or to the same place as another given marker.
+  マーカーを新たに作成する際は、存在しない場所、ポイントの現在位置、バッファーのアクセス可能範囲の先頭や終端、または別の与えられたマーカーと同じ箇所を指すようにすることができます。
 
-The next four functions all return markers with insertion type @code{nil}.
-@xref{Marker Insertion Types}.
+以下の4つの関数はすべて、挿入タイプ@code{nil}のマーカーをリターンします。@ref{Marker Insertion
+Types}を参照してください。
 
 @defun make-marker
-This function returns a newly created marker that does not point anywhere.
+この関数は、どこも指さないマーカーを新たに作成してリターンする。
 
 @example
 @group
@@ -135,24 +133,17 @@ This function returns a newly created marker that does not point anywhere.
 @end defun
 
 @defun point-marker
-This function returns a new marker that points to the present position of
-point in the current buffer.  @xref{Point}.  For an example, see
-@code{copy-marker}, below.
+この関数は、カレントバッファーのポイント現在位置を指すマーカーを新たに作成してリターンする。@xref{Point}を参照のこと。例は以下の@code{copy-marker}を参照されたい。
 @end defun
 
 @defun point-min-marker
-This function returns a new marker that points to the beginning of the
-accessible portion of the buffer.  This will be the beginning of the buffer
-unless narrowing is in effect.  @xref{Narrowing}.
+この関数は、バッファーのアクセス可能範囲の先頭を指すマーカーを新たに作成してリターンする。ナローイングが効力をもたなければ、これはバッファーの先頭になるだろう。@ref{Narrowing}を参照のこと。
 @end defun
 
 @defun point-max-marker
-This function returns a new marker that points to the end of the accessible
-portion of the buffer.  This will be the end of the buffer unless narrowing
-is in effect.  @xref{Narrowing}.
+この関数は、バッファーのアクセス可能範囲の終端を指すマーカーを新たに作成してリターンする。ナローイングが効力をもたなければ、これはバッファーの終端になるだろう。@ref{Narrowing}を参照のこと。
 
-Here are examples of this function and @code{point-min-marker}, shown in a
-buffer containing a version of the source file for the text of this chapter.
+以下に、このチャプターのテキストのソースファイルのバージョンを含むバッファーにたいして、この関数および@code{point-min-marker}を使用した例を示す。
 
 @example
 @group
@@ -178,14 +169,10 @@ buffer containing a version of the source file for the text of this chapter.
 @end defun
 
 @defun copy-marker &optional marker-or-integer insertion-type
-If passed a marker as its argument, @code{copy-marker} returns a new marker
-that points to the same place and the same buffer as does
-@var{marker-or-integer}.  If passed an integer as its argument,
-@code{copy-marker} returns a new marker that points to position
-@var{marker-or-integer} in the current buffer.
+引数としてマーカーを渡されると、@code{copy-marker}は@var{marker-or-integer}が行うようにして、同じバッファーの同じ位置を指すマーカーを新たに作成してリターンする。整数を渡された場合、@code{copy-marker}はカレントバッファーの位置@var{marker-or-integer}を指すマーカーを新たに作成してリターンする。
 
-The new marker's insertion type is specified by the argument
-@var{insertion-type}.  @xref{Marker Insertion Types}.
+新たなマーカーの挿入タイプは、引数@var{insertion-type}により指定される。@ref{Marker Insertion
+Types}を参照のこと。
 
 @c This behavior used to be documented until 2013/08.
 @ignore
@@ -208,12 +195,10 @@ buffer.
 @end group
 @end example
 
-An error is signaled if @var{marker} is neither a marker nor an integer.
+@var{marker}がマーカーと整数のいずれでもない場合は、エラーがシグナルされる。
 @end defun
 
-  Two distinct markers are considered @code{equal} (even though not @code{eq})
-to each other if they have the same position and buffer, or if they both
-point nowhere.
+  2つのマーカーは、それらが同じバッファーの同じ位置、またはどちらも存在しない場所を指す場合は、(@code{eq}ではないものの)@code{equal}とみなされます。
 
 @example
 @group
