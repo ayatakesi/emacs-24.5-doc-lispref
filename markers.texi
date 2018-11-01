@@ -270,27 +270,18 @@ buffer.
 @section Marker Insertion Types
 
 @cindex insertion type of a marker
-  When you insert text directly at the place where a marker points, there are
-two possible ways to relocate that marker: it can point before the inserted
-text, or point after it.  You can specify which one a given marker should do
-by setting its @dfn{insertion type}.  Note that use of
-@code{insert-before-markers} ignores markers' insertion types, always
-relocating a marker to point after the inserted text.
+  マーカーが指す位置に直接テキストを挿入する際、そのマーカーを再配置するために利用可能な手段が2つあります。そのマーカーはは挿入されたテキストの前、あるいは後を指すことができます。マーカーの@dfn{挿入タイプ(insertion
+type)}を指定することにより、マーカーがどちらを行うか指定できます。@code{insert-before-markers}を使用する場合は、マーカーの挿入タイプを無視して、常にマーカーが挿入されたテキストの後を指すよう再配置されることに注意してください。
 
 @defun set-marker-insertion-type marker type
-This function sets the insertion type of marker @var{marker} to @var{type}.
-If @var{type} is @code{t}, @var{marker} will advance when text is inserted
-at its position.  If @var{type} is @code{nil}, @var{marker} does not advance
-when text is inserted there.
+この関数は、マーカー@var{marker}の挿入タイプを、@var{type}にセットする。@var{type}が@code{t}の場合、テキスト挿入時に@var{marker}はその位置まで進められるだろう。@var{type}が@code{nil}なら、テキスト挿入時に@var{marker}はそこまで進められない。
 @end defun
 
 @defun marker-insertion-type marker
-This function reports the current insertion type of @var{marker}.
+この関数は、@var{marker}のカレント挿入タイプを報告する。
 @end defun
 
-Most functions that create markers, without an argument allowing to specify
-the insertion type, create them with insertion type @code{nil}.  Also, the
-mark has, by default, insertion type @code{nil}.
+挿入タイプを指定するための引数を受け取らない、マーカーを作成する関数のほとんどは、挿入タイプ@code{nil}のマーカーを作成しします。また、マークがもつデフォルトの挿入タイプも@code{nil}です。
 
 @node Moving Markers
 @section Moving Marker Positions
