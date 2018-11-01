@@ -281,21 +281,17 @@ type)}を指定することにより、マーカーがどちらを行うか指�
 この関数は、@var{marker}のカレント挿入タイプを報告する。
 @end defun
 
-挿入タイプを指定するための引数を受け取らない、マーカーを作成する関数のほとんどは、挿入タイプ@code{nil}のマーカーを作成しします。また、マークがもつデフォルトの挿入タイプも@code{nil}です。
+挿入タイプを指定するための引数を受け取らない、マーカーを作成する関数のほとんどは、挿入タイプ@code{nil}のマーカーを作成します。また、マークがもつデフォルトの挿入タイプも@code{nil}です。
 
 @node Moving Markers
 @section Moving Marker Positions
 @cindex moving markers
 @cindex marker, how to move position
 
-  This section describes how to change the position of an existing marker.
-When you do this, be sure you know whether the marker is used outside of
-your program, and, if so, what effects will result from moving
-it---otherwise, confusing things may happen in other parts of Emacs.
+  このセクションでは、既存マーカーの位置を変更する方法について説明します。これを行う際は、そのマーカーがあなたのプログラム外部に使用されているかどうか、もし使用されているならマーカーを移動した結果どのような影響が生じるかを確実に理解する必要があります。さもないと、Emacsの他の部分で、混乱した出来事が発生するかもしれません。
 
 @defun set-marker marker position &optional buffer
-This function moves @var{marker} to @var{position} in @var{buffer}.  If
-@var{buffer} is not provided, it defaults to the current buffer.
+この関数は、@var{buffer}内で@var{marker}を@var{position}に移動する。@var{buffer}が与えられなかった場合のデフォルトは、カレントバッファーである。
 
 @c This behavior used to be documented until 2013/08.
 @ignore
@@ -304,10 +300,9 @@ to the beginning of the buffer.  If @var{position} is greater than the
 size of the buffer (@pxref{Point}), @code{set-marker} moves marker to
 the end of the buffer.
 @end ignore
-If @var{position} is @code{nil} or a marker that points nowhere, then
-@var{marker} is set to point nowhere.
+@var{position}が@code{nil}、または存在しない場所を指すマーカーの場合、@var{marker}は存在しない場所を指すようにセットされる。
 
-The value returned is @var{marker}.
+リターン値は@var{marker}である。
 
 @example
 @group
@@ -330,7 +325,7 @@ The value returned is @var{marker}.
 @end defun
 
 @defun move-marker marker position &optional buffer
-This is another name for @code{set-marker}.
+これは@code{set-marker}の別名である。
 @end defun
 
 @node The Mark
