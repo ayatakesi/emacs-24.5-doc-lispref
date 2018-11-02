@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-10-31 08:31+0900\n"
-"PO-Revision-Date: 2018-11-02 07:34+0900\n"
+"PO-Revision-Date: 2018-11-02 15:54+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -753,81 +753,81 @@ msgstr "これは@code{set-marker}の別名である。"
 #: markers.texi.orig:402
 #, no-wrap
 msgid "mark, the"
-msgstr ""
+msgstr "mark, the"
 
 #. type: Plain text
 #: markers.texi.orig:409
 msgid "Each buffer has a special marker, which is designated @dfn{the mark}.  When a buffer is newly created, this marker exists but does not point anywhere; this means that the mark ``doesn't exist'' in that buffer yet.  Subsequent commands can set the mark."
-msgstr ""
+msgstr "バッファーはそれぞれ、@dfn{マーク(mark)}という、バッファー専用の特別なマーカーをもちますバッファーが新たに作成される際、すでにこのマーカーは存在していますが、どこも指していません。これは、そのバッファーにはまだマークが``存在しない''ことを意味します。それ以降のコマンドがマークをセットできます。"
 
 #. type: Plain text
 #: markers.texi.orig:419
 msgid "The mark specifies a position to bound a range of text for many commands, such as @code{kill-region} and @code{indent-rigidly}.  These commands typically act on the text between point and the mark, which is called the @dfn{region}.  If you are writing a command that operates on the region, don't examine the mark directly; instead, use @code{interactive} with the @samp{r} specification.  This provides the values of point and the mark as arguments to the command in an interactive call, but permits other Lisp programs to specify arguments explicitly.  @xref{Interactive Codes}."
-msgstr ""
+msgstr "マークは、@code{kill-region}や@code{indent-rigidly}のような多くのコマンドにたいして、テキスト範囲をバインドするための位置を指定します。通常これらのコマンドは、ポイントとマークの間の、@dfn{リージョン(region)}と呼ばれるテキストに作用します。リージョンを操作するコマンドを記述する場合は、マークを直接調べず、かわりに@samp{r}指定とともに@code{interactive}を使用してください。このようにすれば、インタラクティブな呼び出しではコマンドの引数としてポイントとマークの値が提供され、かつ他のLispプログラムは引数を明示的に指定できます。@ref{Interactive Codes}を参照してください。"
 
 #. type: Plain text
 #: markers.texi.orig:426
 msgid "Some commands set the mark as a side-effect.  Commands should do this only if it has a potential use to the user, and never for their own internal purposes.  For example, the @code{replace-regexp} command sets the mark to the value of point before doing any replacements, because this enables the user to move back there conveniently after the replace is finished."
-msgstr ""
+msgstr "いくつかのコマンドは、その副作用(side-effect)としてマークをセットします。コマンドは、ユーザーがそれを使用する可能性がある場合のみマークをセットするべきであり、決してコマンドの内部的な目的にたいして使用してはなりません。たとえば@code{replace-regexp}コマンドは、何らかの置換を行う前にマークにポイントの値をセットしますが、その理由はこれによりユーザーが置換を終えた後、簡単にその位置に戻ることが可能になるからです。"
 
 #. type: Plain text
 #: markers.texi.orig:435
 msgid "Once the mark ``exists'' in a buffer, it normally never ceases to exist.  However, it may become @dfn{inactive}, if Transient Mark mode is enabled.  The buffer-local variable @code{mark-active}, if non-@code{nil}, means that the mark is active.  A command can call the function @code{deactivate-mark} to deactivate the mark directly, or it can request deactivation of the mark upon return to the editor command loop by setting the variable @code{deactivate-mark} to a non-@code{nil} value."
-msgstr ""
+msgstr "一度バッファー内にマークが``存在''すれば、その存在は通常は決して消えることはありません。しかし、Transient Markモードが有効な場合、マークが@dfn{非アクティブ(inactive)}になることはあります。バッファーローカル変数@code{mark-active}が非@code{nil}なら、それはマークがアクティブであることを意味します。コマンドはマークを直接非アクティブにするために関数@code{deactivate-mark}を呼び出すことができ、変数@code{deactivate-mark}を非@code{nil}値にセットすることにより、エディターコマンドループ(editor command loop)にリターン時にマークの非アクティブ化を要求できます。"
 
 #. type: Plain text
 #: markers.texi.orig:441
 msgid "If Transient Mark mode is enabled, certain editing commands that normally apply to text near point, apply instead to the region when the mark is active.  This is the main motivation for using Transient Mark mode.  (Another is that this enables highlighting of the region when the mark is active.  @xref{Display}.)"
-msgstr ""
+msgstr "Transient Markモードが有効な場合、通常ならポイント近傍に適用される特定の編集コマンドは、マークがアクティブなときはかわりにリージョンに適用されます。これがTransient Markモードを使用する主な動機です(他にも、マークアクティブ時にはリージョンのハイライトが有効になるという理由もある。@ref{Display}を参照されたい)。"
 
 #. type: cindex
 #: markers.texi.orig:442
 #, no-wrap
 msgid "mark ring"
-msgstr ""
+msgstr "mark ring"
 
 #. type: Plain text
 #: markers.texi.orig:449
 msgid "In addition to the mark, each buffer has a @dfn{mark ring} which is a list of markers containing previous values of the mark.  When editing commands change the mark, they should normally save the old value of the mark on the mark ring.  The variable @code{mark-ring-max} specifies the maximum number of entries in the mark ring; once the list becomes this long, adding a new element deletes the last element."
-msgstr ""
+msgstr "マークに加えて、バッファーはそれぞれ@dfn{マークリング(mark ring)}をもっています。これは、以前のマーク値を含むマーカーのリストです。編集コマンドがマークを変更する際、それらのコマンドは通常はマークの旧値をマークリングに保存するべきです。変数@code{mark-ring-max}は、マークリング内のエントリー最大数を指定します。リストがこの長さに達すると、最後の要素を削除して、新たな要素が追加されます。"
 
 #. type: Plain text
 #: markers.texi.orig:453
 msgid "There is also a separate global mark ring, but that is used only in a few particular user-level commands, and is not relevant to Lisp programming.  So we do not describe it here."
-msgstr ""
+msgstr "これとは別にグローバルマークリング(global mark ring)がありますが、それは少数の特定のユーザーレベルコマンドでのみ使用され、Lispプログラムとは関連しないので、ここでは説明しません。"
 
 #. type: defun
 #: markers.texi.orig:454
 #, no-wrap
 msgid "mark &optional force"
-msgstr ""
+msgstr "mark &optional force"
 
 #. type: cindex
 #: markers.texi.orig:455
 #, no-wrap
 msgid "current buffer mark"
-msgstr ""
+msgstr "current buffer mark"
 
 #. type: defun
 #: markers.texi.orig:458
 msgid "This function returns the current buffer's mark position as an integer, or @code{nil} if no mark has ever been set in this buffer."
-msgstr ""
+msgstr "この関数は、カレントバッファーのマーク位置を整数でリターンする。そのバッファー内でそれまでマークがセットされていなければ@code{nil}をリターンする。"
 
 #. type: defun
 #: markers.texi.orig:464
 msgid "If Transient Mark mode is enabled, and @code{mark-even-if-inactive} is @code{nil}, @code{mark} signals an error if the mark is inactive.  However, if @var{force} is non-@code{nil}, then @code{mark} disregards inactivity of the mark, and returns the mark position (or @code{nil})  anyway."
-msgstr ""
+msgstr "Transient Markモードが有効、かつ@code{mark-even-if-inactive}が@code{nil}の場合、マークが非アクティブなら@code{mark}はエラーをシグナルする。しかし、@var{force}が非@code{nil}なら、@code{mark}はマークの非アクティブ性を無視して、何にせよマーク位置(か@code{nil})をリターンする。"
 
 #. type: defun
 #: markers.texi.orig:466
 #, no-wrap
 msgid "mark-marker"
-msgstr ""
+msgstr "mark-marker"
 
 #. type: defun
 #: markers.texi.orig:471
 msgid "This function returns the marker that represents the current buffer's mark.  It is not a copy, it is the marker used internally.  Therefore, changing this marker's position will directly affect the buffer's mark.  Don't do that unless that is the effect you want."
-msgstr ""
+msgstr "この関数は、カレントバッファーのマークを表すマーカーをリターンする。これはコピーではなく、内部的に使用されるマーカーである。したがって、このマーカー位置にたいする変更は、そのバッファーのマークに直接影響する。それが望む効果でなければ、これを行ってはならない。"
 
 #. type: group
 #: markers.texi.orig:476
@@ -836,6 +836,8 @@ msgid ""
 "(setq m (mark-marker))\n"
 "     @result{} #<marker at 3420 in markers.texi>\n"
 msgstr ""
+"(setq m (mark-marker))\n"
+"     @result{} #<marker at 3420 in markers.texi>\n"
 
 #. type: group
 #: markers.texi.orig:480
@@ -844,6 +846,8 @@ msgid ""
 "(set-marker m 100)\n"
 "     @result{} #<marker at 100 in markers.texi>\n"
 msgstr ""
+"(set-marker m 100)\n"
+"     @result{} #<marker at 100 in markers.texi>\n"
 
 #. type: group
 #: markers.texi.orig:484
@@ -852,32 +856,34 @@ msgid ""
 "(mark-marker)\n"
 "     @result{} #<marker at 100 in markers.texi>\n"
 msgstr ""
+"(mark-marker)\n"
+"     @result{} #<marker at 100 in markers.texi>\n"
 
 #. type: defun
 #: markers.texi.orig:491
 msgid "Like any marker, this marker can be set to point at any buffer you like.  If you make it point at any buffer other than the one of which it is the mark, it will yield perfectly consistent, but rather odd, results.  We recommend that you not do it!"
-msgstr ""
+msgstr "他のマーカー同様、このマーカーを任意のバッファー位置にセットできる。このマーカーに、これがマークする以外のバッファーを指すようにすると、完全に整合性があるものの、いささか奇妙な結果を得ることになるだろう。これを行わないことを、わたしたちは推奨する!"
 
 #. type: defun
 #: markers.texi.orig:493
 #, no-wrap
 msgid "set-mark position"
-msgstr ""
+msgstr "set-mark position"
 
 #. type: defun
 #: markers.texi.orig:496
 msgid "This function sets the mark to @var{position}, and activates the mark.  The old value of the mark is @emph{not} pushed onto the mark ring."
-msgstr ""
+msgstr "この関数は、マークを@var{position}にセットして、そのマークをアクティブにする。マークの旧値はマークリングに@emph{pushされない}。"
 
 #. type: defun
 #: markers.texi.orig:502
 msgid "@strong{Please note:} Use this function only if you want the user to see that the mark has moved, and you want the previous mark position to be lost.  Normally, when a new mark is set, the old one should go on the @code{mark-ring}.  For this reason, most applications should use @code{push-mark} and @code{pop-mark}, not @code{set-mark}."
-msgstr ""
+msgstr "@strong{注意:} マークが移動したことをユーザーに確認させ、かつ前のマーク位置が失われることを望む場合のみ、この関数を使用すること。通常は、マークセット時に古いマークは@code{mark-ring}にpushされるべきである。この理由により、ほとんどのアプリケーションは@code{set-mark}ではなく、@code{push-mark}および@code{pop-mark}を使用するべきである。"
 
 #. type: defun
 #: markers.texi.orig:510
 msgid "Novice Emacs Lisp programmers often try to use the mark for the wrong purposes.  The mark saves a location for the user's convenience.  An editing command should not alter the mark unless altering the mark is part of the user-level functionality of the command.  (And, in that case, this effect should be documented.)  To remember a location for internal use in the Lisp program, store it in a Lisp variable.  For example:"
-msgstr ""
+msgstr "Emacs Lispの初心者プログラマーは、誤った用途にマークの使用を試みがちである。ユーザーの利便のために位置を保存するのがマークである。編集コマンドは、マーク変更がコマンドのユーザーレベル機能の一部でない限り、マークを変更するべきではない(そして、そのような場合にはその効果をドキュメントするべきである)。Lispプログラムの内部的な使用のために位置を記憶するためには、マークをLisp変数に格納すること。たとえば:"
 
 #. type: group
 #: markers.texi.orig:516
@@ -887,86 +893,89 @@ msgid ""
 "  (forward-line 1)\n"
 "  (delete-region beg (point))).\n"
 msgstr ""
+"(let ((beg (point)))\n"
+"  (forward-line 1)\n"
+"  (delete-region beg (point)))\n"
 
 #. type: defun
 #: markers.texi.orig:520
 #, no-wrap
 msgid "push-mark &optional position nomsg activate"
-msgstr ""
+msgstr "push-mark &optional position nomsg activate"
 
 #. type: defun
 #: markers.texi.orig:526
 msgid "This function sets the current buffer's mark to @var{position}, and pushes a copy of the previous mark onto @code{mark-ring}.  If @var{position} is @code{nil}, then the value of point is used."
-msgstr ""
+msgstr "この関数は、カレントバッファーのマークを@var{position}にセットして、前のマークを@code{mark-ring}にpushする。@var{position}が@code{nil}の場合は、ポイントの値を使用する。"
 
 #. type: defun
 #: markers.texi.orig:529
 msgid "The function @code{push-mark} normally @emph{does not} activate the mark.  To do that, specify @code{t} for the argument @var{activate}."
-msgstr ""
+msgstr "関数@code{push-mark}は通常、マークをアクティブに@emph{しない}。アクティブにする場合は、引数@var{activate}に@code{t}を指定する。"
 
 #. type: defun
 #: markers.texi.orig:532
 msgid "A @samp{Mark set} message is displayed unless @var{nomsg} is non-@code{nil}."
-msgstr ""
+msgstr "@var{nomsg}が@code{nil}なら、メッセージ@samp{Mark set}が表示される。"
 
 #. type: defun
 #: markers.texi.orig:534
 #, no-wrap
 msgid "pop-mark"
-msgstr ""
+msgstr "pop-mark"
 
 #. type: defun
 #: markers.texi.orig:542
 msgid "This function pops off the top element of @code{mark-ring} and makes that mark become the buffer's actual mark.  This does not move point in the buffer, and it does nothing if @code{mark-ring} is empty.  It deactivates the mark."
-msgstr ""
+msgstr "この関数は、@code{mark-ring}のトップ要素をpopして、そのマークをバッファーの実際のマークにする。これはバッファー内のポイントを移動せず、@code{mark-ring}が空なら何も行わない。これはマークを非アクティブ化する。"
 
 #. type: defopt
 #: markers.texi.orig:544
 #, no-wrap
 msgid "transient-mark-mode"
-msgstr ""
+msgstr "transient-mark-mode"
 
 #. type: defopt
 #: markers.texi.orig:549
 msgid "This variable, if non-@code{nil}, enables Transient Mark mode.  In Transient Mark mode, every buffer-modifying primitive sets @code{deactivate-mark}.  As a consequence, most commands that modify the buffer also deactivate the mark."
-msgstr ""
+msgstr "この変数が非@code{nil}なら、Transient Markモードを有効にする。Transient Markモードでは、すべてのバッファー変更プリミティブが@code{deactivate-mark}をセットする。結果として、バッファーを変更するほとんどのコマンドも、マークを非アクティブにする。"
 
 #. type: defopt
 #: markers.texi.orig:554
 msgid "When Transient Mark mode is enabled and the mark is active, many commands that normally apply to the text near point instead apply to the region.  Such commands should use the function @code{use-region-p} to test whether they should operate on the region.  @xref{The Region}."
-msgstr ""
+msgstr "Transient Markモードが有効かつマークがアクティブの場合、通常はポイント近傍に適用されるコマンドの多くは、かわりにリージョンに適用される。そのようなコマンドは、リージョンを処理すべきかどうかをテストするために、関数@code{use-region-p}を使用するべきである。@ref{The Region}を参照のこと。"
 
 #. type: defopt
 #: markers.texi.orig:564
 msgid "Lisp programs can set @code{transient-mark-mode} to non-@code{nil}, non-@code{t} values to enable Transient Mark mode temporarily.  If the value is @code{lambda}, Transient Mark mode is automatically turned off after any action, such as buffer modification, that would normally deactivate the mark.  If the value is @w{@code{(only . @var{oldval})}}, then @code{transient-mark-mode} is set to the value @var{oldval} after any subsequent command that moves point and is not shift-translated (@pxref{Key Sequence Input, shift-translation}), or after any other action that would normally deactivate the mark."
-msgstr ""
+msgstr "Lispプログラムは、一時的にTransient Markモードを有効にするために、@code{transient-mark-mode}を@code{nil}でも@code{t}でもない値にセットできる。値が@code{lambda}なら、バッファー変更のような通常ならマークを非アクティブ化するような操作の後、Transient Markモードを自動的にオフに切り替える。値が@w{@code{(only . @var{oldval})}}なら、後続のコマンドがポイントを移動かつシフト変換(@ref{Key Sequence Input, shift-translation}を参照)されていない場合、あるいは通常はマークを非アクティブにするその他の操作の場合は、@code{transient-mark-mode}に値@var{oldval}をセットする。"
 
 #. type: defopt
 #: markers.texi.orig:566
 #, no-wrap
 msgid "mark-even-if-inactive"
-msgstr ""
+msgstr "mark-even-if-inactive"
 
 #. type: defopt
 #: markers.texi.orig:572
 msgid "If this is non-@code{nil}, Lisp programs and the Emacs user can use the mark even when it is inactive.  This option affects the behavior of Transient Mark mode.  When the option is non-@code{nil}, deactivation of the mark turns off region highlighting, but commands that use the mark behave as if the mark were still active."
-msgstr ""
+msgstr "これが非@code{nil}なら、LispプログラムおよびEmacsユーザーは、たとえ非アクティブでもマークを使用できる。このオプションは、Transient Markモードの動作に影響を及ぼす。このオプションが非@code{nil}なら、マークの非アクティブ化によりリージョンのハイライトはオフに切り替えられるが、マークを使用するコマンドは、あたかもマークがアクティブであるかのように振る舞う。"
 
 #. type: defvar
 #: markers.texi.orig:574
 #, no-wrap
 msgid "deactivate-mark"
-msgstr ""
+msgstr "deactivate-mark"
 
 #. type: defvar
 #: markers.texi.orig:580
 msgid "If an editor command sets this variable non-@code{nil}, then the editor command loop deactivates the mark after the command returns (if Transient Mark mode is enabled).  All the primitives that change the buffer set @code{deactivate-mark}, to deactivate the mark when the command is finished."
-msgstr ""
+msgstr "エディターコマンドがこの変数を非@code{nil}にセットすると、エディターコマンドループはコマンドのリターン後に、(Transient Markモードが有効なら)マークを非アクティブにする。バッファーを変更するすべてのプリミティブは、コマンド終了時にマークを非アクティブにするために、@code{deactivate-mark}をセットする。"
 
 #. type: defvar
 #: markers.texi.orig:585
 msgid "To write Lisp code that modifies the buffer without causing deactivation of the mark at the end of the command, bind @code{deactivate-mark} to @code{nil} around the code that does the modification.  For example:"
-msgstr ""
+msgstr "コマンド終了時にマークを非アクティブにすることなくバッファーを変更するLispコードを記述するためには、変更を行うコードの周辺で@code{deactivate-mark}を@code{nil}にバインドすること。たとえば:"
 
 #. type: example
 #: markers.texi.orig:589
@@ -975,72 +984,74 @@ msgid ""
 "(let (deactivate-mark)\n"
 "  (insert \" \"))\n"
 msgstr ""
+"(let (deactivate-mark)\n"
+"  (insert \" \"))\n"
 
 #. type: defun
 #: markers.texi.orig:592
 #, no-wrap
 msgid "deactivate-mark &optional force"
-msgstr ""
+msgstr "deactivate-mark &optional force"
 
 #. type: defun
 #: markers.texi.orig:596
 msgid "If Transient Mark mode is enabled or @var{force} is non-@code{nil}, this function deactivates the mark and runs the normal hook @code{deactivate-mark-hook}.  Otherwise, it does nothing."
-msgstr ""
+msgstr "Transient Markモードが有効、または@var{force}が非@code{nil}の場合、この関数はマークを非アクティブにしてノーマルフック@code{deactivate-mark-hook}を実行し、それ以外は何も行わない。"
 
 #. type: defvar
 #: markers.texi.orig:598
 #, no-wrap
 msgid "mark-active"
-msgstr ""
+msgstr "mark-active"
 
 #. type: defvar
 #: markers.texi.orig:604
 msgid "The mark is active when this variable is non-@code{nil}.  This variable is always buffer-local in each buffer.  Do @emph{not} use the value of this variable to decide whether a command that normally operates on text near point should operate on the region instead.  Use the function @code{use-region-p} for that (@pxref{The Region})."
-msgstr ""
+msgstr "この変数が非@code{nil}なら、マークはアクティブである。この変数は、それぞれのバッファーにたいして、常にローカルである。通常はポイント近傍を操作するコマンドが、かわりにリージョンを操作すべきかどうかを判断するために、この変数の値を@emph{使用してはならない}。その目的にたいしては、関数@code{use-region-p}を使用すること(@ref{The Region}を参照)。"
 
 #. type: defvar
 #: markers.texi.orig:606
 #, no-wrap
 msgid "activate-mark-hook"
-msgstr ""
+msgstr "activate-mark-hook"
 
 #. type: defvarx
 #: markers.texi.orig:607
 #, no-wrap
 msgid "deactivate-mark-hook"
-msgstr ""
+msgstr "deactivate-mark-hook"
 
 #. type: defvar
 #: markers.texi.orig:612
 msgid "These normal hooks are run, respectively, when the mark becomes active and when it becomes inactive.  The hook @code{activate-mark-hook} is also run at the end of the command loop if the mark is active and it is possible that the region may have changed."
-msgstr ""
+msgstr "これらのノーマルフックは、マークがアクティブまたは非アクティブになった際に、順次実行される。マークがアクティブで、かつリージョンが変更された可能性があるなら、コマンドループの最後にフック@code{activate-mark-hook}も実行される。"
 
 #. type: defun
 #: markers.texi.orig:622
 #, no-wrap
 msgid "handle-shift-selection"
-msgstr ""
+msgstr "handle-shift-selection"
 
 #. type: defun
 #: markers.texi.orig:629
 msgid "This function implements the ``shift-selection'' behavior of point-motion commands.  @xref{Shift Selection,,, emacs, The GNU Emacs Manual}.  It is called automatically by the Emacs command loop whenever a command with a @samp{^} character in its @code{interactive} spec is invoked, before the command itself is executed (@pxref{Interactive Codes, ^})."
-msgstr ""
+msgstr "この関数は、ポイント移動コマンドの``シフト選択(shift-selection)''の動作を実装する。@ref{Shift Selection,,, emacs, The GNU Emacs Manual}を参照のこと。これは、@code{interactive}指定に文字@samp{^}を含むコマンド呼び出し時は常に、そのコマンド自身を実行する前に、Emacsコマンドループにより自動的に呼び出される(@ref{Interactive Codes, ^}を参照)。"
 
 #. type: defun
 #: markers.texi.orig:637
 msgid "If @code{shift-select-mode} is non-@code{nil} and the current command was invoked via shift translation (@pxref{Key Sequence Input, shift-translation}), this function sets the mark and temporarily activates the region, unless the region was already temporarily activated in this way.  Otherwise, if the region has been activated temporarily, it deactivates the mark and restores the variable @code{transient-mark-mode} to its earlier value."
-msgstr ""
+msgstr "@code{shift-select-mode}が非@code{nil}、かつカレントコマンドがシフト変換(@ref{Key Sequence Input, shift-translation}を参照)を通じて呼び出された場合、この関数はマークをセットして一時的にリージョンをアクティブにする(すでにこの方法によりリージョンが一時的にアクティブにされている場合を除く)。それ以外では、リージョンが一時的にアクティブにされていれば、マークを非アクティブにして、変数@code{transient-mark-mode}に前の値をリストアする。"
 
 #. type: defvar
 #: markers.texi.orig:639
 #, no-wrap
 msgid "mark-ring"
-msgstr ""
+msgstr "mark-ring"
 
 #. type: defvar
 #: markers.texi.orig:642
 msgid "The value of this buffer-local variable is the list of saved former marks of the current buffer, most recent first."
-msgstr ""
+msgstr "このバッファーローカル変数の値は、もっとも最近のものが先頭となった、カレントバッファーの以前に保存されたマークのリストである。"
 
 #. type: group
 #: markers.texi.orig:649
@@ -1051,17 +1062,21 @@ msgid ""
 "    #<marker at 10832 in markers.texi>\n"
 "    @dots{})\n"
 msgstr ""
+"mark-ring\n"
+"@result{} (#<marker at 11050 in markers.texi>\n"
+"    #<marker at 10832 in markers.texi>\n"
+"    @dots{})\n"
 
 #. type: defopt
 #: markers.texi.orig:653
 #, no-wrap
 msgid "mark-ring-max"
-msgstr ""
+msgstr "mark-ring-max"
 
 #. type: defopt
 #: markers.texi.orig:657
 msgid "The value of this variable is the maximum size of @code{mark-ring}.  If more marks than this are pushed onto the @code{mark-ring}, @code{push-mark} discards an old mark when it adds a new one."
-msgstr ""
+msgstr "この変数の値は、@code{mark-ring}の最大サイズである。これより多くのマークが@code{mark-ring}にpushされると、新たなマーク追加時に@code{push-mark}は古いマークを破棄する。"
 
 #. type: cindex
 #: markers.texi.orig:669
