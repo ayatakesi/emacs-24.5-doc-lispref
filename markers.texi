@@ -514,46 +514,29 @@ mark-ring
 @c the first hit.
 @cindex region
 
-  The text between point and the mark is known as @dfn{the region}.  Various
-functions operate on text delimited by point and the mark, but only those
-functions specifically related to the region itself are described here.
+  ポイントとマークの間のテキストは、@dfn{リージョン(region)}という名で知られています。さまざまな関数がポイントとマークで区切られたテキストを操作しますが、ここではリージョンそのものに特に関連する関数だけを説明します。
 
-The next two functions signal an error if the mark does not point anywhere.
-If Transient Mark mode is enabled and @code{mark-even-if-inactive} is
-@code{nil}, they also signal an error if the mark is inactive.
+以下の2つの関数は、マークが何処も指していなければエラーをシグナルします。Transient
+Markモードが有効、かつ@code{mark-even-if-inactive}が@code{nil}なら、マークが非アクティブな場合のエラーをシグナルします。
 
 @defun region-beginning
-This function returns the position of the beginning of the region (as an
-integer).  This is the position of either point or the mark, whichever is
-smaller.
+この関数は、リージョンの先頭位置を、(整数として)リターンする。これは、ポイントかマークのいずれか小さいほうの位置である。
 @end defun
 
 @defun region-end
-This function returns the position of the end of the region (as an
-integer).  This is the position of either point or the mark, whichever is
-larger.
+この関数は、リージョンの終端位置を、(整数として)リターンする。これは、ポイントかマークのいずれか大きいほうの位置である。
 @end defun
 
 @c FIXME: Mention it in tips.texi?
-  Instead of using @code{region-beginning} and @code{region-end}, a command
-designed to operate on a region should normally use @code{interactive} with
-the @samp{r} specification to find the beginning and end of the region.
-This lets other Lisp programs specify the bounds explicitly as arguments.
-@xref{Interactive Codes}.
+  リージョンにたいして操作を行うようにデザインされたコマンドがリージョンの先頭と終端を探すには、@code{region-beginning}および@code{region-end}を使用するかわりに、通常は@samp{r}指定とともに@code{interactive}を使用するべきです。これにより、他のLispプログラムが引数として明示的にリージョンの境界を指定できるようになります。@ref{Interactive
+Codes}を参照してください。。
 
 @defun use-region-p
-This function returns @code{t} if Transient Mark mode is enabled, the mark
-is active, and there is a valid region in the buffer.  This function is
-intended to be used by commands that operate on the region, instead of on
-text near point, when the mark is active.
+この関数は、Transient
+Markモードが有効でマークがアクティブであり、かつバッファー内に有効なリージョンがあれば@code{t}をリターンする。この関数は、マークアクティブ時にはポイント近傍のテキストのかわりにリージョンを操作するコマンドにより使用されることを意図している。
 
 @cindex empty region
 @vindex use-empty-active-region
-A region is valid if it has a non-zero size, or if the user option
-@code{use-empty-active-region} is non-@code{nil} (by default, it is
-@code{nil}).  The function @code{region-active-p} is similar to
-@code{use-region-p}, but considers all regions as valid.  In most cases, you
-should not use @code{region-active-p}, since if the region is empty it is
-often more appropriate to operate on point.
+リージョンは、それが非0のサイズをもつか、あるいはユーザーオプション@code{use-empty-active-region}が非@code{nil}(デフォルトは@code{nil})なら有効である。関数@code{region-active-p}は@code{use-region-p}と同様だが、すべてのリージョンを有効とみなす。リージョンが空ならポイントにたいして操作を行うほうが適切な場合が多いため、ほとんどの場合は@code{region-active-p}を使用するべきではない。
 @end defun
 
