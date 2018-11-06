@@ -130,16 +130,12 @@ Lines}を参照のこと。バッファー(またはアクセス可能範囲)の
 @section Examining Buffer Contents
 @cindex buffer portion as string
 
-  This section describes functions that allow a Lisp program to convert any
-portion of the text in the buffer into a string.
+  このセクションでは、Lispプログラムがバッファー内の任意の範囲のテキストを、文字列に変換するための関数を説明します。
 
 @defun buffer-substring start end
-This function returns a string containing a copy of the text of the region
-defined by positions @var{start} and @var{end} in the current buffer.  If
-the arguments are not positions in the accessible portion of the buffer,
-@code{buffer-substring} signals an @code{args-out-of-range} error.
+この関数は、カレントバッファー内の位置@var{start}と@var{end}で定義されるリージョンのテキストのコピーを含む文字列をリターンする。引数がバッファーのアクセス可能範囲内の位置でない場合、@code{buffer-substring}は@code{args-out-of-range}エラーをリターンする。
 
-Here's an example which assumes Font-Lock mode is not enabled:
+以下の例では、Font-Lockモードが有効でないものとする:
 
 @example
 @group
@@ -159,12 +155,9 @@ This is the contents of buffer foo
 @end group
 @end example
 
-If the text being copied has any text properties, these are copied into the
-string along with the characters they belong to.  @xref{Text Properties}.
-However, overlays (@pxref{Overlays}) in the buffer and their properties are
-ignored, not copied.
+コピーされるテキストが何らかのテキストプロパティをもっていた場合、それらのプロパティが属す文字とともに文字列にコピーされる。しかし、バッファー内のオーバーレイ(@ref{Overlays}を参照)、およびそれらのプロパティは無視されるため、コピーされない。
 
-For example, if Font-Lock mode is enabled, you might get results like these:
+たとえば、Font-Lockモードが有効なら、以下のような結果を得るだろう:
 
 @example
 @group
@@ -175,98 +168,53 @@ For example, if Font-Lock mode is enabled, you might get results like these:
 @end defun
 
 @defun buffer-substring-no-properties start end
-This is like @code{buffer-substring}, except that it does not copy text
-properties, just the characters themselves.  @xref{Text Properties}.
+これは@code{buffer-substring}と同様だが、テキストプロパティはコピーせず、文字自体だけをコピーする点が異なる。@ref{Text
+Properties}を参照のこと。
 @end defun
 
 @defun buffer-string
-This function returns the contents of the entire accessible portion of the
-current buffer, as a string.
+この関数は、カレントバッファーのアクセス可能範囲全体のコンテンツを、文字列としてリターンする。
 @end defun
 
 @defun filter-buffer-substring start end &optional delete
-This function filters the buffer text between @var{start} and @var{end}
-using a function specified by the variable
-@code{filter-buffer-substring-function}, and returns the result.
+この関数は、変数@code{filter-buffer-substring-function}により指定された関数を使用して、@var{start}と@var{end}の間のバッファーテキストをフィルターし、その結果をリターンする。
 
-The default filter function consults the obsolete wrapper hook
-@code{filter-buffer-substring-functions}, and the obsolete variable
-@code{buffer-substring-filters}.  If both of these are @code{nil}, it
-returns the unaltered text from the buffer, i.e., what
-@code{buffer-substring} would return.
+デフォルトのフィルター関数は時代遅れとなったラッパーフック@code{filter-buffer-substring-functions}、および同様に時代遅れとなった変数@code{buffer-substring-filters}を参照する。これら両者が@code{nil}なら、バッファーから未変更のテキスト、すなわち@code{buffer-substring}がリターンするであろうテキストをリターンする。
 
-If @var{delete} is non-@code{nil}, the function deletes the text between
-@var{start} and @var{end} after copying it, like
-@code{delete-and-extract-region}.
+@var{delete}が非@code{nil}なら、この関数は@code{delete-and-extract-region}と同様、コピー後に@var{start}と@var{end}の間のテキストを削除する。
 
-Lisp code should use this function instead of @code{buffer-substring},
-@code{buffer-substring-no-properties}, or @code{delete-and-extract-region}
-when copying into user-accessible data structures such as the kill-ring, X
-clipboard, and registers.  Major and minor modes can modify
-@code{filter-buffer-substring-function} to alter such text as it is copied
-out of the buffer.
+Lispコードは、killリング、Xクリップボード、レジスターのようなユーザーがアクセス可能なデータ構造内にコピーする際は@code{buffer-substring}、@code{buffer-substring-no-properties}、@code{delete-and-extract-region}のかわりにこの関数を使用するべきである。メジャーモードおよびマイナーモードは、バッファー外部にコピーするテキストを変更するために@code{filter-buffer-substring-function}を変更することができる。
 @end defun
 
 @defvar filter-buffer-substring-function
-The value of this variable is a function that @code{filter-buffer-substring}
-will call to do the actual work.  The function receives three arguments, the
-same as those of @code{filter-buffer-substring}, which it should treat as
-per the documentation of that function.  It should return the filtered text
-(and optionally delete the source text).
+この変数の値は、実際の処理を行うために@code{filter-buffer-substring}が呼び出す関数である。その関数は、@code{filter-buffer-substring}と同じように3つの引数を受けとり、それらは@code{filter-buffer-substring}にドキュメントされているように扱われるべきである。関数は、フィルターされたテキストをリターン(およびオプションでソーステキストを削除)すること。
 @end defvar
 
-@noindent The following two variables are obsoleted by
-@code{filter-buffer-substring-function}, but are still supported for
-backward compatibility.
+@noindent
+以下の2つの変数は、@code{filter-buffer-substring-function}により時代遅れになりましたが、後方互換のために依然サポートされます。
 
 @defvar filter-buffer-substring-functions
-This obsolete variable is a wrapper hook, whose members should be functions
-that accept four arguments: @var{fun}, @var{start}, @var{end}, and
-@var{delete}.  @var{fun} is a function that takes three arguments
-(@var{start}, @var{end}, and @var{delete}), and returns a string.  In both
-cases, the @var{start}, @var{end}, and @var{delete} arguments are the same
-as those of @code{filter-buffer-substring}.
+これは時代遅れとなったラッパーフックであり、このフックのメンバーは@var{fun}、@var{start}、@var{end}、@var{delete}の4つの引数を受け取る関数であること。@var{fun}は3つの引数(@var{start}、@var{end}、@var{delete})をとり、文字列をリターンする関数である。両者とも、引数@var{start}、@var{end}、@var{delete}は@code{filter-buffer-substring}のときと同様の意味をもつ。
 
-The first hook function is passed a @var{fun} that is equivalent to the
-default operation of @code{filter-buffer-substring}, i.e., it returns the
-buffer-substring between @var{start} and @var{end} (processed by any
-@code{buffer-substring-filters}) and optionally deletes the original text
-from the buffer.  In most cases, the hook function will call @var{fun} once,
-and then do its own processing of the result.  The next hook function
-receives a @var{fun} equivalent to this, and so on.  The actual return value
-is the result of all the hook functions acting in sequence.
+1つ目のフック関数は@code{filter-buffer-substring}のデフォルトの処理と同じく@var{start}と@var{end}の間の(任意の@code{buffer-substring-filters}により処理された)バッファー部分文字列をリターンし、オプションでバッファーから元テキストを削除する関数で、それが@var{fun}に渡される。ほとんどの場合、フック関数は@var{fun}を1回だけ呼び出してから、その結果にたいして自身の処理を行う。次のフック関数はこれと等しい@var{fun}を受け取り、順次それが繰り返されていく。実際のリターン値は、すべてのフック関数が順次処理した結果である。
 @end defvar
 
 @defvar buffer-substring-filters
-The value of this obsolete variable should be a list of functions that
-accept a single string argument and return another string.  The default
-@code{filter-buffer-substring} function passes the buffer substring to the
-first function in this list, and the return value of each function is passed
-to the next function.  The return value of the last function is passed to
-@code{filter-buffer-substring-functions}.
+時代遅れとなったこの変数の値は、文字列を唯一の引数ちして別の文字列をリターンする関数のリストであること。デフォルトの@code{filter-buffer-substring}関数は、バッファー部分文字列をこのリストの1つ目の関数に渡し、そのリターン値を次の関数に渡して、それぞれの関数にたいしてこれが順次繰り返される。最後の関数のリターン値は、@code{filter-buffer-substring-functions}に渡される。
 @end defvar
 
 @defun current-word &optional strict really-word
-This function returns the symbol (or word) at or near point, as a string.
-The return value includes no text properties.
+この関数は、ポイント位置またはその付近のシンボル(または単語)を、文字列としてリターンする。リターン値にはテキストプロパティは含まれない。
 
-If the optional argument @var{really-word} is non-@code{nil}, it finds a
-word; otherwise, it finds a symbol (which includes both word characters and
-symbol constituent characters).
+オプション引数@var{really-word}が非@code{nil}なら単語、それ以外はシンボル(単語文字とシンボル構成文字の両方を含む)を探す。
 
-If the optional argument @var{strict} is non-@code{nil}, then point must be
-in or next to the symbol or word---if no symbol or word is there, the
-function returns @code{nil}.  Otherwise, a nearby symbol or word on the same
-line is acceptable.
+オプション引数@var{strict}が非@code{nil}の場合、ポイントは単語(またはシンボル)の内部にあるか隣接しなければならない。そこに単語(またはシンボル)がなければ、この関数は@code{nil}をリターンする。@var{strict}が@code{nil}なら、ポイントと同一行にある近接する単語(またはシンボル)が許容される。
 @end defun
 
 @defun thing-at-point thing
-Return the @var{thing} around or next to point, as a string.
+ポイントに隣接または周辺にある@var{thing}を、文字列としてリターンする。
 
-The argument @var{thing} is a symbol which specifies a kind of syntactic
-entity.  Possibilities include @code{symbol}, @code{list}, @code{sexp},
-@code{defun}, @code{filename}, @code{url}, @code{word}, @code{sentence},
-@code{whitespace}, @code{line}, @code{page}, and others.
+引数@var{thing}は、構文エンティティの種別を指定するシンボルである。可能なシンボルとしては@code{symbol}、@code{list}、@code{sexp}、@code{defun}、@code{filename}、@code{url}、@code{word}、@code{sentence}、@code{whitespace}、@code{line}、@code{page}、その他が含まれる。
 
 @example
 ---------- Buffer: foo ----------
