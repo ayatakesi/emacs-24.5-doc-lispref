@@ -235,29 +235,18 @@ but there is no peace.
 @section Comparing Text
 @cindex comparing buffer text
 
-  This function lets you compare portions of the text in a buffer, without
-copying them into strings first.
+  この関数により、最初にバッファー内のテキストを文字列内にコピーすることなく、バッファー内のテキスト断片を比較することが可能になります。
 
 @defun compare-buffer-substrings buffer1 start1 end1 buffer2 start2 end2
-This function lets you compare two substrings of the same buffer or two
-different buffers.  The first three arguments specify one substring, giving
-a buffer (or a buffer name) and two positions within the buffer.  The last
-three arguments specify the other substring in the same way.  You can use
-@code{nil} for @var{buffer1}, @var{buffer2}, or both to stand for the
-current buffer.
+この関数により、1つのバッファー、または2つの異なるバッファーの、2つの部分文字列(substrings)を比較できる。最初の3つの引数は、バッファーとそのバッファー内の2つの位置を与えることにより、1つの部分文字列を指定する。最後の3つの引数は、同様の方法によりもう一方の部分文字列を指定する。@var{buffer1}と@var{buffer2}のいずれか、または両方にたいして、カレントバッファーを意味する@code{nil}を使用できる。
 
-The value is negative if the first substring is less, positive if the first
-is greater, and zero if they are equal.  The absolute value of the result is
-one plus the index of the first differing characters within the substrings.
+1つ目の部分文字列が2つ目の部分文字列より小なら負、大なら正、等しければ値は0となる。結果の絶対値は、部分文字列内で最初に異なる文字のインデックスに1を和した値である。
 
-This function ignores case when comparing characters if
-@code{case-fold-search} is non-@code{nil}.  It always ignores text
-properties.
+@code{case-fold-search}が非@code{nil}なら、この関数は大文字小文字の違いを無視する。テキストプロパティは常に無視される。
 
-Suppose you have the text @w{@samp{foobarbar haha!rara!}} in the current
-buffer; then in this example the two substrings are @samp{rbar } and
-@samp{rara!}.  The value is 2 because the first substring is greater at the
-second character.
+カレントバッファー内にテキスト@w{@samp{foobarbar
+haha!rara!}}があるとしよう。そしてこの例では2つの部分文字列が@samp{rbar
+}と@samp{rara!}であるとする。1つ目の文字列の2つ目の文字が大きいので、値は2となる。
 
 @example
 (compare-buffer-substrings nil 6 11 nil 16 21)
