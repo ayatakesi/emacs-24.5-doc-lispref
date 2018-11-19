@@ -383,100 +383,63 @@ syntax)をもつ場合は、@code{blink-paren-function}を呼び出す責任も�
 @cindex text deletion
 
 @cindex deleting text vs killing
-  Deletion means removing part of the text in a buffer, without saving it in
-the kill ring (@pxref{The Kill Ring}).  Deleted text can't be yanked, but
-can be reinserted using the undo mechanism (@pxref{Undo}).  Some deletion
-functions do save text in the kill ring in some special cases.
+  削除とは、バッファー内のテキストの一部を、killリングに保存せずに取り除くことを意味します。(@ref{The Kill
+Ring}を参照)。削除されたテキストをyankすることはできませんが、undoメカニズム(@ref{Undo}を参照)を使用すれば再挿入が可能です。特別なケースにおいては、killリングにテキストの保存を行う削除関数がいくつかあります。
 
-  All of the deletion functions operate on the current buffer.
+  削除関数はすべて、カレントバッファーにたいして処理を行います。
 
 @deffn Command erase-buffer
-This function deletes the entire text of the current buffer (@emph{not} just
-the accessible portion), leaving it empty.  If the buffer is read-only, it
-signals a @code{buffer-read-only} error; if some of the text in it is
-read-only, it signals a @code{text-read-only} error.  Otherwise, it deletes
-the text without asking for any confirmation.  It returns @code{nil}.
+この関数は、カレントバッファーのテキスト全体(アクセス可能範囲だけでは@emph{ない})を削除してバッファーが読み取り専用なら@code{buffer-read-only}、バッファー内の一部テキストが読み取り専用の場合は@code{text-read-only}をシグナルする。それ以外では、確認なしでテキストを削除する。リターン値は@code{nil}。
 
-Normally, deleting a large amount of text from a buffer inhibits further
-auto-saving of that buffer ``because it has shrunk''.  However,
-@code{erase-buffer} does not do this, the idea being that the future text is
-not really related to the former text, and its size should not be compared
-with that of the former text.
+バッファーからの大量テキストの削除により、``バッファーが大幅に縮小された''という理由で、通常はさらなる自動保存ふぁ抑制される。しかし@code{erase-buffer}は、将来のテキストが以前のテキストと関連があるのは稀であり、以前のテキストのサイズと比較されるべきではないというアイデアにもとづき、これを行わない。
 @end deffn
 
 @deffn Command delete-region start end
-This command deletes the text between positions @var{start} and @var{end} in
-the current buffer, and returns @code{nil}.  If point was inside the deleted
-region, its value afterward is @var{start}.  Otherwise, point relocates with
-the surrounding text, as markers do.
+このコマンドは、カレントバッファー内の位置@var{start}から@var{end}までの間のテキストを削除して、@code{nil}をリターンする。削除されるリージョン内にポイントがある場合、リージョン削除後のポイントの値は@var{start}になる。それ以外の場合は、マーカーが行うようにポイントはテキストを取り囲むように再配置される。
 @end deffn
 
 @defun delete-and-extract-region start end
-This function deletes the text between positions @var{start} and @var{end}
-in the current buffer, and returns a string containing the text just
-deleted.
+この関数は、カレントバッファー内の位置@var{start}から@var{end}までの間のテキストを削除して、削除されたテキストを含む文字列をリターンする。
 
-If point was inside the deleted region, its value afterward is @var{start}.
-Otherwise, point relocates with the surrounding text, as markers do.
+削除されるリージョン内にポイントがある場合、リージョン削除後のポイントの値は@var{start}になる。それ以外の場合は、マーカーが行うようにポイントはテキストを取り囲むように再配置される。
 @end defun
 
 @deffn Command delete-char count &optional killp
-This command deletes @var{count} characters directly after point, or before
-point if @var{count} is negative.  If @var{killp} is non-@code{nil}, then it
-saves the deleted characters in the kill ring.
+このコマンドは、ポイント直後の@var{count}文字、@var{count}が負なら直前の@var{count}文字を削除する。@var{killp}が非@code{nil}なら、削除した文字をkillリングに保存する。
 
-In an interactive call, @var{count} is the numeric prefix argument, and
-@var{killp} is the unprocessed prefix argument.  Therefore, if a prefix
-argument is supplied, the text is saved in the kill ring.  If no prefix
-argument is supplied, then one character is deleted, but not saved in the
-kill ring.
+インタラクティブな呼び出しでは、@var{count}は数プレフィクス引数、@var{killp}は未処理プレフィクス引数(unprocessed
+prefix
+argument)である。すなわち、プレフィクス引数が与えられた場合、そのテキストはkillリングに保存され、与えられなければ、1文字が削除され、それはkillリングに保存されない。
 
-The value returned is always @code{nil}.
+リターン値は常に@code{nil}である。
 @end deffn
 
 @deffn Command delete-backward-char count &optional killp
 @cindex deleting previous char
-This command deletes @var{count} characters directly before point, or after
-point if @var{count} is negative.  If @var{killp} is non-@code{nil}, then it
-saves the deleted characters in the kill ring.
+このコマンドは、ポイント直前の@var{count}文字、@var{count}が負なら直後の@var{count}文字を削除する。@var{killp}が非@code{nil}なら、削除した文字をkillリングに保存する。
 
-In an interactive call, @var{count} is the numeric prefix argument, and
-@var{killp} is the unprocessed prefix argument.  Therefore, if a prefix
-argument is supplied, the text is saved in the kill ring.  If no prefix
-argument is supplied, then one character is deleted, but not saved in the
-kill ring.
+インタラクティブな呼び出しでは、@var{count}は数プレフィクス引数、@var{killp}は未処理プレフィクス引数(unprocessed
+prefix
+argument)である。すなわち、プレフィクス引数が与えられた場合、そのテキストはkillリングに保存され、与えられなければ、1文字が削除され、それはkillリングに保存されない。
 
-The value returned is always @code{nil}.
+リターン値は常に@code{nil}である。
 @end deffn
 
 @deffn Command backward-delete-char-untabify count &optional killp
 @cindex tab deletion
-This command deletes @var{count} characters backward, changing tabs into
-spaces.  When the next character to be deleted is a tab, it is first
-replaced with the proper number of spaces to preserve alignment and then one
-of those spaces is deleted instead of the tab.  If @var{killp} is
-non-@code{nil}, then the command saves the deleted characters in the kill
-ring.
+このコマンドは、タブをスペースに変換しながら、後方に@var{count}文字を削除する。次に削除する文字がタブなら、まず適正な位置を保つような数のスペースに変換してから、それらのうちのスペース1つをタブのかわりに削除する。@var{killp}が非@code{nil}なら、このコマンドは削除した文字をkillリングに保存する。
 
-Conversion of tabs to spaces happens only if @var{count} is positive.  If it
-is negative, exactly @minus{}@var{count} characters after point are deleted.
+タブからスペースへの変換は、@var{count}が正の場合のみ発生する。負の場合は、ポイント後の@minus{}@var{count}文字が、正確に削除される。
 
-In an interactive call, @var{count} is the numeric prefix argument, and
-@var{killp} is the unprocessed prefix argument.  Therefore, if a prefix
-argument is supplied, the text is saved in the kill ring.  If no prefix
-argument is supplied, then one character is deleted, but not saved in the
-kill ring.
+インタラクティブな呼び出しでは、@var{count}は数プレフィクス引数、@var{killp}は未処理プレフィクス引数(unprocessed
+prefix
+argument)である。すなわち、プレフィクス引数が与えられた場合、そのテキストはkillリングに保存され、与えられなければ、1文字が削除され、それはkillリングに保存されない。
 
-The value returned is always @code{nil}.
+リターン値は常に@code{nil}である。
 @end deffn
 
 @defopt backward-delete-char-untabify-method
-This option specifies how @code{backward-delete-char-untabify} should deal
-with whitespace.  Possible values include @code{untabify}, the default,
-meaning convert a tab to many spaces and delete one; @code{hungry}, meaning
-delete all tabs and spaces before point with one command; @code{all} meaning
-delete all tabs, spaces and newlines before point, and @code{nil}, meaning
-do nothing special for whitespace characters.
+このオプションは、@code{backward-delete-char-untabify}が空白文字を扱う方法を指定する。可能な値には@code{untabify}(タブを個数分のスペースに変換してスペースを1つ削。これがデフォルト除)、@code{hungry}(1コマンドでポイント前のタブとスペースすべてを削除する)、@code{all}(ポイント前のタブとスペース、および改行すべてを削除する)、@code{nil}(空白文字にたいして特に何もしない)。
 @end defopt
 
 @node User-Level Deletion
