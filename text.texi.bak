@@ -724,82 +724,44 @@ killリング内のkillされたエントリーの順序はラップする。す
 @node Low-Level Kill Ring
 @subsection Low-Level Kill Ring
 
-  These functions and variables provide access to the kill ring at a lower
-level, but are still convenient for use in Lisp programs, because they take
-care of interaction with window system selections (@pxref{Window System
-Selections}).
+  以下の関数および変数は、killリングにたいして低レベルなアクセスを提供しますが、それらはウィンドウシステムの選択(@ref{Window System
+Selections}を参照)との相互作用にも留意するので、Lispプログラム内での使用に関しても依然として有用です。
 
 @defun current-kill n &optional do-not-move
-The function @code{current-kill} rotates the yanking pointer, which
-designates the ``front'' of the kill ring, by @var{n} places (from newer
-kills to older ones), and returns the text at that place in the ring.
+関数@code{current-kill}は、killリングの``先頭''を指すyankポインターを、(新しいkillから古いkillに)@var{n}個転回して、リング内のその箇所のテキストをリターンする。
 
-If the optional second argument @var{do-not-move} is non-@code{nil}, then
-@code{current-kill} doesn't alter the yanking pointer; it just returns the
-@var{n}th kill, counting from the current yanking pointer.
+オプションの第2引数@var{do-not-move}が非@code{nil}なら、@code{current-kill}はyankポインターを変更しない。カレントyankポインターから、@var{n}個目のkillを単にリターンする。
 
-If @var{n} is zero, indicating a request for the latest kill,
-@code{current-kill} calls the value of @code{interprogram-paste-function}
-(documented below) before consulting the kill ring.  If that value is a
-function and calling it returns a string or a list of several string,
-@code{current-kill} pushes the strings onto the kill ring and returns the
-first string.  It also sets the yanking pointer to point to the kill-ring
-entry of the first string returned by @code{interprogram-paste-function},
-regardless of the value of @var{do-not-move}.  Otherwise,
-@code{current-kill} does not treat a zero value for @var{n} specially: it
-returns the entry pointed at by the yanking pointer and does not move the
-yanking pointer.
+@var{n}が0の場合、それは最新のkillの要求を意味しており、@code{current-kill}はkillリング照会前に@code{interprogram-paste-function}(以下参照)の値を呼び出す。その値が関数で、かつそれが文字列または複数の文字列からなるリストをリターンした場合、@code{current-kill}はその文字列をkillリング上にpushして、最初の文字列をリターンする。これは@var{do-not-move}の値に関わらず、@code{interprogram-paste-function}がリターンする最初の文字列のkillリングエントリーを指すように、yankポインターのセットも行う。それ以外では、@code{current-kill}は@var{n}にたいする0値を特別に扱うことはなく、yankポインターが指すエントリーをリターンし、yankポインターの移動は行わない。
 @end defun
 
 @defun kill-new string &optional replace
-This function pushes the text @var{string} onto the kill ring and makes the
-yanking pointer point to it.  It discards the oldest entry if appropriate.
-It also invokes the value of @code{interprogram-cut-function} (see below).
+この関数は、テキスト@var{string}をkillリング上にpushして、yankポインターがそれを指すようにセットする。それが適切なら、もっとも古いエントリーを破棄する。@code{interprogram-cut-function}(以下参照)の呼び出しも行う。
 
-If @var{replace} is non-@code{nil}, then @code{kill-new} replaces the first
-element of the kill ring with @var{string}, rather than pushing @var{string}
-onto the kill ring.
+@var{replace}が非@code{nil}なら、@code{kill-new}はkillリング上に@var{string}をpushせずに、killリングの1つ目の要素を@var{string}に置き換える。
 @end defun
 
 @defun kill-append string before-p
-This function appends the text @var{string} to the first entry in the kill
-ring and makes the yanking pointer point to the combined entry.  Normally
-@var{string} goes at the end of the entry, but if @var{before-p} is
-non-@code{nil}, it goes at the beginning.  This function also invokes the
-value of @code{interprogram-cut-function} (see below).
+この関数は、killリング内の最初のエントリーにテキスト@var{string}を追加して、その結合されたエントリーを指すようにyankポインターをセットする。通常はそのエントリーの終端に@var{string}が追加されるが、@var{before-p}が非@code{nil}ならエントリーの先頭に追加される。この関数は、@code{interprogram-cut-function}(以下参照)の呼び出しも行う。
 @end defun
 
 @defvar interprogram-paste-function
-This variable provides a way of transferring killed text from other
-programs, when you are using a window system.  Its value should be
-@code{nil} or a function of no arguments.
+この変数は、他のプログラムからkillリングへkillされたテキストを転送する方法を提供する。値は@code{nil}、または引数のない関数であること。
 
-If the value is a function, @code{current-kill} calls it to get the ``most
-recent kill''.  If the function returns a non-@code{nil} value, then that
-value is used as the ``most recent kill''.  If it returns @code{nil}, then
-the front of the kill ring is used.
+値が関数なら、``もっとも最近のkill''を取得するために、@code{current-kill}はそれを呼び出す。その関数が非@code{nil}値をリターンした場合は、その値が``もっとも最近のkill''として使用される。@code{nil}をリターンした場合は、killリングの先頭が使用される。
 
-To facilitate support for window systems that support multiple selections,
-this function may also return a list of strings.  In that case, the first
-string is used as the ``most recent kill'', and all the other strings are
-pushed onto the kill ring, for easy access by @code{yank-pop}.
+複数選択をサポートするウィンドウシステムのサポートを容易にするために、この関数は文字列のリストもリターンするかもしれない。その場合、1つ目の文字列が``もっとも最近のkill''として使用され、その他の文字列はすべて@code{yank-pop}によるアクセスを容易にするために、killリング上にpushされる。
 
-The normal use of this function is to get the window system's clipboard as
-the most recent kill, even if the selection belongs to another application.
-@xref{Window System Selections}.  However, if the clipboard contents come
-from the current Emacs session, this function should return @code{nil}.
+この関数の通常の用途は、たとえそれが他アプリケーションに属する選択であっても、もっとも最近のkillとして、ウィンドウシステムのクリップボードからそれを取得することである。しかし、クリップボードのコンテンツがカレントEmacsセッション由来なら、この関数は@code{nil}をリターンする筈である。
 @end defvar
 
 @defvar interprogram-cut-function
-This variable provides a way of communicating killed text to other programs,
-when you are using a window system.  Its value should be @code{nil} or a
-function of one required argument.
+この変数は、ウィンドウシステム使用時に、他のプログラムにkillされたテキストを転送する方法を提供する。値は@code{nil}、または1つの引数を要求する関数であること。
 
-If the value is a function, @code{kill-new} and @code{kill-append} call it
-with the new first element of the kill ring as the argument.
+値が関数なら、@code{kill-new}および@code{kill-append}は、killリングの新たな1つ目要素を引数として、それを呼び出す。
 
-The normal use of this function is to put newly killed text in the window
-system's clipboard.  @xref{Window System Selections}.
+この関数の通常の用途は、新たにkillされたテキストを、ウィンドウシステムのクリップボードに配すことである。@ref{Window System
+Selections}を参照のこと。
 @end defvar
 
 @node Internals of Kill Ring
