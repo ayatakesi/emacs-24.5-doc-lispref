@@ -637,85 +637,50 @@ Kill Ring}を参照のこと。
 @node Yanking
 @subsection Yanking
 
-  Yanking means inserting text from the kill ring, but it does not insert the
-text blindly.  The @code{yank} command, and related commands, use
-@code{insert-for-yank} to perform special processing on the text before it
-is inserted.
+  yankとは、killリングからテキストを挿入するものの、単なる挿入ではないことを意味します。@code{yank}および関連するコマンドは、テキスト挿入前に特別な処理を施すために、@code{insert-for-yank}を使用します。
 
 @defun insert-for-yank string
-This function works like @code{insert}, except that it processes the text in
-@var{string} according to the @code{yank-handler} text property, as well as
-the variables @code{yank-handled-properties} and
-@code{yank-excluded-properties} (see below), before inserting the result
-into the current buffer.
+この関数は@code{insert}と同様に機能するが、結果をカレントバッファーに挿入する前に、テキストプロパティ@code{yank-handler}、同様に変数@code{yank-handled-properties}および@code{yank-excluded-properties}に応じて@var{string}内のテキストを処理する点が異なる。
 @end defun
 
 @defun insert-buffer-substring-as-yank buf &optional start end
-This function resembles @code{insert-buffer-substring}, except that it
-processes the text according to @code{yank-handled-properties} and
-@code{yank-excluded-properties}.  (It does not handle the
-@code{yank-handler} property, which does not normally occur in buffer text
-anyway.)
+この関数は@code{insert-buffer-substring}と似ているが、@code{yank-handled-properties}および@code{yank-excluded-properties}に応じてテキストを処理する点が異なる(これは@code{yank-handler}プロパティを処理しないが、いずれにせよバッファー内のテキストでは通常は発生しない)。
 @end defun
 
 @c FIXME: Add an index for yank-handler.
-  If you put a @code{yank-handler} text property on all or part of a string,
-that alters how @code{insert-for-yank} inserts the string.  If different
-parts of the string have different @code{yank-handler} values (comparison
-being done with @code{eq}), each substring is handled separately.  The
-property value must be a list of one to four elements, with the following
-format (where elements after the first may be omitted):
+  文字列の一部またはすべてにテキストプロパティ@code{yank-handler}をputした場合、@code{insert-for-yank}が文字列を挿入する方法が変更されます。文字列の別の箇所が異なる@code{yank-handler}の値をもつ場合(比較は@code{eq}で行われる)、部分文字列はそれぞれ個別に処理されます。プロパティ値は以下の形式からなる1から4要素のリストでなければなりません(2番目以降の要素は省略されるかもしれない):
 
 @example
 (@var{function} @var{param} @var{noexclude} @var{undo})
 @end example
 
-  Here is what the elements do:
+  以下は、これらの要素が何を行うかです:
 
 @table @var
 @item function
-When @var{function} is non-@code{nil}, it is called instead of @code{insert}
-to insert the string, with one argument---the string to insert.
+@var{function}が非@code{nil}なら、@code{insert}のかわりに文字列を挿入するために、挿入する文字列を単一の引数として、その関数が呼び出される。
 
 @item param
-If @var{param} is present and non-@code{nil}, it replaces @var{string} (or
-the substring of @var{string} being processed) as the object passed to
-@var{function} (or @code{insert}).  For example, if @var{function} is
-@code{yank-rectangle}, @var{param} should be a list of strings to insert as
-a rectangle.
+非@code{nil}の@var{param}が与えられた場合、それは@var{string}(または処理される@var{string}の部分文字列)を置き換えるオブジェクトとして@var{function}(または@code{insert})に渡される。たとえば@var{function}が@code{yank-rectangle}なら、@var{param}は矩形(rectangle)として挿入されるべき文字列のリストになる。
 
 @item noexclude
-If @var{noexclude} is present and non-@code{nil}, that disables the normal
-action of @code{yank-handled-properties} and @code{yank-excluded-properties}
-on the inserted string.
+非@code{nil}の@var{noexclude}が与えられた場合は、挿入される文字列にたいする@code{yank-handled-properties}および@code{yank-excluded-properties}の通常の動作を無効にする。
 
 @item undo
-If @var{undo} is present and non-@code{nil}, it is a function that will be
-called by @code{yank-pop} to undo the insertion of the current object.  It
-is called with two arguments, the start and end of the current region.
-@var{function} can set @code{yank-undo-function} to override the @var{undo}
-value.
+非@code{nil}の@var{undo}が与えられた場合、それはカレントオブジェクトの挿入をアンドゥするために@code{yank-pop}が呼び出す関数である。この関数は、カレントリージョンのstartとendの、2つの引数で呼び出される。@var{function}は@code{yank-undo-function}をセットすることにより、@var{undo}の値をオーバーライドできる。
 @end table
 
 @cindex yanking and text properties
 @defopt yank-handled-properties
-This variable specifies special text property handling conditions for yanked
-text.  It takes effect after the text has been inserted (either normally, or
-via the @code{yank-handler} property), and prior to
-@code{yank-excluded-properties} taking effect.
+この変数は、yankされるテキストの状態を処理するスペシャルテキストプロパティを指定する。これは(通常の方法、または@code{yank-handler}を通じた)テキスト挿入後、@code{yank-excluded-properties}が効力をもつ前に効果を発揮する。
 
-The value should be an alist of elements @code{(@var{prop} . @var{fun})}.
-Each alist element is handled in order.  The inserted text is scanned for
-stretches of text having text properties @code{eq} to @var{prop}; for each
-such stretch, @var{fun} is called with three arguments: the value of the
-property, and the start and end positions of the text.
+値は、要素が@code{(@var{prop}
+.
+@var{fun})}であるようなalistであること。alistの各要素は、順番に処理される。挿入されるテキストはテキスト範囲にたいして、テキストプロパティが@var{prop}と@code{eq}なものがスキャンされる。そのような範囲には、そのプロパティの値、そのテキストの開始と終了の位置という、3つの引数により@var{fun}が呼び出される。
 @end defopt
 
 @defopt yank-excluded-properties
-The value of this variable is the list of properties to remove from inserted
-text.  Its default value contains properties that might lead to annoying
-results, such as causing the text to respond to the mouse or specifying key
-bindings.  It takes effect after @code{yank-handled-properties}.
+この変数の値は、挿入されるテキストから削除するための、プロパティのリストである。デフォルト値には、マウスに応答したりキーバインディングの指定を引き起こすテキストのような、煩わしい結果をもたらすかもしれないプロパティが含まれる。これは、@code{yank-handled-properties}の後に効果を発揮する。
 @end defopt
 
 
