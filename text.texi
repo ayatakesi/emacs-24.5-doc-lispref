@@ -687,66 +687,38 @@ Kill Ring}を参照のこと。
 @node Yank Commands
 @subsection Functions for Yanking
 
-  This section describes higher-level commands for yanking, which are intended
-primarily for the user but useful also in Lisp programs.  Both @code{yank}
-and @code{yank-pop} honor the @code{yank-excluded-properties} variable and
-@code{yank-handler} text property (@pxref{Yanking}).
+  このセクションでは、yank用の高レベルなコマンドを説明します。これらのコマンドは主にユーザー用に意図されたものですが、Lispプログラム内での使用にたいしても有用です。@code{yank}および@code{yank-pop}はどちらも、変数@code{yank-excluded-properties}およびテキストプロパティ@code{yank-handler}にしたがいます(@ref{Yanking}を参照)。
 
 @deffn Command yank &optional arg
 @cindex inserting killed text
-This command inserts before point the text at the front of the kill ring.
-It sets the mark at the beginning of that text, using @code{push-mark}
-(@pxref{The Mark}), and puts point at the end.
+このコマンドは、killリングの先頭にあるテキストを、ポイントの前に挿入する。これは@code{push-mark}(@ref{The
+Mark}を参照)を使用して、そのテキストの先頭にマークをセットする。
 
-If @var{arg} is a non-@code{nil} list (which occurs interactively when the
-user types @kbd{C-u} with no digits), then @code{yank} inserts the text as
-described above, but puts point before the yanked text and sets the mark
-after it.
+@var{arg}が非@code{nil}のリスト(これはユーザーがインタラクティブに数字を指定せずに@kbd{C-u}をタイプ時に発生する)なら、@code{yank}は上述のようにテキストを挿入するが、ポイントはyankされたテキストの前、マークはyankされたテキストの後に置かれる。
 
-If @var{arg} is a number, then @code{yank} inserts the @var{arg}th most
-recently killed text---the @var{arg}th element of the kill ring list,
-counted cyclically from the front, which is considered the first element for
-this purpose.
+@var{arg}が数字なら、@code{yank}は@var{arg}番目に最近killされたテキスト、すなわちkillリングリストの@var{arg}番目の要素を挿入する。この順番は、コマンドの目的にたいして1番目の要素としてみなされる、リスト先頭の要素から巡回的に数えられる。
 
-@code{yank} does not alter the contents of the kill ring, unless it used
-text provided by another program, in which case it pushes that text onto the
-kill ring.  However if @var{arg} is an integer different from one, it
-rotates the kill ring to place the yanked string at the front.
+@code{yank}は、それが他のプログラムから提供されるテキストを使用しないかぎり(使用する場合はそのテキストをkillリングにpushする)、killリングのコンテンツを変更しない。しかし、@var{arg}が非1の整数の場合は、killリングを転回(rotate)してyankされるテキストをリング先頭に置く。
 
-@code{yank} returns @code{nil}.
+@code{yank}は@code{nil}をリターンする。
 @end deffn
 
 @deffn Command yank-pop &optional arg
-This command replaces the just-yanked entry from the kill ring with a
-different entry from the kill ring.
+このコマンドは、killリング上の正にyankされたばかりのエントリーを、killリングの別エントリーで置き換える。
 
-This is allowed only immediately after a @code{yank} or another
-@code{yank-pop}.  At such a time, the region contains text that was just
-inserted by yanking.  @code{yank-pop} deletes that text and inserts in its
-place a different piece of killed text.  It does not add the deleted text to
-the kill ring, since it is already in the kill ring somewhere.  It does
-however rotate the kill ring to place the newly yanked string at the front.
+このコマンドは、@code{yank}または別の@code{yank-pop}の直後のみ許される。そのような際、そのリージョンにはyankにより正に挿入されたテキストが含まれる。@code{yank-pop}はそのテキストを削除して、killされた別のテキスト片をその位置に挿入する。そのテキスト片はすでにkillリング内のどこか別の箇所にあるので、これは削除されたテキストをkillリングに追加しない。しかし、新たにyankされたテキストが先頭になるよう、killリングの転回は行う。
 
-If @var{arg} is @code{nil}, then the replacement text is the previous
-element of the kill ring.  If @var{arg} is numeric, the replacement is the
-@var{arg}th previous kill.  If @var{arg} is negative, a more recent kill is
-the replacement.
+@var{arg}が@code{nil}なら、置換テキストはkillリングの1つ前の要素である。@var{arg}が数字なら、置換テキストはkillリングの@var{arg}個前の要素である。@var{arg}が負の場合は、より最近のkillが置換される。
 
-The sequence of kills in the kill ring wraps around, so that after the
-oldest one comes the newest one, and before the newest one goes the oldest.
+killリング内のkillされたエントリーの順序はラップする。すなわちもっとも古いkillの次にもっとも新しいkill、もっとも新しいkillの前はもっとも古いkillとなる。
 
-The return value is always @code{nil}.
+リターン値は常に@code{nil}である。
 @end deffn
 
 @defvar yank-undo-function
-If this variable is non-@code{nil}, the function @code{yank-pop} uses its
-value instead of @code{delete-region} to delete the text inserted by the
-previous @code{yank} or @code{yank-pop} command.  The value must be a
-function of two arguments, the start and end of the current region.
+この変数が非@code{nil}の場合、関数@code{yank-pop}は前の@code{yank}または@code{yank-pop}により挿入されたテキストを削除するために、@code{delete-region}のかわりにこの変数の値を使用する。値は、カレントリージョンの開始と終了という、2つの引数をとる関数でなければならない。
 
-The function @code{insert-for-yank} automatically sets this variable
-according to the @var{undo} element of the @code{yank-handler} text
-property, if there is one.
+関数@code{insert-for-yank}は、テキストプロパティ@code{yank-handler}の要素@var{undo}に対応して、この変数を自動的にセットする。
 @end defvar
 
 @node Low-Level Kill Ring
