@@ -777,9 +777,8 @@ ring)}と呼びます。yankポインターを移動する関数は、yankポイ
 
   @code{kill-ring-yank-pointer}の値は常にkillリングリスト内の1つのリンクと@code{eq}です。それが指す要素は、そのリンクの@sc{car}です。killリングを変更するkillコマンドも、この変数に@code{kill-ring}の値をセットします。その効果は、新たにkillされた先頭になるように、リングを転回することです。
 
-  Here is a diagram that shows the variable @code{kill-ring-yank-pointer}
-pointing to the second entry in the kill ring @code{("some text" "a
-different piece of text" "yet older text")}.
+  以下は、変数@code{kill-ring-yank-pointer}が、killリング@code{("some text" "a different
+piece of text" "yet older text")}内の2番目のエントリーを指すことを表すダイアグラムです。
 
 @example
 @group
@@ -800,65 +799,45 @@ kill-ring                  ---- kill-ring-yank-pointer
 @end example
 
 @noindent
-This state of affairs might occur after @kbd{C-y} (@code{yank})  immediately
-followed by @kbd{M-y} (@code{yank-pop}).
+この状態は、@kbd{C-y}(@code{yank})の直後に@kbd{M-y}(@code{yank-pop})を行うことにより発生し得ます。
 
 @defvar kill-ring
-This variable holds the list of killed text sequences, most recently killed
-first.
+この変数は、もっとも最近にkillされたテキストが先頭になるように、killされたテキストのシーケンスのリストを保持する。
 @end defvar
 
 @defvar kill-ring-yank-pointer
-This variable's value indicates which element of the kill ring is at the
-``front'' of the ring for yanking.  More precisely, the value is a tail of
-the value of @code{kill-ring}, and its @sc{car} is the kill string that
-@kbd{C-y} should yank.
+この変数の値は、yankにたいして使用される、killリングの先頭にある要素を示す。より正確には、値は@code{kill-ring}の値のtail値であり、その@sc{car}が@kbd{C-y}によりyankされるはずのkill文字列となる。
 @end defvar
 
 @defopt kill-ring-max
-The value of this variable is the maximum length to which the kill ring can
-grow, before elements are thrown away at the end.  The default value for
-@code{kill-ring-max} is 60.
+この変数の値は、リング終端の要素を破棄する前に、killリングが成長し得る最大長である。@code{kill-ring-max}のデフォルト値は60。
 @end defopt
 
 @node Undo
 @section Undo
 @cindex redo
 
-  Most buffers have an @dfn{undo list}, which records all changes made to the
-buffer's text so that they can be undone.  (The buffers that don't have one
-are usually special-purpose buffers for which Emacs assumes that undoing is
-not useful.  In particular, any buffer whose name begins with a space has
-its undo recording off by default; see @ref{Buffer Names}.)  All the
-primitives that modify the text in the buffer automatically add elements to
-the front of the undo list, which is in the variable
-@code{buffer-undo-list}.
+  ほとんどのバッファーは、バッファーのテキストにたいして行われた変更をアンドゥできるように、すべての変更を記録する@dfn{アンドゥリスト(undo
+list)}をもちます(アンドゥリストをもたないバッファーとは通常、Emacsがアンドゥを有用とみなさない特殊用途のバッファーである。特に、名前がスペースで始まるバッファーはすべて、アンドゥ記録がデフォルトでオフになっている。@ref{Buffer
+Names}を参照されたい)。バッファー内でテキストを変更するすべてのプリミティブは、アンドゥリストの先頭に自動的に要素を追加し、それは変数@code{buffer-undo-list}に格納されます。
 
 @defvar buffer-undo-list
-This buffer-local variable's value is the undo list of the current buffer.
-A value of @code{t} disables the recording of undo information.
+このバッファーローカル変数の値は、カレントバッファーのアンドゥリストである。値が@code{t}なら、アンドゥ情報の記録を無効にする。
 @end defvar
 
-Here are the kinds of elements an undo list can have:
+以下は、アンドゥリストが保有可能な要素の種類です:
 
 @table @code
 @item @var{position}
-This kind of element records a previous value of point; undoing this element
-moves point to @var{position}.  Ordinary cursor motion does not make any
-sort of undo record, but deletion operations use these entries to record
-where point was before the command.
+この種の要素は、前のポイント値を記録する。この要素をアンドゥすることにより、ポイントは@var{position}に移動する。通常のカーソル移動はどのような類のアンドゥ記録も作成しないが、削除操作はそのコマンド以前にポイントがあった場所を記録するために、このエントリーを使用する。
 
 @item (@var{beg} . @var{end})
-This kind of element indicates how to delete text that was inserted.  Upon
-insertion, the text occupied the range @var{beg}--@var{end} in the buffer.
+この種の要素は、挿入されたテキストを削除する方法を示す。挿入において、そのテキストはバッファー内の範囲@var{beg}から@var{end}を占める。
 
 @item (@var{text} . @var{position})
-This kind of element indicates how to reinsert text that was deleted.  The
-deleted text itself is the string @var{text}.  The place to reinsert it is
-@code{(abs @var{position})}.  If @var{position} is positive, point was at
-the beginning of the deleted text, otherwise it was at the end.  Zero or
-more (@var{marker} . @var{adjustment})  elements follow immediately after
-this element.
+この種の要素は、削除されたテキストを再度挿入する方法を示す。文字列@var{text}は、削除されたテキストそのものである。削除されたテキストを再挿入する位置は@code{(abs
+@var{position})}である。@var{position}が正ならポイントがあったのは削除されたテキストの先頭、それ以外では末尾である。0個以上の(@var{marker}
+. @var{adjustment})要素が、この要素の直後に続く。
 
 @item (t . @var{time-flag})
 This kind of element indicates that an unmodified buffer became modified.  A
