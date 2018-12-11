@@ -767,27 +767,15 @@ Selections}を参照のこと。
 @node Internals of Kill Ring
 @subsection Internals of the Kill Ring
 
-  The variable @code{kill-ring} holds the kill ring contents, in the form of a
-list of strings.  The most recent kill is always at the front of the list.
+  変数@code{kill-ring}は、文字列リスト形式でkillリングのコンテンツを保持します。もっとも最近のkillが、常にこのリストの先頭になります。
 
-  The @code{kill-ring-yank-pointer} variable points to a link in the kill ring
-list, whose @sc{car} is the text to yank next.  We say it identifies the
-``front'' of the ring.  Moving @code{kill-ring-yank-pointer} to a different
-link is called @dfn{rotating the kill ring}.  We call the kill ring a
-``ring'' because the functions that move the yank pointer wrap around from
-the end of the list to the beginning, or vice-versa.  Rotation of the kill
-ring is virtual; it does not change the value of @code{kill-ring}.
+  変数@code{kill-ring-yank-pointer}は、@sc{car}が次のyankのテキストであるような、killリングリスト内のリンクをpointします。これを、リングの``先頭''を識別すると言います。そして、@code{kill-ring-yank-pointer}を異なるリンクに移動することを、@dfn{killリングの転回(rotating
+the kill
+ring)}と呼びます。yankポインターを移動する関数は、yankポインターをリスト終端から先頭、またはその逆へラップするので、、killリングを``ring''と呼びます。killリングの転回は仮想的なものであり、@code{kill-ring}の値は変更しません。
 
-  Both @code{kill-ring} and @code{kill-ring-yank-pointer} are Lisp variables
-whose values are normally lists.  The word ``pointer'' in the name of the
-@code{kill-ring-yank-pointer} indicates that the variable's purpose is to
-identify one element of the list for use by the next yank command.
+  @code{kill-ring}および@code{kill-ring-yank-pointer}はどちらも、通常は値がリストであるようなLisp変数です。@code{kill-ring-yank-pointer}の名前にある単語``pointer''は、その変数の目的が次回yankコマンドにより使用されるリストの最初の要素を指すことであるのを示します。
 
-  The value of @code{kill-ring-yank-pointer} is always @code{eq} to one of the
-links in the kill ring list.  The element it identifies is the @sc{car} of
-that link.  Kill commands, which change the kill ring, also set this
-variable to the value of @code{kill-ring}.  The effect is to rotate the ring
-so that the newly killed text is at the front.
+  @code{kill-ring-yank-pointer}の値は常にkillリングリスト内の1つのリンクと@code{eq}です。それが指す要素は、そのリンクの@sc{car}です。killリングを変更するkillコマンドも、この変数に@code{kill-ring}の値をセットします。その効果は、新たにkillされた先頭になるように、リングを転回することです。
 
   Here is a diagram that shows the variable @code{kill-ring-yank-pointer}
 pointing to the second entry in the kill ring @code{("some text" "a
