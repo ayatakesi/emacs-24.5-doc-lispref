@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-11-02 17:06+0900\n"
-"PO-Revision-Date: 2018-12-12 08:11+0900\n"
+"PO-Revision-Date: 2018-12-12 14:37+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -30,7 +30,7 @@ msgstr "text"
 #. type: Plain text
 #: text.texi.orig:14
 msgid "This chapter describes the functions that deal with the text in a buffer.  Most examine, insert, or delete text in the current buffer, often operating at point or on text adjacent to point.  Many are interactive.  All the functions that change the text provide for undoing the changes (@pxref{Undo})."
-msgstr "このチャプターでは、バッファー内のテキストを扱う関数を説明します。ほとんどはカレントバッファー内のテキストにたいして検査、挿入、削除を行い、ポイント位置やポイントに隣接するテキストを操作することが多々あります。その多くはインタラクティブ(interactive: 対話的)です。テキストを変更するすべての関数は、その変更にたいするアンドゥ(undo)を提供します(@ref{Undo}を参照)。"
+msgstr "このチャプターでは、バッファー内のテキストを扱う関数を説明します。ほとんどはカレントバッファー内のテキストにたいして検査、挿入、削除を行い、ポイント位置やポイントに隣接するテキストを操作することが多々あります。その多くはインタラクティブ(interactive: 対話的)です。テキストを変更するすべての関数は、その変更にたいするundo(アンドゥ、取り消し)を提供します(@ref{Undo}を参照)。"
 
 #. type: Plain text
 #: text.texi.orig:25
@@ -156,7 +156,7 @@ msgstr "Maintaining Undo"
 #. type: menuentry
 #: text.texi.orig:63
 msgid "How to enable and disable undo information.  How to control how much information is kept."
-msgstr "アンドゥ情報の有効と無効。情報をどれだけ保持するか制御する方法。"
+msgstr "undo情報の有効と無効。情報をどれだけ保持するか制御する方法。"
 
 #. type: section
 #: text.texi.orig:63 text.texi.orig:1457 text.texi.orig:1458
@@ -1536,7 +1536,7 @@ msgstr "kill ring"
 #. type: Plain text
 #: text.texi.orig:824
 msgid "@dfn{Kill functions} delete text like the deletion functions, but save it so that the user can reinsert it by @dfn{yanking}.  Most of these functions have @samp{kill-} in their name.  By contrast, the functions whose names start with @samp{delete-} normally do not save text for yanking (though they can still be undone); these are ``deletion'' functions."
-msgstr "@dfn{kill関数(kill functions)}は削除関数のようにテキストを削除しますが、ユーザーが@dfn{yank}により再挿入できるようにそれらを保存する点が異なります。これらの関数のほとんどは、@samp{kill-}という名前をもちます。対照的に名前が@samp{delete-}で始まる関数は、(たとえ削除をアンドゥできるとしても)通常はyank用にテキストを保存しません。それらは``削除(deletion)''関数です。"
+msgstr "@dfn{kill関数(kill functions)}は削除関数のようにテキストを削除しますが、ユーザーが@dfn{yank}により再挿入できるようにそれらを保存する点が異なります。これらの関数のほとんどは、@samp{kill-}という名前をもちます。対照的に名前が@samp{delete-}で始まる関数は、(たとえ削除をundoできるとしても)通常はyank用にテキストを保存しません。それらは``削除(deletion)''関数です。"
 
 #. type: Plain text
 #: text.texi.orig:832
@@ -1794,7 +1794,7 @@ msgstr "undo"
 #. type: table
 #: text.texi.orig:993
 msgid "If @var{undo} is present and non-@code{nil}, it is a function that will be called by @code{yank-pop} to undo the insertion of the current object.  It is called with two arguments, the start and end of the current region.  @var{function} can set @code{yank-undo-function} to override the @var{undo} value."
-msgstr "非@code{nil}の@var{undo}が与えられた場合、それはカレントオブジェクトの挿入をアンドゥするために@code{yank-pop}が呼び出す関数である。この関数は、カレントリージョンのstartとendの、2つの引数で呼び出される。@var{function}は@code{yank-undo-function}をセットすることにより、@var{undo}の値をオーバーライドできる。"
+msgstr "非@code{nil}の@var{undo}が与えられた場合、それはカレントオブジェクトの挿入をundoするために@code{yank-pop}が呼び出す関数である。この関数は、カレントリージョンのstartとendの、2つの引数で呼び出される。@var{function}は@code{yank-undo-function}をセットすることにより、@var{undo}の値をオーバーライドできる。"
 
 #. type: cindex
 #: text.texi.orig:995
@@ -2134,7 +2134,7 @@ msgstr "redo"
 #. type: Plain text
 #: text.texi.orig:1258
 msgid "Most buffers have an @dfn{undo list}, which records all changes made to the buffer's text so that they can be undone.  (The buffers that don't have one are usually special-purpose buffers for which Emacs assumes that undoing is not useful.  In particular, any buffer whose name begins with a space has its undo recording off by default; see @ref{Buffer Names}.)  All the primitives that modify the text in the buffer automatically add elements to the front of the undo list, which is in the variable @code{buffer-undo-list}."
-msgstr "ほとんどのバッファーは、バッファーのテキストにたいして行われた変更をアンドゥできるように、すべての変更を記録する@dfn{アンドゥリスト(undo list)}をもちます(アンドゥリストをもたないバッファーとは通常、Emacsがアンドゥを有用とみなさない特殊用途のバッファーである。特に、名前がスペースで始まるバッファーはすべて、アンドゥ記録がデフォルトでオフになっている。@ref{Buffer Names}を参照されたい)。バッファー内でテキストを変更するすべてのプリミティブは、アンドゥリストの先頭に自動的に要素を追加し、それは変数@code{buffer-undo-list}に格納されます。"
+msgstr "ほとんどのバッファーは、バッファーのテキストにたいして行われた変更をundoできるように、すべての変更を記録する@dfn{undoリスト(undo list)}をもちます(undoリストをもたないバッファーとは通常、Emacsがundoを有用とみなさない特殊用途のバッファーである。特に、名前がスペースで始まるバッファーはすべて、undo記録がデフォルトでオフになっている。@ref{Buffer Names}を参照されたい)。バッファー内でテキストを変更するすべてのプリミティブは、undoリストの先頭に自動的に要素を追加し、それは変数@code{buffer-undo-list}に格納されます。"
 
 #. type: defvar
 #: text.texi.orig:1259
@@ -2145,12 +2145,12 @@ msgstr "buffer-undo-list"
 #. type: defvar
 #: text.texi.orig:1262
 msgid "This buffer-local variable's value is the undo list of the current buffer.  A value of @code{t} disables the recording of undo information."
-msgstr "このバッファーローカル変数の値は、カレントバッファーのアンドゥリストである。値が@code{t}なら、アンドゥ情報の記録を無効にする。"
+msgstr "このバッファーローカル変数の値は、カレントバッファーのundoリストである。値が@code{t}なら、undo情報の記録を無効にする。"
 
 #. type: Plain text
 #: text.texi.orig:1265
 msgid "Here are the kinds of elements an undo list can have:"
-msgstr "以下は、アンドゥリストが保有可能な要素の種類です:"
+msgstr "以下は、undoリストが保有可能な要素の種類です:"
 
 #. type: var{#1}
 #: text.texi.orig:1267
@@ -2161,7 +2161,7 @@ msgstr "position"
 #. type: table
 #: text.texi.orig:1272
 msgid "This kind of element records a previous value of point; undoing this element moves point to @var{position}.  Ordinary cursor motion does not make any sort of undo record, but deletion operations use these entries to record where point was before the command."
-msgstr "この種の要素は、前のポイント値を記録する。この要素をアンドゥすることにより、ポイントは@var{position}に移動する。通常のカーソル移動はどのような類のアンドゥ記録も作成しないが、削除操作はそのコマンド以前にポイントがあった場所を記録するために、このエントリーを使用する。"
+msgstr "この種の要素は、前のポイント値を記録する。この要素をundoすることにより、ポイントは@var{position}に移動する。通常のカーソル移動はどのような類のundo記録も作成しないが、削除操作はそのコマンド以前にポイントがあった場所を記録するために、このエントリーを使用する。"
 
 #. type: item
 #: text.texi.orig:1273
@@ -2194,131 +2194,131 @@ msgstr "(t . @var{time-flag})"
 #. type: table
 #: text.texi.orig:1298
 msgid "This kind of element indicates that an unmodified buffer became modified.  A @var{time-flag} of the form @code{(@var{sec-high} @var{sec-low} @var{microsec} @var{picosec})} represents the visited file's modification time as of when it was previously visited or saved, using the same format as @code{current-time}; see @ref{Time of Day}.  A @var{time-flag} of 0 means the buffer does not correspond to any file; @minus{}1 means the visited file previously did not exist.  @code{primitive-undo} uses these values to determine whether to mark the buffer as unmodified once again; it does so only if the file's status matches that of @var{time-flag}."
-msgstr ""
+msgstr "この種の要素は、未変更のバッファーが変更されたことを示す。@code{(@var{sec-high} @var{sec-low} @var{microsec} @var{picosec})}という形式の@var{time-flag}は、visitされたファイルにたいして、それが以前にvisitまたは保存されたときの更新時刻(modification time)を、@code{current-time}と同じ形式を用いて表す。@ref{Time of Day}を参照のこと。@var{time-flag}が0ならそのバッファーに対応するファイルがないことを、@minus{}1ならvisitされたファイルは以前は存在しなかったことを意味する。@code{primitive-undo}は、バッファーを再度未変更とマークするかどうかを判断するために、これらの値を使用(ファイルの状態が@var{time-flag}のそれとマッチする場合のみ未変更とマーク)する。"
 
 #. type: item
 #: text.texi.orig:1299
 #, no-wrap
 msgid "(nil @var{property} @var{value} @var{beg} . @var{end})"
-msgstr ""
+msgstr "(nil @var{property} @var{value} @var{beg} . @var{end})"
 
 #. type: table
 #: text.texi.orig:1302
 msgid "This kind of element records a change in a text property.  Here's how you might undo the change:"
-msgstr ""
+msgstr "この種の要素は、テキストプロパティの変更を記録する。変更をundoする方法は、以下のようになる:"
 
 #. type: example
 #: text.texi.orig:1305
 #, no-wrap
 msgid "(put-text-property @var{beg} @var{end} @var{property} @var{value})\n"
-msgstr ""
+msgstr "(put-text-property @var{beg} @var{end} @var{property} @var{value})\n"
 
 #. type: item
 #: text.texi.orig:1307
 #, no-wrap
 msgid "(@var{marker} . @var{adjustment})"
-msgstr ""
+msgstr "(@var{marker} . @var{adjustment})"
 
 #. type: table
 #: text.texi.orig:1314
 msgid "This kind of element records the fact that the marker @var{marker} was relocated due to deletion of surrounding text, and that it moved @var{adjustment} character positions.  If the marker's location is consistent with the (@var{text} . @var{position}) element preceding it in the undo list, then undoing this element moves @var{marker} @minus{} @var{adjustment} characters."
-msgstr ""
+msgstr "この種の要素は、マーカー@var{marker}がそれを取り囲むテキストの削除により再配置されて、@var{adjustment}文字位置を移動したということを記録する。undoリスト内の前にある要素(@var{text} . @var{position})とマーカーの位置が一致する場合、は、この要素をundoすることにより、@var{marker} @minus{} @var{adjustment}文字移動する。"
 
 #. type: item
 #: text.texi.orig:1315
 #, no-wrap
 msgid "(apply @var{funname} . @var{args})"
-msgstr ""
+msgstr "(apply @var{funname} . @var{args})"
 
 #. type: table
 #: text.texi.orig:1318
 msgid "This is an extensible undo item, which is undone by calling @var{funname} with arguments @var{args}."
-msgstr ""
+msgstr "これは拡張可能なundoアイテムであり、引数@var{args}とともに@var{funname}を呼び出すことによりundoが行われる。"
 
 #. type: item
 #: text.texi.orig:1319
 #, no-wrap
 msgid "(apply @var{delta} @var{beg} @var{end} @var{funname} . @var{args})"
-msgstr ""
+msgstr "(apply @var{delta} @var{beg} @var{end} @var{funname} . @var{args})"
 
 #. type: table
 #: text.texi.orig:1324
 msgid "This is an extensible undo item, which records a change limited to the range @var{beg} to @var{end}, which increased the size of the buffer by @var{delta} characters.  It is undone by calling @var{funname} with arguments @var{args}."
-msgstr ""
+msgstr "これは拡張可能なundoアイテムであり、@var{beg}から@var{end}までに限定された範囲にたいして、そのバッファーのサイズを@var{delta}文字増加させる変更を記録する。これは、引数@var{args}とともに@var{funname}を呼び出すことによりundoが行われる。"
 
 #. type: table
 #: text.texi.orig:1327
 msgid "This kind of element enables undo limited to a region to determine whether the element pertains to that region."
-msgstr ""
+msgstr "この種の要素は、それがリージョンと関係するか否かを判断することにより、リージョンに限定されたundoを有効にする。"
 
 #. type: item
 #: text.texi.orig:1328
 #, no-wrap
 msgid "nil"
-msgstr ""
+msgstr "nil"
 
 #. type: table
 #: text.texi.orig:1333
 msgid "This element is a boundary.  The elements between two boundaries are called a @dfn{change group}; normally, each change group corresponds to one keyboard command, and undo commands normally undo an entire group as a unit."
-msgstr ""
+msgstr "この要素は境界(boundary)である。2つの境界の間にある要素を@dfn{変更グループ(change group)}と呼び、それぞれの変更グループは通常1つのキーボードコマンドに対応するとともに、undoコマンドは通常、グループを1つの単位として全体をundoを行う。"
 
 #. type: defun
 #: text.texi.orig:1335
 #, no-wrap
 msgid "undo-boundary"
-msgstr ""
+msgstr "undo-boundary"
 
 #. type: defun
 #: text.texi.orig:1339
 msgid "This function places a boundary element in the undo list.  The undo command stops at such a boundary, and successive undo commands undo to earlier and earlier boundaries.  This function returns @code{nil}."
-msgstr ""
+msgstr "この関数は、undoリスト内に境界を配置する。このような境界ごとにundoコマンドは停止し、連続するundoコマンドは、より以前の境界へとundoを行っていく。この関数は@code{nil}をリターンする。"
 
 #. type: defun
 #: text.texi.orig:1350
 msgid "The editor command loop automatically calls @code{undo-boundary} just before executing each key sequence, so that each undo normally undoes the effects of one command.  As an exception, the command @code{self-insert-command}, which produces self-inserting input characters (@pxref{Commands for Insertion}), may remove the boundary inserted by the command loop: a boundary is accepted for the first such character, the next 19 consecutive self-inserting input characters do not have boundaries, and then the 20th does; and so on as long as the self-inserting characters continue.  Hence, sequences of consecutive character insertions can be undone as a group."
-msgstr ""
+msgstr "エディターコマンドループは、各キーシーケンス実行の直前に、1つのundoごとに通常は1つのコマンドがundoされるよう、自動的に@code{undo-boundary}を呼び出す。例外として、入力文字の自己挿入を引き起こすコマンド@code{self-insert-command}(@ref{Commands for Insertion}を参照)は、コマンドループにより挿入された境界を削除するかもしれない。そのような自己挿入文字の1つ目の境界は許容されるが、後続する19個の自己挿入する入力文字は境界をもたず、20個目の自己挿入文字は境界をもつ。そして、自己挿入文字が続くかぎり、これが繰り返される。したがって、連続する文字挿入シーケンスは、グループとしてundoすることが可能である。"
 
 #. type: defun
 #: text.texi.orig:1354
 msgid "All buffer modifications add a boundary whenever the previous undoable change was made in some other buffer.  This is to ensure that each command makes a boundary in each buffer where it makes changes."
-msgstr ""
+msgstr "他のバッファーに行われたundo可能な以前の変更が何であれ、すべてのバッファー変更は境界を追加する。これは各バッファー内で変更を行なった箇所で、すべてのコマンドが境界を作成することを保証する。"
 
 #. type: defun
 #: text.texi.orig:1359
 msgid "Calling this function explicitly is useful for splitting the effects of a command into more than one unit.  For example, @code{query-replace} calls @code{undo-boundary} after each replacement, so that the user can undo individual replacements one by one."
-msgstr ""
+msgstr "この関数を明示的に呼び出すことは、あるコマンドの効果を複数単位に分割するために有用である。たとえば@code{query-replace}は、ユーザーが個別に置換をundoできるように、それぞれの置換後に@code{undo-boundary}を呼び出している。"
 
 #. type: defvar
 #: text.texi.orig:1361
 #, no-wrap
 msgid "undo-in-progress"
-msgstr ""
+msgstr "undo-in-progress"
 
 #. type: defvar
 #: text.texi.orig:1365
 msgid "This variable is normally @code{nil}, but the undo commands bind it to @code{t}.  This is so that various kinds of change hooks can tell when they're being called for the sake of undoing."
-msgstr ""
+msgstr "この変数は通常@code{nil}だが、undoコマンドはこれを@code{t}にバインドする。これにより、さまざまな種類の変更フックがundoにより呼び出された際、それを告げることが可能になる。"
 
 #. type: defun
 #: text.texi.orig:1367
 #, no-wrap
 msgid "primitive-undo count list"
-msgstr ""
+msgstr "primitive-undo count list"
 
 #. type: defun
 #: text.texi.orig:1371
 msgid "This is the basic function for undoing elements of an undo list.  It undoes the first @var{count} elements of @var{list}, returning the rest of @var{list}."
-msgstr ""
+msgstr "これは、undoリストの要素のundoにたいする基本的な関数である。これは@var{list}の最初の@var{count}要素をundoして、@var{list}の残りをリターンする。"
 
 #. type: defun
 #: text.texi.orig:1378
 msgid "@code{primitive-undo} adds elements to the buffer's undo list when it changes the buffer.  Undo commands avoid confusion by saving the undo list value at the beginning of a sequence of undo operations.  Then the undo operations use and update the saved value.  The new elements added by undoing are not part of this saved value, so they don't interfere with continuing to undo."
-msgstr ""
+msgstr "@code{primitive-undo}はバッファー変更時、そのバッファーのundoリストに要素を追加する。undoコマンドは混乱を避けるために、undo操作シーケンス冒頭にundoリストの値を保存する。その後、undo操作は保存された値の使用および更新を行う。undoにより追加された新たな要素はこの保存値の一部でないので、継続するundoと干渉しない。"
 
 #. type: defun
 #: text.texi.orig:1380
 msgid "This function does not bind @code{undo-in-progress}."
-msgstr ""
+msgstr "この関数は、@code{undo-in-progress}をバインドしない。"
 
 #. type: section
 #: text.texi.orig:1383
