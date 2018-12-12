@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-11-02 17:06+0900\n"
-"PO-Revision-Date: 2018-12-12 14:37+0900\n"
+"PO-Revision-Date: 2018-12-12 23:53+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2324,109 +2324,109 @@ msgstr "この関数は、@code{undo-in-progress}をバインドしない。"
 #: text.texi.orig:1383
 #, no-wrap
 msgid "Maintaining Undo Lists"
-msgstr ""
+msgstr "Maintaining Undo Lists"
 
 #. type: Plain text
 #: text.texi.orig:1388
 msgid "This section describes how to enable and disable undo information for a given buffer.  It also explains how the undo list is truncated automatically so it doesn't get too big."
-msgstr ""
+msgstr "このセクションでは、与えられたバッファーにたいしてundo情報を有効、および無効にする方法を説明します。undoリストが巨大化しないように、undoリストを切り詰める方法も説明します。"
 
 #. type: Plain text
 #: text.texi.orig:1394
 msgid "Recording of undo information in a newly created buffer is normally enabled to start with; but if the buffer name starts with a space, the undo recording is initially disabled.  You can explicitly enable or disable undo recording with the following two functions, or by setting @code{buffer-undo-list} yourself."
-msgstr ""
+msgstr "新たに作成されたバッファー内のundo情報記録は、開始とともに通常は有効になります。しかしバッファー名がスペースで始まる場合、undoの記録は初期状態では無効になっています。以下の2つの関数、または自身で@code{buffer-undo-list}をセットすることにより、undo記録の有効、または無効化を明示的に行うことができます。"
 
 #. type: deffn
 #: text.texi.orig:1395
 #, no-wrap
 msgid "Command buffer-enable-undo &optional buffer-or-name"
-msgstr ""
+msgstr "Command buffer-enable-undo &optional buffer-or-name"
 
 #. type: deffn
 #: text.texi.orig:1401
 msgid "This command enables recording undo information for buffer @var{buffer-or-name}, so that subsequent changes can be undone.  If no argument is supplied, then the current buffer is used.  This function does nothing if undo recording is already enabled in the buffer.  It returns @code{nil}."
-msgstr ""
+msgstr "このコマンドは、以降の変更をundo可能にするよう、バッファー@var{buffer-or-name}のundo情報記録を有効にする。引数が与えられない場合は、カレントバッファーを使用する。そのバッファー内のundo記録がすでに有効なら、この関数は何も行わない。リターン値は@code{nil}。"
 
 #. type: deffn
 #: text.texi.orig:1404
 msgid "In an interactive call, @var{buffer-or-name} is the current buffer.  You cannot specify any other buffer."
-msgstr ""
+msgstr "インタラクティブな呼び出しでは、@var{buffer-or-name}はカレントバッファーであり、他のバッファーを指定することはできない。"
 
 #. type: deffn
 #: text.texi.orig:1406
 #, no-wrap
 msgid "Command buffer-disable-undo &optional buffer-or-name"
-msgstr ""
+msgstr "Command buffer-disable-undo &optional buffer-or-name"
 
 #. type: cindex
 #: text.texi.orig:1407
 #, no-wrap
 msgid "disabling undo"
-msgstr ""
+msgstr "disabling undo"
 
 #. type: deffn
 #: text.texi.orig:1413
 msgid "This function discards the undo list of @var{buffer-or-name}, and disables further recording of undo information.  As a result, it is no longer possible to undo either previous changes or any subsequent changes.  If the undo list of @var{buffer-or-name} is already disabled, this function has no effect."
-msgstr ""
+msgstr "この関数は@var{buffer-or-name}のundoリストを破棄して、それ以上のundo情報記録を無効にする。結果として、以前の変更および以降のすべての変更にたいするそれ以上のundoは不可能になる。@var{buffer-or-name}のundoリストがすでに無効なら、この関数に効果はない。"
 
 #. type: deffn
 #: text.texi.orig:1416
 msgid "In an interactive call, BUFFER-OR-NAME is the current buffer.  You cannot specify any other buffer.  This function returns @code{nil}."
-msgstr ""
+msgstr "インタラクティブな呼び出しでは、BUFFER-OR-NAMEはカレントバッファーとなる。他のバッファーを指定することはできない。リターン値は@code{nil}。"
 
 #. type: Plain text
 #: text.texi.orig:1427
 msgid "As editing continues, undo lists get longer and longer.  To prevent them from using up all available memory space, garbage collection trims them back to size limits you can set.  (For this purpose, the ``size'' of an undo list measures the cons cells that make up the list, plus the strings of deleted text.)  Three variables control the range of acceptable sizes: @code{undo-limit}, @code{undo-strong-limit} and @code{undo-outer-limit}.  In these variables, size is counted as the number of bytes occupied, which includes both saved text and other data."
-msgstr ""
+msgstr "編集が継続されるにつれ、undoリストは次第に長くなっていく。利用可能なメモリー空間すべてを使い尽くすのを防ぐために、ガベージコレクションがundoリストを設定可能な制限サイズに切り詰め戻す(この目的のために、undoリストの``サイズ''はリストを構成するコンスセルに加えて削除された文字列により算出される)。@code{undo-limit}、@code{undo-strong-limit}、@code{undo-outer-limit}の3つの変数は、許容できるサイズの範囲を制御する。これらの変数においてサイズは専有するバイト数で計数され、それには保存されたテキストとその他データが含まれる。"
 
 #. type: defopt
 #: text.texi.orig:1428
 #, no-wrap
 msgid "undo-limit"
-msgstr ""
+msgstr "undo-limit"
 
 #. type: defopt
 #: text.texi.orig:1431
 msgid "This is the soft limit for the acceptable size of an undo list.  The change group at which this size is exceeded is the last one kept."
-msgstr ""
+msgstr "これは、許容できるundoリストサイズのソフトリミットである。このサイズを超過した箇所の変更グループは、最新の変更グループ1つが保持される。"
 
 #. type: defopt
 #: text.texi.orig:1433
 #, no-wrap
 msgid "undo-strong-limit"
-msgstr ""
+msgstr "undo-strong-limit"
 
 #. type: defopt
 #: text.texi.orig:1438
 msgid "This is the upper limit for the acceptable size of an undo list.  The change group at which this size is exceeded is discarded itself (along with all older change groups).  There is one exception: the very latest change group is only discarded if it exceeds @code{undo-outer-limit}."
-msgstr ""
+msgstr "これは、undoリストの許容できるサイズの上限である。このサイズを超過する箇所の変更グループは(その他すべてのより古い変更グループとともに)自身を破棄する。1つ例外があり、@code{undo-outer-limit}を超過した場合は、最新の変更グループだけが破棄される。"
 
 #. type: defopt
 #: text.texi.orig:1440
 #, no-wrap
 msgid "undo-outer-limit"
-msgstr ""
+msgstr "undo-outer-limit"
 
 #. type: defopt
 #: text.texi.orig:1444
 msgid "If at garbage collection time the undo info for the current command exceeds this limit, Emacs discards the info and displays a warning.  This is a last ditch limit to prevent memory overflow."
-msgstr ""
+msgstr "ガベージコレクション時にカレントコマンドのundo情報がこの制限を超過したら、Emacsはその情報を破棄して、警告を表示する。これはメモリーオーバーフローを防ぐための、最後の回避用リミットである。"
 
 #. type: defopt
 #: text.texi.orig:1446
 #, no-wrap
 msgid "undo-ask-before-discard"
-msgstr ""
+msgstr "undo-ask-before-discard"
 
 #. type: defopt
 #: text.texi.orig:1451
 msgid "If this variable is non-@code{nil}, when the undo info exceeds @code{undo-outer-limit}, Emacs asks in the echo area whether to discard the info.  The default value is @code{nil}, which means to discard it automatically."
-msgstr ""
+msgstr "この変数が非@code{nil}なら、undo情報の@code{undo-outer-limit}超過時、Emacsはその情報を破棄するかどうかを、エコーエリアで尋ねる。デフォルト値は@code{nil}で、これは自動的な破棄を意味する。"
 
 #. type: defopt
 #: text.texi.orig:1455
 msgid "This option is mainly intended for debugging.  Garbage collection is inhibited while the question is asked, which means that Emacs might leak memory if the user waits too long before answering the question."
-msgstr ""
+msgstr "このオプションは、主にデバッグを意図している。これを尋ねる際、ガベージコレクションは抑制されており、もしユーザーがその問にたいして答えるのをあまりに長くかかるなら、Emacsがメモリーリークを起こすかもしれないことを意味する。"
 
 #. type: cindex
 #: text.texi.orig:1459
