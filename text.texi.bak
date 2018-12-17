@@ -1111,86 +1111,53 @@ Textモード内の変数@code{indent-line-function}の値は、この関数で�
 @section Adaptive Fill Mode
 @c @cindex Adaptive Fill mode  "adaptive-fill-mode" is adjacent.
 
-  When @dfn{Adaptive Fill Mode} is enabled, Emacs determines the fill prefix
-automatically from the text in each paragraph being filled rather than using
-a predetermined value.  During filling, this fill prefix gets inserted at
-the start of the second and subsequent lines of the paragraph as described
-in @ref{Filling}, and in @ref{Auto Filling}.
+  @dfn{Adaptive
+Fillモード}が有効なとき、Emacsは事前定義された値を使用するのではなく、フィルされる各パラグラフのテキストから自動的に、フィルプレフィクスを決定します。このフィルプレフィクスはフィルの間、@ref{Filling}と@ref{Auto
+Filling}で説明されているように、そのパラグラフの2行目以降の行頭に挿入されます。
 
 @defopt adaptive-fill-mode
-Adaptive Fill mode is enabled when this variable is non-@code{nil}.  It is
-@code{t} by default.
+この変数が非@code{nil}なら、Adaptive Fillモードは有効である。デフォルトは@code{t}。
 @end defopt
 
 @defun fill-context-prefix from to
 @c The optional argument first-line-regexp is not documented
 @c because it exists for internal purposes and might be eliminated
 @c in the future.
-This function implements the heart of Adaptive Fill mode; it chooses a fill
-prefix based on the text between @var{from} and @var{to}, typically the
-start and end of a paragraph.  It does this by looking at the first two
-lines of the paragraph, based on the variables described below.
+この関数は、Adaptive
+Fillモードの肝を実装する。これは@var{from}から@var{to}、通常はパラグラフの開始から終了にあるテキストにもとづいて、フィルプレフィクスを選択する。これは、以下で説明する変数にもとづき、そのパラグラフの最初の2行を調べることにより、これを行う。
 
-Usually, this function returns the fill prefix, a string.  However, before
-doing this, the function makes a final check (not specially mentioned in the
-following) that a line starting with this prefix wouldn't look like the
-start of a paragraph.  Should this happen, the function signals the anomaly
-by returning @code{nil} instead.
+この関数は通常、文字列としてフィルプレフィクスをリターンする。しかしこれを行う前に、この関数はそのプレフィクスで始まる行がパラグラフの開始とは見えないだろうか、最終チェックを行う(以降では特に明記しない)。これが発生した場合、この関数はかわりに@code{nil}をリターンすることにより、異常を通知する。
 
-In detail, @code{fill-context-prefix} does this:
+以下が、@code{fill-context-prefix}が行う詳細である:
 
 @enumerate
 @item
-It takes a candidate for the fill prefix from the first line---it tries
-first the function in @code{adaptive-fill-function} (if any), then the
-regular expression @code{adaptive-fill-regexp} (see below).  The first
-non-@code{nil} result of these, or the empty string if they're both
-@code{nil}, becomes the first line's candidate.
+1行目からフィルプレフィクス候補を取得するために、(もしあれば)まず@code{adaptive-fill-function}内の関数、次に@code{adaptive-fill-regexp}(以下参照)の正規表現を試みる。これらの非@code{nil}の最初の結果、いずれも@code{nil}なら空文字列が1行目の候補となる。
 @item
-If the paragraph has as yet only one line, the function tests the validity
-of the prefix candidate just found.  The function then returns the candidate
-if it's valid, or a string of spaces otherwise.  (see the description of
-@code{adaptive-fill-first-line-regexp} below).
+そのパラグラフが1行だけなら、関数は見つかったプレフィクス候補の妥当性をテストする。その後、この関数はそれが妥当ならその候補を、それ以外はスペース文字列をリターンする(以下の@code{adaptive-fill-first-line-regexp}の説明を参照)。
 @item
-When the paragraph already has two lines, the function next looks for a
-prefix candidate on the second line, in just the same way it did for the
-first line.  If it doesn't find one, it returns @code{nil}.
+すでにそのパラグラフが2行以上なら、この関数は次に1行目にたいして行なったのとまったく同じ方法で、2行目でプレフィクス候補を探す。見つからなければ@code{nil}をリターンする。
 @item
-The function now compares the two candidate prefixes heuristically: if the
-non-whitespace characters in the line 2 candidate occur in the same order in
-the line 1 candidate, the function returns the line 2 candidate.  Otherwise,
-it returns the largest initial substring which is common to both candidates
-(which might be the empty string).
+ここで、この関数は発見的手法により2つのプレフィクス候補を比較する。2行目の候補の非空白文字の並びが1行目の候補と同じなら、この関数は2行目の候補をリターンする。それ以外では、2つの候補に共通するもっとも長い先頭の部分文字列(これは空文字列かもしれない)をリターンする。
 @end enumerate
 @end defun
 
 @defopt adaptive-fill-regexp
-Adaptive Fill mode matches this regular expression against the text starting
-after the left margin whitespace (if any) on a line; the characters it
-matches are that line's candidate for the fill prefix.
+Adaptive
+Fillモードは、(もしあれば)行の左マージン空白文字の後から開始されるテキストにたいして、この正規表現をマッチする。マッチする文字列が、その行のフィルプレフィクス候補である。
 
-The default value matches whitespace with certain punctuation characters
-intermingled.
+デフォルト値は、空白文字と特定の句読点文字が混在した文字列にマッチする。
 @end defopt
 
 @defopt adaptive-fill-first-line-regexp
-Used only in one-line paragraphs, this regular expression acts as an
-additional check of the validity of the one available candidate fill prefix:
-the candidate must match this regular expression, or match
-@code{comment-start-skip}.  If it doesn't, @code{fill-context-prefix}
-replaces the candidate with a string of spaces ``of the same width'' as it.
+この正規表現は1行だけのパラグラフに使用され、1つの可能なフィルプレフィクス候補の追加の妥当性評価として機能する。その候補は、この正規表現にマッチするか、@code{comment-start-skip}にマッチしなければならない。マッチしなければ、@code{fill-context-prefix}はその候補を``同じ幅''のスペース文字列に置き換える。
 
-The default value of this variable is @w{@code{"\\`[ \t]*\\'"}}, which
-matches only a string of whitespace.  The effect of this default is to force
-the fill prefixes found in one-line paragraphs always to be pure whitespace.
+この変数のデフォルト値は @w{@code{"\\`[
+\t]*\\'"}}で、これは空白文字列だけにマッチする。このデフォルトの効果は、1行パラグラフで見つかったフィルプレフィクスが、常に純粋な空白文字となるよう強制することである。
 @end defopt
 
 @defopt adaptive-fill-function
-You can specify more complex ways of choosing a fill prefix automatically by
-setting this variable to a function.  The function is called with point
-after the left margin (if any) of a line, and it must preserve point.  It
-should return either ``that line's'' fill prefix or @code{nil}, meaning it
-has failed to determine a prefix.
+この変数に関数をセットすることにより、自動的なフィルプレフィクス選択にたいして、より複雑な方法を指定することが可能になる。その関数は、(もしあれば)行の左マージンの後のポイントで呼び出され、かつポイントを保たなければならない。その関数は、``その行''のフィルプレフィクス、またはプレフィクスの判断に失敗したことを意味する@code{nil}のいずれかをリターンすること。
 @end defopt
 
 @node Auto Filling
