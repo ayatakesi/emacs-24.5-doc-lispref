@@ -1166,35 +1166,25 @@ Fillモードは、(もしあれば)行の左マージン空白文字の後か�
 @cindex Auto Fill mode
 
 @c FIXME: I don't think any of the variables below is a/an normal/abnormal hook.
-  Auto Fill mode is a minor mode that fills lines automatically as text is
-inserted.  This section describes the hook used by Auto Fill mode.  For a
-description of functions that you can call explicitly to fill and justify
-existing text, see @ref{Filling}.
+  Auto Fillモードは、テキスト挿入とともに自動的に行をフィルするマイナーモードです。このセクションでは、Auto
+Fillモードにより使用されるフックを説明します。既存テキストを明示的にフィルしたり位置揃えすることができる関数の説明は、@ref{Filling}を参照してください。
 
-  Auto Fill mode also enables the functions that change the margins and
-justification style to refill portions of the text.  @xref{Margins}.
+  Auto
+Fillモードでは、テキスの一部を再フィルするために、マージンや位置揃えを変更する関数も利用できます。@ref{Margins}を参照してください。
 
 @defvar auto-fill-function
-The value of this buffer-local variable should be a function (of no
-arguments) to be called after self-inserting a character from the table
-@code{auto-fill-chars}.  It may be @code{nil}, in which case nothing special
-is done in that case.
+このバッファーローカル変数の値は、テーブル@code{auto-fill-chars}からの文字の自己挿入後に呼び出される関数(引数なし)であること。@code{nil}も可で、その場合は特に何もしない。
 
-The value of @code{auto-fill-function} is @code{do-auto-fill} when Auto-Fill
-mode is enabled.  That is a function whose sole purpose is to implement the
-usual strategy for breaking a line.
+Auto-Fillモードが有効なら、@code{auto-fill-function}の値は@code{do-auto-fill}である。これは、行ブレークにたいする通常の戦略を実装することを唯一の目的とする関数である。
 @end defvar
 
 @defvar normal-auto-fill-function
-This variable specifies the function to use for @code{auto-fill-function},
-if and when Auto Fill is turned on.  Major modes can set buffer-local values
-for this variable to alter how Auto Fill works.
+この変数は、もしAuto Fillがオンのときは@code{auto-fill-function}にたいして使用する関数を指定する。Auto
+Fillの動作方法を変更するために、メジャーモードはこの変数にバッファーローカル値をセットである。
 @end defvar
 
 @defvar auto-fill-chars
-A char table of characters which invoke @code{auto-fill-function} when
-self-inserted---space and newline in most language environments.  They have
-an entry @code{t} in the table.
+文字が自己挿入された際に@code{auto-fill-function}を呼び出す文字(ほとんどの言語環境においてはスペースと改行)からなる文字テーブル。
 @end defvar
 
 @node Sorting
