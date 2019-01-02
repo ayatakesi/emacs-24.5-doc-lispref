@@ -1191,85 +1191,53 @@ Fillの動作方法を変更するために、メジャーモードはこの変�
 @section Sorting Text
 @cindex sorting text
 
-  The sorting functions described in this section all rearrange text in a
-buffer.  This is in contrast to the function @code{sort}, which rearranges
-the order of the elements of a list (@pxref{Rearrangement}).  The values
-returned by these functions are not meaningful.
+  このセクションで説明するソート関数はすべて、バッファー内のテキストを再配置し。これはリスト要素を再配置する@code{sort}関数とは対照的です(@pxref{Rearrangement})。これらの関数がリターンする値に意味はありません。
 
 @defun sort-subr reverse nextrecfun endrecfun &optional startkeyfun endkeyfun predicate
-This function is the general text-sorting routine that subdivides a buffer
-into records and then sorts them.  Most of the commands in this section use
-this function.
+この関数はバッファーをレコードに細分してそれらをソートする、一般的なテキストソートルーチンである。このセクションのコマンドのほとんどは、この関数を使用する。
 
-To understand how @code{sort-subr} works, consider the whole accessible
-portion of the buffer as being divided into disjoint pieces called @dfn{sort
-records}.  The records may or may not be contiguous, but they must not
-overlap.  A portion of each sort record (perhaps all of it) is designated as
-the sort key.  Sorting rearranges the records in order by their sort keys.
+@code{sort-subr}が機能する方法を理解するためには、バッファーのアクセス可能範囲を@dfn{ソートレコード(sort
+records)}と呼ばれる、分離された断片に分割すると考えればよい。レコードは連続、あるいは非連続かもしれないが、オーバーラップしてはならない。各ソートレコードの一部(全体かもしれない)は、ソートキーとして指定される。これらソートキーによるソートにより、レコードは再配置される。
 
-Usually, the records are rearranged in order of ascending sort key.  If the
-first argument to the @code{sort-subr} function, @var{reverse}, is
-non-@code{nil}, the sort records are rearranged in order of descending sort
-key.
+通常、レコードはソートキー昇順で再配置される。@code{sort-subr}の1つ目の引数@var{reverse}が非@code{nil}なら、レコードはソートキー降順にソートされて再配置される。
 
-The next four arguments to @code{sort-subr} are functions that are called to
-move point across a sort record.  They are called many times from within
-@code{sort-subr}.
+@code{sort-subr}にたいする以下の4つの引数は、ソートレコード間でポイントを移動するために呼び出される。これらは@code{sort-subr}内で頻繁に呼び出される。
 
 @enumerate
 @item
-@var{nextrecfun} is called with point at the end of a record.  This function
-moves point to the start of the next record.  The first record is assumed to
-start at the position of point when @code{sort-subr} is called.  Therefore,
-you should usually move point to the beginning of the buffer before calling
-@code{sort-subr}.
+@var{nextrecfun}は、レコード終端のポイントで呼び出される。この関数は次のレコードの先頭にポイントを移動する。@code{sort-subr}が呼び出された際は、ポイント位置が1つ目のレコードの開始とみなされる。したがって@code{sort-subr}を呼び出す前は、通常はそのバッファーの先頭にポイントを移動すること。
 
-This function can indicate there are no more sort records by leaving point
-at the end of the buffer.
+この関数はバッファー終端にポイントを残すことにより、それ以上のソートレコードがないことを示すことができるできる。
 
 @item
-@var{endrecfun} is called with point within a record.  It moves point to the
-end of the record.
+@var{endrecfun}は、レコード内にあるポイントで呼び出される。これはレコード終端にポイントを移動する。
 
 @item
-@var{startkeyfun} is called to move point from the start of a record to the
-start of the sort key.  This argument is optional; if it is omitted, the
-whole record is the sort key.  If supplied, the function should either
-return a non-@code{nil} value to be used as the sort key, or return
-@code{nil} to indicate that the sort key is in the buffer starting at
-point.  In the latter case, @var{endkeyfun} is called to find the end of the
-sort key.
+@var{startkeyfun}は、ポイントをレコード先頭からソートキー先頭に移動する。この引数はオプションで、省略された場合はレコード全体がソートキーとなる。もし与えられた場合、その関数はソートキーとして使用する非@code{nil}値、または@code{nil}(ソートキーはそのバッファー内のポイント位置から始まることを示す)のいずれかをリターンすること。後者の場合は、ソートキー終端を見るけるために@var{endkeyfun}が呼び出される。
 
 @item
-@var{endkeyfun} is called to move point from the start of the sort key to
-the end of the sort key.  This argument is optional.  If @var{startkeyfun}
-returns @code{nil} and this argument is omitted (or @code{nil}), then the
-sort key extends to the end of the record.  There is no need for
-@var{endkeyfun} if @var{startkeyfun} returns a non-@code{nil} value.
+@var{endkeyfun}は、ソートキー先頭からソートキー終端にポイントを移動するために呼び出される。引数はオプション。@var{startkeyfun}が@code{nil}をリターンし、かつこの引数が省略(または@code{nil})の場合、そのソートキーはレコード終端まで拡張される。@var{startkeyfun}が非@code{nil}値をリターンした場合、@var{endkeyfun}は不要。
 @end enumerate
 
-The argument @var{predicate} is the function to use to compare keys.  If
-keys are numbers, it defaults to @code{<}; otherwise it defaults to
-@code{string<}.
+引数@var{predicate}は、キーを比較するために使用される関数である。キーが数字の場合のデフォルトは@code{<}、それ以外では@code{string<}がデフォルトである。
 
-As an example of @code{sort-subr}, here is the complete function definition
-for @code{sort-lines}:
+@code{sort-subr}の例として、以下は@code{sort-lines}関数の完全な定義である:
 
 @example
 @group
-;; @r{Note that the first two lines of doc string}
-;; @r{are effectively one line when viewed by a user.}
+;; @r{ドキュメント文字列の冒頭2行は}
+;; @r{ユーザー閲覧時には1行となることに注意}
 (defun sort-lines (reverse beg end)
-  "Sort lines in region alphabetically;\
- argument means descending order.
-Called from a program, there are three arguments:
+  "リージョン内の行をアルファベット順にソート;\
+ 引数は降順を意味する
+プログラムから呼び出す場合は、以下の3つの引数がある:
 @end group
 @group
-REVERSE (non-nil means reverse order),\
- BEG and END (region to sort).
-The variable `sort-fold-case' determines\
- whether alphabetic case affects
-the sort order."
+REVERSE(非nilは逆順の意)、\
+およびBEGとEND(ソートするリージョン)
+変数`sort-fold-case'は英字\
+大文字小文字の違いが
+ソート順に影響するかどうかを決定する"
 @end group
 @group
   (interactive "P\nr")
@@ -1282,13 +1250,9 @@ the sort order."
 @end group
 @end example
 
-Here @code{forward-line} moves point to the start of the next record, and
-@code{end-of-line} moves point to the end of record.  We do not pass the
-arguments @var{startkeyfun} and @var{endkeyfun}, because the entire record
-is used as the sort key.
+ここで、@code{forward-line}は次のレコードの先頭にポイントを移動し、@code{end-of-line}はレコードの終端にポイントを移動する。レコード全体をソートキーとするため、引数@var{startkeyfun}および@var{endkeyfun}は渡していない。
 
-The @code{sort-paragraphs} function is very much the same, except that its
-@code{sort-subr} call looks like this:
+@code{sort-paragraphs}はほとんど同じだが、@code{sort-subr}呼び出しが以下のようになる:
 
 @example
 @group
@@ -1302,67 +1266,39 @@ The @code{sort-paragraphs} function is very much the same, except that its
 @end group
 @end example
 
-Markers pointing into any sort records are left with no useful position
-after @code{sort-subr} returns.
+ソートレコード内を指す任意のマーカーは、@code{sort-subr}リターン後は無意味なマーカー位置のまま取り残される。
 @end defun
 
 @defopt sort-fold-case
-If this variable is non-@code{nil}, @code{sort-subr} and the other buffer
-sorting functions ignore case when comparing strings.
+この変数が非@code{nil}なら@code{sort-subr}、およびその他のバッファーソート関数は、文字列比較時に大文字小文字の違いを無視する。
 @end defopt
 
 @deffn Command sort-regexp-fields reverse record-regexp key-regexp start end
-This command sorts the region between @var{start} and @var{end}
-alphabetically as specified by @var{record-regexp} and @var{key-regexp}.  If
-@var{reverse} is a negative integer, then sorting is in reverse order.
+このコマンドは、@var{start}から@var{end}の間のリージョンを、@var{record-regexp}および@var{key-regexp}で指定されたようにアルファベット順にソートする。@var{reverse}が負の整数なら、逆順にソートする。
 
-Alphabetical sorting means that two sort keys are compared by comparing the
-first characters of each, the second characters of each, and so on.  If a
-mismatch is found, it means that the sort keys are unequal; the sort key
-whose character is less at the point of first mismatch is the lesser sort
-key.  The individual characters are compared according to their numerical
-character codes in the Emacs character set.
+アルファベット順のソートとは、2つのソートキーにたいして、それぞれの1つ目の文字同士、2つ目の文字同士といったように比較することにより、キーを比較することを意味する。文字が一致しなければ、それはソートキーが不等なことを意味する。最初の不一致箇所で文字が小さいソートキーが、小さいソートキーとなる。個別の文字は、Emacs文字セット内の文字コードの数値に応じて比較される。
 
-The value of the @var{record-regexp} argument specifies how to divide the
-buffer into sort records.  At the end of each record, a search is done for
-this regular expression, and the text that matches it is taken as the next
-record.  For example, the regular expression @samp{^.+$}, which matches
-lines with at least one character besides a newline, would make each such
-line into a sort record.  @xref{Regular Expressions}, for a description of
-the syntax and meaning of regular expressions.
+引数@var{record-regexp}の値は、バッファーをソートレコードに分割する方法を指定する。各レコードの終端で、この正規表現にたいする検索は完了し、これにマッチするテキストが次のレコードとして採用される。たとえば、改行の前に少なくとも1つの文字がある行にマッチする正規表現@samp{^.+$}は、そのような行をソートレコードとするだろう。正規表現の構文と意味については、@ref{Regular
+Expressions}を参照のこと。
 
-The value of the @var{key-regexp} argument specifies what part of each
-record is the sort key.  The @var{key-regexp} could match the whole record,
-or only a part.  In the latter case, the rest of the record has no effect on
-the sorted order of records, but it is carried along when the record moves
-to its new position.
+引数@var{key-regexp}の値は、各レコードのどの部分がソートキーかを指定する。@var{key-regexp}はレコード全体、またはその一部にマッチすることができる。後者の場合、レコードの残りの部分はソート順に影響しないが、レコードが新たな位置に移動される際は、ともに移動される。
 
-The @var{key-regexp} argument can refer to the text matched by a
-subexpression of @var{record-regexp}, or it can be a regular expression on
-its own.
+引数@var{key-regexp}は、@var{record-regexp}の部分式(subexpression)、またはその正規表現自体にマッチしたテキストを参照できる。
 
-If @var{key-regexp} is:
+@var{key-regexp}は、以下を指定できる:
 
 @table @asis
 @item @samp{\@var{digit}}
-then the text matched by the @var{digit}th @samp{\(...\)} parenthesis
-grouping in @var{record-regexp} is the sort key.
+@var{record-regexp}内で@var{digit}番目のカッコ@samp{\(...\)}でグループ化によりマッチしたテキストがソートキーになる。
 
 @item @samp{\&}
-then the whole record is the sort key.
+レコード全体がソートキーとなる。
 
-@item a regular expression
-then @code{sort-regexp-fields} searches for a match for the regular
-expression within the record.  If such a match is found, it is the sort
-key.  If there is no match for @var{key-regexp} within a record then that
-record is ignored, which means its position in the buffer is not changed.
-(The other records may move around it.)
+@item 正規表現
+@code{sort-regexp-fields}は、そのレコード内で正規表現にたいするマッチを検索する。そのようなマッチがあれば、それがソートキーである。レコード内に@var{key-regexp}にたいするマッチがなければそのレコードは無視され、そのバッファー内でのレコードの位置は変更されないことを意味する(他のレコードがそのレコードを移動するかもしれない)。
 @end table
 
-For example, if you plan to sort all the lines in the region by the first
-word on each line starting with the letter @samp{f}, you should set
-@var{record-regexp} to @samp{^.*$} and set @var{key-regexp} to
-@samp{\<f\w*\>}.  The resulting expression looks like this:
+たとえば、リージョン内のすべての行にたいして、最初の単語が文字@samp{f}で始まる行をソートすることを目論む場合は、@var{record-regexp}を@samp{^.*$}、@var{key-regexp}を@samp{\<f\w*\>}にセットするべきである。結果は、以下のような式になるだろう
 
 @example
 @group
@@ -1372,70 +1308,46 @@ word on each line starting with the letter @samp{f}, you should set
 @end group
 @end example
 
-If you call @code{sort-regexp-fields} interactively, it prompts for
-@var{record-regexp} and @var{key-regexp} in the minibuffer.
+@code{sort-regexp-fields}をインタラクティブに呼び出した場合は、ミニバッファー内で@var{record-regexp}と@var{key-regexp}の入力を求める。
 @end deffn
 
 @deffn Command sort-lines reverse start end
-This command alphabetically sorts lines in the region between @var{start}
-and @var{end}.  If @var{reverse} is non-@code{nil}, the sort is in reverse
-order.
+このコマンドは、@var{start}と@var{end}の間のリージョン内の行を、アルファベット順にソートする。@var{reverse}が非@code{nil}なら、逆順にソートする。
 @end deffn
 
 @deffn Command sort-paragraphs reverse start end
-This command alphabetically sorts paragraphs in the region between
-@var{start} and @var{end}.  If @var{reverse} is non-@code{nil}, the sort is
-in reverse order.
+このコマンドは、@var{start}と@var{end}の間のリージョン内のパラグラフを、アルファベット順にソートする。@var{reverse}が非@code{nil}なら、逆順にソートする。
 @end deffn
 
 @deffn Command sort-pages reverse start end
-This command alphabetically sorts pages in the region between @var{start}
-and @var{end}.  If @var{reverse} is non-@code{nil}, the sort is in reverse
-order.
+このコマンドは、@var{start}と@var{end}の間のリージョン内のページを、アルファベット順にソートする。@var{reverse}が非@code{nil}なら、逆順にソートする。
 @end deffn
 
 @deffn Command sort-fields field start end
-This command sorts lines in the region between @var{start} and @var{end},
-comparing them alphabetically by the @var{field}th field of each line.
-Fields are separated by whitespace and numbered starting from 1.  If
-@var{field} is negative, sorting is by the @w{@minus{}@var{field}th} field
-from the end of the line.  This command is useful for sorting tables.
+このコマンドは、@var{start}と@var{end}の間のリージョン内の行にたいして、各行の@var{field}番目のフィールドをアルファベット順に比較することに、行をソートする。@var{field}は空白文字により区切られ、1から数えられる。@var{field}が負なら、行の終端から@w{@minus{}@var{field}}番目のフィールドでソートする。このコマンドは、テーブルのソートに有用である。
 @end deffn
 
 @deffn Command sort-numeric-fields field start end
-This command sorts lines in the region between @var{start} and @var{end},
-comparing them numerically by the @var{field}th field of each line.  Fields
-are separated by whitespace and numbered starting from 1.  The specified
-field must contain a number in each line of the region.  Numbers starting
-with 0 are treated as octal, and numbers starting with @samp{0x} are treated
-as hexadecimal.
+このコマンドは、@var{start}と@var{end}の間のリージョン内の行にたいして、各行の@var{field}番目のフィールドを数値的に比較することにより、行をソートする。@var{field}は空白文字により区切られ、1から数えられる。リージョン内の各行の指定されたフィールドは、数字を含んでいなければならない。0で始まる数字は8進数、@samp{0x}で始まる数字は16進数として扱われる。
 
-If @var{field} is negative, sorting is by the @w{@minus{}@var{field}th}
-field from the end of the line.  This command is useful for sorting tables.
+@var{field}が負なら、行の終端から@w{@minus{}@var{field}}番目のフィールドでソートする。このコマンドは、テーブルのソートに有用である。
 @end deffn
 
 @defopt sort-numeric-base
-This variable specifies the default radix for @code{sort-numeric-fields} to
-parse numbers.
+この変数は、@code{sort-numeric-fields}にたいして、数字を解析するための基本基数を指定する。
 @end defopt
 
 @deffn Command sort-columns reverse &optional beg end
-This command sorts the lines in the region between @var{beg} and @var{end},
-comparing them alphabetically by a certain range of columns.  The column
-positions of @var{beg} and @var{end} bound the range of columns to sort on.
+このコマンドは、@var{beg}と@var{end}の間にある行にたいして、特定の列範囲をアルファベット順に比較することによりソートする。@var{beg}と@var{end}の列位置は、ソートが行われる列範囲にバインドされる。
 
-If @var{reverse} is non-@code{nil}, the sort is in reverse order.
+@var{reverse}が非@code{nil}なら、逆順にソートする。
 
-One unusual thing about this command is that the entire line containing
-position @var{beg}, and the entire line containing position @var{end}, are
-included in the region sorted.
+このコマンドが普通と異なるのは、位置@var{beg}を含む行全体と、位置@var{end}を含む行全体が、ソートされるリージョンに含まれることである。
 
-Note that @code{sort-columns} rejects text that contains tabs, because tabs
-could be split across the specified columns.  Use @kbd{M-x untabify} to
-convert tabs to spaces before sorting.
+タブは指定された列に分割される可能性があるので、@code{sort-columns}はタブを含むテキストを受け付けないことに注意。ソート前に@kbd{M-x
+untabify}を使用して、タブをスペースに変換すること。
 
-When possible, this command actually works by calling the @code{sort}
-utility program.
+可能なら、ユーティリティプログラム@code{sort}を呼び出すことにより、このコマンドは実際に機能する。
 @end deffn
 
 @node Columns
