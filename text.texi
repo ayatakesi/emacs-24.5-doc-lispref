@@ -1432,80 +1432,48 @@ Properties}を参照のこと。
 @node Mode-Specific Indent
 @subsection Indentation Controlled by Major Mode
 
-  An important function of each major mode is to customize the @key{TAB} key
-to indent properly for the language being edited.  This section describes
-the mechanism of the @key{TAB} key and how to control it.  The functions in
-this section return unpredictable values.
+  すべてのメジャーモードにとって重要な関数は、編集対象の言語にたいして正しくインデントを行うように、@key{TAB}キーをカスタマイズします。このセクションでは、@key{TAB}キーのメカニズムと、それを制御する方法について説明します。このセクションの関数は、予期せぬ値をリターンします。
 
 @deffn Command indent-for-tab-command &optional rigid
-This is the command bound to @key{TAB} in most editing modes.  Its usual
-action is to indent the current line, but it can alternatively insert a tab
-character or indent a region.
+これはほとんどの編集用モードで、@key{TAB}にバインドされるコマンドである。これの通常の動作はカレント行のインデントだが、かわりにタブ文字の挿入や、リージョンのインデントを行うこともできる。
 
-Here is what it does:
+これは以下のことを行う:
 
 @itemize
 @item
-First, it checks whether Transient Mark mode is enabled and the region is
-active.  If so, it called @code{indent-region} to indent all the text in the
-region (@pxref{Region Indent}).
+まずTransient
+Markモードが有効か、そしてリージョンがアクティブかどうかをチェックする。もしそうなら、リージョン内のテキストすべてをインデントするために@code{indent-region}を呼び出す(@ref{Region
+Indent}を参照)。
 
 @item
-Otherwise, if the indentation function in @code{indent-line-function} is
-@code{indent-to-left-margin} (a trivial command that inserts a tab
-character), or if the variable @code{tab-always-indent} specifies that a tab
-character ought to be inserted (see below), then it inserts a tab character.
+それ以外なら、@code{indent-line-function}内のインデント関数が@code{indent-to-left-margin}の場合、または変数@code{tab-always-indent}が挿入する文字としてタブ文字を指定する場合(以下参照)は、タブ文字を挿入する。
 
 @item
-Otherwise, it indents the current line; this is done by calling the function
-in @code{indent-line-function}.  If the line is already indented, and the
-value of @code{tab-always-indent} is @code{complete} (see below), it tries
-completing the text at point.
+それ以外なら、カレント行をインデントする。これは@code{indent-line-function}内の関数を呼び出すことにより行われる。その行がすでにインデント済みで、かつ@code{tab-always-indent}の値が@code{complete}(以下参照)なら、ポイント位置のテキストの補完を試みる。
 @end itemize
 
-If @var{rigid} is non-@code{nil} (interactively, with a prefix argument),
-then after this command indents a line or inserts a tab, it also rigidly
-indents the entire balanced expression which starts at the beginning of the
-current line, in order to reflect the new indentation.  This argument is
-ignored if the command indents the region.
+@var{rigid}が非@code{nil}(インタラクティブな場合はプレフィクス引数)の場合、このコマンドが行をインデントした後、あるいはタブを挿入後、新たなインデントを反映するために、このコマンドはカレント行先頭にあるバランスされた式全体も厳正にインデントする。この引数は、コマンドがリージョンをインデントする場合は無視される。
 @end deffn
 
 @defvar indent-line-function
-This variable's value is the function to be used by
-@code{indent-for-tab-command}, and various other indentation commands, to
-indent the current line.  It is usually assigned by the major mode; for
-instance, Lisp mode sets it to @code{lisp-indent-line}, C mode sets it to
-@code{c-indent-line}, and so on.  The default value is
-@code{indent-relative}.  @xref{Auto-Indentation}.
+この変数の値はカレント行をインデントするために@code{indent-for-tab-command}、およびその他種々のインデントコマンドにより使用される関数である。これは通常メジャーモードにより割り当てられ、たとえばLispモードはこれを@code{lisp-indent-line}、Cモードは@code{c-indent-line}、のようにセットする。デフォルト値は@code{indent-relative}。@ref{Auto-Indentation}を参照のこと。
 @end defvar
 
 @deffn Command indent-according-to-mode
-This command calls the function in @code{indent-line-function} to indent the
-current line in a way appropriate for the current major mode.
+このコマンドは、カレントのメジャーモードに適した方法でカレント行をインデントするために、@code{indent-line-function}内の関数を呼び出す。
 @end deffn
 
 @deffn Command newline-and-indent
-This function inserts a newline, then indents the new line (the one
-following the newline just inserted) according to the major mode.  It does
-indentation by calling @code{indent-according-to-mode}.
+この関数は改行を挿入後、メジャーモードに応じて新たな行(挿入した改行の次の行)をインデントする。これは@code{indent-according-to-mode}を呼び出すことによりインデントを行う。
 @end deffn
 
 @deffn Command reindent-then-newline-and-indent
-This command reindents the current line, inserts a newline at point, and
-then indents the new line (the one following the newline just inserted).  It
-does indentation on both lines by calling @code{indent-according-to-mode}.
+このコマンドは、カレント行の再インデント、ポイント位置への改行の挿入、その後新たな行(挿入した改行の次の行)のインデントを行う。これは@code{indent-according-to-mode}を呼び出すことにより、両方の行をインデントする。
 @end deffn
 
 @defopt tab-always-indent
-This variable can be used to customize the behavior of the @key{TAB}
-(@code{indent-for-tab-command}) command.  If the value is @code{t} (the
-default), the command normally just indents the current line.  If the value
-is @code{nil}, the command indents the current line only if point is at the
-left margin or in the line's indentation; otherwise, it inserts a tab
-character.  If the value is @code{complete}, the command first tries to
-indent the current line, and if the line was already indented, it calls
-@code{completion-at-point} to complete the text at point (@pxref{Completion
-in Buffers}).
+この変数は、@key{TAB}(@code{indent-for-tab-command})コマンドの挙動のカスタマイズに使用できる。値が@code{t}(デフォルト)なら、コマンドは通常カレント行だけをインデントする。値が@code{nil}なら、コマンドはポイントが左マージン、またはその行のインデント内ににあるときのみ、カレント行をインデントし、それ以外はタブ文字を挿入する。値が@code{complete}なら、コマンドはまずカレント行のインデントを試み、その行がすでにインデント済みならポイント位置のテキストを補完するために@code{completion-at-point}を呼び出す(@ref{Completion
+in Buffers}を参照)。
 @end defopt
 
 @node Region Indent
