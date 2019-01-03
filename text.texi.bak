@@ -1406,38 +1406,27 @@ beginning of the line.
 @node Primitive Indent
 @subsection Indentation Primitives
 
-  This section describes the primitive functions used to count and insert
-indentation.  The functions in the following sections use these primitives.
-@xref{Size of Displayed Text}, for related functions.
+  このセクションでは、インデントのカウントと挿入に使用されるプリミティブ関数について説明します。以降のセクションの関数は、これらのプリミティブを使用します。関連する関数については、@ref{Size
+of Displayed Text}を参照してください。
 
 @defun current-indentation
 @comment !!Type Primitive Function
 @comment !!SourceFile indent.c
-This function returns the indentation of the current line, which is the
-horizontal position of the first nonblank character.  If the contents are
-entirely blank, then this is the horizontal position of the end of the line.
+この関数は、カレント行のインデント、すなわち最初の非ブランク文字の水平位置をリターンする。行のコンテンツ全体がブランクなら、それは行終端の水平位置である。
 @end defun
 
 @deffn Command indent-to column &optional minimum
 @comment !!Type Primitive Function
 @comment !!SourceFile indent.c
-This function indents from point with tabs and spaces until @var{column} is
-reached.  If @var{minimum} is specified and non-@code{nil}, then at least
-that many spaces are inserted even if this requires going beyond
-@var{column}.  Otherwise the function does nothing if point is already
-beyond @var{column}.  The value is the column at which the inserted
-indentation ends.
+この関数は、ポイントから@var{column}に達するまで、タブとスペースでインデントを行う。@var{minimum}が指定され、かつそれが非@code{nil}なら、たとえ@var{column}を超えることが要求される場合であっても、少なくともその個数のスペースが挿入される。それ以外では、ポイントがすでに@var{column}を超える場合、この関数は何も行わない。値は、挿入されたインデントの終端列である。
 
-The inserted whitespace characters inherit text properties from the
-surrounding text (usually, from the preceding text only).  @xref{Sticky
-Properties}.
+挿入される空白文字は、周囲のテキスト(通常は先行するテキストのみ)のテキストプロパティを継承する。@ref{Sticky
+Properties}を参照のこと。
 @end deffn
 
 @defopt indent-tabs-mode
 @comment !!SourceFile indent.c
-If this variable is non-@code{nil}, indentation functions can insert tabs as
-well as spaces.  Otherwise, they insert only spaces.  Setting this variable
-automatically makes it buffer-local in the current buffer.
+この変数が非@code{nil}なら、インデント関数はスペースと同様、タブを挿入でき、それ以外ではスペースだけを挿入できる。この変数をセットすることにより、自動的にカレントバッファー内でバッファーローカルになる。
 @end defopt
 
 @node Mode-Specific Indent
