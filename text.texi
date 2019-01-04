@@ -1518,28 +1518,17 @@ Manual}を参照のこと。
 @node Relative Indent
 @subsection Indentation Relative to Previous Lines
 
-  This section describes two commands that indent the current line based on
-the contents of previous lines.
+  このセクションでは、前の行のコンテンツにもとづいてカレント行をインデントする、コマンドを2つ説明します。
 
 @deffn Command indent-relative &optional unindented-ok
-This command inserts whitespace at point, extending to the same column as
-the next @dfn{indent point} of the previous nonblank line.  An indent point
-is a non-whitespace character following whitespace.  The next indent point
-is the first one at a column greater than the current column of point.  For
-example, if point is underneath and to the left of the first non-blank
-character of a line of text, it moves to that column by inserting
-whitespace.
+このコマンドは、前の非ブランク行の次の@dfn{インデントポイント(indent
+point)}と同じ列に拡張されるように、ポイント位置に空白文字を挿入する。インデントポイントとは、後に空白文字をともなった非空白文字である。次のインデントポイントは、ポイントのカレント列より大きい、最初のインデントポイントになる。たとえばポイントがテキスト行の最初の非ブランク文字の下と左にある場合、空白文字を挿入してその列に移動する。
 
-If the previous nonblank line has no next indent point (i.e., none at a
-great enough column position), @code{indent-relative} either does nothing
-(if @var{unindented-ok} is non-@code{nil}) or calls @code{tab-to-tab-stop}.
-Thus, if point is underneath and to the right of the last column of a short
-line of text, this command ordinarily moves point to the next tab stop by
-inserting whitespace.
+前の非ブランク行に次のインデントポイントがない(列の位置が十分大きくない)場合は、(@var{unindented-ok}が非@code{nil}なら)何もしないか、あるいは@code{tab-to-tab-stop}を呼び出す。したがって、ポイントが短いテキスト行の最後の列の下と右にある場合、このコマンドは通常は空白文字を挿入することにより、次のタブストップにポイントを移動する。
 
-The return value of @code{indent-relative} is unpredictable.
+@code{indent-relative}のリターン値は予測できない。
 
-In the following example, point is at the beginning of the second line:
+以下の例では、ポイントは2行目の先頭にある:
 
 @example
 @group
@@ -1549,8 +1538,7 @@ In the following example, point is at the beginning of the second line:
 @end example
 
 @noindent
-Evaluation of the expression @code{(indent-relative nil)} produces the
-following:
+式@code{(indent-relative nil)}の評価により、以下が生成される:
 
 @example
 @group
@@ -1559,8 +1547,7 @@ following:
 @end group
 @end example
 
-  In this next example, point is between the @samp{m} and @samp{p} of
-@samp{jumped}:
+  次の例では、ポイントは@samp{jumped}の@samp{m}と@samp{p}の間にある:
 
 @example
 @group
@@ -1570,8 +1557,7 @@ The quick brown fox jum@point{}ped.
 @end example
 
 @noindent
-Evaluation of the expression @code{(indent-relative nil)} produces the
-following:
+式@code{(indent-relative nil)}の評価により、以下が生成される:
 
 @example
 @group
@@ -1583,12 +1569,9 @@ The quick brown fox jum  @point{}ped.
 
 @deffn Command indent-relative-maybe
 @comment !!SourceFile indent.el
-This command indents the current line like the previous nonblank line, by
-calling @code{indent-relative} with @code{t} as the @var{unindented-ok}
-argument.  The return value is unpredictable.
+このコマンドは、引数@var{unindented-ok}に@code{t}を指定して@code{indent-relative}を呼び出すことにより、前の非ブランク行に倣ってカレント行をインデントする。リターン値は予測できない。
 
-If the previous nonblank line has no indent points beyond the current
-column, this command does nothing.
+カレント列より先のインデントポイントが前の非ブランク行に存在しなければ、このコマンドは何もしない。
 @end deffn
 
 @node Indent Tabs
