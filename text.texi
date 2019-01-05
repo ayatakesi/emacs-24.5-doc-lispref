@@ -1715,87 +1715,52 @@ category)}と呼びます。これはシンボルであるべきです。その�
 @cindex examining text properties
 @cindex text properties, examining
 
-  The simplest way to examine text properties is to ask for the value of a
-particular property of a particular character.  For that, use
-@code{get-text-property}.  Use @code{text-properties-at} to get the entire
-property list of a character.  @xref{Property Search}, for functions to
-examine the properties of a number of characters at once.
+  テキストプロパティを調べるもっともシンプルな方法は、特定の文字の特定のプロパティの値を尋ねる方法です。これを行うには、@code{get-text-property}を使用します。ある文字のプロパティリスト全体を取得するには、@code{text-properties-at}を使用します。複数の文字のプロパティを一度に調べる関数については、@ref{Property
+Search}を参照してください。
 
-  These functions handle both strings and buffers.  Keep in mind that
-positions in a string start from 0, whereas positions in a buffer start from
-1.
+  以下の関数は、文字列とバッファーの両方を処理します。バッファー内の位置は1から始まりますが、文字列内の位置は0から始まることに留意してください。
 
 @defun get-text-property pos prop &optional object
-This function returns the value of the @var{prop} property of the character
-after position @var{pos} in @var{object} (a buffer or string).  The argument
-@var{object} is optional and defaults to the current buffer.
+この関数は、@var{object}(バッファーまたは文字列)内の位置@var{pos}の後にある文字のプロパティ@var{prop}の値をリターンする。引数@var{object}はオプションで、デフォルトはカレントバッファー。
 
-If there is no @var{prop} property strictly speaking, but the character has
-a property category that is a symbol, then @code{get-text-property} returns
-the @var{prop} property of that symbol.
+厳密な意味で@var{prop}プロパティが存在しないが、その文字がシンボルであるようなプロパティカテゴリーをもつなら、@code{get-text-property}はそのシンボルの@var{prop}プロパティをリターンする。
 @end defun
 
 @defun get-char-property position prop &optional object
-This function is like @code{get-text-property}, except that it checks
-overlays first and then text properties.  @xref{Overlays}.
+この関数は@code{get-text-property}と似ているが、まずオーバーレイをチェックして、次にテキストプロパティをチェックする点が異なる。@ref{Overlays}を参照のこと。
 
-The argument @var{object} may be a string, a buffer, or a window.  If it is
-a window, then the buffer displayed in that window is used for text
-properties and overlays, but only the overlays active for that window are
-considered.  If @var{object} is a buffer, then overlays in that buffer are
-considered first, in order of decreasing priority, followed by the text
-properties.  If @var{object} is a string, only text properties are
-considered, since strings never have overlays.
+引数@var{object}は文字列、バッファー、あるいはウィンドウかもしれない。ウィンドウならそのウィンドウ内に表示されているバッファーのテキストプロパティとオーバーレイが使用されるが、そのウィンドウにたいしてアクティブなオーバーレイだけが考慮される。@var{object}がバッファーなら、そのバッファー内のオーバーレイがまず優先順に考慮され、その後にテキストプロパティが考慮される。@var{object}が文字列の場合？文字列は決してオーバーレイをもたないので、テキストプロパティだけが考慮される。
 @end defun
 
 @defun get-pos-property position prop &optional object
-This function is like @code{get-char-property}, except that it pays
-attention to properties' stickiness and overlays' advancement settings
-instead of the property of the character at (i.e. right after)
-@var{position}.
+この関数は@code{get-char-property}と似ているが、@var{position}(すぐ右)にある文字のプロパティのかわりに、プロパティのstickiness(粘着性)とオーバーレイのadvancement(前向的)なセッティングに注意を払う点が異なる。
 @end defun
 
 @defun get-char-property-and-overlay position prop &optional object
-This is like @code{get-char-property}, but gives extra information about the
-overlay that the property value comes from.
+これは@code{get-char-property}と似ているが、そのプロパティ値が由来するオーバーレイについて追加情報を与える点が異なる。
 
-Its value is a cons cell whose @sc{car} is the property value, the same
-value @code{get-char-property} would return with the same arguments.  Its
-@sc{cdr} is the overlay in which the property was found, or @code{nil}, if
-it was found as a text property or not found at all.
+その値は@sc{car}がプロパティ値であるようなコンスセルで、同じ引数により@code{get-char-property}がリターンするであろう値と同じである。@sc{cdr}はそのプロパティが見つかった箇所のオーバーレイ、またはテキストプロパティとして見つかった場合や見つからなかった場合は@code{nil}である。
 
-If @var{position} is at the end of @var{object}, both the @sc{car} and the
-@sc{cdr} of the value are @code{nil}.
+@var{position}が@var{object}の終端なら、@sc{car}と@sc{cdr}の値はどちらも@code{nil}になる。
 @end defun
 
 @defvar char-property-alias-alist
-This variable holds an alist which maps property names to a list of
-alternative property names.  If a character does not specify a direct value
-for a property, the alternative property names are consulted in order; the
-first non-@code{nil} value is used.  This variable takes precedence over
-@code{default-text-properties}, and @code{category} properties take
-precedence over this variable.
+この変数は、プロパティ名と代替となるプロパティ名リストをマップするalistを保持する。文字があるプロパティにたいして直接値を指定しなければ、順に代替プロパティ名が調べられ、最初の非@code{nil}値が使用される。この変数は@code{default-text-properties}より優先され、この変数より@code{category}プロパティが優先される。
 @end defvar
 
 @defun text-properties-at position &optional object
-This function returns the entire property list of the character at
-@var{position} in the string or buffer @var{object}.  If @var{object} is
-@code{nil}, it defaults to the current buffer.
+この関数は、文字列またはバッファー@var{object}内の位置@var{position}にある文字のプロパティリスト全体をリターンする。@var{object}が@code{nil}なら、デフォルトはカレントバッファーとなる。
 @end defun
 
 @defvar default-text-properties
-This variable holds a property list giving default values for text
-properties.  Whenever a character does not specify a value for a property,
-neither directly, through a category symbol, or through
-@code{char-property-alias-alist}, the value stored in this list is used
-instead.  Here is an example:
+この変数は、テキストプロパティにたいしてデフォルト値を与えるプロパティリストを保持する。あるプロパティにたいして文字が直接、あるいはカテゴリーシンボルまたは@code{char-property-alias-alist}を通じて値を指定しないときは常に、このリストに格納された値がかわりに使用される。以下は例である:
 
 @example
 (setq default-text-properties '(foo 69)
       char-property-alias-alist nil)
-;; @r{Make sure character 1 has no properties of its own.}
+;; @r{文字1は自身のプロパティをもたない}
 (set-text-properties 1 2 nil)
-;; @r{What we get, when we ask, is the default value.}
+;; @r{取得される値はデフォルト値である}
 (get-text-property 1 'foo)
      @result{} 69
 @end example
