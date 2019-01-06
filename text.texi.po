@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-11-02 17:06+0900\n"
-"PO-Revision-Date: 2019-01-06 05:06+0900\n"
+"PO-Revision-Date: 2019-01-06 21:09+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -4688,65 +4688,65 @@ msgstr "プロパティではなくバッファーからテキストをコピー
 #: text.texi.orig:2934
 #, no-wrap
 msgid "Text Property Search Functions"
-msgstr ""
+msgstr "Text Property Search Functions"
 
 #. type: cindex
 #: text.texi.orig:2935
 #, no-wrap
 msgid "searching text properties"
-msgstr ""
+msgstr "searching text properties"
 
 #. type: cindex
 #: text.texi.orig:2936
 #, no-wrap
 msgid "text properties, searching"
-msgstr ""
+msgstr "text properties, searching"
 
 #. type: Plain text
 #: text.texi.orig:2942
 msgid "In typical use of text properties, most of the time several or many consecutive characters have the same value for a property.  Rather than writing your programs to examine characters one by one, it is much faster to process chunks of text that have the same property value."
-msgstr ""
+msgstr "テキストプロパティの通常の使用では、ほとんどの場合は複数または多くの連続する文字が、同じ値のプロパティをもちます。文字を1つずつ調べるプログラムを記述するよりも、同じプロパティ値をもつテキスト塊(chunks of text)を処理するほうが、より高速です。"
 
 #. type: Plain text
 #: text.texi.orig:2946
 msgid "Here are functions you can use to do this.  They use @code{eq} for comparing property values.  In all cases, @var{object} defaults to the current buffer."
-msgstr ""
+msgstr "以下は、これを行うことに使用できる関数です。これらは、プロパティ値の比較に@code{eq}を使用します。すべての関数において、@var{object}のデフォルトはカレントバッファーです。"
 
 #. type: Plain text
 #: text.texi.orig:2951
 msgid "For good performance, it's very important to use the @var{limit} argument to these functions, especially the ones that search for a single property---otherwise, they may spend a long time scanning to the end of the buffer, if the property you are interested in does not change."
-msgstr ""
+msgstr "より良いパフォーマンスのためには、特に単一のプロパティを検索する関数においては、@var{limit}引数の使用が重要です。そうしないと、興味のあるプロパティが変化しない場合に、バッファー終端までのスキャンに長い時間を要するでしょう。"
 
 #. type: Plain text
 #: text.texi.orig:2956
 msgid "These functions do not move point; instead, they return a position (or @code{nil}).  Remember that a position is always between two characters; the position returned by these functions is between two characters with different properties."
-msgstr ""
+msgstr "これらの関数はポイントを移動しません。そのかわりに位置(または@code{nil})をリターンします。ポイントは常に文字と文字の間にあることを思い出してください。これらの関数によりリターンされる位置は、異なるプロパティをもつ、2つの文字の間にあります。"
 
 #. type: defun
 #: text.texi.orig:2957
 #, no-wrap
 msgid "next-property-change pos &optional object limit"
-msgstr ""
+msgstr "next-property-change pos &optional object limit"
 
 #. type: defun
 #: text.texi.orig:2964
 msgid "The function scans the text forward from position @var{pos} in the string or buffer @var{object} until it finds a change in some text property, then returns the position of the change.  In other words, it returns the position of the first character beyond @var{pos} whose properties are not identical to those of the character just after @var{pos}."
-msgstr ""
+msgstr "この関数は文字列またはバッファー@var{object}内の位置@var{pos}から、何らかのテキストプロパティの変化が見つかるまで、テキストを前方にスキャンして、変化のあった位置をリターンする。別の言い方をすると、@var{pos}の直後の文字とプロパティが等しくない、@var{pos}の先にある最初の文字の位置をリターンする。"
 
 #. type: defun
 #: text.texi.orig:2968
 msgid "If @var{limit} is non-@code{nil}, then the scan ends at position @var{limit}.  If there is no property change before that point, this function returns @var{limit}."
-msgstr ""
+msgstr "@var{limit}が非@code{nil}なら、スキャンは位置@var{limit}で停止する。そのポイントより前にプロパティが変化しなければ、この関数は@var{limit}をリターンする。"
 
 #. type: defun
 #: text.texi.orig:2973
 msgid "The value is @code{nil} if the properties remain unchanged all the way to the end of @var{object} and @var{limit} is @code{nil}.  If the value is non-@code{nil}, it is a position greater than or equal to @var{pos}.  The value equals @var{pos} only when @var{limit} equals @var{pos}."
-msgstr ""
+msgstr "プロパティが@var{object}終端まで変化せず、かつ@var{limit}が@code{nil}なら、値は@code{nil}となる。値が非@code{nil}なら、それは@var{pos}以上の位置である。@var{limit}が@var{pos}と等しいときのみ、値は@var{pos}になる。"
 
 #. type: defun
 #: text.texi.orig:2976
 msgid "Here is an example of how to scan the buffer by chunks of text within which all properties are constant:"
-msgstr ""
+msgstr "以下は、すべてのプロパティが定数であるようなテキスト塊によりバッファーをスキャンする方法の例である:"
 
 #. type: smallexample
 #: text.texi.orig:2985
@@ -4760,120 +4760,127 @@ msgid ""
 "    @r{Process text from point to @var{next-change}@dots{}}\n"
 "    (goto-char next-change)))\n"
 msgstr ""
+"(while (not (eobp))\n"
+"  (let ((plist (text-properties-at (point)))\n"
+"        (next-change\n"
+"         (or (next-property-change (point) (current-buffer))\n"
+"             (point-max))))\n"
+"    @r{ポイントから@var{next-change}へテキストを処理@dots{}}\n"
+"    (goto-char next-change)))\n"
 
 #. type: defun
 #: text.texi.orig:2988
 #, no-wrap
 msgid "previous-property-change pos &optional object limit"
-msgstr ""
+msgstr "previous-property-change pos &optional object limit"
 
 #. type: defun
 #: text.texi.orig:2993
 msgid "This is like @code{next-property-change}, but scans back from @var{pos} instead of forward.  If the value is non-@code{nil}, it is a position less than or equal to @var{pos}; it equals @var{pos} only if @var{limit} equals @var{pos}."
-msgstr ""
+msgstr "これは@code{next-property-change}と似ているが、@var{pos}から前方ではなく後方にスキャンする点が異なる。値が非@code{nil}なら、それは@var{pos}以下の位置である。@var{limit}と@var{pos}が等しい場合のみ、@var{pos}をリターンする。"
 
 #. type: defun
 #: text.texi.orig:2995
 #, no-wrap
 msgid "next-single-property-change pos prop &optional object limit"
-msgstr ""
+msgstr "next-single-property-change pos prop &optional object limit"
 
 #. type: defun
 #: text.texi.orig:3002
 msgid "The function scans text for a change in the @var{prop} property, then returns the position of the change.  The scan goes forward from position @var{pos} in the string or buffer @var{object}.  In other words, this function returns the position of the first character beyond @var{pos} whose @var{prop} property differs from that of the character just after @var{pos}."
-msgstr ""
+msgstr "この関数はプロパティ@var{prop}内の変化についてテキストをスキャンして、変化があった位置をリターンする。このスキャンは、文字列またはバッファー@var{object}内の位置@var{pos}から、前方に行われる。別の言い方をすると、@var{pos}の直後の文字とプロパティ@var{prop}が等しくない、@var{pos}の先にある最初の文字の位置をリターンする。"
 
 #. type: defun
 #: text.texi.orig:3006
 msgid "If @var{limit} is non-@code{nil}, then the scan ends at position @var{limit}.  If there is no property change before that point, @code{next-single-property-change} returns @var{limit}."
-msgstr ""
+msgstr "@var{limit}が非@code{nil}なら、スキャンは位置@var{limit}で終了する。そのポイントより前にプロパティの変化がなければ、@code{next-single-property-change}は@var{limit}をリターンする。"
 
 #. type: defun
 #: text.texi.orig:3011
 msgid "The value is @code{nil} if the property remains unchanged all the way to the end of @var{object} and @var{limit} is @code{nil}.  If the value is non-@code{nil}, it is a position greater than or equal to @var{pos}; it equals @var{pos} only if @var{limit} equals @var{pos}."
-msgstr ""
+msgstr "プロパティが@var{object}終端まで変化せず、かつ@var{limit}が@code{nil}なら、値は@code{nil}となる。値が非@code{nil}なら、それは@var{pos}以上の位置である。@var{limit}が@var{pos}と等しいときのみ、値は@var{pos}になる。"
 
 #. type: defun
 #: text.texi.orig:3013
 #, no-wrap
 msgid "previous-single-property-change pos prop &optional object limit"
-msgstr ""
+msgstr "previous-single-property-change pos prop &optional object limit"
 
 #. type: defun
 #: text.texi.orig:3018
 msgid "This is like @code{next-single-property-change}, but scans back from @var{pos} instead of forward.  If the value is non-@code{nil}, it is a position less than or equal to @var{pos}; it equals @var{pos} only if @var{limit} equals @var{pos}."
-msgstr ""
+msgstr "これは@code{next-single-property-change}と似ているが、@var{pos}から前方ではなく後方にスキャンする点が異なる。値が非@code{nil}なら、それは@var{pos}以下の位置である。@var{limit}と@var{pos}が等しい場合のみ、@var{pos}をリターンする。"
 
 #. type: defun
 #: text.texi.orig:3020
 #, no-wrap
 msgid "next-char-property-change pos &optional limit"
-msgstr ""
+msgstr "next-char-property-change pos &optional limit"
 
 #. type: defun
 #: text.texi.orig:3029
 msgid "This is like @code{next-property-change} except that it considers overlay properties as well as text properties, and if no change is found before the end of the buffer, it returns the maximum buffer position rather than @code{nil} (in this sense, it resembles the corresponding overlay function @code{next-overlay-change}, rather than @code{next-property-change}).  There is no @var{object} operand because this function operates only on the current buffer.  It returns the next address at which either kind of property changes."
-msgstr ""
+msgstr "@code{next-property-change}と似ているが、これはテキストプロパティと同様オーバーレイも考慮し、バッファー終端より前に変化が見つからなければ、@code{nil}ではなくバッファー位置の最大をリターンする点が異なる(この点では@code{next-property-change}よりも対応するオーバーレイ関数@code{next-overlay-change}と似る)。この関数はカレントバッファーだけを処理するので、@var{object}オペランドは存在しない。これは、いずれかの種類のプロパティが変化した、次のアドレスをリターンする。"
 
 #. type: defun
 #: text.texi.orig:3031
 #, no-wrap
 msgid "previous-char-property-change pos &optional limit"
-msgstr ""
+msgstr "previous-char-property-change pos &optional limit"
 
 #. type: defun
 #: text.texi.orig:3035
 msgid "This is like @code{next-char-property-change}, but scans back from @var{pos} instead of forward, and returns the minimum buffer position if no change is found."
-msgstr ""
+msgstr "これは@code{next-char-property-change}と似ているが、@var{pos}から前方ではなく後方へスキャンすること、および変化が見つからなければバッファー位置の最小をリターンする点が異なる。"
 
 #. type: defun
 #: text.texi.orig:3037
 #, no-wrap
 msgid "next-single-char-property-change pos prop &optional object limit"
-msgstr ""
+msgstr "next-single-char-property-change pos prop &optional object limit"
 
 #. type: defun
 #: text.texi.orig:3045
 msgid "This is like @code{next-single-property-change} except that it considers overlay properties as well as text properties, and if no change is found before the end of the @var{object}, it returns the maximum valid position in @var{object} rather than @code{nil}.  Unlike @code{next-char-property-change}, this function @emph{does} have an @var{object} operand; if @var{object} is not a buffer, only text-properties are considered."
-msgstr ""
+msgstr "@code{next-single-property-change}と似ているが、これはテキストプロパティと同様オーバーレイも考慮し、@var{object}終端より前に変化が見つからなければ、@code{nil}ではなく@var{object}内の有効な位置の最大をリターンする点が異なる。@code{next-char-property-change}と異なり、、この関数は@var{object}オペランドを@emph{もつ}。@var{object}が非バッファーなら、テキストプロパティだけが考慮される。"
 
 #. type: defun
 #: text.texi.orig:3047
 #, no-wrap
 msgid "previous-single-char-property-change pos prop &optional object limit"
-msgstr ""
+msgstr "previous-single-char-property-change pos prop &optional object limit"
 
 #. type: defun
 #: text.texi.orig:3051
 msgid "This is like @code{next-single-char-property-change}, but scans back from @var{pos} instead of forward, and returns the minimum valid position in @var{object} if no change is found."
-msgstr ""
+msgstr "これは@code{next-single-char-property-change}と似ているが、@var{pos}から前方ではなく後方へスキャンすること、および変化が見つからなければ@var{object}内の有効な位置の最小をリターンする点が異なる。"
 
 #. type: defun
 #: text.texi.orig:3053
 #, no-wrap
 msgid "text-property-any start end prop value &optional object"
-msgstr ""
+msgstr "text-property-any start end prop value &optional object"
 
 #. type: defun
 #: text.texi.orig:3058
 msgid "This function returns non-@code{nil} if at least one character between @var{start} and @var{end} has a property @var{prop} whose value is @var{value}.  More precisely, it returns the position of the first such character.  Otherwise, it returns @code{nil}."
-msgstr ""
+msgstr "この関数は、@var{start}と@var{end}の間に少なくともプロパティ@var{prop}に値@var{value}をもつ文字が1つあれば、非@code{nil}をリターンする。より正確には、これはそのような最初の文字の位置をリターンし、それ以外は@code{nil}をリターンする。"
 
 #. type: defun
 #: text.texi.orig:3062 text.texi.orig:3073
 msgid "The optional fifth argument, @var{object}, specifies the string or buffer to scan.  Positions are relative to @var{object}.  The default for @var{object} is the current buffer."
-msgstr ""
+msgstr "5つ目のオプション引数@var{object}は、スキャンする文字列またはバッファーを指定する。位置は@var{object}にたいして相対的である。@var{object}のデフォルトは、カレントバッファー。"
 
 #. type: defun
 #: text.texi.orig:3064
 #, no-wrap
 msgid "text-property-not-all start end prop value &optional object"
-msgstr ""
+msgstr "text-property-not-all start end prop value &optional object"
 
 #. type: defun
 #: text.texi.orig:3069
 msgid "This function returns non-@code{nil} if at least one character between @var{start} and @var{end} does not have a property @var{prop} with value @var{value}.  More precisely, it returns the position of the first such character.  Otherwise, it returns @code{nil}."
-msgstr ""
+msgstr "この関数は、@var{start}と@var{end}の間に少なくともプロパティ@var{prop}に値@var{value}をもたない文字が1つあれば、非@code{nil}をリターンする。より正確には、これはそのような最初の文字の位置をリターンし、それ以外は@code{nil}をリターンする。"
 
 #. type: subsection
 #: text.texi.orig:3076

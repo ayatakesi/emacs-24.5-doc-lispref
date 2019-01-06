@@ -1886,42 +1886,23 @@ Contents}を参照してください。
 @cindex searching text properties
 @cindex text properties, searching
 
-  In typical use of text properties, most of the time several or many
-consecutive characters have the same value for a property.  Rather than
-writing your programs to examine characters one by one, it is much faster to
-process chunks of text that have the same property value.
+  テキストプロパティの通常の使用では、ほとんどの場合は複数または多くの連続する文字が、同じ値のプロパティをもちます。文字を1つずつ調べるプログラムを記述するよりも、同じプロパティ値をもつテキスト塊(chunks
+of text)を処理するほうが、より高速です。
 
-  Here are functions you can use to do this.  They use @code{eq} for comparing
-property values.  In all cases, @var{object} defaults to the current buffer.
+  以下は、これを行うことに使用できる関数です。これらは、プロパティ値の比較に@code{eq}を使用します。すべての関数において、@var{object}のデフォルトはカレントバッファーです。
 
-  For good performance, it's very important to use the @var{limit} argument to
-these functions, especially the ones that search for a single
-property---otherwise, they may spend a long time scanning to the end of the
-buffer, if the property you are interested in does not change.
+  より良いパフォーマンスのためには、特に単一のプロパティを検索する関数においては、@var{limit}引数の使用が重要です。そうしないと、興味のあるプロパティが変化しない場合に、バッファー終端までのスキャンに長い時間を要するでしょう。
 
-  These functions do not move point; instead, they return a position (or
-@code{nil}).  Remember that a position is always between two characters; the
-position returned by these functions is between two characters with
-different properties.
+  これらの関数はポイントを移動しません。そのかわりに位置(または@code{nil})をリターンします。ポイントは常に文字と文字の間にあることを思い出してください。これらの関数によりリターンされる位置は、異なるプロパティをもつ、2つの文字の間にあります。
 
 @defun next-property-change pos &optional object limit
-The function scans the text forward from position @var{pos} in the string or
-buffer @var{object} until it finds a change in some text property, then
-returns the position of the change.  In other words, it returns the position
-of the first character beyond @var{pos} whose properties are not identical
-to those of the character just after @var{pos}.
+この関数は文字列またはバッファー@var{object}内の位置@var{pos}から、何らかのテキストプロパティの変化が見つかるまで、テキストを前方にスキャンして、変化のあった位置をリターンする。別の言い方をすると、@var{pos}の直後の文字とプロパティが等しくない、@var{pos}の先にある最初の文字の位置をリターンする。
 
-If @var{limit} is non-@code{nil}, then the scan ends at position
-@var{limit}.  If there is no property change before that point, this
-function returns @var{limit}.
+@var{limit}が非@code{nil}なら、スキャンは位置@var{limit}で停止する。そのポイントより前にプロパティが変化しなければ、この関数は@var{limit}をリターンする。
 
-The value is @code{nil} if the properties remain unchanged all the way to
-the end of @var{object} and @var{limit} is @code{nil}.  If the value is
-non-@code{nil}, it is a position greater than or equal to @var{pos}.  The
-value equals @var{pos} only when @var{limit} equals @var{pos}.
+プロパティが@var{object}終端まで変化せず、かつ@var{limit}が@code{nil}なら、値は@code{nil}となる。値が非@code{nil}なら、それは@var{pos}以上の位置である。@var{limit}が@var{pos}と等しいときのみ、値は@var{pos}になる。
 
-Here is an example of how to scan the buffer by chunks of text within which
-all properties are constant:
+以下は、すべてのプロパティが定数であるようなテキスト塊によりバッファーをスキャンする方法の例である:
 
 @smallexample
 (while (not (eobp))
@@ -1929,95 +1910,53 @@ all properties are constant:
         (next-change
          (or (next-property-change (point) (current-buffer))
              (point-max))))
-    @r{Process text from point to @var{next-change}@dots{}}
+    @r{ポイントから@var{next-change}へテキストを処理@dots{}}
     (goto-char next-change)))
 @end smallexample
 @end defun
 
 @defun previous-property-change pos &optional object limit
-This is like @code{next-property-change}, but scans back from @var{pos}
-instead of forward.  If the value is non-@code{nil}, it is a position less
-than or equal to @var{pos}; it equals @var{pos} only if @var{limit} equals
-@var{pos}.
+これは@code{next-property-change}と似ているが、@var{pos}から前方ではなく後方にスキャンする点が異なる。値が非@code{nil}なら、それは@var{pos}以下の位置である。@var{limit}と@var{pos}が等しい場合のみ、@var{pos}をリターンする。
 @end defun
 
 @defun next-single-property-change pos prop &optional object limit
-The function scans text for a change in the @var{prop} property, then
-returns the position of the change.  The scan goes forward from position
-@var{pos} in the string or buffer @var{object}.  In other words, this
-function returns the position of the first character beyond @var{pos} whose
-@var{prop} property differs from that of the character just after @var{pos}.
+この関数はプロパティ@var{prop}内の変化についてテキストをスキャンして、変化があった位置をリターンする。このスキャンは、文字列またはバッファー@var{object}内の位置@var{pos}から、前方に行われる。別の言い方をすると、@var{pos}の直後の文字とプロパティ@var{prop}が等しくない、@var{pos}の先にある最初の文字の位置をリターンする。
 
-If @var{limit} is non-@code{nil}, then the scan ends at position
-@var{limit}.  If there is no property change before that point,
-@code{next-single-property-change} returns @var{limit}.
+@var{limit}が非@code{nil}なら、スキャンは位置@var{limit}で終了する。そのポイントより前にプロパティの変化がなければ、@code{next-single-property-change}は@var{limit}をリターンする。
 
-The value is @code{nil} if the property remains unchanged all the way to the
-end of @var{object} and @var{limit} is @code{nil}.  If the value is
-non-@code{nil}, it is a position greater than or equal to @var{pos}; it
-equals @var{pos} only if @var{limit} equals @var{pos}.
+プロパティが@var{object}終端まで変化せず、かつ@var{limit}が@code{nil}なら、値は@code{nil}となる。値が非@code{nil}なら、それは@var{pos}以上の位置である。@var{limit}が@var{pos}と等しいときのみ、値は@var{pos}になる。
 @end defun
 
 @defun previous-single-property-change pos prop &optional object limit
-This is like @code{next-single-property-change}, but scans back from
-@var{pos} instead of forward.  If the value is non-@code{nil}, it is a
-position less than or equal to @var{pos}; it equals @var{pos} only if
-@var{limit} equals @var{pos}.
+これは@code{next-single-property-change}と似ているが、@var{pos}から前方ではなく後方にスキャンする点が異なる。値が非@code{nil}なら、それは@var{pos}以下の位置である。@var{limit}と@var{pos}が等しい場合のみ、@var{pos}をリターンする。
 @end defun
 
 @defun next-char-property-change pos &optional limit
-This is like @code{next-property-change} except that it considers overlay
-properties as well as text properties, and if no change is found before the
-end of the buffer, it returns the maximum buffer position rather than
-@code{nil} (in this sense, it resembles the corresponding overlay function
-@code{next-overlay-change}, rather than @code{next-property-change}).  There
-is no @var{object} operand because this function operates only on the
-current buffer.  It returns the next address at which either kind of
-property changes.
+@code{next-property-change}と似ているが、これはテキストプロパティと同様オーバーレイも考慮し、バッファー終端より前に変化が見つからなければ、@code{nil}ではなくバッファー位置の最大をリターンする点が異なる(この点では@code{next-property-change}よりも対応するオーバーレイ関数@code{next-overlay-change}と似る)。この関数はカレントバッファーだけを処理するので、@var{object}オペランドは存在しない。これは、いずれかの種類のプロパティが変化した、次のアドレスをリターンする。
 @end defun
 
 @defun previous-char-property-change pos &optional limit
-This is like @code{next-char-property-change}, but scans back from @var{pos}
-instead of forward, and returns the minimum buffer position if no change is
-found.
+これは@code{next-char-property-change}と似ているが、@var{pos}から前方ではなく後方へスキャンすること、および変化が見つからなければバッファー位置の最小をリターンする点が異なる。
 @end defun
 
 @defun next-single-char-property-change pos prop &optional object limit
-This is like @code{next-single-property-change} except that it considers
-overlay properties as well as text properties, and if no change is found
-before the end of the @var{object}, it returns the maximum valid position in
-@var{object} rather than @code{nil}.  Unlike
-@code{next-char-property-change}, this function @emph{does} have an
-@var{object} operand; if @var{object} is not a buffer, only text-properties
-are considered.
+@code{next-single-property-change}と似ているが、これはテキストプロパティと同様オーバーレイも考慮し、@var{object}終端より前に変化が見つからなければ、@code{nil}ではなく@var{object}内の有効な位置の最大をリターンする点が異なる。@code{next-char-property-change}と異なり、、この関数は@var{object}オペランドを@emph{もつ}。@var{object}が非バッファーなら、テキストプロパティだけが考慮される。
 @end defun
 
 @defun previous-single-char-property-change pos prop &optional object limit
-This is like @code{next-single-char-property-change}, but scans back from
-@var{pos} instead of forward, and returns the minimum valid position in
-@var{object} if no change is found.
+これは@code{next-single-char-property-change}と似ているが、@var{pos}から前方ではなく後方へスキャンすること、および変化が見つからなければ@var{object}内の有効な位置の最小をリターンする点が異なる。
 @end defun
 
 @defun text-property-any start end prop value &optional object
-This function returns non-@code{nil} if at least one character between
-@var{start} and @var{end} has a property @var{prop} whose value is
-@var{value}.  More precisely, it returns the position of the first such
-character.  Otherwise, it returns @code{nil}.
+この関数は、@var{start}と@var{end}の間に少なくともプロパティ@var{prop}に値@var{value}をもつ文字が1つあれば、非@code{nil}をリターンする。より正確には、これはそのような最初の文字の位置をリターンし、それ以外は@code{nil}をリターンする。
 
-The optional fifth argument, @var{object}, specifies the string or buffer to
-scan.  Positions are relative to @var{object}.  The default for @var{object}
-is the current buffer.
+5つ目のオプション引数@var{object}は、スキャンする文字列またはバッファーを指定する。位置は@var{object}にたいして相対的である。@var{object}のデフォルトは、カレントバッファー。
 @end defun
 
 @defun text-property-not-all start end prop value &optional object
-This function returns non-@code{nil} if at least one character between
-@var{start} and @var{end} does not have a property @var{prop} with value
-@var{value}.  More precisely, it returns the position of the first such
-character.  Otherwise, it returns @code{nil}.
+この関数は、@var{start}と@var{end}の間に少なくともプロパティ@var{prop}に値@var{value}をもたない文字が1つあれば、非@code{nil}をリターンする。より正確には、これはそのような最初の文字の位置をリターンし、それ以外は@code{nil}をリターンする。
 
-The optional fifth argument, @var{object}, specifies the string or buffer to
-scan.  Positions are relative to @var{object}.  The default for @var{object}
-is the current buffer.
+5つ目のオプション引数@var{object}は、スキャンする文字列またはバッファーを指定する。位置は@var{object}にたいして相対的である。@var{object}のデフォルトは、カレントバッファー。
 @end defun
 
 @node Special Properties
