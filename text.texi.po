@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-11-02 17:06+0900\n"
-"PO-Revision-Date: 2019-01-12 19:26+0900\n"
+"PO-Revision-Date: 2019-01-12 23:37+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -5779,45 +5779,45 @@ msgstr "@code{buffer-access-fontify-functions}の関数にこのプロパティ�
 #: text.texi.orig:3627
 #, no-wrap
 msgid "Defining Clickable Text"
-msgstr ""
+msgstr "Defining Clickable Text"
 
 #. type: cindex
 #: text.texi.orig:3628
 #, no-wrap
 msgid "clickable text"
-msgstr ""
+msgstr "clickable text"
 
 #. type: cindex
 #: text.texi.orig:3629
 #, no-wrap
 msgid "follow links"
-msgstr ""
+msgstr "follow links"
 
 #. type: cindex
 #: text.texi.orig:3630
 #, no-wrap
 msgid "mouse-1"
-msgstr ""
+msgstr "mouse-1"
 
 #. type: Plain text
 #: text.texi.orig:3636
 msgid "@dfn{Clickable text} is text that can be clicked, with either the mouse or via a keyboard command, to produce some result.  Many major modes use clickable text to implement textual hyper-links, or @dfn{links} for short."
-msgstr ""
+msgstr "@dfn{クリック可能テキスト(clickable text)}とは何らかの結果を生成するために、マウス、またはキーボードコマンドを通じてクリックできるテキストです。多くのメジャーモードがテキスト的なハイパーリンク、略して@dfn{リンク(link)}を実装するために、クリック可能テキストを使用しています。"
 
 #. type: Plain text
 #: text.texi.orig:3642
 msgid "The easiest way to insert and manipulate links is to use the @code{button} package.  @xref{Buttons}.  In this section, we will explain how to manually set up clickable text in a buffer, using text properties.  For simplicity, we will refer to the clickable text as a @dfn{link}."
-msgstr ""
+msgstr "リンクを挿入および操作するもっとも簡単な方法は、@code{button}パッケージの使用です。@ref{Buttons}を参照してください。このセクションではテキストプロパティを使用して、バッファー内に手作業でクリック可能テキストをセットアップする方法を説明します。簡略にするために、クリック可能テキストを@dfn{リンク}と呼ぶことにします。"
 
 #. type: Plain text
 #: text.texi.orig:3648
 msgid "Implementing a link involves three separate steps: (1) indicating clickability when the mouse moves over the link; (2) making @key{RET} or @kbd{Mouse-2} on that link do something; and (3) setting up a @code{follow-link} condition so that the link obeys @code{mouse-1-click-follows-link}."
-msgstr ""
+msgstr "リンクの実装には、(1)リンク上にマウスが移動した際にクリック可能であることを示し、(2)そのリンク上の@key{RET}か@kbd{Mouse-2}で何かを行うようにして、(3)そのリンクが@code{mouse-1-click-follows-link}にしたがうよう@code{follow-link}をセットアップする、という3つのステップが含まれます。"
 
 #. type: Plain text
 #: text.texi.orig:3655
 msgid "To indicate clickability, add the @code{mouse-face} text property to the text of the link; then Emacs will highlight the link when the mouse moves over it.  In addition, you should define a tooltip or echo area message, using the @code{help-echo} text property.  @xref{Special Properties}.  For instance, here is how Dired indicates that file names are clickable:"
-msgstr ""
+msgstr "クリック可能を示すためには、そのリンクのテキストに@code{mouse-face}プロパティを追加します。すると、以降Emacsはマウスがその上に移動した際にリンクをハイライトするでしょう。加えて@code{help-echo}テキストプロパティを使用して、ツールチップかエコーエリアメッセージを定義するべきです。@ref{Special Properties}を参照してください。たとえば以下は、Diredがファイル名がクリック可能なことを示す方法です:"
 
 #. type: smallexample
 #: text.texi.orig:3665
@@ -5832,11 +5832,19 @@ msgid ""
 "       '(mouse-face highlight\n"
 "         help-echo \"mouse-2: visit this file in other window\")))\n"
 msgstr ""
+" (if (dired-move-to-filename)\n"
+"     (add-text-properties\n"
+"       (point)\n"
+"       (save-excursion\n"
+"         (dired-move-to-end-of-filename)\n"
+"         (point))\n"
+"       '(mouse-face highlight\n"
+"         help-echo \"mouse-2: visit this file in other window\")))\n"
 
 #. type: Plain text
 #: text.texi.orig:3672
 msgid "To make the link clickable, bind @key{RET} and @kbd{Mouse-2} to commands that perform the desired action.  Each command should check to see whether it was called on a link, and act accordingly.  For instance, Dired's major mode keymap binds @kbd{Mouse-2} to the following command:"
-msgstr ""
+msgstr "リンクをクリック可能にするためには、 @key{RET}と@kbd{Mouse-2}を望むアクションを行うコマンドにバインドします。各コマンドは、リンク上から呼び出されたかチェックして、それに応じて動作するべきです。たとえばDiredメジャーモードのキーマップは、@kbd{Mouse-2}を以下のコマンドにバインドします:"
 
 #. type: smallexample
 #: text.texi.orig:3693
@@ -5862,16 +5870,35 @@ msgid ""
 "      (select-window window)\n"
 "      (find-file-other-window (file-name-sans-versions file t)))))\n"
 msgstr ""
+"(defun dired-mouse-find-file-other-window (event)\n"
+"  \"In Dired, visit the file or directory name you click on.\"\n"
+"  (interactive \"e\")\n"
+"  (let ((window (posn-window (event-end event)))\n"
+"        (pos (posn-point (event-end event)))\n"
+"        file)\n"
+"    (if (not (windowp window))\n"
+"        (error \"No file chosen\"))\n"
+"    (with-current-buffer (window-buffer window)\n"
+"      (goto-char pos)\n"
+"      (setq file (dired-get-file-for-visit)))\n"
+"    (if (file-directory-p file)\n"
+"        (or (and (cdr dired-subdir-alist)\n"
+"                 (dired-goto-subdir file))\n"
+"            (progn\n"
+"              (select-window window)\n"
+"              (dired-other-window file)))\n"
+"      (select-window window)\n"
+"      (find-file-other-window (file-name-sans-versions file t)))))\n"
 
 #. type: Plain text
 #: text.texi.orig:3699
 msgid "This command uses the functions @code{posn-window} and @code{posn-point} to determine where the click occurred, and @code{dired-get-file-for-visit} to determine which file to visit."
-msgstr ""
+msgstr "このコマンドはクリックがどこで発生したかを判断するために、関数@code{posn-window}と@code{posn-point}、visitするファイルの判断に関数@code{dired-get-file-for-visit}を使用します。"
 
 #. type: Plain text
 #: text.texi.orig:3703
 msgid "Instead of binding the mouse command in a major mode keymap, you can bind it within the link text, using the @code{keymap} text property (@pxref{Special Properties}).  For instance:"
-msgstr ""
+msgstr "マウスコマンドをメジャーモードキーマップ内でバインドするかわりに、@code{keymap}プロパティ(@ref{Special Properties}を参照)を使用して、リンクテキスト内でバインドできます。たとえば:"
 
 #. type: example
 #: text.texi.orig:3708
@@ -5881,65 +5908,68 @@ msgid ""
 "  (define-key map [mouse-2] 'operate-this-button)\n"
 "  (put-text-property link-start link-end 'keymap map))\n"
 msgstr ""
+"(let ((map (make-sparse-keymap)))\n"
+"  (define-key map [mouse-2] 'operate-this-button)\n"
+"  (put-text-property link-start link-end 'keymap map))\n"
 
 #. type: Plain text
 #: text.texi.orig:3714
 msgid "With this method, you can easily define different commands for different links.  Furthermore, the global definition of @key{RET} and @kbd{Mouse-2} remain available for the rest of the text in the buffer."
-msgstr ""
+msgstr "この手法では、異なるリンクに異なるコマンドを簡単に定義できます。さらに、そのバッファー内の残りのテキストにたいしては、@key{RET}と@kbd{Mouse-2}のグローバル定義を利用可能なまま残すことができます。"
 
 #. type: vindex
 #: text.texi.orig:3715
 #, no-wrap
 msgid "mouse-1-click-follows-link"
-msgstr ""
+msgstr "mouse-1-click-follows-link"
 
 #. type: Plain text
 #: text.texi.orig:3722
 msgid "The basic Emacs command for clicking on links is @kbd{Mouse-2}.  However, for compatibility with other graphical applications, Emacs also recognizes @kbd{Mouse-1} clicks on links, provided the user clicks on the link quickly without moving the mouse.  This behavior is controlled by the user option @code{mouse-1-click-follows-link}.  @xref{Mouse References,,, emacs, The GNU Emacs Manual}."
-msgstr ""
+msgstr "リンク上でのクリックにたいするEmacsの基本コマンドは、@kbd{Mouse-2}です。しかし他のグラフィカルなアプリケーションとの互換性のために、ユーザーがマウスを動かさずに素早くリンクをクリックするという条件の下、Emacsはリンク上での@kbd{Mouse-1}クリックも認識します。おこ振る舞いは、ユーザーオプション@code{mouse-1-click-follows-link}により制御されます。@ref{Mouse References,,, emacs, The GNU Emacs Manual}を参照してください。"
 
 #. type: cindex
 #: text.texi.orig:3723
 #, no-wrap
 msgid "follow-link (text or overlay property)"
-msgstr ""
+msgstr "follow-link (text or overlay property)"
 
 #. type: Plain text
 #: text.texi.orig:3736
 msgid "To set up the link so that it obeys @code{mouse-1-click-follows-link}, you must either (1) apply a @code{follow-link} text or overlay property to the link text, or (2)  bind the @code{follow-link} event to a keymap (which can be a major mode keymap or a local keymap specified via the @code{keymap} text property).  The value of the @code{follow-link} property, or the binding for the @code{follow-link} event, acts as a ``condition'' for the link action.  This condition tells Emacs two things: the circumstances under which a @kbd{Mouse-1} click should be regarded as occurring ``inside'' the link, and how to compute an ``action code'' that says what to translate the @kbd{Mouse-1} click into.  The link action condition can be one of the following:"
-msgstr ""
+msgstr "@code{mouse-1-click-follows-link}にしたがうようにリンクをセットアップするには、(1)そのテキストに@code{follow-link}テキストプロパティまたはオーバーレイプロパティを適用する、または(2)@code{follow-link}イベントをキーマップ(@code{keymap}テキストプロパティを通じたメジャーモードキーマップまたはローカルキーマップ)にバインドするかの、いずれかを行わなければなりません。@code{follow-link}プロパティの値、または@code{follow-link}イベントにたいするバインディングはリンクアクションにたいする``コンディション(condition)''として機能します。この条件は、Emacsにたいして2つのことを告げます。それは@kbd{Mouse-1}のクリックがそのリンクの``内側''で発生したとみなすべき状況、そして@kbd{Mouse-1}のクリックを何に変換するかを告げる``アクションコード(action code)''を計算する方法です。そのリンクのアクション条件は、以下のうちの1つです:"
 
 #. type: table
 #: text.texi.orig:3742
 msgid "If the condition is the symbol @code{mouse-face}, a position is inside a link if there is a non-@code{nil} @code{mouse-face} property at that position.  The action code is always @code{t}."
-msgstr ""
+msgstr "コンディションがシンボル@code{mouse-face}の場合、その位置に非@code{nil}の@code{mouse-face}プロパティがあれば、それはリンク内側の位置である。アクションコードは常に@code{t}。"
 
 #. type: table
 #: text.texi.orig:3744
 msgid "For example, here is how Info mode handles @key{Mouse-1}:"
-msgstr ""
+msgstr "以下はInfoモードが@key{Mouse-1}を処理する例である:"
 
 #. type: smallexample
 #: text.texi.orig:3747
 #, no-wrap
 msgid "(define-key Info-mode-map [follow-link] 'mouse-face)\n"
-msgstr ""
+msgstr "(define-key Info-mode-map [follow-link] 'mouse-face)\n"
 
 #. type: item
 #: text.texi.orig:3749
 #, no-wrap
 msgid "a function"
-msgstr ""
+msgstr "関数"
 
 #. type: table
 #: text.texi.orig:3754
 msgid "If the condition is a function, @var{func}, then a position @var{pos} is inside a link if @code{(@var{func} @var{pos})} evaluates to non-@code{nil}.  The value returned by @var{func} serves as the action code."
-msgstr ""
+msgstr "コンディションが関数@var{func}の場合、@code{(@var{func} @var{pos})}が非@code{nil}に評価されれば、位置@var{pos}はリンクの内側である。@var{func}がリターンする値は、アクションコードとして機能する。"
 
 #. type: table
 #: text.texi.orig:3757
 msgid "For example, here is how pcvs enables @kbd{Mouse-1} to follow links on file names only:"
-msgstr ""
+msgstr "以下はpcvsがファイル名の上でのみ@kbd{Mouse-1}によるリンクのフォローを有効にする方法の例である:"
 
 #. type: smallexample
 #: text.texi.orig:3762
@@ -5949,43 +5979,46 @@ msgid ""
 "  (lambda (pos)\n"
 "    (eq (get-char-property pos 'face) 'cvs-filename-face)))\n"
 msgstr ""
+"(define-key map [follow-link]\n"
+"  (lambda (pos)\n"
+"    (eq (get-char-property pos 'face) 'cvs-filename-face)))\n"
 
 #. type: item
 #: text.texi.orig:3764 text.texi.orig:3784
 #, no-wrap
 msgid "anything else"
-msgstr ""
+msgstr "その他"
 
 #. type: table
 #: text.texi.orig:3770
 msgid "If the condition value is anything else, then the position is inside a link and the condition itself is the action code.  Clearly, you should specify this kind of condition only when applying the condition via a text or property overlay on the link text (so that it does not apply to the entire buffer)."
-msgstr ""
+msgstr "コンディション値がそれ以外の場合、その位置はリンク内側であり、そのコンディション自体がアクションコードである。(バッファー全体に適用されないように)リンクテキストのテキストプロパティまたはオーバーレイプロパティを通じてコンディションを適用するときのみ、この類のコンディションを指定すべきなのは明確である。"
 
 #. type: Plain text
 #: text.texi.orig:3774
 msgid "The action code tells @kbd{Mouse-1} how to follow the link:"
-msgstr ""
+msgstr "アクションコードは、@kbd{Mouse-1}がリンクをフォローする方法を告げます:"
 
 #. type: item
 #: text.texi.orig:3776
 #, no-wrap
 msgid "a string or vector"
-msgstr ""
+msgstr "文字列またはベクター"
 
 #. type: table
 #: text.texi.orig:3783
 msgid "If the action code is a string or vector, the @kbd{Mouse-1} event is translated into the first element of the string or vector; i.e., the action of the @kbd{Mouse-1} click is the local or global binding of that character or symbol.  Thus, if the action code is @code{\"foo\"}, @kbd{Mouse-1} translates into @kbd{f}.  If it is @code{[foo]}, @kbd{Mouse-1} translates into @key{foo}."
-msgstr ""
+msgstr "アクションコードが文字列かベクターなら、@kbd{Mouse-1}イベントは文字列またはベクターの最初の要素に変換される。つまり@kbd{Mouse-1}クリックのアクションは、その文字またはシンボルのローカルまたはグローバルバインディングである。したがってアクションコードが@code{\"foo\"}なら、@kbd{Mouse-1}は@kbd{f}に変換され、@code{[foo]}なら@kbd{Mouse-1}は@key{foo}に変換される。"
 
 #. type: table
 #: text.texi.orig:3787
 msgid "For any other non-@code{nil} action code, the @kbd{Mouse-1} event is translated into a @kbd{Mouse-2} event at the same position."
-msgstr ""
+msgstr "その他非@code{nil}のアクションコードでは、@kbd{Mouse-1}イベントは同じ位置の@kbd{Mouse-2}イベントに変換される。"
 
 #. type: Plain text
 #: text.texi.orig:3794
 msgid "To define @kbd{Mouse-1} to activate a button defined with @code{define-button-type}, give the button a @code{follow-link} property.  The property value should be a link action condition, as described above.  @xref{Buttons}.  For example, here is how Help mode handles @kbd{Mouse-1}:"
-msgstr ""
+msgstr "@code{define-button-type}で定義されるボタンをアクティブにするように@kbd{Mouse-1}を定義するには、そのボタンに@code{follow-link}プロパティを与えます。このプロパティの値は、上述したリンクのアクションコンディションであること。@ref{Buttons}を参照のこと。たとえば以下はHelpモードが@kbd{Mouse-1}を処理する例である。"
 
 #. type: smallexample
 #: text.texi.orig:3799
@@ -5995,11 +6028,14 @@ msgid ""
 "  'follow-link t\n"
 "  'action #'help-button-action)\n"
 msgstr ""
+"(define-button-type 'help-xref\n"
+"  'follow-link t\n"
+"  'action #'help-button-action)\n"
 
 #. type: Plain text
 #: text.texi.orig:3806
 msgid "To define @kbd{Mouse-1} on a widget defined with @code{define-widget}, give the widget a @code{:follow-link} property.  The property value should be a link action condition, as described above.  For example, here is how the @code{link} widget specifies that a @key{Mouse-1} click shall be translated to @key{RET}:"
-msgstr ""
+msgstr "@code{define-widget}で定義されたウィジェットに@kbd{Mouse-1}を定義するには、そのウィジェットに@code{:follow-link}プロパティを与えます。このプロパティの値は、上述したようなリンクのアクションコンディションであるべきです。たとえば、以下は@key{Mouse-1}クリックが@key{RET}に変換されるように、@code{link}ウィジェットを指定する方法の例をです:"
 
 #. type: smallexample
 #: text.texi.orig:3815
@@ -6013,17 +6049,24 @@ msgid ""
 "  :help-echo \"Follow the link.\"\n"
 "  :format \"%[%t%]\")\n"
 msgstr ""
+"(define-widget 'link 'item\n"
+"  \"An embedded link.\"\n"
+"  :button-prefix 'widget-link-prefix\n"
+"  :button-suffix 'widget-link-suffix\n"
+"  :follow-link \"\\C-m\"\n"
+"  :help-echo \"Follow the link.\"\n"
+"  :format \"%[%t%]\")\n"
 
 #. type: defun
 #: text.texi.orig:3817
 #, no-wrap
 msgid "mouse-on-link-p pos"
-msgstr ""
+msgstr "mouse-on-link-p pos"
 
 #. type: defun
 #: text.texi.orig:3821
 msgid "This function returns non-@code{nil} if position @var{pos} in the current buffer is on a link.  @var{pos} can also be a mouse event location, as returned by @code{event-start} (@pxref{Accessing Mouse})."
-msgstr ""
+msgstr "この関数は、カレントバッファー内の位置@var{pos}がリンク上なら、非@code{nil}をリターンする。@var{pos}は@code{event-start}がリターンするようなマウスイベント位置でもよい(@ref{Accessing Mouse}を参照)。"
 
 #. type: subsection
 #: text.texi.orig:3824
