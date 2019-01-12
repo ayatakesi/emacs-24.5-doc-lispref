@@ -2269,44 +2269,24 @@ read-only)}であるような@code{front-sticky}プロパティをもつなら�
 @node Lazy Properties
 @subsection Lazy Computation of Text Properties
 
-  Instead of computing text properties for all the text in the buffer, you can
-arrange to compute the text properties for parts of the text when and if
-something depends on them.
+  バッファー内のすべてのテキストにたいしてテキストプロパティを計算するかわりに、何かがテキスト範囲に依存している場合、その際はテキストプロパティを計算するようにアレンジできます。
 
-  The primitive that extracts text from the buffer along with its properties
-is @code{buffer-substring}.  Before examining the properties, this function
-runs the abnormal hook @code{buffer-access-fontify-functions}.
+  プロパティとともにバッファーからテキストを抽出するプリミティブは、@code{buffer-substring}です。プロパティを調べる前に、この関数はアブノーマルフック@code{buffer-access-fontify-functions}を実行します。
 
 @defvar buffer-access-fontify-functions
-This variable holds a list of functions for computing text properties.
-Before @code{buffer-substring} copies the text and text properties for a
-portion of the buffer, it calls all the functions in this list.  Each of the
-functions receives two arguments that specify the range of the buffer being
-accessed.  (The buffer itself is always the current buffer.)
+この変数は、テキストプロパティ計算用の関数のリストを保持する。@code{buffer-substring}がバッファーの一部のテキストとテキストプロパティをコピーする前に、このリスト内の関数すべてを呼び出す。各関数はアクセスされるバッファー範囲を指定する、2つの引数を受け取る(バッファーは常にカレントバッファーとなる)。
 @end defvar
 
-  The function @code{buffer-substring-no-properties} does not call these
-functions, since it ignores text properties anyway.
+  関数@code{buffer-substring-no-properties}はいずれにせよテキストプロパティを無視するので、これらの関数を呼び出さない。
 
-  In order to prevent the hook functions from being called more than once for
-the same part of the buffer, you can use the variable
-@code{buffer-access-fontified-property}.
+  同じバッファー部分にたいして複数回フック関数が呼び出されるのを防ぐには、変数@code{buffer-access-fontified-property}を使用できる。
 
 @defvar buffer-access-fontified-property
-If this variable's value is non-@code{nil}, it is a symbol which is used as
-a text property name.  A non-@code{nil} value for that text property means,
-``the other text properties for this character have already been computed''.
+この変数の値が非@code{nil}なら、それはテキストプロパティ名として使用されるシンボルである。そのテキストプロパティにたいする非@code{nil}値は、``その文字にたいする他のテキストプロパティはすでに計算済み''であることを意味する。
 
-If all the characters in the range specified for @code{buffer-substring}
-have a non-@code{nil} value for this property, @code{buffer-substring} does
-not call the @code{buffer-access-fontify-functions} functions.  It assumes
-these characters already have the right text properties, and just copies the
-properties they already have.
+@code{buffer-substring}にたいして指定された範囲内のすべての文字が、このプロパティにたいする値として非@code{nil}をもつなら、@code{buffer-substring}は@code{buffer-access-fontify-functions}の関数を呼び出さない。それらの文字がすでに正しいテキストプロパティをもつとみなし、それらがすでに所有するプロパティを単にコピーする。
 
-The normal way to use this feature is that the
-@code{buffer-access-fontify-functions} functions add this property, as well
-as others, to the characters they operate on.  That way, they avoid being
-called over and over for the same text.
+@code{buffer-access-fontify-functions}の関数にこのプロパティ、同様に他のプロパティを処理対象の文字に追加させるのが、この機能の通常の用途である。この方法では、同じテキストにたいして、それらの関数が何度も呼び出されるのを防ぐことができる。
 @end defvar
 
 @node Clickable Text
