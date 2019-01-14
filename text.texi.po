@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-11-02 17:06+0900\n"
-"PO-Revision-Date: 2019-01-13 16:32+0900\n"
+"PO-Revision-Date: 2019-01-14 14:19+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -6225,53 +6225,53 @@ msgstr "変数@code{inhibit-field-text-motion}を非@code{nil}値にバインド
 #: text.texi.orig:3941
 #, no-wrap
 msgid "Why Text Properties are not Intervals"
-msgstr ""
+msgstr "Why Text Properties are not Intervals"
 
 #. type: cindex
 #: text.texi.orig:3942
 #, no-wrap
 msgid "intervals"
-msgstr ""
+msgstr "intervals"
 
 #. type: Plain text
 #: text.texi.orig:3950
 msgid "Some editors that support adding attributes to text in the buffer do so by letting the user specify ``intervals'' within the text, and adding the properties to the intervals.  Those editors permit the user or the programmer to determine where individual intervals start and end.  We deliberately provided a different sort of interface in Emacs Lisp to avoid certain paradoxical behavior associated with text modification."
-msgstr ""
+msgstr "ユーザーにテキスト内の``インターバル(訳注: 原文のインターバルはIT用語としては時間や距離などの間隔を示す用語として用いれることが多いと思いますが、ここでは『範囲』を示す言葉として用いられているようです。他の箇所で『範囲』と訳したrange等と異なる機能なので、ここではそのまま『インターバル』としました)''を指定させて、そのインターバルにプロパティを追加するために、バッファー内のテキストへの属性の追加をサポートするエディターがいくつかあります。それらのエディターは、ユーザーやプログラマーが個別にインターバルの開始と終了を決定することを許可します。わたしたちは、テキスト変更に関連する特定の逆説的振る舞いを避けるために、Emacs Lisp内に、故意に異なる種類のインターフェイスを提供しました。"
 
 #. type: Plain text
 #: text.texi.orig:3955
 msgid "If the actual subdivision into intervals is meaningful, that means you can distinguish between a buffer that is just one interval with a certain property, and a buffer containing the same text subdivided into two intervals, both of which have that property."
-msgstr ""
+msgstr "複数のインターバルに細分化することが実際に意味をもつなら、それは特定のプロパティをもつ単一のインターバルのバッファーと、同じテキストをもち、両方が同じプロパティをもつ2つのインターバルに分割されたバッファーを区別できることを意味します。"
 
 #. type: Plain text
 #: text.texi.orig:3962
 msgid "Suppose you take the buffer with just one interval and kill part of the text.  The text remaining in the buffer is one interval, and the copy in the kill ring (and the undo list) becomes a separate interval.  Then if you yank back the killed text, you get two intervals with the same properties.  Thus, editing does not preserve the distinction between one interval and two."
-msgstr ""
+msgstr "インターバルを1つだけもつバッファーがあり、その一部をkillすることを考えてみてください。そのそのバッファーに残されるのは1つのインターバルであり、killリング(とundoリスト)内のコピーは別個のインターバルになります。そのkillされたテキストをyankで戻すと、同じプロパティをもつ2つのインターバルを得ることになります。したがって、編集では1つのインターバルと2つのインターバルの違いは保たれません。"
 
 #. type: Plain text
 #: text.texi.orig:3971
 msgid "Suppose we ``fix'' this problem by coalescing the two intervals when the text is inserted.  That works fine if the buffer originally was a single interval.  But suppose instead that we have two adjacent intervals with the same properties, and we kill the text of one interval and yank it back.  The same interval-coalescence feature that rescues the other case causes trouble in this one: after yanking, we have just one interval.  Once again, editing does not preserve the distinction between one interval and two."
-msgstr ""
+msgstr "テキスト挿入時に2つのインターバルを結合することにより、この問題に``対応''したとします。これは、そのバッファーが元々単一のインターバルだったなら、上手く機能します。 しかし、かわりに同じプロパティをもつ隣接する2つのインターバルがあり、そのうちの1つのインターバルからテキストをkillして、それをyankで戻すことを考えてみてください。あるケースを解決する同じインターバル結合機能が、他のケースにおいては問題を引き起こすのです。このyank後、インターバルはただ1つとなります。繰り返します、編集では1つのインターバルと2つのインターバルの違いは保たれないのです。"
 
 #. type: Plain text
 #: text.texi.orig:3974
 msgid "Insertion of text at the border between intervals also raises questions that have no satisfactory answer."
-msgstr ""
+msgstr "インターバルの間の境界上へのテキスト挿入でも、満足できる回答かない問題が発生します。"
 
 #. type: Plain text
 #: text.texi.orig:3980
 msgid "However, it is easy to arrange for editing to behave consistently for questions of the form, ``What are the properties of text at this buffer or string position?'' So we have decided these are the only questions that make sense; we have not implemented asking questions about where intervals start or end."
-msgstr ""
+msgstr "しかし、``バッファーにあるテキスト位置または文字列位置のプロパティは何?''という形式の問にたいして、編集が一貫した振る舞いをするようアレンジするのは簡単です。そこで、わたしたちはこれらが合理的な唯一の問いであると判断したのです。わたしたちはインターバルの開始と終了の場所を問うような実装をしませんでした。"
 
 #. type: Plain text
 #: text.texi.orig:3985
 msgid "In practice, you can usually use the text property search functions in place of explicit interval boundaries.  You can think of them as finding the boundaries of intervals, assuming that intervals are always coalesced whenever possible.  @xref{Property Search}."
-msgstr ""
+msgstr "実際には、明白にインターバル境界であるような箇所では、通常はテキストプロパティ検索関数を使用できます。可能であるならインターバルは常に結合されるとみなすことにより、それらがインターバル境界を探すと考えることができます。@ref{Property Search}を参照してください。"
 
 #. type: Plain text
 #: text.texi.orig:3988
 msgid "Emacs also provides explicit intervals as a presentation feature; see @ref{Overlays}."
-msgstr ""
+msgstr "Emacsはプレゼンテーション機能として、明示的なインターバルも提供します。@ref{Overlays}を参照してください。"
 
 #. type: section
 #: text.texi.orig:3990
