@@ -2641,28 +2641,18 @@ Lispでは、レジスターは自身の名前である、その文字により�
 @node Decompression
 @section Dealing With Compressed Data
 
-When @code{auto-compression-mode} is enabled, Emacs automatically
-uncompresses compressed files when you visit them, and automatically
-recompresses them if you alter and save them.  @xref{Compressed Files,,,
-emacs, The GNU Emacs Manual}.
+@code{auto-compression-mode}が有効なときは、圧縮されたファイルをvisitする際、Emacsはそれを自動的に解凍し、それを変更して保存する際は自動的に再圧縮します。@ref{Compressed
+Files,,, emacs, The GNU Emacs Manual}を参照してください。
 
-The above feature works by calling an external executable (e.g.,
-@command{gzip}).  Emacs can also be compiled with support for built-in
-decompression using the zlib library, which is faster than calling an
-external program.
+上記の機能は、外部の実行可能ファイル(例:
+@command{gzip})を呼び出すことにより機能します。zlibライブラリーを使用したビルトインの解凍サポートつきでEmacsをコンパイルすることもでき、これは外部プログラムの実行に比べて高速です。
 
 @defun zlib-available-p
-This function returns non-@code{nil} if built-in zlib decompression is
-available.
+この関数は、ビルトインzlib解凍が利用可能なら非@code{nil}をリターンする。
 @end defun
 
 @defun zlib-decompress-region start end
-This function decompresses the region between @var{start} and @var{end},
-using built-in zlib decompression.  The region should contain data that were
-compressed with gzip or zlib.  On success, the function replaces the
-contents of the region with the decompressed data.  On failure, the function
-leaves the region unchanged and returns @code{nil}.  This function can be
-called only in unibyte buffers.
+この関数はビルトインのzlib解凍を使用して、@var{start}と@var{end}の間のリージョンを解凍する。このリージョンには、gzipかzlibで圧縮されたデータが含まれていなければならない。成功した場合、この関数はリージョンのコンテンツを、解凍されたデータに置き換える。失敗すると、関数はリージョンを未変更のまま@code{nil}をリターンする。この関数は、ユニバイトバッファーでのみ呼び出すことができる。
 @end defun
 
 
