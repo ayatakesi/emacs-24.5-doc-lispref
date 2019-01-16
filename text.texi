@@ -2695,61 +2695,37 @@ Comments}の略)とは、ナンバーが付与された、標準を記述する�
 @cindex hash, cryptographic
 @cindex cryptographic hash
 
-  Emacs has built-in support for computing @dfn{cryptographic hashes}.  A
-cryptographic hash, or @dfn{checksum}, is a digital ``fingerprint'' of a
-piece of data (e.g., a block of text) which can be used to check that you
-have an unaltered copy of that data.
+  Emacsには、@dfn{暗号化ハッシュ(cryptographic
+hashes)}計算用のビルトインのサポートがあります。暗号化ハッシュ、または@dfn{チェックサム(checksum)}とは、データ断片にたいするデジタルな``指紋(fingerprint)''であり、そのデータが変更されていないかチェックするために使用できます。
 
 @cindex message digest
-  Emacs supports several common cryptographic hash algorithms: MD5, SHA-1,
-SHA-2, SHA-224, SHA-256, SHA-384 and SHA-512.  MD5 is the oldest of these
-algorithms, and is commonly used in @dfn{message digests} to check the
-integrity of messages transmitted over a network.  MD5 is not ``collision
-resistant'' (i.e., it is possible to deliberately design different pieces of
-data which have the same MD5 hash), so you should not used it for anything
-security-related.  A similar theoretical weakness also exists in SHA-1.
-Therefore, for security-related applications you should use the other hash
-types, such as SHA-2.
+  EmacsはMD5、SHA-1、SHA-2、SHA-224、SHA-256SHA-384、SHA-512といった一般的な暗号化ハッシュアルゴリズムをサポートします。これらのアルゴリズムのうちMD5はもっとも古く、ネットワーク越しに転送されたメッセージの整合性をチェックするために、一般的には@dfn{メッセージダイジェスト(message
+digests)}内で使用されています。MD5は``衝突耐性(collision
+resistant)''をもたない(同じMD5ハッシュをもつ異なるデータ片を故意にデザインすることが可能)ので、セキュリティに関連することに使用するべきではありません。同様な理論上の欠点は、SHA-1にも存在します。したがって、セキュリティに関連するアプリケーションにたいしては、SHA-2のような補ハッシュタイプを使用するべきです。
 
 @defun secure-hash algorithm object &optional start end binary
-This function returns a hash for @var{object}.  The argument @var{algorithm}
-is a symbol stating which hash to compute: one of @code{md5}, @code{sha1},
-@code{sha224}, @code{sha256}, @code{sha384} or @code{sha512}.  The argument
-@var{object} should be a buffer or a string.
+この関数は、@var{object}にたいするハッシュをリターンする。引数@var{algorithm}はどのハッシュを計算するかを示すシンボルで@code{md5}、@code{sha1}、@code{sha224}、@code{sha256}、@code{sha384}、@code{sha512}のいずれかである。引数@var{object}は、バッファーまたは文字列であること。
 
-The optional arguments @var{start} and @var{end} are character positions
-specifying the portion of @var{object} to compute the message digest for.
-If they are @code{nil} or omitted, the hash is computed for the whole of
-@var{object}.
+オプション引数@var{start}と@var{end}は、メッセージダイジェストを計算する、@var{object}部分を指定する文字位置である。これらが@code{nil}または省略サレタ場合は、@var{object}全体にたいするハッシュを計算する。
 
-If the argument @var{binary} is omitted or @code{nil}, the function returns
-the @dfn{text form} of the hash, as an ordinary Lisp string.  If
-@var{binary} is non-@code{nil}, it returns the hash in @dfn{binary form}, as
-a sequence of bytes stored in a unibyte string.
+引数@var{binary}が省略または@code{nil}なら、通常のLisp文字列として、そのハッシュの@dfn{テキスト形式(text
+form)}をリターンする。@var{binary}が非@code{nil}なら、ユニバイト文字列に格納されたバイトシーケンスとして、そのハッシュの@dfn{バイナリー形式(binary
+form)}をリターンする。
 
-This function does not compute the hash directly from the internal
-representation of @var{object}'s text (@pxref{Text Representations}).
-Instead, it encodes the text using a coding system (@pxref{Coding Systems}),
-and computes the hash from that encoded text.  If @var{object} is a buffer,
-the coding system used is the one which would be chosen by default for
-writing the text into a file.  If @var{object} is a string, the user's
-preferred coding system is used (@pxref{Recognize Coding,,, emacs, GNU Emacs
-Manual}).
+この関数は、@var{object}のテキストの内部表現(@ref{Text
+Representations}を参照)からハッシュを直接計算しない。かわりにコーディングシステム(@ref{Coding
+Systems}を参照)を使用してテキストをエンコードして、そのエンコード済みテキストからハッシュを計算する。@var{object}がバッファーなら、使用されているコーディングが、そのテキストをファイルに書き込むためのデフォルトとして選択される。@var{object}が文字列なら、ユーザーの好むコーディングシステムが使用される(@ref{Recognize
+Coding,,, emacs, GNU Emacs Manual}を参照)。
 @end defun
 
 @defun md5 object &optional start end coding-system noerror
-This function returns an MD5 hash.  It is semi-obsolete, since for most
-purposes it is equivalent to calling @code{secure-hash} with @code{md5} as
-the @var{algorithm} argument.  The @var{object}, @var{start} and @var{end}
-arguments have the same meanings as in @code{secure-hash}.
+この関数はMD5ハッシュをリターンする。これはほとんどの目的において、@var{algorithm}引数に@code{md5}を指定して@code{secure-hash}を呼び出すのと等価であり、半ば時代遅れである。引数の@var{object}、@var{start}、@var{end}は@code{secure-hash}のときと同じ意味をもつ。
 
-If @var{coding-system} is non-@code{nil}, it specifies a coding system to
-use to encode the text; if omitted or @code{nil}, the default coding system
-is used, like in @code{secure-hash}.
+@var{coding-system}が非@code{nil}なら、それはテキストをエンコードするために使用する、コーディングシステムを指定する。if
+omitted or , the default coding system is used, like in
+@code{secure-hash}と同様にデフォルトコーディングシステムが使用される。
 
-Normally, @code{md5} signals an error if the text can't be encoded using the
-specified or chosen coding system.  However, if @var{noerror} is
-non-@code{nil}, it silently uses @code{raw-text} coding instead.
+@code{md5}は通常、指定もしくは選択されたコーディングシステムを使用してテキストをエンコードできなければ、エラーをシグナルする。しかし@var{noerror}が非@code{nil}なら、かわりに黙って@code{raw-text}コーディングシステムを使用する。
 @end defun
 
 @node Parsing HTML/XML
