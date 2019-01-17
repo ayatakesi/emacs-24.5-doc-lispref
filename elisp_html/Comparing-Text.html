@@ -74,31 +74,18 @@ Next: <a href="Insertion.html#Insertion" accesskey="n" rel="next">Insertion</a>,
 <h3 class="section">31.3 Comparing Text</h3>
 <a name="index-comparing-buffer-text"></a>
 
-<p>This function lets you compare portions of the text in a buffer, without
-copying them into strings first.
+<p>この関数により、最初にバッファー内のテキストを文字列内にコピーすることなく、バッファー内のテキスト断片を比較することが可能になります。
 </p>
 <dl>
 <dt><a name="index-compare_002dbuffer_002dsubstrings"></a>Function: <strong>compare-buffer-substrings</strong> <em>buffer1 start1 end1 buffer2 start2 end2</em></dt>
-<dd><p>This function lets you compare two substrings of the same buffer or two
-different buffers.  The first three arguments specify one substring,
-giving a buffer (or a buffer name) and two positions within the
-buffer.  The last three arguments specify the other substring in the
-same way.  You can use <code>nil</code> for <var>buffer1</var>, <var>buffer2</var>, or
-both to stand for the current buffer.
+<dd><p>この関数により、1つのバッファー、または2つの異なるバッファーの、2つの部分文字列(substrings)を比較できる。最初の3つの引数は、バッファーとそのバッファー内の2つの位置を与えることにより、1つの部分文字列を指定する。最後の3つの引数は、同様の方法によりもう一方の部分文字列を指定する。<var>buffer1</var>と<var>buffer2</var>のいずれか、または両方にたいして、カレントバッファーを意味する<code>nil</code>を使用できる。
 </p>
-<p>The value is negative if the first substring is less, positive if the
-first is greater, and zero if they are equal.  The absolute value of
-the result is one plus the index of the first differing characters
-within the substrings.
+<p>1つ目の部分文字列が2つ目の部分文字列より小なら負、大なら正、等しければ値は0となる。結果の絶対値は、部分文字列内で最初に異なる文字のインデックスに1を和した値である。
 </p>
-<p>This function ignores case when comparing characters
-if <code>case-fold-search</code> is non-<code>nil</code>.  It always ignores
-text properties.
+<p><code>case-fold-search</code>が非<code>nil</code>なら、この関数は大文字小文字の違いを無視する。テキストプロパティは常に無視される。
 </p>
-<p>Suppose you have the text &lsquo;<samp>foobarbar&nbsp;haha!rara!</samp>&rsquo;<!-- /@w --> in the
-current buffer; then in this example the two substrings are &lsquo;<samp>rbar
-</samp>&rsquo; and &lsquo;<samp>rara!</samp>&rsquo;.  The value is 2 because the first substring is
-greater at the second character.
+<p>カレントバッファー内にテキスト&lsquo;<samp>foobarbar&nbsp;haha!rara!</samp>&rsquo;<!-- /@w -->があるとしよう。そしてこの例では2つの部分文字列が&lsquo;<samp>rbar
+</samp>&rsquo;と&lsquo;<samp>rara!</samp>&rsquo;であるとする。1つ目の文字列の2つ目の文字が大きいので、値は2となる。
 </p>
 <div class="example">
 <pre class="example">(compare-buffer-substrings nil 6 11 nil 16 21)

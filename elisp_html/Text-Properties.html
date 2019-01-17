@@ -76,62 +76,41 @@ Next: <a href="Substitution.html#Substitution" accesskey="n" rel="next">Substitu
 <a name="index-attributes-of-text"></a>
 <a name="index-properties-of-text"></a>
 
-<p>Each character position in a buffer or a string can have a <em>text
-property list</em>, much like the property list of a symbol (see <a href="Property-Lists.html#Property-Lists">Property Lists</a>).  The properties belong to a particular character at a
-particular place, such as, the letter &lsquo;<samp>T</samp>&rsquo; at the beginning of this
-sentence or the first &lsquo;<samp>o</samp>&rsquo; in &lsquo;<samp>foo</samp>&rsquo;&mdash;if the same character
-occurs in two different places, the two occurrences in general have
-different properties.
+<p>バッファーや文字列内の各文字位置は、シンボルにおけるプロパティリスト(<a href="Property-Lists.html#Property-Lists">Property Lists</a>を参照)のように、<em>テキストプロパティリスト(text property
+list)</em>をもつことができます。特定の位置の特定の文字に属するプロパティ、たとえばこのセンテンス先頭の文字&lsquo;<samp>T</samp>&rsquo;(訳注:
+翻訳前のセンテンスは&quot;The properties belong to a
+...&quot;で始まる)、または&lsquo;<samp>foo</samp>&rsquo;の最初の&lsquo;<samp>o</samp>&rsquo;など、もし同じ文字が異なる2箇所に存在する場合、2つの文字は一般的に異なるプロパティをもちます。
 </p>
-<p>Each property has a name and a value.  Both of these can be any Lisp
-object, but the name is normally a symbol.  Typically each property
-name symbol is used for a particular purpose; for instance, the text
-property <code>face</code> specifies the faces for displaying the character
-(see <a href="Special-Properties.html#Special-Properties">Special Properties</a>).  The usual way to access the property
-list is to specify a name and ask what value corresponds to it.
+<p>それぞれのプロパティには、名前と値があります。どちらも任意のLispオブジェクトをもつことができますが、名前は通常はシンボルです。典型的には、それぞれのプロパティ名シンボルは、特定の目的のために使用されます。たとえば、テキストプロパティ<code>face</code>は、文字を表示するためのフェイスを指定します(<a href="Special-Properties.html#Special-Properties">Special Properties</a>を参照)。名前を指定してそれに対応する値を尋ねるのが、このプロパティリストにアクセスするための通常の方法です。
 </p>
-<p>If a character has a <code>category</code> property, we call it the
-<em>property category</em> of the character.  It should be a symbol.  The
-properties of the symbol serve as defaults for the properties of the
-character.
+<p>ある文字が<code>category</code>プロパティをもつ場合は、それをその文字の<em>プロパティカテゴリー(property
+category)</em>と呼びます。これはシンボルであるべきです。そのシンボルのプロパティは、その文字のプロパティにたいしてデフォルトとしての役割をもちます。
 </p>
-<p>Copying text between strings and buffers preserves the properties
-along with the characters; this includes such diverse functions as
-<code>substring</code>, <code>insert</code>, and <code>buffer-substring</code>.
+<p>文字列とバッファーの間でテキストをコピーには、文字とともにそのプロパティが保持されます。これには<code>substring</code>、<code>insert</code>、<code>buffer-substring</code>のようなさまざまな関数が含まれます。
 </p>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="Examining-Properties.html#Examining-Properties" accesskey="1">Examining Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Looking at the properties of one character.
+<tr><td align="left" valign="top">&bull; <a href="Examining-Properties.html#Examining-Properties" accesskey="1">Examining Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">単一の文字のプロパティを調べる。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Changing-Properties.html#Changing-Properties" accesskey="2">Changing Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Setting the properties of a range of text.
+<tr><td align="left" valign="top">&bull; <a href="Changing-Properties.html#Changing-Properties" accesskey="2">Changing Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキスト範囲のプロパティをセットする。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Property-Search.html#Property-Search" accesskey="3">Property Search</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Searching for where a property changes value.
+<tr><td align="left" valign="top">&bull; <a href="Property-Search.html#Property-Search" accesskey="3">Property Search</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">プロパティが値を変更する場所の検索。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Special-Properties.html#Special-Properties" accesskey="4">Special Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Particular properties with special meanings.
+<tr><td align="left" valign="top">&bull; <a href="Special-Properties.html#Special-Properties" accesskey="4">Special Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">特別な意味をもつ特定のプロパティ。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Format-Properties.html#Format-Properties" accesskey="5">Format Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Properties for representing formatting of text.
+<tr><td align="left" valign="top">&bull; <a href="Format-Properties.html#Format-Properties" accesskey="5">Format Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキストのフォーマットを表すプロパティ。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Sticky-Properties.html#Sticky-Properties" accesskey="6">Sticky Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">How inserted text gets properties from
-                             neighboring text.
+<tr><td align="left" valign="top">&bull; <a href="Sticky-Properties.html#Sticky-Properties" accesskey="6">Sticky Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">挿入されたテキストが隣接するテキストからプロパティを取得する方法。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Lazy-Properties.html#Lazy-Properties" accesskey="7">Lazy Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Computing text properties in a lazy fashion
-                             only when text is examined.
+<tr><td align="left" valign="top">&bull; <a href="Lazy-Properties.html#Lazy-Properties" accesskey="7">Lazy Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキストが調べられる際のみ、ものぐさな方法でテキストプロパティを計算する。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Clickable-Text.html#Clickable-Text" accesskey="8">Clickable Text</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Using text properties to make regions of text
-                             do something when you click on them.
+<tr><td align="left" valign="top">&bull; <a href="Clickable-Text.html#Clickable-Text" accesskey="8">Clickable Text</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキストプロパティを使用して、テキストリージョンがクリック時に何か行うようにする。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Fields.html#Fields" accesskey="9">Fields</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">The <code>field</code> property defines
-                             fields within the buffer.
+<tr><td align="left" valign="top">&bull; <a href="Fields.html#Fields" accesskey="9">Fields</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファー内にフィールドを定義する<code>field</code>プロパティ。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Not-Intervals.html#Not-Intervals">Not Intervals</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Why text properties do not use
-                             Lisp-visible text intervals.
+<tr><td align="left" valign="top">&bull; <a href="Not-Intervals.html#Not-Intervals">Not Intervals</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキストプロパティがLispから可視なテキスト間隔をもたない理由。
 </td></tr>
 </table>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Substitution.html#Substitution" accesskey="n" rel="next">Substitution</a>, Previous: <a href="Case-Changes.html#Case-Changes" accesskey="p" rel="prev">Case Changes</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

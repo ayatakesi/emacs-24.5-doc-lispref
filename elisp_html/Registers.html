@@ -74,125 +74,87 @@ Next: <a href="Transposition.html#Transposition" accesskey="n" rel="next">Transp
 <h3 class="section">31.21 Registers</h3>
 <a name="index-registers"></a>
 
-<p>A register is a sort of variable used in Emacs editing that can hold a
-variety of different kinds of values.  Each register is named by a
-single character.  All <acronym>ASCII</acronym> characters and their meta variants
-(but with the exception of <kbd>C-g</kbd>) can be used to name registers.
-Thus, there are 255 possible registers.  A register is designated in
-Emacs Lisp by the character that is its name.
+<p>レジスター(register)とは、Emacs内の編集においてさまざまな異なる種類の値を保持できる、一種の変数のことです。レジスターはそれぞれ、1文字で命名されます。すべての<acronym>ASCII</acronym>文字、およびそれらのメタ修飾された変種(ただし<kbd>C-g</kbd>は例外)を、レジスターの命名に使用できます。したがって、利用可能なレジスター数は255になります。Emacs
+Lispでは、レジスターは自身の名前である、その文字により指定されます。
 </p>
 <dl>
 <dt><a name="index-register_002dalist"></a>Variable: <strong>register-alist</strong></dt>
-<dd><p>This variable is an alist of elements of the form <code>(<var>name</var> .
-<var>contents</var>)</code>.  Normally, there is one element for each Emacs
-register that has been used.
+<dd><p>この変数は、要素が<code>(<var>name</var>
+.<var>contents</var>)</code>という形式のalistである。使用中のEmacsレジスターごとに、通常は1つの要素が存在する。
 </p>
-<p>The object <var>name</var> is a character (an integer) identifying the
-register.
+<p>オブジェクト<var>name</var>は、レジスターを識別する文字(整数)である。
 </p></dd></dl>
 
-<p>The <var>contents</var> of a register can have several possible types:
+<p>レジスターの<var>contents</var>には、いくつかのタイプがある:
 </p>
 <dl compact="compact">
-<dt>a number</dt>
-<dd><p>A number stands for itself.  If <code>insert-register</code> finds a number
-in the register, it converts the number to decimal.
+<dt>数字</dt>
+<dd><p>数字はそれ自身を意味する。<code>insert-register</code>はレジスター内の数字を探して、その数字を10進数に変換する。
 </p>
 </dd>
-<dt>a marker</dt>
-<dd><p>A marker represents a buffer position to jump to.
+<dt>マーカー</dt>
+<dd><p>マーカーは、ジャンプ先のバッファー位置を表す。
 </p>
 </dd>
-<dt>a string</dt>
-<dd><p>A string is text saved in the register.
+<dt>文字列</dt>
+<dd><p>文字列の場合は、レジスター内に保存されたテキスト。
 </p>
 </dd>
-<dt>a rectangle</dt>
-<dd><p>A rectangle is represented by a list of strings.
+<dt>矩形(rectangle)</dt>
+<dd><p>矩形は、文字列のリストを表す。
 </p>
 </dd>
 <dt><code>(<var>window-configuration</var> <var>position</var>)</code></dt>
-<dd><p>This represents a window configuration to restore in one frame, and a
-position to jump to in the current buffer.
+<dd><p>これは1つのフレームにリストアされるウィンドウ構成、およびカレントバッファー内のジャンプ先の位置を表す。
 </p>
 </dd>
 <dt><code>(<var>frame-configuration</var> <var>position</var>)</code></dt>
-<dd><p>This represents a frame configuration to restore, and a position
-to jump to in the current buffer.
+<dd><p>これは、リストア用のフレーム構成、およびカレントバッファー内のジャンプ先の位置である。
 </p>
 </dd>
 <dt>(file <var>filename</var>)</dt>
-<dd><p>This represents a file to visit; jumping to this value visits file
-<var>filename</var>.
+<dd><p>これはvisitするファイルを表し、この値にジャンプすることによりファイル<var>filename</var>をvisitする。
 </p>
 </dd>
 <dt>(file-query <var>filename</var> <var>position</var>)</dt>
-<dd><p>This represents a file to visit and a position in it; jumping to this
-value visits file <var>filename</var> and goes to buffer position
-<var>position</var>.  Restoring this type of position asks the user for
-confirmation first.
+<dd><p>これはvisitするファイル、およびそのファイル内の位置を表す。この値にジャンプすることによりファイル<var>filename</var>をvisitして、バッファー位置<var>position</var>に移動する。このタイプの位置をリストアすると、まずユーザーにたいして確認を求める。
 </p></dd>
 </dl>
 
-<p>The functions in this section return unpredictable values unless
-otherwise stated.
+<p>このセクションの関数は、特に記さない限り予期せぬ値をリターンします。
 </p>
 <dl>
 <dt><a name="index-get_002dregister"></a>Function: <strong>get-register</strong> <em>reg</em></dt>
-<dd><p>This function returns the contents of the register
-<var>reg</var>, or <code>nil</code> if it has no contents.
+<dd><p>この関数はレジスター<var>reg</var>のコンテンツ、コンテンツがなければ<code>nil</code>をリターンする。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-set_002dregister"></a>Function: <strong>set-register</strong> <em>reg value</em></dt>
-<dd><p>This function sets the contents of register <var>reg</var> to <var>value</var>.
-A register can be set to any value, but the other register functions
-expect only certain data types.  The return value is <var>value</var>.
+<dd><p>この関数は、レジスター<var>reg</var>のコンテンツに<var>value</var>をセットする。レジスターには任意の値をセットできるが、その他のレジスター関数は特定のデータ型を期待する。リターン値は<var>value</var>。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-view_002dregister"></a>Command: <strong>view-register</strong> <em>reg</em></dt>
-<dd><p>This command displays what is contained in register <var>reg</var>.
+<dd><p>このコマンドは、レジスター <var>reg</var>に何が含まれているかを表示する。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-insert_002dregister"></a>Command: <strong>insert-register</strong> <em>reg &amp;optional beforep</em></dt>
-<dd><p>This command inserts contents of register <var>reg</var> into the current
-buffer.
+<dd><p>このコマンドは、カレントバッファーにレジスター<var>reg</var>のコンテンツを挿入する。
 </p>
-<p>Normally, this command puts point before the inserted text, and the
-mark after it.  However, if the optional second argument <var>beforep</var>
-is non-<code>nil</code>, it puts the mark before and point after.
-You can pass a non-<code>nil</code> second argument <var>beforep</var> to this
-function interactively by supplying any prefix argument.
+<p>このコマンドは通常、ポイントを挿入したテキストの前、後にマークを置く。しかしオプションの第2引き<var>beforep</var>が非<code>nil</code>なら、マークを前、ポイントを後に置くインタラクティブな呼び出しでは、プレフィクス引数を与えることにより、2つ目の引数<var>beforep</var>に<code>nil</code>を渡すことができる。
 </p>
-<p>If the register contains a rectangle, then the rectangle is inserted
-with its upper left corner at point.  This means that text is inserted
-in the current line and underneath it on successive lines.
+<p>レジスターに矩形が含まれる場合、その矩形はポイントの左上隅に挿入される。これはそのテキストがカレント行と、その下に続く行に挿入されることを意味する。
 </p>
-<p>If the register contains something other than saved text (a string) or
-a rectangle (a list), currently useless things happen.  This may be
-changed in the future.
+<p>レジスターが保存されたテキスト(文字列)または矩形(リスク)以外の何かを含む場合、現在のところは役に立つようなことは起きない。これは将来変更されるかもしれない。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-register_002dread_002dwith_002dpreview"></a>Function: <strong>register-read-with-preview</strong> <em>prompt</em></dt>
 <dd><a name="index-register-preview"></a>
-<p>This function reads and returns a register name, prompting with
-<var>prompt</var> and possibly showing a preview of the existing registers
-and their contents.  The preview is shown in a temporary window, after
-the delay specified by the user option <code>register-preview-delay</code>,
-if its value and <code>register-alist</code> are both non-<code>nil</code>.  The
-preview is also shown if the user requests help (e.g., by typing the
-help character).  We recommend that all interactive commands which
-read register names use this function.
+<p>この関数は、<var>prompt</var>、およびもしかしたら既存レジスターとそのコンテンツをプレビューしてレジスターの名前を読み取り、レジスター名をリターンする。このプレビューは、ユーザーオプション<code>register-preview-delay</code>と<code>register-alist</code>がいずれも非<code>nil</code>なら、<code>register-preview-delay</code>で指定された遅延の後に、一時ウィンドウ内に表示される。このプレビューは、ユーザーが(たとえばヘルプ文字のタイプにより)ヘルプを要求した場合も表示される。レジスター名を読み取るスベインタラクティブな関数は、この関数の使用を推奨する。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Transposition.html#Transposition" accesskey="n" rel="next">Transposition</a>, Previous: <a href="Substitution.html#Substitution" accesskey="p" rel="prev">Substitution</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

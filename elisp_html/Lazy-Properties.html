@@ -73,55 +73,28 @@ Next: <a href="Clickable-Text.html#Clickable-Text" accesskey="n" rel="next">Clic
 <a name="Lazy-Computation-of-Text-Properties"></a>
 <h4 class="subsection">31.19.7 Lazy Computation of Text Properties</h4>
 
-<p>Instead of computing text properties for all the text in the buffer,
-you can arrange to compute the text properties for parts of the text
-when and if something depends on them.
+<p>バッファー内のすべてのテキストにたいしてテキストプロパティを計算するかわりに、何かがテキスト範囲に依存している場合、その際はテキストプロパティを計算するようにアレンジできます。
 </p>
-<p>The primitive that extracts text from the buffer along with its
-properties is <code>buffer-substring</code>.  Before examining the properties,
-this function runs the abnormal hook <code>buffer-access-fontify-functions</code>.
+<p>プロパティとともにバッファーからテキストを抽出するプリミティブは、<code>buffer-substring</code>です。プロパティを調べる前に、この関数はアブノーマルフック<code>buffer-access-fontify-functions</code>を実行します。
 </p>
 <dl>
 <dt><a name="index-buffer_002daccess_002dfontify_002dfunctions"></a>Variable: <strong>buffer-access-fontify-functions</strong></dt>
-<dd><p>This variable holds a list of functions for computing text properties.
-Before <code>buffer-substring</code> copies the text and text properties for a
-portion of the buffer, it calls all the functions in this list.  Each of
-the functions receives two arguments that specify the range of the
-buffer being accessed.  (The buffer itself is always the current
-buffer.)
+<dd><p>この変数は、テキストプロパティ計算用の関数のリストを保持する。<code>buffer-substring</code>がバッファーの一部のテキストとテキストプロパティをコピーする前に、このリスト内の関数すべてを呼び出す。各関数はアクセスされるバッファー範囲を指定する、2つの引数を受け取る(バッファーは常にカレントバッファーとなる)。
 </p></dd></dl>
 
-<p>The function <code>buffer-substring-no-properties</code> does not call these
-functions, since it ignores text properties anyway.
+<p>関数<code>buffer-substring-no-properties</code>はいずれにせよテキストプロパティを無視するので、これらの関数を呼び出さない。
 </p>
-<p>In order to prevent the hook functions from being called more than
-once for the same part of the buffer, you can use the variable
-<code>buffer-access-fontified-property</code>.
+<p>同じバッファー部分にたいして複数回フック関数が呼び出されるのを防ぐには、変数<code>buffer-access-fontified-property</code>を使用できる。
 </p>
 <dl>
 <dt><a name="index-buffer_002daccess_002dfontified_002dproperty"></a>Variable: <strong>buffer-access-fontified-property</strong></dt>
-<dd><p>If this variable&rsquo;s value is non-<code>nil</code>, it is a symbol which is used
-as a text property name.  A non-<code>nil</code> value for that text property
-means, &ldquo;the other text properties for this character have already been
-computed&rdquo;.
+<dd><p>この変数の値が非<code>nil</code>なら、それはテキストプロパティ名として使用されるシンボルである。そのテキストプロパティにたいする非<code>nil</code>値は、&ldquo;その文字にたいする他のテキストプロパティはすでに計算済み&rdquo;であることを意味する。
 </p>
-<p>If all the characters in the range specified for <code>buffer-substring</code>
-have a non-<code>nil</code> value for this property, <code>buffer-substring</code>
-does not call the <code>buffer-access-fontify-functions</code> functions.  It
-assumes these characters already have the right text properties, and
-just copies the properties they already have.
+<p><code>buffer-substring</code>にたいして指定された範囲内のすべての文字が、このプロパティにたいする値として非<code>nil</code>をもつなら、<code>buffer-substring</code>は<code>buffer-access-fontify-functions</code>の関数を呼び出さない。それらの文字がすでに正しいテキストプロパティをもつとみなし、それらがすでに所有するプロパティを単にコピーする。
 </p>
-<p>The normal way to use this feature is that the
-<code>buffer-access-fontify-functions</code> functions add this property, as
-well as others, to the characters they operate on.  That way, they avoid
-being called over and over for the same text.
+<p><code>buffer-access-fontify-functions</code>の関数にこのプロパティ、同様に他のプロパティを処理対象の文字に追加させるのが、この機能の通常の用途である。この方法では、同じテキストにたいして、それらの関数が何度も呼び出されるのを防ぐことができる。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Clickable-Text.html#Clickable-Text" accesskey="n" rel="next">Clickable Text</a>, Previous: <a href="Sticky-Properties.html#Sticky-Properties" accesskey="p" rel="prev">Sticky Properties</a>, Up: <a href="Text-Properties.html#Text-Properties" accesskey="u" rel="up">Text Properties</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

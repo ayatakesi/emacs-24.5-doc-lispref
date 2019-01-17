@@ -74,87 +74,73 @@ Next: <a href="Non_002dASCII-Characters.html#Non_002dASCII-Characters" accesskey
 <h2 class="chapter">31 Text</h2>
 <a name="index-text"></a>
 
-<p>This chapter describes the functions that deal with the text in a
-buffer.  Most examine, insert, or delete text in the current buffer,
-often operating at point or on text adjacent to point.  Many are
-interactive.  All the functions that change the text provide for undoing
-the changes (see <a href="Undo.html#Undo">Undo</a>).
+<p>このチャプターでは、バッファー内のテキストを扱う関数を説明します。ほとんどはカレントバッファー内のテキストにたいして検査、挿入、削除を行い、ポイント位置やポイントに隣接するテキストを操作することが多々あります。その多くはインタラクティブ(interactive:
+対話的)です。テキストを変更するすべての関数は、その変更にたいするundo(アンドゥ、取り消し)を提供します(<a href="Undo.html#Undo">Undo</a>を参照)。
 </p>
-<p>Many text-related functions operate on a region of text defined by two
-buffer positions passed in arguments named <var>start</var> and <var>end</var>.
-These arguments should be either markers (see <a href="Markers.html#Markers">Markers</a>) or numeric
-character positions (see <a href="Positions.html#Positions">Positions</a>).  The order of these arguments
-does not matter; it is all right for <var>start</var> to be the end of the
-region and <var>end</var> the beginning.  For example, <code>(delete-region 1
-10)</code> and <code>(delete-region 10 1)</code> are equivalent.  An
-<code>args-out-of-range</code> error is signaled if either <var>start</var> or
-<var>end</var> is outside the accessible portion of the buffer.  In an
-interactive call, point and the mark are used for these arguments.
+<p>テキストに関連する関数の多くが、<var>start</var>および<var>end</var>という名前の引数として渡された、2つのバッファー位置により定義された、テキストのリージョンを操作します。これらの引数は、マーカー(<a href="Markers.html#Markers">Markers</a>を参照)か、数値的な文字位置(<a href="Positions.html#Positions">Positions</a>を参照)のいずれかであるべきです。これらの引数の順序は関係ありません。<var>start</var>がリージョンの終端で、<var>end</var>がリージョンの先頭であっても、何も問題はないのです。たとえば、<code>(delete-region
+1 10)</code>と<code>(delete-region 10
+1)</code>は等価です。<var>start</var>と<var>end</var>のいずれかが、バッファーのアクセス可能範囲の外部なら、<code>args-out-of-range</code>エラーがシグナルされます。インタラクティブな呼び出しでは、これらの引数にポイントとマークが使用されます。
 </p>
 <a name="index-buffer-contents"></a>
-<p>Throughout this chapter, &ldquo;text&rdquo; refers to the characters in the
-buffer, together with their properties (when relevant).  Keep in mind
-that point is always between two characters, and the cursor appears on
-the character after point.
+<p>このチャプターを通じて、&ldquo;テキスト(text)&rdquo;とは(関係あるときは)そのプロパティも含めた、バッファー内の文字を意味します。ポイントは常に2つの文字の間にあり、カーソルはポイントの後の文字上に表示されることを覚えておいてください。
 </p>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="Near-Point.html#Near-Point" accesskey="1">Near Point</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Examining text in the vicinity of point.
+<tr><td align="left" valign="top">&bull; <a href="Near-Point.html#Near-Point" accesskey="1">Near Point</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">ポイント付近のテキストを調べる。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Buffer-Contents.html#Buffer-Contents" accesskey="2">Buffer Contents</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Examining text in a general fashion.
+<tr><td align="left" valign="top">&bull; <a href="Buffer-Contents.html#Buffer-Contents" accesskey="2">Buffer Contents</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">一般的な方法によってテキストを調べる。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Comparing-Text.html#Comparing-Text" accesskey="3">Comparing Text</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Comparing substrings of buffers.
+<tr><td align="left" valign="top">&bull; <a href="Comparing-Text.html#Comparing-Text" accesskey="3">Comparing Text</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーの部分文字列を比較する。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Insertion.html#Insertion" accesskey="4">Insertion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Adding new text to a buffer.
+<tr><td align="left" valign="top">&bull; <a href="Insertion.html#Insertion" accesskey="4">Insertion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーへの新たなテキストの追加。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Commands-for-Insertion.html#Commands-for-Insertion" accesskey="5">Commands for Insertion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">User-level commands to insert text.
+<tr><td align="left" valign="top">&bull; <a href="Commands-for-Insertion.html#Commands-for-Insertion" accesskey="5">Commands for Insertion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキスト挿入のためのユーザーレベルコマンド。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Deletion.html#Deletion" accesskey="6">Deletion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Removing text from a buffer.
+<tr><td align="left" valign="top">&bull; <a href="Deletion.html#Deletion" accesskey="6">Deletion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーからテキストを削除する。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="User_002dLevel-Deletion.html#User_002dLevel-Deletion" accesskey="7">User-Level Deletion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">User-level commands to delete text.
+<tr><td align="left" valign="top">&bull; <a href="User_002dLevel-Deletion.html#User_002dLevel-Deletion" accesskey="7">User-Level Deletion</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキスト削除のためのユーザーレベルコマンド。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="The-Kill-Ring.html#The-Kill-Ring" accesskey="8">The Kill Ring</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Where removed text sometimes is saved for later use.
+<tr><td align="left" valign="top">&bull; <a href="The-Kill-Ring.html#The-Kill-Ring" accesskey="8">The Kill Ring</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキスト削除時にユーザーのためにそれを保存する場所。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Undo.html#Undo" accesskey="9">Undo</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Undoing changes to the text of a buffer.
+<tr><td align="left" valign="top">&bull; <a href="Undo.html#Undo" accesskey="9">Undo</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーのテキストにたいする変更の取り消し。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Maintaining-Undo.html#Maintaining-Undo">Maintaining Undo</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">How to enable and disable undo information.
-                        How to control how much information is kept.
+<tr><td align="left" valign="top">&bull; <a href="Maintaining-Undo.html#Maintaining-Undo">Maintaining Undo</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">undo情報の有効と無効。情報をどれだけ保持するか制御する方法。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Filling.html#Filling">Filling</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Functions for explicit filling.
+<tr><td align="left" valign="top">&bull; <a href="Filling.html#Filling">Filling</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">明示的にフィルを行う関数。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Margins.html#Margins">Margins</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">How to specify margins for filling commands.
+<tr><td align="left" valign="top">&bull; <a href="Margins.html#Margins">Margins</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">フィルコマンドにたいしてマージンを指定する方法。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Adaptive-Fill.html#Adaptive-Fill">Adaptive Fill</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Adaptive Fill mode chooses a fill prefix from context.
+<tr><td align="left" valign="top">&bull; <a href="Adaptive-Fill.html#Adaptive-Fill">Adaptive Fill</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">コンテキストからフィルプレフィクスを選択するAdaptive 
+                               Fillモード。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">How auto-fill mode is implemented to break lines.
+<tr><td align="left" valign="top">&bull; <a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">行ブレークにたいするauto-fillの実装方法。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Sorting.html#Sorting">Sorting</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Functions for sorting parts of the buffer.
+<tr><td align="left" valign="top">&bull; <a href="Sorting.html#Sorting">Sorting</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーの一部をソートする関数。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Columns.html#Columns">Columns</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Computing horizontal positions, and using them.
+<tr><td align="left" valign="top">&bull; <a href="Columns.html#Columns">Columns</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">水平位置の計算とその使用方法。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Indentation.html#Indentation">Indentation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Functions to insert or adjust indentation.
+<tr><td align="left" valign="top">&bull; <a href="Indentation.html#Indentation">Indentation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">インデントの挿入や調整のための関数。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Case-Changes.html#Case-Changes">Case Changes</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Case conversion of parts of the buffer.
+<tr><td align="left" valign="top">&bull; <a href="Case-Changes.html#Case-Changes">Case Changes</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーの一部にたいする大文字小文字変換。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Text-Properties.html#Text-Properties">Text Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Assigning Lisp property lists to text characters.
+<tr><td align="left" valign="top">&bull; <a href="Text-Properties.html#Text-Properties">Text Properties</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキスト文字にたいするLispプロパティリストの追加。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Substitution.html#Substitution">Substitution</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Replacing a given character wherever it appears.
+<tr><td align="left" valign="top">&bull; <a href="Substitution.html#Substitution">Substitution</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">与ええられた文字の出現箇所を置換する。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Registers.html#Registers">Registers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">How registers are implemented.  Accessing the text or
-                       position stored in a register.
+<tr><td align="left" valign="top">&bull; <a href="Registers.html#Registers">Registers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">レジスターの実装方法。レジスターに格納されたテキストや位置にアクセスする。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Transposition.html#Transposition">Transposition</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Swapping two portions of a buffer.
+<tr><td align="left" valign="top">&bull; <a href="Transposition.html#Transposition">Transposition</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">バッファーの2つの部分を交換する。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Decompression.html#Decompression">Decompression</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Dealing with compressed data.
+<tr><td align="left" valign="top">&bull; <a href="Decompression.html#Decompression">Decompression</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">圧縮データの扱い。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Base-64.html#Base-64">Base 64</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Conversion to or from base 64 encoding.
+<tr><td align="left" valign="top">&bull; <a href="Base-64.html#Base-64">Base 64</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Base64エンコーディングとの変換。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Checksum_002fHash.html#Checksum_002fHash">Checksum/Hash</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Computing cryptographic hashes.
+<tr><td align="left" valign="top">&bull; <a href="Checksum_002fHash.html#Checksum_002fHash">Checksum/Hash</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">暗号ハッシュの計算。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Parsing-HTML_002fXML.html#Parsing-HTML_002fXML">Parsing HTML/XML</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Parsing HTML and XML.
+<tr><td align="left" valign="top">&bull; <a href="Parsing-HTML_002fXML.html#Parsing-HTML_002fXML">Parsing HTML/XML</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">HTMLおよびXMLの解析。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Atomic-Changes.html#Atomic-Changes">Atomic Changes</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Installing several buffer changes &quot;atomically&quot;.
+<tr><td align="left" valign="top">&bull; <a href="Atomic-Changes.html#Atomic-Changes">Atomic Changes</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">複数バッファーへの変更を&quot;アトミック&quot;にインストールする。
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="Change-Hooks.html#Change-Hooks">Change Hooks</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Supplying functions to be run when text is changed.
+<tr><td align="left" valign="top">&bull; <a href="Change-Hooks.html#Change-Hooks">Change Hooks</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">テキスト変更時に実行する関数の指定。
 </td></tr>
 </table>
 

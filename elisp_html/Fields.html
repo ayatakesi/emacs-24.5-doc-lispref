@@ -74,129 +74,67 @@ Next: <a href="Not-Intervals.html#Not-Intervals" accesskey="n" rel="next">Not In
 <h4 class="subsection">31.19.9 Defining and Using Fields</h4>
 <a name="index-fields"></a>
 
-<p>A field is a range of consecutive characters in the buffer that are
-identified by having the same value (comparing with <code>eq</code>) of the
-<code>field</code> property (either a text-property or an overlay property).
-This section describes special functions that are available for
-operating on fields.
+<p>フィールドとはバッファー内にある連続する文字範囲であり、<code>field</code>プロパティ(テキストプロパティかオーバーレイプロパティ)に同じ値(<code>eq</code>で比較)をもつことにより識別されます。このセクションでは、フィールドの操作に利用できるスペシャル関数を説明します。
 </p>
-<p>You specify a field with a buffer position, <var>pos</var>.  We think of
-each field as containing a range of buffer positions, so the position
-you specify stands for the field containing that position.
+<p>フィールドは、バッファー位置<var>pos</var>で指定します。各フィールドはバッファー位置の範囲を含むと考えて、指定した位置はその位置を含むフィールドを表します。
 </p>
-<p>When the characters before and after <var>pos</var> are part of the same
-field, there is no doubt which field contains <var>pos</var>: the one those
-characters both belong to.  When <var>pos</var> is at a boundary between
-fields, which field it belongs to depends on the stickiness of the
-<code>field</code> properties of the two surrounding characters (see <a href="Sticky-Properties.html#Sticky-Properties">Sticky Properties</a>).  The field whose property would be inherited by text
-inserted at <var>pos</var> is the field that contains <var>pos</var>.
+<p><var>pos</var>の前または後の文字は同じフィールドに属し、どのフィールドが<var>pos</var>を含むかという疑問はありません。それらの文字が属するフィールドが、そのフィールドです。<var>pos</var>がフィールド境界のときは、それがどのフィールドに属すかは、取り囲む2つの文字の<code>field</code>プロパティのstickinessに依存します(<a href="Sticky-Properties.html#Sticky-Properties">Sticky Properties</a>を参照)。<var>pos</var>に挿入されたテキストからプロパティが継承されたフィールドが、<var>pos</var>を含むフィールドです。
 </p>
-<p>There is an anomalous case where newly inserted text at <var>pos</var>
-would not inherit the <code>field</code> property from either side.  This
-happens if the previous character&rsquo;s <code>field</code> property is not
-rear-sticky, and the following character&rsquo;s <code>field</code> property is not
-front-sticky.  In this case, <var>pos</var> belongs to neither the preceding
-field nor the following field; the field functions treat it as belonging
-to an empty field whose beginning and end are both at <var>pos</var>.
+<p><var>pos</var>に新たに挿入されたテキストが、いずれの側からも<code>field</code>プロパティを継承しない、異常なケースがあります。これは前の文字の<code>field</code>プロパティがrear-stickyでなく、後の文字の<code>field</code>プロパティがfront-stickyでもない場合に発生します。このケースでは、<var>pos</var>は前のフィールドと後のフィールドいずれにも属しません。フィールド関数はそれを、開始と終了が<var>pos</var>の空フィールドに属するものとして扱います。
 </p>
-<p>In all of these functions, if <var>pos</var> is omitted or <code>nil</code>, the
-value of point is used by default.  If narrowing is in effect, then
-<var>pos</var> should fall within the accessible portion.  See <a href="Narrowing.html#Narrowing">Narrowing</a>.
+<p>これらすべての関数では、<var>pos</var>が省略または<code>nil</code>の場合は、ポイントの値がデフォルトとして使用されます。ナローイング(narrowing)が効力をもつ場合、<var>pos</var>はアクセス可能部分にあるはずです。<a href="Narrowing.html#Narrowing">Narrowing</a>を参照してください。
 </p>
 <dl>
 <dt><a name="index-field_002dbeginning"></a>Function: <strong>field-beginning</strong> <em>&amp;optional pos escape-from-edge limit</em></dt>
-<dd><p>This function returns the beginning of the field specified by <var>pos</var>.
+<dd><p>この関数は、<var>pos</var>で指定されたフィールドの先頭をリターンする。
 </p>
-<p>If <var>pos</var> is at the beginning of its field, and
-<var>escape-from-edge</var> is non-<code>nil</code>, then the return value is
-always the beginning of the preceding field that <em>ends</em> at <var>pos</var>,
-regardless of the stickiness of the <code>field</code> properties around
-<var>pos</var>.
+<p><var>pos</var>が自身のフィールド先頭にあり、かつ<var>escape-from-edge</var>が非<code>nil</code>なら、<var>pos</var>周辺の<code>field</code>プロパティのstickinessに関わらず、リターン値は常に<var>pos</var>が終端であるような前のフィールドの先頭になる。
 </p>
-<p>If <var>limit</var> is non-<code>nil</code>, it is a buffer position; if the
-beginning of the field is before <var>limit</var>, then <var>limit</var> will be
-returned instead.
+<p><var>limit</var>が非<code>nil</code>なら、それはバッファーの位置である。そのフィールドの先頭が<var>limit</var>より前なら、かわりに<var>limit</var>がリターンされるだろう。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-field_002dend"></a>Function: <strong>field-end</strong> <em>&amp;optional pos escape-from-edge limit</em></dt>
-<dd><p>This function returns the end of the field specified by <var>pos</var>.
+<dd><p>この関数は、<var>pos</var>で指定されるフィールドの終端をリターンする。
 </p>
-<p>If <var>pos</var> is at the end of its field, and <var>escape-from-edge</var> is
-non-<code>nil</code>, then the return value is always the end of the following
-field that <em>begins</em> at <var>pos</var>, regardless of the stickiness of
-the <code>field</code> properties around <var>pos</var>.
+<p><var>pos</var>が自身のフィールド終端にあり、かつ<var>escape-from-edge</var>が非<code>nil</code>なら、<var>pos</var>周辺の<code>field</code>プロパティのstickinessに関わらず、リターン値は常に<var>pos</var>が<em>先頭</em>であるような後のフィールドの終端になる。
 </p>
-<p>If <var>limit</var> is non-<code>nil</code>, it is a buffer position; if the end
-of the field is after <var>limit</var>, then <var>limit</var> will be returned
-instead.
+<p><var>limit</var>が非<code>nil</code>なら、それはバッファーの位置である。そのフィールドの終端が<var>limit</var>より後なら、かわりに<var>limit</var>がリターンされるだろう。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-field_002dstring"></a>Function: <strong>field-string</strong> <em>&amp;optional pos</em></dt>
-<dd><p>This function returns the contents of the field specified by <var>pos</var>,
-as a string.
+<dd><p>この関数は<var>pos</var>で指定されるフィールドのコンテンツを、文字列としてリターンする。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-field_002dstring_002dno_002dproperties"></a>Function: <strong>field-string-no-properties</strong> <em>&amp;optional pos</em></dt>
-<dd><p>This function returns the contents of the field specified by <var>pos</var>,
-as a string, discarding text properties.
+<dd><p>この関数は、<var>pos</var>で指定されるフィールドのコンテンツを、テキストプロパティを無視して、文字列としてリターンする。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-delete_002dfield"></a>Function: <strong>delete-field</strong> <em>&amp;optional pos</em></dt>
-<dd><p>This function deletes the text of the field specified by <var>pos</var>.
+<dd><p>この関数は、<var>pos</var>で指定されるフィールドのテキストを削除する。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-constrain_002dto_002dfield"></a>Function: <strong>constrain-to-field</strong> <em>new-pos old-pos &amp;optional escape-from-edge only-in-line inhibit-capture-property</em></dt>
-<dd><p>This function &ldquo;constrains&rdquo; <var>new-pos</var> to the field that
-<var>old-pos</var> belongs to&mdash;in other words, it returns the position
-closest to <var>new-pos</var> that is in the same field as <var>old-pos</var>.
+<dd><p>この関数は<var>new-pos</var>を<var>old-pos</var>が属するフィールドに&ldquo;拘束(constrain)&rdquo;する。別の言い方をすると、これは
+<var>old-pos</var>と同じフィールド内で<var>new-pos</var>にもっとも近い位置をリターンする。
 </p>
-<p>If <var>new-pos</var> is <code>nil</code>, then <code>constrain-to-field</code> uses
-the value of point instead, and moves point to the resulting position
-in addition to returning that position.
+<p><var>new-pos</var>が<code>nil</code>なら、<code>constrain-to-field</code>はかわりにポイントの値を使用して、ポイントをリターンすることに加えて、その位置にポイントを移動する。
 </p>
-<p>If <var>old-pos</var> is at the boundary of two fields, then the acceptable
-final positions depend on the argument <var>escape-from-edge</var>.  If
-<var>escape-from-edge</var> is <code>nil</code>, then <var>new-pos</var> must be in
-the field whose <code>field</code> property equals what new characters
-inserted at <var>old-pos</var> would inherit.  (This depends on the
-stickiness of the <code>field</code> property for the characters before and
-after <var>old-pos</var>.)  If <var>escape-from-edge</var> is non-<code>nil</code>,
-<var>new-pos</var> can be anywhere in the two adjacent fields.
-Additionally, if two fields are separated by another field with the
-special value <code>boundary</code>, then any point within this special
-field is also considered to be &ldquo;on the boundary&rdquo;.
+<p><var>old-pos</var>が2つのフィールドの境界なら、許容できる最後の位置は引数<var>escape-from-edge</var>に依存する。<var>escape-from-edge</var>が<code>nil</code>なら、<var>new-pos</var>は新たに文字が<var>old-pos</var>が挿入されたときに、継承するであろう値と<code>field</code>プロパティが等しいフィールドでなければならない<var>escape-from-edge</var>がｐ非<code>nil</code>なら、<var>new-pos</var>は隣接する2つのフィールド内のどこでも構わない。さらに、2つのフィールドが特別な値<code>boundary</code>により、他のフィールドで分割されている場合、このスペシャルフィールド内のすべてのポイントも、&ldquo;境界上&rdquo;とみなされる。
 </p>
-<p>Commands like <kbd>C-a</kbd> with no argument, that normally move backward
-to a specific kind of location and stay there once there, probably
-should specify <code>nil</code> for <var>escape-from-edge</var>.  Other motion
-commands that check fields should probably pass <code>t</code>.
+<p>引数なしの<kbd>C-a</kbd>コマンドのように、特別な類の位置に後方へ移動して一度そこに留まるには、おそらく<var>escape-from-edge</var>にたいして<code>nil</code>を指定するべきであろう。フィールドをチェックする他の移動コマンドにたいしては、おそらく<code>t</code>を渡すべきである。
 </p>
-<p>If the optional argument <var>only-in-line</var> is non-<code>nil</code>, and
-constraining <var>new-pos</var> in the usual way would move it to a different
-line, <var>new-pos</var> is returned unconstrained.  This used in commands
-that move by line, such as <code>next-line</code> and
-<code>beginning-of-line</code>, so that they respect field boundaries only in
-the case where they can still move to the right line.
+<p>オプション引数<var>only-in-line</var>が非<code>nil</code>、かつ<var>new-pos</var>を通常の方法により拘束することにより異なる行へ移動するような場合、<var>new-pos</var>は非拘束でリターンされる。これは<code>next-line</code>や<code>beginning-of-line</code>のような行単位の移動コマンドで、それらのコマンドが正しい行へ移動できる場合だけフィールド境界を尊重するようにするために用いられる。
 </p>
-<p>If the optional argument <var>inhibit-capture-property</var> is
-non-<code>nil</code>, and <var>old-pos</var> has a non-<code>nil</code> property of that
-name, then any field boundaries are ignored.
+<p>オプション引数<var>inhibit-capture-property</var>が非<code>nil</code>、かつ<var>old-pos</var>がその名前の非<code>nil</code>なプロパティをもつなら、すべてのフィールド境界は無視される。
 </p>
-<p>You can cause <code>constrain-to-field</code> to ignore all field boundaries
-(and so never constrain anything) by binding the variable
-<code>inhibit-field-text-motion</code> to a non-<code>nil</code> value.
+<p>変数<code>inhibit-field-text-motion</code>を非<code>nil</code>値にバインドすることにより、<code>constrain-to-field</code>にすべてのフィールド境界を無視(何者にも拘束されることがない)させることができる。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Not-Intervals.html#Not-Intervals" accesskey="n" rel="next">Not Intervals</a>, Previous: <a href="Clickable-Text.html#Clickable-Text" accesskey="p" rel="prev">Clickable Text</a>, Up: <a href="Text-Properties.html#Text-Properties" accesskey="u" rel="up">Text Properties</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

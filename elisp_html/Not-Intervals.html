@@ -74,56 +74,25 @@ Previous: <a href="Fields.html#Fields" accesskey="p" rel="prev">Fields</a>, Up: 
 <h4 class="subsection">31.19.10 Why Text Properties are not Intervals</h4>
 <a name="index-intervals"></a>
 
-<p>Some editors that support adding attributes to text in the buffer do
-so by letting the user specify &ldquo;intervals&rdquo; within the text, and adding
-the properties to the intervals.  Those editors permit the user or the
-programmer to determine where individual intervals start and end.  We
-deliberately provided a different sort of interface in Emacs Lisp to
-avoid certain paradoxical behavior associated with text modification.
+<p>ユーザーにテキスト内の&ldquo;インターバル(訳注:
+原文のインターバルはIT用語としては時間や距離などの間隔を示す用語として用いれることが多いと思いますが、ここでは『範囲』を示す言葉として用いられているようです。他の箇所で『範囲』と訳したrange等と異なる機能なので、ここではそのまま『インターバル』としました)&rdquo;を指定させて、そのインターバルにプロパティを追加するために、バッファー内のテキストへの属性の追加をサポートするエディターがいくつかあります。それらのエディターは、ユーザーやプログラマーが個別にインターバルの開始と終了を決定することを許可します。わたしたちは、テキスト変更に関連する特定の逆説的振る舞いを避けるために、Emacs
+Lisp内に、故意に異なる種類のインターフェイスを提供しました。
 </p>
-<p>If the actual subdivision into intervals is meaningful, that means you
-can distinguish between a buffer that is just one interval with a
-certain property, and a buffer containing the same text subdivided into
-two intervals, both of which have that property.
+<p>複数のインターバルに細分化することが実際に意味をもつなら、それは特定のプロパティをもつ単一のインターバルのバッファーと、同じテキストをもち、両方が同じプロパティをもつ2つのインターバルに分割されたバッファーを区別できることを意味します。
 </p>
-<p>Suppose you take the buffer with just one interval and kill part of
-the text.  The text remaining in the buffer is one interval, and the
-copy in the kill ring (and the undo list) becomes a separate interval.
-Then if you yank back the killed text, you get two intervals with the
-same properties.  Thus, editing does not preserve the distinction
-between one interval and two.
+<p>インターバルを1つだけもつバッファーがあり、その一部をkillすることを考えてみてください。そのそのバッファーに残されるのは1つのインターバルであり、killリング(とundoリスト)内のコピーは別個のインターバルになります。そのkillされたテキストをyankで戻すと、同じプロパティをもつ2つのインターバルを得ることになります。したがって、編集では1つのインターバルと2つのインターバルの違いは保たれません。
 </p>
-<p>Suppose we &ldquo;fix&rdquo; this problem by coalescing the two intervals when
-the text is inserted.  That works fine if the buffer originally was a
-single interval.  But suppose instead that we have two adjacent
-intervals with the same properties, and we kill the text of one interval
-and yank it back.  The same interval-coalescence feature that rescues
-the other case causes trouble in this one: after yanking, we have just
-one interval.  Once again, editing does not preserve the distinction
-between one interval and two.
+<p>テキスト挿入時に2つのインターバルを結合することにより、この問題に&ldquo;対応&rdquo;したとします。これは、そのバッファーが元々単一のインターバルだったなら、上手く機能します。
+しかし、かわりに同じプロパティをもつ隣接する2つのインターバルがあり、そのうちの1つのインターバルからテキストをkillして、それをyankで戻すことを考えてみてください。あるケースを解決する同じインターバル結合機能が、他のケースにおいては問題を引き起こすのです。このyank後、インターバルはただ1つとなります。繰り返します、編集では1つのインターバルと2つのインターバルの違いは保たれないのです。
 </p>
-<p>Insertion of text at the border between intervals also raises
-questions that have no satisfactory answer.
+<p>インターバルの間の境界上へのテキスト挿入でも、満足できる回答かない問題が発生します。
 </p>
-<p>However, it is easy to arrange for editing to behave consistently
-for questions of the form, &ldquo;What are the properties of text at this
-buffer or string position?&rdquo;  So we have decided these are the only
-questions that make sense; we have not implemented asking questions
-about where intervals start or end.
+<p>しかし、&ldquo;バッファーにあるテキスト位置または文字列位置のプロパティは何?&rdquo;という形式の問にたいして、編集が一貫した振る舞いをするようアレンジするのは簡単です。そこで、わたしたちはこれらが合理的な唯一の問いであると判断したのです。わたしたちはインターバルの開始と終了の場所を問うような実装をしませんでした。
 </p>
-<p>In practice, you can usually use the text property search functions in
-place of explicit interval boundaries.  You can think of them as finding
-the boundaries of intervals, assuming that intervals are always
-coalesced whenever possible.  See <a href="Property-Search.html#Property-Search">Property Search</a>.
+<p>実際には、明白にインターバル境界であるような箇所では、通常はテキストプロパティ検索関数を使用できます。可能であるならインターバルは常に結合されるとみなすことにより、それらがインターバル境界を探すと考えることができます。<a href="Property-Search.html#Property-Search">Property Search</a>を参照してください。
 </p>
-<p>Emacs also provides explicit intervals as a presentation feature; see
-<a href="Overlays.html#Overlays">Overlays</a>.
+<p>Emacsはプレゼンテーション機能として、明示的なインターバルも提供します。<a href="Overlays.html#Overlays">Overlays</a>を参照してください。
 </p>
-<hr>
-<div class="header">
-<p>
-Previous: <a href="Fields.html#Fields" accesskey="p" rel="prev">Fields</a>, Up: <a href="Text-Properties.html#Text-Properties" accesskey="u" rel="up">Text Properties</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

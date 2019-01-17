@@ -73,80 +73,42 @@ Next: <a href="Low_002dLevel-Kill-Ring.html#Low_002dLevel-Kill-Ring" accesskey="
 <a name="Functions-for-Yanking"></a>
 <h4 class="subsection">31.8.4 Functions for Yanking</h4>
 
-<p>This section describes higher-level commands for yanking, which are
-intended primarily for the user but useful also in Lisp programs.
-Both <code>yank</code> and <code>yank-pop</code> honor the
-<code>yank-excluded-properties</code> variable and <code>yank-handler</code> text
-property (see <a href="Yanking.html#Yanking">Yanking</a>).
+<p>このセクションでは、yank用の高レベルなコマンドを説明します。これらのコマンドは主にユーザー用に意図されたものですが、Lispプログラム内での使用にたいしても有用です。<code>yank</code>および<code>yank-pop</code>はどちらも、変数<code>yank-excluded-properties</code>およびテキストプロパティ<code>yank-handler</code>にしたがいます(<a href="Yanking.html#Yanking">Yanking</a>を参照)。
 </p>
 <dl>
 <dt><a name="index-yank"></a>Command: <strong>yank</strong> <em>&amp;optional arg</em></dt>
 <dd><a name="index-inserting-killed-text"></a>
-<p>This command inserts before point the text at the front of the kill
-ring.  It sets the mark at the beginning of that text, using
-<code>push-mark</code> (see <a href="The-Mark.html#The-Mark">The Mark</a>), and puts point at the end.
+<p>このコマンドは、killリングの先頭にあるテキストを、ポイントの前に挿入する。これは<code>push-mark</code>(<a href="The-Mark.html#The-Mark">The Mark</a>を参照)を使用して、そのテキストの先頭にマークをセットする。
 </p>
-<p>If <var>arg</var> is a non-<code>nil</code> list (which occurs interactively when
-the user types <kbd>C-u</kbd> with no digits), then <code>yank</code> inserts the
-text as described above, but puts point before the yanked text and
-sets the mark after it.
+<p><var>arg</var>が非<code>nil</code>のリスト(これはユーザーがインタラクティブに数字を指定せずに<kbd>C-u</kbd>をタイプ時に発生する)なら、<code>yank</code>は上述のようにテキストを挿入するが、ポイントはyankされたテキストの前、マークはyankされたテキストの後に置かれる。
 </p>
-<p>If <var>arg</var> is a number, then <code>yank</code> inserts the <var>arg</var>th
-most recently killed text&mdash;the <var>arg</var>th element of the kill ring
-list, counted cyclically from the front, which is considered the
-first element for this purpose.
+<p><var>arg</var>が数字なら、<code>yank</code>は<var>arg</var>番目に最近killされたテキスト、すなわちkillリングリストの<var>arg</var>番目の要素を挿入する。この順番は、コマンドの目的にたいして1番目の要素としてみなされる、リスト先頭の要素から巡回的に数えられる。
 </p>
-<p><code>yank</code> does not alter the contents of the kill ring, unless it
-used text provided by another program, in which case it pushes that text
-onto the kill ring.  However if <var>arg</var> is an integer different from
-one, it rotates the kill ring to place the yanked string at the front.
+<p><code>yank</code>は、それが他のプログラムから提供されるテキストを使用しないかぎり(使用する場合はそのテキストをkillリングにpushする)、killリングのコンテンツを変更しない。しかし、<var>arg</var>が非1の整数の場合は、killリングを転回(rotate)してyankされるテキストをリング先頭に置く。
 </p>
-<p><code>yank</code> returns <code>nil</code>.
+<p><code>yank</code>は<code>nil</code>をリターンする。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-yank_002dpop"></a>Command: <strong>yank-pop</strong> <em>&amp;optional arg</em></dt>
-<dd><p>This command replaces the just-yanked entry from the kill ring with a
-different entry from the kill ring.
+<dd><p>このコマンドは、killリング上の正にyankされたばかりのエントリーを、killリングの別エントリーで置き換える。
 </p>
-<p>This is allowed only immediately after a <code>yank</code> or another
-<code>yank-pop</code>.  At such a time, the region contains text that was just
-inserted by yanking.  <code>yank-pop</code> deletes that text and inserts in
-its place a different piece of killed text.  It does not add the deleted
-text to the kill ring, since it is already in the kill ring somewhere.
-It does however rotate the kill ring to place the newly yanked string at
-the front.
+<p>このコマンドは、<code>yank</code>または別の<code>yank-pop</code>の直後のみ許される。そのような際、そのリージョンにはyankにより正に挿入されたテキストが含まれる。<code>yank-pop</code>はそのテキストを削除して、killされた別のテキスト片をその位置に挿入する。そのテキスト片はすでにkillリング内のどこか別の箇所にあるので、これは削除されたテキストをkillリングに追加しない。しかし、新たにyankされたテキストが先頭になるよう、killリングの転回は行う。
 </p>
-<p>If <var>arg</var> is <code>nil</code>, then the replacement text is the previous
-element of the kill ring.  If <var>arg</var> is numeric, the replacement is
-the <var>arg</var>th previous kill.  If <var>arg</var> is negative, a more recent
-kill is the replacement.
+<p><var>arg</var>が<code>nil</code>なら、置換テキストはkillリングの1つ前の要素である。<var>arg</var>が数字なら、置換テキストはkillリングの<var>arg</var>個前の要素である。<var>arg</var>が負の場合は、より最近のkillが置換される。
 </p>
-<p>The sequence of kills in the kill ring wraps around, so that after the
-oldest one comes the newest one, and before the newest one goes the
-oldest.
+<p>killリング内のkillされたエントリーの順序はラップする。すなわちもっとも古いkillの次にもっとも新しいkill、もっとも新しいkillの前はもっとも古いkillとなる。
 </p>
-<p>The return value is always <code>nil</code>.
+<p>リターン値は常に<code>nil</code>である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-yank_002dundo_002dfunction"></a>Variable: <strong>yank-undo-function</strong></dt>
-<dd><p>If this variable is non-<code>nil</code>, the function <code>yank-pop</code> uses
-its value instead of <code>delete-region</code> to delete the text
-inserted by the previous <code>yank</code> or
-<code>yank-pop</code> command.  The value must be a function of two
-arguments, the start and end of the current region.
+<dd><p>この変数が非<code>nil</code>の場合、関数<code>yank-pop</code>は前の<code>yank</code>または<code>yank-pop</code>により挿入されたテキストを削除するために、<code>delete-region</code>のかわりにこの変数の値を使用する。値は、カレントリージョンの開始と終了という、2つの引数をとる関数でなければならない。
 </p>
-<p>The function <code>insert-for-yank</code> automatically sets this variable
-according to the <var>undo</var> element of the <code>yank-handler</code>
-text property, if there is one.
+<p>関数<code>insert-for-yank</code>は、テキストプロパティ<code>yank-handler</code>の要素<var>undo</var>に対応して、この変数を自動的にセットする。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Low_002dLevel-Kill-Ring.html#Low_002dLevel-Kill-Ring" accesskey="n" rel="next">Low-Level Kill Ring</a>, Previous: <a href="Yanking.html#Yanking" accesskey="p" rel="prev">Yanking</a>, Up: <a href="The-Kill-Ring.html#The-Kill-Ring" accesskey="u" rel="up">The Kill Ring</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

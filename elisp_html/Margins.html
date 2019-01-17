@@ -76,113 +76,70 @@ Next: <a href="Adaptive-Fill.html#Adaptive-Fill" accesskey="n" rel="next">Adapti
 
 <dl>
 <dt><a name="index-fill_002dprefix"></a>User Option: <strong>fill-prefix</strong></dt>
-<dd><p>This buffer-local variable, if non-<code>nil</code>, specifies a string of
-text that appears at the beginning of normal text lines and should be
-disregarded when filling them.  Any line that fails to start with the
-fill prefix is considered the start of a paragraph; so is any line
-that starts with the fill prefix followed by additional whitespace.
-Lines that start with the fill prefix but no additional whitespace are
-ordinary text lines that can be filled together.  The resulting filled
-lines also start with the fill prefix.
+<dd><p>このバッファーローカル変数が非<code>nil</code>なら、それは通常のテキスト行の先頭に出現そ、それらのテキスト行をフィルする際には無視されるべきテキスト文字列を指定する。そのフィルプレフィクスで始まらない行はパラグラフの開始とみなされ、フィルプレフィクスで始まる行は、その後にスペースが追加される。フィルプレフィクスで始まりその後に追加のスペースがない行は、フィル可能な通常のテキスト行である。結果となるフィル済みの行も、フィルプレフィクスで開始される。
 </p>
-<p>The fill prefix follows the left margin whitespace, if any.
+<p>もしあれば、フィルプレフィクスは左マージンのスペースの後になる。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dcolumn"></a>User Option: <strong>fill-column</strong></dt>
-<dd><p>This buffer-local variable specifies the maximum width of filled lines.
-Its value should be an integer, which is a number of columns.  All the
-filling, justification, and centering commands are affected by this
-variable, including Auto Fill mode (see <a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>).
+<dd><p>このバッファーローカル変数は、フィルされる行の最大幅を指定する。値は列数を表す整数であること。Auto Fillモード(<a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>を参照)を含む、フィル、位置揃え、センタリングを行うすべてのコマンドが、この変数の影響を受ける。
 </p>
-<p>As a practical matter, if you are writing text for other people to
-read, you should set <code>fill-column</code> to no more than 70.  Otherwise
-the line will be too long for people to read comfortably, and this can
-make the text seem clumsy.
+<p>実際の問題として、他の人が読むためのテキストを記述する場合は、<code>fill-column</code>を70より大きくするべきではない。これにしたがわない場合、人が快適に読むには行が長くなり過ぎ、それは下手に記述されたテキストに見えてしまうだろう。
 </p>
-<p>The default value for <code>fill-column</code> is 70.
+<p><code>fill-column</code>のデフォルト値は70である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-set_002dleft_002dmargin"></a>Command: <strong>set-left-margin</strong> <em>from to margin</em></dt>
-<dd><p>This sets the <code>left-margin</code> property on the text from <var>from</var> to
-<var>to</var> to the value <var>margin</var>.  If Auto Fill mode is enabled, this
-command also refills the region to fit the new margin.
+<dd><p>これは、<var>from</var>から<var>to</var>のテキストの<code>left-margin</code>プロパティに、値<var>margin</var>をセットする。Auto
+Fillモードが有効なら、このコマンドは新たなマージンにフィットするよう、リージョンの再フィルも行う。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-set_002dright_002dmargin"></a>Command: <strong>set-right-margin</strong> <em>from to margin</em></dt>
-<dd><p>This sets the <code>right-margin</code> property on the text from <var>from</var>
-to <var>to</var> to the value <var>margin</var>.  If Auto Fill mode is enabled,
-this command also refills the region to fit the new margin.
+<dd><p>これは、<var>from</var>から<var>to</var>のテキストの<code>right-margin</code>プロパティに、値<var>margin</var>をセットする。Auto
+Fillモードが有効なら、このコマンドは新たなマージンにフィットするよう、リージョンの再フィルも行う。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-current_002dleft_002dmargin"></a>Function: <strong>current-left-margin</strong></dt>
-<dd><p>This function returns the proper left margin value to use for filling
-the text around point.  The value is the sum of the <code>left-margin</code>
-property of the character at the start of the current line (or zero if
-none), and the value of the variable <code>left-margin</code>.
+<dd><p>この関数は、ポイント周辺をフィルするために使用する、適切な左マージン値をリターンする。値はカレント行開始文字の<code>left-margin</code>プロパティの値(なければ0)と、変数<code>left-margin</code>の値の合計。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-current_002dfill_002dcolumn"></a>Function: <strong>current-fill-column</strong></dt>
-<dd><p>This function returns the proper fill column value to use for filling
-the text around point.  The value is the value of the <code>fill-column</code>
-variable, minus the value of the <code>right-margin</code> property of the
-character after point.
+<dd><p>この関数は、ポイント周辺のテキストをフィルするために使用する、適切なフィル列値をリターンする。値は、変数<code>fill-column</code>からポイント後の文字の<code>right-margin</code>プロパティの値を減じた値。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-move_002dto_002dleft_002dmargin"></a>Command: <strong>move-to-left-margin</strong> <em>&amp;optional n force</em></dt>
-<dd><p>This function moves point to the left margin of the current line.  The
-column moved to is determined by calling the function
-<code>current-left-margin</code>.  If the argument <var>n</var> is non-<code>nil</code>,
-<code>move-to-left-margin</code> moves forward <var>n</var>-1 lines first.
+<dd><p>この関数は、カレント行の左マージンにポイントを移動する。移動先の列は、関数<code>current-left-margin</code>により決定される。引数<var>n</var>が非<code>nil</code>なら、<code>move-to-left-margin</code>はまず<var>n</var>行前方に移動する。
 </p>
-<p>If <var>force</var> is non-<code>nil</code>, that says to fix the line&rsquo;s
-indentation if that doesn&rsquo;t match the left margin value.
+<p><var>force</var>が非<code>nil</code>の場合、それは行のインデントが左マージン値とマッチしなければ、インデントを修正するよう指定する。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-delete_002dto_002dleft_002dmargin"></a>Function: <strong>delete-to-left-margin</strong> <em>&amp;optional from to</em></dt>
-<dd><p>This function removes left margin indentation from the text between
-<var>from</var> and <var>to</var>.  The amount of indentation to delete is
-determined by calling <code>current-left-margin</code>.  In no case does this
-function delete non-whitespace.  If <var>from</var> and <var>to</var> are omitted,
-they default to the whole buffer.
+<dd><p>この関数は、<var>from</var>から<var>to</var>の間のテキストから、左マージンのインデントを取り除く。削除するインデントの量は、<code>current-left-margin</code>を呼び出すことにより決定される。この関数が、非空白文字を削除することはない。<var>from</var>と<var>to</var>が省略された場合のデフォルトは、そのバッファー全体である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-indent_002dto_002dleft_002dmargin"></a>Function: <strong>indent-to-left-margin</strong></dt>
-<dd><p>This function adjusts the indentation at the beginning of the current
-line to the value specified by the variable <code>left-margin</code>.  (That
-may involve either inserting or deleting whitespace.)  This function
-is value of <code>indent-line-function</code> in Paragraph-Indent Text mode.
+<dd><p>この関数は、カレント行の先頭のインデントを、変数<code>left-margin</code>に指定された値に調整する(これにより空白文字の挿入や削除が起こるかもしれない)。Paragraph-Indent
+Textモード内の変数<code>indent-line-function</code>の値は、この関数である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-left_002dmargin"></a>User Option: <strong>left-margin</strong></dt>
-<dd><p>This variable specifies the base left margin column.  In Fundamental
-mode, <kbd>RET</kbd> indents to this column.  This variable automatically
-becomes buffer-local when set in any fashion.
+<dd><p>この変数は左マージンの基本列を指定する。Fundamentalモードでは、<kbd>RET</kbd>はこの列にインデントする。手段の如何を問わず、この変数がセットされると自動的にバッファーローカルになる。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dnobreak_002dpredicate"></a>User Option: <strong>fill-nobreak-predicate</strong></dt>
-<dd><p>This variable gives major modes a way to specify not to break a line
-at certain places.  Its value should be a list of functions.  Whenever
-filling considers breaking the line at a certain place in the buffer,
-it calls each of these functions with no arguments and with point
-located at that place.  If any of the functions returns
-non-<code>nil</code>, then the line won&rsquo;t be broken there.
+<dd><p>この変数はメジャーモードにたいして、特定の箇所で行ブレークしないよう指定する手段を提供する。値は関数のリストであること。フィルがバッファー内の特定箇所で行ブレークすると判断されるときは常に、その箇所にポイントを置いた状態で、これらの関数を引数なしで呼び出す。これらの関数のいずれ可が非<code>nil</code>をリターンした場合は、その行のその箇所では行ブレークしない。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Adaptive-Fill.html#Adaptive-Fill" accesskey="n" rel="next">Adaptive Fill</a>, Previous: <a href="Filling.html#Filling" accesskey="p" rel="prev">Filling</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

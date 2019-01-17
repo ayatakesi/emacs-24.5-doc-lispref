@@ -75,43 +75,24 @@ Next: <a href="Property-Search.html#Property-Search" accesskey="n" rel="next">Pr
 <a name="index-changing-text-properties"></a>
 <a name="index-text-properties_002c-changing"></a>
 
-<p>The primitives for changing properties apply to a specified range of
-text in a buffer or string.  The function <code>set-text-properties</code>
-(see end of section) sets the entire property list of the text in that
-range; more often, it is useful to add, change, or delete just certain
-properties specified by name.
+<p>プロパティを変更するプリミティブは、バッファーまたは文字列内の指定されたテキスト範囲に適用されます。関数<code>set-text-properties</code>(セクションの最後を参照)は、その範囲内のテキストのプロパティリスト全体をセットします。名前を指定することにより特定のプロパティだけを追加、変更、削除するのにも、より有用です。
 </p>
-<p>Since text properties are considered part of the contents of the
-buffer (or string), and can affect how a buffer looks on the screen,
-any change in buffer text properties marks the buffer as modified.
-Buffer text property changes are undoable also (see <a href="Undo.html#Undo">Undo</a>).
-Positions in a string start from 0, whereas positions in a buffer
-start from 1.
+<p>テキストプロパティはバッファー(または文字列)のコンテンツの一部とみなされ、かつスクリーン上でのバッファーの見栄えに影響を与えることができるので、バッファー内のテキストプロパティの変更はすべて、バッファーを変更済みとマークします。バッファーテキストプロパティの変更も、アンドゥできます(<a href="Undo.html#Undo">Undo</a>を参照)。バッファー内の位置は1から始まりますが、文字列内の位置は0から始まります。
 </p>
 <dl>
 <dt><a name="index-put_002dtext_002dproperty"></a>Function: <strong>put-text-property</strong> <em>start end prop value &amp;optional object</em></dt>
-<dd><p>This function sets the <var>prop</var> property to <var>value</var> for the text
-between <var>start</var> and <var>end</var> in the string or buffer <var>object</var>.
-If <var>object</var> is <code>nil</code>, it defaults to the current buffer.
+<dd><p>この関数は、文字列またはバッファー<var>object</var>内の<var>start</var>と<var>end</var>の間のテキストにたいして、プロパティ<var>prop</var>に<var>value</var>をセットする。<var>object</var>が<code>nil</code>なら、デフォルトはカレントバッファーである。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-add_002dtext_002dproperties"></a>Function: <strong>add-text-properties</strong> <em>start end props &amp;optional object</em></dt>
-<dd><p>This function adds or overrides text properties for the text between
-<var>start</var> and <var>end</var> in the string or buffer <var>object</var>.  If
-<var>object</var> is <code>nil</code>, it defaults to the current buffer.
+<dd><p>この関数は、文字列またはバッファー<var>object</var>内の<var>start</var>と<var>end</var>の間のテキストにたいして、テキストプロパティを追加またはオーバーライドする。<var>object</var>が<code>nil</code>なら、デフォルトはカレントバッファーである。
 </p>
-<p>The argument <var>props</var> specifies which properties to add.  It should
-have the form of a property list (see <a href="Property-Lists.html#Property-Lists">Property Lists</a>): a list whose
-elements include the property names followed alternately by the
-corresponding values.
+<p>引数<var>props</var>は、追加するプロパティを指定する。これはプロパティリストの形式(<a href="Property-Lists.html#Property-Lists">Property Lists</a>を参照)、つまりプロパティ名と対応する値が交互に出現するような要素を含むリストであること。
 </p>
-<p>The return value is <code>t</code> if the function actually changed some
-property&rsquo;s value; <code>nil</code> otherwise (if <var>props</var> is <code>nil</code> or
-its values agree with those in the text).
+<p>関数が実際に何らかのプロパティの値を変更したら<code>t</code>、それ以外(<var>props</var>が<code>nil</code>、またはプロパティの値がテキスト内のプロパティの値と一致している場合)は<code>nil</code>がリターン値となる。
 </p>
-<p>For example, here is how to set the <code>comment</code> and <code>face</code>
-properties of a range of text:
+<p>たとえば、以下はテキストの範囲に<code>comment</code>と<code>face</code>のプロパティをセットする例である:
 </p>
 <div class="example">
 <pre class="example">(add-text-properties <var>start</var> <var>end</var>
@@ -121,76 +102,52 @@ properties of a range of text:
 
 <dl>
 <dt><a name="index-remove_002dtext_002dproperties"></a>Function: <strong>remove-text-properties</strong> <em>start end props &amp;optional object</em></dt>
-<dd><p>This function deletes specified text properties from the text between
-<var>start</var> and <var>end</var> in the string or buffer <var>object</var>.  If
-<var>object</var> is <code>nil</code>, it defaults to the current buffer.
+<dd><p>この関数は、文字列またはバッファー<var>object</var>内の<var>start</var>と<var>end</var>の間のテキストから、指定されたテキストプロパティを削除する。<var>object</var>が<code>nil</code>なら、デフォルトはカレントバッファーとなる。
 </p>
-<p>The argument <var>props</var> specifies which properties to delete.  It
-should have the form of a property list (see <a href="Property-Lists.html#Property-Lists">Property Lists</a>): a list
-whose elements are property names alternating with corresponding values.
-But only the names matter&mdash;the values that accompany them are ignored.
-For example, here&rsquo;s how to remove the <code>face</code> property.
+<p>引数<var>props</var>は、削除するプロパティを指定する。これはプロパティリストの形式(<a href="Property-Lists.html#Property-Lists">Property Lists</a>を参照)、つまりプロパティ名と対応する値が交互に出現するような要素を含むリストであること。しかし問題となるのは名前であり、付随する値は無視される。たとえば<code>face</code>プロパティを削除するには、以下のようにすればよい。
 </p>
 <div class="example">
 <pre class="example">(remove-text-properties <var>start</var> <var>end</var> '(face nil))
 </pre></div>
 
-<p>The return value is <code>t</code> if the function actually changed some
-property&rsquo;s value; <code>nil</code> otherwise (if <var>props</var> is <code>nil</code> or
-if no character in the specified text had any of those properties).
+<p>関数が実際に何らかのプロパティの値を変更したら<code>t</code>、それ以外(<var>props</var>が<code>nil</code>、または指定されたテキスト内にそれらのプロパティをもつ文字がない場合)は<code>nil</code>がリターン値となる。
 </p>
-<p>To remove all text properties from certain text, use
-<code>set-text-properties</code> and specify <code>nil</code> for the new property
-list.
+<p>特定のテキストからすべてのテキストプロパティを削除するには、新たなプロパティリストに<code>nil</code>を指定して、<code>set-text-properties</code>を使用すればよい。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-remove_002dlist_002dof_002dtext_002dproperties"></a>Function: <strong>remove-list-of-text-properties</strong> <em>start end list-of-properties &amp;optional object</em></dt>
-<dd><p>Like <code>remove-text-properties</code> except that
-<var>list-of-properties</var> is a list of property names only, not an
-alternating list of property names and values.
+<dd><p><code>remove-text-properties</code>と同様だが、<var>list-of-properties</var>がプロパティ名と値が交互になったリストではなく、プロパティ名だけのリストである点が異なる。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-set_002dtext_002dproperties"></a>Function: <strong>set-text-properties</strong> <em>start end props &amp;optional object</em></dt>
-<dd><p>This function completely replaces the text property list for the text
-between <var>start</var> and <var>end</var> in the string or buffer <var>object</var>.
-If <var>object</var> is <code>nil</code>, it defaults to the current buffer.
+<dd><p>この関数は、文字列またはバッファー<var>object</var>内の<var>start</var>から<var>end</var>の間のテキストにたいするテキストプロパティリストを、完全に置き換える。<var>object</var>が<code>nil</code>なら、デフォルトはカレントバッファーとなる。
 </p>
-<p>The argument <var>props</var> is the new property list.  It should be a list
-whose elements are property names alternating with corresponding values.
+<p>引数<var>props</var>は新たなプロパティリスト。これはプロパティメジャーと対応する値が交互となるような要素のリストであること。
 </p>
-<p>After <code>set-text-properties</code> returns, all the characters in the
-specified range have identical properties.
+<p><code>set-text-properties</code>のリターン後は、指定された範囲内のすべての文字は、等しいプロパティをもつ。
 </p>
-<p>If <var>props</var> is <code>nil</code>, the effect is to get rid of all properties
-from the specified range of text.  Here&rsquo;s an example:
+<p><var>props</var>が<code>nil</code>なら、指定されたテキスト範囲からすべてのプロパティを取り除く効果がある。以下は例である:
 </p>
 <div class="example">
 <pre class="example">(set-text-properties <var>start</var> <var>end</var> nil)
 </pre></div>
 
-<p>Do not rely on the return value of this function.
+<p>この関数のリターン値を信用してはならない。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-add_002dface_002dtext_002dproperty"></a>Function: <strong>add-face-text-property</strong> <em>start end face &amp;optional appendp object</em></dt>
-<dd><p>This function acts on the text between <var>start</var> and <var>end</var>,
-adding the face <var>face</var> to the <code>face</code> text property.
-<var>face</var> should be a valid value for the <code>face</code> property
-(see <a href="Special-Properties.html#Special-Properties">Special Properties</a>), such as a face name or an anonymous face
-(see <a href="Faces.html#Faces">Faces</a>).
+<dd><p>この関数は<var>start</var>と<var>end</var>の間のテキストのテキストプロパティ<code>face</code>にフェイス<var>face</var>を追加するよう動作する。<var>face</var>はフェイス名もしくはanonymousフェイス(anonymous
+face: 無名フェイス)のような、<code>face</code>プロパティ(<a href="Special-Properties.html#Special-Properties">Special Properties</a>を参照)にたいして有効な値であること(<a href="Faces.html#Faces">Faces</a>を参照)。
 </p>
-<p>If any text in the region already has a non-<code>nil</code> <code>face</code> property,
-those face(s) are retained.  This function sets the <code>face</code>
-property to a list of faces, with <var>face</var> as the first element (by
-default) and the pre-existing faces as the remaining elements.  If the
-optional argument <var>append</var> is non-<code>nil</code>, <var>face</var> is
-appended to the end of the list instead.  Note that in a face list,
-the first occurring value for each attribute takes precedence.
+<p>リージョン内の任意のテキストがすでに非<code>nil</code>の<code>face</code>プロパティをもつ場合、それらのフェイスは保たれる。
+If any text in the region already has a non-  property, those face(s) are
+retained.
+この関数は<code>face</code>プロパティに、最初の要素(デフォルト)が<var>face</var>、以前に存在していたフェイスが残りの要素であるような、フェイスのリストをセットする。オプション引数<var>append</var>が非<code>nil</code>なら、<var>face</var>はかわりにリストの最後に追加される。フェイスリスト内では、各属性にたいして最初に出現する値が優先されることに注意。
 </p>
-<p>For example, the following code would assign a italicized green face
-to the text between <var>start</var> and <var>end</var>:
+<p>たとえば以下のコードでは、<var>start</var>と<var>end</var>の間のテキストに、グリーン斜体のフェイスを割り当てるだろう:
 </p>
 <div class="example">
 <pre class="example">(add-face-text-property <var>start</var> <var>end</var> 'italic)
@@ -198,21 +155,14 @@ to the text between <var>start</var> and <var>end</var>:
 (add-face-text-property <var>start</var> <var>end</var> '(:foreground &quot;green&quot;))
 </pre></div>
 
-<p>The optional argument <var>object</var>, if non-<code>nil</code>, specifies a
-buffer or string to act on, rather than the current buffer.  If
-<var>object</var> is a string, then <var>start</var> and <var>end</var> are
-zero-based indices into the string.
+<p>オプション引数<var>object</var>が非<code>nil</code>なら、それはカレントバッファーではなく、動作するバッファーまたは文字列を指定する。<var>object</var>が文字列なら、<var>start</var>と<var>end</var>は0基準で文字列内をインデックス付けする。
 </p></dd></dl>
 
-<p>The easiest way to make a string with text properties is with
-<code>propertize</code>:
+<p>文字列にテキストプロパティを付するもっとも簡単な方法は、<code>propertize</code>です:
 </p>
 <dl>
 <dt><a name="index-propertize"></a>Function: <strong>propertize</strong> <em>string &amp;rest properties</em></dt>
-<dd><p>This function returns a copy of <var>string</var> with the text properties
-<var>properties</var> added.  These properties apply to all the characters
-in the string that is returned.  Here is an example that constructs a
-string with a <code>face</code> property and a <code>mouse-face</code> property:
+<dd><p>この関数は、テキストプロパティ<var>properties</var>を追加した、<var>string</var>のコピーをリターンする。これらのプロパティは、リターンされる文字列内のすべての文字に適用される。以下は、<code>face</code>プロパティと<code>mouse-face</code>プロパティとともに文字列を構築する例である:
 </p>
 <div class="smallexample">
 <pre class="smallexample">(propertize &quot;foo&quot; 'face 'italic
@@ -220,9 +170,7 @@ string with a <code>face</code> property and a <code>mouse-face</code> property:
      &rArr; #(&quot;foo&quot; 0 3 (mouse-face bold-italic face italic))
 </pre></div>
 
-<p>To put different properties on various parts of a string, you can
-construct each part with <code>propertize</code> and then combine them with
-<code>concat</code>:
+<p>文字列のさまざまな部分に異なるプロパティをputするんは、それぞれの部分を<code>propertize</code>で構築して、<code>concat</code>でそれらを結合すればよい:
 </p>
 <div class="smallexample">
 <pre class="smallexample">(concat
@@ -238,15 +186,8 @@ construct each part with <code>propertize</code> and then combine them with
 </pre></div>
 </dd></dl>
 
-<p>See <a href="Buffer-Contents.html#Buffer-Contents">Buffer Contents</a>, for the function
-<code>buffer-substring-no-properties</code>, which copies text from the
-buffer but does not copy its properties.
+<p>プロパティではなくバッファーからテキストをコピーする関数<code>buffer-substring-no-properties</code>については、<a href="Buffer-Contents.html#Buffer-Contents">Buffer Contents</a>を参照してください。
 </p>
-<hr>
-<div class="header">
-<p>
-Next: <a href="Property-Search.html#Property-Search" accesskey="n" rel="next">Property Search</a>, Previous: <a href="Examining-Properties.html#Examining-Properties" accesskey="p" rel="prev">Examining Properties</a>, Up: <a href="Text-Properties.html#Text-Properties" accesskey="u" rel="up">Text Properties</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

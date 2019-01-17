@@ -74,180 +74,104 @@ Next: <a href="Margins.html#Margins" accesskey="n" rel="next">Margins</a>, Previ
 <h3 class="section">31.11 Filling</h3>
 <a name="index-filling-text"></a>
 
-<p><em>Filling</em> means adjusting the lengths of lines (by moving the line
-breaks) so that they are nearly (but no greater than) a specified
-maximum width.  Additionally, lines can be <em>justified</em>, which means
-inserting spaces to make the left and/or right margins line up
-precisely.  The width is controlled by the variable <code>fill-column</code>.
-For ease of reading, lines should be no longer than 70 or so columns.
+<p><em>フィル(fill:
+充填)</em>とは、指定された最大幅付近(ただし超えず)に、(行ブレークを移動することにより)行の長さを調整することを意味します。加えて、複数行を<em>位置揃え(justify)</em>することもできます。位置揃えとは、スペースを挿入して左および/または右マージンを正確に整列させることを意味します。その幅は、変数<code>fill-column</code>により制御されます。読みやすくするために、行の長さは70列程度を超えないようにするべきです。
 </p>
-<p>You can use Auto Fill mode (see <a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>) to fill text
-automatically as you insert it, but changes to existing text may leave
-it improperly filled.  Then you must fill the text explicitly.
+<p>テキストの挿入とともに自動的にテキストをフィルするAuto
+Fillモードを使用できますが、既存テキストの変更では不適切にフィルされたままになるかもしれません。その場合は、テキストを明示的にフィルしなければなりません。
 </p>
-<p>Most of the commands in this section return values that are not
-meaningful.  All the functions that do filling take note of the current
-left margin, current right margin, and current justification style
-(see <a href="Margins.html#Margins">Margins</a>).  If the current justification style is
-<code>none</code>, the filling functions don&rsquo;t actually do anything.
+<p>このセクションのコマンドのほとんどは、有意な値をリターンしません。フィルを行うすべての関数は、カレント左マージン、カレント右マージン、カレント位置揃えスタイルに留意します(<a href="Margins.html#Margins">Margins</a>を参照)。カレント位置揃えスタイルが<code>none</code>の場合、フィル関数は実際には何も行いません。
 </p>
-<p>Several of the filling functions have an argument <var>justify</var>.
-If it is non-<code>nil</code>, that requests some kind of justification.  It
-can be <code>left</code>, <code>right</code>, <code>full</code>, or <code>center</code>, to
-request a specific style of justification.  If it is <code>t</code>, that
-means to use the current justification style for this part of the text
-(see <code>current-justification</code>, below).  Any other value is treated
-as <code>full</code>.
+<p>フィル関数のいくつかは、引数<var>justify</var>をもちます。これが非<code>nil</code>なら、それは何らかの類の位置揃えを要求します。特定の位置揃えスタイルを要求するために<code>left</code>、<code>right</code>、<code>full</code>、<code>center</code>を指定できます。これが<code>t</code>なら、それはそのテキスト部分にたいしてカレント位置揃えスタイルを使用することを意味します(以下の<code>current-justification</code>を参照)。その他すべての値は、<code>full</code>として扱われます。
 </p>
-<p>When you call the filling functions interactively, using a prefix
-argument implies the value <code>full</code> for <var>justify</var>.
+<p>インタラクティブにフィル関数を呼び出す際、プレフィクス引数の使用は<var>justify</var>にたいして暗に値<code>full</code>を指定します。
 </p>
 <dl>
 <dt><a name="index-fill_002dparagraph"></a>Command: <strong>fill-paragraph</strong> <em>&amp;optional justify region</em></dt>
-<dd><p>This command fills the paragraph at or after point.  If
-<var>justify</var> is non-<code>nil</code>, each line is justified as well.
-It uses the ordinary paragraph motion commands to find paragraph
-boundaries.  See <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Paragraphs.html#Paragraphs">Paragraphs</a> in <cite>The GNU Emacs Manual</cite>.
+<dd><p>このコマンドは、ポイント位置、またはその後のパラグラフ(paragraph:
+段落)をフィルする。<var>justify</var>が非<code>nil</code>なら、同様に各行が位置揃えされる。これはパラグラフ境界を探すために、通常のパラグラフ移動コマンドを使用する。<a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Paragraphs.html#Paragraphs">Paragraphs</a> in <cite>The GNU Emacs Manual</cite>を参照のこと。
 </p>
-<p>When <var>region</var> is non-<code>nil</code>, then if Transient Mark mode is
-enabled and the mark is active, this command calls <code>fill-region</code>
-to fill all the paragraphs in the region, instead of filling only the
-current paragraph.  When this command is called interactively,
-<var>region</var> is <code>t</code>.
+<p>もし<var>region</var>が非<code>nil</code>で、Transient
+Markモードが有効かつマークがアクティブなら、このコマンドはカレントパラグラフのみフィルするかわりに、リージョン内すべてのパラグラフをフィルするために、コマンド<code>fill-region</code>を呼び出す。このコマンドがインタラクティブに呼び出されたとき、<var>region</var>は<code>t</code>である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dregion"></a>Command: <strong>fill-region</strong> <em>start end &amp;optional justify nosqueeze to-eop</em></dt>
-<dd><p>This command fills each of the paragraphs in the region from <var>start</var>
-to <var>end</var>.  It justifies as well if <var>justify</var> is
-non-<code>nil</code>.
+<dd><p>このコマンドは、<var>start</var>から<var>end</var>のリージョン内のすべてのパラグラフをフィルする。<var>justify</var>が非<code>nil</code>なら、同様に位置揃えも行う。
 </p>
-<p>If <var>nosqueeze</var> is non-<code>nil</code>, that means to leave whitespace
-other than line breaks untouched.  If <var>to-eop</var> is non-<code>nil</code>,
-that means to keep filling to the end of the paragraph&mdash;or the next hard
-newline, if <code>use-hard-newlines</code> is enabled (see below).
+<p><var>nosqueeze</var>が非<code>nil</code>なら、それは行ブレーク以外の空白文字を残すことを意味する。<var>to-eop</var>が非<code>nil</code>の場合、それはパラグラフ終端(以下の<code>use-hard-newlines</code>が有効なら次のhard改行)までのフィルを維持することを意味する
 </p>
-<p>The variable <code>paragraph-separate</code> controls how to distinguish
-paragraphs.  See <a href="Standard-Regexps.html#Standard-Regexps">Standard Regexps</a>.
+<p>変数<code>paragraph-separate</code>は、パラグラフを分割する方法を制御する。<a href="Standard-Regexps.html#Standard-Regexps">Standard Regexps</a>を参照のこと。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dindividual_002dparagraphs"></a>Command: <strong>fill-individual-paragraphs</strong> <em>start end &amp;optional justify citation-regexp</em></dt>
-<dd><p>This command fills each paragraph in the region according to its
-individual fill prefix.  Thus, if the lines of a paragraph were indented
-with spaces, the filled paragraph will remain indented in the same
-fashion.
+<dd><p>このコマンドは、リージョン内の各パラグラフを、それの固有なフィルプレフィクスに応じてフィルする。したがって、パラグラフの行がスペースでインデントされている場合、フィルされたパラグラフは同じ様式でインデントされた状態に保たれるだろう。
 </p>
-<p>The first two arguments, <var>start</var> and <var>end</var>, are the beginning
-and end of the region to be filled.  The third and fourth arguments,
-<var>justify</var> and <var>citation-regexp</var>, are optional.  If
-<var>justify</var> is non-<code>nil</code>, the paragraphs are justified as
-well as filled.  If <var>citation-regexp</var> is non-<code>nil</code>, it means the
-function is operating on a mail message and therefore should not fill
-the header lines.  If <var>citation-regexp</var> is a string, it is used as
-a regular expression; if it matches the beginning of a line, that line
-is treated as a citation marker.
+<p>最初の2つの引数<var>start</var>と<var>end</var>は、フィルするリージョンの先頭と終端である。3つ目の引数<var>justify</var>、4つ目の引数<var>citation-regexp</var>はオプションである。<var>justify</var>が非<code>nil</code>なら、そのパラグラフはフィルと同様に位置揃えもされる。<var>citation-regexp</var>が非<code>nil</code>なら、それはこの関数がメールメッセージを処理しているので、ヘッダーラインをフィルするべきではないことを意味する。<var>citation-regexp</var>が文字列の場合、それは正規表現として扱われる。それが行の先頭にマッチすれば、その行は引用マーカー(citation
+marker)として扱われる。
 </p>
-<p>Ordinarily, <code>fill-individual-paragraphs</code> regards each change in
-indentation as starting a new paragraph.  If
-<code>fill-individual-varying-indent</code> is non-<code>nil</code>, then only
-separator lines separate paragraphs.  That mode can handle indented
-paragraphs with additional indentation on the first line.
+<p><code>fill-individual-paragraphs</code>は通常、インデントの変更を新たなパラグラフの開始とみなす。<code>fill-individual-varying-indent</code>が非<code>nil</code>の場合は、セパレーターラインだけがパラグラフを分割する。その場合は、最初の行からさらにインデントが追加されたパラグラフを処理することが可能になる。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dindividual_002dvarying_002dindent"></a>User Option: <strong>fill-individual-varying-indent</strong></dt>
-<dd><p>This variable alters the action of <code>fill-individual-paragraphs</code> as
-described above.
+<dd><p>この変数は、上述のように<code>fill-individual-paragraphs</code>の動作を変更する。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dregion_002das_002dparagraph"></a>Command: <strong>fill-region-as-paragraph</strong> <em>start end &amp;optional justify nosqueeze squeeze-after</em></dt>
-<dd><p>This command considers a region of text as a single paragraph and fills
-it.  If the region was made up of many paragraphs, the blank lines
-between paragraphs are removed.  This function justifies as well as
-filling when <var>justify</var> is non-<code>nil</code>.
+<dd><p>このコマンドは、テキストのリージョンを1つのパラグラフとみなして、それをフィルする。そのリージョンが多数のパラグラフから構成されていたら、パラグラフ間の空行は削除される。<var>justify</var>が非<code>nil</code>なら、フィルとともに位置揃えも行う。
 </p>
-<p>If <var>nosqueeze</var> is non-<code>nil</code>, that means to leave whitespace
-other than line breaks untouched.  If <var>squeeze-after</var> is
-non-<code>nil</code>, it specifies a position in the region, and means don&rsquo;t
-canonicalize spaces before that position.
+<p><var>nosqueeze</var>が非<code>nil</code>なら、それは改行以外の空白に手を加えずに残すことを意味する。<var>squeeze-after</var>が非<code>nil</code>の場合、それはリージョン内の位置を指定し、その位置より前にあるスペースについては標準化を行わないことを意味する。
 </p>
-<p>In Adaptive Fill mode, this command calls <code>fill-context-prefix</code> to
-choose a fill prefix by default.  See <a href="Adaptive-Fill.html#Adaptive-Fill">Adaptive Fill</a>.
+<p>Adaptive
+Fillモードでは、このコマンドはフィルプレフィクスを選択するために、デフォルトで<code>fill-context-prefix</code>を呼び出す。<a href="Adaptive-Fill.html#Adaptive-Fill">Adaptive Fill</a>を参照のこと。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-justify_002dcurrent_002dline"></a>Command: <strong>justify-current-line</strong> <em>&amp;optional how eop nosqueeze</em></dt>
-<dd><p>This command inserts spaces between the words of the current line so
-that the line ends exactly at <code>fill-column</code>.  It returns
-<code>nil</code>.
+<dd><p>このコマンドは、その行が正確に<code>fill-column</code>で終わるように、単語間にスペースを挿入する。リターン値は<code>nil</code>。
 </p>
-<p>The argument <var>how</var>, if non-<code>nil</code> specifies explicitly the style
-of justification.  It can be <code>left</code>, <code>right</code>, <code>full</code>,
-<code>center</code>, or <code>none</code>.  If it is <code>t</code>, that means to do
-follow specified justification style (see <code>current-justification</code>,
-below).  <code>nil</code> means to do full justification.
+<p>引数<var>how</var>が非<code>nil</code>なら、それは位置揃えスタイルを明示的に指定する。指定できる値は<code>left</code>、<code>right</code>、<code>full</code>、<code>center</code>、または<code>none</code>。値が<code>t</code>の場合、それは指定済みの位置揃えスタイル(以下の<code>current-justification</code>を参照)にしたがうことを意味する。<code>nil</code>は位置揃え<code>full</code>と同じ。
 </p>
-<p>If <var>eop</var> is non-<code>nil</code>, that means do only left-justification
-if <code>current-justification</code> specifies full justification.  This is
-used for the last line of a paragraph; even if the paragraph as a
-whole is fully justified, the last line should not be.
+<p><var>eop</var>が非<code>nil</code>なら、それは<code>current-justification</code>がfull位置揃えを指定する場合にleft位置揃えだけを行うことを意味する。これは、パラグラフ最終行にたいして使用される。パラグラフ全体がfull位置揃えだったとしても、最終行はfull位置揃えであるべきではない。
 </p>
-<p>If <var>nosqueeze</var> is non-<code>nil</code>, that means do not change interior
-whitespace.
+<p><var>nosqueeze</var>が非<code>nil</code>なら、それは内部のスペースを変更しないことを意味する。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-default_002djustification"></a>User Option: <strong>default-justification</strong></dt>
-<dd><p>This variable&rsquo;s value specifies the style of justification to use for
-text that doesn&rsquo;t specify a style with a text property.  The possible
-values are <code>left</code>, <code>right</code>, <code>full</code>, <code>center</code>, or
-<code>none</code>.  The default value is <code>left</code>.
+<dd><p>この変数の値は、位置揃えに使用するスタイルをテキストプロパティで指定しないテキストにたいするスタイルを指定する。可能な値は<code>left</code>、<code>right</code>、<code>full</code>、<code>center</code>、または<code>none</code>。デフォルト値は<code>left</code>である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-current_002djustification"></a>Function: <strong>current-justification</strong></dt>
-<dd><p>This function returns the proper justification style to use for filling
-the text around point.
+<dd><p>この関数は、ポイント周辺のフィルに使用するための、適正な位置揃えスタイルをリターンする。
 </p>
-<p>This returns the value of the <code>justification</code> text property at
-point, or the variable <var>default-justification</var> if there is no such
-text property.  However, it returns <code>nil</code> rather than <code>none</code>
-to mean &ldquo;don&rsquo;t justify&rdquo;.
+<p>これは、ポイント位置のテキストプロパティ<code>justification</code>の値、そのようなテキストプロパティが存在しなければ変数<var>default-justification</var>の値をリターンする。しかし、&ldquo;位置揃えなし&rdquo;の場合は、<code>none</code>ではなく<code>nil</code>をリターンする。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-sentence_002dend_002ddouble_002dspace"></a>User Option: <strong>sentence-end-double-space</strong></dt>
-<dd><a name="Definition-of-sentence_002dend_002ddouble_002dspace"></a><p>If this variable is non-<code>nil</code>, a period followed by just one space
-does not count as the end of a sentence, and the filling functions
-avoid breaking the line at such a place.
+<dd><a name="Definition-of-sentence_002dend_002ddouble_002dspace"></a><p>この変数が非<code>nil</code>の場合、ピリオドの後の単一のスペースをセンテンスの終わりとみなさず、フィル関数はそのような箇所でのラインブレークを行わない。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-sentence_002dend_002dwithout_002dperiod"></a>User Option: <strong>sentence-end-without-period</strong></dt>
-<dd><p>If this variable is non-<code>nil</code>, a sentence can end without a
-period.  This is used for languages like Thai, where sentences end
-with a double space but without a period.
+<dd><p>この変数が非<code>nil</code>なら、ピリオドなしでセンテンスは終了できる。これはたとえば、ピリオドなしの2連スペースでセンテンスが終わるタイ語な土に使用される。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-sentence_002dend_002dwithout_002dspace"></a>User Option: <strong>sentence-end-without-space</strong></dt>
-<dd><p>If this variable is non-<code>nil</code>, it should be a string of
-characters that can end a sentence without following spaces.
+<dd><p>この変数が非<code>nil</code>なら、それは後にスペースをともなうことなくセンテンスを終了させ得る文字列であること。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-fill_002dparagraph_002dfunction"></a>Variable: <strong>fill-paragraph-function</strong></dt>
-<dd><p>This variable provides a way to override the filling of paragraphs.
-If its value is non-<code>nil</code>, <code>fill-paragraph</code> calls this
-function to do the work.  If the function returns a non-<code>nil</code>
-value, <code>fill-paragraph</code> assumes the job is done, and immediately
-returns that value.
+<dd><p>この変数は、パラグラフのフィルをオーバーライドする手段を提供する。この値が非<code>nil</code>なら、<code>fill-paragraph</code>はその処理を行うためにその関数を呼び出す。その関数が非<code>nil</code>値をリターンした場合、<code>fill-paragraph</code>は処理が終了したとみなして、即座にその値をリターンする。
 </p>
-<p>The usual use of this feature is to fill comments in programming
-language modes.  If the function needs to fill a paragraph in the usual
-way, it can do so as follows:
+<p>この機能の通常の用途は、プログラミング言語のモードにおいてコメントをフィルすることである。通常の方法でその関数がパラグラフをフィルする必要がある場合は、以下のようにそれを行うことができる:
 </p>
 <div class="example">
 <pre class="example">(let ((fill-paragraph-function nil))
@@ -257,28 +181,15 @@ way, it can do so as follows:
 
 <dl>
 <dt><a name="index-fill_002dforward_002dparagraph_002dfunction"></a>Variable: <strong>fill-forward-paragraph-function</strong></dt>
-<dd><p>This variable provides a way to override how the filling functions,
-such as <code>fill-region</code> and <code>fill-paragraph</code>, move forward to
-the next paragraph.  Its value should be a function, which is called
-with a single argument <var>n</var>, the number of paragraphs to move, and
-should return the difference between <var>n</var> and the number of
-paragraphs actually moved.  The default value of this variable is
-<code>forward-paragraph</code>.  See <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Paragraphs.html#Paragraphs">Paragraphs</a> in <cite>The GNU Emacs
-Manual</cite>.
+<dd><p>この変数は、<code>fill-region</code>や<code>fill-paragraph</code>のようなフィル関数が、次のパラグラフへ前方に移動する方法を、オーバーライドするための手段を提供する。値は、移動するパラグラフの数<var>n</var>を唯一の引数として呼び出される関数で、<var>n</var>と実際に移動したパラグラフ数の差をリターンするべきである。この変数のデフォルト値は<code>forward-paragraph</code>。<a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Paragraphs.html#Paragraphs">Paragraphs</a> in <cite>The GNU Emacs Manual</cite>を参照のこと。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-use_002dhard_002dnewlines"></a>Variable: <strong>use-hard-newlines</strong></dt>
-<dd><p>If this variable is non-<code>nil</code>, the filling functions do not delete
-newlines that have the <code>hard</code> text property.  These &ldquo;hard
-newlines&rdquo; act as paragraph separators.  See <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Hard-and-Soft-Newlines.html#Hard-and-Soft-Newlines">Hard and Soft Newlines</a> in <cite>The GNU Emacs Manual</cite>.
+<dd><p>この変数が非<code>nil</code>なら、フィル関数はテキストプロパティ<code>hard</code>をもつ改行を削除しない。これらの&ldquo;hard改行&rsquo;は、パラグラフのセパレーターとして機能する。<a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Hard-and-Soft-Newlines.html#Hard-and-Soft-Newlines">Hard and Soft Newlines</a> in <cite>The GNU Emacs
+Manual</cite>を参照のこと。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Margins.html#Margins" accesskey="n" rel="next">Margins</a>, Previous: <a href="Maintaining-Undo.html#Maintaining-Undo" accesskey="p" rel="prev">Maintaining Undo</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

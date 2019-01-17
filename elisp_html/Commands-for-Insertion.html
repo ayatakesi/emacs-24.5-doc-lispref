@@ -73,90 +73,51 @@ Next: <a href="Deletion.html#Deletion" accesskey="n" rel="next">Deletion</a>, Pr
 <a name="User_002dLevel-Insertion-Commands"></a>
 <h3 class="section">31.5 User-Level Insertion Commands</h3>
 
-<p>This section describes higher-level commands for inserting text,
-commands intended primarily for the user but useful also in Lisp
-programs.
+<p>このセクションでは、テキスト挿入のための高レベルコマンド、ユーザーによる使用を意図しているがLispプログラムでも有用なコマンドについて説明します。
 </p>
 <dl>
 <dt><a name="index-insert_002dbuffer"></a>Command: <strong>insert-buffer</strong> <em>from-buffer-or-name</em></dt>
-<dd><p>This command inserts the entire accessible contents of
-<var>from-buffer-or-name</var> (which must exist) into the current buffer
-after point.  It leaves the mark after the inserted text.  The value
-is <code>nil</code>.
+<dd><p>このコマンドは、<var>from-buffer-or-name</var>(存在しなければならない)のアクセス可能範囲全体を、カレントバッファーのポイントの後に挿入する。マークは挿入されたテキストの後に残される。値は<code>nil</code>。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-self_002dinsert_002dcommand"></a>Command: <strong>self-insert-command</strong> <em>count</em></dt>
 <dd><a name="index-character-insertion"></a>
 <a name="index-self_002dinsertion"></a>
-<p>This command inserts the last character typed; it does so <var>count</var>
-times, before point, and returns <code>nil</code>.  Most printing characters
-are bound to this command.  In routine use, <code>self-insert-command</code>
-is the most frequently called function in Emacs, but programs rarely use
-it except to install it on a keymap.
+<p>このコマンドは、タイプされた最後の文字を挿入する。これをポイント前で<var>count</var>回繰り返して、<code>nil</code>をリターンする。ほとんどのプリント文字が、このコマンドにバインドされる。通常の使用では、<code>self-insert-command</code>はEmacsでもっとも頻繁に呼び出される関数だが、Lispプログラムではそれをキーマップにインストールする場合を除き、使用されるのは稀である。
 </p>
-<p>In an interactive call, <var>count</var> is the numeric prefix argument.
+<p>インタラクティブな呼び出しでは、<var>count</var>は数プレフィクス引数である。
 </p>
-<p>Self-insertion translates the input character through
-<code>translation-table-for-input</code>.  See <a href="Translation-of-Characters.html#Translation-of-Characters">Translation of Characters</a>.
+<p>自己挿入では、入力文字は<code>translation-table-for-input</code>を通じて変換される。<a href="Translation-of-Characters.html#Translation-of-Characters">Translation of Characters</a>を参照のこと。
 </p>
-<p>This command calls <code>auto-fill-function</code> whenever that is
-non-<code>nil</code> and the character inserted is in the table
-<code>auto-fill-chars</code> (see <a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>).
+<p>これは、入力文字がテーブル<code>auto-fill-chars</code>内にあり、<code>auto-fill-function</code>が非<code>nil</code>なら、常にそれを呼び出す(<a href="Auto-Filling.html#Auto-Filling">Auto Filling</a>を参照)。
 </p>
-<p>This command performs abbrev expansion if Abbrev mode is enabled and
-the inserted character does not have word-constituent
-syntax. (See <a href="Abbrevs.html#Abbrevs">Abbrevs</a>, and <a href="Syntax-Class-Table.html#Syntax-Class-Table">Syntax Class Table</a>.)  It is also
-responsible for calling <code>blink-paren-function</code> when the inserted
-character has close parenthesis syntax (see <a href="Blinking.html#Blinking">Blinking</a>).
+<p>このコマンドは、Abbrevモードが有効で、入力文字が単語コウセ構文をもたなければ、abbrev展開を行う(<a href="Abbrevs.html#Abbrevs">Abbrevs</a>および<a href="Syntax-Class-Table.html#Syntax-Class-Table">Syntax Class Table</a>を参照されたい)。さらに、入力文字が閉じカッコ構文(close parenthesis
+syntax)をもつ場合は、<code>blink-paren-function</code>を呼び出す責任もある(<a href="Blinking.html#Blinking">Blinking</a>を参照)。
 </p>
 <a name="index-post_002dself_002dinsert_002dhook"></a>
-<p>The final thing this command does is to run the hook
-<code>post-self-insert-hook</code>.  You could use this to automatically
-reindent text as it is typed, for example.
+<p>このコマンドは最後に、フック<code>post-self-insert-hook</code>を実行する。たとえば、タイプされたテキストにしたがい自動インデントするために、これを使用できる。
 </p>
-<p>Do not try substituting your own definition of
-<code>self-insert-command</code> for the standard one.  The editor command
-loop handles this function specially.
+<p><code>self-insert-command</code>の標準的な定義にたいして、独自の定義による置き換えを試みてはならない。エディターコマンドループは、このコマンドを特別に扱うからだ。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-newline-1"></a>Command: <strong>newline</strong> <em>&amp;optional number-of-newlines</em></dt>
-<dd><p>This command inserts newlines into the current buffer before point.
-If <var>number-of-newlines</var> is supplied, that many newline characters
-are inserted.
+<dd><p>このコマンドは、カレントバッファーのポイントの前に、改行を挿入する。<var>number-of-newlines</var>が与えられた場合は、その個数の改行文字が挿入される。
 </p>
 <a name="index-newline-and-Auto-Fill-mode"></a>
-<p>This function calls <code>auto-fill-function</code> if the current column
-number is greater than the value of <code>fill-column</code> and
-<var>number-of-newlines</var> is <code>nil</code>.  Typically what
-<code>auto-fill-function</code> does is insert a newline; thus, the overall
-result in this case is to insert two newlines at different places: one
-at point, and another earlier in the line.  <code>newline</code> does not
-auto-fill if <var>number-of-newlines</var> is non-<code>nil</code>.
+<p>この関数は、カレント列数が<code>fill-column</code>より大、かつ<var>number-of-newlines</var>が<code>nil</code>なら、<code>auto-fill-function</code>を呼び出す。<code>auto-fill-function</code>が通常行うのは改行の挿入ではり、最終的な結果としては、ポイント位置と、その行のより前方の位置という、2つの異なる箇所に改行を挿入する。<var>number-of-newlines</var>が非<code>nil</code>なら、<code>newline</code>はauto-fillを行わない。
 </p>
-<p>This command indents to the left margin if that is not zero.
-See <a href="Margins.html#Margins">Margins</a>.
+<p>このコマンドは、左マージンが0でなければ、左マージンにインデントする。<a href="Margins.html#Margins">Margins</a>を参照のこと。
 </p>
-<p>The value returned is <code>nil</code>.  In an interactive call, <var>count</var>
-is the numeric prefix argument.
+<p>リターン値は<code>nil</code>。インタラクティブな呼び出しでは、<var>count</var>は数プレフィクス引数である。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-overwrite_002dmode"></a>Variable: <strong>overwrite-mode</strong></dt>
-<dd><p>This variable controls whether overwrite mode is in effect.  The value
-should be <code>overwrite-mode-textual</code>, <code>overwrite-mode-binary</code>,
-or <code>nil</code>.  <code>overwrite-mode-textual</code> specifies textual
-overwrite mode (treats newlines and tabs specially), and
-<code>overwrite-mode-binary</code> specifies binary overwrite mode (treats
-newlines and tabs like any other characters).
+<dd><p>この変数は、overwriteモードに効力をもつかどうかを制御する。値は<code>overwrite-mode-textual</code>、<code>overwrite-mode-binary</code>、または<code>nil</code>であること。<code>overwrite-mode-textual</code>はテキスト的なoverwriteモード(改行とタブを特別に扱う)、<code>overwrite-mode-binary</code>はバイナリーoverwriteモード(改行とタブを普通の文字と同様に扱う)を指定する。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Deletion.html#Deletion" accesskey="n" rel="next">Deletion</a>, Previous: <a href="Insertion.html#Insertion" accesskey="p" rel="prev">Insertion</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

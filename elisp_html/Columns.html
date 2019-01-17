@@ -76,64 +76,33 @@ Next: <a href="Indentation.html#Indentation" accesskey="n" rel="next">Indentatio
 <a name="index-counting-columns"></a>
 <a name="index-horizontal-position"></a>
 
-<p>The column functions convert between a character position (counting
-characters from the beginning of the buffer) and a column position
-(counting screen characters from the beginning of a line).
+<p>列関数は、文字位置(バッファー先頭から数えた文字数)と、列位置(行先頭から数えたスクリーン文字数)を変換する関数です。
 </p>
-<p>These functions count each character according to the number of
-columns it occupies on the screen.  This means control characters count
-as occupying 2 or 4 columns, depending upon the value of
-<code>ctl-arrow</code>, and tabs count as occupying a number of columns that
-depends on the value of <code>tab-width</code> and on the column where the tab
-begins.  See <a href="Usual-Display.html#Usual-Display">Usual Display</a>.
+<p>これら列関数は、スクリーン上占める列数に応じて、各文字を数えます。これはコントロール文字は<code>ctl-arrow</code>の値に応じて2列、または4列を、タブは<code>tab-width</code>の値と、タブが始まる列の位置に依存する列数を占めるものとして数えられることを意味します。See <a href="Usual-Display.html#Usual-Display">Usual Display</a>を参照してください。
 </p>
-<p>Column number computations ignore the width of the window and the
-amount of horizontal scrolling.  Consequently, a column value can be
-arbitrarily high.  The first (or leftmost) column is numbered 0.  They
-also ignore overlays and text properties, aside from invisibility.
+<p>列数計算はウィンドウ幅と水平スクロール量を無視します。結果として、列値は任意に大きくなる可能性があります。最初(または左端)の列は0と数えられます。列値は不可視性を別として、オーバーレイとテキストプロパティを無視します。
 </p>
 <dl>
 <dt><a name="index-current_002dcolumn"></a>Function: <strong>current-column</strong></dt>
-<dd><p>This function returns the horizontal position of point, measured in
-columns, counting from 0 at the left margin.  The column position is the
-sum of the widths of all the displayed representations of the characters
-between the start of the current line and point.
+<dd><p>この関数は、左マージンを0として、列単位で数えたポイントの水平位置をリターンする。列の位置は、カレント行の開始からポイントまでの間の文字の表示上の表現すべての幅の和である。
 </p>
-<p>For an example of using <code>current-column</code>, see the description of
-<code>count-lines</code> in <a href="Text-Lines.html#Text-Lines">Text Lines</a>.
+<p><code>current-column</code>の使用例は、<a href="Text-Lines.html#Text-Lines">Text Lines</a>にある<code>count-lines</code>の説明を参照されたい。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-move_002dto_002dcolumn"></a>Command: <strong>move-to-column</strong> <em>column &amp;optional force</em></dt>
-<dd><p>This function moves point to <var>column</var> in the current line.  The
-calculation of <var>column</var> takes into account the widths of the
-displayed representations of the characters between the start of the
-line and point.
+<dd><p>この関数は、カレント行の<var>column</var>にポイントを移動する。<var>column</var>の計算には、行の開始からポイントまでの文字の表示上の表現の幅が考慮される。
 </p>
-<p>When called interactively, <var>column</var> is the value of prefix numeric
-argument.  If <var>column</var> is not an integer, an error is signaled.
+<p>インタラクティブに呼び出された際は、<var>column</var>はプレフィクス数引数の値である。<var>column</var>が整数でなければエラーがシグナルされる。
 </p>
 
-<p>If it is impossible to move to column <var>column</var> because that is in
-the middle of a multicolumn character such as a tab, point moves to the
-end of that character.  However, if <var>force</var> is non-<code>nil</code>, and
-<var>column</var> is in the middle of a tab, then <code>move-to-column</code>
-converts the tab into spaces so that it can move precisely to column
-<var>column</var>.  Other multicolumn characters can cause anomalies despite
-<var>force</var>, since there is no way to split them.
+<p>列<var>column</var>が、タブのような複数列を占める文字の中間にあるために列を移動することが不可能な場合、ポイントはその文字の終端に移動される。しかし<var>force</var>が非<code>nil</code>、かつ<var>column</var>がタブの中間にあるなら、<code>move-to-column</code>はタブをスペースに変換して、正確に列<var>column</var>に移動することができる。それ以外の複数列文字については、それらを分割する手段がないので、<var>force</var>指定に関わらず、異常を引き起こす恐れがある。
 </p>
-<p>The argument <var>force</var> also has an effect if the line isn&rsquo;t long
-enough to reach column <var>column</var>; if it is <code>t</code>, that means to
-add whitespace at the end of the line to reach that column.
+<p>その行が列<var>column</var>に達するほど長くない場合にも、引数<var>force</var>は効果をもつ。<var>column</var>が<code>t</code>なら、その列に達するよう行端に空白を追加することを意味する。
 </p>
-<p>The return value is the column number actually moved to.
+<p>リターン値は、実際に移動した列である。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Indentation.html#Indentation" accesskey="n" rel="next">Indentation</a>, Previous: <a href="Sorting.html#Sorting" accesskey="p" rel="prev">Sorting</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 

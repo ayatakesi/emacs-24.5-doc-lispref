@@ -74,23 +74,15 @@ Next: <a href="Buffer-Contents.html#Buffer-Contents" accesskey="n" rel="next">Bu
 <h3 class="section">31.1 Examining Text Near Point</h3>
 <a name="index-text-near-point"></a>
 
-<p>Many functions are provided to look at the characters around point.
-Several simple functions are described here.  See also <code>looking-at</code>
-in <a href="Regexp-Search.html#Regexp-Search">Regexp Search</a>.
+<p>ポイント付近にある文字を調べるための関数が、数多く提供されています。簡単な関数のいくつかは、ここで説明します。<a href="Regexp-Search.html#Regexp-Search">Regexp Search</a>の<code>looking-at</code>も参照してください。
 </p>
-<p>In the following four functions, &ldquo;beginning&rdquo; or &ldquo;end&rdquo; of buffer
-refers to the beginning or end of the accessible portion.
+<p>以下の4つの関数においてバッファーの&ldquo;先頭(beginning)&rdquo;と&ldquo;終端(end)&rdquo;はそれぞれ、アクセス可能範囲の先頭と終端を意味します。
 </p>
 <dl>
 <dt><a name="index-char_002dafter"></a>Function: <strong>char-after</strong> <em>&amp;optional position</em></dt>
-<dd><p>This function returns the character in the current buffer at (i.e.,
-immediately after) position <var>position</var>.  If <var>position</var> is out of
-range for this purpose, either before the beginning of the buffer, or at
-or beyond the end, then the value is <code>nil</code>.  The default for
-<var>position</var> is point.
+<dd><p>この関数は、カレントバッファーの位置<var>position</var>(つまり直後)の文字をリターンする。<var>position</var>が、この目的にたいする範囲の外にある場合、すなわちバッファーの先頭より前、またはバッファーの終端以降にある場合、値は<code>nil</code>となる。<var>position</var>のデフォルトは、ポイントである。
 </p>
-<p>In the following example, assume that the first character in the
-buffer is &lsquo;<samp>@</samp>&rsquo;:
+<p>以下の例では、バッファーの最初の文字が&lsquo;<samp>@</samp>&rsquo;であると仮定する:
 </p>
 <div class="example">
 <pre class="example">(string (char-after 1))
@@ -100,25 +92,17 @@ buffer is &lsquo;<samp>@</samp>&rsquo;:
 
 <dl>
 <dt><a name="index-char_002dbefore"></a>Function: <strong>char-before</strong> <em>&amp;optional position</em></dt>
-<dd><p>This function returns the character in the current buffer immediately
-before position <var>position</var>.  If <var>position</var> is out of range for
-this purpose, either at or before the beginning of the buffer, or beyond
-the end, then the value is <code>nil</code>.  The default for
-<var>position</var> is point.
+<dd><p>この関数は、カレントバッファーの位置<var>position</var>の直前の文字をリターンする。<var>position</var>が、この目的にたいする範囲の外にある場合、すなわちバッファーの先頭より前、またはバッファーの終端より後にある場合、値は<code>nil</code>となる。<var>position</var>のデフォルトは、ポイントである。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-following_002dchar"></a>Function: <strong>following-char</strong></dt>
-<dd><p>This function returns the character following point in the current
-buffer.  This is similar to <code>(char-after (point))</code>.  However, if
-point is at the end of the buffer, then <code>following-char</code> returns 0.
+<dd><p>この関数は、カレントバッファーのポイントの後にある文字をリターンする。これは<code>(char-after
+(point))</code>と同様。ただし、ポイントがバッファー終端にある場合、<code>following-char</code>は0をリターンする。
 </p>
-<p>Remember that point is always between characters, and the cursor
-normally appears over the character following point.  Therefore, the
-character returned by <code>following-char</code> is the character the
-cursor is over.
+<p>ポイントが常に2文字間にあり、通常カーソルはポイント後の文字上に表示されることを思い出していただきたい。したがって、<code>following-char</code>がリターンする文字は、カーソル上の文字となる。
 </p>
-<p>In this example, point is between the &lsquo;<samp>a</samp>&rsquo; and the &lsquo;<samp>c</samp>&rsquo;.
+<p>以下の例では、&lsquo;<samp>a</samp>&rsquo;と&lsquo;<samp>c</samp>&rsquo;の間にポイントがある。
 </p>
 <div class="example">
 <pre class="example">---------- Buffer: foo ----------
@@ -136,46 +120,29 @@ but there is no peace.
 
 <dl>
 <dt><a name="index-preceding_002dchar"></a>Function: <strong>preceding-char</strong></dt>
-<dd><p>This function returns the character preceding point in the current
-buffer.  See above, under <code>following-char</code>, for an example.  If
-point is at the beginning of the buffer, <code>preceding-char</code> returns
-0.
+<dd><p>この関数は、カレントバッファーのポイントの前の文字をリターンする。上記<code>following-char</code>の下の例を参照されたい。ポイントがバッファー先頭にある場合、<code>preceding-char</code>は0をリターンする。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-bobp"></a>Function: <strong>bobp</strong></dt>
-<dd><p>This function returns <code>t</code> if point is at the beginning of the
-buffer.  If narrowing is in effect, this means the beginning of the
-accessible portion of the text.  See also <code>point-min</code> in
-<a href="Point.html#Point">Point</a>.
+<dd><p>この関数は、ポイントがバッファー先頭にあれば<code>t</code>をリターンする。ナローイングが効力をもつ場合、これはテキストのアクセス可能範囲の先頭を意味する。<a href="Point.html#Point">Point</a>の<code>point-min</code>も参照のこと。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-eobp"></a>Function: <strong>eobp</strong></dt>
-<dd><p>This function returns <code>t</code> if point is at the end of the buffer.
-If narrowing is in effect, this means the end of accessible portion of
-the text.  See also <code>point-max</code> in See <a href="Point.html#Point">Point</a>.
+<dd><p>この関数は、ポイントがバッファー終端にあれば<code>t</code>をリターンする。ナローイングが効力をもつ場合、これはテキストのアクセス可能範囲の終端を意味する。<a href="Point.html#Point">Point</a>の<code>point-max</code>も参照のこと。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-bolp"></a>Function: <strong>bolp</strong></dt>
-<dd><p>This function returns <code>t</code> if point is at the beginning of a line.
-See <a href="Text-Lines.html#Text-Lines">Text Lines</a>.  The beginning of the buffer (or of its accessible
-portion) always counts as the beginning of a line.
+<dd><p>この関数は、ポイントが行の先頭にあれば<code>t</code>をリターンする。<a href="Text-Lines.html#Text-Lines">Text Lines</a>を参照のこと。バッファー(またはアクセス可能範囲)の先頭は、常に行の先頭とみなされる。
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-eolp"></a>Function: <strong>eolp</strong></dt>
-<dd><p>This function returns <code>t</code> if point is at the end of a line.  The
-end of the buffer (or of its accessible portion) is always considered
-the end of a line.
+<dd><p>この関数は、ポイントが行の終端にあれば<code>t</code>をリターンする。<a href="Text-Lines.html#Text-Lines">Text Lines</a>を参照のこと。バッファー(またはアクセス可能範囲)の終端は、常に行の先頭とみなされる。
 </p></dd></dl>
 
-<hr>
-<div class="header">
-<p>
-Next: <a href="Buffer-Contents.html#Buffer-Contents" accesskey="n" rel="next">Buffer Contents</a>, Up: <a href="Text.html#Text" accesskey="u" rel="up">Text</a> &nbsp; [<a href="index.html#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="Index.html#Index" title="Index" rel="index">Index</a>]</p>
-</div>
 
 
 
