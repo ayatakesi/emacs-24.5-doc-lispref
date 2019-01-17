@@ -2834,74 +2834,42 @@ group)を作成するためには、カバーしたいバッファーそれぞ�
 @cindex change hooks
 @cindex hooks for text changes
 
-  These hook variables let you arrange to take notice of all changes in all
-buffers (or in a particular buffer, if you make them buffer-local).  See
-also @ref{Special Properties}, for how to detect changes to specific parts
-of the text.
+  以下のフック変数により、すべてのバッファー(これらをバッファーローカルにした場合は特定のバッファー)でのすべての変更にたいして、通知を受け取るようにアレンジすることができます。テキストの特定部分にたいする変更の検出方法については、@ref{Special
+Properties}も参照してください。
 
-  The functions you use in these hooks should save and restore the match data
-if they do anything that uses regular expressions; otherwise, they will
-interfere in bizarre ways with the editing operations that call them.
+  これらのフック内で使用する関数は、もしそれらが正規表現を使用して何かを行う場合は、マッチしたデータの保存とリストアを行うべきです。さもないと、それらが呼び出す編集処理に、奇妙な方法で干渉するでしょう。
 
 @defvar before-change-functions
-This variable holds a list of functions to call before any buffer
-modification.  Each function gets two arguments, the beginning and end of
-the region that is about to change, represented as integers.  The buffer
-that is about to change is always the current buffer.
+この変数は、何らかのバッファー変更を行う前に呼び出すための、関数のリストを保持する。各関数は変更されようとするリージョンの先頭と終端を整数で表す、2つの引数を受け取る。変更されようとするバッファーは、常にカレントバッファーである。
 @end defvar
 
 @defvar after-change-functions
-This variable holds a list of functions to call after any buffer
-modification.  Each function receives three arguments: the beginning and end
-of the region just changed, and the length of the text that existed before
-the change.  All three arguments are integers.  The buffer that has been
-changed is always the current buffer.
+この変数は、何らかのバッファー変更を行った後に呼び出すための、関数のリストを保持する。各関数は正に変更されたリージョンの先頭と終端、およびその変更前に存在したテキストの長さである。これら3つの変数は、すべて整数である。変更されたバッファーは、常にカレントバッファーである。
 
-The length of the old text is the difference between the buffer positions
-before and after that text as it was before the change.  As for the changed
-text, its length is simply the difference between the first two arguments.
+古いテキストの長さは、変更される前のテキストでの、そのテキストの前後のバッファー位置の差である。変更されたテキストでは、その長さは単に最初の2つの引数の差である。
 @end defvar
 
-  Output of messages into the @file{*Messages*} buffer does not call these
-functions.
+  @file{*Messages*}バッファーへのメッセージ出力は、これらの関数を呼び出しません。
 
 @defmac combine-after-change-calls body@dots{}
-The macro executes @var{body} normally, but arranges to call the
-after-change functions just once for a series of several changes---if that
-seems safe.
+このマクロは普通に@var{body}を実行するが、もしそれが安全なように見えるなら、一連の複数の変更にたいして正に一度、after-change関数を呼び出すようにアレンジする。
 
-If a program makes several text changes in the same area of the buffer,
-using the macro @code{combine-after-change-calls} around that part of the
-program can make it run considerably faster when after-change hooks are in
-use.  When the after-change hooks are ultimately called, the arguments
-specify a portion of the buffer including all of the changes made within the
-@code{combine-after-change-calls} body.
+そのバッファーの同じ領域内でプログラムが複数のテキスト変更を行う場合は、その部分のプログラムの周囲でマクロ@code{combine-after-change-calls}を使用することにより、after-changeフック使用中の実行がかなり高速になり得る。after-changeフックが最終的に呼び出される際、その引数は@code{combine-after-change-calls}のbody内で行われたすべての変更にたいして含むバッファーの範囲を指定する。
 
-@strong{Warning:} You must not alter the values of
-@code{after-change-functions} within the body of a
-@code{combine-after-change-calls} form.
+@strong{警告:}
+フォーム@code{combine-after-change-calls}のbody内で、@code{after-change-functions}の値を変更してはならない。
 
-@strong{Warning:} if the changes you combine occur in widely scattered parts
-of the buffer, this will still work, but it is not advisable, because it may
-lead to inefficient behavior for some change hook functions.
+@strong{警告:}
+組み合わされた変更がバッファーの広い範囲にばらばらに発生する場合でも、これは依然として機能するものの、お勧めはできない。なぜならこれは、ある変更フック関数を、非効率的な挙動へと導くかもしれないからである。
 @end defmac
 
 @defvar first-change-hook
-This variable is a normal hook that is run whenever a buffer is changed that
-was previously in the unmodified state.
+この変数は、以前は未変更の状態だったバッファーが変更された際は常に実行されるノーマルフックである。
 @end defvar
 
 @defvar inhibit-modification-hooks
-If this variable is non-@code{nil}, all of the change hooks are disabled;
-none of them run.  This affects all the hook variables described above in
-this section, as well as the hooks attached to certain special text
-properties (@pxref{Special Properties}) and overlay properties
-(@pxref{Overlay Properties}).
+この変数が非@code{nil}なら、すべての変更フックは無効になる。それらはナニモ実行されない。これはこのセクションで説明したすべてのフック変数、同様に特定のスペシャルテキストプロパティ(@ref{Special
+Properties}を参照)とオーバーレイプロパティ(@ref{Overlay Properties}を参照)にアタッチされたフックに影響を与える。
 
-Also, this variable is bound to non-@code{nil} while running those same hook
-variables, so that by default modifying the buffer from a modification hook
-does not cause other modification hooks to be run.  If you do want
-modification hooks to be run in a particular piece of code that is itself
-run from a modification hook, then rebind locally
-@code{inhibit-modification-hooks} to @code{nil}.
+これらの同じフック変数実行の間、バッファー変更によるデフォルトの変更フックが他の変更フック実行中に実行されないように、この変数は非@code{nil}にバインドされるそれ自体が変更フックから実行される特定のコード断片内で変更フックを実行したければ、ローカルに@code{inhibit-modification-hooks}を@code{nil}に再バインドすること。
 @end defvar
