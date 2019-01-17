@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2018-11-02 17:06+0900\n"
-"PO-Revision-Date: 2019-01-17 15:12+0900\n"
+"PO-Revision-Date: 2019-01-17 17:18+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -6927,23 +6927,23 @@ msgstr "この関数は@code{libxml-parse-html-region}と同様だが、HTMLで�
 #: text.texi.orig:4382
 #, no-wrap
 msgid "Atomic Change Groups"
-msgstr ""
+msgstr "Atomic Change Groups"
 
 #. type: cindex
 #: text.texi.orig:4383
 #, no-wrap
 msgid "atomic changes"
-msgstr ""
+msgstr "atomic changes"
 
 #. type: Plain text
 #: text.texi.orig:4391
 msgid "In database terminology, an @dfn{atomic} change is an indivisible change---it can succeed entirely or it can fail entirely, but it cannot partly succeed.  A Lisp program can make a series of changes to one or several buffers as an @dfn{atomic change group}, meaning that either the entire series of changes will be installed in their buffers or, in case of an error, none of them will be."
-msgstr ""
+msgstr "データベース用語で@dfn{アトミック(atomic: 原子的、不可分な)}変更とは、全体として成功もしくは失敗することはできるが、部分的にはできない、個別の変更のことです。Lispプログラムは単一もしくは複数のバッファーにたいする一連の変更を@dfn{アトミック変更グループ(atomic change group)}にすることができます。これはその一連の変更全体が、それらのバッファーに適用されるか、またはエラーの場合は何も適用されないかの、いずれかであることを意味します。"
 
 #. type: Plain text
 #: text.texi.orig:4395
 msgid "To do this for one buffer, the one already current, simply write a call to @code{atomic-change-group} around the code that makes the changes, like this:"
-msgstr ""
+msgstr "すでにカレントであるような単一のバッファーにたいしてこれを行うには、以下のように変更を行うこーの周りに、単に@code{atomic-change-group}の呼び出しを記述します:"
 
 #. type: example
 #: text.texi.orig:4400
@@ -6953,80 +6953,83 @@ msgid ""
 "  (insert foo)\n"
 "  (delete-region x y))\n"
 msgstr ""
+"(atomic-change-group\n"
+"  (insert foo)\n"
+"  (delete-region x y))\n"
 
 #. type: Plain text
 #: text.texi.orig:4407
 msgid "If an error (or other nonlocal exit) occurs inside the body of @code{atomic-change-group}, it unmakes all the changes in that buffer that were during the execution of the body.  This kind of change group has no effect on any other buffers---any such changes remain."
-msgstr ""
+msgstr "@code{atomic-change-group}のbody内部でエラー(またはその他の非ローカルexit)が発生した場合は、そのbody実行の間にそのバッファーでのすべての変更が行われなかったことになります。この類の変更グループは、他のバッファーには影響を与えず、それらのバッファーにたいする変更はそのまま残されます。"
 
 #. type: Plain text
 #: text.texi.orig:4411
 msgid "If you need something more sophisticated, such as to make changes in various buffers constitute one atomic group, you must directly call lower-level functions that @code{atomic-change-group} uses."
-msgstr ""
+msgstr "さまざまなバッファー内で行った変更から1つのアトミックグループを構成する等、より複雑な何かを必要とする場合は、@code{atomic-change-group}が使用する、より低レベルな関数を直接呼び出さなければなりません。"
 
 #. type: defun
 #: text.texi.orig:4412
 #, no-wrap
 msgid "prepare-change-group &optional buffer"
-msgstr ""
+msgstr "prepare-change-group &optional buffer"
 
 #. type: defun
 #: text.texi.orig:4417
 msgid "This function sets up a change group for buffer @var{buffer}, which defaults to the current buffer.  It returns a ``handle'' that represents the change group.  You must use this handle to activate the change group and subsequently to finish it."
-msgstr ""
+msgstr "この関数は@var{buffer}(デフォルトはカレントバッファー)にたいする変更グループをセットアップする。これは、その変更グループを表す``handle''をリターンする。変更グループをactivateしたり、その後でそれを完了するためには、このhandleを使用しなければならない。"
 
 #. type: Plain text
 #: text.texi.orig:4421
 msgid "To use the change group, you must @dfn{activate} it.  You must do this before making any changes in the text of @var{buffer}."
-msgstr ""
+msgstr "変更グループを使用するためには、それを@dfn{activate(アクティブ化)}しなければなりません。これは@var{buffer}のテキストを変更する前に行わなければなりません。"
 
 #. type: defun
 #: text.texi.orig:4422
 #, no-wrap
 msgid "activate-change-group handle"
-msgstr ""
+msgstr "activate-change-group handle"
 
 #. type: defun
 #: text.texi.orig:4424
 msgid "This function activates the change group that @var{handle} designates."
-msgstr ""
+msgstr "これは、@var{handle}が指定する変更グループをactiveにする。"
 
 #. type: Plain text
 #: text.texi.orig:4431
 msgid "After you activate the change group, any changes you make in that buffer become part of it.  Once you have made all the desired changes in the buffer, you must @dfn{finish} the change group.  There are two ways to do this: you can either accept (and finalize) all the changes, or cancel them all."
-msgstr ""
+msgstr "変更グループをactivateした後は、そのバッファー内で行ったすべての変更は、その変更グループの一部となります。そのバッファー内で目論んでいたすべての変更を行ったら、その変更グループを@dfn{finish(完了)}しなければなりません。すべての変更を受け入れる(確定する)か、すべてをキャンセルするという2つの方法により、これを行うことができます。"
 
 #. type: defun
 #: text.texi.orig:4432
 #, no-wrap
 msgid "accept-change-group handle"
-msgstr ""
+msgstr "accept-change-group handle"
 
 #. type: defun
 #: text.texi.orig:4435
 msgid "This function accepts all the changes in the change group specified by @var{handle}, making them final."
-msgstr ""
+msgstr "この関数は@var{handle}により指定される変更グループ内のすべての変更にたいして、finalizeすることにより変更を受け入れる。"
 
 #. type: defun
 #: text.texi.orig:4437
 #, no-wrap
 msgid "cancel-change-group handle"
-msgstr ""
+msgstr "cancel-change-group handle"
 
 #. type: defun
 #: text.texi.orig:4440
 msgid "This function cancels and undoes all the changes in the change group specified by @var{handle}."
-msgstr ""
+msgstr "この関数は@var{handle}により指定される変更グループ内のすべての変更をキャンセルしてundoする。"
 
 #. type: Plain text
 #: text.texi.orig:4452
 msgid "Your code should use @code{unwind-protect} to make sure the group is always finished.  The call to @code{activate-change-group} should be inside the @code{unwind-protect}, in case the user types @kbd{C-g} just after it runs.  (This is one reason why @code{prepare-change-group} and @code{activate-change-group} are separate functions, because normally you would call @code{prepare-change-group} before the start of that @code{unwind-protect}.)  Once you finish the group, don't use the handle again---in particular, don't try to finish the same group twice."
-msgstr ""
+msgstr "グループが常に確実にfinishされるようにするために、コードでは@code{unwind-protect}を使用するべきです。@code{activate-change-group}の呼び出しは、実行直後にユーザーが@kbd{C-g}をタイプする場合に備え、@code{unwind-protect}内部にあるべきです(これが@code{prepare-change-group}と@code{activate-change-group}が別関数となっている1つの理由である。なぜなら通常は@code{unwind-protect}開始前に@code{prepare-change-group}を呼び出すであろうから)。グループを一度finishしたら、そのhandleを再度使用してはなりません。特に、同じ変更グループを2回finishしないでください。"
 
 #. type: Plain text
 #: text.texi.orig:4456
 msgid "To make a multibuffer change group, call @code{prepare-change-group} once for each buffer you want to cover, then use @code{nconc} to combine the returned values, like this:"
-msgstr ""
+msgstr "複数バッファー変更グループ(multibuffer change group)を作成するためには、カバーしたいバッファーそれぞれで@code{prepare-change-group}を一度呼び出してから、以下のようにリターン値を結合するために、@code{nconc}を使用してください:"
 
 #. type: example
 #: text.texi.orig:4460
@@ -7035,16 +7038,18 @@ msgid ""
 "(nconc (prepare-change-group buffer-1)\n"
 "       (prepare-change-group buffer-2))\n"
 msgstr ""
+"(nconc (prepare-change-group buffer-1)\n"
+"       (prepare-change-group buffer-2))\n"
 
 #. type: Plain text
 #: text.texi.orig:4465
 msgid "You can then activate the multibuffer change group with a single call to @code{activate-change-group}, and finish it with a single call to @code{accept-change-group} or @code{cancel-change-group}."
-msgstr ""
+msgstr "その後は1回の@code{activate-change-group}呼び出しで複数変更グループをアクティブにして、1回の@code{accept-change-group}または@code{cancel-change-group}呼び出しで、それをfinishしてください。"
 
 #. type: Plain text
 #: text.texi.orig:4470
 msgid "Nested use of several change groups for the same buffer works as you would expect.  Non-nested use of change groups for the same buffer will get Emacs confused, so don't let it happen; the first change group you start for any given buffer should be the last one finished."
-msgstr ""
+msgstr "同一バッファーにたいするネストされた複数の変更グループ使用は、あなたが期待するであろう通り機能します。同一バッファーにたいするネストされていない変更グループ使用により、Emacsが混乱した状態になるため、これが発生しないようにしてください。与えられた何らかのバッファーにたいして最初に開始した変更グループは、最後にfinishする変更グループです。"
 
 #. type: cindex
 #: text.texi.orig:4473
