@@ -36,7 +36,7 @@
 @section Text Representations
 @cindex text representation
 
-  Emacsのバッファーおよび文字列は、既知の言語で記述されたほとんどすべてのテキストをユーザーがタイプしたり表示できるよう、多種多様な言語の広大な文字レパートリーをサポートします。
+  Emacsのバッファーおよび文字列は、既知のスクリプトで記述されたほとんどすべてのテキストをユーザーがタイプしたり表示できるよう、多種多様な言語の広大な文字レパートリーをサポートします。
 
 @cindex character codepoint
 @cindex codespace
@@ -91,48 +91,25 @@ Standard)}に厳密にしたがいます。Unicode標準は、すべての文字
 @section Disabling Multibyte Characters
 @cindex disabling multibyte
 
-  By default, Emacs starts in multibyte mode: it stores the contents of
-buffers and strings using an internal encoding that represents
-non-@acronym{ASCII} characters using multi-byte sequences.  Multibyte mode
-allows you to use all the supported languages and scripts without
-limitations.
+  デフォルトでは、Emacsはマルチバイトモードで開始します。Emacsは、マルチバイトシーケンスを使用して非@acronym{ASCII}文字を表現する内部エンコーディングを使用することにより、バッファーおよび文字列のコンテンツを格納します。マルチバイトモードではサポートされるすべての言語とスクリプトを使用できます。
 
 @cindex turn multibyte support on or off
-  Under very special circumstances, you may want to disable multibyte
-character support, for a specific buffer.  When multibyte characters are
-disabled in a buffer, we call that @dfn{unibyte mode}.  In unibyte mode,
-each character in the buffer has a character code ranging from 0 through 255
-(0377 octal); 0 through 127 (0177 octal) represent @acronym{ASCII}
-characters, and 128 (0200 octal) through 255 (0377 octal) represent
-non-@acronym{ASCII} characters.
+  非常に特別な状況下においては、特定のバッファーでマルチバイト文字のサポートを無効にしたいときがあるかもしれません。あるバッファーにおいてマルチバイト文字が無効になっているときは、それを@dfn{ユニバイトモード(unibyte
+mode)}と呼びます。ユニバイトモードでは、バッファー内の各文字は0から255(8進の0377)の範囲の文字コードをもちます。0から127(8進の0177)は@acronym{ASCII}文字、128から255(8進の0377)は非@acronym{ASCII}文字を表します。
 
-  To edit a particular file in unibyte representation, visit it using
-@code{find-file-literally}.  @xref{Visiting Functions}.  You can convert a
-multibyte buffer to unibyte by saving it to a file, killing the buffer, and
-visiting the file again with @code{find-file-literally}.  Alternatively, you
-can use @kbd{C-x @key{RET} c} (@code{universal-coding-system-argument}) and
-specify @samp{raw-text} as the coding system with which to visit or save a
-file.  @xref{Text Coding, , Specifying a Coding System for File Text, emacs,
-GNU Emacs Manual}.  Unlike @code{find-file-literally}, finding a file as
-@samp{raw-text} doesn't disable format conversion, uncompression, or auto
-mode selection.
+  特定のファイルをユニバイト表現で編集するためには、@code{find-file-literally}を使用してファイルをvisitします。@ref{Visiting
+Functions}を参照してください。マルチバイトバッファーをファイルに保存してバッファーをkillした後に、再びそのファイルを@code{find-file-literally}でvisitすることにより、マルチバイトバッファーをユニバイトに変換できます。かわりに@kbd{C-x
+@key{RET}
+c}(@code{universal-coding-system-argument})を使用して、ファイルをvisitまたは保存するコーディングシステムとして@samp{raw-text}を指定することもできます。@ref{Text
+Coding, , Specifying a Coding System for File Text, emacs, GNU Emacs
+Manual}を参照してください。@code{find-file-literally}とは異なり、@samp{raw-text}としてファイルをvisitしてもフォーマット変換、解凍、自動的なモード選択は無効になりません。
 
 @c See http://debbugs.gnu.org/11226 for lack of unibyte tooltip.
 @vindex enable-multibyte-characters
-The buffer-local variable @code{enable-multibyte-characters} is
-non-@code{nil} in multibyte buffers, and @code{nil} in unibyte ones.  The
-mode line also indicates whether a buffer is multibyte or not.  With a
-graphical display, in a multibyte buffer, the portion of the mode line that
-indicates the character set has a tooltip that (amongst other things) says
-that the buffer is multibyte.  In a unibyte buffer, the character set
-indicator is absent.  Thus, in a unibyte buffer (when using a graphical
-display) there is normally nothing before the indication of the visited
-file's end-of-line convention (colon, backslash, etc.), unless you are using
-an input method.
+バッファーローカル変数@code{enable-multibyte-characters}は、マルチバイトバッファーなら非@code{nil}、ユニバイトバッファーなら@code{nil}になります。マルチバイトバッファーかどうかは、モードラインにも示されます。グラフィカルなディスプレイでのマルチバイトバッファーは、文字セット話示すモードライン部分ぬ、そのバッファーがマルチバイトであること(とそれ以外の事項)を告げるツールチップがあります。ユニバイトバッファーでは、文字セットのインジケーターはありません。したがって(グラフィカルなディスプレイ使用時の)ユニバイトバッファーでは、入力メソッドを使用していなければ、visitしているファイルの行末変換(コロン、バックスラッシュ等)の標識の前には通常何も標識はありません。
 
 @findex toggle-enable-multibyte-characters
-You can turn off multibyte support in a specific buffer by invoking the
-command @code{toggle-enable-multibyte-characters} in that buffer.
+特定のバッファーでマルチバイトサポートをオフに切り替えるには、そのバッファー内でコマンド@code{toggle-enable-multibyte-characters}を呼び出してください。
 
 @node Converting Representations
 @section Converting Text Representations
