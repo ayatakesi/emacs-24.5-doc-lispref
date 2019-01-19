@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-01-17 19:58+0900\n"
-"PO-Revision-Date: 2019-01-18 16:18+0900\n"
+"PO-Revision-Date: 2019-01-19 20:20+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -466,7 +466,7 @@ msgstr "byte to string"
 #. type: defun
 #: nonascii.texi.orig:257
 msgid "This function returns a unibyte string containing a single byte of character data, @var{character}.  It signals an error if @var{character} is not an integer between 0 and 255."
-msgstr "この関数は、文字データ@var{character}の単一バイトを含むユニバイト文字列をリターンする。@var{character}が0ｋｓら255までの整数でなければ、エラーをシグナルする。"
+msgstr "この関数は、文字データ@var{byte}の単一バイトを含むユニバイト文字列をリターンする。@var{byte}が0から255までの整数でなければ、エラーをシグナルする。"
 
 #. type: defun
 #: nonascii.texi.orig:259
@@ -668,232 +668,232 @@ msgstr "オプション引数@var{string}は、カレントバッファーのか
 #: nonascii.texi.orig:399
 #, no-wrap
 msgid "character properties"
-msgstr ""
+msgstr "character properties"
 
 #. type: Plain text
 #: nonascii.texi.orig:404
 msgid "A @dfn{character property} is a named attribute of a character that specifies how the character behaves and how it should be handled during text processing and display.  Thus, character properties are an important part of specifying the character's semantics."
-msgstr ""
+msgstr "@dfn{文字プロパティ(character property}とは、その文字の振る舞いと、テキストが処理および表示される間どのように処理されるべきかを指定する、名前つきの文字属性です。したがって文字プロパティは、その文字の意味を指定するための重要な一部です。"
 
 #. type: Plain text
 #: nonascii.texi.orig:418
 msgid "On the whole, Emacs follows the Unicode Standard in its implementation of character properties.  In particular, Emacs supports the @uref{http://www.unicode.org/reports/tr23/, Unicode Character Property Model}, and the Emacs character property database is derived from the Unicode Character Database (@acronym{UCD}).  See the @uref{http://www.unicode.org/versions/Unicode6.2.0/ch04.pdf, Character Properties chapter of the Unicode Standard}, for a detailed description of Unicode character properties and their meaning.  This section assumes you are already familiar with that chapter of the Unicode Standard, and want to apply that knowledge to Emacs Lisp programs."
-msgstr ""
+msgstr "全体として、Emacsは自身の文字プロパティ実装においてはUnicode標準にしたがいます。特にEmacsは@uref{http://www.unicode.org/reports/tr23/, Unicode Character Property Model}をサポートしており、Emacs文字プロパティデータベースはUnicode文字データベース(@acronym{UCD}: Unicode Character Database)から派生したものです。Unicode文字プロパティとその意味についての詳細な説明は、@uref{http://www.unicode.org/versions/Unicode6.2.0/ch04.pdf, Character Properties chapter of the Unicode Standard}を参照してください。このセクションでは、あなたがすでにUnicode標準の該当する章に親しんでいて、その知識をEmacs Lispプログラムに適用したいものと仮定します。"
 
 #. type: Plain text
 #: nonascii.texi.orig:428
 msgid "In Emacs, each property has a name, which is a symbol, and a set of possible values, whose types depend on the property; if a character does not have a certain property, the value is @code{nil}.  As a general rule, the names of character properties in Emacs are produced from the corresponding Unicode properties by downcasing them and replacing each @samp{_} character with a dash @samp{-}.  For example, @code{Canonical_Combining_Class} becomes @code{canonical-combining-class}.  However, sometimes we shorten the names to make their use easier."
-msgstr ""
+msgstr "Emacsでは、各プロパティは名前をもつシンボルであり、そのシンボルは利用可能な値セットをもち、値の型はプロパティに依存します。ある文字が特定のプロパティをもたなければ、その値は@code{nil}になります。一般的なルールとして、Emacsでの文字プロパティ名は、対応するUnicodeプロパティ名を小文字にして、文字@samp{_}をダッシュ文字@samp{-}で置き換えることにより生成されます。たとえば@code{Canonical_Combining_Class}は@code{canonical-combining-class}となります。しかし簡単に使用できるように、名前を短くすることもあります。"
 
 #. type: cindex
 #: nonascii.texi.orig:429
 #, no-wrap
 msgid "unassigned character codepoints"
-msgstr ""
+msgstr "unassigned character codepoints"
 
 #. type: Plain text
 #: nonascii.texi.orig:434
 msgid "Some codepoints are left @dfn{unassigned} by the @acronym{UCD}---they don't correspond to any character.  The Unicode Standard defines default values of properties for such codepoints; they are mentioned below for each property."
-msgstr ""
+msgstr "@acronym{UCD}によりいくつかのコードポイントは@dfn{未割り当て(unassigned)}のまま残されており、それらに対応する文字はありません。Unicode標準は、そのようなコードポイントのプロパティにたいしてデフォルト値を定義しています。それらについては、以下の各プロパティごとに注記しています。"
 
 #. type: Plain text
 #: nonascii.texi.orig:437
 msgid "Here is the full list of value types for all the character properties that Emacs knows about:"
-msgstr ""
+msgstr "以下は、Emacsが関知するすべての文字プロパティにたいする、値タイプの完全なリストです:"
 
 #. type: item
 #: nonascii.texi.orig:439
 #, no-wrap
 msgid "name"
-msgstr ""
+msgstr "name"
 
 #. type: table
 #: nonascii.texi.orig:444
 msgid "Corresponds to the @code{Name} Unicode property.  The value is a string consisting of upper-case Latin letters A to Z, digits, spaces, and hyphen @samp{-} characters.  For unassigned codepoints, the value is @code{nil}."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Name}に対応する。値はラテン大文字のAからZ、数字、スペース、ハイフン@samp{-}の文字から構成される文字列である。未割り当てのコードポイントにたいする値は@code{nil}。"
 
 #. type: cindex
 #: nonascii.texi.orig:445
 #, no-wrap
 msgid "unicode general category"
-msgstr ""
+msgstr "unicode general category"
 
 #. type: item
 #: nonascii.texi.orig:446
 #, no-wrap
 msgid "general-category"
-msgstr ""
+msgstr "general-category"
 
 #. type: table
 #: nonascii.texi.orig:451
 msgid "Corresponds to the @code{General_Category} Unicode property.  The value is a symbol whose name is a 2-letter abbreviation of the character's classification.  For unassigned codepoints, the value is @code{Cn}."
-msgstr ""
+msgstr "Unicodeプロパティ@code{General_Category}に対応する。値は、その文字の分類をアルファベット2文字に略したものを名前としてもつようなシンボルである。未割り当てのコードポイントにたいする値は@code{Cn}。"
 
 #. type: item
 #: nonascii.texi.orig:452
 #, no-wrap
 msgid "canonical-combining-class"
-msgstr ""
+msgstr "canonical-combining-class"
 
 #. type: table
 #: nonascii.texi.orig:456
 msgid "Corresponds to the @code{Canonical_Combining_Class} Unicode property.  The value is an integer.  For unassigned codepoints, the value is zero."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Canonical_Combining_Class}に対応する。値は整数。未割り当てのコードポイントにたいする値は0。"
 
 #. type: cindex
 #: nonascii.texi.orig:457
 #, no-wrap
 msgid "bidirectional class of characters"
-msgstr ""
+msgstr "bidirectional class of characters"
 
 #. type: item
 #: nonascii.texi.orig:458
 #, no-wrap
 msgid "bidi-class"
-msgstr ""
+msgstr "bidi-class"
 
 #. type: table
 #: nonascii.texi.orig:467
 msgid "Corresponds to the Unicode @code{Bidi_Class} property.  The value is a symbol whose name is the Unicode @dfn{directional type} of the character.  Emacs uses this property when it reorders bidirectional text for display (@pxref{Bidirectional Display}).  For unassigned codepoints, the value depends on the code blocks to which the codepoint belongs: most unassigned codepoints get the value of @code{L} (strong L), but some get values of @code{AL} (Arabic letter)  or @code{R} (strong R)."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Bidi_Class}に対応する。値は、その文字のUnicode@dfn{方向タイプ(directional type)}が名前であるようなシンボル。Emacsは表示のために双方向テキストを並び替える際に、このプロパティを使用する(@ref{Bidirectional Display}を参照)。未割り当てのコードポイントにたいする値は、そのコードポイントが属するコードブロックに依存する。未割り当てのコードポイントのほとんどは@code{L}(強い左方向)だが、@code{AL}( Arabic letter: アラビア文字)や@code{R}(強い右方向)を受け取るコースポイントもいくつかある。"
 
 #. type: item
 #: nonascii.texi.orig:468
 #, no-wrap
 msgid "decomposition"
-msgstr ""
+msgstr "decomposition"
 
 #. type: table
 #: nonascii.texi.orig:478
 msgid "Corresponds to the Unicode properties @code{Decomposition_Type} and @code{Decomposition_Value}.  The value is a list, whose first element may be a symbol representing a compatibility formatting tag, such as @code{small}@footnote{The Unicode specification writes these tag names inside @samp{<..>} brackets, but the tag names in Emacs do not include the brackets; e.g., Unicode specifies @samp{<small>} where Emacs uses @samp{small}.  }; the other elements are characters that give the compatibility decomposition sequence of this character.  For unassigned codepoints, the value is the character itself."
-msgstr ""
+msgstr "Unicodeプロパティの@code{Decomposition_Type}と@code{Decomposition_Value}に対応する。値は、最初の要素が@code{small}のような互換性のあるフォーマットタグ(compatibility formatting tag)であるかもしれないリストである@footnote{Unicode仕様ではこれらのタグ名を@samp{<..>}カッコ内に記述しますが、Emacsでのタグ名にはカッコは含まれません。Unicodeでの@samp{<small>}指定は、Emacsでは@samp{small}となります。}。他の要素は、その文字の互換性のある分割シーケンス(compatibility decomposition sequence)を与える文字です。未割り当てのコードポイントにたいする値は、その文字自身。"
 
 #. type: item
 #: nonascii.texi.orig:479
 #, no-wrap
 msgid "decimal-digit-value"
-msgstr ""
+msgstr "decimal-digit-value"
 
 #. type: table
 #: nonascii.texi.orig:484
 msgid "Corresponds to the Unicode @code{Numeric_Value} property for characters whose @code{Numeric_Type} is @samp{Decimal}.  The value is an integer.  For unassigned codepoints, the value is @code{nil}, which means @acronym{NaN}, or ``not-a-number''."
-msgstr ""
+msgstr "@code{Numeric_Type}が@samp{Decimal}であるような文字Unicodeプロパティ@code{Numeric_Value}に対応する。値は整数。未割り当てのコードポイントにたいする値は、@acronym{NaN(``not-a-number'': 数字ではない)}を意味する@code{nil}。"
 
 #. type: item
 #: nonascii.texi.orig:485
 #, no-wrap
 msgid "digit-value"
-msgstr ""
+msgstr "digit-value"
 
 #. type: table
 #: nonascii.texi.orig:492
 msgid "Corresponds to the Unicode @code{Numeric_Value} property for characters whose @code{Numeric_Type} is @samp{Digit}.  The value is an integer.  Examples of such characters include compatibility subscript and superscript digits, for which the value is the corresponding number.  For unassigned codepoints, the value is @code{nil}, which means @acronym{NaN}."
-msgstr ""
+msgstr "@code{Numeric_Type}が@samp{Digit}であるような文字の、Unicodeプロパティ@code{Numeric_Value}に対応する。値は整数。このような文字には、互換性のある添字や上付き数字が含まれ、値は対応する数字である。未割り当てのコードポイントにたいする値は、@acronym{NaN}を意味する@code{nil}である。"
 
 #. type: item
 #: nonascii.texi.orig:493
 #, no-wrap
 msgid "numeric-value"
-msgstr ""
+msgstr "numeric-value"
 
 #. type: table
 #: nonascii.texi.orig:503
 msgid "Corresponds to the Unicode @code{Numeric_Value} property for characters whose @code{Numeric_Type} is @samp{Numeric}.  The value of this property is a number.  Examples of characters that have this property include fractions, subscripts, superscripts, Roman numerals, currency numerators, and encircled numbers.  For example, the value of this property for the character @code{U+2155} (@sc{vulgar fraction one fifth}) is @code{0.2}.  For unassigned codepoints, the value is @code{nil}, which means @acronym{NaN}."
-msgstr ""
+msgstr "@code{Numeric_Type}が@samp{Numeric}であるような文字の、Unicodeプロパティ@code{Numeric_Value}に対応する。このプロパティの値は数字。このプロパティをもつ文字の例には分数、添字、上付き数字、ローマ数字、通貨分数(訳注: 原文は``currency numerators''でベンガル語の分数値用の歴史的な記号を指すと思われる)、丸数字が含まれる。たとえば、文字@code{U+2155}(@sc{vulgar fraction one fifth: (訳注)スラッシュで分子と分母を区切った表記による5分の1のこと})にたいするこのプロパティの値は@code{0.2}。未割り当てのコードポイントにたいする値は、@acronym{NaN}を意味する@code{nil}。"
 
 #. type: cindex
 #: nonascii.texi.orig:504
 #, no-wrap
 msgid "mirroring of characters"
-msgstr ""
+msgstr "mirroring of characters"
 
 #. type: item
 #: nonascii.texi.orig:505
 #, no-wrap
 msgid "mirrored"
-msgstr ""
+msgstr "mirrored"
 
 #. type: table
 #: nonascii.texi.orig:509
 msgid "Corresponds to the Unicode @code{Bidi_Mirrored} property.  The value of this property is a symbol, either @code{Y} or @code{N}.  For unassigned codepoints, the value is @code{N}."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Bidi_Mirrored}に対応する。このプロパティの値は、@code{Y}または@code{N}いずれかのシンボル。未割り当てのコードポイントにたいする値は@code{N}。"
 
 #. type: item
 #: nonascii.texi.orig:510
 #, no-wrap
 msgid "mirroring"
-msgstr ""
+msgstr "mirroring"
 
 #. type: table
 #: nonascii.texi.orig:522
 msgid "Corresponds to the Unicode @code{Bidi_Mirroring_Glyph} property.  The value of this property is a character whose glyph represents the mirror image of the character's glyph, or @code{nil} if there's no defined mirroring glyph.  All the characters whose @code{mirrored} property is @code{N} have @code{nil} as their @code{mirroring} property; however, some characters whose @code{mirrored} property is @code{Y} also have @code{nil} for @code{mirroring}, because no appropriate characters exist with mirrored glyphs.  Emacs uses this property to display mirror images of characters when appropriate (@pxref{Bidirectional Display}).  For unassigned codepoints, the value is @code{nil}."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Bidi_Mirroring_Glyph}に対応する。このプロパティの値は、そのグリフ(glyph)がその文字のグリフの鏡像(mirror image)を表すような文字、定義済みの鏡像グリフがなければ@code{nil}である。@code{mirrored}プロパティが@code{N}であるようなすべての文字の@code{mirroring}プロパティは@code{nil}である。しかし@code{mirrored}プロパティが@code{Y}の文字でも、鏡像をもつ適切な文字がないという理由により、@code{mirroring}が@code{nil}の文字もある。Emacsは適切な際は、鏡像を表示するためにこのプロパティを使用する(@ref{Bidirectional Display}を参照)。未割り当てのコードポイントにたいする値は@code{nil}。"
 
 #. type: item
 #: nonascii.texi.orig:523
 #, no-wrap
 msgid "old-name"
-msgstr ""
+msgstr "old-name"
 
 #. type: table
 #: nonascii.texi.orig:527
 msgid "Corresponds to the Unicode @code{Unicode_1_Name} property.  The value is a string.  Unassigned codepoints, and characters that have no value for this property, the value is @code{nil}."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Unicode_1_Name}に対応する。値は文字列。未割り当てのコードポイント、およびこのプロパティにたいする値をもたない文字では、値は@code{nil}である。"
 
 #. type: item
 #: nonascii.texi.orig:528
 #, no-wrap
 msgid "iso-10646-comment"
-msgstr ""
+msgstr "iso-10646-comment"
 
 #. type: table
 #: nonascii.texi.orig:531
 msgid "Corresponds to the Unicode @code{ISO_Comment} property.  The value is a string.  For unassigned codepoints, the value is an empty string."
-msgstr ""
+msgstr "Unicodeプロパティ@code{ISO_Comment}に対応する。値は文字列。未割り当てのコードポイントの値は空文字列。"
 
 #. type: item
 #: nonascii.texi.orig:532
 #, no-wrap
 msgid "uppercase"
-msgstr ""
+msgstr "uppercase"
 
 #. type: table
 #: nonascii.texi.orig:536
 msgid "Corresponds to the Unicode @code{Simple_Uppercase_Mapping} property.  The value of this property is a single character.  For unassigned codepoints, the value is @code{nil}, which means the character itself."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Simple_Uppercase_Mapping}に対応する。このプロパティの値は、単一の文字。未割り当てのコードポイントの値は@code{nil}で、これはその文字自身を意味する。"
 
 #. type: item
 #: nonascii.texi.orig:537
 #, no-wrap
 msgid "lowercase"
-msgstr ""
+msgstr "lowercase"
 
 #. type: table
 #: nonascii.texi.orig:541
 msgid "Corresponds to the Unicode @code{Simple_Lowercase_Mapping} property.  The value of this property is a single character.  For unassigned codepoints, the value is @code{nil}, which means the character itself."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Simple_Lowercase_Mapping}に対応する。このプロパティの値は、単一の文字。未割り当てのコードポイントの値は@code{nil}で、これはその文字自身を意味する。"
 
 #. type: item
 #: nonascii.texi.orig:542
 #, no-wrap
 msgid "titlecase"
-msgstr ""
+msgstr "titlecase"
 
 #. type: table
 #: nonascii.texi.orig:548
 msgid "Corresponds to the Unicode @code{Simple_Titlecase_Mapping} property.  @dfn{Title case} is a special form of a character used when the first character of a word needs to be capitalized.  The value of this property is a single character.  For unassigned codepoints, the value is @code{nil}, which means the character itself."
-msgstr ""
+msgstr "Unicodeプロパティ@code{Simple_Titlecase_Mapping}に対応する。@dfn{タイトルケース(title case)}とは、単語の最初の文字を大文字にする必要がある際に使用される、文字の特別な形式のこと。このプロパティの値は、単一の文字。未割り当てのコードポイントにたいする値は@code{nil}で、これはその文字自身を意味する。"
 
 #. type: defun
 #: nonascii.texi.orig:550
 #, no-wrap
 msgid "get-char-code-property char propname"
-msgstr ""
+msgstr "get-char-code-property char propname"
 
 #. type: defun
 #: nonascii.texi.orig:552
 msgid "This function returns the value of @var{char}'s @var{propname} property."
-msgstr ""
+msgstr "この関数は、@var{char}のプロパティ@var{propname}の値をリターンする。"
 
 #. type: group
 #: nonascii.texi.orig:557
@@ -902,6 +902,8 @@ msgid ""
 "(get-char-code-property ?\\s 'general-category)\n"
 "     @result{} Zs\n"
 msgstr ""
+"(get-char-code-property ?\\s 'general-category)\n"
+"     @result{} Zs\n"
 
 #. type: group
 #: nonascii.texi.orig:561
@@ -910,6 +912,8 @@ msgid ""
 "(get-char-code-property ?1 'general-category)\n"
 "     @result{} Nd\n"
 msgstr ""
+"(get-char-code-property ?1 'general-category)\n"
+"     @result{} Nd\n"
 
 #. type: group
 #: nonascii.texi.orig:566
@@ -919,6 +923,9 @@ msgid ""
 "(get-char-code-property ?\\u2084 'digit-value)\n"
 "     @result{} 4\n"
 msgstr ""
+";; subscript 4\n"
+"(get-char-code-property ?\\u2084 'digit-value)\n"
+"     @result{} 4\n"
 
 #. type: group
 #: nonascii.texi.orig:571
@@ -928,6 +935,9 @@ msgid ""
 "(get-char-code-property ?\\u2155 'numeric-value)\n"
 "     @result{} 0.2\n"
 msgstr ""
+";; one fifth\n"
+"(get-char-code-property ?\\u2155 'numeric-value)\n"
+"     @result{} 0.2\n"
 
 #. type: group
 #: nonascii.texi.orig:576
@@ -937,17 +947,20 @@ msgid ""
 "(get-char-code-property ?\\u2163 'numeric-value)\n"
 "     @result{} 4\n"
 msgstr ""
+";; Roman IV\n"
+"(get-char-code-property ?\\u2163 'numeric-value)\n"
+"     @result{} 4\n"
 
 #. type: defun
 #: nonascii.texi.orig:580
 #, no-wrap
 msgid "char-code-property-description prop value"
-msgstr ""
+msgstr "char-code-property-description prop value"
 
 #. type: defun
 #: nonascii.texi.orig:583
 msgid "This function returns the description string of property @var{prop}'s @var{value}, or @code{nil} if @var{value} has no description."
-msgstr ""
+msgstr "この関数はプロパティ@var{prop}の@var{value}の説明文字列(description string)、@var{value}が説明をもたなければ@code{nil}をリターンする。"
 
 #. type: group
 #: nonascii.texi.orig:588
@@ -956,6 +969,8 @@ msgid ""
 "(char-code-property-description 'general-category 'Zs)\n"
 "     @result{} \"Separator, Space\"\n"
 msgstr ""
+"(char-code-property-description 'general-category 'Zs)\n"
+"     @result{} \"Separator, Space\"\n"
 
 #. type: group
 #: nonascii.texi.orig:592
@@ -964,6 +979,8 @@ msgid ""
 "(char-code-property-description 'general-category 'Nd)\n"
 "     @result{} \"Number, Decimal Digit\"\n"
 msgstr ""
+"(char-code-property-description 'general-category 'Nd)\n"
+"     @result{} \"Number, Decimal Digit\"\n"
 
 #. type: group
 #: nonascii.texi.orig:596
@@ -972,67 +989,69 @@ msgid ""
 "(char-code-property-description 'numeric-value '1/5)\n"
 "     @result{} nil\n"
 msgstr ""
+"(char-code-property-description 'numeric-value '1/5)\n"
+"     @result{} nil\n"
 
 #. type: defun
 #: nonascii.texi.orig:600
 #, no-wrap
 msgid "put-char-code-property char propname value"
-msgstr ""
+msgstr "put-char-code-property char propname value"
 
 #. type: defun
 #: nonascii.texi.orig:603
 msgid "This function stores @var{value} as the value of the property @var{propname} for the character @var{char}."
-msgstr ""
+msgstr "この関数は、文字@var{char}のプロパティ@var{propname}の値として、@var{value}を格納する。"
 
 #. type: defvar
 #: nonascii.texi.orig:605
 #, no-wrap
 msgid "unicode-category-table"
-msgstr ""
+msgstr "unicode-category-table"
 
 #. type: defvar
 #: nonascii.texi.orig:609
 msgid "The value of this variable is a char-table (@pxref{Char-Tables}) that specifies, for each character, its Unicode @code{General_Category} property as a symbol."
-msgstr ""
+msgstr "この変数の値は、それぞれの文字にたいして、そのUnicodeプロパティ@code{General_Category}をシンボルとして指定する、文字テーブルである(@ref{Char-Tables}を参照)。"
 
 #. type: defvar
 #: nonascii.texi.orig:611
 #, no-wrap
 msgid "char-script-table"
-msgstr ""
+msgstr "char-script-table"
 
 #. type: cindex
 #: nonascii.texi.orig:612
 #, no-wrap
 msgid "script symbols"
-msgstr ""
+msgstr "script symbols"
 
 #. type: defvar
 #: nonascii.texi.orig:618
 msgid "The value of this variable is a char-table that specifies, for each character, a symbol whose name is the script to which the character belongs, according to the Unicode Standard classification of the Unicode code space into script-specific blocks.  This char-table has a single extra slot whose value is the list of all script symbols."
-msgstr ""
+msgstr "この変数の値は、それぞれの文字がシンボルを指定するような文字テーブルである。シンボルの名前は、Unicodeコードスペースからスクリプト固有ブロックへのUnicode標準分類にしたがった、その文字が属するスクリプトである。この文字テーブルは余分のスロットを１つもち、値はすべてのスクリプトシンボルのリストである。"
 
 #. type: defvar
 #: nonascii.texi.orig:620
 #, no-wrap
 msgid "char-width-table"
-msgstr ""
+msgstr "char-width-table"
 
 #. type: defvar
 #: nonascii.texi.orig:623
 msgid "The value of this variable is a char-table that specifies the width of each character in columns that it will occupy on the screen."
-msgstr ""
+msgstr "この変数の値は、、それぞれの文字がスクリーン上で占めるであろう幅を列単位で指定する、文字テーブルである。"
 
 #. type: defvar
 #: nonascii.texi.orig:625
 #, no-wrap
 msgid "printable-chars"
-msgstr ""
+msgstr "printable-chars"
 
 #. type: defvar
 #: nonascii.texi.orig:630
 msgid "The value of this variable is a char-table that specifies, for each character, whether it is printable or not.  That is, if evaluating @code{(aref printable-chars char)} results in @code{t}, the character is printable, and if it results in @code{nil}, it is not."
-msgstr ""
+msgstr "この変数の値は、それぞれの文字にたいして、それがプリント可能かどうかを指定する、文字テーブルである。すなわち、@code{(aref printable-chars char)}を評価した結果が@code{t}ならプリント可で、@code{nil}なら不可である。"
 
 #. type: cindex
 #: nonascii.texi.orig:634
