@@ -393,118 +393,82 @@ printable-chars char)}を評価した結果が@code{t}ならプリント可で�
 
 @cindex charset
 @cindex coded character set
-An Emacs @dfn{character set}, or @dfn{charset}, is a set of characters in
-which each character is assigned a numeric code point.  (The Unicode
-Standard calls this a @dfn{coded character set}.)  Each Emacs charset has a
-name which is a symbol.  A single character can belong to any number of
-different character sets, but it will generally have a different code point
-in each charset.  Examples of character sets include @code{ascii},
-@code{iso-8859-1}, @code{greek-iso8859-7}, and @code{windows-1255}.  The
-code point assigned to a character in a charset is usually different from
-its code point used in Emacs buffers and strings.
+Emacsの@dfn{文字セット(character
+set、もしくはcharset)}とは、それぞれの文字が数字のコードポイントに割り当てられれた、文字セットのことです(Unicode標準ではこれを@dfn{符号化文字集合(coded
+character
+set)}と呼ぶ)。Emacsの各文字セットは、シンボルであるような名前をもちます。1つの文字が、任意の数の異なる文字セットに属することができますが、各文字セット内で異なるコードポイントをもつのが一般的でしょう。文字セットの例には@code{ascii}、@code{iso-8859-1}、@code{greek-iso8859-7}、@code{windows-1255}が含まれます。文字セット内で文字に割り当てられるコードポイントは、Emacs内のバッファーや文字列内で使用されるコードポイントとは、通常異なります。
 
 @cindex @code{emacs}, a charset
 @cindex @code{unicode}, a charset
 @cindex @code{eight-bit}, a charset
-  Emacs defines several special character sets.  The character set
-@code{unicode} includes all the characters whose Emacs code points are in
-the range @code{0..#x10FFFF}.  The character set @code{emacs} includes all
-@acronym{ASCII} and non-@acronym{ASCII} characters.  Finally, the
-@code{eight-bit} charset includes the 8-bit raw bytes; Emacs uses it to
-represent raw bytes encountered in text.
+  Emacsは、特別な文字セットをいくつか定義しています。文字セット@code{unicode}は、Emacsコードポイントが@code{0..#x10FFFF}の範囲の、すべての文字セットを含みます。文字セット@code{emacs}は、すべての@acronym{ASCII}、および非@acronym{ASCII}文字を含みます。最後に@code{eight-bit}文字セットは、8ビットrawバイトを含みます。テキスト内でrawバイトを見つけたときに、Emacsはこれを使用します。
 
 @defun charsetp object
-Returns @code{t} if @var{object} is a symbol that names a character set,
-@code{nil} otherwise.
+@var{object}は文字セットを命名するシンボルなら@code{t}、それ以外は@code{nil}をリターンする。
 @end defun
 
 @defvar charset-list
-The value is a list of all defined character set names.
+値は、すべての定義済み文字セットの名前のリストである。
 @end defvar
 
 @defun charset-priority-list &optional highestp
-This function returns a list of all defined character sets ordered by their
-priority.  If @var{highestp} is non-@code{nil}, the function returns a
-single character set of the highest priority.
+この関数は、すべての定義済み文字セットの優先順にソートされたリストをリターンする。@var{highestp}が非@code{nil}なら、この関数はもっとも優先度の高い文字セット1つをリターンする。
 @end defun
 
 @defun set-charset-priority &rest charsets
-This function makes @var{charsets} the highest priority character sets.
+この関数は、@var{charsets}をもっとも高い優先度の文字セットにする。
 @end defun
 
 @defun char-charset character &optional restriction
-This function returns the name of the character set of highest priority that
-@var{character} belongs to.  @acronym{ASCII} characters are an exception:
-for them, this function always returns @code{ascii}.
+この関数は、@var{character}が属する文字セットで、もっとも優先度の高い文字セットの名前をリターンする。ただし@acronym{ASCII}文字は例外であり、この関数は常に@code{ascii}をリターンする。
 
-If @var{restriction} is non-@code{nil}, it should be a list of charsets to
-search.  Alternatively, it can be a coding system, in which case the
-returned charset must be supported by that coding system (@pxref{Coding
-Systems}).
+@var{restriction}が非@code{nil}なら、それは検索する文字セットのリストであること。かわりにコーディングシステムも指定でき、その場合はそのコーディングシステムによりサポートされている必要がある(@ref{Coding
+Systems}を参照)。
 @end defun
 
 @c TODO: Explain the properties here and add indexes such as 'charset property'.
 @defun charset-plist charset
-This function returns the property list of the character set @var{charset}.
-Although @var{charset} is a symbol, this is not the same as the property
-list of that symbol.  Charset properties include important information about
-the charset, such as its documentation string, short name, etc.
+この関数は、文字セット@var{charset}のプロパティをリターンする。たとえ@var{charset}がシンボルだったとしても、これはそのシンボルのプロパティリストと同じではない。文字セットプロパティにはドキュメント文字列、短い名前等、その文字セットに関する重要な情報が含まれる。
 @end defun
 
 @defun put-charset-property charset propname value
-This function sets the @var{propname} property of @var{charset} to the given
-@var{value}.
+この関数は、@var{charset}のプロパティ@var{propname}に、与えられた@var{value}をセットする。
 @end defun
 
 @defun get-charset-property charset propname
-This function returns the value of @var{charset}s property @var{propname}.
+この関数は、@var{charset}のプロパティ@var{propname}の値をリターンする。
 @end defun
 
 @deffn Command list-charset-chars charset
-This command displays a list of characters in the character set
-@var{charset}.
+このコマンドは、文字セット@var{charset}内の文字のリストを表示する。
 @end deffn
 
-  Emacs can convert between its internal representation of a character and the
-character's codepoint in a specific charset.  The following two functions
-support these conversions.
+  Emacsは文字の内部的な表現と、その文字の特定の文字セット内でのコードポイントを相互に変換することができます。以下は、これらをサポートするための関数です。
 
 @c FIXME: decode-char and encode-char accept and ignore an additional
 @c argument @var{restriction}.  When that argument actually makes a
 @c difference, it should be documented here.
 @defun decode-char charset code-point
-This function decodes a character that is assigned a @var{code-point} in
-@var{charset}, to the corresponding Emacs character, and returns it.  If
-@var{charset} doesn't contain a character of that code point, the value is
-@code{nil}.  If @var{code-point} doesn't fit in a Lisp integer
-(@pxref{Integer Basics, most-positive-fixnum}), it can be specified as a
-cons cell @code{(@var{high} . @var{low})}, where @var{low} are the lower 16
-bits of the value and @var{high} are the high 16 bits.
+この関数は、@var{charset}内で@var{code-point}に割り当てられた文字を、Emacsの対応する文字にデコードして、それをリターンする。そのコードポイントの文字が@var{charset}に含まれなければ、値は@code{nil}である。@var{code-point}がLisp整数(@ref{Integer
+Basics, most-positive-fixnum}を参照)に収まらない場合は、コンスセル@code{(@var{high}
+.
+@var{low})}として指定できるかもしれない。ここで@var{low}はその値の下位来る16ビット、@var{high}は上位16ビットである。
 @end defun
 
 @defun encode-char char charset
-This function returns the code point assigned to the character @var{char} in
-@var{charset}.  If the result does not fit in a Lisp integer, it is returned
-as a cons cell @code{(@var{high} . @var{low})} that fits the second argument
-of @code{decode-char} above.  If @var{charset} doesn't have a codepoint for
-@var{char}, the value is @code{nil}.
+この関数は、@var{charset}内で文字@var{char}に割り当てられた、コードポイントをリターンする。結果がLisp整数に収まらない場合は、上述の@code{decode-char}の2つ目の引数のように、コンスセル@code{(@var{high}
+.
+@var{low})}としてリターンされる。@var{charset}が@var{char}にたいするコードポイントをもたなければ、値は@code{nil}である。
 @end defun
 
-  The following function comes in handy for applying a certain function to all
-or part of the characters in a charset:
+  以下の関数は、文字セット内の文字の一部、全くすべてにたいして、特定の関数を適用するのに便利です。
 
 @defun map-charset-chars function charset &optional arg from-code to-code
-Call @var{function} for characters in @var{charset}.  @var{function} is
-called with two arguments.  The first one is a cons cell @code{(@var{from}
-.  @var{to})}, where @var{from} and @var{to} indicate a range of characters
-contained in charset.  The second argument passed to @var{function} is
-@var{arg}.
+@var{charset}内の文字にたいして@var{function}を呼び出す。@var{function}は2つの引数で呼び出される。1つ目はコンスセル@code{(@var{from}
+.
+@var{to})}で、@var{from}と@var{to}は文字セット内に含まれる文字の範囲である。@var{arg}は、2つ目の引数として@var{function}に渡される。
 
-By default, the range of codepoints passed to @var{function} includes all
-the characters in @var{charset}, but optional arguments @var{from-code} and
-@var{to-code} limit that to the range of characters between these two
-codepoints of @var{charset}.  If either of them is @code{nil}, it defaults
-to the first or last codepoint of @var{charset}, respectively.
+デフォルトでは、@var{function}に渡されるコードポイントの範囲には@var{charset}内のすべての文字が含まれるが、オプション引数@var{from-code}および@var{to-code}により、それは@var{charset}の2つのコードポイント間にある文字範囲に制限される。@var{from-code}または@var{to-code}のいずれかが@code{nil}の場合のデフォルトは、@var{charset}のコードポイントの最初または最後である。
 @end defun
 
 @node Scanning Charsets
