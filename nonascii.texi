@@ -476,35 +476,23 @@ Basics, most-positive-fixnum}を参照)に収まらない場合は、コンス�
 @cindex scanning for character sets
 @cindex character set, searching
 
-  Sometimes it is useful to find out which character set a particular
-character belongs to.  One use for this is in determining which coding
-systems (@pxref{Coding Systems}) are capable of representing all of the text
-in question; another is to determine the font(s) for displaying that text.
+  特定の文字が、どの文字セットに属するか調べられると便利なときがあります。これの用途の1つは、どのコーディングシステム(@ref{Coding
+Systems}を参照)が問題となっているテキストすべてを表現可能か判断することです。他にも、そのテキストを表示するフォントの判断があります。
 
 @defun charset-after &optional pos
-This function returns the charset of highest priority containing the
-character at position @var{pos} in the current buffer.  If @var{pos} is
-omitted or @code{nil}, it defaults to the current value of point.  If
-@var{pos} is out of range, the value is @code{nil}.
+この関数は、カレントバッファー内の位置@var{pos}にある文字を含む、
+もっとも高い優先度の文字セットをリターンする。@var{pos}が省略または@code{nil}の場合のデフォルトは、ポイントのカレント値である。@var{pos}が範囲外なら、値は@code{nil}。
 @end defun
 
 @defun find-charset-region beg end &optional translation
-This function returns a list of the character sets of highest priority that
-contain characters in the current buffer between positions @var{beg} and
-@var{end}.
+この関数は、カレントバッファー内の位置@var{beg}から@var{end}の間の文字を含む、もっとも優先度の高い文字セットのリストをリターンする。
 
-The optional argument @var{translation} specifies a translation table to use
-for scanning the text (@pxref{Translation of Characters}).  If it is
-non-@code{nil}, then each character in the region is translated through this
-table, and the value returned describes the translated characters instead of
-the characters actually in the buffer.
+オプション引数が@var{translation}は、テキストのスキャンに使用するための変換テーブルを指定する(@ref{Translation of
+Characters}を参照)。これが非@code{nil}なら、リージョン内の各文字はそのテーブルを通じて変換され、リターンされる値にはバッファーの実際の文字ではなく、変換された文字が記述される。
 @end defun
 
 @defun find-charset-string string &optional translation
-This function returns a list of character sets of highest priority that
-contain characters in @var{string}.  It is just like
-@code{find-charset-region}, except that it applies to the contents of
-@var{string} instead of part of the current buffer.
+この関数は、@var{string}内の文字を含む、もっとも優先度の高い文字セットのリストをリターンする。これは@code{find-charset-region}と似ているが、カレントバッファーの一部ではなく@var{string}のコンテンツに適用される点が異なる。
 @end defun
 
 @node Translation of Characters
