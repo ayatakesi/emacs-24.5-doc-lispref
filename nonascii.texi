@@ -500,95 +500,50 @@ Characters}を参照)。これが非@code{nil}なら、リージョン内の各�
 @cindex character translation tables
 @cindex translation tables
 
-  A @dfn{translation table} is a char-table (@pxref{Char-Tables}) that
-specifies a mapping of characters into characters.  These tables are used in
-encoding and decoding, and for other purposes.  Some coding systems specify
-their own particular translation tables; there are also default translation
-tables which apply to all other coding systems.
+  @dfn{変換テーブル(translation
+table)}とは？文字から文字へのマッピングを指定する、文字テーブルです(@ref{Char-Tables}を参照)。これらのテーブルはエンコーディング、デコーディング、および他の用地にも使用されます。独自に変換テーブルを指定するコーディングシステムも、いくつかあります。他のすべてのコーディングシステムに適用される、デフォルトの変換テーブルも存在します。
 
-  A translation table has two extra slots.  The first is either @code{nil} or
-a translation table that performs the reverse translation; the second is the
-maximum number of characters to look up for translating sequences of
-characters (see the description of @code{make-translation-table-from-alist}
-below).
+  変換テーブルには、余分のスロットが2つあります。1つ目のスロットは@code{nil}、または逆の変換を処理する変換テーブルです。2つ目のスロットは、変換する文字シーケンスを照合する際の、最大文字数です(以下の@code{make-translation-table-from-alist}の説明を参照)。
 
 @defun make-translation-table &rest translations
-This function returns a translation table based on the argument
-@var{translations}.  Each element of @var{translations} should be a list of
-elements of the form @code{(@var{from} . @var{to})}; this says to translate
-the character @var{from} into @var{to}.
+この関数は、引数@var{translations}にもとづいて、変換テーブルをリターンする。@var{translations}の各要素は、@code{(@var{from}
+. @var{to})}という形式のリストであること。これは@var{from}から@var{to}への、文字の変換を指示する。
 
-The arguments and the forms in each argument are processed in order, and if
-a previous form already translates @var{to} to some other character, say
-@var{to-alt}, @var{from} is also translated to @var{to-alt}.
+各引数内の引数とフォームは順に処理され、もし前のフォームですでに@var{to}がたとえば@var{to-alt}に変換されていれば、@var{from}も@var{to-alt}に変換される。
 @end defun
 
-  During decoding, the translation table's translations are applied to the
-characters that result from ordinary decoding.  If a coding system has the
-property @code{:decode-translation-table}, that specifies the translation
-table to use, or a list of translation tables to apply in sequence.  (This
-is a property of the coding system, as returned by @code{coding-system-get},
-not a property of the symbol that is the coding system's name.  @xref{Coding
-System Basics,, Basic Concepts of Coding Systems}.)  Finally, if
-@code{standard-translation-table-for-decode} is non-@code{nil}, the
-resulting characters are translated by that table.
+  デコードを行う間、その変換テーブルの変換は、通常のデコーディングの結果の文字に適用されます。あるコーディングシステムがプロパティ@code{:decode-translation-table}をもつなら、それは使用する変換テーブル、または順に適用するべき変換テーブルのリストを指定します(これはコーディングシステムの名前であるようなシンボルのプロパティではなく、@code{coding-system-get}がリターンするような、コーディングシステムのプロパティである。@ref{Coding
+System Basics,, Basic Concepts of Coding
+Systems}を参照されたい)。最後に、もし@code{standard-translation-table-for-decode}が非@code{nil}なら、結果となる文字はそのテーブルにより変換されます。
 
-  During encoding, the translation table's translations are applied to the
-characters in the buffer, and the result of translation is actually
-encoded.  If a coding system has property @code{:encode-translation-table},
-that specifies the translation table to use, or a list of translation tables
-to apply in sequence.  In addition, if the variable
-@code{standard-translation-table-for-encode} is non-@code{nil}, it specifies
-the translation table to use for translating the result.
+  エンコードを行う間は、その変換テーブルの変換はバッファー内の文字に適用され、変換結果は実際にエンコードされます。あるコーディングシステムがプロパティ@code{:encode-translation-table}をもつなら、それは使用する変換テーブル、または順に適用するべき変換テーブルのリストを指定します。加えて、もし変数@code{standard-translation-table-for-encode}が非@code{nil}なら、それは変換結果にたいして使用するべき変換テーブルを指定します。
 
 @defvar standard-translation-table-for-decode
-This is the default translation table for decoding.  If a coding systems
-specifies its own translation tables, the table that is the value of this
-variable, if non-@code{nil}, is applied after them.
+これはデコード用のデフォルトの変換テーブルである。あるコーディングシステムが独自に変換テーブルを指定する場合、この変数の値が非@code{nil}なら、それら独自のテーブル適用後に、この変数の変換テーブルが適用される。
 @end defvar
 
 @defvar standard-translation-table-for-encode
-This is the default translation table for encoding.  If a coding systems
-specifies its own translation tables, the table that is the value of this
-variable, if non-@code{nil}, is applied after them.
+これはエンコード用のデフォルトの変換テーブルである。あるコーディングシステムが独自に変換テーブルを指定する場合、この変数の値が非@code{nil}なら、それら独自のテーブル適用後に、この変数の変換テーブルが適用される。
 @end defvar
 
 @c FIXME: This variable is obsolete since 23.1.  We should mention
 @c that here or simply remove this defvar.  --xfq
 @defvar translation-table-for-input
-Self-inserting characters are translated through this translation table
-before they are inserted.  Search commands also translate their input
-through this table, so they can compare more reliably with what's in the
-buffer.
+自己ソウニュ文字は、挿入前にこの変換テーブルを通じて変換が行われる。検索コマンドも、バッファー内の内容とより信頼性のある比較ができるように、このテーブルを通じて入力を変換する。
 
-This variable automatically becomes buffer-local when set.
+この変数は、セット時に自動的にバッファーローカルになる。
 @end defvar
 
 @defun make-translation-table-from-vector vec
-This function returns a translation table made from @var{vec} that is an
-array of 256 elements to map bytes (values 0 through #xFF) to characters.
-Elements may be @code{nil} for untranslated bytes.  The returned table has a
-translation table for reverse mapping in the first extra slot, and the value
-@code{1} in the second extra slot.
+この関数は、バイト(値は0から#xFF)から文字にマップする256要素の配列であるような@var{vec}から作成した変換テーブルをリターンする。未変換のバイトにたいする要素は、@code{nil}かもしれない。リターンされるテーブルは、余分な1つ目のスロットにそのマッピングを保持する変換テーブル、2つ目の余分なスロットに値@code{1}をもつ。
 
-This function provides an easy way to make a private coding system that maps
-each byte to a specific character.  You can specify the returned table and
-the reverse translation table using the properties
-@code{:decode-translation-table} and @code{:encode-translation-table}
-respectively in the @var{props} argument to @code{define-coding-system}.
+この関数は、各バイトを特定の文字にマップするような、プライベートなコーディングシステムを簡単に作成する手段を提供する。@code{define-coding-system}の@var{props}引数のプロパティ@code{:decode-translation-table}と@code{:encode-translation-table}に、リターンされるテーブルと、逆変換テーブルを指定できる。
 @end defun
 
 @defun make-translation-table-from-alist alist
-This function is similar to @code{make-translation-table} but returns a
-complex translation table rather than a simple one-to-one mapping.  Each
-element of @var{alist} is of the form @code{(@var{from} . @var{to})}, where
-@var{from} and @var{to} are either characters or vectors specifying a
-sequence of characters.  If @var{from} is a character, that character is
-translated to @var{to} (i.e., to a character or a character sequence).  If
-@var{from} is a vector of characters, that sequence is translated to
-@var{to}.  The returned table has a translation table for reverse mapping in
-the first extra slot, and the maximum length of all the @var{from} character
-sequences in the second extra slot.
+この関数は@code{make-translation-table}と似ているが、シンプルな1体1の変換テーブルではなく、より複雑な変換テーブルをリターンする。@var{alist}の各要素は@code{(@var{from}
+.
+@var{to})}という形式をもち、ここで@var{from}および@var{to}は、文字または文字シーケンスを指定するベクターである。@var{from}が文字なら、その文字は@var{to}(文字または文字シーケンス)に変換される。@var{from}が文字のベクターならそのシーケンスは@var{to}に変換される。リターンされるテーブルは、1つ目の余分なスロットに逆のマッピングを行う変換テーブル、2つ目の余分なスロットには文字シーケンス@var{from}すべての最大長をもつ。
 @end defun
 
 @node Coding Systems
