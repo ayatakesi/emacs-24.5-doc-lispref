@@ -635,87 +635,49 @@ name  @code{emacs-internal}という名前は、@code{utf-8-emacs}にたいす�
 @node Encoding and I/O
 @subsection Encoding and I/O
 
-  The principal purpose of coding systems is for use in reading and writing
-files.  The function @code{insert-file-contents} uses a coding system to
-decode the file data, and @code{write-region} uses one to encode the buffer
-contents.
+  コーディングシステムの主な目的は、ファイルの読み込みと書き込みへの使用です。関数@code{insert-file-contents}はファイルデータのデコードにコーディングシステムを使用し、@code{write-region}はバッファーコンテンツのエンコードにコーディングシステムを使用します。
 
-  You can specify the coding system to use either explicitly
-(@pxref{Specifying Coding Systems}), or implicitly using a default mechanism
-(@pxref{Default Coding Systems}).  But these methods may not completely
-specify what to do.  For example, they may choose a coding system such as
-@code{undefined} which leaves the character code conversion to be determined
-from the data.  In these cases, the I/O operation finishes the job of
-choosing a coding system.  Very often you will want to find out afterwards
-which coding system was chosen.
+  使用するコーディングシステムは明示的(@ref{Specifying Coding
+Systems}を参照)、またはデフォルトメカニズム(@ref{Default Coding
+Systems}を参照)を使用により暗黙的に指定できます。しかしきれらの手法は、何を行うかを完全には指定しないかもしれません。たとえば、これらはデータから文字コード変換を行わない@code{undefined}のようなコーディングシステムを選択するかもしれません。このような場合、I/O処理はコーディングシステム選択により、その処理を完了します。後でどのコーディングシステムが選択されたか調べたいことが、頻繁にあるでしょう。
 
 @defvar buffer-file-coding-system
-This buffer-local variable records the coding system used for saving the
-buffer and for writing part of the buffer with @code{write-region}.  If the
-text to be written cannot be safely encoded using the coding system
-specified by this variable, these operations select an alternative encoding
-by calling the function @code{select-safe-coding-system} (@pxref{User-Chosen
-Coding Systems}).  If selecting a different encoding requires to ask the
-user to specify a coding system, @code{buffer-file-coding-system} is updated
-to the newly selected coding system.
+このバッファーローカル変数は、バッファーの保存、および@code{write-region}によるバッファー部分のファイルへの書き出しに使用されるコーディングシステムを記録する。書き込まれるテキストが、この変数で指定されたコーディングシステムを使用して安全にエンコードできない場合、これらの操作は関数@code{select-safe-coding-system}を呼び出すことにより、代替となるエンコーディングを選択する(@ref{User-Chosen
+Coding
+Systems}を参照)。異なるエンコーディングの選択が、ユーザーによるコーディングシステムの指定を要するなら、@code{buffer-file-coding-system}は新たに選択されたコーディングシステムに更新される。
 
-@code{buffer-file-coding-system} does @emph{not} affect sending text to a
-subprocess.
+@code{buffer-file-coding-system}は、サブプロセスへのテキスト送信に@emph{影響しない}。
 @end defvar
 
 @defvar save-buffer-coding-system
-This variable specifies the coding system for saving the buffer (by
-overriding @code{buffer-file-coding-system}).  Note that it is not used for
-@code{write-region}.
+この変数は、(@code{buffer-file-coding-system}をオーバーライドして)バッファーを保存するためのコーディングシステムを指定する。これは@code{write-region}には使用されないことに注意。
 
-When a command to save the buffer starts out to use
-@code{buffer-file-coding-system} (or @code{save-buffer-coding-system}), and
-that coding system cannot handle the actual text in the buffer, the command
-asks the user to choose another coding system (by calling
-@code{select-safe-coding-system}).  After that happens, the command also
-updates @code{buffer-file-coding-system} to represent the coding system that
-the user specified.
+あるコマンドがバッファーを保存するために@code{buffer-file-coding-system}(または@code{save-buffer-coding-system})の使用を開始して、そのコーディングシステムがバッファー内の実際のテキストを処理できなければ、(@code{select-safe-coding-system}を呼び出すことにより)そのコマンドは他のコーディングシステムの選択をユーザーに求める。これが発生した後は、コマンドはユーザー指定のコーディングシステムを表すために、@code{buffer-file-coding-system}の更新も行う。
 @end defvar
 
 @defvar last-coding-system-used
-I/O operations for files and subprocesses set this variable to the coding
-system name that was used.  The explicit encoding and decoding functions
-(@pxref{Explicit Encoding}) set it too.
+ファイルおよびサブプロセスにたいするI/O操作は、使用したコーディングシステムの名前を、この変数にセットする。明示的にエンコードとデコードを行う関数(@ref{Explicit
+Encoding}を参照)も、この変数をセットする。
 
-@strong{Warning:} Since receiving subprocess output sets this variable, it
-can change whenever Emacs waits; therefore, you should copy the value
-shortly after the function call that stores the value you are interested in.
+@strong{警告:}
+サブプロセス出力の受信によりこの変数がセットされるため、この変数はEmacsがwaitしているとくは常に変更され得る。したがって、興味対象となる値を格納する関数呼び出し後は、間を空けずにその値をコピーするべきである。
 @end defvar
 
-  The variable @code{selection-coding-system} specifies how to encode
-selections for the window system.  @xref{Window System Selections}.
+  変数@code{selection-coding-system}はウィンドウシステムにたいして、選択(selection)をエンコードする方法を指定します。@ref{Window
+System Selections}を参照してください。
 
 @defvar file-name-coding-system
-The variable @code{file-name-coding-system} specifies the coding system to
-use for encoding file names.  Emacs encodes file names using that coding
-system for all file operations.  If @code{file-name-coding-system} is
-@code{nil}, Emacs uses a default coding system determined by the selected
-language environment.  In the default language environment, any
-non-@acronym{ASCII} characters in file names are not encoded specially; they
-appear in the file system using the internal Emacs representation.
+変数@code{file-name-coding-system}は、ファイル名のエンコーディングに使用するコーディングシステムを指定する。Emacsは、すべてのファイル操作にたいして、ファイル名のエンコードにそのコーディングシステムを使用する。@code{file-name-coding-system}が@code{nil}なら、Emacsは選択された言語環境(language
+environment)により決定された、デフォルトのコーディングシステムを使用する。デフォルト言語環境では、ファイル名に含まれるすべての非@acronym{ASCII}文字は、特別にエンコードされない。これらはEmacsの内部表現を使用して、ファイルシステム内で表される。
 @end defvar
 
-  @strong{Warning:} if you change @code{file-name-coding-system} (or the
-language environment) in the middle of an Emacs session, problems can result
-if you have already visited files whose names were encoded using the earlier
-coding system and are handled differently under the new coding system.  If
-you try to save one of these buffers under the visited file name, saving may
-use the wrong file name, or it may get an error.  If such a problem happens,
-use @kbd{C-x C-w} to specify a new file name for that buffer.
+  @strong{警告:}
+Emacsのセッション中に@code{file-name-coding-system}(または言語環境)を変更した場合、以前のコーディングシステムを使用してエンコードされた名前をもつファイルをvisitしていると、新たなコーディングシステムでは異なるように扱われるので、問題が発生し得る。これらのvisitされたファイル名でこれらのバッファーの保存を試みると、保存により間違ったファイル名が使用されるか、エラーとなるかもしれない。そのような問題が発生したら、そのバッファーにたいして新たなファイル名を指定するために、@kbd{C-x
+C-w}を使用すること。
 
 @cindex file-name encoding, MS-Windows
-  On Windows 2000 and later, Emacs by default uses Unicode APIs to pass file
-names to the OS, so the value of @code{file-name-coding-system} is largely
-ignored.  Lisp applications that need to encode or decode file names on the
-Lisp level should use @code{utf-8} coding-system when @code{system-type} is
-@code{windows-nt}; the conversion of UTF-8 encoded file names to the
-encoding appropriate for communicating with the OS is performed internally
-by Emacs.
+  Windows 2000以降では、EmacsはOSに渡すファイル名にデフォルトでUnicode
+APIを使用するため、@code{file-name-coding-system}の値は大部分が無視される。Lispレベルでファイル名のエンコードまたはデコードを必要とするLispアプリケーションは、@code{system-type}が@code{windows-nt}のときは、@code{utf-8}をコーディングシステムに使用するべきである。UTF-8でエンコードされたファイル名から、OSと対話するために適したエンコーディングへの変換は、Emacsにより内部的に処理される。
 
 @node Lisp and Coding Systems
 @subsection Coding Systems in Lisp
