@@ -682,39 +682,27 @@ APIを使用するため、@code{file-name-coding-system}の値は大部分が�
 @node Lisp and Coding Systems
 @subsection Coding Systems in Lisp
 
-  Here are the Lisp facilities for working with coding systems:
+  以下はコーディングシステムと連携するLisp機能です:
 
 @cindex list all coding systems
 @defun coding-system-list &optional base-only
-This function returns a list of all coding system names (symbols).  If
-@var{base-only} is non-@code{nil}, the value includes only the base coding
-systems.  Otherwise, it includes alias and variant coding systems as well.
+この関数は、すべてのコーディングシステムの名前(シンボル)をリターンする。@var{base-only}が非@code{nil}なら、値にはベースコーディングシステムだけが含まれる。それ以外ならエイリアス、およびバリアントコーディングシステムも同様に含まれる。
 @end defun
 
 @defun coding-system-p object
-This function returns @code{t} if @var{object} is a coding system name or
-@code{nil}.
+この関数は、@var{object}がコーディングシステムの名前、または@code{nil}なら、@code{t}をリターンする。
 @end defun
 
 @cindex validity of coding system
 @cindex coding system, validity check
 @defun check-coding-system coding-system
-This function checks the validity of @var{coding-system}.  If that is valid,
-it returns @var{coding-system}.  If @var{coding-system} is @code{nil}, the
-function return @code{nil}.  For any other values, it signals an error whose
-@code{error-symbol} is @code{coding-system-error} (@pxref{Signaling Errors,
-signal}).
+この関数は、@var{coding-system}の有効性をチェックする。有効なら@var{coding-system}をリターンする。@var{coding-system}が@code{nil}なら、この関数は@code{nil}をリターンする。それ以外の値にたいしては、@code{error-symbol}が@code{coding-system-error}であるようなエラーをシグナルする(@ref{Signaling
+Errors, signal}を参照)。
 @end defun
 
 @cindex eol type of coding system
 @defun coding-system-eol-type coding-system
-This function returns the type of end-of-line (a.k.a.@: @dfn{eol})
-conversion used by @var{coding-system}.  If @var{coding-system} specifies a
-certain eol conversion, the return value is an integer 0, 1, or 2, standing
-for @code{unix}, @code{dos}, and @code{mac}, respectively.  If
-@var{coding-system} doesn't specify eol conversion explicitly, the return
-value is a vector of coding systems, each one with one of the possible eol
-conversion types, like this:
+この関数は、行末(@dfn{eol}とも言う)を@var{coding-system}で使用されるタイプに変換する。@var{coding-system}が特定のeol変換を指定する場合、リターン値は0、1、2で、それらは順に@code{unix}、@code{dos}、@code{mac}を意味する。@var{coding-system}が明示的にeol変換を指定しなければ、リターン値は以下のようにそれぞれが可能なeol変換タイプをもつようなコーディングシステムのベクターである:
 
 @lisp
 (coding-system-eol-type 'latin-1)
@@ -722,145 +710,93 @@ conversion types, like this:
 @end lisp
 
 @noindent
-If this function returns a vector, Emacs will decide, as part of the text
-encoding or decoding process, what eol conversion to use.  For decoding, the
-end-of-line format of the text is auto-detected, and the eol conversion is
-set to match it (e.g., DOS-style CRLF format will imply @code{dos} eol
-conversion).  For encoding, the eol conversion is taken from the appropriate
-default coding system (e.g., default value of
-@code{buffer-file-coding-system} for @code{buffer-file-coding-system}), or
-from the default eol conversion appropriate for the underlying platform.
+この関数がベクターをリターンしたら、Emacsはテキストのエンコードやデコードプロセスの一部として、使用するeol変換を決定するだろう。デコードでは、テキストの行末フォーマットは自動検知され、eol変換はそれに適合するようセットされる(DOSスタイルのCRLFフォーマットは暗黙でeol変換に@code{dos}をセットする)。エンコードにたいしては、適切なデフォルトコーディングシステム(@code{buffer-file-coding-system}にたいする@code{buffer-file-coding-system}のデフォルト値)、または配下にあるプラットフォームにたいして適切なデフォルトeol変換が採用される。
 @end defun
 
 @cindex eol conversion of coding system
 @defun coding-system-change-eol-conversion coding-system eol-type
-This function returns a coding system which is like @var{coding-system}
-except for its eol conversion, which is specified by @code{eol-type}.
-@var{eol-type} should be @code{unix}, @code{dos}, @code{mac}, or
-@code{nil}.  If it is @code{nil}, the returned coding system determines the
-end-of-line conversion from the data.
+この関数は、@var{coding-system}と類似するが、@code{eol-type}で指定されたeol変換の異なるコーディングシステムをリターンする。@var{eol-type}は@code{unix}、@code{dos}、@code{mac}、または@code{nil}であること。これが@code{nil}なら、リターンされるコーディングシステムは、データのeol変換により決定される。
 
-@var{eol-type} may also be 0, 1 or 2, standing for @code{unix}, @code{dos}
-and @code{mac}, respectively.
+@var{eol-type}は@code{unix}、@code{dos}、@code{mac}を意味する0、1、2でもよい。
 @end defun
 
 @cindex text conversion of coding system
 @defun coding-system-change-text-conversion eol-coding text-coding
-This function returns a coding system which uses the end-of-line conversion
-of @var{eol-coding}, and the text conversion of @var{text-coding}.  If
-@var{text-coding} is @code{nil}, it returns @code{undecided}, or one of its
-variants according to @var{eol-coding}.
+この関数は、@var{eol-coding}の行末変換と、@var{text-coding}のテキスト変換を使用するコーディングシステムをリターンする。@var{text-coding}が@code{nil}なら、これは@code{undecided}、または@var{eol-coding}に対応するバリアントの1つをリターンする。
 @end defun
 
 @cindex safely encode region
 @cindex coding systems for encoding region
 @defun find-coding-systems-region from to
-This function returns a list of coding systems that could be used to encode
-a text between @var{from} and @var{to}.  All coding systems in the list can
-safely encode any multibyte characters in that portion of the text.
+この関数は、@var{from}と@var{to}の間のテキストのエンコードに使用可能な、コーディングシステムのリストをリターンする。このリスト内のすべてのリストは、そのテキスト範囲内にあるすべてのマルチバイト文字を、安全にエンコードできる。
 
-If the text contains no multibyte characters, the function returns the list
-@code{(undecided)}.
+そのテキストがマルチバイト文字を含まれなければ、この関数はリスト@code{(undecided)}をリターンする。
 @end defun
 
 @cindex safely encode a string
 @cindex coding systems for encoding a string
 @defun find-coding-systems-string string
-This function returns a list of coding systems that could be used to encode
-the text of @var{string}.  All coding systems in the list can safely encode
-any multibyte characters in @var{string}.  If the text contains no multibyte
-characters, this returns the list @code{(undecided)}.
+この関数は、@var{string}のテキストのエンコードに使用可能な、コーディングシステムのリストをリターンする。このリスト内のすべてのリストは、@var{string}にあるすべてのマルチバイト文字を、安全にエンコードできる。そのテキストがマルチバイト文字を含まれなければ、この関数はリスト@code{(undecided)}をリターンする。
 @end defun
 
 @cindex charset, coding systems to encode
 @cindex safely encode characters in a charset
 @defun find-coding-systems-for-charsets charsets
-This function returns a list of coding systems that could be used to encode
-all the character sets in the list @var{charsets}.
+この関数は、リスト@var{charsets}内のすべての文字セットのエンコードに使用可能な、コーディングシステムのリストをリターンする。
 @end defun
 
 @defun check-coding-systems-region start end coding-system-list
-This function checks whether coding systems in the list
-@code{coding-system-list} can encode all the characters in the region
-between @var{start} and @var{end}.  If all of the coding systems in the list
-can encode the specified text, the function returns @code{nil}.  If some
-coding systems cannot encode some of the characters, the value is an alist,
-each element of which has the form @code{(@var{coding-system1} @var{pos1}
-@var{pos2} @dots{})}, meaning that @var{coding-system1} cannot encode
-characters at buffer positions @var{pos1}, @var{pos2}, @enddots{}.
+この関数は、リスト@code{coding-system-list}内のコーディングシステムが、@var{start}と@var{end}の間のリージョン内にあるすべての文字をエンコード可能かどうかをチェックする。このリスト内のすべてのコーディングシステムが指定されたテキストをエンコード可能なら、この関数は@code{nil}をリターンする。ある文字をエンコードできないコーディングシステムがある場合は、各要素が@code{(@var{coding-system1}
+@var{pos1} @var{pos2}
+@dots{})}という形式のalistが値となる。これは@var{coding-system1}が、バッファーの位置@var{pos1}、@var{pos2}、@enddots{}にある文字をエンコードできないことを意味する。
 
-@var{start} may be a string, in which case @var{end} is ignored and the
-returned value references string indices instead of buffer positions.
+@var{start}は文字列かもしれず、その場合@var{end}は無視され、リターン値はバッファー位置のかわりに文字列のインデックスを参照することになる。
 @end defun
 
 @defun detect-coding-region start end &optional highest
-This function chooses a plausible coding system for decoding the text from
-@var{start} to @var{end}.  This text should be a byte sequence, i.e.,
-unibyte text or multibyte text with only @acronym{ASCII} and eight-bit
-characters (@pxref{Explicit Encoding}).
+この関数は、@var{start}から@var{end}のテキストのデコードに適したコーディングシステムを選択する。このテキストはバイトシーケンス、すなわちユニバイトテキスト、@acronym{ASCII}のみのマルチバイトテキスト、8ビット文字のシーケンスであること(@ref{Explicit
+Encoding}を参照)。
 
-Normally this function returns a list of coding systems that could handle
-decoding the text that was scanned.  They are listed in order of decreasing
-priority.  But if @var{highest} is non-@code{nil}, then the return value is
-just one coding system, the one that is highest in priority.
+この関数は通常はスキャンしたテキストのデコーディングを処理可能な、コーディングシステムのリストをリターンする。これらのコーディングシステムは優先度降順でリストされる。しかし@var{highest}が非@code{nil}なら、リターン値はもっとも高い優先度のコーディングシステムただ1つとなる。
 
-If the region contains only @acronym{ASCII} characters except for such
-ISO-2022 control characters ISO-2022 as @code{ESC}, the value is
-@code{undecided} or @code{(undecided)}, or a variant specifying end-of-line
-conversion, if that can be deduced from the text.
+リージョンにISO-2022の@code{ESC}のようなISO-2022制御文字を除いて@acronym{ASCII}文字だけが含まれる場合、値は@code{undecided}、@code{(undecided)}、またはテキストから推論可能ならeol変換を指定するバリアントとなる。
 
-If the region contains null bytes, the value is @code{no-conversion}, even
-if the region contains text encoded in some coding system.
+リージョンにnullバイトが含まれる場合は、あるコーディングシステムによりエンコードされたテキストがリージョン内に含まれる場合でも、値は@code{no-conversion}となる。
 @end defun
 
 @defun detect-coding-string string &optional highest
-This function is like @code{detect-coding-region} except that it operates on
-the contents of @var{string} instead of bytes in the buffer.
+この関数は@code{detect-coding-region}と似ているが、バッファー内のバイトのかわりに@var{string}のコンテンツを処理する点が異なる。
 @end defun
 
 @cindex null bytes, and decoding text
 @defvar inhibit-null-byte-detection
-If this variable has a non-@code{nil} value, null bytes are ignored when
-detecting the encoding of a region or a string.  This allows to correctly
-detect the encoding of text that contains null bytes, such as Info files
-with Index nodes.
+この変数が非@code{nil}値をもつなら、リージョンや文字列のエンコーディング検出時に、nullバイトを無視する。これによりIndexノードをもつInfoファイルのように、nullバイトを含むテキストのエンコーディングを正しく検出できる。
 @end defvar
 
 @defvar inhibit-iso-escape-detection
-If this variable has a non-@code{nil} value, ISO-2022 escape sequences are
-ignored when detecting the encoding of a region or a string.  The result is
-that no text is ever detected as encoded in some ISO-2022 encoding, and all
-escape sequences become visible in a buffer.  @strong{Warning:} @emph{Use
-this variable with extreme caution, because many files in the Emacs
-distribution use ISO-2022 encoding.}
+この変数が非@code{nil}値をもつなら、リージョンや文字列のエンコーディング検出時に、ISO-2022エスケープシーケンスを無視する。その結果、これまでいくつかのISO-2022エンコーディングにおいてエンコード済みと検出されていたテキストがなくなり、バッファー内ですべてのエスケープシーケンスが可視になる。@strong{警告:}
+この変数の使用には特に注意を払うこと。なぜならEmacsディストリビューション内で多くのファイルがISO-2022エンコーディングを使用するからである。
 @end defvar
 
 @cindex charsets supported by a coding system
 @defun coding-system-charset-list coding-system
-This function returns the list of character sets (@pxref{Character Sets})
-supported by @var{coding-system}.  Some coding systems that support too many
-character sets to list them all yield special values:
+この関数は、@var{coding-system}がサポートする文字セット(@ref{Character
+Sets}を参照)のリストをリターンする。リストすべき文字セットを非常に多くサポートするいくつかのコーディングシステムでは、特別な値がリストされる:
 @itemize @bullet
 @item
-If @var{coding-system} supports all Emacs characters, the value is
-@code{(emacs)}.
+@var{coding-system}がすべてのEmacs文字をサポートするなら、値は@code{(emacs)}。
 @item
-If @var{coding-system} supports all Unicode characters, the value is
-@code{(unicode)}.
+@var{coding-system}がすべてのUnicode文字をサポートするなら、値は@code{(unicode)}。
 @item
-If @var{coding-system} supports all ISO-2022 charsets, the value is
-@code{iso-2022}.
+@var{coding-system}がすべてのISO-2022文字をサポートするなら、値は@code{iso-2022}。
 @item
-If @var{coding-system} supports all the characters in the internal coding
-system used by Emacs version 21 (prior to the implementation of internal
-Unicode support), the value is @code{emacs-mule}.
+@var{coding-system}がEmacsバージョン21(Unicodeサポートの内部的な実装以前)で使用される内部的コーディングシステム内のすべての文字をサポートするなら、値は@code{emacs-mule}。
 @end itemize
 @end defun
 
-  @xref{Coding systems for a subprocess,, Process Information}, in particular
-the description of the functions @code{process-coding-system} and
-@code{set-process-coding-system}, for how to examine or set the coding
-systems used for I/O to a subprocess.
+  サブプロセスへの入出力に使用されるコーディングシステムのチェックやセットの方法については、@ref{Coding systems for a
+subprocess,, Process
+Information}、特に関数@code{process-coding-system}および@code{set-process-coding-system}の説明を参照してください。
 
 @node User-Chosen Coding Systems
 @subsection User-Chosen Coding Systems
