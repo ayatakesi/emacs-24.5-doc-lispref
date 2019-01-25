@@ -942,79 +942,51 @@ Manual}を参照)。マッチングルールを調べる順序は@code{auto-codi
 @cindex force coding system for operation
 @cindex coding system for operation
 
-  You can specify the coding system for a specific operation by binding the
-variables @code{coding-system-for-read} and/or
-@code{coding-system-for-write}.
+  変数@code{coding-system-for-read}および/または@code{coding-system-for-write}をバインドすることにより、特定の操作にたいしてコーディングシステムを指定できます。
 
 @defvar coding-system-for-read
-If this variable is non-@code{nil}, it specifies the coding system to use
-for reading a file, or for input from a synchronous subprocess.
+この変数が非@code{nil}なら、それはファイルの読み込み、または同期サブプロセスプロセスからの入力にたいして使用する、コーディングシステムを指定する。
 
-It also applies to any asynchronous subprocess or network stream, but in a
-different way: the value of @code{coding-system-for-read} when you start the
-subprocess or open the network stream specifies the input decoding method
-for that subprocess or network stream.  It remains in use for that
-subprocess or network stream unless and until overridden.
+これは非同期サブプロセスやネットワークストリームにも適用されるが、その方法は異なる。サブプロセス開始時、またはネットワークストリームオープン時の@code{coding-system-for-read}の値は、サブプロセスまたはネットワークストリームにたいして入力のデコードメソッドを指定する。そのサブプロセスまたはネットワークストリームにたいして、それがオーバーライドされるまで、それが使用され続ける。
 
-The right way to use this variable is to bind it with @code{let} for a
-specific I/O operation.  Its global value is normally @code{nil}, and you
-should not globally set it to any other value.  Here is an example of the
-right way to use the variable:
+特定のI/O操作にたいして@code{let}でバインドするのが、この変数の正しい使い方である。この変数のグローバル値は常に@code{nil}であり、他の値にグローバルにセットするべきではない。以下は、この変数の正しい使用例である:
 
 @example
-;; @r{Read the file with no character code conversion.}
+;; @r{文字コード変換なしでファイルを読み込む}
 (let ((coding-system-for-read 'no-conversion))
   (insert-file-contents filename))
 @end example
 
-When its value is non-@code{nil}, this variable takes precedence over all
-other methods of specifying a coding system to use for input, including
-@code{file-coding-system-alist}, @code{process-coding-system-alist} and
-@code{network-coding-system-alist}.
+この変数の値が非@code{nil}のときは@code{file-coding-system-alist}、@code{process-coding-system-alist}、@code{network-coding-system-alist}を含む、入力にたいして使用するコーディングシステムを指定するすべてのメソッドより、この変数が優先される。
 @end defvar
 
 @defvar coding-system-for-write
-This works much like @code{coding-system-for-read}, except that it applies
-to output rather than input.  It affects writing to files, as well as
-sending output to subprocesses and net connections.
+これは@code{coding-system-for-read}と同じように機能するが、入力ではなく出力に適用される点が異なる。これはファイルへの書き込み、同様にサブプロセスおよびネットワークストリームへの出力の送信にも適用される。
 
-When a single operation does both input and output, as do
-@code{call-process-region} and @code{start-process}, both
-@code{coding-system-for-read} and @code{coding-system-for-write} affect it.
+単一の操作が@code{call-process-region}や@code{start-process}のように、入力と出力の両方を行う際は、@code{coding-system-for-read}と@code{coding-system-for-write}の両方がそれに影響する。
 @end defvar
 
 @defopt inhibit-eol-conversion
-When this variable is non-@code{nil}, no end-of-line conversion is done, no
-matter which coding system is specified.  This applies to all the Emacs I/O
-and subprocess primitives, and to the explicit encoding and decoding
-functions (@pxref{Explicit Encoding}).
+この変数が非@code{nil}なら、どのコーディングシステムが指定されたかに関わらず、行末変換は何も行われない。これはEmacsすべてのI/Oおよびサブプロセスにたいするプリミティブ、および明示的なエンコード関数(@ref{Explicit
+Encoding}を参照)とデコード関数に適用される。
 @end defopt
 
 @cindex priority order of coding systems
 @cindex coding systems, priority
-  Sometimes, you need to prefer several coding systems for some operation,
-rather than fix a single one.  Emacs lets you specify a priority order for
-using coding systems.  This ordering affects the sorting of lists of coding
-systems returned by functions such as @code{find-coding-systems-region}
-(@pxref{Lisp and Coding Systems}).
+  ある操作にたいして、固定された1つのコーディングシステムではなく、複数のコーディングシステムを選択する必要があることが、ときおりあります。Emacsでは、使用するコーディングシステムにたいして優先順位を指定できます。これは、@code{find-coding-systems-region}(@ref{Lisp
+and Coding Systems}を参照)のような関数によりリターンされるコーディングシステムのリストのソート順に影響します。
 
 @defun coding-system-priority-list &optional highestp
-This function returns the list of coding systems in the order of their
-current priorities.  Optional argument @var{highestp}, if non-@code{nil},
-means return only the highest priority coding system.
+この関数は、コーディングシステムのカレント優先順に、コーディングシステムのリストをリターンする。オプション引数@var{highestp}が非@code{nil}なら、それはもっとも高い優先度のコーディングシステムだけをリターンすることを意味する。
 @end defun
 
 @defun set-coding-system-priority &rest coding-systems
-This function puts @var{coding-systems} at the beginning of the priority
-list for coding systems, thus making their priority higher than all the
-rest.
+この関数は、コーディングシステムの優先リストの先頭に@var{coding-systems}を置き、それらを他のコーディングシステムすべてより高い優先度とする。
 @end defun
 
 @defmac with-coding-priority coding-systems &rest body@dots{}
-This macro execute @var{body}, like @code{progn} does (@pxref{Sequencing,
-progn}), with @var{coding-systems} at the front of the priority list for
-coding systems.  @var{coding-systems} should be a list of coding systems to
-prefer during execution of @var{body}.
+このマクロは、@var{coding-systems}をコーディングシステム優先リスト先頭に置いて、@code{progn}(@ref{Sequencing,
+progn}を参照)が行うように、@var{body}を実行する。@var{coding-systems}は、@var{body}実行中に選択するコーディングシステムのリストであること。
 @end defmac
 
 @node Explicit Encoding
