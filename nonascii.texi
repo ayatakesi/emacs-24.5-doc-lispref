@@ -994,57 +994,31 @@ progn}を参照)が行うように、@var{body}を実行する。@var{coding-sys
 @cindex encoding in coding systems
 @cindex decoding in coding systems
 
-  All the operations that transfer text in and out of Emacs have the ability
-to use a coding system to encode or decode the text.  You can also
-explicitly encode and decode text using the functions in this section.
+  Emacs内外へテキストを転送するすべての操作は、そのテキストをエンコードまたはデコードする能力をもっています。このセクション内の関数を使用して、テキストを明示的にエンコードあるいはデコードすることもできます。
 
-  The result of encoding, and the input to decoding, are not ordinary text.
-They logically consist of a series of byte values; that is, a series of
-@acronym{ASCII} and eight-bit characters.  In unibyte buffers and strings,
-these characters have codes in the range 0 through #xFF (255).  In a
-multibyte buffer or string, eight-bit characters have character codes higher
-than #xFF (@pxref{Text Representations}), but Emacs transparently converts
-them to their single-byte values when you encode or decode such text.
+  エンコード結果およびデコーディングへの入力は、通常のテキストではありません。これらは理論的には一連のバイト値から構成され、すなわち一連の@acronym{ASCII}文字と8ビット文字から構成されます。ユニバイトのバッファーおよび文字列では、これらの文字は0から#xFF(255)の範囲のコードをもちます。マルチバイトのバッファーおよび文字列では、8ビット文字は#xFFより大きい文字コードをもちますが(@ref{Text
+Representations}を参照)、そのようなテキストのエンコードやデコード時、Emacsは透過的にそれらを単一バイト値に変換します。
 
-  The usual way to read a file into a buffer as a sequence of bytes, so you
-can decode the contents explicitly, is with
-@code{insert-file-contents-literally} (@pxref{Reading from Files});
-alternatively, specify a non-@code{nil} @var{rawfile} argument when visiting
-a file with @code{find-file-noselect}.  These methods result in a unibyte
-buffer.
+  コンテンツを明示的にデコードできるように、バイトシーケンスとしてバッファーにファイルを読み込むには、@code{insert-file-contents-literally}(@ref{Reading
+from
+Files}を参照)を使用するのが通常の方法です。あるいは@code{find-file-noselect}でファイルをvisitする際、引数@var{rawfile}に非@code{nil}を指定することもできます。これらのメソッドの結果は、ユニバイトバッファーになります。
 
-  The usual way to use the byte sequence that results from explicitly encoding
-text is to copy it to a file or process---for example, to write it with
-@code{write-region} (@pxref{Writing to Files}), and suppress encoding by
-binding @code{coding-system-for-write} to @code{no-conversion}.
+  テキストを明示的にエンコードした結果であるバイトシーケンスは、たとえばそれを@code{write-region}(@pxref{Writing to
+Files})で書き込み、@code{coding-system-for-write}を@code{no-conversion}にバインドすることによりエンコードを抑制する等、それをファイルまたはプロセスへコピーするのが、通常の使い方です。
 
-  Here are the functions to perform explicit encoding or decoding.  The
-encoding functions produce sequences of bytes; the decoding functions are
-meant to operate on sequences of bytes.  All of these functions discard text
-properties.  They also set @code{last-coding-system-used} to the precise
-coding system they used.
+  以下は、エンコードまたはデコードを明示的に行う関数です。エンコード関数とはバイトシーケンスを生成し、デコード関数とはバイトシーケンスを操作する関数のことを意味します。これらの関数はすべて、テキストプロパティを破棄します。これらは、自身が使用したコーディングシステムを、正確に@code{last-coding-system-used}することも行います。
 
 @deffn Command encode-coding-region start end coding-system &optional destination
-This command encodes the text from @var{start} to @var{end} according to
-coding system @var{coding-system}.  Normally, the encoded text replaces the
-original text in the buffer, but the optional argument @var{destination} can
-change that.  If @var{destination} is a buffer, the encoded text is inserted
-in that buffer after point (point does not move); if it is @code{t}, the
-command returns the encoded text as a unibyte string without inserting it.
+このコマンドは、@var{start}から@var{end}のテキストを、コーディングシステム@var{coding-system}でエンコードする。通常、バッファー内の元テキストはエンコードされたテキストで置き換えられるが、オプション引数@var{destination}でそれを変更できる。@var{destination}がバッファーなら、エンコードされたテキストはそのバッファーのポイントの後に挿入される(ポイントは移動しない)。@code{t}なら、このコマンドはエンコードされたテキストを挿入せずに、ユニバイトとしてリターンする。
 
-If encoded text is inserted in some buffer, this command returns the length
-of the encoded text.
+エンコードされたテキストが何らかのバッファーに挿入された場合、このコマンドはエンコードされたテキストの長さをリターンする。
 
-The result of encoding is logically a sequence of bytes, but the buffer
-remains multibyte if it was multibyte before, and any 8-bit bytes are
-converted to their multibyte representation (@pxref{Text Representations}).
+エンコードされた結果は理論的にはバイトシーケンスだが、バッファーが以前マルチバイトだったならマルチバイトのまま留まり、すべての8ビットのバイトはマルチバイト表現に変換される(@ref{Text
+Representations}を参照)。
 
 @cindex @code{undecided} coding-system, when encoding
-Do @emph{not} use @code{undecided} for @var{coding-system} when encoding
-text, since that may lead to unexpected results.  Instead, use
-@code{select-safe-coding-system} (@pxref{User-Chosen Coding Systems,
-select-safe-coding-system}) to suggest a suitable encoding, if there's no
-obvious pertinent value for @var{coding-system}.
+期待しない結果となる恐れがあるので、テキストのエンコードする際は、@var{coding-system}に@code{undecided}を@emph{使用してはならない}。@var{coding-system}にたいして自明な適値が存在しなければ、適切なエンコードを提案させるために、かわりに@code{select-safe-coding-system}を使用すること(@ref{User-Chosen
+Coding Systems, select-safe-coding-system}を参照)。
 @end deffn
 
 @defun encode-coding-string string coding-system &optional nocopy buffer
