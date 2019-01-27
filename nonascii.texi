@@ -1082,72 +1082,48 @@ Terminals}を参照のこと。
 @section Input Methods
 @cindex input methods
 
-  @dfn{Input methods} provide convenient ways of entering non-@acronym{ASCII}
-characters from the keyboard.  Unlike coding systems, which translate
-non-@acronym{ASCII} characters to and from encodings meant to be read by
-programs, input methods provide human-friendly commands.  (@xref{Input
-Methods,,, emacs, The GNU Emacs Manual}, for information on how users use
-input methods to enter text.)  How to define input methods is not yet
-documented in this manual, but here we describe how to use them.
+  @dfn{入力メソッド(input
+methods)}とは、キーボードから非@acronym{ASCII}文字を簡単に入力する手段を提供します。プログラムが読み取ることを意図して非@acronym{ASCII}文字とエンコーディングを相互に変換するコーディングシステムとは異なり、入力メソッドはヒューマンフレンドリーなコマンドを提供します(テキストを入力するためにユーザーが入力メソッドを使う方法については、@ref{Input
+Methods,,, emacs, The GNU Emacs
+Manual}を参照のこと)。0入力メソッドの定義方法はまだこのマニュアルにはありませんが、ここではそれらの使い方について説明します。
 
-  Each input method has a name, which is currently a string; in the future,
-symbols may also be usable as input method names.
+  現在のところ、入力メソッドは文字列で名前をもっていますが、将来的には入力メソッド名として、シンボルも利用可能になるかもしれません。
 
 @defvar current-input-method
-This variable holds the name of the input method now active in the current
-buffer.  (It automatically becomes local in each buffer when set in any
-fashion.)  It is @code{nil} if no input method is active in the buffer now.
+この変数は、カレントバッファーで現在アクティブな、入力メソッドの名前を保持する(方法に依らずセット時には各バッファーで自動的にローカルになる)。バッファーで現在アクティブな入力メソッドがなければ、値は@code{nil}。
 @end defvar
 
 @defopt default-input-method
-This variable holds the default input method for commands that choose an
-input method.  Unlike @code{current-input-method}, this variable is normally
-global.
+この変数は、入力メソッドを選択するコマンドにたいして、デフォルトの入力メソッドを保持する。@code{current-input-method}と異なり、この変数は通常はグローバルである。
 @end defopt
 
 @deffn Command set-input-method input-method
-This command activates input method @var{input-method} for the current
-buffer.  It also sets @code{default-input-method} to @var{input-method}.  If
-@var{input-method} is @code{nil}, this command deactivates any input method
-for the current buffer.
+このコマンドは、カレントバッファーで入力メソッド@var{input-method}をアクティブにする。同様に@code{default-input-method}に@var{input-method}のセットも行う。@var{input-method}が@code{nil}なら、このコマンドはカレントバッファーで入力メソッドを非アクティブにする。
 @end deffn
 
 @defun read-input-method-name prompt &optional default inhibit-null
-This function reads an input method name with the minibuffer, prompting with
-@var{prompt}.  If @var{default} is non-@code{nil}, that is returned by
-default, if the user enters empty input.  However, if @var{inhibit-null} is
-non-@code{nil}, empty input signals an error.
+この関数は、プロンプト@var{prompt}とともに、ミニバッファーで入力メソッドの名前を読み取る。@var{default}が非@code{nil}の場合、ユーザーの入力が空なら、それがデフォルトとしてリターンされる。しかし、@var{inhibit-null}が非@code{nil}なら、空の入力はエラーをシグナルする。
 
-The returned value is a string.
+リターン値は文字列。
 @end defun
 
 @defvar input-method-alist
-This variable defines all the supported input methods.  Each element defines
-one input method, and should have the form:
+この変数は、サポートされているすべての入力メソッドを定義する。各要素は1つの入力メソッドを定義し、以下の形式をもつ:
 
 @example
 (@var{input-method} @var{language-env} @var{activate-func}
  @var{title} @var{description} @var{args}...)
 @end example
 
-Here @var{input-method} is the input method name, a string;
-@var{language-env} is another string, the name of the language environment
-this input method is recommended for.  (That serves only for documentation
-purposes.)
+ここで@var{input-method}はメソッド名の文字列、@var{language-env}はこの入力メソッドが推奨される言語環境の名前の文字列である(これはドキュメントとしての目的のみの役割を果たす)。
 
-@var{activate-func} is a function to call to activate this method.  The
-@var{args}, if any, are passed as arguments to @var{activate-func}.  All
-told, the arguments to @var{activate-func} are @var{input-method} and the
-@var{args}.
+@var{activate-func}は、このメソッドをアクティブにするために呼び出す関数、もしあれば@var{args}は@var{activate-func}に渡す引数である。つまり、@var{activate-func}の引数は、@var{input-method}と@var{args}である。
 
-@var{title} is a string to display in the mode line while this method is
-active.  @var{description} is a string describing this method and what it is
-good for.
+@var{title}は、ソン入力メソッドがアクティブな間、それをモードライン内に表示するための文字列、@var{description}はそのメソッドを説明し、それが何に適するかを説明する文字列である。
 @end defvar
 
-  The fundamental interface to input methods is through the variable
-@code{input-method-function}.  @xref{Reading One Event}, and @ref{Invoking
-the Input Method}.
+  入力メソッドのための基本的インターフェースは、変数@code{input-method-function}です。@ref{Reading One
+Event}、および@ref{Invoking the Input Method}を参照してください。
 
 @node Locales
 @section Locales
