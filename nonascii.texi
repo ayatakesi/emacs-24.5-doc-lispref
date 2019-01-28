@@ -29,7 +29,7 @@
 * Translation of Characters::  変換に使用される変換テーブル。
 * Coding Systems::           コーディングシステムはファイル保存のための変換である。
 * Input Methods::            入力メソッドによりユーザーは特別なキーボードなしで非ASCII文字を入力できる。
-* Locales::                  POSIXロケールとの対話。
+* Locales::                  POSIX localeとの対話。
 @end menu
 
 @node Text Representations
@@ -1129,57 +1129,40 @@ Event}、および@ref{Invoking the Input Method}を参照してください。
 @section Locales
 @cindex locale
 
-  POSIX defines a concept of ``locales'' which control which language to use
-in language-related features.  These Emacs variables control how Emacs
-interacts with these features.
+  POSIXには、言語に関連する機能において、使用する言語を制御するための、``locale''という概念があります。以下のEmacs変数は、Emacsがこれらの機能と相互作用する方法を制御します。
 
 @defvar locale-coding-system
 @cindex keyboard input decoding on X
-This variable specifies the coding system to use for decoding system error
-messages and---on X Window system only---keyboard input, for encoding the
-format argument to @code{format-time-string}, and for decoding the return
-value of @code{format-time-string}.
+この変数は、@code{format-time-string}のformat引数、および@code{format-time-string}のリターン値にたいして、システムエラーメッセージ、およびXウィンドウに限りキーボード入力をデコードするために使用するコーディングシステムを指定する。
 @end defvar
 
 @defvar system-messages-locale
-This variable specifies the locale to use for generating system error
-messages.  Changing the locale can cause messages to come out in a different
-language or in a different orthography.  If the variable is @code{nil}, the
-locale is specified by environment variables in the usual POSIX fashion.
+この変数は、システムエラーメッセージを生成するために使用するlocaleを指定する。locale変更により、メッセージが異なる言語になったり、異なる表記になり得る。この変数が@code{nil}なら、通常のPOSIX方式のように、localeは環境変数により指定される。
 @end defvar
 
 @defvar system-time-locale
-This variable specifies the locale to use for formatting time values.
-Changing the locale can cause messages to appear according to the
-conventions of a different language.  If the variable is @code{nil}, the
-locale is specified by environment variables in the usual POSIX fashion.
+この変数は、タイムバリューをフォーマットするために使用するlocaleを指定する。locale変更により、異なる慣習によりメッセージが表示され得る。この変数が@code{nil}なら、通常のPOSIX方式のように、localeは環境変数により指定される。
 @end defvar
 
 @defun locale-info item
-This function returns locale data @var{item} for the current POSIX locale,
-if available.  @var{item} should be one of these symbols:
+この変数は、もし利用可能なら、カレントPOSIX
+localeにたいするlocaleデータ@var{item}をリターンする。@var{item}は以下のシンボルのいずれかであること:
 
 @table @code
 @item codeset
-Return the character set as a string (locale item @code{CODESET}).
+文字列として文字セットをリターンする(localeアイテムの@code{CODESET})。
 
 @item days
-Return a 7-element vector of day names (locale items @code{DAY_1} through
-@code{DAY_7});
+曜日名からなる7要素のベクターをリターンする(localeアイテムの@code{DAY_1}から@code{DAY_7})。
 
 @item months
-Return a 12-element vector of month names (locale items @code{MON_1} through
-@code{MON_12}).
+月の名前からなる12要素のベクターをリターンする(localeアイテムの@code{MON_1}から@code{MON_12})。
 
 @item paper
-Return a list @code{(@var{width} @var{height})} for the default paper size
-measured in millimeters (locale items @code{PAPER_WIDTH} and
-@code{PAPER_HEIGHT}).
+@code{(@var{width}
+@var{height})}というリストで、mm単位でデフォルト用紙サイズをリターンする(localeアイテム@code{PAPER_WIDTH}および@code{PAPER_HEIGHT})。
 @end table
 
-If the system can't provide the requested information, or if @var{item} is
-not one of those symbols, the value is @code{nil}.  All strings in the
-return value are decoded using @code{locale-coding-system}.
-@xref{Locales,,, libc, The GNU Libc Manual}, for more information about
-locales and locale items.
+システムが要求された情報を提供できない、または@var{item}が上記いずれのシンボルでもなければ、値は@code{nil}となる。リターン値内のすべての文字列は、@code{locale-coding-system}を使用してデコードされる。localeおよびlocaleアイテムについての詳細な情報は、@ref{Locales,,,
+libc, The GNU Libc Manual}を参照されたい。
 @end defun
