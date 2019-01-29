@@ -35,26 +35,17 @@ Characters}を参照してください。文字プロパティ内の変更を検
 @section Searching for Strings
 @cindex string search
 
-  These are the primitive functions for searching through the text in a
-buffer.  They are meant for use in programs, but you may call them
-interactively.  If you do so, they prompt for the search string; the
-arguments @var{limit} and @var{noerror} are @code{nil}, and @var{repeat} is
-1.  For more details on interactive searching, @pxref{Search,, Searching and
-Replacement, emacs, The GNU Emacs Manual}.
+  バッファー内のテキストを検索するための、プリミティブ関数が存在します。これらはプログラム内での使用を意図したものですが、インタラクティブに呼び出すこともできます。これらをインタラクティブに呼び出した場合は、検索文字列の入力を求め、引数@var{limit}および@var{noerror}は@code{nil}、@var{repeat}は1になります。インタラクティブ検索に関するより詳細な情報は、@ref{Search,,
+Searching and Replacement, emacs, The GNU Emacs Manual}を参照してください。
 
-  These search functions convert the search string to multibyte if the buffer
-is multibyte; they convert the search string to unibyte if the buffer is
-unibyte.  @xref{Text Representations}.
+  以下の検索関数は、バッファーがマルチバイトバッファーならマルチバイト、ユニバイトバッファーならユニバイトに、検索文字列を変換します。@ref{Text
+Representations}を参照してください。
 
 @deffn Command search-forward string &optional limit noerror repeat
-This function searches forward from point for an exact match for
-@var{string}.  If successful, it sets point to the end of the occurrence
-found, and returns the new value of point.  If no match is found, the value
-and side effects depend on @var{noerror} (see below).
+この関数は、@var{string}にたいする正確なマッチを、ポイントから前方に検索する。成功したら、見つかったマッチの終端にポイントをセットして、ポイントの新たな値をリターンする。マッチが見つからない場合の値と副作用は、@var{noerror}(以下参照)に依存する。
 
-In the following example, point is initially at the beginning of the line.
-Then @code{(search-forward "fox")} moves point after the last letter of
-@samp{fox}:
+以下の例では、ポイントは最初は行の先頭にある。その後の@code{(search-forward
+"fox")}により、ポイントは@samp{fox}の最後の文字の後に移動する:
 
 @example
 @group
@@ -73,57 +64,34 @@ The quick brown fox@point{} jumped over the lazy dog.
 @end group
 @end example
 
-The argument @var{limit} specifies the bound to the search, and should be a
-position in the current buffer.  No match extending after that position is
-accepted.  If @var{limit} is omitted or @code{nil}, it defaults to the end
-of the accessible portion of the buffer.
+引数@var{limit}は検索の境界を指定し、それはカレントバッファー内の位置であること。その位置を超えるようなマッチは、受け入れられない。@var{limit}が省略または@code{nil}の場合のデフォルトは、そのバッファーのアクセス可能範囲の終端である。
 
 @kindex search-failed
 @c I see no prospect of this ever changing, and frankly the current
 @c behavior seems better, so there seems no need to mention this.
-What happens when the search fails depends on the value of @var{noerror}.
-If @var{noerror} is @code{nil}, a @code{search-failed} error is signaled.
-If @var{noerror} is @code{t}, @code{search-forward} returns @code{nil} and
-does nothing.  If @var{noerror} is neither @code{nil} nor @code{t}, then
-@code{search-forward} moves point to the upper bound and returns @code{nil}.
+検索失敗時に何が起こるかは、@var{noerror}の値に依存する。@var{noerror}が@code{nil}なら、@code{search-failed}はエラーをシグナルする。@var{noerror}が@code{t}なら、@code{search-forward}は@code{nil}をリターンして、何も行わない。@var{noerror}が@code{nil}と@code{t}いずれでもなければ、@code{search-forward}はポイントを境界上限に移動して、@code{nil}をリターンする。
 @ignore
 (It would be more consistent now to return the new position of point
 in that case, but some existing programs may depend on a value of
 @code{nil}.)
 @end ignore
 
-The argument @var{noerror} only affects valid searches which fail to find a
-match.  Invalid arguments cause errors regardless of @var{noerror}.
+引数@var{noerror}は、マッチに失敗した有効な検索だけに影響する。無効な引数は、@var{noerror}とは無関係にエラーとなる。
 
-If @var{repeat} is a positive number @var{n}, it serves as a repeat count:
-the search is repeated @var{n} times, each time starting at the end of the
-previous time's match.  If these successive searches succeed, the function
-succeeds, moving point and returning its new value.  Otherwise the search
-fails, with results depending on the value of @var{noerror}, as described
-above.  If @var{repeat} is a negative number -@var{n}, it serves as a repeat
-count of @var{n} for a search in the opposite (backward) direction.
+@var{repeat}が正の数@var{n}なら、それは繰り返し回数の役目をもつ。検索は@var{n}回繰り返され、前回のマッチの終端から毎回検索が開始される。これらの連続する検索が成功した場合、関数は成功となりポイントを新たな値をリターンする。それ以外は検索失敗となり、上述したように結果は@var{noerror}の値に依存する。@var{repeat}が負の数-@var{n}なら、それは逆方向(後方)への検索の繰り返し回数@var{n}としての役目をもつ。
 @end deffn
 
 @deffn Command search-backward string &optional limit noerror repeat
-This function searches backward from point for @var{string}.  It is like
-@code{search-forward}, except that it searches backwards rather than
-forwards.  Backward searches leave point at the beginning of the match.
+この関数は、ポイントから後方に@var{string}を検索する。これは@code{search-forward}と似ているが、前方ではなく後方に検索する点が異なる。後方への検索では、ポイントはマッチの先頭に残される。
 @end deffn
 
 @deffn Command word-search-forward string &optional limit noerror repeat
-This function searches forward from point for a ``word'' match for
-@var{string}.  If it finds a match, it sets point to the end of the match
-found, and returns the new value of point.
+この関数は、ポイントから前方に@var{string}にたいする``単語(word)''のマッチを検索する。マッチが見つかったら、見つかったマッチの終端にポイントをセットして、ポイントの新たな値をリターンする。
 
-Word matching regards @var{string} as a sequence of words, disregarding
-punctuation that separates them.  It searches the buffer for the same
-sequence of words.  Each word must be distinct in the buffer (searching for
-the word @samp{ball} does not match the word @samp{balls}), but the details
-of punctuation and spacing are ignored (searching for @samp{ball boy} does
-match @samp{ball.  Boy!}).
+単語マッチは@var{string}を単語のシーケンスとみなし、それらを分ける句読点は無視する。これはバッファーから、同じ単語シーケンスを検索する。単語はそれぞれバッファー内で明確に区別されていなければならないが(単語@samp{ball}の検索は単語@samp{balls}にマッチしない)、句読点やスペース等の細部は無視される(@samp{ball
+boy}を検索すると@samp{ball.  Boy!}にマッチする)。
 
-In this example, point is initially at the beginning of the buffer; the
-search leaves it between the @samp{y} and the @samp{!}.
+以下の例では、ポイントは最初バッファー先頭にある。検索により、ポイントは@samp{y}と@samp{!}の間に残される。
 
 @example
 @group
@@ -144,44 +112,27 @@ the ball boy@point{}!"
 @end group
 @end example
 
-If @var{limit} is non-@code{nil}, it must be a position in the current
-buffer; it specifies the upper bound to the search.  The match found must
-not extend after that position.
+@var{limit}が非@code{nil}なら、それはカレントバッファー内の位置であること。これはその検索の境界上限を指定する。見つかったマッチは、その位置を超えてはならない。
 
-If @var{noerror} is @code{nil}, then @code{word-search-forward} signals an
-error if the search fails.  If @var{noerror} is @code{t}, then it returns
-@code{nil} instead of signaling an error.  If @var{noerror} is neither
-@code{nil} nor @code{t}, it moves point to @var{limit} (or the end of the
-accessible portion of the buffer) and returns @code{nil}.
+@var{noerror}が@code{nil}なら、@code{word-search-forward}はエラーをシグナルする。@var{noerror}が@code{t}なら、エラーをシグナルするかわりに、@code{nil}をリターンする。@var{noerror}が@code{nil}と@code{t}いずれでもなければ、ポイントを@var{limit}(またはバッファーのアクセス可能範囲の終端)に移動して、@code{nil}をリターンする。
 
-If @var{repeat} is non-@code{nil}, then the search is repeated that many
-times.  Point is positioned at the end of the last match.
+@var{repeat}が非@code{nil}なら、検索はその回数繰り返される。ポイントは最後のマッチの終端に置かれる。
 
 @findex word-search-regexp
-Internally, @code{word-search-forward} and related functions use the
-function @code{word-search-regexp} to convert @var{string} to a regular
-expression that ignores punctuation.
+内部的には、@code{word-search-forward}と関連する関数は、@var{string}から句読点を無視した正規表現に変換するために、関数@code{word-search-regexp}を使用する。
 @end deffn
 
 @deffn Command word-search-forward-lax string &optional limit noerror repeat
-This command is identical to @code{word-search-forward}, except that the
-beginning or the end of @var{string} need not match a word boundary, unless
-@var{string} begins or ends in whitespace.  For instance, searching for
-@samp{ball boy} matches @samp{ball boyee}, but does not match @samp{balls
-boy}.
+このコマンドは@code{word-search-forward}と同じだが、@var{string}が空白で開始または終了していなければ、@var{string}の先頭または終端が単語境界にマッチする必要がない点が異なる。たとえば@samp{ball
+boy}の検索は@samp{ball boyee}にはマッチするが、@samp{balls boy}にはマッチしない。
 @end deffn
 
 @deffn Command word-search-backward string &optional limit noerror repeat
-This function searches backward from point for a word match to
-@var{string}.  This function is just like @code{word-search-forward} except
-that it searches backward and normally leaves point at the beginning of the
-match.
+この関数は、ポイントから後方へ@var{string}にマッチする単語を検索する。この関数は@code{word-search-forward}と同様だが、後方に検索して、通常はマッチの先頭にポイントを残す点が異なる。
 @end deffn
 
 @deffn Command word-search-backward-lax string &optional limit noerror repeat
-This command is identical to @code{word-search-backward}, except that the
-beginning or the end of @var{string} need not match a word boundary, unless
-@var{string} begins or ends in whitespace.
+このコマンドは@code{word-search-backward}と同じだが、文字列が空白で開始または終了していなければ、@var{string}の先頭または終端が単語境界にマッチする必要がない点が異なる。
 @end deffn
 
 @node Searching and Case
