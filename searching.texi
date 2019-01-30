@@ -201,232 +201,119 @@ re-builder}コマンドを使用できます。このコマンドは、別のバ
 @subsubsection Special Characters in Regular Expressions
 @cindex regexp, special characters in
 
-  Here is a list of the characters that are special in a regular expression.
+  以下は、正規表現内で特別な文字のリストです:
 
 @need 800
 @table @asis
 @item @samp{.}@: @r{(Period)}
 @cindex @samp{.} in regexp
-is a special character that matches any single character except a newline.
-Using concatenation, we can make regular expressions like @samp{a.b}, which
-matches any three-character string that begins with @samp{a} and ends with
-@samp{b}.
+これは、改行を除く1文字にマッチする。結合を使用して、@samp{a.b}のような正規表現を作成できる。これは@samp{a}で始まり@samp{b}で終わる3文字の文字列にマッチする。
 
 @item @samp{*}
 @cindex @samp{*} in regexp
-is not a construct by itself; it is a postfix operator that means to match
-the preceding regular expression repetitively as many times as possible.
-Thus, @samp{o*} matches any number of @samp{o}s (including no @samp{o}s).
+これは、それ自身が構成要素ではない。これは前置された正規表現を可能な限り繰り返したものにマッチすることを意味する、後置演算子である。したがって、@samp{o*}は任意の個数の@samp{o}にマッチする(@samp{o}を含まない場合もマッチする)。
 
-@samp{*} always applies to the @emph{smallest} possible preceding
-expression.  Thus, @samp{fo*} has a repeating @samp{o}, not a repeating
-@samp{fo}.  It matches @samp{f}, @samp{fo}, @samp{foo}, and so on.
+@samp{*}は常に前置された表現の、@emph{最小}の表現に適用される。つまり@samp{fo*}は@samp{o}の繰り返しであり、@samp{fo}の繰り返しではない。これは@samp{f}、@samp{fo}、@samp{foo}、...にマッチする。
 
 @cindex backtracking and regular expressions
-The matcher processes a @samp{*} construct by matching, immediately, as many
-repetitions as can be found.  Then it continues with the rest of the
-pattern.  If that fails, backtracking occurs, discarding some of the matches
-of the @samp{*}-modified construct in the hope that that will make it
-possible to match the rest of the pattern.  For example, in matching
-@samp{ca*ar} against the string @samp{caaar}, the @samp{a*} first tries to
-match all three @samp{a}s; but the rest of the pattern is @samp{ar} and
-there is only @samp{r} left to match, so this try fails.  The next
-alternative is for @samp{a*} to match only two @samp{a}s.  With this choice,
-the rest of the regexp matches successfully.
+マッチを行う処理は構成要素@samp{*}を、マッチングにより即座に、見つけ得る回数分処理して、その後にパターンの残りを継続する。これが失敗したら、残りのパターンのマッチが可能になるかもしれないという期待のもと、@samp{*}の変更された構成のうちいくつかのマッチを破棄することによる、バックトラッキングが発生する。たとえば文字列@samp{caaar}にたいして@samp{ca*ar}をマッチングすると、@samp{a*}はまず3つすべての@samp{a}へのマッチを試みる。しかし残りのパターンは@samp{ar}であり、マッチ対象に残されているのは@samp{r}だけなので、この試みは失敗する。@samp{a*}にたいする次の代替策は、2つの@samp{a}だけへのマッチである。この選択では、残りのregexpのマッチは成功する。
 
-@strong{Warning:} Nested repetition operators can run for an indefinitely
-long time, if they lead to ambiguous matching.  For example, trying to match
-the regular expression @samp{\(x+y*\)*a} against the string
-@samp{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxz} could take hours before it
-ultimately fails.  Emacs must try each way of grouping the @samp{x}s before
-concluding that none of them can work.  Even worse, @samp{\(x*\)*} can match
-the null string in infinitely many ways, so it causes an infinite loop.  To
-avoid these problems, check nested repetitions carefully, to make sure that
-they do not cause combinatorial explosions in backtracking.
+@strong{警告:}
+ネストされた繰り返し処理は、それらが曖昧なマッチとなるような場合は、無期限な長時間の実行となり得る。たとえば文字列@samp{xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxz}にたいして正規表現@samp{\(x+y*\)*a}のマッチを試みると、それが最終的に失敗するまでに数時間を要し得る。Emacsはその試みのいずれも機能しないと結論する前に、@samp{x}のグループ家のそれぞれを試みなければならない。さらに悪いことに、@samp{\(x*\)*}は無数の方法でnull文字列にマッチ可能なので、これは無限ループを引き起こす。これらの問題を避けるには、ネストされた繰り返しがバックトラッキングでの組み合わせ爆発(combinatorial
+explosion)が発生しないことを確実にするために注意深くチェックすること。
 
 @item @samp{+}
 @cindex @samp{+} in regexp
-is a postfix operator, similar to @samp{*} except that it must match the
-preceding expression at least once.  So, for example, @samp{ca+r} matches
-the strings @samp{car} and @samp{caaaar} but not the string @samp{cr},
-whereas @samp{ca*r} matches all three strings.
+これは@samp{*}のような後置演算子だが、これは前置された表現に少なくとも1回マッチしなければならない点が異なる。たとえば@samp{ca+r}は文字列@samp{car}や@samp{caaaar}にマッチするが、文字列@samp{cr}にはマッチせず、その一方で@samp{ca*r}はこれら3つすべての文字列にマッチする。
 
 @item @samp{?}
 @cindex @samp{?} in regexp
-is a postfix operator, similar to @samp{*} except that it must match the
-preceding expression either once or not at all.  For example, @samp{ca?r}
-matches @samp{car} or @samp{cr}; nothing else.
+これは@samp{*}のような後置演算子だが、これは前置された表現に1回、またはマッチしないかのいずれかでなければならない点が異なる。申@samp{ca?r}は@samp{car}と@samp{cr}にマッチするが、他にはマッチしない。
 
 @item @samp{*?}, @samp{+?}, @samp{??}
 @cindex non-greedy repetition characters in regexp
-These are ``non-greedy'' variants of the operators @samp{*}, @samp{+} and
-@samp{?}.  Where those operators match the largest possible substring
-(consistent with matching the entire containing expression), the non-greedy
-variants match the smallest possible substring (consistent with matching the
-entire containing expression).
+演算子
+@samp{*}、@samp{+}、@samp{?}には``非欲張り(non-greedy)''な変種が存在する。これらの演算子が可能な最長の部分文字列(含まれる表現全体へのマッチと等しい)とマッチするのにたいして、非欲張りな変種は可能な最短の部分文字列(含まれる表現全体と等しい)にマッチする。
 
-For example, the regular expression @samp{c[ad]*a} when applied to the
-string @samp{cdaaada} matches the whole string; but the regular expression
-@samp{c[ad]*?a}, applied to that same string, matches just @samp{cda}.  (The
-smallest possible match here for @samp{[ad]*?} that permits the whole
-expression to match is @samp{d}.)
+たとえば正規表現@samp{c[ad]*a}が文字列@samp{cdaaada}に適用されると文字列全体にマッチするが、正規表現@samp{c[ad]*?a}を同じ文字列に適用すると@samp{cda}だけにマッチする(ここでマッチが許された表現全体にたいする@samp{[ad]*?}の可能な最短マッチは@samp{d}である)。
 
 @item @samp{[ @dots{} ]}
 @cindex character alternative (in regexp)
 @cindex @samp{[} in regexp
 @cindex @samp{]} in regexp
-is a @dfn{character alternative}, which begins with @samp{[} and is
-terminated by @samp{]}.  In the simplest case, the characters between the
-two brackets are what this character alternative can match.
+これは@samp{[}で始まり@samp{]}で終端される@dfn{文字候補(character
+alternative)}である。もっとも単純なケースでは、この２つのカッコ(brackets)の間にある文字が、この文字候補がマッチ可能な文字である。
 
-Thus, @samp{[ad]} matches either one @samp{a} or one @samp{d}, and
-@samp{[ad]*} matches any string composed of just @samp{a}s and @samp{d}s
-(including the empty string).  It follows that @samp{c[ad]*r} matches
-@samp{cr}, @samp{car}, @samp{cdr}, @samp{caddaar}, etc.
+したがって@samp{[ad]}は1つの@samp{a}と1つの@samp{d}の両方にマッチし、@samp{[ad]*}は@samp{a}と@samp{d}だけから構成された任意の文字列(空文字列を含む)にマッチする。つまり@samp{c[ad]*r}は@samp{cr}、@samp{car}、@samp{cdr}、@samp{caddaar}等にマッチする。
 
-You can also include character ranges in a character alternative, by writing
-the starting and ending characters with a @samp{-} between them.  Thus,
-@samp{[a-z]} matches any lower-case @acronym{ASCII} letter.  Ranges may be
-intermixed freely with individual characters, as in @samp{[a-z$%.]}, which
-matches any lower case @acronym{ASCII} letter or @samp{$}, @samp{%} or
-period.
+開始文字と終了文字の間に@samp{-}を記述することにより、文字候補内に文字範囲を含めることができる。つまり@samp{[a-z]}は小文字の@acronym{ASCII}アルファベット文字にマッチする。範囲は@samp{[a-z$%.]}のように個別の文字と自由に組み合わせることができる。これは任意の@acronym{ASCII}小文字アルファベットと@samp{$}、@samp{%}、またはピリオドとマッチする。
 
 @c This wasn't obvious to me, since, e.g., the grep manual "Character
 @c Classes and Bracket Expressions" specifically notes the opposite
 @c behavior.  But by experiment Emacs seems unaffected by LC_COLLATE
 @c in this regard.
-If @code{case-fold-search} is non-@code{nil}, @samp{[a-z]} also matches
-upper-case letters.  Note that a range like @samp{[a-z]} is not affected by
-the locale's collation sequence, it always represents a sequence in
-@acronym{ASCII} order.
+@code{case-fold-search}が非@code{nil}なら、@samp{[a-z]}は大文字アルファベットにもマッチする。@samp{[a-z]}のような範囲は、そのlocaleの照合順に影響されず、常に@acronym{ASCII}順のシーケンスを表すことに注意。
 
-Note also that the usual regexp special characters are not special inside a
-character alternative.  A completely different set of characters is special
-inside character alternatives: @samp{]}, @samp{-} and @samp{^}.
+さらに通常のregexpスペシャル文字は文字候補内では特別ではないことにも注意されたい。文字候補内部では@samp{]}、@samp{-}、@samp{^}という完全に異なる文字セットが特別に扱われる。
 
-To include a @samp{]} in a character alternative, you must make it the first
-character.  For example, @samp{[]a]} matches @samp{]} or @samp{a}.  To
-include a @samp{-}, write @samp{-} as the first or last character of the
-character alternative, or put it after a range.  Thus, @samp{[]-]} matches
-both @samp{]} and @samp{-}.  (As explained below, you cannot use @samp{\]}
-to include a @samp{]} inside a character alternative, since @samp{\} is not
-special there.)
+文字候補内に@samp{]}を含めるには、それを最初の文字にしなければならない。たとえば@samp{[]a]}は、@samp{]}と@samp{a}にマッチする。@samp{-}を含めるには、文字候補の最初または最後の文字として@samp{-}を記述するか、範囲の後に置くこと。つまり@samp{[]-]}は@samp{]}と@samp{-}の両方にマッチする。(以下で説明するように、ここでは@samp{\}は特別ではないので、文字候補内に@samp{]}を含めるために@samp{\]}は使用できない)。
 
-To include @samp{^} in a character alternative, put it anywhere but at the
-beginning.
+文字候補内に@samp{^}を含めるには、先頭以外のいずれかの場所に置くこと。
 
 @c What if it starts with a multibyte and ends with a unibyte?
 @c That doesn't seem to match anything...?
-If a range starts with a unibyte character @var{c} and ends with a multibyte
-character @var{c2}, the range is divided into two parts: one spans the
-unibyte characters @samp{@var{c}..?\377}, the other the multibyte characters
-@samp{@var{c1}..@var{c2}}, where @var{c1} is the first character of the
-charset to which @var{c2} belongs.
+ある範囲がユニバイト文字@var{c}で始まり、マルチバイト文字@var{c2}でお話場合、その範囲は2つの部分に分割される。1つはユニバイト文字@samp{@var{c}..?\377}、もう1つはマルチバイト文字@samp{@var{c1}..@var{c2}}である。ここで@var{c1}は@var{c2}が属する文字セットの最初の文字である。
 
-A character alternative can also specify named character classes
-(@pxref{Char Classes}).  This is a POSIX feature.  For example,
-@samp{[[:ascii:]]} matches any @acronym{ASCII} character.  Using a character
-class is equivalent to mentioning each of the characters in that class; but
-the latter is not feasible in practice, since some classes include thousands
-of different characters.
+文字候補には、名前付き文字クラスも指定できる(@ref{Char
+Classes}を参照)。これはPOSIXの機能である。たとえば@samp{[[:ascii:]]}は、任意の@acronym{ASCII}文字にマッチする。文字クラスの使用は、そのクラス内すべての文字を記述するのと等しい。しかし異なる文字数千を含むクラスもあるので、後者は実際は実現可能ではない。
 
 @item @samp{[^ @dots{} ]}
 @cindex @samp{^} in regexp
-@samp{[^} begins a @dfn{complemented character alternative}.  This matches
-any character except the ones specified.  Thus, @samp{[^a-z0-9A-Z]} matches
-all characters @emph{except} letters and digits.
+@samp{[^}は@dfn{補完文字候補(complemented character
+alternative)}を開始する。これは、指定された以外の任意の文字とマッチする。つまり@samp{[^a-z0-9A-Z]}はアルファベットと数日前@emph{以外}の、すべての文字にマッチする。
 
-@samp{^} is not special in a character alternative unless it is the first
-character.  The character following the @samp{^} is treated as if it were
-first (in other words, @samp{-} and @samp{]} are not special there).
+@samp{^}は文字クラス内では、先頭に記述されない限り特別ではない。@samp{^}に続く文字は、あたかもそれが先頭にあるかのように扱われる(別の言い方をすると@samp{-}や@samp{]}は、ここでは特別ではない)。
 
-A complemented character alternative can match a newline, unless newline is
-mentioned as one of the characters not to match.  This is in contrast to the
-handling of regexps in programs such as @code{grep}.
+マッチしない文字の1つとして改行が記述されていなければ、補完文字候補は改行にマッチできる。これは@code{grep}のようなプログラム内でのregexpの扱いとは、対照的である。
 
-You can specify named character classes, just like in character
-alternatives.  For instance, @samp{[^[:ascii:]]} matches any
-non-@acronym{ASCII} character.  @xref{Char Classes}.
+文字候補のように、名前付き文字クラスを指定できる。たとえば@samp{[^[:ascii:]]}は、任意の非@acronym{ASCII}文字にマッチする。@ref{Char
+Classes}を参照のこと。
 
 @item @samp{^}
 @cindex beginning of line in regexp
-When matching a buffer, @samp{^} matches the empty string, but only at the
-beginning of a line in the text being matched (or the beginning of the
-accessible portion of the buffer).  Otherwise it fails to match anything.
-Thus, @samp{^foo} matches a @samp{foo} that occurs at the beginning of a
-line.
+バッファーのマッチング時、@samp{^}は空文字列、ただしマッチ対象のテキスト内にある行の先頭(またはバッファーのアクセス可能範囲の先頭)だけにマッチする。それ以外のマッチは、すべて失敗する。つまり@samp{^foo}は、行の先頭に出現する@samp{foo}にマッチする。
 
-When matching a string instead of a buffer, @samp{^} matches at the
-beginning of the string or after a newline character.
+バッファーではなく文字列とマッチする際は、@samp{^}は文字列の先頭、または改行文字の後にマッチする。
 
-For historical compatibility reasons, @samp{^} can be used only at the
-beginning of the regular expression, or after @samp{\(}, @samp{\(?:} or
-@samp{\|}.
+歴史的な互換性という理由により、@samp{^}は正規表現の先頭、または@samp{\(}、@samp{\(?:}、@samp{\|}の後だけで使用できる。
 
 @item @samp{$}
 @cindex @samp{$} in regexp
 @cindex end of line in regexp
-is similar to @samp{^} but matches only at the end of a line (or the end of
-the accessible portion of the buffer).  Thus, @samp{x+$} matches a string of
-one @samp{x} or more at the end of a line.
+これは@samp{^}と似ているが、行の終端(またはバッファーのアクセス可能範囲の終端)だけにマッチする。つまり@samp{x+$}は、行末にある1つ以上の@samp{x}からなる文字列にマッチする。
 
-When matching a string instead of a buffer, @samp{$} matches at the end of
-the string or before a newline character.
+バッファーではなく文字列とマッチする際は、@samp{$}は文字列の終端、または改行文字の前にマッチする。
 
-For historical compatibility reasons, @samp{$} can be used only at the end
-of the regular expression, or before @samp{\)} or @samp{\|}.
+歴史的な互換性という理由により、@samp{$}は正規表現の先頭、または@samp{\(}、@samp{\(?:}、@samp{\|}の前だけで使用できる。
 
 @item @samp{\}
 @cindex @samp{\} in regexp
-has two functions: it quotes the special characters (including @samp{\}),
-and it introduces additional special constructs.
+これは2つの機能をもつ。スペシャル文字(@samp{\}を含む)のクォートと、追加のスペシャル文字の導入である。
 
-Because @samp{\} quotes special characters, @samp{\$} is a regular
-expression that matches only @samp{$}, and @samp{\[} is a regular expression
-that matches only @samp{[}, and so on.
+@samp{\}はスペシャル文字をクォートするので、@samp{\$}は@samp{$}、@samp{\[}は@samp{[}だけにマッチする正規表現といったようになる。
 
-Note that @samp{\} also has special meaning in the read syntax of Lisp
-strings (@pxref{String Type}), and must be quoted with @samp{\}.  For
-example, the regular expression that matches the @samp{\} character is
-@samp{\\}.  To write a Lisp string that contains the characters @samp{\\},
-Lisp syntax requires you to quote each @samp{\} with another @samp{\}.
-Therefore, the read syntax for a regular expression matching @samp{\} is
-@code{"\\\\"}.
+@samp{\}はLisp文字列(@ref{String Type}を参照)の入力構文(read
+syntax)内でも特別な意味をもち、@samp{\}でクォートしなければならないことに注意。たとえば文字@samp{\}にマッチする正規表現は@samp{\\}である。文字@samp{\\}を含むLisp文字列を記述するには、別の@samp{\\}で@samp{\\}をクォートすることをLisp構文は要求する。したがって@samp{\}にマッチする正規表現にたいする入力構文は、@code{"\\\\"}となる。
 @end table
 
-@strong{Please note:} For historical compatibility, special characters are
-treated as ordinary ones if they are in contexts where their special
-meanings make no sense.  For example, @samp{*foo} treats @samp{*} as
-ordinary since there is no preceding expression on which the @samp{*} can
-act.  It is poor practice to depend on this behavior; quote the special
-character anyway, regardless of where it appears.
+@strong{注意してください:}
+歴史的な互換性のために、スペシャル文字はそれらがもつ特別な意味が意味を成さないコンテキスト内にある場合は、通常の文字として扱われます。たとえば@samp{*foo}は、@samp{*}が作用可能な前置された表現がないので、通常の@samp{*}として扱われます。この挙動に依存するのは悪い習慣です。どこにそれが出現しようと、スペシャル文字はすべてクォートしてください。
 
-As a @samp{\} is not special inside a character alternative, it can never
-remove the special meaning of @samp{-} or @samp{]}.  So you should not quote
-these characters when they have no special meaning either.  This would not
-clarify anything, since backslashes can legitimately precede these
-characters where they @emph{have} special meaning, as in @samp{[^\]}
-(@code{"[^\\]"} for Lisp string syntax), which matches any single character
-except a backslash.
+文字候補内で@samp{\}は何ら特別ではないので、@samp{-}や@samp{]}の特別な意味を取り除くことは決してありません。特別な意味をもたないような場合でも、これらの文字をクォートするべきではありません。バックスラッシュ以外の任意の1文字にマッチする@samp{[^\]}(Lisp文字列構文では@code{"[^\\]"})内でのように、これらの文字が@emph{特別な意味}をもつ箇所では、これらの文字にバックスラッシュを前置する正当性があるので、それほど何も明解にはしないでしょう。
 
-In practice, most @samp{]} that occur in regular expressions close a
-character alternative and hence are special.  However, occasionally a
-regular expression may try to match a complex pattern of literal @samp{[}
-and @samp{]}.  In such situations, it sometimes may be necessary to
-carefully parse the regexp from the start to determine which square brackets
-enclose a character alternative.  For example, @samp{[^][]]} consists of the
-complemented character alternative @samp{[^][]} (which matches any single
-character that is not a square bracket), followed by a literal @samp{]}.
+実際には、正規表現内に出現する@samp{]}は文字候補に近接しており、それ故にほとんどがスペシャル文字です。しかしリテラルの@samp{[}および@samp{]}の複雑なパターンにたいして、マッチを試みることも時にはあるかもしれません。そのような状況では、文字候補を囲う角カッコがどれなのかを判断するために、regexpを最初から注意深く解析するのが必要なときもあるかもしれません。たとえば@samp{[^][]]}は、補完文字候補@samp{[^][]}(角カッコ以外の任意の1文字とマッチする)と、その後のリテラルの@samp{]}により構成されます。
 
-The exact rules are that at the beginning of a regexp, @samp{[} is special
-and @samp{]} not.  This lasts until the first unquoted @samp{[}, after which
-we are in a character alternative; @samp{[} is no longer special (except
-when it starts a character class) but @samp{]} is special, unless it
-immediately follows the special @samp{[} or that @samp{[} followed by a
-@samp{^}.  This lasts until the next special @samp{]} that does not end a
-character class.  This ends the character alternative and restores the
-ordinary syntax of regular expressions; an unquoted @samp{[} is special
-again and a @samp{]} not.
+厳密にはregexp先頭の@samp{[}は特別で、@samp{]}は特別ではないというのがルールです。これはクォートされていない最初の@samp{[}で終わり、その後は文字候補になります。(文字クラス開始を除き)@samp{[}はもはや特別ではありませんが、@samp{]}は直後にスペシャル文字@samp{[}があるか、その@samp{[}の後に@samp{^}がある場合を除き、特別です。これは文字クラス終了ではない次のスペシャル文字@samp{]}まで続きます。これは文字候補を終了させて、通常の正規表現の構文をリストアします。クォートされていない@samp{[}は再び特別となり、@samp{]}は特別ではなくなります。
 
 @node Char Classes
 @subsubsection Character Classes
