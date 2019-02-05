@@ -618,47 +618,31 @@ Backslash}を参照)。
 @cindex regexp searching
 @cindex searching for regexp
 
-  In GNU Emacs, you can search for the next match for a regular expression
-(@pxref{Syntax of Regexps}) either incrementally or not.  For incremental
-search commands, see @ref{Regexp Search, , Regular Expression Search, emacs,
-The GNU Emacs Manual}.  Here we describe only the search functions useful in
-programs.  The principal one is @code{re-search-forward}.
+  GNU Emacsでは、インクリメンタル、または非インクリメンタルの両方で、正規表現(@ref{Syntax of
+Regexps}を参照)にたいする次マッチを検索できます。インクリメンタル検索コマンドについては、@ref{Regexp Search, ,
+Regular Expression Search, emacs, The GNU Emacs
+Manual}を参照してください。ここでは、プログラム内で有用な検索関数だけを説明します。重要な関数は@code{re-search-forward}です。
 
-  These search functions convert the regular expression to multibyte if the
-buffer is multibyte; they convert the regular expression to unibyte if the
-buffer is unibyte.  @xref{Text Representations}.
+  これらの検索関数は、バッファーがマルチバイトならルチバイトに、ユニバイトならユニバイトに、正規表現を変換します。@ref{Text
+Representations}を参照してください。
 
 @deffn Command re-search-forward regexp &optional limit noerror repeat
-This function searches forward in the current buffer for a string of text
-that is matched by the regular expression @var{regexp}.  The function skips
-over any amount of text that is not matched by @var{regexp}, and leaves
-point at the end of the first match found.  It returns the new value of
-point.
+この関数はカレントバッファー内で、正規表現@var{regexp}にマッチするテキスト文字列を、前方へ検索する。この関数は@var{regexp}にマッチしない任意の量のテキストをスキップして、見つかった最初のマッチの終端にポイントを残す。これはポイントの新たな値をリターンする。
 
-If @var{limit} is non-@code{nil}, it must be a position in the current
-buffer.  It specifies the upper bound to the search.  No match extending
-after that position is accepted.
+@var{limit}が非@code{nil}なら、それはカレントバッファー内の位置であること。これは検索にたいする上限を指定する。その位置を超えるマッチは受け入れられない。
 
-If @var{repeat} is supplied, it must be a positive number; the search is
-repeated that many times; each repetition starts at the end of the previous
-match.  If all these successive searches succeed, the search succeeds,
-moving point and returning its new value.  Otherwise the search fails.  What
-@code{re-search-forward} does when the search fails depends on the value of
-@var{noerror}:
+@var{repeat}が与えられたなら、それは正の数でなければならない。検索は、その回数繰り返される。それぞれの繰り返しは、前のマッチの終端から開始される。これら一連の検索すべてが成功したらその検索は成功となり、ポイントを移動してポイントの新たな値をリターンする。それ以外では、検索は失敗となる。検索失敗時に@code{re-search-forward}が何をおこなうかは、@var{noerror}の値に依存する:
 
 @table @asis
 @item @code{nil}
-Signal a @code{search-failed} error.
+@code{search-failed}エラーをシグナルする。
 @item @code{t}
-Do nothing and return @code{nil}.
-@item anything else
-Move point to @var{limit} (or the end of the accessible portion of the
-buffer) and return @code{nil}.
+何もせず@code{nil}をリターンする。
+@item その他
+ポイントを@var{limit}(またはバッファーのアクセス可能範囲の終端)に移動して、@code{nil}をリターンする。
 @end table
 
-In the following example, point is initially before the @samp{T}.
-Evaluating the search call moves point to the end of that line (between the
-@samp{t} of @samp{hat} and the newline).
+以下の例では、ポイントは最初は@samp{T}の前にある。この検索を評価することにより、その行の終端(@samp{hat}の@samp{t}と改行の間)にポイントは移動する。
 
 @example
 @group
@@ -681,32 +665,18 @@ comes back" twice.
 @end deffn
 
 @deffn Command re-search-backward regexp &optional limit noerror repeat
-This function searches backward in the current buffer for a string of text
-that is matched by the regular expression @var{regexp}, leaving point at the
-beginning of the first text found.
+この関数はカレントバッファー内で、正規表現@var{regexp}にマッチするテキスト文字列を、後方へ検索して、見つかった最初のマッチの先頭にポイントを残す。
 
-This function is analogous to @code{re-search-forward}, but they are not
-simple mirror images.  @code{re-search-forward} finds the match whose
-beginning is as close as possible to the starting point.  If
-@code{re-search-backward} were a perfect mirror image, it would find the
-match whose end is as close as possible.  However, in fact it finds the
-match whose beginning is as close as possible (and yet ends before the
-starting point).  The reason for this is that matching a regular expression
-at a given spot always works from beginning to end, and starts at a
-specified beginning position.
+この関数は@code{re-search-forward}と似ているが、単なるミラーイメージ(mirror-image:
+鏡像)ではない。@code{re-search-forward}は、先頭が開始ポイントと可能な限り近いマッチを探す。@code{re-search-backward}が完全なミラーイメージなら、終端が可能な限り近いマッチを探すだろう。しかし実際は先頭が可能な限り近い(かつ開始ポイントの前で終わる)マッチを探す。これは、与えられた位置にたいする正規表現マッチングが常に正規表現の先頭から終端に機能し、指定された開始位置から開始されるのが理由である。
 
-A true mirror-image of @code{re-search-forward} would require a special
-feature for matching regular expressions from end to beginning.  It's not
-worth the trouble of implementing that.
+@code{re-search-forward}の真のミラーイメージには、正規表現を終端から先頭へマッチする特別な機能が要求されるだろう。それを実装するこによる問題に価値はない。
 @end deffn
 
 @defun string-match regexp string &optional start
-This function returns the index of the start of the first match for the
-regular expression @var{regexp} in @var{string}, or @code{nil} if there is
-no match.  If @var{start} is non-@code{nil}, the search starts at that index
-in @var{string}.
+この関数は@var{string}内で、正規表現@var{regexp}にたいする最初のマッチの開始位置のインデックスをリターンする。@var{string}内のそのインデックスから検索は開始される。
 
-For example,
+たとえば、
 
 @example
 @group
@@ -722,11 +692,10 @@ For example,
 @end example
 
 @noindent
-The index of the first character of the string is 0, the index of the second
-character is 1, and so on.
+文字列の最初の文字のインデックスは1、2文字目は2、...となる。
 
-After this function returns, the index of the first character beyond the
-match is available as @code{(match-end 0)}.  @xref{Match Data}.
+この関数リターン後、そのマッチの先の最初の文字のインデックスは、@code{(match-end 0)}で利用できる。@ref{Match
+Data}を参照のこと。
 
 @example
 @group
@@ -743,23 +712,16 @@ match is available as @code{(match-end 0)}.  @xref{Match Data}.
 @end defun
 
 @defun string-match-p regexp string &optional start
-This predicate function does what @code{string-match} does, but it avoids
-modifying the match data.
+この述語関数は@code{string-match}と同じことを行うが、マッチデータの変更を避ける。
 @end defun
 
 @defun looking-at regexp
-This function determines whether the text in the current buffer directly
-following point matches the regular expression @var{regexp}.  ``Directly
-following'' means precisely that: the search is ``anchored'' and it can
-succeed only starting with the first character following point.  The result
-is @code{t} if so, @code{nil} otherwise.
+この関数は、カレントバッファー内のポイント直後のテキストが、正規表現@var{regexp}にマッチするかどうかを判断する。``直後''の正確な意味は、その検索が``固定''され、ポイントの後の最初の文字からマッチが開始する場合のみ成功するということである。成功なら結果は@code{t}、それ以外は@code{nil}となる。
 
-This function does not move point, but it does update the match data.
-@xref{Match Data}.  If you need to test for a match without modifying the
-match data, use @code{looking-at-p}, described below.
+この関数はポイントを移動しないが、マッチデータは更新する。@ref{Match
+Data}を参照のこと。マッチデータを変更することなくテストする必要があるなら、以下で説明する@code{looking-at-p}を使用すること。
 
-In this example, point is located directly before the @samp{T}.  If it were
-anywhere else, the result would be @code{nil}.
+以下の例では、ポイントは@samp{T}の直前にある。それ以外の場所にある場合、結果は@code{nil}となるだろう。
 
 @example
 @group
@@ -775,15 +737,9 @@ comes back" twice.
 @end defun
 
 @defun looking-back regexp &optional limit greedy
-This function returns @code{t} if @var{regexp} matches the text immediately
-before point (i.e., ending at point), and @code{nil} otherwise.
+この関数は、ポイントの直前(ポイントで終わる)テキストが@var{regexp}とマッチしたら@code{t}、それ以外は@code{nil}をリターンする。
 
-Because regular expression matching works only going forward, this is
-implemented by searching backwards from point for a match that ends at
-point.  That can be quite slow if it has to search a long distance.  You can
-bound the time required by specifying @var{limit}, which says not to search
-before @var{limit}.  In this case, the match that is found must begin at or
-after @var{limit}.  Here's an example:
+正規表現マッチングは前方だけに機能するので、ポイントで終わるマッチを、ポイントから後方へ検索するように実装された。長い距離を検索する必要がある場合、これは極めて低速になり得る。@var{limit}を指定してその前を検索しないよう告げることにより、要する時間を制限できる。この場合、マッチデータは@var{limit}、またはその後で始まらなければならない。以下は例である:
 
 @example
 @group
@@ -799,33 +755,20 @@ comes back" twice.
 @end group
 @end example
 
-If @var{greedy} is non-@code{nil}, this function extends the match backwards
-as far as possible, stopping when a single additional previous character
-cannot be part of a match for regexp.  When the match is extended, its
-starting position is allowed to occur before @var{limit}.
+@var{greedy}が非@code{nil}なら、この関数は可能な限り後方へマッチを拡張し、前方の1文字がregexpがマッチの一部とならなければ停止する。マッチが拡張されたときは、マッチ開始位置が@var{limit}の前にあっても許される。
 
 @c http://debbugs.gnu.org/5689
-As a general recommendation, try to avoid using @code{looking-back} wherever
-possible, since it is slow.  For this reason, there are no plans to add a
-@code{looking-back-p} function.
+一般的に@code{looking-back}は低速なので、可能な限り使用は避けることを推奨する。この理由により、@code{looking-back-p}の追加は計画されていない。
 @end defun
 
 @defun looking-at-p regexp
-This predicate function works like @code{looking-at}, but without updating
-the match data.
+この述語関数は@code{looking-at}と同様に機能するが、マッチデータを更新しない。
 @end defun
 
 @defvar search-spaces-regexp
-If this variable is non-@code{nil}, it should be a regular expression that
-says how to search for whitespace.  In that case, any group of spaces in a
-regular expression being searched for stands for use of this regular
-expression.  However, spaces inside of constructs such as @samp{[@dots{}]}
-and @samp{*}, @samp{+}, @samp{?} are not affected by
-@code{search-spaces-regexp}.
+この変数が非@code{nil}なら、それは空白文字を検索する方法を告げる正規表現であること。この場合、検索される正規表現内のすべてのスペース属は、この正規表現を使用することを意味する。しかし@samp{[@dots{}]}、@samp{*}@samp{+}、@samp{?}のような構成要素内のスペースは、@code{search-spaces-regexp}の影響を受けない。
 
-Since this variable affects all regular expression search and match
-constructs, you should bind it temporarily for as small as possible a part
-of the code.
+この変数はすべての正規表現検索、およびマッチ構成要素に影響するので、コードの可能な限り狭い範囲にたいして、一時的にバインドするべきである。
 @end defvar
 
 @node POSIX Regexps
