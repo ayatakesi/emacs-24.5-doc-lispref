@@ -821,81 +821,49 @@ Timers}を参照されたい)で暗黙に実行される関数は、おそらく
 @subsection Replacing the Text that Matched
 @cindex replace matched text
 
-  This function replaces all or part of the text matched by the last search.
-It works by means of the match data.
+  以下の関数は、最後の検索でマッチされたテキストのすべて、または一部を置換します。これはマッチデータにより機能します。
 
 @cindex case in replacements
 @defun replace-match replacement &optional fixedcase literal string subexp
-This function performs a replacement operation on a buffer or string.
+この関数はバッファー、または文字列にたいして置換処理を行う。
 
-If you did the last search in a buffer, you should omit the @var{string}
-argument or specify @code{nil} for it, and make sure that the current buffer
-is the one in which you performed the last search.  Then this function edits
-the buffer, replacing the matched text with @var{replacement}.  It leaves
-point at the end of the replacement text.
+あるバッファーで最後の検索を行った場合は、@var{string}引数を省略または@code{nil}を指定するべきである。また最後に検索を行ったバッファーがカレントバッファーであることを確認すること。その場合、この関数はマッチしたテキストを@var{replacement}で置換することにより、そのバッファーを編集する。これは、置換したテキスト終端にポイントを残す。
 
-If you performed the last search on a string, pass the same string as
-@var{string}.  Then this function returns a new string, in which the matched
-text is replaced by @var{replacement}.
+文字列にたいして最後の検索を行った場合は、同じ文字列が@var{string}に渡される。その場合、この関数はマッチしたテキストが@var{replacement}に置き換えられた、新たなテキストをリターンする。
 
-If @var{fixedcase} is non-@code{nil}, then @code{replace-match} uses the
-replacement text without case conversion; otherwise, it converts the
-replacement text depending upon the capitalization of the text to be
-replaced.  If the original text is all upper case, this converts the
-replacement text to upper case.  If all words of the original text are
-capitalized, this capitalizes all the words of the replacement text.  If all
-the words are one-letter and they are all upper case, they are treated as
-capitalized words rather than all-upper-case words.
+@var{fixedcase}が非@code{nil}なら、@code{replace-match}は大文字小文字を変更せずに置換テキストを使用し、それ以外は置換されるテキストのcapitalize(先頭が大文字)されているかどうかに応じて、置換テキストを変換する。元のテキストがすべて大文字なら、置換テキストを大文字に変換する。元のテキストの単語すべてがcapitalizeされていたら、置換テキストのすべての単語をcapitalizeする。すべての単語が1文字かつ大文字なら、それらはすべて大文字の単語ではなく、capitalizeされた単語として扱われる。
 
-If @var{literal} is non-@code{nil}, then @var{replacement} is inserted
-exactly as it is, the only alterations being case changes as needed.  If it
-is @code{nil} (the default), then the character @samp{\} is treated
-specially.  If a @samp{\} appears in @var{replacement}, then it must be part
-of one of the following sequences:
+@var{literal}が非@code{nil}なら、@var{replacement}はそのまま挿入されるが、必要に応じて大文字小文字の変更だけが行われる。これが@code{nil}(デフォルト)なら、文字@samp{\}は特別に扱われる。@var{replacement}内に@samp{\}が出現した場合、それは以下のシーケンスのいずれかの一部でなければならない:
 
 @table @asis
 @item @samp{\&}
 @cindex @samp{&} in replacement
-This stands for the entire text being replaced.
+これは置換されるテキスト全体を意味する。
 
-@item @samp{\@var{n}}, where @var{n} is a digit
+@item @samp{\@var{n}} （@var{n}は数字)
 @cindex @samp{\@var{n}} in replacement
-This stands for the text that matched the @var{n}th subexpression in the
-original regexp.  Subexpressions are those expressions grouped inside
-@samp{\(@dots{}\)}.  If the @var{n}th subexpression never matched, an empty
-string is substituted.
+これは、元のregexpの@var{n}番目の部分式にマッチするテキストを意味する。この部分式とは@samp{\(@dots{}\)}の内部にグループかされた式である。@var{n}番目のマッチがなければ、空文字列が代用される。
 
 @item @samp{\\}
 @cindex @samp{\} in replacement
-This stands for a single @samp{\} in the replacement text.
+これは置換テキスト内で、単一の@samp{\}を意味する。
 
 @item @samp{\?}
-This stands for itself (for compatibility with @code{replace-regexp} and
-related commands; @pxref{Regexp Replace,,, emacs, The GNU Emacs Manual}).
+これは自身を意味する(@code{replace-regexp}と関連するコマンドの互換用。@ref{Regexp Replace,,, emacs,
+The GNU Emacs Manual}を参照されたい)。
 @end table
 
 @noindent
-Any other character following @samp{\} signals an error.
+これら以外の@samp{\}に続く文字は、エラーをシグナルする。
 
-The substitutions performed by @samp{\&} and @samp{\@var{n}} occur after
-case conversion, if any.  Therefore, the strings they substitute are never
-case-converted.
+@samp{\&}および@samp{\@var{n}}により行われる代替えは、もしあれば大文字小文字変換の後に発生する。したがって、代替えする文字列は決して大文字小文字変換されない。
 
-If @var{subexp} is non-@code{nil}, that says to replace just subexpression
-number @var{subexp} of the regexp that was matched, not the entire match.
-For example, after matching @samp{foo \(ba*r\)}, calling
-@code{replace-match} with 1 as @var{subexp} means to replace just the text
-that matched @samp{\(ba*r\)}.
+@var{subexp}が非@code{nil}なら、それは全体のマッチではなく、マッチされたregexpの部分式番号@var{subexp}だけを置換することを指定する。たとえば@samp{foo
+\(ba*r\)}のマッチング後に@code{replace-match}を呼び出すと、@var{subexp}が1なら@samp{\(ba*r\)}にマッチしたテキストだけを置換することを意味する。
 @end defun
 
 @defun match-substitute-replacement replacement &optional fixedcase literal string subexp
-This function returns the text that would be inserted into the buffer by
-@code{replace-match}, but without modifying the buffer.  It is useful if you
-want to present the user with actual replacement result, with constructs
-like @samp{\@var{n}} or @samp{\&} substituted with matched groups.
-Arguments @var{replacement} and optional @var{fixedcase}, @var{literal},
-@var{string} and @var{subexp} have the same meaning as for
-@code{replace-match}.
+この関数は、@code{replace-match}によりバッファーに挿入されるであろうテキストをリターンするが、バッファーを変更しない。これは@samp{\@var{n}}や@samp{\&}のような構成要素を、マッチしたグループで置き換えた実際の結果を、ユーザーに示したいとき有用である。引数@var{replacement}、およびオプションの@var{fixedcase}、@var{literal}、@var{string}、@var{subexp}は、@code{replace-match}のときと同じ意味をもつ。
 @end defun
 
 @node Simple Match Data
