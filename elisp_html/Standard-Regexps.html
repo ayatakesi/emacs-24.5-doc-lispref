@@ -75,62 +75,58 @@ Previous: <a href="Search-and-Replace.html#Search-and-Replace" accesskey="p" rel
 <a name="index-regexps-used-standardly-in-editing"></a>
 <a name="index-standard-regexps-used-in-editing"></a>
 
-<p>This section describes some variables that hold regular expressions
-used for certain purposes in editing:
+<p>This section describes some variables that hold regular expressions used for
+certain purposes in editing:
 </p>
 <dl>
 <dt><a name="index-page_002ddelimiter"></a>User Option: <strong>page-delimiter</strong></dt>
 <dd><p>This is the regular expression describing line-beginnings that separate
 pages.  The default value is <code>&quot;^\014&quot;</code> (i.e., <code>&quot;^^L&quot;</code> or
-<code>&quot;^\C-l&quot;</code>); this matches a line that starts with a formfeed
-character.
+<code>&quot;^\C-l&quot;</code>); this matches a line that starts with a formfeed character.
 </p></dd></dl>
 
-<p>The following two regular expressions should <em>not</em> assume the
-match always starts at the beginning of a line; they should not use
-&lsquo;<samp>^</samp>&rsquo; to anchor the match.  Most often, the paragraph commands do
-check for a match only at the beginning of a line, which means that
-&lsquo;<samp>^</samp>&rsquo; would be superfluous.  When there is a nonzero left margin,
-they accept matches that start after the left margin.  In that case, a
-&lsquo;<samp>^</samp>&rsquo; would be incorrect.  However, a &lsquo;<samp>^</samp>&rsquo; is harmless in modes
-where a left margin is never used.
+<p>The following two regular expressions should <em>not</em> assume the match
+always starts at the beginning of a line; they should not use &lsquo;<samp>^</samp>&rsquo; to
+anchor the match.  Most often, the paragraph commands do check for a match
+only at the beginning of a line, which means that &lsquo;<samp>^</samp>&rsquo; would be
+superfluous.  When there is a nonzero left margin, they accept matches that
+start after the left margin.  In that case, a &lsquo;<samp>^</samp>&rsquo; would be incorrect.
+However, a &lsquo;<samp>^</samp>&rsquo; is harmless in modes where a left margin is never used.
 </p>
 <dl>
 <dt><a name="index-paragraph_002dseparate"></a>User Option: <strong>paragraph-separate</strong></dt>
-<dd><p>This is the regular expression for recognizing the beginning of a line
-that separates paragraphs.  (If you change this, you may have to
-change <code>paragraph-start</code> also.)  The default value is
-<code>&quot;[&nbsp;\t\f]*$&quot;</code><!-- /@w -->, which matches a line that consists entirely of
-spaces, tabs, and form feeds (after its left margin).
+<dd><p>This is the regular expression for recognizing the beginning of a line that
+separates paragraphs.  (If you change this, you may have to change
+<code>paragraph-start</code> also.)  The default value is <code>&quot;[&nbsp;\t\f]*$&quot;</code><!-- /@w -->,
+which matches a line that consists entirely of spaces, tabs, and form feeds
+(after its left margin).
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-paragraph_002dstart"></a>User Option: <strong>paragraph-start</strong></dt>
-<dd><p>This is the regular expression for recognizing the beginning of a line
-that starts <em>or</em> separates paragraphs.  The default value is
-<code>&quot;\f\\|[&nbsp;\t]*$&quot;</code><!-- /@w -->, which matches a line containing only
-whitespace or starting with a form feed (after its left margin).
+<dd><p>This is the regular expression for recognizing the beginning of a line that
+starts <em>or</em> separates paragraphs.  The default value is
+<code>&quot;\f\\|[&nbsp;\t]*$&quot;</code><!-- /@w -->, which matches a line containing only whitespace
+or starting with a form feed (after its left margin).
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-sentence_002dend-1"></a>User Option: <strong>sentence-end</strong></dt>
-<dd><p>If non-<code>nil</code>, the value should be a regular expression describing
-the end of a sentence, including the whitespace following the
-sentence.  (All paragraph boundaries also end sentences, regardless.)
+<dd><p>If non-<code>nil</code>, the value should be a regular expression describing the
+end of a sentence, including the whitespace following the sentence.  (All
+paragraph boundaries also end sentences, regardless.)
 </p>
 <p>If the value is <code>nil</code>, as it is by default, then the function
-<code>sentence-end</code> constructs the regexp.  That is why you
-should always call the function <code>sentence-end</code> to obtain the
-regexp to be used to recognize the end of a sentence.
+<code>sentence-end</code> constructs the regexp.  That is why you should always
+call the function <code>sentence-end</code> to obtain the regexp to be used to
+recognize the end of a sentence.
 </p></dd></dl>
 
 <dl>
 <dt><a name="index-sentence_002dend"></a>Function: <strong>sentence-end</strong></dt>
-<dd><p>This function returns the value of the variable <code>sentence-end</code>,
-if non-<code>nil</code>.  Otherwise it returns a default value based on the
-values of the variables <code>sentence-end-double-space</code>
-(see <a href="Filling.html#Definition-of-sentence_002dend_002ddouble_002dspace">Definition of sentence-end-double-space</a>),
-<code>sentence-end-without-period</code>, and
+<dd><p>This function returns the value of the variable <code>sentence-end</code>, if
+non-<code>nil</code>.  Otherwise it returns a default value based on the values of
+the variables <code>sentence-end-double-space</code> (see <a href="Filling.html#Definition-of-sentence_002dend_002ddouble_002dspace">Definition of sentence-end-double-space</a>), <code>sentence-end-without-period</code>, and
 <code>sentence-end-without-space</code>.
 </p></dd></dl>
 <hr>

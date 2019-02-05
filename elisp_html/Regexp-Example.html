@@ -73,18 +73,16 @@ Next: <a href="Regexp-Functions.html#Regexp-Functions" accesskey="n" rel="next">
 <a name="Complex-Regexp-Example"></a>
 <h4 class="subsection">33.3.2 Complex Regexp Example</h4>
 
-<p>Here is a complicated regexp which was formerly used by Emacs to
-recognize the end of a sentence together with any whitespace that
-follows.  (Nowadays Emacs uses a similar but more complex default
-regexp constructed by the function <code>sentence-end</code>.
-See <a href="Standard-Regexps.html#Standard-Regexps">Standard Regexps</a>.)
+<p>Here is a complicated regexp which was formerly used by Emacs to recognize
+the end of a sentence together with any whitespace that follows.  (Nowadays
+Emacs uses a similar but more complex default regexp constructed by the
+function <code>sentence-end</code>.  See <a href="Standard-Regexps.html#Standard-Regexps">Standard Regexps</a>.)
 </p>
-<p>Below, we show first the regexp as a string in Lisp syntax (to
-distinguish spaces from tab characters), and then the result of
-evaluating it.  The string constant begins and ends with a
-double-quote.  &lsquo;<samp>\&quot;</samp>&rsquo; stands for a double-quote as part of the
-string, &lsquo;<samp>\\</samp>&rsquo; for a backslash as part of the string, &lsquo;<samp>\t</samp>&rsquo; for a
-tab and &lsquo;<samp>\n</samp>&rsquo; for a newline.
+<p>Below, we show first the regexp as a string in Lisp syntax (to distinguish
+spaces from tab characters), and then the result of evaluating it.  The
+string constant begins and ends with a double-quote.  &lsquo;<samp>\&quot;</samp>&rsquo; stands for a
+double-quote as part of the string, &lsquo;<samp>\\</samp>&rsquo; for a backslash as part of the
+string, &lsquo;<samp>\t</samp>&rsquo; for a tab and &lsquo;<samp>\n</samp>&rsquo; for a newline.
 </p>
 <div class="example">
 <pre class="example">&quot;[.?!][]\&quot;')}]*\\($\\| $\\|\t\\|&nbsp;&nbsp;\\)[ \t\n]*&quot;
@@ -99,30 +97,30 @@ deciphered as follows:
 </p>
 <dl compact="compact">
 <dt><code>[.?!]</code></dt>
-<dd><p>The first part of the pattern is a character alternative that matches
-any one of three characters: period, question mark, and exclamation
-mark.  The match must begin with one of these three characters.  (This
-is one point where the new default regexp used by Emacs differs from
-the old.  The new value also allows some non-<acronym>ASCII</acronym>
-characters that end a sentence without any following whitespace.)
+<dd><p>The first part of the pattern is a character alternative that matches any
+one of three characters: period, question mark, and exclamation mark.  The
+match must begin with one of these three characters.  (This is one point
+where the new default regexp used by Emacs differs from the old.  The new
+value also allows some non-<acronym>ASCII</acronym> characters that end a sentence
+without any following whitespace.)
 </p>
 </dd>
 <dt><code>[]\&quot;')}]*</code></dt>
 <dd><p>The second part of the pattern matches any closing braces and quotation
-marks, zero or more of them, that may follow the period, question mark
-or exclamation mark.  The <code>\&quot;</code> is Lisp syntax for a double-quote in
-a string.  The &lsquo;<samp>*</samp>&rsquo; at the end indicates that the immediately
-preceding regular expression (a character alternative, in this case) may be
-repeated zero or more times.
+marks, zero or more of them, that may follow the period, question mark or
+exclamation mark.  The <code>\&quot;</code> is Lisp syntax for a double-quote in a
+string.  The &lsquo;<samp>*</samp>&rsquo; at the end indicates that the immediately preceding
+regular expression (a character alternative, in this case) may be repeated
+zero or more times.
 </p>
 </dd>
 <dt><code>\\($\\|&nbsp;$\\|\t\\|&nbsp;&nbsp;\\)</code></dt>
-<dd><p>The third part of the pattern matches the whitespace that follows the
-end of a sentence: the end of a line (optionally with a space), or a
-tab, or two spaces.  The double backslashes mark the parentheses and
-vertical bars as regular expression syntax; the parentheses delimit a
-group and the vertical bars separate alternatives.  The dollar sign is
-used to match the end of a line.
+<dd><p>The third part of the pattern matches the whitespace that follows the end of
+a sentence: the end of a line (optionally with a space), or a tab, or two
+spaces.  The double backslashes mark the parentheses and vertical bars as
+regular expression syntax; the parentheses delimit a group and the vertical
+bars separate alternatives.  The dollar sign is used to match the end of a
+line.
 </p>
 </dd>
 <dt><code>[ \t\n]*</code></dt>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-01-28 23:27+0900\n"
-"PO-Revision-Date: 2019-02-05 11:16+0900\n"
+"PO-Revision-Date: 2019-02-05 15:36+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1678,12 +1678,12 @@ msgstr "regexp-quote string"
 #. type: defun
 #: searching.texi.orig:907
 msgid "This function returns a regular expression whose only exact match is @var{string}.  Using this regular expression in @code{looking-at} will succeed only if the next characters in the buffer are @var{string}; using it in a search function will succeed if the text being searched contains @var{string}.  @xref{Regexp Search}."
-msgstr ""
+msgstr "この関数は、@var{string}だけに正確にマッチするような正規表現をリターンする。@code{looking-at}内でのこの正規表現の使用は、そのバッファー内の次の文字が@var{string}のときだけ成功するだろう。検索関数でのこの正規表現の使用は、検索されるテキストが@var{string}を含むなら成功するだろう。@ref{Regexp Search}を参照のこと。"
 
 #. type: defun
 #: searching.texi.orig:910
 msgid "This allows you to request an exact string match or search when calling a function that wants a regular expression."
-msgstr ""
+msgstr "これにより、その正規表現を求める関数呼び出し時に、正確な文字列マッチまたは検索を要求できる。"
 
 #. type: group
 #: searching.texi.orig:915
@@ -1692,11 +1692,13 @@ msgid ""
 "(regexp-quote \"^The cat$\")\n"
 "     @result{} \"\\\\^The cat\\\\$\"\n"
 msgstr ""
+"(regexp-quote \"^The cat$\")\n"
+"     @result{} \"\\\\^The cat\\\\$\"\n"
 
 #. type: defun
 #: searching.texi.orig:922
 msgid "One use of @code{regexp-quote} is to combine an exact string match with context described as a regular expression.  For example, this searches for the string that is the value of @var{string}, surrounded by whitespace:"
-msgstr ""
+msgstr "正規表現として記述されたコンテキストにおいて、正確な文字列マッチを結合することが、@code{regexp-quote}の1つの使い方である。たとえば以下は空白文で囲まれた、@var{string}の値であるような文字列を検索する:"
 
 #. type: group
 #: searching.texi.orig:927
@@ -1705,33 +1707,35 @@ msgid ""
 "(re-search-forward\n"
 " (concat \"\\\\s-\" (regexp-quote string) \"\\\\s-\"))\n"
 msgstr ""
+"(re-search-forward\n"
+" (concat \"\\\\s-\" (regexp-quote string) \"\\\\s-\"))\n"
 
 #. type: cindex
 #: searching.texi.orig:931
 #, no-wrap
 msgid "optimize regexp"
-msgstr ""
+msgstr "optimize regexp"
 
 #. type: defun
 #: searching.texi.orig:932
 #, no-wrap
 msgid "regexp-opt strings &optional paren"
-msgstr ""
+msgstr "regexp-opt strings &optional paren"
 
 #. type: defun
 #: searching.texi.orig:941
 msgid "This function returns an efficient regular expression that will match any of the strings in the list @var{strings}.  This is useful when you need to make matching or searching as fast as possible---for example, for Font Lock mode@footnote{Note that @code{regexp-opt} does not guarantee that its result is absolutely the most efficient form possible.  A hand-tuned regular expression can sometimes be slightly more efficient, but is almost never worth the effort.}."
-msgstr ""
+msgstr "この関数は、リスト@var{strings}の文字列だけにマッチする、効果的な正規表現をリターンする。これはマッチングや検索を可能な限り高速にする必要があるとき、たとえばFont Lockモードで有用である@footnote{@code{regexp-opt}の結果が絶対的にもっとも効率的であるという保証はないことに注意してください。手作業でチューニングした正規表現のほうがわずかに効率的であることがときにありますが、これに努力する価値はほとんどないでしょう。}。"
 
 #. type: defun
 #: searching.texi.orig:950
 msgid "If the optional argument @var{paren} is non-@code{nil}, then the returned regular expression is always enclosed by at least one parentheses-grouping construct.  If @var{paren} is @code{words}, then that construct is additionally surrounded by @samp{\\<} and @samp{\\>}; alternatively, if @var{paren} is @code{symbols}, then that construct is additionally surrounded by @samp{\\_<} and @samp{\\_>} (@code{symbols} is often appropriate when matching programming-language keywords and the like)."
-msgstr ""
+msgstr "オプション引数@var{paren}が非@code{nil}なら、その正規表現は少なくとも1つのカッコによるグループ化構成要素に常に囲まれてリターンされる。@var{paren}が@code{words}なら、その構成要素は追加で@samp{\\<}と@samp{\\>}で囲まれ、@var{paren}が@code{symbols}なら@samp{\\_<}と@samp{\\_>}で囲まれる(プログラミング言語のような文字列をマッチングする際は、@code{symbols}が適切な場合が多々ある)。"
 
 #. type: defun
 #: searching.texi.orig:954
 msgid "This simplified definition of @code{regexp-opt} produces a regular expression which is equivalent to the actual value (but not as efficient):"
-msgstr ""
+msgstr "この単純化された@code{regexp-opt}の定義は、実際の値と等価(だが同程度に効率的ではない)な正規表現を生成する:"
 
 #. type: example
 #: searching.texi.orig:962
@@ -1744,28 +1748,34 @@ msgid ""
 "            (mapconcat 'regexp-quote strings \"\\\\|\")\n"
 "            close-paren)))\n"
 msgstr ""
+"(defun regexp-opt (strings &optional paren)\n"
+"  (let ((open-paren (if paren \"\\\\(\" \"\"))\n"
+"        (close-paren (if paren \"\\\\)\" \"\")))\n"
+"    (concat open-paren\n"
+"            (mapconcat 'regexp-quote strings \"\\\\|\")\n"
+"            close-paren)))\n"
 
 #. type: defun
 #: searching.texi.orig:965
 #, no-wrap
 msgid "regexp-opt-depth regexp"
-msgstr ""
+msgstr "regexp-opt-depth regexp"
 
 #. type: defun
 #: searching.texi.orig:969
 msgid "This function returns the total number of grouping constructs (parenthesized expressions) in @var{regexp}.  This does not include shy groups (@pxref{Regexp Backslash})."
-msgstr ""
+msgstr "この関数は、@var{regexp}内のグループ化された構成要素(カッコで囲まれた正規表現)の総数をリターンする。これには内気なグループは含まれない(@ref{Regexp Backslash}を参照)。"
 
 #. type: defun
 #: searching.texi.orig:972
 #, no-wrap
 msgid "regexp-opt-charset chars"
-msgstr ""
+msgstr "regexp-opt-charset chars"
 
 #. type: defun
 #: searching.texi.orig:975
 msgid "This function returns a regular expression matching a character in the list of characters @var{chars}."
-msgstr ""
+msgstr "この関数は文字リスト@var{chars}内の文字にマッチする正規表現をリターンする。"
 
 #. type: example
 #: searching.texi.orig:979
@@ -1774,6 +1784,8 @@ msgid ""
 "(regexp-opt-charset '(?a ?b ?c ?d ?e))\n"
 "     @result{} \"[a-e]\"\n"
 msgstr ""
+"(regexp-opt-charset '(?a ?b ?c ?d ?e))\n"
+"     @result{} \"[a-e]\"\n"
 
 #. type: section
 #: searching.texi.orig:985

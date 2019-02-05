@@ -549,18 +549,14 @@ Regexps}を参照されたい)。
 @node Regexp Functions
 @subsection Regular Expression Functions
 
-  These functions operate on regular expressions.
+  以下の関数は、正規表現を扱います。
 
 @cindex quote special characters in regexp
 @defun regexp-quote string
-This function returns a regular expression whose only exact match is
-@var{string}.  Using this regular expression in @code{looking-at} will
-succeed only if the next characters in the buffer are @var{string}; using it
-in a search function will succeed if the text being searched contains
-@var{string}.  @xref{Regexp Search}.
+この関数は、@var{string}だけに正確にマッチするような正規表現をリターンする。@code{looking-at}内でのこの正規表現の使用は、そのバッファー内の次の文字が@var{string}のときだけ成功するだろう。検索関数でのこの正規表現の使用は、検索されるテキストが@var{string}を含むなら成功するだろう。@ref{Regexp
+Search}を参照のこと。
 
-This allows you to request an exact string match or search when calling a
-function that wants a regular expression.
+これにより、その正規表現を求める関数呼び出し時に、正確な文字列マッチまたは検索を要求できる。
 
 @example
 @group
@@ -569,9 +565,7 @@ function that wants a regular expression.
 @end group
 @end example
 
-One use of @code{regexp-quote} is to combine an exact string match with
-context described as a regular expression.  For example, this searches for
-the string that is the value of @var{string}, surrounded by whitespace:
+正規表現として記述されたコンテキストにおいて、正確な文字列マッチを結合することが、@code{regexp-quote}の1つの使い方である。たとえば以下は空白文で囲まれた、@var{string}の値であるような文字列を検索する:
 
 @example
 @group
@@ -584,24 +578,12 @@ the string that is the value of @var{string}, surrounded by whitespace:
 @cindex optimize regexp
 @defun regexp-opt strings &optional paren
 @c E.g., see http://debbugs.gnu.org/2816
-This function returns an efficient regular expression that will match any of
-the strings in the list @var{strings}.  This is useful when you need to make
-matching or searching as fast as possible---for example, for Font Lock
-mode@footnote{Note that @code{regexp-opt} does not guarantee that its result
-is absolutely the most efficient form possible.  A hand-tuned regular
-expression can sometimes be slightly more efficient, but is almost never
-worth the effort.}.
+この関数は、リスト@var{strings}の文字列だけにマッチする、効果的な正規表現をリターンする。これはマッチングや検索を可能な限り高速にする必要があるとき、たとえばFont
+Lockモードで有用である@footnote{@code{regexp-opt}の結果が絶対的にもっとも効率的であるという保証はないことに注意してください。手作業でチューニングした正規表現のほうがわずかに効率的であることがときにありますが、これに努力する価値はほとんどないでしょう。}。
 
-If the optional argument @var{paren} is non-@code{nil}, then the returned
-regular expression is always enclosed by at least one parentheses-grouping
-construct.  If @var{paren} is @code{words}, then that construct is
-additionally surrounded by @samp{\<} and @samp{\>}; alternatively, if
-@var{paren} is @code{symbols}, then that construct is additionally
-surrounded by @samp{\_<} and @samp{\_>} (@code{symbols} is often appropriate
-when matching programming-language keywords and the like).
+オプション引数@var{paren}が非@code{nil}なら、その正規表現は少なくとも1つのカッコによるグループ化構成要素に常に囲まれてリターンされる。@var{paren}が@code{words}なら、その構成要素は追加で@samp{\<}と@samp{\>}で囲まれ、@var{paren}が@code{symbols}なら@samp{\_<}と@samp{\_>}で囲まれる(プログラミング言語のような文字列をマッチングする際は、@code{symbols}が適切な場合が多々ある)。
 
-This simplified definition of @code{regexp-opt} produces a regular
-expression which is equivalent to the actual value (but not as efficient):
+この単純化された@code{regexp-opt}の定義は、実際の値と等価(だが同程度に効率的ではない)な正規表現を生成する:
 
 @example
 (defun regexp-opt (strings &optional paren)
@@ -614,15 +596,13 @@ expression which is equivalent to the actual value (but not as efficient):
 @end defun
 
 @defun regexp-opt-depth regexp
-This function returns the total number of grouping constructs (parenthesized
-expressions) in @var{regexp}.  This does not include shy groups
-(@pxref{Regexp Backslash}).
+この関数は、@var{regexp}内のグループ化された構成要素(カッコで囲まれた正規表現)の総数をリターンする。これには内気なグループは含まれない(@ref{Regexp
+Backslash}を参照)。
 @end defun
 
 @c Supposedly an internal regexp-opt function, but table.el uses it at least.
 @defun regexp-opt-charset chars
-This function returns a regular expression matching a character in the list
-of characters @var{chars}.
+この関数は文字リスト@var{chars}内の文字にマッチする正規表現をリターンする。
 
 @example
 (regexp-opt-charset '(?a ?b ?c ?d ?e))
