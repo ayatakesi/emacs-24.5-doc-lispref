@@ -802,29 +802,19 @@ non-greedy}を参照)を正しくサポートしません。これはPOSIXのバ
 @section The Match Data
 @cindex match data
 
-  Emacs keeps track of the start and end positions of the segments of text
-found during a search; this is called the @dfn{match data}.  Thanks to the
-match data, you can search for a complex pattern, such as a date in a mail
-message, and then extract parts of the match under control of the pattern.
+  Emacsは、検索の間に見つかったテキスト片の開始と終了の位置を追跡しています。これは@dfn{マッチデータ(match
+data)}と呼ばれます。このマッチデータのおかげで、メールメッセージ内のデータのような複雑なパターンを検索した後、そのパターンの制御下でマッチ部分を抽出できるのです。
 
-  Because the match data normally describe the most recent search only, you
-must be careful not to do another search inadvertently between the search
-you wish to refer back to and the use of the match data.  If you can't avoid
-another intervening search, you must save and restore the match data around
-it, to prevent it from being overwritten.
+  マッチデータには通常、もっとも最近の検索だけが記述されるので、後で参照したい検索と、そのマッチデータの使用の間に、誤って別の検索を行わないように、注意しなければなりません。誤って別の検索を避けるのが不可能な場合は、マッチデータの上書きを防ぐために、その前後でマッチデータの保存とリストアを行わなければなりません。
 
-  Notice that all functions are allowed to overwrite the match data unless
-they're explicitly documented not to do so.  A consequence is that functions
-that are run implicitly in the background (@pxref{Timers}, and @ref{Idle
-Timers}) should likely save and restore the match data explicitly.
+  上書きを行わないと明記されていない限り、すべての関数は上書きを許されていることに注意してください。結果としてバックグラウンド(@ref{Timers}および@ref{Idle
+Timers}を参照されたい)で暗黙に実行される関数は、おそらく明示的にマッチデータの保存とリストアを行うべきでしょう。
 
 @menu
-* Replacing Match::          Replacing a substring that was matched.
-* Simple Match Data::        Accessing single items of match data, such as 
-                               where a particular subexpression started.
-* Entire Match Data::        Accessing the entire match data at once, as a 
-                               list.
-* Saving Match Data::        Saving and restoring the match data.
+* Replacing Match::          マッチされた部分文字列の置換。
+* Simple Match Data::        特定の部分式開始箇所のような、マッチデータの単一アイテムへのアクセス。
+* Entire Match Data::        リストとしてマッチデータ全体に一度にアクセスする。
+* Saving Match Data::        マッチデータの保存とリストア。
 @end menu
 
 @node Replacing Match
