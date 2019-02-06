@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-01-28 23:27+0900\n"
-"PO-Revision-Date: 2019-02-06 08:41+0900\n"
+"PO-Revision-Date: 2019-02-06 23:39+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2414,101 +2414,101 @@ msgstr "この関数は、@code{replace-match}によりバッファーに挿入�
 #: searching.texi.orig:1362
 #, no-wrap
 msgid "Simple Match Data Access"
-msgstr ""
+msgstr "Simple Match Data Access"
 
 #. type: Plain text
 #: searching.texi.orig:1366
 msgid "This section explains how to use the match data to find out what was matched by the last search or match operation, if it succeeded."
-msgstr ""
+msgstr "このセクションでは、最後の検索またはマッチング操作で、それが成功した場合に何がマッチされたのかを調べるための、マッチデータ使用の方法を説明します。"
 
 #. type: Plain text
 #: searching.texi.orig:1372
 msgid "You can ask about the entire matching text, or about a particular parenthetical subexpression of a regular expression.  The @var{count} argument in the functions below specifies which.  If @var{count} is zero, you are asking about the entire match.  If @var{count} is positive, it specifies which subexpression you want."
-msgstr ""
+msgstr "マッチしたテキスト全体、または正規表現の特定のカッコで括られた部分式にたいして、問い合わせることができます。以下の関数で@var{count}は、どの部分式かを指定できます。@var{count}が0ならマッチ全体を、@var{count}が正なら望む部分式を指定します。"
 
 #. type: Plain text
 #: searching.texi.orig:1380
 msgid "Recall that the subexpressions of a regular expression are those expressions grouped with escaped parentheses, @samp{\\(@dots{}\\)}.  The @var{count}th subexpression is found by counting occurrences of @samp{\\(} from the beginning of the whole regular expression.  The first subexpression is numbered 1, the second 2, and so on.  Only regular expressions can have subexpressions---after a simple string search, the only information available is about the entire match."
-msgstr ""
+msgstr "正規表現での部分式とは、エスケープされたカッコ@samp{\\(@dots{}\\)}でグループ化された表現であることを思い出してください。@var{count}番目の部分式は、正規表現全体の先頭から@samp{\\(}を数えることにより見つけられます。最初の部分式が1、2つ目が2、...となります。正規表現だけが部分式をもつことができ、単純な文字列検索の後で利用できるのはマッチ全体の情報だけです。"
 
 #. type: Plain text
 #: searching.texi.orig:1388
 msgid "Every successful search sets the match data.  Therefore, you should query the match data immediately after searching, before calling any other function that might perform another search.  Alternatively, you may save and restore the match data (@pxref{Saving Match Data}) around the call to functions that could perform another search.  Or use the functions that explicitly do not modify the match data; e.g., @code{string-match-p}."
-msgstr ""
+msgstr "成功した検索すべては、マッチデータをセットします。したがって検索後は、別の検索を行うかもしれない関数を呼び出す前に、直後にマッチデータを問い合わせるべきです。別の検索を呼び出すかもしれない関数の前後で、かわりにマッチデータの保存とリストアすることもできます(@ref{Saving Match Data}を参照)。または@code{string-match-p}のような、マッチデータを変更しないと明示されている関数を使用してください。"
 
 #. type: Plain text
 #: searching.texi.orig:1395
 msgid "A search which fails may or may not alter the match data.  In the current implementation, it does not, but we may change it in the future.  Don't try to rely on the value of the match data after a failing search."
-msgstr ""
+msgstr "検索が成功しようと失敗しようと、マッチデータは変更されます。現在はこのように実装されていますが、これは将来変更されるかもしれません。失敗した後のマッチデータを、信用しないでください。"
 
 #. type: defun
 #: searching.texi.orig:1396
 #, no-wrap
 msgid "match-string count &optional in-string"
-msgstr ""
+msgstr "match-string count &optional in-string"
 
 #. type: defun
 #: searching.texi.orig:1401
 msgid "This function returns, as a string, the text matched in the last search or match operation.  It returns the entire text if @var{count} is zero, or just the portion corresponding to the @var{count}th parenthetical subexpression, if @var{count} is positive."
-msgstr ""
+msgstr "この関数は、最後の検索またはマッチ処理でマッチしたテキストを、文字列としてリターンする。これは@var{count}が0ならテキスト全体、@var{count}が正なら@var{count}番目のカッコで括られた部分式に対応する部分だけをリターンする。"
 
 #. type: defun
 #: searching.texi.orig:1409
 msgid "If the last such operation was done against a string with @code{string-match}, then you should pass the same string as the argument @var{in-string}.  After a buffer search or match, you should omit @var{in-string} or pass @code{nil} for it; but you should make sure that the current buffer when you call @code{match-string} is the one in which you did the searching or matching.  Failure to follow this advice will lead to incorrect results."
-msgstr ""
+msgstr "そのような最後の処理が、文字列にたいする@code{string-match}呼び出しの場合は、引数@var{in-string}に同じ文字列を渡すべきである。バッファーの検索またはマッチ後は、@var{in-string}を省略するか@code{nil}を渡すべきである。しかし、最後に検索またはマッチを行ったバッファーが、@code{match-string}呼び出し時にカレントバッファーであることを確認すること。このアドバイスにしたがわない場合は、誤った結果となるだろう。"
 
 #. type: defun
 #: searching.texi.orig:1413
 msgid "The value is @code{nil} if @var{count} is out of range, or for a subexpression inside a @samp{\\|} alternative that wasn't used or a repetition that repeated zero times."
-msgstr ""
+msgstr "@var{count}が範囲外か、@samp{\\|}選択肢内部の部分式が使用されない、または0回の繰り返しなら、値は@code{nil}となる。"
 
 #. type: defun
 #: searching.texi.orig:1415
 #, no-wrap
 msgid "match-string-no-properties count &optional in-string"
-msgstr ""
+msgstr "match-string-no-properties count &optional in-string"
 
 #. type: defun
 #: searching.texi.orig:1418
 msgid "This function is like @code{match-string} except that the result has no text properties."
-msgstr ""
+msgstr "この関数は@code{match-string}と似ているが、結果がテキストプロパティをもたない点が異なる。"
 
 #. type: defun
 #: searching.texi.orig:1420
 #, no-wrap
 msgid "match-beginning count"
-msgstr ""
+msgstr "match-beginning count"
 
 #. type: defun
 #: searching.texi.orig:1423
 msgid "This function returns the position of the start of the text matched by the last regular expression searched for, or a subexpression of it."
-msgstr ""
+msgstr "この関数は、最後に検索された正規表現またはその部分式によりマッチされた、テキストの開始位置をリターンする。"
 
 #. type: defun
 #: searching.texi.orig:1428
 msgid "If @var{count} is zero, then the value is the position of the start of the entire match.  Otherwise, @var{count} specifies a subexpression in the regular expression, and the value of the function is the starting position of the match for that subexpression."
-msgstr ""
+msgstr "@var{count}が0なら、値はマッチ全体の開始位置となる。それ以外なら、@var{count}は正規表現内の部分式を指定し、この関数の値はその部分式にたいするマッチの開始位置である。"
 
 #. type: defun
 #: searching.texi.orig:1431
 msgid "The value is @code{nil} for a subexpression inside a @samp{\\|} alternative that wasn't used or a repetition that repeated zero times."
-msgstr ""
+msgstr "使用されない、あるいは0回の繰り返しであるような@samp{\\|}選択肢内部の部分式にたいして、値は@code{nil}になる。"
 
 #. type: defun
 #: searching.texi.orig:1433
 #, no-wrap
 msgid "match-end count"
-msgstr ""
+msgstr "match-end count"
 
 #. type: defun
 #: searching.texi.orig:1437
 msgid "This function is like @code{match-beginning} except that it returns the position of the end of the match, rather than the position of the beginning."
-msgstr ""
+msgstr "この関数は@code{match-beginning}と似ているが、マッチの開始ではなく終了位置である点が異なる。"
 
 #. type: Plain text
 #: searching.texi.orig:1441
 msgid "Here is an example of using the match data, with a comment showing the positions within the text:"
-msgstr ""
+msgstr "以下はマッチデータを使用する例です。コメントの数字はテキスト内での位置を示しています:"
 
 #. type: group
 #: searching.texi.orig:1448
@@ -2519,6 +2519,10 @@ msgid ""
 "              ;0123456789\n"
 "     @result{} 4\n"
 msgstr ""
+"(string-match \"\\\\(qu\\\\)\\\\(ick\\\\)\"\n"
+"              \"The quick fox jumped quickly.\")\n"
+"              ;0123456789\n"
+"     @result{} 4\n"
 
 #. type: group
 #: searching.texi.orig:1457
@@ -2531,6 +2535,12 @@ msgid ""
 "(match-string 2 \"The quick fox jumped quickly.\")\n"
 "     @result{} \"ick\"\n"
 msgstr ""
+"(match-string 0 \"The quick fox jumped quickly.\")\n"
+"     @result{} \"quick\"\n"
+"(match-string 1 \"The quick fox jumped quickly.\")\n"
+"     @result{} \"qu\"\n"
+"(match-string 2 \"The quick fox jumped quickly.\")\n"
+"     @result{} \"ick\"\n"
 
 #. type: group
 #: searching.texi.orig:1462
@@ -2539,6 +2549,8 @@ msgid ""
 "(match-beginning 1)       ; @r{The beginning of the match}\n"
 "     @result{} 4                 ;   @r{with @samp{qu} is at index 4.}\n"
 msgstr ""
+"(match-beginning 1)       ; @r{@samp{qu}にたいするマッチ先頭の}\n"
+"     @result{} 4                 ;   @r{インデックスは4}\n"
 
 #. type: group
 #: searching.texi.orig:1467
@@ -2547,6 +2559,8 @@ msgid ""
 "(match-beginning 2)       ; @r{The beginning of the match}\n"
 "     @result{} 6                 ;   @r{with @samp{ick} is at index 6.}\n"
 msgstr ""
+"(match-beginning 2)       ; @r{@samp{ick}にたいするマッチ先頭の}\n"
+"     @result{} 6                 ;   @r{インデックスは6}\n"
 
 #. type: group
 #: searching.texi.orig:1472
@@ -2556,6 +2570,9 @@ msgid ""
 "     @result{} 6                 ;   @r{with @samp{qu} is at index 6.}\n"
 "\n"
 msgstr ""
+"(match-end 1)             ; @r{@samp{qu}にたいするマッチ終端の}\n"
+"     @result{} 6                 ;   @r{インデックスは6}\n"
+"\n"
 
 #. type: group
 #: searching.texi.orig:1475
@@ -2564,11 +2581,13 @@ msgid ""
 "(match-end 2)             ; @r{The end of the match}\n"
 "     @result{} 9                 ;   @r{with @samp{ick} is at index 9.}\n"
 msgstr ""
+"(match-end 2)             ; @r{@samp{ick}にたいするマッチ終端の}\n"
+"     @result{} 9                 ;   @r{インデックスは9}\n"
 
 #. type: Plain text
 #: searching.texi.orig:1483
 msgid "Here is another example.  Point is initially located at the beginning of the line.  Searching moves point to between the space and the word @samp{in}.  The beginning of the entire match is at the 9th character of the buffer (@samp{T}), and the beginning of the match for the first subexpression is at the 13th character (@samp{c})."
-msgstr ""
+msgstr "別の例を以下に示します。ポイントは最初、行の先頭にあります。検索により、ポイントはスペースと単語@samp{in}の間にあります。マッチ全体の先頭はバッファーの9つ目の文字(@samp{T})、1つ目の部分式にたいするマッチの先頭は13番目の文字(@samp{c})です。"
 
 #. type: group
 #: searching.texi.orig:1491
@@ -2580,6 +2599,11 @@ msgid ""
 "  (match-beginning 1))\n"
 "    @result{} (17 9 13)\n"
 msgstr ""
+"(list\n"
+"  (re-search-forward \"The \\\\(cat \\\\)\")\n"
+"  (match-beginning 0)\n"
+"  (match-beginning 1))\n"
+"    @result{} (17 9 13)\n"
 
 #. type: group
 #: searching.texi.orig:1499
@@ -2591,11 +2615,16 @@ msgid ""
 "        9  13\n"
 "---------- Buffer: foo ----------\n"
 msgstr ""
+"---------- Buffer: foo ----------\n"
+"I read \"The cat @point{}in the hat comes back\" twice.\n"
+"        ^   ^\n"
+"        9  13\n"
+"---------- Buffer: foo ----------\n"
 
 #. type: Plain text
 #: searching.texi.orig:1505
 msgid "(In this case, the index returned is a buffer position; the first character of the buffer counts as 1.)"
-msgstr ""
+msgstr "(この場合、リターンされるインデックスはバッファー位置で、バッファーの1つ目の文字を1と数える。)"
 
 #. type: subsection
 #: searching.texi.orig:1507
