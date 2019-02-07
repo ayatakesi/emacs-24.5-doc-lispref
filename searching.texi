@@ -971,52 +971,32 @@ I read "The cat @point{}in the hat comes back" twice.
 @node Entire Match Data
 @subsection Accessing the Entire Match Data
 
-  The functions @code{match-data} and @code{set-match-data} read or write the
-entire match data, all at once.
+  関数@code{match-data}および@code{set-match-data}は、マッチデータ全体を一度に読み取り、または書き込みます。
 
 @defun match-data &optional integers reuse reseat
-This function returns a list of positions (markers or integers) that record
-all the information on the text that the last search matched.  Element zero
-is the position of the beginning of the match for the whole expression;
-element one is the position of the end of the match for the expression.  The
-next two elements are the positions of the beginning and end of the match
-for the first subexpression, and so on.  In general, element
+この関数は、最後の検索によりマッチしたテキストのすべての情報を記録する、位置(マーカーか整数)をリターンする。要素0は、正規表現全体にたいするマッチの、先頭の位置である。要素1は、その正規表現にたいするマッチの、終端の位置である。次の2つの要素は、1つ目の部分式にたいするマッチの先頭と終了、...となる。一般的に要素番号
 @ifnottex
-number 2@var{n}
+2@var{n}
 @end ifnottex
 @tex
-number {\mathsurround=0pt $2n$}
+{\mathsurround=0pt $2n$}
 @end tex
-corresponds to @code{(match-beginning @var{n})}; and element
+は@code{(match-beginning @var{n})}に対応し、要素番号
 @ifnottex
-number 2@var{n} + 1
+2@var{n} + 1
 @end ifnottex
 @tex
-number {\mathsurround=0pt $2n+1$}
+{\mathsurround=0pt $2n+1$}
 @end tex
-corresponds to @code{(match-end @var{n})}.
+は@code{(match-end @var{n})}に対応する。
 
-Normally all the elements are markers or @code{nil}, but if @var{integers}
-is non-@code{nil}, that means to use integers instead of markers.  (In that
-case, the buffer itself is appended as an additional element at the end of
-the list, to facilitate complete restoration of the match data.)  If the
-last match was done on a string with @code{string-match}, then integers are
-always used, since markers can't point into a string.
+すべての要素は通常はマーカーか@code{nil}だが、もし@var{integers}が非@code{nil}なら、それはマーカーのかわりに整数を使用することを意味する(この場合、マッチデータの完全なリストアwpey容易にするために、リストの最後の要素として、そのバッファー自身が追加される)。@code{string-match}により、最後の検索が文字列にたいして行われた場合、マーカーは文字列無いをポイントできないので、常に整数が使用される。
 
-If @var{reuse} is non-@code{nil}, it should be a list.  In that case,
-@code{match-data} stores the match data in @var{reuse}.  That is,
-@var{reuse} is destructively modified.  @var{reuse} does not need to have
-the right length.  If it is not long enough to contain the match data, it is
-extended.  If it is too long, the length of @var{reuse} stays the same, but
-the elements that were not used are set to @code{nil}.  The purpose of this
-feature is to reduce the need for garbage collection.
+@var{reuse}が非@code{nil}なら、それはリストであること。この場合、@code{match-data}はマッチデータを@var{reuse}内に格納する。つまり@var{reuse}は、破壊的に変更される。@var{reuse}が、正しい長さである必要はない。特定のマッチデータにたいして長さが十分でなければ、リストは拡張される。@var{reuse}が長過ぎる場合、長さはそのままで使用しない要素には@code{nil}がセットされる。この機能には、ガベージコレクションの必要頻度を減らす目的がある。
 
-If @var{reseat} is non-@code{nil}, all markers on the @var{reuse} list are
-reseated to point to nowhere.
+@var{reseat}が非@code{nil}なら、@var{reuse}リスト内のすべてのマーカーは、存在しない場所を指すよう再設定される。
 
-As always, there must be no possibility of intervening searches between the
-call to a search function and the call to @code{match-data} that is intended
-to access the match data for that search.
+他の場合と同様、検索関数とその検索のマッチデータへのアクセスを意図する@code{match-data}呼び出しの間に介入するような検索があってはならない。
 
 @example
 @group
@@ -1030,20 +1010,15 @@ to access the match data for that search.
 @end defun
 
 @defun set-match-data match-list &optional reseat
-This function sets the match data from the elements of @var{match-list},
-which should be a list that was the value of a previous call to
-@code{match-data}.  (More precisely, anything that has the same format will
-work.)
+この関数は、@var{match-list}の要素からマッチデータをセットする。@var{match-list}は、前の@code{match-data}呼び出しの値であるようなリストであること(正確には同じフォーマットなら他のものでも機能するだろう)。
 
-If @var{match-list} refers to a buffer that doesn't exist, you don't get an
-error; that sets the match data in a meaningless but harmless way.
+@var{match-list}が存在しないバッファーを参照する場合でも、エラーとはならない。これは無意味だが害のない方法で、マッチデータをセットする。
 
-If @var{reseat} is non-@code{nil}, all markers on the @var{match-list} list
-are reseated to point to nowhere.
+@var{reseat}が非@code{nil}なら、リスト@var{match-list}内のすべてのマーカーは、存在しない場所を指すよう再設定される。
 
 @c TODO Make it properly obsolete.
 @findex store-match-data
-@code{store-match-data} is a semi-obsolete alias for @code{set-match-data}.
+@code{store-match-data}は、半ば時代遅れな@code{set-match-data}のエイリアスである。
 @end defun
 
 @node Saving Match Data
