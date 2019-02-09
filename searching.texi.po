@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-01-28 23:27+0900\n"
-"PO-Revision-Date: 2019-02-07 23:36+0900\n"
+"PO-Revision-Date: 2019-02-09 12:03+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2752,12 +2752,12 @@ msgstr "@code{store-match-data}は、半ば時代遅れな@code{set-match-data}�
 #: searching.texi.orig:1589
 #, no-wrap
 msgid "Saving and Restoring the Match Data"
-msgstr ""
+msgstr "Saving and Restoring the Match Data"
 
 #. type: Plain text
 #: searching.texi.orig:1595
 msgid "When you call a function that may search, you may need to save and restore the match data around that call, if you want to preserve the match data from an earlier search for later use.  Here is an example that shows the problem that arises if you fail to save the match data:"
-msgstr ""
+msgstr "以前に行った検索にたいするマッチデータを後で使用するために保護する必要があるなら、検索を行うかもしれない関数の呼び出し時に、その呼び出し前後でマッチデータの保存とリストアを行う必要があるでしょう。以下はマッチデータ保存に失敗した場合に発生する問題を示す例です:"
 
 #. type: group
 #: searching.texi.orig:1603
@@ -2769,27 +2769,32 @@ msgid ""
 "(match-end 0)\n"
 "     @result{} 61              ; @r{Unexpected result---not 48!}\n"
 msgstr ""
+"(re-search-forward \"The \\\\(cat \\\\)\")\n"
+"     @result{} 48\n"
+"(foo)                   ; @r{@code{foo}が他の検索を行うと}\n"
+"(match-end 0)\n"
+"     @result{} 61              ; @r{結果は期待する48と異なる!}\n"
 
 #. type: Plain text
 #: searching.texi.orig:1607
 msgid "You can save and restore the match data with @code{save-match-data}:"
-msgstr ""
+msgstr "@code{save-match-data}で、マッチデータの保存とリストアができます:"
 
 #. type: defmac
 #: searching.texi.orig:1608
 #, no-wrap
 msgid "save-match-data body@dots{}"
-msgstr ""
+msgstr "save-match-data body@dots{}"
 
 #. type: defmac
 #: searching.texi.orig:1612
 msgid "This macro executes @var{body}, saving and restoring the match data around it.  The return value is the value of the last form in @var{body}."
-msgstr ""
+msgstr "このマクロは@var{body}を実行して、その前後のマッチデータの保存とリストアをする。リターン値は、@var{body}内の最後のフォームの値。"
 
 #. type: Plain text
 #: searching.texi.orig:1617
 msgid "You could use @code{set-match-data} together with @code{match-data} to imitate the effect of the special form @code{save-match-data}.  Here is how:"
-msgstr ""
+msgstr "@code{set-match-data}と@code{match-data}を一緒に使用して、@code{save-match-data}の効果を真似ることができます。以下は、その方法です:"
 
 #. type: group
 #: searching.texi.orig:1624
@@ -2800,11 +2805,15 @@ msgid ""
 "      @dots{}   ; @r{Ok to change the original match data.}\n"
 "    (set-match-data data)))\n"
 msgstr ""
+"(let ((data (match-data)))\n"
+"  (unwind-protect\n"
+"      @dots{}   ; @r{元のマッチデータを変更してもOK}\n"
+"    (set-match-data data)))\n"
 
 #. type: Plain text
 #: searching.texi.orig:1630
 msgid "Emacs automatically saves and restores the match data when it runs process filter functions (@pxref{Filter Functions}) and process sentinels (@pxref{Sentinels})."
-msgstr ""
+msgstr "プロセスフィルター関数(@pxref{Filter Functions})、およびプロセスセンチネル(@pxref{Sentinels})実行時は、Emacsが自動的にマッチデータの保存とリストアを行います。"
 
 #. type: group
 #: searching.texi.orig:1643
@@ -2815,6 +2824,10 @@ msgid ""
 "  (catch 'foo\n"
 "    (let ((d data))\n"
 msgstr ""
+"(defun restore-match-data (data)\n"
+"  \"Restore the match data DATA unless the buffer is missing.\"\n"
+"  (catch 'foo\n"
+"    (let ((d data))\n"
 
 #. type: smallexample
 #: searching.texi.orig:1647
@@ -2824,6 +2837,9 @@ msgid ""
 "        (and (car d)\n"
 "             (null (marker-buffer (car d)))\n"
 msgstr ""
+"      (while d\n"
+"        (and (car d)\n"
+"             (null (marker-buffer (car d)))\n"
 
 #. type: group
 #: searching.texi.orig:1652
@@ -2834,6 +2850,10 @@ msgid ""
 "        (setq d (cdr d)))\n"
 "      (set-match-data data))))\n"
 msgstr ""
+"             ;; @file{match-data} @r{buffer is deleted.}\n"
+"             (throw 'foo nil))\n"
+"        (setq d (cdr d)))\n"
+"      (set-match-data data))))\n"
 
 #. type: cindex
 #: searching.texi.orig:1658

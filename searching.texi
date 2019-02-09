@@ -1024,43 +1024,37 @@ I read "The cat @point{}in the hat comes back" twice.
 @node Saving Match Data
 @subsection Saving and Restoring the Match Data
 
-  When you call a function that may search, you may need to save and restore
-the match data around that call, if you want to preserve the match data from
-an earlier search for later use.  Here is an example that shows the problem
-that arises if you fail to save the match data:
+  以前に行った検索にたいするマッチデータを後で使用するために保護する必要があるなら、検索を行うかもしれない関数の呼び出し時に、その呼び出し前後でマッチデータの保存とリストアを行う必要があるでしょう。以下はマッチデータ保存に失敗した場合に発生する問題を示す例です:
 
 @example
 @group
 (re-search-forward "The \\(cat \\)")
      @result{} 48
-(foo)                   ; @r{@code{foo} does more searching.}
+(foo)                   ; @r{@code{foo}が他の検索を行うと}
 (match-end 0)
-     @result{} 61              ; @r{Unexpected result---not 48!}
+     @result{} 61              ; @r{結果は期待する48と異なる!}
 @end group
 @end example
 
-  You can save and restore the match data with @code{save-match-data}:
+  @code{save-match-data}で、マッチデータの保存とリストアができます:
 
 @defmac save-match-data body@dots{}
-This macro executes @var{body}, saving and restoring the match data around
-it.  The return value is the value of the last form in @var{body}.
+このマクロは@var{body}を実行して、その前後のマッチデータの保存とリストアをする。リターン値は、@var{body}内の最後のフォームの値。
 @end defmac
 
-  You could use @code{set-match-data} together with @code{match-data} to
-imitate the effect of the special form @code{save-match-data}.  Here is how:
+  @code{set-match-data}と@code{match-data}を一緒に使用して、@code{save-match-data}の効果を真似ることができます。以下は、その方法です:
 
 @example
 @group
 (let ((data (match-data)))
   (unwind-protect
-      @dots{}   ; @r{Ok to change the original match data.}
+      @dots{}   ; @r{元のマッチデータを変更してもOK}
     (set-match-data data)))
 @end group
 @end example
 
-  Emacs automatically saves and restores the match data when it runs process
-filter functions (@pxref{Filter Functions}) and process sentinels
-(@pxref{Sentinels}).
+  プロセスフィルター関数(@pxref{Filter
+Functions})、およびプロセスセンチネル(@pxref{Sentinels})実行時は、Emacsが自動的にマッチデータの保存とリストアを行います。
 
 @ignore
   Here is a function which restores the match data provided the buffer
