@@ -33,21 +33,16 @@ Mode}を参照)や、種々の複雑な移動コマンド(@ref{Motion}を参照)
 @node Syntax Basics
 @section Syntax Table Concepts
 
-  A syntax table is a data structure which can be used to look up the
-@dfn{syntax class} and other syntactic properties of each character.  Syntax
-tables are used by Lisp programs for scanning and moving across text.
+  構文テーブルとは、それぞれの文字の@dfn{構文クラス(syntax
+class)}や、その他の構文的プロパティを照合するために使用できる、データ構造のことです。構文テーブルは、テキストを横断したスキャンや移動のために、Lispプログラムにより使用されます。
 
-  Internally, a syntax table is a char-table (@pxref{Char-Tables}).  The
-element at index @var{c} describes the character with code @var{c}; its
-value is a cons cell which specifies the syntax of the character in
-question.  @xref{Syntax Table Internals}, for details.  However, instead of
-using @code{aset} and @code{aref} to modify and inspect syntax table
-contents, you should usually use the higher-level functions
-@code{char-syntax} and @code{modify-syntax-entry}, which are described in
-@ref{Syntax Table Functions}.
+  構文テーブルは、内部的には文字テーブルです(@ref{Char-Tables}を参照)。インデックス@var{c}の要素はコード@var{c}の文字を記述します。値は該当する文字の構文を指定するコンスセルです。詳細は@xref{Syntax
+Table
+Internals}を参照してください。しかし構文テーブルの内容を変更または調べるために@code{aset}や@code{aref}を使用するかわりに、通常は高レベルな関数@code{char-syntax}や@code{modify-syntax-entry}を使用するべきです。これらについては@ref{Syntax
+Table Functions}で説明します。
 
 @defun syntax-table-p object
-This function returns @code{t} if @var{object} is a syntax table.
+この関数は@var{object}が構文テーブルなら、@code{t}をリターンする。
 @end defun
 
   Each buffer has its own major mode, and each major mode has its own idea of
