@@ -1086,9 +1086,7 @@ associated with it still exists.
 @cindex replacement after search
 @cindex searching and replacing
 
-  If you want to find all matches for a regexp in part of the buffer, and
-replace them, the best way is to write an explicit loop using
-@code{re-search-forward} and @code{replace-match}, like this:
+  バッファーのある部分で、regexpにたいするすべてのマッチを見つけてそれらを置換したい場合は、以下のように@code{re-search-forward}と@code{replace-match}を使用して、明示的なループを記述するのが最良の方法です:
 
 @example
 (while (re-search-forward "foo[ \t]+bar" nil t)
@@ -1096,184 +1094,126 @@ replace them, the best way is to write an explicit loop using
 @end example
 
 @noindent
-@xref{Replacing Match,, Replacing the Text that Matched}, for a description
-of @code{replace-match}.
+@code{replace-match}の説明は、@xref{Replacing Match,, Replacing the Text that
+Matched}を参照してください。
 
-  However, replacing matches in a string is more complex, especially if you
-want to do it efficiently.  So Emacs provides a function to do this.
+  しかし文字列内のマッチの置換、特にそれを効果的に行いたい場合は、より複雑になります。そのため、Emacsはこれを行うための関数を提供します。
 
 @defun replace-regexp-in-string regexp rep string &optional fixedcase literal subexp start
-This function copies @var{string} and searches it for matches for
-@var{regexp}, and replaces them with @var{rep}.  It returns the modified
-copy.  If @var{start} is non-@code{nil}, the search for matches starts at
-that index in @var{string}, so matches starting before that index are not
-changed.
+この関数は@var{string}をコピーして@var{regexp}にたいするマッチを検索し、それらを@var{rep}に置き換える。これは変更されたコピーwリターンする。@var{start}が非@code{nil}なら、マッチにたいする検索は@var{string}内のそのインデックスから開始され、そのインデックスより前で始まるマッチは変更されない。
 
-This function uses @code{replace-match} to do the replacement, and it passes
-the optional arguments @var{fixedcase}, @var{literal} and @var{subexp} along
-to @code{replace-match}.
+この関数は置換を行うために@code{replace-match}を使用し、オプション引数@var{fixedcase}、@var{literal}、@var{subexp}を@code{replace-match}に渡す。
 
-Instead of a string, @var{rep} can be a function.  In that case,
-@code{replace-regexp-in-string} calls @var{rep} for each match, passing the
-text of the match as its sole argument.  It collects the value @var{rep}
-returns and passes that to @code{replace-match} as the replacement string.
-The match data at this point are the result of matching @var{regexp} against
-a substring of @var{string}.
+文字列のかわりに、@var{rep}は関数でもよい。この場合、@code{replace-regexp-in-string}はそれぞれのマッチにたいして、そのテキストを単一の引数として@var{rep}を呼び出す。これは@var{rep}がリターンする値を収集して、それを置換文字列として@code{replace-match}に渡す。この時点でのマッチデータは@var{string}の部分文字列にたいする@var{regexp}のマッチ結果である。
 @end defun
 
-  If you want to write a command along the lines of @code{query-replace}, you
-can use @code{perform-replace} to do the work.
+  @code{query-replace}の行に関するコマンドを記述したい場合は、@code{perform-replace}を使用してこれを行うことができる。
 
 @defun perform-replace from-string replacements query-flag regexp-flag delimited-flag &optional repeat-count map start end
-This function is the guts of @code{query-replace} and related commands.  It
-searches for occurrences of @var{from-string} in the text between positions
-@var{start} and @var{end} and replaces some or all of them.  If @var{start}
-is @code{nil} (or omitted), point is used instead, and the end of the
-buffer's accessible portion is used for @var{end}.
+これは@code{query-replace}および関連するコマンドの根幹となる関数である。これは位置@var{start}と@var{end}の間にあるテキスト内に出現する@var{from-string}の一部またはすべてを置換する。@var{start}が@code{nil}(または省略された)ならかわりにポイントガ使用され、@var{end}にはそのバッファーのアクセス可能範囲の終端が使用される。
 
-If @var{query-flag} is @code{nil}, it replaces all occurrences; otherwise,
-it asks the user what to do about each one.
+@var{query-flag}が@code{nil}なら、マッチすべてを置換する。それ以外の場合は、それぞれにたいしてユーザーにたいして何をすべきか問い合わせる。
 
-If @var{regexp-flag} is non-@code{nil}, then @var{from-string} is considered
-a regular expression; otherwise, it must match literally.  If
-@var{delimited-flag} is non-@code{nil}, then only replacements surrounded by
-word boundaries are considered.
+@var{regexp-flag}が非@code{nil}なら@var{from-string}は正規表現とみなされ、それ以外はリテラルとしてマッチしなければならない。@var{delimited-flag}が非@code{nil}なら、単語境界に囲まれた置換だけが考慮される。
 
-The argument @var{replacements} specifies what to replace occurrences with.
-If it is a string, that string is used.  It can also be a list of strings,
-to be used in cyclic order.
+引数@var{replacements}は、マッチを何で置き換えるかを指定する。文字列ならその文字列を使用する。サイクル順に使用される文字列リストでもよい。
 
-If @var{replacements} is a cons cell, @w{@code{(@var{function}
-. @var{data})}}, this means to call @var{function} after each match to get
-the replacement text.  This function is called with two arguments:
-@var{data}, and the number of replacements already made.
+@var{replacements}がコンスセル@w{@code{(@var{function}
+.
+@var{data})}}なら、これは置換テキストを取得するためにそれぞれのマッチ後に@var{function}を呼び出すことを意味する。この関数は@var{data}と、すでに置換された個数という、2つの引数で呼び出される。
 
-If @var{repeat-count} is non-@code{nil}, it should be an integer.  Then it
-specifies how many times to use each of the strings in the
-@var{replacements} list before advancing cyclically to the next one.
+@var{repeat-count}が非@code{nil}なら、それは整数であること。その場合、サイクルを次に進める前に、@var{replacements}リスト内の各文字列を何度使用するかを指定する。
 
-If @var{from-string} contains upper-case letters, then
-@code{perform-replace} binds @code{case-fold-search} to @code{nil}, and it
-uses the @var{replacements} without altering their case.
+@var{from-string}が大文字アルファベットを含む場合、@code{perform-replace}は@code{case-fold-search}を@code{nil}にバインドして、大文字小文字を変換せずに@var{replacements}を使用する。
 
-Normally, the keymap @code{query-replace-map} defines the possible user
-responses for queries.  The argument @var{map}, if non-@code{nil}, specifies
-a keymap to use instead of @code{query-replace-map}.
+キーマップ@code{query-replace-map}は通常、問い合わせにたいして可能なユーザー応答を定義する。引数@var{map}が非@code{nil}なら、それは@code{query-replace-map}のかわりに使用するキーマップを指定する。
 
-This function uses one of two functions to search for the next occurrence of
-@var{from-string}.  These functions are specified by the values of two
-variables: @code{replace-re-search-function} and
-@code{replace-search-function}.  The former is called when the argument
-@var{regexp-flag} is non-@code{nil}, the latter when it is @code{nil}.
+この関数は@var{from-string}の次のマッチを検索するために、2つの関数のうち1つを使用する。これらの関数は2つの変数@code{replace-re-search-function}と@code{replace-search-function}により指定される。引数@var{regexp-flag}が非@code{nil}なら前者、@code{nil}なら後者が呼び出される。
 @end defun
 
 @defvar query-replace-map
-This variable holds a special keymap that defines the valid user responses
-for @code{perform-replace} and the commands that use it, as well as
-@code{y-or-n-p} and @code{map-y-or-n-p}.  This map is unusual in two ways:
+この変数は@code{perform-replace}にたいする有効なユーザー応答を定義するスペシャルキーマップを保持し、コマンドは@code{y-or-n-p}や@code{map-y-or-n-p}と同様に、それを使用する。このマップは2つの点において普通のマップと異なる。
 
 @itemize @bullet
 @item
-The ``key bindings'' are not commands, just symbols that are meaningful to
-the functions that use this map.
+``キーバインディング''がコマンドではなく、このマップを使用する関数にとって意味のある単なるシンボルであること。
 
 @item
-Prefix keys are not supported; each key binding must be for a single-event
-key sequence.  This is because the functions don't use
-@code{read-key-sequence} to get the input; instead, they read a single event
-and look it up ``by hand''.
+プレフィクスキーはサポートされない。各キーバインディングは単一イベントキーシーケンスでなければならない。これは入力を取得するために、関数が@code{read-key-sequence}を使用せず、かわりに単一イベントを読み取って、それを``手動''で照合する。
 @end itemize
 @end defvar
 
-Here are the meaningful ``bindings'' for @code{query-replace-map}.  Several
-of them are meaningful only for @code{query-replace} and friends.
+@code{query-replace-map}にたいして意味をもつ``バインディング''があります。それらのうちいくつかは、@code{query-replace}とその同族にたいしてのみ意味をもちます。
 
 @table @code
 @item act
-Do take the action being considered---in other words, ``yes''.
+判断している対象にたいしてアクションを起こす(別の言い方をすると``yes'')。
 
 @item skip
-Do not take action for this question---in other words, ``no''.
+この問いにたいしてアクションを起こさない(別の言い方をすると``no'')。
 
 @item exit
-Answer this question ``no'', and give up on the entire series of questions,
-assuming that the answers will be ``no''.
+この問いにたいして``no''を答えて、一連の問いすべてにたいして``no''が応答されたとみなし、問い合わせをあきらめる。
 
 @item exit-prefix
-Like @code{exit}, but add the key that was pressed to
-@code{unread-command-events} (@pxref{Event Input Misc}).
+@code{exit}と似ているが、@code{unread-command-events}にたいして押下されたキーを追加する(@ref{Event
+Input Misc}を参照)。
 
 @item act-and-exit
-Answer this question ``yes'', and give up on the entire series of questions,
-assuming that subsequent answers will be ``no''.
+この問いにたいして``yes''を答えて、一連の問いすべてにたいして後続の問いに``no''が応答されるとみなし、問い合わせをあきらめる。
 
 @item act-and-show
-Answer this question ``yes'', but show the results---don't advance yet to
-the next question.
+この問いに``yes''を答えるが結果を表示して、まだ次の問いへ進まない。
 
 @item automatic
-Answer this question and all subsequent questions in the series with
-``yes'', without further user interaction.
+これ以上のユーザーとの対話を行わず、この問いと後続の問いにたいして``yes''を答える。
 
 @item backup
-Move back to the previous place that a question was asked about.
+前に問い合わせた以前の場所に戻る。
 
 @item edit
-Enter a recursive edit to deal with this question---instead of any other
-action that would normally be taken.
+この問いに対処するために、通常とられるアクションのかわりに再帰編集にエンターする。
 
 @item edit-replacement
-Edit the replacement for this question in the minibuffer.
+ミニバッファー内で、この問いにたいする置換を編集する。
 
 @item delete-and-edit
-Delete the text being considered, then enter a recursive edit to replace it.
+検討中のテキストを削除して、それを置換するために再帰編集にエンターする。
 
 @item recenter
 @itemx scroll-up
 @itemx scroll-down
 @itemx scroll-other-window
 @itemx scroll-other-window-down
-Perform the specified window scroll operation, then ask the same question
-again.  Only @code{y-or-n-p} and related functions use this answer.
+指定されたウィンドウスクロール操作を行い、同じ問いを再度尋ねる。この問いには@code{y-or-n-p}と、関連する関数だけが使用される。
 
 @item quit
-Perform a quit right away.  Only @code{y-or-n-p} and related functions use
-this answer.
+即座にquitを行う。この問いには@code{y-or-n-p}と、関連する関数だけが使用される。
 
 @item help
-Display some help, then ask again.
+ヘルプを表示して、再度尋ねる。
 @end table
 
 @defvar multi-query-replace-map
-This variable holds a keymap that extends @code{query-replace-map} by
-providing additional keybindings that are useful in multi-buffer
-replacements.  The additional ``bindings'' are:
+この変数は、マルチバッファー置換で有用な追加キーバインディングを提供することにより@code{query-replace-map}を拡張するキーマップを保持する。追加される``バインディング''は以下のとおり:
 
 @table @code
 @item automatic-all
-Answer this question and all subsequent questions in the series with
-``yes'', without further user interaction, for all remaining buffers.
+残りすべてのバッファーにたいして、それ以上の対話をせず、その問いと後続のすべての問いに``yes''を答える。
 
 @item exit-current
-Answer this question ``no'', and give up on the entire series of questions
-for the current buffer.  Continue to the next buffer in the sequence.
+この問いに``no''を答えて、カレントバッファーにたいする一連の問いすべてをあきらめる。そしてシーケンス内の次のバッファーへ問いを継続する。
 @end table
 @end defvar
 
 @defvar replace-search-function
-This variable specifies a function that @code{perform-replace} calls to
-search for the next string to replace.  Its default value is
-@code{search-forward}.  Any other value should name a function of 3
-arguments: the first 3 arguments of @code{search-forward} (@pxref{String
-Search}).
+この変数は、置換する次の文字列を検索するために@code{perform-replace}が呼び出す関数を指定する。デフォルト値は@code{search-forward}。それ以外の値の場合は、@code{search-forward}の最初の3つの引数を引数とする関数を指定すること(@ref{String
+Search}を参照)。
 @end defvar
 
 @defvar replace-re-search-function
-This variable specifies a function that @code{perform-replace} calls to
-search for the next regexp to replace.  Its default value is
-@code{re-search-forward}.  Any other value should name a function of 3
-arguments: the first 3 arguments of @code{re-search-forward} (@pxref{Regexp
-Search}).
+この変数は、置換する次のregexpを検索するために@code{perform-replace}が呼び出す関数を指定する。デフォルト値は@code{re-search-forward}。それ以外の値の場合は、@code{re-search-forward}の最初の3つの引数を引数とする関数を指定すること(@ref{Regexp
+Search}を参照)。
 @end defvar
 
 @node Standard Regexps
