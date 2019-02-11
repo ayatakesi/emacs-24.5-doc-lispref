@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-02-10 18:06+0900\n"
-"PO-Revision-Date: 2019-02-11 15:38+0900\n"
+"PO-Revision-Date: 2019-02-11 16:47+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -671,72 +671,72 @@ msgstr "関数@code{backward-prefix-chars}はこれらの文字と、同様に�
 #. type: Plain text
 #: syntax.texi.orig:395
 msgid "In this section we describe functions for creating, accessing and altering syntax tables."
-msgstr ""
+msgstr "このセクションでは、構文テーブルを作成、アクセス、変更する関数を説明します。"
 
 #. type: defun
 #: syntax.texi.orig:396
 #, no-wrap
 msgid "make-syntax-table &optional table"
-msgstr ""
+msgstr "make-syntax-table &optional table"
 
 #. type: defun
 #: syntax.texi.orig:400
 msgid "This function creates a new syntax table.  If @var{table} is non-@code{nil}, the parent of the new syntax table is @var{table}; otherwise, the parent is the standard syntax table."
-msgstr ""
+msgstr "この関数は、新たに構文テーブルを作成する。@var{table}が非@code{nil}なら、新たな構文テーブルの親は@var{table}、それ以外なら標準構文テーブルが親になる。"
 
 #. type: defun
 #: syntax.texi.orig:404
 msgid "In the new syntax table, all characters are initially given the ``inherit'' (@samp{@@}) syntax class, i.e., their syntax is inherited from the parent table (@pxref{Syntax Class Table})."
-msgstr ""
+msgstr "新たな構文テーブルでは最初は、すべての文字に構文クラス``inherit''(@samp{@@})が与えられ、それらの構文は親テーブルから継承される(@ref{Syntax Class Table}を参照)。"
 
 #. type: defun
 #: syntax.texi.orig:406
 #, no-wrap
 msgid "copy-syntax-table &optional table"
-msgstr ""
+msgstr "copy-syntax-table &optional table"
 
 #. type: defun
 #: syntax.texi.orig:411
 msgid "This function constructs a copy of @var{table} and returns it.  If @var{table} is omitted or @code{nil}, it returns a copy of the standard syntax table.  Otherwise, an error is signaled if @var{table} is not a syntax table."
-msgstr ""
+msgstr "この関数は@var{table}のコピーを構築して、それをリターンする。@var{table}が省略または@code{nil}なら、標準構文テーブルのコピーをリターンする。それ以外の場合、@var{table}が構文テーブルでなければエラーをシグナルする。"
 
 #. type: deffn
 #: syntax.texi.orig:413
 #, no-wrap
 msgid "Command modify-syntax-entry char syntax-descriptor  &optional table"
-msgstr ""
+msgstr "Command modify-syntax-entry char syntax-descriptor  &optional table"
 
 #. type: cindex
 #: syntax.texi.orig:414
 #, no-wrap
 msgid "syntax entry, setting"
-msgstr ""
+msgstr "syntax entry, setting"
 
 #. type: deffn
 #: syntax.texi.orig:420
 msgid "This function sets the syntax entry for @var{char} according to @var{syntax-descriptor}.  @var{char} must be a character, or a cons cell of the form @code{(@var{min} . @var{max})}; in the latter case, the function sets the syntax entries for all characters in the range between @var{min} and @var{max}, inclusive."
-msgstr ""
+msgstr "この関数は@var{syntax-descriptor}に応じて、@var{char}の構文エントリーをセットする。@var{char}は文字、または@code{(@var{min} . @var{max})}という形式のコンスセルでなければならない。後者の場合、この関数は@var{min}と@var{max}(両端を含む)の間のすべての文字にたいして、構文エントリーをセットする。"
 
 #. type: deffn
 #: syntax.texi.orig:423
 msgid "The syntax is changed only for @var{table}, which defaults to the current buffer's syntax table, and not in any other syntax table."
-msgstr ""
+msgstr "構文は@var{table}(デフォルトはカレントバッファーの構文テーブル)にたいしてのみ変更され、他のすべての構文テーブルにたいしては変更されない。"
 
 #. type: deffn
 #: syntax.texi.orig:429
 msgid "The argument @var{syntax-descriptor} is a syntax descriptor, i.e., a string whose first character is a syntax class designator and whose second and subsequent characters optionally specify a matching character and syntax flags.  @xref{Syntax Descriptors}.  An error is signaled if @var{syntax-descriptor} is not a valid syntax descriptor."
-msgstr ""
+msgstr "引数@var{syntax-descriptor}は構文記述子、すなわち1文字目が構文クラス指定子、2文字目以降がオプションでマッチング文字と構文フラグを指定する文字列である。@ref{Syntax Descriptors}を参照のこと。@var{syntax-descriptor}が有効な構文記述子でなければ、エラーがシグナルされる。"
 
 #. type: deffn
 #: syntax.texi.orig:432
 msgid "This function always returns @code{nil}.  The old syntax information in the table for this character is discarded."
-msgstr ""
+msgstr "この関数は、常に@code{nil}をリターンする。この文字にたいするテーブル内の古い構文情報は、破棄される。"
 
 #. type: exdent
 #: syntax.texi.orig:435
 #, no-wrap
 msgid "@r{Examples:}"
-msgstr ""
+msgstr "@r{▼例:}"
 
 #. type: group
 #: syntax.texi.orig:440
@@ -746,6 +746,9 @@ msgid ""
 "(modify-syntax-entry ?\\s \" \")\n"
 "     @result{} nil\n"
 msgstr ""
+";; @r{空白文字クラスのスペースをputする}\n"
+"(modify-syntax-entry ?\\s \" \")\n"
+"     @result{} nil\n"
 
 #. type: group
 #: syntax.texi.orig:447
@@ -756,6 +759,10 @@ msgid ""
 "(modify-syntax-entry ?$ \"(^\")\n"
 "     @result{} nil\n"
 msgstr ""
+";; @r{@samp{$}を開カッコ文字にして、}\n"
+";;   @r{@samp{^}を対応する閉カッコにする}\n"
+"(modify-syntax-entry ?$ \"(^\")\n"
+"     @result{} nil\n"
 
 #. type: group
 #: syntax.texi.orig:454
@@ -766,6 +773,10 @@ msgid ""
 "(modify-syntax-entry ?^ \")$\")\n"
 "     @result{} nil\n"
 msgstr ""
+";; @r{@samp{^}閉カッコ文字にして}\n"
+";;   @r{@samp{$}を対応する開カッコにする}\n"
+"(modify-syntax-entry ?^ \")$\")\n"
+"     @result{} nil\n"
 
 #. type: group
 #: syntax.texi.orig:463
@@ -778,22 +789,28 @@ msgid ""
 "(modify-syntax-entry ?/ \". 14\")\n"
 "     @result{} nil\n"
 msgstr ""
+";; @r{@samp{/}を区切り文字で}\n"
+";;   @r{コメント開始シーケンス1文字目、}\n"
+";;   @r{かつコメント終了シーケンス2文字目とする}\n"
+";;   @r{これはCモードで使用される}\n"
+"(modify-syntax-entry ?/ \". 14\")\n"
+"     @result{} nil\n"
 
 #. type: defun
 #: syntax.texi.orig:467
 #, no-wrap
 msgid "char-syntax character"
-msgstr ""
+msgstr "char-syntax character"
 
 #. type: defun
 #: syntax.texi.orig:472
 msgid "This function returns the syntax class of @var{character}, represented by its designator character (@pxref{Syntax Class Table}).  This returns @emph{only} the class, not its matching character or syntax flags."
-msgstr ""
+msgstr "この関数は、指定子文字(@ref{Syntax Class Table}を参照)の表現で、@var{character}の構文クラスをリターンする。これはクラス@emph{だけ}をリターンし、マッチング文字や構文フラグはリターンしない。"
 
 #. type: defun
 #: syntax.texi.orig:475
 msgid "The following examples apply to C mode.  (We use @code{string} to make it easier to see the character returned by @code{char-syntax}.)"
-msgstr ""
+msgstr "以下をCモードにたいして適用してみる(@code{char-syntax}がリターンする文字を確認しやすいよう@code{string}を使用する)。"
 
 #. type: group
 #: syntax.texi.orig:481
@@ -803,6 +820,9 @@ msgid ""
 "(string (char-syntax ?\\s))\n"
 "     @result{} \" \"\n"
 msgstr ""
+";; スペース文字は空白文字構文クラスをもつ\n"
+"(string (char-syntax ?\\s))\n"
+"     @result{} \" \"\n"
 
 #. type: group
 #: syntax.texi.orig:489
@@ -814,6 +834,11 @@ msgid ""
 "(string (char-syntax ?/))\n"
 "     @result{} \".\"\n"
 msgstr ""
+";; スラッシュ文字は区切り文字構文をもつ。\n"
+";; コメント開始やコメント終了シーケンスの一部でもある場合、\n"
+";; @code{char-syntax}呼び出しはこれを明らかにしないことに注意。\n"
+"(string (char-syntax ?/))\n"
+"     @result{} \".\"\n"
 
 #. type: group
 #: syntax.texi.orig:497
@@ -825,55 +850,60 @@ msgid ""
 "(string (char-syntax ?\\())\n"
 "     @result{} \"(\"\n"
 msgstr ""
+";; 開カッコ文字は開カッコ構文をもつ。\n"
+";; これがまっちんぐ文字@samp{)}をもつことは\n"
+";; @code{char-syntax}呼び出しでは明らかにならないことに注意。\n"
+"(string (char-syntax ?\\())\n"
+"     @result{} \"(\"\n"
 
 #. type: defun
 #: syntax.texi.orig:502
 #, no-wrap
 msgid "set-syntax-table table"
-msgstr ""
+msgstr "set-syntax-table table"
 
 #. type: defun
 #: syntax.texi.orig:505
 msgid "This function makes @var{table} the syntax table for the current buffer.  It returns @var{table}."
-msgstr ""
+msgstr "この関数は、カレントバッファーの構文テーブルを@var{table}にする。これは@var{table}をリターンする。"
 
 #. type: var{#1}
 #: syntax.texi.orig:507 syntax.texi.orig:540
 #, no-wrap
 msgid "syntax-table"
-msgstr ""
+msgstr "syntax-table"
 
 #. type: defun
 #: syntax.texi.orig:510
 msgid "This function returns the current syntax table, which is the table for the current buffer."
-msgstr ""
+msgstr "この関数はカレント構文テーブル(カレントバッファーのテーブル)をリターンする。"
 
 #. type: deffn
 #: syntax.texi.orig:512
 #, no-wrap
 msgid "Command describe-syntax &optional buffer"
-msgstr ""
+msgstr "Command describe-syntax &optional buffer"
 
 #. type: deffn
 #: syntax.texi.orig:515
 msgid "This command displays the contents of the syntax table of @var{buffer} (by default, the current buffer) in a help buffer."
-msgstr ""
+msgstr "このコマンドは、@var{buffer}(デフォルトはカレントバッファー)の構文テーブルのコンテンツをhelpバッファーに表示する。"
 
 #. type: defmac
 #: syntax.texi.orig:517
 #, no-wrap
 msgid "with-syntax-table table body@dots{}"
-msgstr ""
+msgstr "with-syntax-table table body@dots{}"
 
 #. type: defmac
 #: syntax.texi.orig:521
 msgid "This macro executes @var{body} using @var{table} as the current syntax table.  It returns the value of the last form in @var{body}, after restoring the old current syntax table."
-msgstr ""
+msgstr "このまくろは@var{table}をカレント構文テーブルとして使用して、@var{body}を実行する。これは古いカレント構文テーブルのリストア後に、@var{body}の最後のフォームの値をリターンする。"
 
 #. type: defmac
 #: syntax.texi.orig:526
 msgid "Since each buffer has its own current syntax table, we should make that more precise: @code{with-syntax-table} temporarily alters the current syntax table of whichever buffer is current at the time the macro execution starts.  Other buffers are not affected."
-msgstr ""
+msgstr "各バッファーは独自にカレント構文テーブルをもつので、マクロはこれを入念に行う。@code{with-syntax-table}はマクロ実行開始時、そのときカレントのバッファーが何であれ、カレント構文テーブルを一時的に変更する。他のバッファーは影響を受けない。"
 
 #. type: kindex
 #: syntax.texi.orig:530

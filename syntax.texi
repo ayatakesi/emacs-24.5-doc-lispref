@@ -253,74 +253,60 @@ and Syntax}を参照のこと。
 @node Syntax Table Functions
 @section Syntax Table Functions
 
-  In this section we describe functions for creating, accessing and altering
-syntax tables.
+  このセクションでは、構文テーブルを作成、アクセス、変更する関数を説明します。
 
 @defun make-syntax-table &optional table
-This function creates a new syntax table.  If @var{table} is non-@code{nil},
-the parent of the new syntax table is @var{table}; otherwise, the parent is
-the standard syntax table.
+この関数は、新たに構文テーブルを作成する。@var{table}が非@code{nil}なら、新たな構文テーブルの親は@var{table}、それ以外なら標準構文テーブルが親になる。
 
-In the new syntax table, all characters are initially given the ``inherit''
-(@samp{@@}) syntax class, i.e., their syntax is inherited from the parent
-table (@pxref{Syntax Class Table}).
+新たな構文テーブルでは最初は、すべての文字に構文クラス``inherit''(@samp{@@})が与えられ、それらの構文は親テーブルから継承される(@ref{Syntax
+Class Table}を参照)。
 @end defun
 
 @defun copy-syntax-table &optional table
-This function constructs a copy of @var{table} and returns it.  If
-@var{table} is omitted or @code{nil}, it returns a copy of the standard
-syntax table.  Otherwise, an error is signaled if @var{table} is not a
-syntax table.
+この関数は@var{table}のコピーを構築して、それをリターンする。@var{table}が省略または@code{nil}なら、標準構文テーブルのコピーをリターンする。それ以外の場合、@var{table}が構文テーブルでなければエラーをシグナルする。
 @end defun
 
 @deffn Command modify-syntax-entry char syntax-descriptor  &optional table
 @cindex syntax entry, setting
-This function sets the syntax entry for @var{char} according to
-@var{syntax-descriptor}.  @var{char} must be a character, or a cons cell of
-the form @code{(@var{min} . @var{max})}; in the latter case, the function
-sets the syntax entries for all characters in the range between @var{min}
-and @var{max}, inclusive.
+この関数は@var{syntax-descriptor}に応じて、@var{char}の構文エントリーをセットする。@var{char}は文字、または@code{(@var{min}
+.
+@var{max})}という形式のコンスセルでなければならない。後者の場合、この関数は@var{min}と@var{max}(両端を含む)の間のすべての文字にたいして、構文エントリーをセットする。
 
-The syntax is changed only for @var{table}, which defaults to the current
-buffer's syntax table, and not in any other syntax table.
+構文は@var{table}(デフォルトはカレントバッファーの構文テーブル)にたいしてのみ変更され、他のすべての構文テーブルにたいしては変更されない。
 
-The argument @var{syntax-descriptor} is a syntax descriptor, i.e., a string
-whose first character is a syntax class designator and whose second and
-subsequent characters optionally specify a matching character and syntax
-flags.  @xref{Syntax Descriptors}.  An error is signaled if
-@var{syntax-descriptor} is not a valid syntax descriptor.
+引数@var{syntax-descriptor}は構文記述子、すなわち1文字目が構文クラス指定子、2文字目以降がオプションでマッチング文字と構文フラグを指定する文字列である。@ref{Syntax
+Descriptors}を参照のこと。@var{syntax-descriptor}が有効な構文記述子でなければ、エラーがシグナルされる。
 
-This function always returns @code{nil}.  The old syntax information in the
-table for this character is discarded.
+この関数は、常に@code{nil}をリターンする。この文字にたいするテーブル内の古い構文情報は、破棄される。
 
 @example
 @group
-@exdent @r{Examples:}
+@exdent @r{▼例:}
 
-;; @r{Put the space character in class whitespace.}
+;; @r{空白文字クラスのスペースをputする}
 (modify-syntax-entry ?\s " ")
      @result{} nil
 @end group
 
 @group
-;; @r{Make @samp{$} an open parenthesis character,}
-;;   @r{with @samp{^} as its matching close.}
+;; @r{@samp{$}を開カッコ文字にして、}
+;;   @r{@samp{^}を対応する閉カッコにする}
 (modify-syntax-entry ?$ "(^")
      @result{} nil
 @end group
 
 @group
-;; @r{Make @samp{^} a close parenthesis character,}
-;;   @r{with @samp{$} as its matching open.}
+;; @r{@samp{^}閉カッコ文字にして}
+;;   @r{@samp{$}を対応する開カッコにする}
 (modify-syntax-entry ?^ ")$")
      @result{} nil
 @end group
 
 @group
-;; @r{Make @samp{/} a punctuation character,}
-;;   @r{the first character of a start-comment sequence,}
-;;   @r{and the second character of an end-comment sequence.}
-;;   @r{This is used in C mode.}
+;; @r{@samp{/}を区切り文字で}
+;;   @r{コメント開始シーケンス1文字目、}
+;;   @r{かつコメント終了シーケンス2文字目とする}
+;;   @r{これはCモードで使用される}
 (modify-syntax-entry ?/ ". 14")
      @result{} nil
 @end group
@@ -328,32 +314,30 @@ table for this character is discarded.
 @end deffn
 
 @defun char-syntax character
-This function returns the syntax class of @var{character}, represented by
-its designator character (@pxref{Syntax Class Table}).  This returns
-@emph{only} the class, not its matching character or syntax flags.
+この関数は、指定子文字(@ref{Syntax Class
+Table}を参照)の表現で、@var{character}の構文クラスをリターンする。これはクラス@emph{だけ}をリターンし、マッチング文字や構文フラグはリターンしない。
 
-The following examples apply to C mode.  (We use @code{string} to make it
-easier to see the character returned by @code{char-syntax}.)
+以下をCモードにたいして適用してみる(@code{char-syntax}がリターンする文字を確認しやすいよう@code{string}を使用する)。
 
 @example
 @group
-;; Space characters have whitespace syntax class.
+;; スペース文字は空白文字構文クラスをもつ
 (string (char-syntax ?\s))
      @result{} " "
 @end group
 
 @group
-;; Forward slash characters have punctuation syntax.
-;; Note that this @code{char-syntax} call does not reveal
-;; that it is also part of comment-start and -end sequences.
+;; スラッシュ文字は区切り文字構文をもつ。
+;; コメント開始やコメント終了シーケンスの一部でもある場合、
+;; @code{char-syntax}呼び出しはこれを明らかにしないことに注意。
 (string (char-syntax ?/))
      @result{} "."
 @end group
 
 @group
-;; Open parenthesis characters have open parenthesis syntax.
-;; Note that this @code{char-syntax} call does not reveal that
-;; it has a matching character, @samp{)}.
+;; 開カッコ文字は開カッコ構文をもつ。
+;; これがまっちんぐ文字@samp{)}をもつことは
+;; @code{char-syntax}呼び出しでは明らかにならないことに注意。
 (string (char-syntax ?\())
      @result{} "("
 @end group
@@ -362,29 +346,21 @@ easier to see the character returned by @code{char-syntax}.)
 @end defun
 
 @defun set-syntax-table table
-This function makes @var{table} the syntax table for the current buffer.  It
-returns @var{table}.
+この関数は、カレントバッファーの構文テーブルを@var{table}にする。これは@var{table}をリターンする。
 @end defun
 
 @defun syntax-table
-This function returns the current syntax table, which is the table for the
-current buffer.
+この関数はカレント構文テーブル(カレントバッファーのテーブル)をリターンする。
 @end defun
 
 @deffn Command describe-syntax &optional buffer
-This command displays the contents of the syntax table of @var{buffer} (by
-default, the current buffer) in a help buffer.
+このコマンドは、@var{buffer}(デフォルトはカレントバッファー)の構文テーブルのコンテンツをhelpバッファーに表示する。
 @end deffn
 
 @defmac with-syntax-table table body@dots{}
-This macro executes @var{body} using @var{table} as the current syntax
-table.  It returns the value of the last form in @var{body}, after restoring
-the old current syntax table.
+このまくろは@var{table}をカレント構文テーブルとして使用して、@var{body}を実行する。これは古いカレント構文テーブルのリストア後に、@var{body}の最後のフォームの値をリターンする。
 
-Since each buffer has its own current syntax table, we should make that more
-precise: @code{with-syntax-table} temporarily alters the current syntax
-table of whichever buffer is current at the time the macro execution
-starts.  Other buffers are not affected.
+各バッファーは独自にカレント構文テーブルをもつので、マクロはこれを入念に行う。@code{with-syntax-table}はマクロ実行開始時、そのときカレントのバッファーが何であれ、カレント構文テーブルを一時的に変更する。他のバッファーは影響を受けない。
 @end defmac
 
 @node Syntax Properties
