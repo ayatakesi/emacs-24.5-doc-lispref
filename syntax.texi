@@ -45,38 +45,23 @@ Table Functions}で説明します。
 この関数は@var{object}が構文テーブルなら、@code{t}をリターンする。
 @end defun
 
-  Each buffer has its own major mode, and each major mode has its own idea of
-the syntax class of various characters.  For example, in Lisp mode, the
-character @samp{;} begins a comment, but in C mode, it terminates a
-statement.  To support these variations, the syntax table is local to each
-buffer.  Typically, each major mode has its own syntax table, which it
-installs in all buffers that use that mode.  For example, the variable
-@code{emacs-lisp-mode-syntax-table} holds the syntax table used by Emacs
-Lisp mode, and @code{c-mode-syntax-table} holds the syntax table used by C
-mode.  Changing a major mode's syntax table alters the syntax in all of that
-mode's buffers, as well as in any buffers subsequently put in that mode.
-Occasionally, several similar modes share one syntax table.  @xref{Example
-Major Modes}, for an example of how to set up a syntax table.
+  バッファーはそれぞれ自身のメジャーモードをもち、それぞれのメジャーモードはさまざまな文字の構文クラスにたいして独自のアイデアをもっています。たとえばLisモードでは文字@samp{;}はコメントの開始ですが、Cモードでは命令文の終端になります。これらのバリエーションをサポートするために、構文テーブルはそれぞれのバッファーにたいしてローカルです。一般的に各メジャーモードは自身の構文テーブルをもち、そのモードを使用するすべてのバッファーにそれがインストールされます。たとえば変数@code{emacs-lisp-mode-syntax-table}はEmacsのLispモードが使用する構文テーブル、@code{c-mode-syntax-table}はCモードが使用する構文テーブルを保持します。あるメジャーモードの構文テーブルを変更すると、そのモードのバッファー、およびその後でそのモードに置かれるすべてのバッファーの構文も同様に変更されます。複数の類似するモードが1つの構文テーブルを共有することが、ときおりあります。構文テーブルをセットアップする方法の例は、@ref{Example
+Major Modes}を参照してください。
 
 @cindex standard syntax table
 @cindex inheritance, syntax table
-  A syntax table can @dfn{inherit} from another syntax table, which is called
-its @dfn{parent syntax table}.  A syntax table can leave the syntax class of
-some characters unspecified, by giving them the ``inherit'' syntax class;
-such a character then acquires the syntax class specified by the parent
-syntax table (@pxref{Syntax Class Table}).  Emacs defines a @dfn{standard
-syntax table}, which is the default parent syntax table, and is also the
-syntax table used by Fundamental mode.
+  別の構文テーブルから構文テールを@dfn{継承(inherit)}できます。これを@dfn{親構文テーブル(parent syntax
+table)}と呼びます。構文テーブルは、ある文字にたいして構文クラス``inherit''を与えることにより、構文クラスを未指定にしておくことができます。そのような文字は、親構文テーブルが指定する構文クラスを取得します(@ref{Syntax
+Class Table}を参照)。Emacsは@dfn{標準構文テーブル(standard syntax
+table)}を定義します。これはデフォルトとなる親構文テーブルであり、Fundamentalモードが使用する構文テーブルでもあります。
 
 @defun standard-syntax-table
-This function returns the standard syntax table, which is the syntax table
-used in Fundamental mode.
+この関数はFundamentalモードが使用する構文テーブルである、標準構文テーブルをリターンする。
 @end defun
 
-  Syntax tables are not used by the Emacs Lisp reader, which has its own
-built-in syntactic rules which cannot be changed.  (Some Lisp systems
-provide ways to redefine the read syntax, but we decided to leave this
-feature out of Emacs Lisp for simplicity.)
+  Emacs
+Lispリーダーは変更不可な独自のビルトイン構文ルールをもつので、構文テーブルは使用しません(いくつかのLispシステムはリード構文を再定義する手段を提供するが、わたしたちは単純化のためこの機能をEmacs
+Lisp外部に留める決定をした)。
 
 @node Syntax Descriptors
 @section Syntax Descriptors
