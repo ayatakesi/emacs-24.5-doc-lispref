@@ -367,64 +367,42 @@ Table}を参照)の表現で、@var{character}の構文クラスをリターン�
 @section Syntax Properties
 @kindex syntax-table @r{(text property)}
 
-When the syntax table is not flexible enough to specify the syntax of a
-language, you can override the syntax table for specific character
-occurrences in the buffer, by applying a @code{syntax-table} text property.
-@xref{Text Properties}, for how to apply text properties.
+ある言語の構文を指定するのに構文テーブルが十分に柔軟でないときは、
+バッファー内に出現する特定の文字にたいして、テキストプロパティ@code{syntax-table}を適用することにより、構文テーブルをオーバーライドできます。テキストプロパティを適用する方法については、@ref{Text
+Properties}を参照してください。
 
-  The valid values of @code{syntax-table} text property are:
+  以下はテキストプロパティ@code{syntax-table}の有効な値です:
 
 @table @asis
 @item @var{syntax-table}
-If the property value is a syntax table, that table is used instead of the
-current buffer's syntax table to determine the syntax for the underlying
-text character.
+プロパティの値が構文テーブルなら、根底となるテキスト文字の構文を決定するカレントバッファーの構文テーブルのかわりに、そのテーブルが使用される。
 
 @item @code{(@var{syntax-code} . @var{matching-char})}
-A cons cell of this format is a raw syntax descriptor (@pxref{Syntax Table
-Internals}), which directly specifies a syntax class for the underlying text
-character.
+この形式のコンスセルは、根底となるテキスト文字の構文クラスを直接指定する、raw構文テーブル(@ref{Syntax Table
+Internals}を参照)である。
 
 @item @code{nil}
-If the property is @code{nil}, the character's syntax is determined from the
-current syntax table in the usual way.
+このプロパティが@code{nil}なら、その文字の構文はカレント構文テーブルにより通常の方法で決定される。
 @end table
 
 @defvar parse-sexp-lookup-properties
-If this is non-@code{nil}, the syntax scanning functions, like
-@code{forward-sexp}, pay attention to syntax text properties.  Otherwise
-they use only the current syntax table.
+これが非@code{nil}なら、@code{forward-sexp}のような構文をスキャンする関数は、syntax-tableテキストプロパティに注意を払い、それ以外ならカレント構文テーブルだけを使用する。
 @end defvar
 
 @defvar syntax-propertize-function
-This variable, if non-@code{nil}, should store a function for applying
-@code{syntax-table} properties to a specified stretch of text.  It is
-intended to be used by major modes to install a function which applies
-@code{syntax-table} properties in some mode-appropriate way.
+この変数が非@code{nil}なら、特定のテキスト範囲にたいして@code{syntax-table}プロパティを適用する関数を格納するべきである。これは、モードに適した方法で@code{syntax-table}プロパティを適用する関数をインストールするために、メジャーモードに使用されることを意図している。
 
-The function is called by @code{syntax-ppss} (@pxref{Position Parse}), and
-by Font Lock mode during syntactic fontification (@pxref{Syntactic Font
-Lock}).  It is called with two arguments, @var{start} and @var{end}, which
-are the starting and ending positions of the text on which it should act.
-It is allowed to call @code{syntax-ppss} on any position before @var{end}.
-However, it should not call @code{syntax-ppss-flush-cache}; so, it is not
-allowed to call @code{syntax-ppss} on some position and later modify the
-buffer at an earlier position.
+この関数は@code{syntax-ppss}(@ref{Position Parse}を参照)、および構文フォント表示化(@ref{Syntactic
+Font Lock}を参照)の間にFont
+Lockモードにより呼び出される。これは作用すべきテキスト部分の開始@var{start}と終了@var{end}という、2つの引数で呼び出される。これは@var{end}の前の任意の位置で、@code{syntax-ppss}を呼び出すことが許されている。しかし@code{syntax-ppss-flush-cache}を呼び出すべきではなく、そのため、ある位置で@code{syntax-ppss}を呼び出して、後からバッファー内の前の位置を変更することは許されていない。
 @end defvar
 
 @defvar syntax-propertize-extend-region-functions
-This abnormal hook is run by the syntax parsing code prior to calling
-@code{syntax-propertize-function}.  Its role is to help locate safe starting
-and ending buffer positions for passing to
-@code{syntax-propertize-function}.  For example, a major mode can add a
-function to this hook to identify multi-line syntactic constructs, and
-ensure that the boundaries do not fall in the middle of one.
+このアブノーマルフックは@code{syntax-propertize-function}呼び出しに先立ち、構文解析コードにより実行される。これは@code{syntax-propertize-function}に渡すための、安全なバッファーの開始および終了位置を見つける助けをする役割をもつ。たとえばメジャーモードは、複数行の構文構成を識別して、境界が複数行の中間にならないよう、このフックに関数を追加できる。
 
-Each function in this hook should accept two arguments, @var{start} and
-@var{end}.  It should return either a cons cell of two adjusted buffer
-positions, @code{(@var{new-start} . @var{new-end})}, or @code{nil} if no
-adjustment is necessary.  The hook functions are run in turn, repeatedly,
-until they all return @code{nil}.
+このフック内の各関数は、引数@var{start}と@var{end}を受け取ること。これは2つのバッファー位置を調整するコンスセル@code{(@var{new-start}
+.
+@var{new-end})}、調整が必要なければ@code{nil}をリターンするべきである。フック関数は、それらすべてが@code{nil}をリターンするまで、順番に繰り返し実行される。
 @end defvar
 
 @node Motion and Syntax
