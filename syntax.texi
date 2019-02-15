@@ -437,42 +437,27 @@ Lockモードにより呼び出される。これは作用すべきテキスト�
 @cindex parsing expressions
 @cindex scanning expressions
 
-  This section describes functions for parsing and scanning balanced
-expressions.  We will refer to such expressions as @dfn{sexps}, following
-the terminology of Lisp, even though these functions can act on languages
-other than Lisp.  Basically, a sexp is either a balanced parenthetical
-grouping, a string, or a ``symbol'' (i.e., a sequence of characters whose
-syntax is either word constituent or symbol constituent).  However,
-characters in the expression prefix syntax class (@pxref{Syntax Class
-Table}) are treated as part of the sexp if they appear next to it.
+  このセクションでは、バランスのとれた式の解析やスキャンを行う関数を説明します。たとえこれらの関数がLisp以外の言語にたいして作用可能であったとしても、Lisp用語にしたがい、そのような式のことは@dfn{sexps}という用語で参照することにします。基本的にsexpは、バランスのとれたカッコによるグループ化、または文字列、``symbol''(構文が単語構成要素かシンボル構成要素である文字シーケンス)のいずれかです。しかし式プレフィクス構文(@ref{Syntax
+Class Table}を参照)の文字は、それらがsexpに隣接する場合は、sexpの一部として扱われます。
 
-  The syntax table controls the interpretation of characters, so these
-functions can be used for Lisp expressions when in Lisp mode and for C
-expressions when in C mode.  @xref{List Motion}, for convenient higher-level
-functions for moving over balanced expressions.
+  構文テーブルは文字の解釈を制御するので、これらの関数はLispモードでのLisp式、CモードでのCの式にたいして使用できます。バランスのとれた式にたいする、有用な高レベル関数については、@ref{List
+Motion}を参照してください。
 
-  A character's syntax controls how it changes the state of the parser, rather
-than describing the state itself.  For example, a string delimiter character
-toggles the parser state between ``in-string'' and ``in-code'', but the
-syntax of characters does not directly say whether they are inside a
-string.  For example (note that 15 is the syntax code for generic string
-delimiters),
+  ある文字の構文は、パーサー自身の状態の記述ではなく、パーサー状態の変更方法を制御します。たとえば文字列区切り文字は、``in-string''と``in-code'',の間でパーサー状態をトグルしますが、文字の構文が直接文字列内部にあるかどうかを告げることはありません。たとえば(15は汎用文字列区切りの構文コードであることに注意)、
 
 @example
 (put-text-property 1 9 'syntax-table '(15 . nil))
 @end example
 
 @noindent
-does not tell Emacs that the first eight chars of the current buffer are a
-string, but rather that they are all string delimiters.  As a result, Emacs
-treats them as four consecutive empty string constants.
+これはEmacsにたいして、カレントバッファーの最初の8文字が文字列であることを告げますが、それらはすべて文字列区切りです。結果としてEmacsはそれらを、連続する4つの空文字列定数として扱います。
 
 @menu
-* Motion via Parsing::       Motion functions that work by parsing.
-* Position Parse::           Determining the syntactic state of a position.
-* Parser State::             How Emacs represents a syntactic state.
-* Low-Level Parsing::        Parsing across a specified region.
-* Control Parsing::          Parameters that affect parsing.
+* Motion via Parsing::       パースにより機能する移動関数。
+* Position Parse::           ある位置の構文状態を判断する。
+* Parser State::             Emacsが構文状態を表す方法。
+* Low-Level Parsing::        指定されたリージョンを横断するパース。
+* Control Parsing::          パースに影響するパラメーター。
 @end menu
 
 @node Motion via Parsing
