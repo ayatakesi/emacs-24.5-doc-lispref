@@ -497,54 +497,34 @@ Motion}を参照してください。
 @subsection Finding the Parse State for a Position
 @cindex parse state for a position
 
-  For syntactic analysis, such as in indentation, often the useful thing is to
-compute the syntactic state corresponding to a given buffer position.  This
-function does that conveniently.
+  インデントのような構文分析にとっては、与えられたバッファー位置に応じた構文状態の計算が有用なことが多々あります。それを手軽に行うのが、この関数です。
 
 @defun syntax-ppss &optional pos
-This function returns the parser state that the parser would reach at
-position @var{pos} starting from the beginning of the buffer.
+この関数は、パーサーがバッファー先頭から開始して位置@var{pos}で停止するだろうという、パーサー状態をリターンする。
 @iftex
-See the next section for
+パーサー状態の説明は、次のセクションを参照のこと
 @end iftex
 @ifnottex
-@xref{Parser State},
+パーサー状態の説明は、@ref{Parser State}を参照のこと
 @end ifnottex
-for a description of the parser state.
+。
 
-The return value is the same as if you call the low-level parsing function
-@code{parse-partial-sexp} to parse from the beginning of the buffer to
-@var{pos} (@pxref{Low-Level Parsing}).  However, @code{syntax-ppss} uses a
-cache to speed up the computation.  Due to this optimization, the second
-value (previous complete subexpression)  and sixth value (minimum
-parenthesis depth) in the returned parser state are not meaningful.
+リターン値は、バッファー先頭から@var{pos}までパースするために低レベル関数@code{parse-partial-sexp}(@ref{Low-Level
+Parsing}を参照)を呼び出した場合と同じようになる。しかし@code{syntax-ppss}は、計算速度向上のために、キャッシュを使用する。この最適化のため、リターンされるパーサー状態のうち2つ目の値(前の完全な部分式)と6つ目の値(最小のカッコ深さ)は意味をもたない。
 
-This function has a side effect: it adds a buffer-local entry to
-@code{before-change-functions} (@pxref{Change Hooks}) for
-@code{syntax-ppss-flush-cache} (see below).  This entry keeps the cache
-consistent as the buffer is modified.  However, the cache might not be
-updated if @code{syntax-ppss} is called while @code{before-change-functions}
-is temporarily let-bound, or if the buffer is modified without running the
-hook, such as when using @code{inhibit-modification-hooks}.  In those cases,
-it is necessary to call @code{syntax-ppss-flush-cache} explicitly.
+この関数は、@code{syntax-ppss-flush-cache}(以下参照)にたいして、@code{before-change-functions}(@ref{Change
+Hooks}を参照)にバッファーローカルなエントリーを追加するという副作用をもつ。このエントリーは、バッファー変更にたいして、キャッシュの一貫性を保つ。とはいえ、@code{before-change-functions}が一時的にletでバインドされている間に@code{syntax-ppss}が呼び出された場合、または@code{inhibit-modification-hooks}使用時のようにバッファーがフックを実行せずに変更される場合、キャッシュは更新されないかもしれない。そのような場合は、明示的に@code{syntax-ppss-flush-cache}を呼び出す必要がある。
 @end defun
 
 @defun syntax-ppss-flush-cache beg &rest ignored-args
-This function flushes the cache used by @code{syntax-ppss}, starting at
-position @var{beg}.  The remaining arguments, @var{ignored-args}, are
-ignored; this function accepts them so that it can be directly used on hooks
-such as @code{before-change-functions} (@pxref{Change Hooks}).
+この関数は、@code{syntax-ppss}が使用するキャッシュを、位置@var{beg}からフラッシュする。残りの引数@var{ignored-args}は無視される。@code{before-change-functions}(@ref{Change
+Hooks}を参照)のような関数で直接使用できるよう、この関数はそれらの引数を受け入れる。
 @end defun
 
-  Major modes can make @code{syntax-ppss} run faster by specifying where it
-needs to start parsing.
+  メジャーモードは、パース開始を要する箇所を指定することにより、@code{syntax-ppss}の実行をより高速にできます。
 
 @defvar syntax-begin-function
-If this is non-@code{nil}, it should be a function that moves to an earlier
-buffer position where the parser state is equivalent to @code{nil}---in
-other words, a position outside of any comment, string, or parenthesis.
-@code{syntax-ppss} uses it to further optimize its computations, when the
-cache gives no help.
+これが非@code{nil}なら、それはパーサー状態が@code{nil}であるような以前のバッファー位置(別の言い方をすると任意のコメント、文字列、カッコの外部であるような位置)に移動する関数であること。キャッシュが助けとならない際、@code{syntax-ppss}はその計算をおり最適化するためにこれを使用する。
 @end defvar
 
 @node Parser State
