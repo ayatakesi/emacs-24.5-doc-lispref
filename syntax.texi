@@ -631,52 +631,44 @@ Properties}を参照)。
 @section Syntax Table Internals
 @cindex syntax table internals
 
-  Syntax tables are implemented as char-tables (@pxref{Char-Tables}), but most
-Lisp programs don't work directly with their elements.  Syntax tables do not
-store syntax data as syntax descriptors (@pxref{Syntax Descriptors}); they
-use an internal format, which is documented in this section.  This internal
-format can also be assigned as syntax properties (@pxref{Syntax
-Properties}).
+  構文テーブルは文字テーブル(@ref{Char-Tables}を参照)として実装されていますが、ほとんどのLispプログラムが直接それらの要素に作用することはありません。構文テーブルは構文データとして構文記述子を格納しません(@ref{Syntax
+Descriptors}を参照)。それらは内部的なフォーマットを使用しており、それについてはこのセクションで説明します。この内部的フォーマットは、構文プロパティとして割り当てることもできます(@ref{Syntax
+Properties}を参照)。
 
 @cindex syntax code
 @cindex raw syntax descriptor
-  Each entry in a syntax table is a @dfn{raw syntax descriptor}: a cons cell
-of the form @code{(@var{syntax-code} . @var{matching-char})}.
-@var{syntax-code} is an integer which encodes the syntax class and syntax
-flags, according to the table below.  @var{matching-char}, if
-non-@code{nil}, specifies a matching character (similar to the second
-character in a syntax descriptor).
+  構文テーブル内の各要素は@dfn{raw構文記述子(raw syntax
+descriptor)}という、@code{(@var{syntax-code}
+.
+@var{matching-char})}という形式のコンスセルです。@var{syntax-code}は、下記のテーブルに応じて構文クラスと構文フラグをエンコードする整数です。@var{matching-char}が非@code{nil}なら、それはマッチング文字(構文記述子内の2つ目の文字と同様)を指定します。
 
-  Here are the syntax codes corresponding to the various syntax classes:
+  以下は、さまざまな構文クラスに対応する構文コードです。
 
 @multitable @columnfractions .2 .3 .2 .3
 @item
 @i{Code} @tab @i{Class} @tab @i{Code} @tab @i{Class}
 @item
-0 @tab whitespace @tab 8 @tab paired delimiter
+0 @tab 空白▼文字 @tab 8 @tab 区切り文字ペアー
 @item
-1 @tab punctuation @tab 9 @tab escape
+1 @tab 句読点 @tab 9 @tab エスケープ
 @item
-2 @tab word @tab 10 @tab character quote
+2 @tab 単語 @tab 10 @tab 文字クォート
 @item
-3 @tab symbol @tab 11 @tab comment-start
+3 @tab シンボル @tab 11 @tab コメント開始
 @item
-4 @tab open parenthesis @tab 12 @tab comment-end
+4 @tab 開カッコ @tab 12 @tab コメント終了
 @item
-5 @tab close parenthesis @tab 13 @tab inherit
+5 @tab 閉カッコ @tab 13 @tab 継承
 @item
-6 @tab expression prefix @tab 14 @tab generic comment
+6 @tab 式プレフィクス @tab 14 @tab 汎用コメント
 @item
-7 @tab string quote @tab 15 @tab generic string
+7 @tab 文字列クォート @tab 15 @tab 汎用文字列
 @end multitable
 
 @noindent
-For example, in the standard syntax table, the entry for @samp{(} is
-@code{(4 . 41)}.  41 is the character code for @samp{)}.
+たとえば標準構文テーブルでは、@samp{(}にたいするエントリーは@code{(4 . 41)}であり、41は@samp{)}の文字コードです。
 
-  Syntax flags are encoded in higher order bits, starting 16 bits from the
-least significant bit.  This table gives the power of two which corresponds
-to each syntax flag.
+  構文フラグは、最下位ビットから16ビット目より始まる、高位ビットにエンコードされます。以下のテーブルは、対応する各構文フラグにたいして、2のべき乗を与えます。
 
 @multitable @columnfractions .15 .3 .15 .3
 @item
@@ -692,34 +684,25 @@ to each syntax flag.
 @end multitable
 
 @defun string-to-syntax desc
-Given a syntax descriptor @var{desc} (a string), this function returns the
-corresponding raw syntax descriptor.
+与えられた構文記述子@var{desc}(文字列)にたいして、この関数は対応するraw構文記述子をリターンする。
 @end defun
 
 @defun syntax-after pos
-This function returns the raw syntax descriptor for the character in the
-buffer after position @var{pos}, taking account of syntax properties as well
-as the syntax table.  If @var{pos} is outside the buffer's accessible
-portion (@pxref{Narrowing, accessible portion}), the return value is
-@code{nil}.
+この関数は、バッファー内の位置@var{pos}の後の文字にたいして、構文テーブルと同様に構文プロパティも考慮した、raw構文記述子をリターンする。@var{pos}がバッファーのアクセス可能範囲(@ref{Narrowing,
+accessible portion}を参照)の外部なら、リターン値は@code{nil}となる。
 @end defun
 
 @defun syntax-class syntax
-This function returns the syntax code for the raw syntax descriptor
-@var{syntax}.  More precisely, it takes the raw syntax descriptor's
-@var{syntax-code} component, masks off the high 16 bits which record the
-syntax flags, and returns the resulting integer.
+この関数はraw構文記述子@var{syntax}にたいする、構文コードをリターンする。より正確には、これはraw構文記述子の@var{syntax-code}要素から、構文フラグを記録する高位16ビットをマスクして、その結果の整数をリターンする。
 
-If @var{syntax} is @code{nil}, the return value is returns @code{nil}.  This
-is so that the expression
+@var{syntax}が@code{nil}なら、リターン値は@code{nil}となる。これは以下の式
 
 @example
 (syntax-class (syntax-after pos))
 @end example
 
 @noindent
-evaluates to @code{nil} if @code{pos} is outside the buffer's accessible
-portion, without throwing errors or returning an incorrect code.
+は、@code{pos}がバッファーのアクセス可能範囲外部なら、エラーをthrowしたり不正なコードをリターンすることなく、@code{nil}に評価されるからである。
 @end defun
 
 @node Categories
