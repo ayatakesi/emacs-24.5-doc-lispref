@@ -531,85 +531,61 @@ Hooks}を参照)のような関数で直接使用できるよう、この関数�
 @subsection Parser State
 @cindex parser state
 
-  A @dfn{parser state} is a list of ten elements describing the state of the
-syntactic parser, after it parses the text between a specified starting
-point and a specified end point in the buffer.  Parsing functions such as
-@code{syntax-ppss}
+  @dfn{パーサー状態(parser
+state)}とは、バッファー内の指定された開始位置と終了位置の間のテキストをパースした後の、構文パーサーの状態を記述する10要素のリストです。@code{syntax-ppss}のようなパース関数
 @ifnottex
-(@pxref{Position Parse})
+(@ref{Position Parse}を参照)
 @end ifnottex
-return a parser state as the value.  Some parsing functions accept a parser
-state as an argument, for resuming parsing.
+は、値としてパーサー状態をリターンします。いくつかのパース関数は、パースを再開するために、引数としてパーサー状態を受け取ります。
 
-  Here are the meanings of the elements of the parser state:
+  以下は、パーサー状態の要素の意味です:
 
 @enumerate 0
 @item
-The depth in parentheses, counting from 0.  @strong{Warning:} this can be
-negative if there are more close parens than open parens between the
-parser's starting point and end point.
+0から数えたカッコの深さ。@strong{警告:} パーサーの開始位置と終了位置の間に開カッコより多くの閉カッコがあれば、負になることもある。
 
 @item
 @cindex innermost containing parentheses
-The character position of the start of the innermost parenthetical grouping
-containing the stopping point; @code{nil} if none.
+停止位置を含む最内のカッコグループの開始文字位置。なければ@code{nil}。
 
 @item
 @cindex previous complete subexpression
-The character position of the start of the last complete subexpression
-terminated; @code{nil} if none.
+最後の終端された完全な部分式の開始文字位置。なければ@code{nil}。
 
 @item
 @cindex inside string
-Non-@code{nil} if inside a string.  More precisely, this is the character
-that will terminate the string, or @code{t} if a generic string delimiter
-character should terminate it.
+文字列内部なら非@code{nil}。より正確には、文字列を終端させるであろう文字か、汎用文字列区切りが終端すべきような場合は@code{t}となる。
 
 @item
 @cindex inside comment
-@code{t} if inside a non-nestable comment (of any comment style;
-@pxref{Syntax Flags}); or the comment nesting level if inside a comment that
-can be nested.
+ネスト不可なコメント(または任意のコメントスタイル。@ref{Syntax
+Flags}を参照されたい)の内部なら@code{t}、ネスト可なコメントの内部ならコメントのネストレベル。
 
 @item
 @cindex quote character
-@code{t} if the end point is just after a quote character.
+終了位置がクォート文字直後なら@code{t}。
 
 @item
-The minimum parenthesis depth encountered during this scan.
+当該スキャン中に遭遇した最小のカッコ深さ。
 
 @item
-What kind of comment is active: @code{nil} if not in a comment or in a
-comment of style @samp{a}; 1 for a comment of style @samp{b}; 2 for a
-comment of style @samp{c}; and @code{syntax-table} for a comment that should
-be ended by a generic comment delimiter character.
+アクティブなコメントの種類。コメント以外、またはスタイル@samp{a}のコメント内なら@code{nil}、スタイル@samp{b}のコメントなら1、スタイル@samp{c}のコメントなら2、汎用コメント区切り文字で終端されるべきコメントなら@code{syntax-table}。
 
 @item
-The string or comment start position.  While inside a comment, this is the
-position where the comment began; while inside a string, this is the
-position where the string began.  When outside of strings and comments, this
-element is @code{nil}.
+文字列またはコメントの開始位置。コメント内部ならコメントが始まる位置。文字列内部なら文字列が始まる位置。文字列またはコメントの外部なら、この要素は@code{nil}になる。
 
 @item
-Internal data for continuing the parsing.  The meaning of this data is
-subject to change; it is used if you pass this list as the @var{state}
-argument to another call.
+パースを継続するための内部データ。このデータのもつ意味は、変更され得る。これは、他の呼び出しの@var{state}引数としてこのリストを渡す場合に使用される。
 @end enumerate
 
-  Elements 1, 2, and 6 are ignored in a state which you pass as an argument to
-continue parsing, and elements 8 and 9 are used only in trivial cases.
-Those elements are mainly used internally by the parser code.
+  パース継続のために渡す場合、要素1、2、6は無視され、要素8と9は特に重要ではない場面でのみ使用されます。これらの要素は主に、パーサーコードにより内部的に使用されます。
 
-  One additional piece of useful information is available from a parser state
-using this function:
+  以下の関数を使用することにより、さらに追加でパーサー状態から有用な情報を利用できます:
 
 @defun syntax-ppss-toplevel-pos state
-This function extracts, from parser state @var{state}, the last position
-scanned in the parse which was at top level in grammatical structure.  ``At
-top level'' means outside of any parentheses, comments, or strings.
+この関数はパーサー状態@var{state}から、文法構造上トップレベルでのパースにおける、スキャンした最後の位置をリターンする。``トップレベル''とは、すべてのカッコ、コメント、文字列の外部であることを意味する。
 
-The value is @code{nil} if @var{state} represents a parse which has arrived
-at a top level position.
+@var{state}がトップレベルの位置に到達したパースを表す場合、値は@code{nil}となる。
 @end defun
 
 @node Low-Level Parsing
