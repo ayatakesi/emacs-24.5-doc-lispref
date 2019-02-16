@@ -48,67 +48,46 @@ Abbrev Mode, emacs, The GNU Emacs Manual}を参照してください。
 @section Abbrev Tables
 @cindex abbrev tables
 
-  This section describes how to create and manipulate abbrev tables.
+  このセクションでは、abbrevテーブルの作成と操作を行う方法について説明します。
 
 @defun make-abbrev-table &optional props
-This function creates and returns a new, empty abbrev table---an obarray
-containing no symbols.  It is a vector filled with zeros.  @var{props} is a
-property list that is applied to the new table (@pxref{Abbrev Table
-Properties}).
+この関数は、空のabbrevテーブル(シンボルを含まないobarray)を作成してリターンする。これは0で充填されたベクターである。@var{props}は、新たなテーブルに適用されるプロパティリストである(@ref{Abbrev
+Table Properties}を参照)。
 @end defun
 
 @defun abbrev-table-p object
-This function returns a non-@code{nil} value if @var{object} is an abbrev
-table.
+この関数は、@var{object}がabbrevテーブルなら、非@code{nil}をリターンする。
 @end defun
 
 @defun clear-abbrev-table abbrev-table
 @c Don't see why this needs saying.
 @c It always returns @code{nil}.
-This function undefines all the abbrevs in @var{abbrev-table}, leaving it
-empty.
+この関数は、@var{abbrev-table}内のabbrevをすべて未定義とし、空のまま残す。
 @end defun
 
 @defun copy-abbrev-table abbrev-table
-This function returns a copy of @var{abbrev-table}---a new abbrev table
-containing the same abbrev definitions.  It does @emph{not} copy any
-property lists; only the names, values, and functions.
+この関数は、@var{abbrev-table}のコピー(同じabbrev定義を含む新たなabbrevテーブル)をリターンする。これは名前、値、関数だけをコピーし、プロパティリストは何も@emph{コピーしない}。
 @end defun
 
 @defun define-abbrev-table tabname definitions &optional docstring &rest props
-This function defines @var{tabname} (a symbol) as an abbrev table name,
-i.e., as a variable whose value is an abbrev table.  It defines abbrevs in
-the table according to @var{definitions}, a list of elements of the form
-@code{(@var{abbrevname} @var{expansion} [@var{hook}] [@var{props}...])}.
-These elements are passed as arguments to @code{define-abbrev}.  
+この関数はabbrevテーブル名(値がabbrevテーブルであるような変数)として@var{tabname}(シンボル)を定義する。これは、そのテーブル内に@var{definitions}に応じて、abbrevを定義する。@var{definitions}は、@code{(@var{abbrevname}
+@var{expansion} [@var{hook}]
+[@var{props}...])}という形式の要素をもつリストである。これらの要素は引数として、@code{define-abbrev}に渡される。  
 
-The optional string @var{docstring} is the documentation string of the
-variable @var{tabname}.  The property list @var{props} is applied to the
-abbrev table (@pxref{Abbrev Table Properties}).
+オプション文字列@var{docstring}は、変数@var{tabname}のドキュメント文字列である。プロパティリスト@var{props}は、abbrevテーブルに適用される(@ref{Abbrev
+Table Properties}を参照)。
 
-If this function is called more than once for the same @var{tabname},
-subsequent calls add the definitions in @var{definitions} to @var{tabname},
-rather than overwriting the entire original contents.  (A subsequent call
-only overrides abbrevs explicitly redefined or undefined in
-@var{definitions}.)
+同一の@var{tabname}にたいしてこの関数が複数回呼び出された場合は、元のコンテンツ全体を上書きせずに、後続の呼び出しは@var{definitions}内の定義を@var{tabname}に追加する(後続の呼び出しでは、@var{definitions}内で明示的に再定義または未定義にした場合のみabbrevを上書きできる)。
 @end defun
 
 @defvar abbrev-table-name-list
-This is a list of symbols whose values are abbrev tables.
-@code{define-abbrev-table} adds the new abbrev table name to this list.
+これは、値がabbrevテーブルであるようなシンボルのリストである。@code{define-abbrev-table}は、このリストに新たなabbrevテーブル名を追加する。
 @end defvar
 
 @defun insert-abbrev-table-description name &optional human
-This function inserts before point a description of the abbrev table named
-@var{name}.  The argument @var{name} is a symbol whose value is an abbrev
-table.  
+この関数は、ポイントの前に名前が@var{name}のabbrevテーブルの説明を挿入する。引数@var{name}は、値がabbrevテーブルであるようなシンボルである。  
 
-If @var{human} is non-@code{nil}, the description is human-oriented.  System
-abbrevs are listed and identified as such.  Otherwise the description is a
-Lisp expression---a call to @code{define-abbrev-table} that would define
-@var{name} as it is currently defined, but without the system abbrevs.  (The
-mode or package using @var{name} is supposed to add these to @var{name}
-separately.)
+@var{human}が非@code{nil}なら、説明は人間向けになる。システムabbrevはそのようにリストされ、識別される。それ以外なら説明はLisp式(カレントで定義されているように@var{name}を定義するが、システムabbrevとしては定義しないような@code{define-abbrev-table}呼び出し)となる(@var{name}を使用するモードまたはパッケージは、それらを個別に@var{name}に追加すると想定されている)。
 @end defun
 
 @node Defining Abbrevs
