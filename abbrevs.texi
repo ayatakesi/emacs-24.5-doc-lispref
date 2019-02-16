@@ -94,53 +94,26 @@ Table Properties}を参照)。
 @section Defining Abbrevs
 @cindex defining abbrevs
 
-  @code{define-abbrev} is the low-level basic function for defining an abbrev
-in an abbrev table.
+  @code{define-abbrev}は、abbrevテーブル内にabbrevを定義するための基本的な低レベル関数です。
 
-  When a major mode defines a system abbrev, it should call
-@code{define-abbrev} and specify @code{t} for the @code{:system} property.
-Be aware that any saved non-``system'' abbrevs are restored at startup,
-i.e., before some major modes are loaded.  Therefore, major modes should not
-assume that their abbrev tables are empty when they are first loaded.
+  メジャーモードがシステムabbrevを定義する際は、@code{:system}プロパティに@code{t}を指定して@code{define-abbrev}を呼び出すべきです。すべての保存された非``システム''abbrevは起動時(何らかのメジャーモードがロードされる前)にリストアされることに注意してください。したがってメジャーモードは、最初にそのモードがロードされた際、それらのモードのabbrevテーブルが空であると仮定するべきではありません。
 
 @defun define-abbrev abbrev-table name expansion &optional hook &rest props
-This function defines an abbrev named @var{name}, in @var{abbrev-table}, to
-expand to @var{expansion} and call @var{hook}, with properties @var{props}
-(@pxref{Abbrev Properties}).  The return value is @var{name}.  The
-@code{:system} property in @var{props} is treated specially here: if it has
-the value @code{force}, then it will overwrite an existing definition even
-for a non-``system'' abbrev of the same name.
+この関数は、@var{abbrev-table}内に@var{name}という名前で、@var{expansion}に展開され、@var{hook}を呼び出すabbrevを、プロパティ@var{props}(@ref{Abbrev
+Properties}を参照)とともに定義する。リターン値は@var{name}。ここでは、@var{props}内の@code{:system}プロパティは特別に扱われる。このプロパティが値@code{force}をもつなら、たとえ同じ名前の非``システム''abbrevでも、既存の定義を上書きするだろう。
 
-@var{name} should be a string.  The argument @var{expansion} is normally the
-desired expansion (a string), or @code{nil} to undefine the abbrev.  If it
-is anything but a string or @code{nil}, then the abbreviation ``expands''
-solely by running @var{hook}.
+@var{name}は文字列であること。引数@var{expansion}は通常は望む展開形(文字列)であり、@code{nil}ならそのabbrevを未定義とする。これが文字列または@code{nil}以外の何かなら、そのabbrevは@var{hook}を実行することにより、単に``展開''される。
 
-The argument @var{hook} is a function or @code{nil}.  If @var{hook} is
-non-@code{nil}, then it is called with no arguments after the abbrev is
-replaced with @var{expansion}; point is located at the end of
-@var{expansion} when @var{hook} is called.
+引数@var{hook}は、関数または@code{nil}であること。@var{hook}が非@code{nil}なら、abbrevが@var{expansion}に置換された後に、引数なしでそれが呼び出される。@var{hook}呼び出し時、ポイントは@var{expansion}の終端に置かれる。
 
 @cindex @code{no-self-insert} property
-If @var{hook} is a non-@code{nil} symbol whose @code{no-self-insert}
-property is non-@code{nil}, @var{hook} can explicitly control whether to
-insert the self-inserting input character that triggered the expansion.  If
-@var{hook} returns non-@code{nil} in this case, that inhibits insertion of
-the character.  By contrast, if @var{hook} returns @code{nil},
-@code{expand-abbrev} (or @code{abbrev-insert})  also returns @code{nil}, as
-if expansion had not really occurred.
+@var{hook}が、@code{no-self-insert}プロパティが非@code{nil}であるような、非@code{nil}のシンボルなら、@var{hook}は展開をトリガーするような自己挿入入力文字を挿入できるかどうかを、明示的に制御できる。この場合、@var{hook}が非@code{nil}をリターンしたら、その文字の挿入を抑止する。対照的に、@var{hook}が@code{nil}をリターンした場合は、あたかも実際には展開が行われなかったかのように、@code{expand-abbrev}(または@code{abbrev-insert})も@code{nil}をリターンする。
 
-Normally, @code{define-abbrev} sets the variable @code{abbrevs-changed} to
-@code{t}, if it actually changes the abbrev.  This is so that some commands
-will offer to save the abbrevs.  It does not do this for a system abbrev,
-since those aren't saved anyway.
+通常@code{define-abbrev}は、実際にabbrevを変更した場合は、変数@code{abbrevs-changed}に@code{t}をセットする。これはいくつかのコマンドが、abbrevの保存を提案するためである。システムabbrevは、いずれにせよ保存されないので、システムabbrevにたいして、これは行われない。
 @end defun
 
 @defopt only-global-abbrevs
-If this variable is non-@code{nil}, it means that the user plans to use
-global abbrevs only.  This tells the commands that define mode-specific
-abbrevs to define global ones instead.  This variable does not alter the
-behavior of the functions in this section; it is examined by their callers.
+この変数が非@code{nil}なら、それはユーザーがグローバルabbrevのみの使用を計画していることを意味する。これはモード固有のabbrevを定義するコマンドにたいして、かわりにグローバルabbrevを定義するよう指示する。この変数は、このセクション内の関数の振る舞いを変更しない。それは呼び出し側により検証される。
 @end defopt
 
 @node Abbrev Files
