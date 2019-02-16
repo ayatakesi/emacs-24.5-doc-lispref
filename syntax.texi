@@ -591,38 +591,21 @@ Flags}を参照されたい)の内部なら@code{t}、ネスト可なコメン�
 @node Low-Level Parsing
 @subsection Low-Level Parsing
 
-  The most basic way to use the expression parser is to tell it to start at a
-given position with a certain state, and parse up to a specified end
-position.
+  式パーサーを使用するもっとも基本的な方法は、特定の状態で与えられた位置からパースを開始して、指定した位置でパースを終了するよう指示する方法です。
 
 @defun parse-partial-sexp start limit &optional target-depth stop-before state stop-comment
-This function parses a sexp in the current buffer starting at @var{start},
-not scanning past @var{limit}.  It stops at position @var{limit} or when
-certain criteria described below are met, and sets point to the location
-where parsing stops.  It returns a parser state
+この関数は、カレントバッファー内のsexpを、@var{start}から開始して@var{limit}を超えてスキャンしないようパースを行う。これは位置@var{limit}、または以下に記述する特定の条件に適合したら停止して、パースが停止した位置にポイントをセットする。これはポイントが停止した位置でのパースの状態を記述するパーサー状態
 @ifinfo
-(@pxref{Parser State})
+(@ref{Parser State}を参照)
 @end ifinfo
-describing the status of the parse at the point where it stops.
+をリターンする。
 
 @cindex parenthesis depth
-If the third argument @var{target-depth} is non-@code{nil}, parsing stops if
-the depth in parentheses becomes equal to @var{target-depth}.  The depth
-starts at 0, or at whatever is given in @var{state}.
+3つ目の引数@var{target-depth}が非@code{nil}の場合、カッコの深さが@var{target-depth}と等しくなったら、パースを停止する。この深さは0、または@var{state}内で与えられる深さなら何であれ、そこより開始される。
 
-If the fourth argument @var{stop-before} is non-@code{nil}, parsing stops
-when it comes to any character that starts a sexp.  If @var{stop-comment} is
-non-@code{nil}, parsing stops when it comes to the start of a comment.  If
-@var{stop-comment} is the symbol @code{syntax-table}, parsing stops after
-the start of a comment or a string, or the end of a comment or a string,
-whichever comes first.
+4つ目の引数@var{stop-before}が非@code{nil}の場合、sexp開始となる任意の文字に到達したらパースは停止する。@var{stop-comment}が非@code{nil}なら、コメントの開始でパースは停止する。@var{stop-comment}がシンボル@code{syntax-table}なら、コメントか文字列の開始の後、またはコメントか文字列の終了のいずれか先に到達した方でパースは停止する。
 
-If @var{state} is @code{nil}, @var{start} is assumed to be at the top level
-of parenthesis structure, such as the beginning of a function definition.
-Alternatively, you might wish to resume parsing in the middle of the
-structure.  To do this, you must provide a @var{state} argument that
-describes the initial status of parsing.  The value returned by a previous
-call to @code{parse-partial-sexp} will do nicely.
+@var{state}が@code{nil}なら、@var{start}は関数定義先頭のような、カッコ構造のトップレベルであるとみなされる。かわりにこの構造の中間でパースを再開したいと思うかもしれない。これを行うには、パースの初期状態を記述する@var{state}引数を提供しなければならない。前の@code{parse-partial-sexp}呼び出しでリターンされた値で、これをうまく行うことができるだろう。
 @end defun
 
 @node Control Parsing
