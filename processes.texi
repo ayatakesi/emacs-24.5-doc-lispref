@@ -109,35 +109,24 @@ Emacsとともに配布され、Emacsにより呼び出されることを意図�
 @cindex arguments for shell commands
 @cindex shell command arguments
 
-  Lisp programs sometimes need to run a shell and give it a command that
-contains file names that were specified by the user.  These programs ought
-to be able to support any valid file name.  But the shell gives special
-treatment to certain characters, and if these characters occur in the file
-name, they will confuse the shell.  To handle these characters, use the
-function @code{shell-quote-argument}:
+  Lispプログラムがshellを実行して、ユーザーが指定したファイル名を含むコマンドを与える必要がある場合が時折あります。これらのプログラムは、任意の有効なファイル名をサポート可能であるはずです。しかしshellは特定の文字を特別に扱い、それらの文字がファイル名に含まれていると、shellを混乱させるでしょう。これらの文字を処理するためには、関数@code{shell-quote-argument}を使用します。
 
 @defun shell-quote-argument argument
-This function returns a string that represents, in shell syntax, an argument
-whose actual contents are @var{argument}.  It should work reliably to
-concatenate the return value into a shell command and then pass it to a
-shell for execution.
+この関数は、実際のコンテンツが@var{argument}であるような引数を表す文字列を、shellの構文でリターンする。リターン値をshellコマンドに結合して、実行のためにそれをshellに渡すことにより、信頼性をもって機能するはずである。
 
-Precisely what this function does depends on your operating system.  The
-function is designed to work with the syntax of your system's standard
-shell; if you use an unusual shell, you will need to redefine this function.
+この関数が正確に何を行うかは、オペレーティングシステムに依存する。この関数は、そのシステムの標準shellの構文で機能するようデザインされている。非標準のshellを使用する場合は、この関数を再定義する必要があるだろう。
 
 @example
-;; @r{This example shows the behavior on GNU and Unix systems.}
+;; @r{この例はGNUおよびUnixシステムでの挙動を示す}
 (shell-quote-argument "foo > bar")
      @result{} "foo\\ \\>\\ bar"
 
-;; @r{This example shows the behavior on MS-DOS and MS-Windows.}
+;; @r{この例はMS-DOSおよびMS-Windowsでの挙動を示す}
 (shell-quote-argument "foo > bar")
      @result{} "\"foo > bar\""
 @end example
 
-Here's an example of using @code{shell-quote-argument} to construct a shell
-command:
+以下は@code{shell-quote-argument}を使用して、shellコマンドを構築する例である:
 
 @example
 (concat "diff -c "
@@ -151,41 +140,23 @@ command:
 @cindex minibuffer input, and command-line arguments
 @cindex @code{call-process}, command-line arguments from minibuffer
 @cindex @code{start-process}, command-line arguments from minibuffer
-  The following two functions are useful for combining a list of individual
-command-line argument strings into a single string, and taking a string
-apart into a list of individual command-line arguments.  These functions are
-mainly intended for converting user input in the minibuffer, a Lisp string,
-into a list of string arguments to be passed to @code{call-process} or
-@code{start-process}, or for converting such lists of arguments into a
-single Lisp string to be presented in the minibuffer or echo area.
+  以下の2つの関数は、コマンドライン引数の文字列のリストを単一の文字列に結合したり、単一の文字列を個別のコマンドライン引数のリストへ分割するために有用です。これらの関数は主に、ミニバッファーでのユーザー入力であるLisp文字列を@code{call-process}や@code{start-process}に渡す文字列引数のリストへ変換したり、そのような引数のリストをミニバッファーやエコーエリアに表示するためのLisp文字列に変換することを意図しています。
 
 @defun split-string-and-unquote string &optional separators
-This function splits @var{string} into substrings at matches for the regular
-expression @var{separators}, like @code{split-string} does (@pxref{Creating
-Strings}); in addition, it removes quoting from the substrings.  It then
-makes a list of the substrings and returns it.
+この関数は@code{split-string}(@pxref{Creating
+Strings}を参照)が行うように、正規表現@var{separators}にたいするマッチで、@var{string}を部分文字列に分割する。さらに加えて、その部分文字列からクォートを削除する。それから部分文字列のリストを作成して、それをリターンする。
 
-If @var{separators} is omitted or @code{nil}, it defaults to @code{"\\s-+"},
-which is a regular expression that matches one or more characters with
-whitespace syntax (@pxref{Syntax Class Table}).
+@var{separators}が省略、または@code{nil}の場合のデフォルトは@code{"\\s-+"}で、これは空白文字構文(@ref{Syntax
+Class Table}を参照)をもつ1つ以上の文字にマッチする正規表現である。
 
-This function supports two types of quoting: enclosing a whole string in
-double quotes @code{"@dots{}"}, and quoting individual characters with a
-backslash escape @samp{\}.  The latter is also used in Lisp strings, so this
-function can handle those as well.
+この関数は、2つのタイプのクォートをサポートする。1つは文字列全体をダブルクォートで囲う@code{"@dots{}"}のようなクォートで、もう1つはバックスラッシュ@samp{\}によるエスケープで文字を個別にクォートするタイプである。後者はLisp文字列内でも使用されるので、この関数はそれらも同様に扱うことができる。
 @end defun
 
 @defun combine-and-quote-strings list-of-strings &optional separator
-This function concatenates @var{list-of-strings} into a single string,
-quoting each string as necessary.  It also sticks the @var{separator} string
-between each pair of strings; if @var{separator} is omitted or @code{nil},
-it defaults to @code{" "}.  The return value is the resulting string.
+この関数は、@var{list-of-strings}の各文字を必要に応じてクォートして、単一の文字列に結合する。これはさらに各文字ペアーの間に、@var{separator}文字列も挿入する。@var{separator}が省略または@code{nil}の場合のデフォルトは@code{"
+"}。リターン値は、その結果の文字列である。
 
-The strings in @var{list-of-strings} that need quoting are those that
-include @var{separator} as their substring.  Quoting a string encloses it in
-double quotes @code{"@dots{}"}.  In the simplest case, if you are consing a
-command from the individual command-line arguments, every argument that
-includes embedded blanks will be quoted.
+@var{list-of-strings}内のクォートを要する文字列には、部分文字列として@var{separator}を含むものが該当する。文字列のクォートは、それをダブルクォートで@code{"@dots{}"}のように囲う。もっとも単純な例では、個別のコマンドライン引数からコマンドをコンス(cons)する場合は、埋め込まれたブランクを含む文字列はそれぞれクォートされるだろう。
 @end defun
 
 @node Synchronous Processes
