@@ -19,8 +19,8 @@
 table)}内に記録されます。バッファーはそれぞれローカルにabbrevテーブルをもちますが、通常は同一のメジャーモードにあるすべてのバッファーが1つのabbrevテーブルを共有します。グローバルabbrevテーブルも存在します。通常は両者が使用されます。
 
   abbrevテーブルはobarrayとして表されます。obarraysについての情報は、@ref{Creating
-Symbols}を参照してください。略語はそれぞれ、obarray内のシンボルとして表現されます。そのシンボルの名前が略語で、値が展開形になります。シンボルの関数定義は展開を行うフック関数です(@ref{Defining
-Abbrevs}を参照)。また、シンボルノプロパティセルには、使用回数やその略語が展開された回数を含む、さまざまな追加プロパティが含まれます(@ref{Abbrev
+Symbols}を参照してください。,abbrevはそれぞれ、obarray内のシンボルとして表現されます。そのシンボルの名前がabbrevで、値が展開形になります。シンボルの関数定義は展開を行うフック関数です(@ref{Defining
+Abbrevs}を参照)。また、シンボルノプロパティセルには、使用回数やそのabbrevが展開された回数を含む、さまざまな追加プロパティが含まれます(@ref{Abbrev
 Properties}を参照)。
 
 @cindex system abbrev
@@ -234,40 +234,33 @@ Functions}を参照してください。
 @section Standard Abbrev Tables
 @cindex standard abbrev tables
 
-  Here we list the variables that hold the abbrev tables for the preloaded
-major modes of Emacs.
+  以下は、Emacsの事前ロードされるメジャーモード用のabbrevテーブルを保持する変数のリストです。
 
 @defvar global-abbrev-table
-This is the abbrev table for mode-independent abbrevs.  The abbrevs defined
-in it apply to all buffers.  Each buffer may also have a local abbrev table,
-whose abbrev definitions take precedence over those in the global table.
+これは、モード非依存なabbrev用のabbrevテーブルである。この中で定義されるabbrevは、すべてのバッファーに適用される。各バッファーはローカルabbrevテーブルももつかもしれず、それのabbrev定義はグローバルテーブル内のabbrev定義より優先される。
 @end defvar
 
 @defvar local-abbrev-table
-The value of this buffer-local variable is the (mode-specific)  abbreviation
-table of the current buffer.  It can also be a list of such tables.
+このバッファーローカル変数の値は、カレントバッファーの(モード固有の)abbrevテーブルである。これは、そのようなテーブルのリストでもあり得る。
 @end defvar
 
 @defvar abbrev-minor-mode-table-alist
-The value of this variable is a list of elements of the form
-@code{(@var{mode} . @var{abbrev-table})} where @var{mode} is the name of a
-variable: if the variable is bound to a non-@code{nil} value, then the
-@var{abbrev-table} is active, otherwise it is ignored.  @var{abbrev-table}
-can also be a list of abbrev tables.
+この変数の値は、@code{(@var{mode}
+.
+@var{abbrev-table})}という形式のリストである。ここで@var{mode}は変数の名前である。その変数が非@code{nil}にバインドされていれば@var{abbrev-table}はアクティブで、それ以外なら無視される。@var{abbrev-table}は、abbrevテーブルのリストでもあり得る。
 @end defvar
 
 @defvar fundamental-mode-abbrev-table
-This is the local abbrev table used in Fundamental mode; in other words, it
-is the local abbrev table in all buffers in Fundamental mode.
+これは、Fundamentalモードで使用される、ローカルabbrevテーブルである。別の言い方をすると、これはFundamentalモードにあるすべてのバッファーの、ローカルabbrevテーブルである。
 @end defvar
 
 @defvar text-mode-abbrev-table
-This is the local abbrev table used in Text mode.
+これは、Textモードで使用される、ローカルabbrevテーブルである。
 @end defvar
 
 @defvar lisp-mode-abbrev-table
-This is the local abbrev table used in Lisp mode.  It is the parent of the
-local abbrev table used in Emacs Lisp mode.  @xref{Abbrev Table Properties}.
+これはLispモードで使用されるローカルabbrevテーブルであり、Emacs
+Lispモードで使用されるローカルabbrevテーブルの親テーブルである。@ref{Abbrev Table Properties}を参照のこと。
 @end defvar
 
 @node Abbrev Properties
