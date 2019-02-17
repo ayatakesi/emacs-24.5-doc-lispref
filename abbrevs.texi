@@ -267,39 +267,31 @@ Lispモードで使用されるローカルabbrevテーブルの親テーブル�
 @section Abbrev Properties
 @cindex abbrev properties
 
-Abbrevs have properties, some of which influence the way they work.  You can
-provide them as arguments to @code{define-abbrev}, and manipulate them with
-the following functions:
+abbrevはプロパティをもち、それらのいくつかはabbrevの働きに影響します。これらのプロパティを@code{define-abbrev}の引数として提供して、以下の関数で操作できます:
 
 @defun abbrev-put abbrev prop val
-Set the property @var{prop} of @var{abbrev} to value @var{val}.
+@var{abbrev}のプロパティ@var{prop}に値@var{val}をセットする。
 @end defun
 
 @defun abbrev-get abbrev prop
-Return the property @var{prop} of @var{abbrev}, or @code{nil} if the abbrev
-has no such property.
+@var{abbrev}のプロパティ@var{prop}、そのabbrevがそのようなプロパティをもたなければ@code{nil}をリターンする。
 @end defun
 
-The following properties have special meanings:
+以下のプロパティには特別な意味があります:
 
 @table @code
 @item :count
-This property counts the number of times the abbrev has been expanded.  If
-not explicitly set, it is initialized to 0 by @code{define-abbrev}.
+このプロパティは、そのabbrevが展開された回数を計数する。明示的にセットしなければ、@code{define-abbrev}により0に初期化される。
 
 @item :system
-If non-@code{nil}, this property marks the abbrev as a system abbrev.  Such
-abbrevs are not saved (@pxref{Abbrev Files}).
+非@code{nil}なら、このプロパティはシステムabbrevとして、そのabbrevをマスクする。そのようなabbrevは保存されない(@ref{Abbrev
+Files}を参照)。
 
 @item :enable-function
-If non-@code{nil}, this property should be a function of no arguments which
-returns @code{nil} if the abbrev should not be used and @code{t} otherwise.
+非@code{nil}の場合、そのabbrevが使用されるべきでなければ@code{nil}、それ以外なら@code{t}をリターンするような、引数なしの関数であること。
 
 @item :case-fixed
-If non-@code{nil}, this property indicates that the case of the abbrev's
-name is significant and should only match a text with the same pattern of
-capitalization.  It also disables the code that modifies the capitalization
-of the expansion.
+非@code{nil}なら、このプロパテぃはそのabbrevの大文字小文字には意味があり、同じパターンにcapitalizeされたテキストだけにマッチすべきことを示す。これは展開のcapitalizationを変更するコードも無効にする。
 @end table
 
 @node Abbrev Table Properties
