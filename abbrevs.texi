@@ -298,45 +298,32 @@ Files}を参照)。
 @section Abbrev Table Properties
 @cindex abbrev table properties
 
-Like abbrevs, abbrev tables have properties, some of which influence the way
-they work.  You can provide them as arguments to @code{define-abbrev-table},
-and manipulate them with the functions:
+abbrevと同じようにabbrevテーブルもプロパティをもち、それらのいくつかはabbrevテーブルの働きに影響を与えます。これらのプロパティを@code{define-abbrev-table}の引数として提供して、それらを関数で操作できます:
 
 @defun abbrev-table-put table prop val
-Set the property @var{prop} of abbrev table @var{table} to value @var{val}.
+abbrevテーブル@var{table}のプロパティ@var{prop}に、値@var{val}をセットする。
 @end defun
 
 @defun abbrev-table-get table prop
-Return the property @var{prop} of abbrev table @var{table}, or @code{nil} if
-the abbrev has no such property.
+abbrevテーブルのプロパティ@var{prop}、そのabbrevテーブルがそのようなをプロパティもたなければ@code{nil}をリターンする。
 @end defun
 
-The following properties have special meaning:
+以下のプロパティには特別な意味があります:
 
 @table @code
 @item :enable-function
-This is like the @code{:enable-function} abbrev property except that it
-applies to all abbrevs in the table.  It is used before even trying to find
-the abbrev before point, so it can dynamically modify the abbrev table.
+abbrevプロパティ@code{:enable-function}と似ているが、そのテーブル内のすべてのabbrevに適用される点が異なる。これはポイントの前のabbrevを探すことを試みる前にも使用されるので、abbrevテーブルを動的に変更することが可能である。
 
 @item :case-fixed
-This is like the @code{:case-fixed} abbrev property except that it applies
-to all abbrevs in the table.
+これはabbrevプロパティ@code{:case-fixed}と似ているが、そのテーブル内のすべてのabbrevに適用される点が異なる。
 
 @item :regexp
-If non-@code{nil}, this property is a regular expression that indicates how
-to extract the name of the abbrev before point, before looking it up in the
-table.  When the regular expression matches before point, the abbrev name is
-expected to be in submatch 1.  If this property is @code{nil}, the default
-is to use @code{backward-word} and @code{forward-word} to find the name.
-This property allows the use of abbrevs whose name contains characters of
-non-word syntax.
+非@code{nil}なら、このプロパティはそのテーブルを照合する前に、ポイント前のabbrev名を抽出するための方法を示す正規表現である。その正規表現がポイントの前にマッチしたときは、そのabbrev名はsubmatchの1と期待される。このプロパティが@code{nil}なら、デフォルトは@code{backward-word}と@code{forward-word}を使用して、abbrevの名前を探す。このプロパティにより、単語構文以外の文字を含む名前のabbrevが使用できる。
 
 @item :parents
-This property holds a list of tables from which to inherit other abbrevs.
+このプロパティは、他のabbrevを継承したテーブルのリストを保持する。
 
 @item :abbrev-table-modiff
-This property holds a counter incremented each time a new abbrev is added to
-the table.
+このプロパティは、そのテーブルにabbrevが追加される度に増分されるカウンターを保持する。
 
 @end table
