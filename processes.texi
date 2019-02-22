@@ -256,83 +256,40 @@ lewis:x:1001:1001:Bil Lewis,,,,:/home/lewis:/bin/bash
 @end defun
 
 @defun process-file program &optional infile buffer display &rest args
-This function processes files synchronously in a separate process.  It is
-similar to @code{call-process}, but may invoke a file handler based on the
-value of the variable @code{default-directory}, which specifies the current
-working directory of the subprocess.
+この関数は、別プロセス内でファイルを同期的に処理する。これは@code{call-process}と似ているが、サブプロセスのカレントワーキングディレクトリーを指定する、変数@code{default-directory}の値にもとづく、ファイルハンドラーを呼び出すかもしれない。
 
-The arguments are handled in almost the same way as for @code{call-process},
-with the following differences:
+引数は@code{call-process}の場合とほとんど同様の方法で処理されるが、以下の違いがある:
 
-Some file handlers may not support all combinations and forms of the
-arguments @var{infile}, @var{buffer}, and @var{display}.  For example, some
-file handlers might behave as if @var{display} were @code{nil}, regardless
-of the value actually passed.  As another example, some file handlers might
-not support separating standard output and error output by way of the
-@var{buffer} argument.
+引数@var{infile}、@var{buffer}、@var{display}の組み合わせと形式.をサポートしないファイルハンドラーがあるかもしれない。たとえば実際に渡された値とは無関係に、@var{display}が@code{nil}であるかのように振る舞うファイルハンドラーがいくつかある。他の例としては、@var{buffer}引数で標準出力とエラー出力を分離するのをサポートしないかもしれないファイルハンドラーがいくつか存在する。
 
-If a file handler is invoked, it determines the program to run based on the
-first argument @var{program}.  For instance, suppose that a handler for
-remote files is invoked.  Then the path that is used for searching for the
-program might be different from @code{exec-path}.
+ファイルハンドラーが呼び出されると、1つ目の引数@var{program}にもとづき、実行するプログラムを決定する。たとえばリモートファイルにたいするハンドラーが呼び出されたと考えてみよ。その.場合、プログラムの検索に使用されるパスは、@code{exec-path}とは異なるかもしれない。
 
-The second argument @var{infile} may invoke a file handler.  The file
-handler could be different from the handler chosen for the
-@code{process-file} function itself.  (For example, @code{default-directory}
-could be on one remote host, and @var{infile} on a different remote host.
-Or @code{default-directory} could be non-special, whereas @var{infile} is on
-a remote host.)
+2つ目の引数@var{infile}は、ファイルハンドラーを呼び出すかもしれない。そのファイルハンドラーは、@code{process-file}関数自身にたいして選択されたハンドラーと異なり得る(たとえば@code{default-directory}がリモートホスト上にあり、@var{infile}は別のリモートホスト上の場合があり得る。もしくは@code{default-directory}は普通だが、@var{infile}はリモートホスト上にあるかもしれない).
 
-If @var{buffer} is a list of the form @code{(@var{real-destination}
-@var{error-destination})}, and @var{error-destination} names a file, then
-the same remarks as for @var{infile} apply.
+@var{buffer}が@code{(@var{real-destination}
+@var{error-destination})}という形式のリストで、@var{error-destination}がファイルの名前なら、@var{infile}と同じ注意が適用される。
 
-The remaining arguments (@var{args}) will be passed to the process
-verbatim.  Emacs is not involved in processing file names that are present
-in @var{args}.  To avoid confusion, it may be best to avoid absolute file
-names in @var{args}, but rather to specify all file names as relative to
-@code{default-directory}.  The function @code{file-relative-name} is useful
-for constructing such relative file names.
+残りの引数(@var{args})は、そのままプロセスに渡される。Emacsは、@var{args}内で与えられたファイル名の処理に関与しない。混乱を避けるためには、@var{args}内で絶対ファイル名を使用しないのが最善であり、@code{default-directory}からの相対ファイル名ですべてのファイルを指定するほうがよいだろう。関数@code{file-relative-name}は、そのような相対ファイル名の構築に有用である。
 @end defun
 
 @defvar process-file-side-effects
-This variable indicates whether a call of @code{process-file} changes remote
-files.
+この変数は、@code{process-file}呼び出しがリモートファイルを変更するかどうかを示す。
 
-By default, this variable is always set to @code{t}, meaning that a call of
-@code{process-file} could potentially change any file on a remote host.
-When set to @code{nil}, a file handler could optimize its behavior with
-respect to remote file attribute caching.
+この変数はデフォルトでは常に、@code{process-file}呼び出しがリモートホスト上の、任意のファイルを潜在的に変更し得ることを意味する@code{t}にセットされる。@code{nil}にセットされた際は、リモートファイル属性のキャッシュにしたがうことにより、ファイルハンドラーの挙動を最適化できる可能性がある。
 
-You should only ever change this variable with a let-binding; never with
-@code{setq}.
+この変数は決して@code{setq}ではなく、常にletバインディングによってのみ変更されるべきである。
 @end defvar
 
 @defun call-process-region start end program &optional delete destination display &rest args
-This function sends the text from @var{start} to @var{end} as standard input
-to a process running @var{program}.  It deletes the text sent if
-@var{delete} is non-@code{nil}; this is useful when @var{destination} is
-@code{t}, to insert the output in the current buffer in place of the input.
+この関数は@var{start}から@var{end}のテキストを、実行中のプロセス@var{program}に、標準入力として送信する。これは@var{delete}が非@code{nil}なら、送信したテキストを削除する。これは出力をカレントバッファーの入力箇所に挿入するために、@var{destination}を@code{t}に指定している際に有用である。
 
-The arguments @var{destination} and @var{display} control what to do with
-the output from the subprocess, and whether to update the display as it
-comes in.  For details, see the description of @code{call-process}, above.
-If @var{destination} is the integer 0, @code{call-process-region} discards
-the output and returns @code{nil} immediately, without waiting for the
-subprocess to finish (this only works if asynchronous subprocesses are
-supported; i.e., not on MS-DOS).
+引数@var{destination}と@var{display}は、サブロセスからの出力にたいして何を行うか、および出力の到着にともない表示を更新するかどうかを制御する。詳細は上述の、@code{call-process}の説明を参照されたい。@var{destination}が整数の0なら、@code{call-process-region}は出力を破棄して、サブプロセス完了を待機せずに、即座に@code{nil}をリターンする(これは非同期サブプロセスがサポートされる場合、つまりMS-DOS以外でのみ機能する)。
 
 残りの引数@var{args}は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
 
-The return value of @code{call-process-region} is just like that of
-@code{call-process}: @code{nil} if you told it to return without waiting;
-otherwise, a number or string which indicates how the subprocess terminated.
+@code{call-process-region}のリターン値は、@code{call-process}の場合と同じである。待機せずにリターンするよう指示した場合は@code{nil}、数字か文字列ならそれはサブプロセスが終了した方法を表す。
 
-In the following example, we use @code{call-process-region} to run the
-@code{cat} utility, with standard input being the first five characters in
-buffer @samp{foo} (the word @samp{input}).  @code{cat} copies its standard
-input into its standard output.  Since the argument @var{destination} is
-@code{t}, this output is inserted in the current buffer.
+以下の例では、バッファー@samp{foo}内の最初の5文字(単語@samp{input})を標準入力として、@code{call-process-region}を使用して@code{cat}ユーティリティを実行する。@code{cat}は自身の標準入力を、標準出力へコピーする。引数@var{destination}が@code{t}なので、その出力はカレントバッファーに挿入される。
 
 @smallexample
 @group
@@ -351,60 +308,43 @@ inputinput@point{}
 @end group
 @end smallexample
 
-  For example, the @code{shell-command-on-region} command uses
-@code{call-process-region} in a manner similar to this:
+  たとえば@code{shell-command-on-region}コマンドは、以下のような方法で@code{call-process-region}を使用する:
 
 @smallexample
 @group
 (call-process-region
  start end
- shell-file-name      ; @r{name of program}
- nil                  ; @r{do not delete region}
- buffer               ; @r{send output to @code{buffer}}
- nil                  ; @r{no redisplay during output}
- "-c" command)        ; @r{arguments for the shell}
+ shell-file-name      ; @r{プログラム名}
+ nil                  ; @r{リージョンを削除しない}
+ buffer               ; @r{出力を@code{buffer}に送信}
+ nil                  ; @r{出力中に再表示を行わない}
+ "-c" command)        ; @r{shellへの引数}
 @end group
 @end smallexample
 @c It actually uses shell-command-switch, but no need to mention that here.
 @end defun
 
 @defun call-process-shell-command command &optional infile destination display
-This function executes the shell command @var{command} synchronously.  The
-arguments are handled as in @code{call-process}.  An old calling convention
-allowed to pass any number of additional arguments after @var{display},
-which were concatenated to @var{command}; this is still supported, but
-strongly discouraged.
+この関数はshellコマンド@var{command}を、非同期に実行する。引数は@code{call-process}の場合と同様に処理される。古い呼び出し規約は、@var{display}の後に任意個数の追加引数を許容し、これは@var{command}に結合される。これはまだサポートされるものの、使用しないことを強く推奨する。
 @end defun
 
 @defun process-file-shell-command command &optional infile destination display
-This function is like @code{call-process-shell-command}, but uses
-@code{process-file} internally.  Depending on @code{default-directory},
-@var{command} can be executed also on remote hosts.  An old calling
-convention allowed to pass any number of additional arguments after
-@var{display}, which were concatenated to @var{command}; this is still
-supported, but strongly discouraged.
+この関数は@code{call-process-shell-command}と同様だが、内部的に@code{process-file}を使用する点が異なる。@code{default-directory}に依存して、@var{command}はリモートホスト上でも実行可能である。古い呼び出し規約は、@var{display}の後に任意個数の追加引数を許容し、これは@var{command}に結合される。これはまだサポートされるものの、使用しないことを強く推奨する。
 @end defun
 
 @defun shell-command-to-string command
-This function executes @var{command} (a string) as a shell command, then
-returns the command's output as a string.
+この関数はshellコマンドとして@var{command}(文字列)を実行して、そのコマンドの出力を文字列としてリターンする。
 @end defun
 
 @c There is also shell-command-on-region, but that is more of a user
 @c command, not something to use in programs.
 
 @defun process-lines program &rest args
-This function runs @var{program}, waits for it to finish, and returns its
-output as a list of strings.  Each string in the list holds a single line of
-text output by the program; the end-of-line characters are stripped from
-each line.  The arguments beyond @var{program}, @var{args}, are strings that
-specify command-line arguments with which to run the program.
+この関数は@var{program}を実行して完了を待機し、出力を文字列のリストとしてリターンする。リスト内の各文字列は、プログラムのテキスト出力の1つの行を保持する。各行のEOL文字(行末文字)は取り除かれる。@var{program}の後の引数@var{args}は、そのプログラム実行に際し、コマンドライン引数を指定する文字列である。
 
-If @var{program} exits with a non-zero exit status, this function signals an
-error.
+@var{program}が非0のexitステータスでexitした場合、この関数はエラーをシグナルする。
 
-This function works by calling @code{call-process}, so program output is
-decoded in the same way as for @code{call-process}.
+この関数は@code{call-process}を呼び出すことにより機能し、プログラムの出力は@code{call-process}の場合と同じ方法でデコードされる。
 @end defun
 
 @node Asynchronous Processes
