@@ -163,103 +163,64 @@ Class Table}を参照)をもつ1つ以上の文字にマッチする正規表現
 @section Creating a Synchronous Process
 @cindex synchronous subprocess
 
-  After a @dfn{synchronous process} is created, Emacs waits for the process to
-terminate before continuing.  Starting Dired on GNU or Unix@footnote{On
-other systems, Emacs uses a Lisp emulation of @code{ls}; see @ref{Contents
-of Directories}.} is an example of this: it runs @code{ls} in a synchronous
-process, then modifies the output slightly.  Because the process is
-synchronous, the entire directory listing arrives in the buffer before Emacs
-tries to do anything with it.
+  @dfn{同期プロセス(synchronous
+process)}の作成後、Emacsは継続の前にそのプロセスが終了するのを待機します。GNUやUnix@footnote{他のシステムでは、Emacsは@code{ls}のLispエミュレーションを使用します。@ref{Contents
+of
+Directories}を参照してください。}でのDiredの起動が、この例です。プロセスは同期的なので、Emacsがそれにたいして何か行おうと試みる前に、ディレクトリーのリスト全体がバッファーに到着します。
 
-  While Emacs waits for the synchronous subprocess to terminate, the user can
-quit by typing @kbd{C-g}.  The first @kbd{C-g} tries to kill the subprocess
-with a @code{SIGINT} signal; but it waits until the subprocess actually
-terminates before quitting.  If during that time the user types another
-@kbd{C-g}, that kills the subprocess instantly with @code{SIGKILL} and quits
-immediately (except on MS-DOS, where killing other processes doesn't work).
-@xref{Quitting}.
+  同期サブプロセス終了をEmacsが待機する間、ユーザーは@kbd{C-g}をタイプすることによりquitができます。最初のは@kbd{C-g}は@code{SIGINT}シグナルにより、サブプロセスのkillを試みます。しかしこれはquitする前に、実際にそのサブプロセスが終了されるまで待機します。その間にユーザーがさらに@kbd{C-g}をタイプすると、それは@code{SIGKILL}で即座にサブプロセスをkillしてquitします(別プロセスのkillが機能しないMS-DOSを除く)。@ref{Quitting}を参照してください。
 
-  The synchronous subprocess functions return an indication of how the process
-terminated.
+  同期サブプロセス関数は、プロセスがどのように終了したかの識別をリターンします。
 
-  The output from a synchronous subprocess is generally decoded using a coding
-system, much like text read from a file.  The input sent to a subprocess by
-@code{call-process-region} is encoded using a coding system, much like text
-written into a file.  @xref{Coding Systems}.
+  同期サブプロセスからの出力は、ファイルからのテキスト読み込みと同じように、一般的にはコーディングシステムを使用してデコードされます。@code{call-process-region}によりサブプロセスに送信された入力は、ファイルへのテキスト書き込みと同じように、コーディングシステムを使用してエンコードされます。@ref{Coding
+Systems}を参照してください。
 
 @defun call-process program &optional infile destination display &rest args
-This function calls @var{program} and waits for it to finish.
+この関数は@var{program}を呼び出して、それが完了するまで待機する。
 
-The current working directory of the subprocess is @code{default-directory}.
+サブプロセスのカレントワーキングディレクトリーは、@code{default-directory}である。
 
-The standard input for the new process comes from file @var{infile} if
-@var{infile} is not @code{nil}, and from the null device otherwise.  The
-argument @var{destination} says where to put the process output.  Here are
-the possibilities:
+新たなプロセスの標準入力は、@var{infile}が非@code{nil}ならファイル@code{nil}から、それ以外ならnullデバイスからとなる。引数@var{destination}は、プロセスの出力をどこに送るかを指定する。以下は可能な値である:
 
 @table @asis
-@item a buffer
-Insert the output in that buffer, before point.  This includes both the
-standard output stream and the standard error stream of the process.
+@item バッファー
+そのバッファーの、ポイントの前に出力を挿入する。これにはプロセスの、標準出力ストリームと標準エラーストリームの両方が含まれる。
 
-@item a string
-Insert the output in a buffer with that name, before point.
+@item 文字列
+その名前のバッファーの、ポイントの前に出力を挿入する。
 
 @item @code{t}
-Insert the output in the current buffer, before point.
+カレントバッファーの、ポイントの前に出力を挿入する。
 
 @item @code{nil}
-Discard the output.
+出力を破棄する。
 
 @item 0
-Discard the output, and return @code{nil} immediately without waiting for
-the subprocess to finish.
+出力を破棄して、サブプロセス完了を待機することなく、即座に@code{nil}をリターンする。
 
-In this case, the process is not truly synchronous, since it can run in
-parallel with Emacs; but you can think of it as synchronous in that Emacs is
-essentially finished with the subprocess as soon as this function returns.
+この場合、プロセスはEmacsと並列に実行可能なので、真に同期的ではない。しかしこの関数リターン後は、本質的にはすみやかにEmacsがサブプロセスを終了するという点から、これを同期的と考えることができる。
 
-MS-DOS doesn't support asynchronous subprocesses, so this option doesn't
-work there.
+MS-DOSは非同期サブプロセスをサポートせず、このオプションは機能しない。
 
 @item @code{(:file @var{file-name})}
-Send the output to the file name specified, overwriting it if it already
-exists.
+指定されたファイルに出力を送信し、ファイルが既に存在すれば上書きする。
 
 @item @code{(@var{real-destination} @var{error-destination})}
-Keep the standard output stream separate from the standard error stream;
-deal with the ordinary output as specified by @var{real-destination}, and
-dispose of the error output according to @var{error-destination}.  If
-@var{error-destination} is @code{nil}, that means to discard the error
-output, @code{t} means mix it with the ordinary output, and a string
-specifies a file name to redirect error output into.
+標準出力ストリームを、標準エラーストリームと分けて保つ。通常の出力は@var{real-destination}の指定にしたがって扱い、エラー出力は@var{error-destination}にしたがって処分する。@var{error-destination}が@code{nil}ならエラー出力の破棄、@code{t}なら通常の出力と混合することを意味し、文字列ならそれはエラー出力をリダイレクトするファイルの名前である。
 
-You can't directly specify a buffer to put the error output in; that is too
-difficult to implement.  But you can achieve this result by sending the
-error output to a temporary file and then inserting the file into a buffer.
+エラー出力先に直接バッファーを指定することはできない。ただしエラー出力を一時ファイルに送信して、そのファイルをバッファーに挿入すれば、これを達成できる。
 @end table
 
-If @var{display} is non-@code{nil}, then @code{call-process} redisplays the
-buffer as output is inserted.  (However, if the coding system chosen for
-decoding output is @code{undecided}, meaning deduce the encoding from the
-actual data, then redisplay sometimes cannot continue once
-non-@acronym{ASCII} characters are encountered.  There are fundamental
-reasons why it is hard to fix this; see @ref{Output from Processes}.)
+@var{display}が非@code{nil}なら、@code{call-process}は出力の挿入にしたがって、バッファーを再表示する(しかし出力のデコードに選択されたコーディングシステムが、実データからエンコーディングを推論することを意味する@code{undecided}の場合は、非@acronym{ASCII}に一度遭遇すると再表示が継続不能になることがある。これを修正するのが困難な根本的理由が存在する。@ref{Output
+from Processes}を参照されたい)。
 
-Otherwise the function @code{call-process} does no redisplay, and the
-results become visible on the screen only when Emacs redisplays that buffer
-in the normal course of events.
+それ以外なら関数@code{call-process}は再表示を行わず、通常のイベントに由来するEmacsの再表示時だけ、スクリーン上で結果が可視になります。
 
-The remaining arguments, @var{args}, are strings that specify command line
-arguments for the program.
+残りの引数@var{args}は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
 
-The value returned by @code{call-process} (unless you told it not to wait)
-indicates the reason for process termination.  A number gives the exit
-status of the subprocess; 0 means success, and any other value means
-failure.  If the process terminated with a signal, @code{call-process}
-returns a string describing the signal.
+(待機するよう告げた場合)@code{call-process}がリターンする値は、プロセスが終了した理由を示します。この数字は、そのサブプロセスのexitステータスで0が成功、それ以外のすべての値は失敗を意味します。シグナルによりそのプロセスが終了された場合、@code{call-process}はそれを記述する文字列をリターンします。
 
-In the examples below, the buffer @samp{foo} is current.
+以下の例では、カレントバッファーは@samp{foo}です。
 
 @smallexample
 @group
@@ -282,8 +243,7 @@ lewis:x:1001:1001:Bil Lewis,,,,:/home/lewis:/bin/bash
 @end group
 @end smallexample
 
-Here is an example of the use of @code{call-process}, as used to be found in
-the definition of the @code{insert-directory} function:
+以下は@code{call-process}の使用法の例で、このような使用例は@code{insert-directory}関数の定義内で見ることができます:
 
 @smallexample
 @group
@@ -362,8 +322,7 @@ the output and returns @code{nil} immediately, without waiting for the
 subprocess to finish (this only works if asynchronous subprocesses are
 supported; i.e., not on MS-DOS).
 
-The remaining arguments, @var{args}, are strings that specify command line
-arguments for the program.
+残りの引数@var{args}は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
 
 The return value of @code{call-process-region} is just like that of
 @code{call-process}: @code{nil} if you told it to return without waiting;
