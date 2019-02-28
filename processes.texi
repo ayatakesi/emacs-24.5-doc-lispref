@@ -351,52 +351,26 @@ inputinput@point{}
 @section Creating an Asynchronous Process
 @cindex asynchronous subprocess
 
-  In this section, we describe how to create an @dfn{asynchronous process}.
-After an asynchronous process is created, it runs in parallel with Emacs,
-and Emacs can communicate with it using the functions described in the
-following sections (@pxref{Input to Processes}, and @pxref{Output from
-Processes}).  Note that process communication is only partially
-asynchronous: Emacs sends data to the process only when certain functions
-are called, and Emacs accepts data from the process only while waiting for
-input or for a time delay.
+  このセクションでは、@dfn{非同期プロセス(asynchronous
+process)}を作成する方法について説明します。非同期プロセスは作成後、Emacsと並列して実行され、Emacsは以降のセクション(@ref{Input
+to Processes}および@ref{Output from
+Processes}を参照)で説明する関数を使用してプロセスとコミュニケーションができます。プロセスコミュニケーションは、部分的に非同期なだけであることに注意してください。Emacsは特定の関数を呼び出したときだけプロセスにデータを送信でき、Emacsは入力の待機中または一定の遅延時間の後にのみ、プロセスのデータを受け取ることができます。
 
 @cindex pty
 @cindex pipe
-  An asynchronous process is controlled either via a @dfn{pty}
-(pseudo-terminal) or a @dfn{pipe}.  The choice of pty or pipe is made when
-creating the process, based on the value of the variable
-@code{process-connection-type} (see below).  Ptys are usually preferable for
-processes visible to the user, as in Shell mode, because they allow for job
-control (@kbd{C-c}, @kbd{C-z}, etc.)@: between the process and its children,
-whereas pipes do not.  For subprocesses used for internal purposes by
-programs, it is often better to use a pipe, because they are more efficient,
-and because they are immune to stray character injections that ptys
-introduce for large (around 500 byte) messages.  Also, the total number of
-ptys is limited on many systems and it is good not to waste them.
+  非同期プロセスは@dfn{pty(pseudo-terminal:
+疑似端末)}、または@dfn{pipe}の、いずれかを通じて制御されます。ptyかpipeの選択は、変数@code{process-connection-type}(以下参照)の値にもとづき、プロセス作成時に行われます。ptyは通常、Shellモード内のようにユーザーから可視なプロセスに適しています。それはpipeでは不可能な、そのプロセスおよびその子プロセスとの間でジョブ制御(@kbd{C-c}、@kbd{C-z}、...等)が可能だからです。プログラムの内部的な目的のために使用されるサブプロセスにたいしては、pipeのほうが適している場合が多々あります。それはpipeがより効率的であり、ptyが大量の文字(500byte前後)にたいして導入する迷入文字インジェクション(stray
+character
+injections)にたいして免疫があるのが理由です。さらに多くのしすてむではptyの合計数に制限があり、それを浪費するのは得策ではありません。
 
 @defun start-process name buffer-or-name program &rest args
-This function creates a new asynchronous subprocess and starts the program
-@var{program} running in it.  It returns a process object that stands for
-the new subprocess in Lisp.  The argument @var{name} specifies the name for
-the process object; if a process with this name already exists, then
-@var{name} is modified (by appending @samp{<1>}, etc.)@: to be unique.  The
-buffer @var{buffer-or-name} is the buffer to associate with the process.
+この関数は新たな非同期サブプロセスを作成して、その中でプログラム@var{program}の実行を開始する。これはLisp内で新たなサブプロセスを意味する、プロセスオブジェクトをリターンする。引数@var{name}は、そのプロセスオブジェクトにたいして、名前を指定する。その名前のプロセスがすでに存在する場合、(@samp{<1>}を追加することにより)一意になるよう、@var{name}を変更する。バッファー@var{buffer-or-name}は、そのプロセスに関連付けられたバッファーである。
 
-If @var{program} is @code{nil}, Emacs opens a new pseudoterminal (pty)  and
-associates its input and output with @var{buffer-or-name}, without creating
-a subprocess.  In that case, the remaining arguments @var{args} are ignored.
+@var{program}が@code{nil}なら、Emacsは疑似端末(pty)を新たにオープンして、サブプロセスを新たに作成することなく、ptyの入力と出力を@var{buffer-or-name}に関連付ける。この場合、残りの引数@var{args}は無視される。
 
-The remaining arguments, @var{args}, are strings that specify command line
-arguments for the subprocess.
+残りの引数@var{args}は、サブプロセスにコマンドライン引数を指定する文字列である。
 
-In the example below, the first process is started and runs (rather, sleeps)
-for 100 seconds (the output buffer @samp{foo} is created immediately).
-Meanwhile, the second process is started, and given the name
-@samp{my-process<1>} for the sake of uniqueness.  It inserts the directory
-listing at the end of the buffer @samp{foo}, before the first process
-finishes.  Then it finishes, and a message to that effect is inserted in the
-buffer.  Much later, the first process finishes, and another message is
-inserted in the buffer for it.
+以下の例では、1つ目のプロセスが開始して、100秒間実行(というよりはsleep)される。その間に2つ目のプロセスが開始して、一意性を保つために@samp{my-process<1>}という名前が与えられる。これは1つ目のプロセスが終了する前に、バッファー@samp{foo}の最後にディレクトリーのリストを挿入する。その後、2つ目のプロセスは終了して、その旨のメッセージがバッファーに挿入される。さらに遅れて1つ目のプロセスが終了して、バッファーに別のメッセージが挿入される。
 
 @smallexample
 @group
@@ -424,71 +398,45 @@ Process my-process finished
 @end defun
 
 @defun start-file-process name buffer-or-name program &rest args
-Like @code{start-process}, this function starts a new asynchronous
-subprocess running @var{program} in it, and returns its process object.
+@code{start-process}と同様、この関数は非同期サブプロセスを開始して、その内部で@var{program}を実行して、そのプロセスオブジェクトをリターンする。
 
-The difference from @code{start-process} is that this function may invoked a
-file handler based on the value of @code{default-directory}.  This handler
-ought to run @var{program}, perhaps on the local host, perhaps on a remote
-host that corresponds to @code{default-directory}.  In the latter case, the
-local part of @code{default-directory} becomes the working directory of the
-process.
+@code{start-process}との違いは、この関数が@code{default-directory}の値にもとづいて、ファイルハンドラーを呼び出すかもしれないという点である。このハンドラーはローカルホスト上、あるいは@code{default-directory}に応じたリモートホスト上で、@var{program}を実行するべきである。後者の場合、@code{default-directory}のローカル部分は、そのプロセスのワーキングディレクトリーになる。
 
-This function does not try to invoke file name handlers for @var{program} or
-for the @var{program-args}.
+この関数は@var{program}、または@var{program-args}にたいしてファイル名ハンドラーの呼び出しを試みない。
 
-Depending on the implementation of the file handler, it might not be
-possible to apply @code{process-filter} or @code{process-sentinel} to the
-resulting process object.  @xref{Filter Functions}, and @ref{Sentinels}.
+そのファイルハンドラーの実装によっては、リターン結果のプロセスオブジェクトに@code{process-filter}または@code{process-sentinel}を適用することができないかもしれない。@ref{Filter
+Functions}および@ref{Sentinels}を参照されたい。
 
 @c FIXME  Can we find a better example (i.e., a more modern function
 @c that is actually documented).
-Some file handlers may not support @code{start-file-process} (for example
-the function @code{ange-ftp-hook-function}).  In such cases, this function
-does nothing and returns @code{nil}.
+いくつかのファイルハンドラーは@code{start-file-process}をサポートしないかもしれない(たとえば@code{ange-ftp-hook-function}関数)。そのような場合、この関数は何も行わずに@code{nil}をリターンする。
 @end defun
 
 @defun start-process-shell-command name buffer-or-name command
-This function is like @code{start-process}, except that it uses a shell to
-execute the specified command.  The argument @var{command} is a shell
-command name.  The variable @code{shell-file-name} specifies which shell to
-use.
+この関数は@code{start-process}と同様だが、指定されたコマンドの実行にshellを使用する点が異なる。引数@var{command}は、shellコマンド名である。変数@code{shell-file-name}は、どのshellを使用するかを指定する。
 
-The point of running a program through the shell, rather than directly with
-@code{start-process}, is so that you can employ shell features such as
-wildcards in the arguments.  It follows that if you include any arbitrary
-user-specified arguments in the command, you should quote them with
-@code{shell-quote-argument} first, so that any special shell characters do
-@emph{not} have their special shell meanings.  @xref{Shell Arguments}.  Of
-course, when executing commands based on user input you should also consider
-the security implications.
+@code{start-process}でプログラムを実行せずにshellを通じて実行することの要点は、引数内のワイルドカード展開のようなshell機能を利用可能にするためである。そのためにはコマンド内に任意のユーザー指定引数を含めるなら、任意の特別なshell文字が、shellでの特別な意味を@emph{もたない}ように、まず@code{shell-quote-argument}でそれらをクォートするべきである。@ref{Shell
+Arguments}を参照のこと。ユーザー入力にもとづいたコマンド実行時には、当然セキュリティ上の影響も考慮するべきである。
 @end defun
 
 @defun start-file-process-shell-command name buffer-or-name command
-This function is like @code{start-process-shell-command}, but uses
-@code{start-file-process} internally.  Because of this, @var{command} can
-also be executed on remote hosts, depending on @code{default-directory}.
+この関数は@code{start-process-shell-command}と似ているが、内部的に@code{start-file-process}を使用する点が異なる。これにより、@code{default-directory}に応じてリモートホスト上でも、@var{command}を実行できる。
 @end defun
 
 @defvar process-connection-type
-This variable controls the type of device used to communicate with
-asynchronous subprocesses.  If it is non-@code{nil}, then ptys are used,
-when available.  Otherwise, pipes are used.
+この変数は、非同期サブプロセスと対話するために使用する、デバイスタイプを制御する。これが非@code{nil}の場合、利用可能ならpty、それ以外ならpipeが使用される。
 
-The value of @code{process-connection-type} takes effect when
-@code{start-process} is called.  So you can specify how to communicate with
-one subprocess by binding the variable around the call to
-@code{start-process}.
+@code{process-connection-type}の値は、@code{start-process}の呼び出し時に効果を発揮する。そのため、@code{start-process}の呼び出し前後でこの変数をバインドすることにより、サブプロセスとやり取りする方法を指定できる。
 
 @smallexample
 @group
-(let ((process-connection-type nil))  ; @r{use a pipe}
+(let ((process-connection-type nil))  ; @r{pipeを使用}
   (start-process @dots{}))
 @end group
 @end smallexample
 
-To determine whether a given subprocess actually got a pipe or a pty, use
-the function @code{process-tty-name} (@pxref{Process Information}).
+与えられたサブプロセスが実際にはpipeとptyのどちらを取得したかを判断するには、関数@code{process-tty-name}を使用する(@ref{Process
+Information}を参照)。
 @end defvar
 
 @node Deleting Processes
