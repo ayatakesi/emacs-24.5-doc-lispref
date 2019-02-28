@@ -443,37 +443,17 @@ Information}を参照)。
 @section Deleting Processes
 @cindex deleting processes
 
-  @dfn{Deleting a process} disconnects Emacs immediately from the subprocess.
-Processes are deleted automatically after they terminate, but not
-necessarily right away.  You can delete a process explicitly at any time.
-If you explicitly delete a terminated process before it is deleted
-automatically, no harm results.  Deleting a running process sends a signal
-to terminate it (and its child processes, if any), and calls the process
-sentinel.  @xref{Sentinels}.
+  @dfn{プロセス削除(deleting a
+process)}とは、Emacsをサブプロセスから即座に切断することです。プロセスは終了後に自動的に削除されますが、即座に削除される必要はありません。任意のタイミングで、明示的にプロセスを削除できます。終了したプロセスが自動的に削除される前に明示的に削除しても、それに害はありません。実行中のプロセスの削除は、プロセス(もしあれば子プロセスにも)を終了するためにシグナルを送信して、プロセスセンチネルを呼び出します。@ref{Sentinels}を参照してください。
 
-  When a process is deleted, the process object itself continues to exist as
-long as other Lisp objects point to it.  All the Lisp primitives that work
-on process objects accept deleted processes, but those that do I/O or send
-signals will report an error.  The process mark continues to point to the
-same place as before, usually into a buffer where output from the process
-was being inserted.
+  プロセスが削除される際、そのプロセスオブジェクト自体は、それを参照する別のLispオブジェクトが存在する限り、継続し続けます。プロセスオブジェクトに作用するすべてのLispプリミティブはプロセスの削除を受け入れますが、I/Oを行ったりシグナルを送信するプリミティブは、エラーを報告するでしょう。プロセスマークは、通常はプロセスからの出力がバッファーに挿入される箇所である、以前と同じ箇所をポイントし続けます。
 
 @defopt delete-exited-processes
-This variable controls automatic deletion of processes that have terminated
-(due to calling @code{exit} or to a signal).  If it is @code{nil}, then they
-continue to exist until the user runs @code{list-processes}.  Otherwise,
-they are deleted immediately after they exit.
+この変数は、(@code{exit}呼び出しやシグナルにより)終了したプロセスの、自動的な削除を制御する。これが@code{nil}なら、ユーザーが@code{list-processes}を実行するまでプロセスは存在し続け、それ以外ならexit後に即座に削除される。
 @end defopt
 
 @defun delete-process process
-This function deletes a process, killing it with a @code{SIGKILL} signal.
-The argument may be a process, the name of a process, a buffer, or the name
-of a buffer.  (A buffer or buffer-name stands for the process that
-@code{get-buffer-process} returns.)  Calling @code{delete-process} on a
-running process terminates it, updates the process status, and runs the
-sentinel immediately.  If the process has already terminated, calling
-@code{delete-process} has no effect on its status, or on the running of its
-sentinel (which will happen sooner or later).
+この関数は、@code{SIGKILL}シグナルでkillすることにより、プロセスを削除する。引数はプロセス、プロセスの名前、バッファー、バッファーの名前かもしれない(バッファーやバッファー名の場合は、@code{get-buffer-process}がリターンするプロセスを意味する)。実行中のプロセスに@code{delete-process}を呼び出すことにより、プロセスを終了してプロセス状態を更新して、即座にセンチネルを実行する。そのプロセスがすでに終了している場合、@code{delete-process}呼び出しはプロセス状態、または(遅かれ早かれ発生するであろう)プロセスセンチネルの実行に影響を与えない。
 
 @smallexample
 @group
