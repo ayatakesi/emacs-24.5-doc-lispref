@@ -1000,14 +1000,10 @@ and Coding Systems, inhibit-null-byte-detection}を参照してください。
 @cindex process sentinel
 @cindex sentinel (of process)
 
-  A @dfn{process sentinel} is a function that is called whenever the
-associated process changes status for any reason, including signals (whether
-sent by Emacs or caused by the process's own actions) that terminate, stop,
-or continue the process.  The process sentinel is also called if the process
-exits.  The sentinel receives two arguments: the process for which the event
-occurred, and a string describing the type of event.
+  @dfn{プロセスセンチネル(process sentinel:
+プロセス番兵)}とは、(Emacsにより送信されたか、そのプロセス自身の動作が原因で送信された)プロセスを終了、停止、継続するシグナルを含む、何らかの理由により関連付けられたプロセスの状態が変化した際は常に呼び出される関数のことです。プロセスがexitする際にも、プロセスセンチネルが呼び出されます。センチネルは、イベントが発生したプロセスと、イベントのタイプを記述する文字列という、2つの引数を受け取ります。
 
-  The string describing the event looks like one of the following:
+  イベントを記述する文字列は、以下のいずれかのような外見をもちます:
 
 @c FIXME?  Also "killed\n" - see example below?
 @itemize @bullet
@@ -1024,49 +1020,22 @@ occurred, and a string describing the type of event.
 @code{"@var{name-of-signal} (core dumped)\n"}.
 @end itemize
 
-  A sentinel runs only while Emacs is waiting (e.g., for terminal input, or
-for time to elapse, or for process output).  This avoids the timing errors
-that could result from running sentinels at random places in the middle of
-other Lisp programs.  A program can wait, so that sentinels will run, by
-calling @code{sit-for} or @code{sleep-for} (@pxref{Waiting}), or
-@code{accept-process-output} (@pxref{Accepting Output}).  Emacs also allows
-sentinels to run when the command loop is reading input.
-@code{delete-process} calls the sentinel when it terminates a running
-process.
+  センチネルは、Emacsが(端末入力や時間経過、またはプロセス出力を)待機している間だけ実行されます。これは、他のLispプログラムの途中のランダムな箇所で実行されるセンチネルが原因となる、タイミングエラーを無視します。プログラムはセンチネルが実行されるように、@code{sit-for}や@code{sleep-for}(@ref{Waiting}を参照)、または@code{accept-process-output}(@ref{Accepting
+Output}を参照)を呼び出すことにより待機することができます。Emacsはコマンドループが入力を読み取る際にも、センチネルの実行を許可します。@code{delete-process}は、実行中のプログラムを終了させる際に、センチネルを呼び出します。
 
-  Emacs does not keep a queue of multiple reasons to call the sentinel of one
-process; it records just the current status and the fact that there has been
-a change.  Therefore two changes in status, coming in quick succession, can
-call the sentinel just once.  However, process termination will always run
-the sentinel exactly once.  This is because the process status can't change
-again after termination.
+  Emacsは1つのプロセスのセンチネル呼び出しの理由のために複数のキューを保持しません。これはカレント状態と、変化があった事実だけを記録します。したがって非常に短い間隔で、連続して状態に2つの変化があった場合は、一度だけセンチネルが呼び出されます。しかしプロセスの終了は、常に正確に1回センチネルを実行するでしょう。これは終了後にプロセス状態が再び変更されることはないからです。
 
-  Emacs explicitly checks for output from the process before running the
-process sentinel.  Once the sentinel runs due to process termination, no
-further output can arrive from the process.
+  Emacsはプロセスセンチネル実行の前に、プロセスからの出力をチェックします。プロセス終了によりセンチネルが一度実行されると、そのプロセスから更なる出力は到着しません。
 
-  A sentinel that writes the output into the buffer of the process should
-check whether the buffer is still alive.  If it tries to insert into a dead
-buffer, it will get an error.  If the buffer is dead, @code{(buffer-name
-(process-buffer @var{process}))} returns @code{nil}.
+  プロセスのバッファーに出力を書き込むセンチネルは、そのバッファーがまだ生きているかチェックするべきです。死んだバッファーへの挿入を試みた場合は、エラーとなるでしょう。そのバッファーがすでに死んでいれば、@code{(buffer-name
+(process-buffer @var{process}))}は@code{nil}をリターンします。
 
 @c Note this text is duplicated in the filter functions section.
-  Quitting is normally inhibited within a sentinel---otherwise, the effect of
-typing @kbd{C-g} at command level or to quit a user command would be
-unpredictable.  If you want to permit quitting inside a sentinel, bind
-@code{inhibit-quit} to @code{nil}.  In most cases, the right way to do this
-is with the macro @code{with-local-quit}.  @xref{Quitting}.
+  quitは通常はセンチネル内では抑制されます。さもないと、コマンドレベルでの@kbd{C-g}のタイプ、またはユーザーコマンドのquitは予測できません。センチネル内部でのquitを許可したければ、@code{inhibit-quit}を@code{nil}にバインドしてください。ほとんどの場合において、これを行う正しい方法はマクロ@code{with-local-quit}です。@ref{Quitting}を参照してください。
 
-  If an error happens during execution of a sentinel, it is caught
-automatically, so that it doesn't stop the execution of whatever programs
-was running when the sentinel was started.  However, if
-@code{debug-on-error} is non-@code{nil}, errors are not caught.  This makes
-it possible to use the Lisp debugger to debug the sentinel.
-@xref{Debugger}.
+  センチネルの実行中にエラーが発生した場合、センチネル開始時に実行中だったプログラムが何であれ実行を停止しないように、自動的にcatchされます。しかし@code{debug-on-error}が非@code{nil}なら、エラーはcatchされません。これにより、Lispデバッガーを使用したセンチネルのデバッグが可能になります。@ref{Debugger}を参照してください。
 
-  While a sentinel is running, the process sentinel is temporarily set to
-@code{nil} so that the sentinel won't run recursively.  For this reason it
-is not possible for a sentinel to specify a new sentinel.
+  センチネル実行中、センチネルが再帰的に実行されないよう、プロセスセンチネルは一時的に@code{nil}にセットされます。この理由により、センチネルが新たにセンチネルを指定することはできません。
 
 @ignore
   In earlier Emacs versions, every sentinel that did regular expression
@@ -1074,18 +1043,12 @@ searching or matching had to explicitly save and restore the match data.
 Now Emacs does this automatically for sentinels; they never need to do
 it explicitly.
 @end ignore
- Note that Emacs automatically saves and restores the match data while
-executing sentinels.  @xref{Match Data}.
+ センチネル実行中、Emacsは自動的にマッチデータの保存とリストアを行うことに注意してください。@ref{Match Data}を参照してください。
 
 @defun set-process-sentinel process sentinel
-This function associates @var{sentinel} with @var{process}.  If
-@var{sentinel} is @code{nil}, then the process will have the default
-sentinel, which inserts a message in the process's buffer when the process
-status changes.
+この関数は、@var{process}に関連付ける。@var{sentinel}が@code{nil}なら、そのプロセスはプロセス状態変更時にプロセスのバッファーにメッセージを挿入する、デフォルトのセンチネルをもつことになるだろう。
 
-Changes in process sentinels take effect immediately---if the sentinel is
-slated to be run but has not been called yet, and you specify a new
-sentinel, the eventual call to the sentinel will use the new one.
+プロセスセンチネルの変更は、即座に効果を発揮する。そのセンチネルが実行される予定だが、まだ呼び出されておらず、かつ新たなセンチネルを指定した場合、最終的なセンチネル呼び出しには、新たなセンチネルが使用されるだろう。
 
 @smallexample
 @group
@@ -1104,18 +1067,14 @@ sentinel, the eventual call to the sentinel will use the new one.
 @end defun
 
 @defun process-sentinel process
-This function returns the sentinel of @var{process}.
+この関数は、@var{process}のセンチネルをリターンする。
 @end defun
 
-In case a process status changes need to be passed to several sentinels, you
-can use @code{add-function} to combine an existing sentinel with a new one.
-@xref{Advising Functions}.
+あるプロセス状態の変化を複数のセンチネルに渡す必要がある場合は、既存のセンチネルと新たなセンチネルを組み合わせるために、@code{add-function}を使用できます。@ref{Advising
+Functions}を参照してください。
 
 @defun waiting-for-user-input-p
-While a sentinel or filter function is running, this function returns
-non-@code{nil} if Emacs was waiting for keyboard input from the user at the
-time the sentinel or filter function was called, or @code{nil} if it was
-not.
+この関数は、センチネルまたはフィルター関数の実行中、もしEmacsがセンチネルまたはフィルター関数呼び出し時にユーザーのキーボード入力を待機していたら非@code{nil}、そうでなければ@code{nil}をリターンする。
 @end defun
 
 @node Query Before Exit
