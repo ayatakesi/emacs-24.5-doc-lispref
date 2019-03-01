@@ -642,39 +642,21 @@ Processes}の@code{process-connection-type}を参照)。@var{process}がリモ�
 @section Sending Input to Processes
 @cindex process input
 
-  Asynchronous subprocesses receive input when it is sent to them by Emacs,
-which is done with the functions in this section.  You must specify the
-process to send input to, and the input data to send.  The data appears on
-the ``standard input'' of the subprocess.
+  非同期サブプロセスは、Emacsにより入力が送信されたときに入力を受信し、それはこのセクション内の関数で行われます。これを行うには入力を送信するプロセスと、送信するための入力データを指定しなければなりません。そのデータは、サブプロセスの``標準入力''として表れます。
 
 @c FIXME which?
-  Some operating systems have limited space for buffered input in a pty.  On
-these systems, Emacs sends an @acronym{EOF} periodically amidst the other
-characters, to force them through.  For most programs, these @acronym{EOF}s
-do no harm.
+  オペレーティングシステムには、ptyのバッファーされた入力にたいして制限をもつものがいくつかあります。それらのシステムでは、Emacsは他の文字列の間に定期的かつ強制的に、@acronym{EOF}を送信します。ほとんどのプログラムにたいして、これらの@acronym{EOF}は無害です。
 
-  Subprocess input is normally encoded using a coding system before the
-subprocess receives it, much like text written into a file.  You can use
-@code{set-process-coding-system} to specify which coding system to use
-(@pxref{Process Information}).  Otherwise, the coding system comes from
-@code{coding-system-for-write}, if that is non-@code{nil}; or else from the
-defaulting mechanism (@pxref{Default Coding Systems}).
+  サブプロセスの入力は通常、テキストをファイルに書き込むときと同じように、サブプロセスが受信する前に、コーディングシステムを使用してエンコードされます。どのコーディングシステムを使用するかを指定するには、@code{set-process-coding-system}を使用できます(@ref{Process
+Information}を参照)。それ以外の場合、非@code{nil}なら@code{coding-system-for-write}がコーディングシステムとなり、さもなくばデフォルトのメカニズムがコーディングシステムを決定します(@ref{Default
+Coding Systems}を参照)。
 
-  Sometimes the system is unable to accept input for that process, because the
-input buffer is full.  When this happens, the send functions wait a short
-while, accepting output from subprocesses, and then try again.  This gives
-the subprocess a chance to read more of its pending input and make space in
-the buffer.  It also allows filters, sentinels and timers to run---so take
-account of that in writing your code.
+  入力バッファーが一杯のため、システムがプロセスからの入力を受け取ることができないことがあります。これが発生したときは、送信関数はしばらく待機して、サブプロセスの出力を受け取り、再度送信を試みます。これは保留となっている更なる入力を読み取り、バッファーに空きを作る機会をサブプロセスに与えます。これはフィルター、センチネル、タイマーの実行も可能にするので、コードを記述する際はそれを考慮してください。
 
-  In these functions, the @var{process} argument can be a process or the name
-of a process, or a buffer or buffer name (which stands for a process via
-@code{get-buffer-process}).  @code{nil} means the current buffer's process.
+  以下の関数では、@var{process}引数はプロセス、プロセス名、またはバッファー、バッファー名(これは@code{get-buffer-process}で取得されるプロセスを意味する)。@code{nil}は、カレントバッファーのプロセスを意味します。
 
 @defun process-send-string process string
-This function sends @var{process} the contents of @var{string} as standard
-input.  It returns @code{nil}.  For example, to make a Shell buffer list
-files:
+この関数は@var{string}のコンテンツを、標準入力として@var{process}に送信する。たとえばファイルをリストするShellバッファーを作成するには:
 
 @smallexample
 @group
@@ -685,18 +667,13 @@ files:
 @end defun
 
 @defun process-send-region process start end
-This function sends the text in the region defined by @var{start} and
-@var{end} as standard input to @var{process}.
+この関数は@var{start}と@var{end}で定義されるリージョンのテキストを、標準入力として@var{process}に送信する。
 
-An error is signaled unless both @var{start} and @var{end} are integers or
-markers that indicate positions in the current buffer.  (It is unimportant
-which number is larger.)
+@var{start}と@var{end}が、カレントバッファー内の位置を示す整数かマーカーでなければ、エラーがシグナルされる(いずれかの大小は重要ではない)。
 @end defun
 
 @defun process-send-eof &optional process
-This function makes @var{process} see an end-of-file in its input.  The
-@acronym{EOF} comes after any text already sent to it.  The function returns
-@var{process}.
+この関数は、@var{process}が入力内の@acronym{EOF}(end-of-file)を見ることを可能にする。@acronym{EOF}は、すべての送信済みテキストの後になる。この関数は@var{process}をリターンする。
 
 @smallexample
 @group
@@ -707,10 +684,7 @@ This function makes @var{process} see an end-of-file in its input.  The
 @end defun
 
 @defun process-running-child-p &optional process
-This function will tell you whether a @var{process} has given control of its
-terminal to its own child process.  The value is @code{t} if this is true,
-or if Emacs cannot tell; it is @code{nil} if Emacs can be certain that this
-is not so.
+この関数は、@var{process}が自身の子プロセスに端末の制御を与えたかどうかを告げるだろう。値@code{t}はそれが真であるか、あるいはEmacsがそれを告げることができないことを意味し、@code{nil}はなら偽であることをEmacsは保証します。
 @end defun
 
 @node Signals to Processes
