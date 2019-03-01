@@ -750,47 +750,26 @@ Processes}を参照のこと。
 @cindex process output
 @cindex output from processes
 
-  The output that a subprocess writes to its standard output stream is passed
-to a function called the @dfn{filter function}.  The default filter function
-simply inserts the output into a buffer, which is called the associated
-buffer of the process (@pxref{Process Buffers}).  If the process has no
-buffer then the default filter discards the output.
+  サブプロセスが自身の標準出力に書き込んだ出力は、@dfn{フィルター関数(filter
+function)}と呼ばれる関数に渡されます。デフォルトのフィルター関数は単に出力をバッファーに挿入します。このバッファーを、そのプロセスに関連付けられたバッファーと呼びます(@ref{Process
+Buffers}を参照)。プロセスがバッファーをもたなければ、デフォルトフィルターは出力を破棄します。
 
-  When a subprocess terminates, Emacs reads any pending output, then stops
-reading output from that subprocess.  Therefore, if the subprocess has
-children that are still live and still producing output, Emacs won't receive
-that output.
+  サブプロセス終了時、Emacsは保留中の出力を読み取り、その後そのサブプロセスからの出力の読み取りを停止します。したがって、そのサブプロセスに生きた子プロセスがあり、まだ出力を生成するような場合、Emacsはその出力を受け取らないでしょう。
 
-  Output from a subprocess can arrive only while Emacs is waiting: when
-reading terminal input (see the function @code{waiting-for-user-input-p}),
-in @code{sit-for} and @code{sleep-for} (@pxref{Waiting}), and in
-@code{accept-process-output} (@pxref{Accepting Output}).  This minimizes the
-problem of timing errors that usually plague parallel programming.  For
-example, you can safely create a process and only then specify its buffer or
-filter function; no output can arrive before you finish, if the code in
-between does not call any primitive that waits.
+  サブプロセスからの出力は、Emacsが待機している間、端末入力読み取り時(関数@code{waiting-for-user-input-p}、@ref{Waiting}の@code{sit-for}と@code{sleep-for}、および@ref{Accepting
+Output}の@code{accept-process-output}を参照されたい)のみ到着可能です。これは、並列プログラミングで普遍的に悩みの種である、タイミングエラーの問題を最小化します。たとえば、安全にプロセスを作成して、その後でのみプロセスのバッファーやフィルター関数を指定できます。その間にあるコードが待機するプリミティブを何も呼び出さなければ、完了するまで到着可能な出力はありません。
 
 @defvar process-adaptive-read-buffering
-On some systems, when Emacs reads the output from a subprocess, the output
-data is read in very small blocks, potentially resulting in very poor
-performance.  This behavior can be remedied to some extent by setting the
-variable @code{process-adaptive-read-buffering} to a non-@code{nil} value
-(the default), as it will automatically delay reading from such processes,
-thus allowing them to produce more output before Emacs tries to read it.
+いくつかのシステムでは、Emacsがサブプロセスの出力を読み取る際、出力データを非常に小さいブロックで読み取るため、結果として潜在的に非常に貧弱なパフォーマンスとなることがる。この挙動は、変数@code{process-adaptive-read-buffering}を非@code{nil}値(デフォルト)にセットして拡張することにより改善し得る。これにより、そのようなプロセスからの読み取りを自動的に遅延して、Emacsが読み取りを試みる前に、出力がより生成されるようになる。
 @end defvar
 
-  It is impossible to separate the standard output and standard error streams
-of the subprocess, because Emacs normally spawns the subprocess inside a
-pseudo-TTY, and a pseudo-TTY has only one output channel.  If you want to
-keep the output to those streams separate, you should redirect one of them
-to a file---for example, by using an appropriate shell command.
+  Emacsは通常、疑似端末(pseudo-TTY)内部でサブプロセスをspawnし、かつ疑似端末は出力チャンネルを1つしかもてないので、サブプロセスの標準出力ストリームと標準エラーストリームを区別するのは不可能です。それらのストリームの出力を区別して保ちたい場合は、たとえば適当なshellコマンドを使用して、いずれか1つをファイルにリダイレクトするべきです。
 
 @menu
-* Process Buffers::          By default, output is put in a buffer.
-* Filter Functions::         Filter functions accept output from the 
-                               process.
-* Decoding Output::          Filters can get unibyte or multibyte strings.
-* Accepting Output::         How to wait until process output arrives.
+* Process Buffers::          デフォルトでは、出力はバッファーに送信される。
+* Filter Functions::         フィルター関数はプロセスからの出力を受け取る。
+* Decoding Output::          フィルターはユニバイトおよびマルチバイトの文字列を取得できる。
+* Accepting Output::         プロセスの出力到着まで待機する方法。
 @end menu
 
 @node Process Buffers
