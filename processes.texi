@@ -939,8 +939,8 @@ the process mark to do insertion in the same fashion as the default filter:
 
 @smallexample
 @group
-;; @r{@code{my-shell-buffer}で指定されるバッファーに入力を挿入して}
-;;   @r{そのバッファーがいずれかのウィンドウに表示されているか確認}
+;; @r{Insert input in the buffer specified by @code{my-shell-buffer}}
+;;   @r{and make sure that buffer is shown in some window.}
 (defun my-process-filter (proc str)
   (let ((cur (selected-window))
         (pop-up-windows t))
@@ -959,39 +959,22 @@ the process mark to do insertion in the same fashion as the default filter:
 @subsection Decoding Process Output
 @cindex decode process output
 
-  When Emacs writes process output directly into a multibyte buffer, it
-decodes the output according to the process output coding system.  If the
-coding system is @code{raw-text} or @code{no-conversion}, Emacs converts the
-unibyte output to multibyte using @code{string-to-multibyte}, and inserts
-the resulting multibyte text.
+  Emacsが直接マルチバイトバッファーにプロセス出力を書き込む際は、プロセス出力のコーディングシステムに応じて、出力をデコードします。コーディングシステムが@code{raw-text}か@code{no-conversion}なら、Emacsは@code{string-to-multibyte}を使用してユニバイト出力をマルチバイトに変換して、その結果のマルチバイトテキストを挿入します。
 
-  You can use @code{set-process-coding-system} to specify which coding system
-to use (@pxref{Process Information}).  Otherwise, the coding system comes
-from @code{coding-system-for-read}, if that is non-@code{nil}; or else from
-the defaulting mechanism (@pxref{Default Coding Systems}).  If the text
-output by a process contains null bytes, Emacs by default uses
-@code{no-conversion} for it; see @ref{Lisp and Coding Systems,
-inhibit-null-byte-detection}, for how to control this behavior.
+  どのコーディングシステムを使用するかは、@code{set-process-coding-system}を使用して指定できます(@ref{Process
+Information}を参照)。それ以外では、@code{coding-system-for-read}が非@code{nil}ならそのコーディングシステム、@code{nil}ならデフォルトのメカニズムが使用されます(@ref{Default
+Coding
+Systems}を参照)。プロセスのテキスト出力にnullバイトが含まれる場合、Emacsはそれにたいしてデフォルトでは@code{no-conversion}を使用します。この挙動を制御する方法については、@ref{Lisp
+and Coding Systems, inhibit-null-byte-detection}を参照してください。
 
-  @strong{Warning:} Coding systems such as @code{undecided}, which determine
-the coding system from the data, do not work entirely reliably with
-asynchronous subprocess output.  This is because Emacs has to process
-asynchronous subprocess output in batches, as it arrives.  Emacs must try to
-detect the proper coding system from one batch at a time, and this does not
-always work.  Therefore, if at all possible, specify a coding system that
-determines both the character code conversion and the end of line
-conversion---that is, one like @code{latin-1-unix}, rather than
-@code{undecided} or @code{latin-1}.
+  @strong{警告:}
+データからコーディングシステムを@code{undecided}のようなコーディングシステムは、非同期サブプロセスの出力にたいして完全な信頼性をもって機能しません。これはEmacsが、到着に応じて非同期サブプロセスの出力をバッチで処理する必要があるからです。Emacsは1つのバッチが到着するたびに正しいコーディングシステムを検出しなければならず、これは常には機能しません。したがって、可能であれば文字コード変換とEOL変換の両方を決定するコーディングシステム、つまり@code{latin-1-unix}、@code{undecided}、@code{latin-1}のようなコーディングシステムを指定してください。
 
 @c Let's keep the index entries that were there for
 @c set-process-filter-multibyte and process-filter-multibyte-p,
 @cindex filter multibyte flag, of process
 @cindex process filter multibyte flag
-  When Emacs calls a process filter function, it provides the process output
-as a multibyte string or as a unibyte string according to the process's
-filter coding system.  Emacs decodes the output according to the process
-output coding system, which usually produces a multibyte string, except for
-coding systems such as @code{binary} and @code{raw-text}.
+  Emacsがプロセスフィルター関数を呼び出す際は、そのプロセスのフィルターのコーディングシステムに応じて、Emacsはプロセス出力をマルチバイト文字列、またはユニバイト文字列で提供します。Emacsはプロセス出力のコーディングシステムに応じて出力をデコードします。これは@code{binary}や@code{raw-text}のようなコーディングシステムを除き、通常はマルチバイト文字列を生成します。
 
 @node Accepting Output
 @subsection Accepting Output from Processes
