@@ -1080,23 +1080,16 @@ Functions}を参照してください。
 @node Query Before Exit
 @section Querying Before Exit
 
-  When Emacs exits, it terminates all its subprocesses by sending them the
-@code{SIGHUP} signal.  Because subprocesses may be doing valuable work,
-Emacs normally asks the user to confirm that it is ok to terminate them.
-Each process has a query flag, which, if non-@code{nil}, says that Emacs
-should ask for confirmation before exiting and thus killing that process.
-The default for the query flag is @code{t}, meaning @emph{do} query.
+  Emacsがexitする際は、すべてのサブプロセスに@code{SIGHUP}を送信することにより、すべてのサブプロセスを終了します。それらのサブプロセスはさまざまな処理を行っているかもしれないので、Emacsは通常ユーザーにたいしてそれらを終了しても大丈夫か、確認を求めます。各プロセスはquery(問い合わせ)のためのフラグをもち、これが非@code{nil}なら、Emacsはプロセスをkillしてexitする前に確認を行うべきであることを示します。queryフラグにたいするデフォルトは@code{t}で、これは問い合わせを@emph{行う}ことを意味します。
 
 @defun process-query-on-exit-flag process
-This returns the query flag of @var{process}.
+これは、@var{process}のqueryフラグをリターンする。
 @end defun
 
 @defun set-process-query-on-exit-flag process flag
-This function sets the query flag of @var{process} to @var{flag}.  It
-returns @var{flag}.
+この関数は、@var{process}のqueryフラグを@var{flag}にセットする。これは@var{flag}をリターンする。
 
-Here is an example of using @code{set-process-query-on-exit-flag} on a shell
-process to avoid querying:
+以下はshellプロセス上で、問い合わせを回避するために@code{set-process-query-on-exit-flag}を使用する例である:
 
 @smallexample
 @group
