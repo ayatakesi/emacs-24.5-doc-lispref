@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-02-17 14:59+0900\n"
-"PO-Revision-Date: 2019-03-01 15:27+0900\n"
+"PO-Revision-Date: 2019-03-01 16:14+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -2095,34 +2095,34 @@ msgstr "プロセスの出力到着まで待機する方法。"
 #. type: Plain text
 #: processes.texi.orig:1196
 msgid "A process can (and usually does) have an @dfn{associated buffer}, which is an ordinary Emacs buffer that is used for two purposes: storing the output from the process, and deciding when to kill the process.  You can also use the buffer to identify a process to operate on, since in normal practice only one process is associated with any given buffer.  Many applications of processes also use the buffer for editing input to be sent to the process, but this is not built into Emacs Lisp."
-msgstr ""
+msgstr "プロセスは@dfn{関連付けられたバッファー(associated buffer)}をもつことができます(通常はもつ)。これは普通のEmacsバッファーであり、2つの目的のために使用されます。1つはプロセスからの出力の格納、もう1つはプロセスをkillする時期を判断するためです。通常の習慣では、任意の与えられたバッファーにたいして関連付けられるプロセスは1つだけなので、処理対象のプロセスを識別するためにそのバッファーを使用することもできます。プロセス使用の多くはプロセスに送信する入力を編集するためにもこのバッファーを使用しますが、これはEmacs Lispに組み込まれてはいません。"
 
 #. type: Plain text
 #: processes.texi.orig:1203
 msgid "By default, process output is inserted in the associated buffer.  (You can change this by defining a custom filter function, @pxref{Filter Functions}.)  The position to insert the output is determined by the @code{process-mark}, which is then updated to point to the end of the text just inserted.  Usually, but not always, the @code{process-mark} is at the end of the buffer."
-msgstr ""
+msgstr "デフォルトでは、プロセスの出力は関連付けられたバッファーに挿入されます(カスタムフィルター関数の定義により変更可能。@ref{Filter Functions}を参照されたい)。出力を挿入する位置は、@code{process-mark}により決定されます。これは正に挿入されたテキストの終端に、ポイントを更新します。通常、ただし常にではありませんが、@code{process-mark}はバッファーの終端になります。"
 
 #. type: findex
 #: processes.texi.orig:1204
 #, no-wrap
 msgid "process-kill-buffer-query-function"
-msgstr ""
+msgstr "process-kill-buffer-query-function"
 
 #. type: Plain text
 #: processes.texi.orig:1211
 msgid "Killing the associated buffer of a process also kills the process.  Emacs asks for confirmation first, if the process's @code{process-query-on-exit-flag} is non-@code{nil} (@pxref{Query Before Exit}).  This confirmation is done by the function @code{process-kill-buffer-query-function}, which is run from @code{kill-buffer-query-functions} (@pxref{Killing Buffers})."
-msgstr ""
+msgstr "プロセスに関連付けられたバッファーをkillすることにより、そのプロセスもkillされます。そのプロセスの@code{process-query-on-exit-flag}が非@code{nil}なら、Emacsはまず確認を求めます(@ref{Query Before Exit}を参照)。この確認は関数@code{process-kill-buffer-query-function}により行われ、これは@code{kill-buffer-query-functions}から実行されます(@ref{Killing Buffers}を参照)。"
 
 #. type: defun
 #: processes.texi.orig:1212
 #, no-wrap
 msgid "process-buffer process"
-msgstr ""
+msgstr "process-buffer process"
 
 #. type: defun
 #: processes.texi.orig:1215
 msgid "This function returns the associated buffer of the process @var{process}."
-msgstr ""
+msgstr "この関数は、プロセス@var{process}の関連付けられたバッファーをリターンする。"
 
 #. type: group
 #: processes.texi.orig:1220
@@ -2131,64 +2131,66 @@ msgid ""
 "(process-buffer (get-process \"shell\"))\n"
 "     @result{} #<buffer *shell*>\n"
 msgstr ""
+"(process-buffer (get-process \"shell\"))\n"
+"     @result{} #<buffer *shell*>\n"
 
 #. type: defun
 #: processes.texi.orig:1224
 #, no-wrap
 msgid "process-mark process"
-msgstr ""
+msgstr "process-mark process"
 
 #. type: defun
 #: processes.texi.orig:1227
 msgid "This function returns the process marker for @var{process}, which is the marker that says where to insert output from the process."
-msgstr ""
+msgstr "この関数は、@var{process}にたいするプロセスマーカーをリターンする。これはプロセスからの出力をどこに挿入するかを示すマーカーである。"
 
 #. type: defun
 #: processes.texi.orig:1230
 msgid "If @var{process} does not have a buffer, @code{process-mark} returns a marker that points nowhere."
-msgstr ""
+msgstr "@var{process}バッファーをもたなければ、@code{process-mark}は存在しない場所を指すマーカーをリターンする。"
 
 #. type: defun
 #: processes.texi.orig:1234
 msgid "The default filter function uses this marker to decide where to insert process output, and updates it to point after the inserted text.  That is why successive batches of output are inserted consecutively."
-msgstr ""
+msgstr "デフォルトフィルター関数は、プロセス出力の挿入場所の決定にこのマーカーを使用し、挿入したテキストの後にポイントを更新する。連続するバッチ出力が、連続して挿入されるのは、これが理由である。"
 
 #. type: defun
 #: processes.texi.orig:1238
 msgid "Custom filter functions normally should use this marker in the same fashion.  For an example of a filter function that uses @code{process-mark}, @pxref{Process Filter Example}."
-msgstr ""
+msgstr "カスタムフィルター関数は、このマーカーを通常は同じ方式で使用するべきである。@code{process-mark}を使用するフィルター関数の例は、@ref{Process Filter Example}を参照のこと。"
 
 #. type: defun
 #: processes.texi.orig:1242
 msgid "When the user is expected to enter input in the process buffer for transmission to the process, the process marker separates the new input from previous output."
-msgstr ""
+msgstr "ユーザーにプロセスバッファー内でプロセスに送信するための入力を期待する際は、プロセスマーカーは以前の出力から新たな入力を区別する。"
 
 #. type: defun
 #: processes.texi.orig:1244
 #, no-wrap
 msgid "set-process-buffer process buffer"
-msgstr ""
+msgstr "set-process-buffer process buffer"
 
 #. type: defun
 #: processes.texi.orig:1248
 msgid "This function sets the buffer associated with @var{process} to @var{buffer}.  If @var{buffer} is @code{nil}, the process becomes associated with no buffer."
-msgstr ""
+msgstr "この関数は、@var{process}に関連付けられたバッファーに、@var{buffer}をセットする。@var{buffer}が@code{nil}なら、プロセスはバッファーに関連付けられない。"
 
 #. type: defun
 #: processes.texi.orig:1250
 #, no-wrap
 msgid "get-buffer-process buffer-or-name"
-msgstr ""
+msgstr "get-buffer-process buffer-or-name"
 
 #. type: defun
 #: processes.texi.orig:1257
 msgid "This function returns a nondeleted process associated with the buffer specified by @var{buffer-or-name}.  If there are several processes associated with it, this function chooses one (currently, the one most recently created, but don't count on that).  Deletion of a process (see @code{delete-process}) makes it ineligible for this function to return."
-msgstr ""
+msgstr "この関数は、@var{buffer-or-name}で指定されるバッファーに関連付けられた、削除されていないプロセスをリターンする。そのバッファーに複数のプロセスが関連付けられている場合、この関数はいずれか1つ(現在のところもっとも最近作成されたプロセスだが、これを当てにしないこと)を選択する。プロセスの削除(@code{delete-process}を参照)により、そのプロセスはこの関数がリターンするプロセスとしては不適格となる。"
 
 #. type: defun
 #: processes.texi.orig:1260
 msgid "It is usually a bad idea to have more than one process associated with the same buffer."
-msgstr ""
+msgstr "同一のバッファーに複数のプロセスを関連付けるのは、通常は悪いアイデアである。"
 
 #. type: group
 #: processes.texi.orig:1265
@@ -2197,11 +2199,13 @@ msgid ""
 "(get-buffer-process \"*shell*\")\n"
 "     @result{} #<process shell>\n"
 msgstr ""
+"(get-buffer-process \"*shell*\")\n"
+"     @result{} #<process shell>\n"
 
 #. type: defun
 #: processes.texi.orig:1270
 msgid "Killing the process's buffer deletes the process, which kills the subprocess with a @code{SIGHUP} signal (@pxref{Signals to Processes})."
-msgstr ""
+msgstr "プロセスのバッファーをkillすることにより、@code{SIGHUP}シグナルでサブプロセスをkillして、プロセスを削除する(@ref{Signals to Processes}を参照)。"
 
 #. type: subsection
 #: processes.texi.orig:1273
