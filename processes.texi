@@ -1103,141 +1103,109 @@ Functions}を参照してください。
 @section Accessing Other Processes
 @cindex system processes
 
-  In addition to accessing and manipulating processes that are subprocesses of
-the current Emacs session, Emacs Lisp programs can also access other
-processes running on the same machine.  We call these @dfn{system
-processes}, to distinguish them from Emacs subprocesses.
+  カレントEmacsセッションのサブプロセスにたいするアクセスと操作に加えて、同一マシン上で実行中の他のプロセスにたいして、Emacs
+Lispプログラムがアクセスすることもできます。Emacsのサブプロセスと区別するために、わたしたちはこれらを@dfn{システムプロセス(system
+processes)}と呼んでいます。
 
-  Emacs provides several primitives for accessing system processes.  Not all
-platforms support these primitives; on those which don't, these primitives
-return @code{nil}.
+  Emacsは、システムプロセスへのアクセス用のプリミティブをいくつか提供します。これらのプリミティブは、すべてのプラットフォームではサポートされません。サポートしないシステムでは、これらのプリミティブは@code{nil}をリターンします。
 
 @defun list-system-processes
-This function returns a list of all the processes running on the system.
-Each process is identified by its @acronym{PID}, a numerical process ID that
-is assigned by the OS and distinguishes the process from all the other
-processes running on the same machine at the same time.
+この関数は、そのシステム上で実行中の、すべてのプロセスのリストをリターンする。各プロセスは、@acronym{PID}というOSから割り当てられた数値によるプロセスIDにより識別され、同一時に同一マシン上で実行中の他のプロセスと区別される。
 @end defun
 
 @defun process-attributes pid
-This function returns an alist of attributes for the process specified by
-its process ID @var{pid}.  Each association in the alist is of the form
-@code{(@var{key} . @var{value})}, where @var{key} designates the attribute
-and @var{value} is the value of that attribute.  The various attribute
-@var{key}s that this function can return are listed below.  Not all
-platforms support all of these attributes; if an attribute is not supported,
-its association will not appear in the returned alist.  Values that are
-numbers can be either integer or floating point, depending on the magnitude
-of the value.
+この関数は、プロセスID
+@var{pid}で指定されるプロセスにたいする、属性のalistをリターンする。このalist内の各属性は@code{(@var{key}
+.
+@var{value})}という形式で、@var{key}は属性を指定し、@var{value}はその属性の値である。この関数がリターン可能な、さまざまな属性にたいする@var{key}を、以下にリストした。これらすべての属性を、すべてのプラットフォームがサポートする訳ではない。ある属性がサポートされていなければ、その連想値はリターンされるalist内に出現しない。数値であるような値は整数か浮動小数点数のいずれかが可能で、それは値の大小に依存する。
 
 @table @code
 @item euid
-The effective user ID of the user who invoked the process.  The
-corresponding @var{value} is a number.  If the process was invoked by the
-same user who runs the current Emacs session, the value is identical to what
-@code{user-uid} returns (@pxref{User Identification}).
+そのプロセスを呼び出したユーザーの、実効ユーザーID(effective user
+ID)。対応する@var{value}は数値。プロセスがカレントEmacsセッションを実行したユーザーと同じなら、値は@code{user-uid}がリターンする値と等しくなる(@ref{User
+Identification}を参照)。
 
 @item user
-User name corresponding to the process's effective user ID, a string.
+そのプロセスの実効ユーザーIDに対応するユーザー名であるような文字列。
 
 @item egid
-The group ID of the effective user ID, a number.
+実行ユーザーIDのグループIDであるような数値。
 
 @item group
-Group name corresponding to the effective user's group ID, a string.
+実効ユーザーのグループIDに対応するグループ名であるような文字列。
 
 @item comm
-The name of the command that runs in the process.  This is a string that
-usually specifies the name of the executable file of the process, without
-the leading directories.  However, some special system processes can report
-strings that do not correspond to an executable file of a program.
+そのプロセス内で実効したコマンドの名前。これは通常、先行するディレクトリーを除いた実行可能ファイル名を指定する文字列である。しかし、いくつかの特別なシステムプロセスは、実行可能ファイルまたはプログラムに対応しない文字列を報告する可能性がある。
 
 @item state
-The state code of the process.  This is a short string that encodes the
-scheduling state of the process.  Here's a list of the most frequently seen
-codes:
+そのプロセスの状態コード。これはそのプロセスのスケジューリング状態をエンコードする短い文字列である。以下は頻繁に目にするコードのリストである:
 
 @table @code
 @item "D"
-uninterruptible sleep (usually I/O)
+割り込み不可のsleep(通常はI/Oによる)
 @item "R"
-running
+実行中
 @item "S"
-interruptible sleep (waiting for some event)
+割り込み可能なsleep(何らかのイベント待ち)
 @item "T"
-stopped, e.g., by a job control signal
+たとえばジョブ制御シグナルにより停止された
 @item "Z"
-``zombie'': a process that terminated, but was not reaped by its parent
+``zombie'': 終了したが親プロセスに回収されていないプロセス
 @end table
 
 @noindent
-For the full list of the possible states, see the manual page of the
-@command{ps} command.
+可能な状態の完全なリストは、@command{ps}コマンドのman pageを参照されたい。
 
 @item ppid
-The process ID of the parent process, a number.
+親プロセスのプロセスIDであるような数値。
 
 @item pgrp
-The process group ID of the process, a number.
+そのプロセスのプロセスグループIDであるような数値。
 
 @item sess
-The session ID of the process.  This is a number that is the process ID of
-the process's @dfn{session leader}.
+そのプロセスのセッションID。これはそのプロセスの@dfn{セッションリーダー(session leader)}のプロセスIDであるような数値である。
 
 @item ttname
-A string that is the name of the process's controlling terminal.  On Unix
-and GNU systems, this is normally the file name of the corresponding
-terminal device, such as @file{/dev/pts65}.
+そのプロセスの制御端末の名前であるような文字列。UnixおよびGNUシステムでは、これは通常は@file{/dev/pts65}のような、対応する端末デバイスのファイル名である。
 
 @item tpgid
-The numerical process group ID of the foreground process group that uses the
-process's terminal.
+そのプロセスの端末を使用するフォアグラウンドプロセスグループの、プロセスグループIDであるような数値。
 
 @item minflt
-The number of minor page faults caused by the process since its beginning.
-(Minor page faults are those that don't involve reading from disk.)
+そのプロセス開始以降に発生したマイナーなページフォルト数(マイナーなページフォルトとはディスクからの読み込みを発生させないページフォルトのこと)。
 
 @item majflt
-The number of major page faults caused by the process since its beginning.
-(Major page faults require a disk to be read, and are thus more expensive
-than minor page faults.)
+そのプロセス開始以降に発生したメジャーなページフォルト数(メジャーなページフォルトとは、ディスクからの読み込みを要し、それ故にマイナーページフォルトより高価なページフォルトのこと)。
 
 @item cminflt
 @itemx cmajflt
-Like @code{minflt} and @code{majflt}, but include the number of page faults
-for all the child processes of the given process.
+@code{minflt}と@code{majflt}と似ているが、与えられたプロセスのすべての子プロセスのページフォルト数を含む。
 
 @item utime
-Time spent by the process in the user context, for running the application's
-code.  The corresponding @var{value} is in the @w{@code{(@var{high}
-@var{low} @var{microsec} @var{picosec})}} format, the same format used by
-functions @code{current-time} (@pxref{Time of Day, current-time}) and
-@code{file-attributes} (@pxref{File Attributes}).
+アプリケーションのコード実行にたいして、ユーザーコンテキスト内でプロセスに消費された時間。対応する@var{value}は@w{@code{(@var{high}
+@var{low} @var{microsec}
+@var{picosec})}}というフォーマットで、これは関数@code{current-time}が使用するフォーマットと同じである(@ref{Time
+of Day, current-time})および@ref{File Attributes}の@code{file-attributes}を参照)。
 
 @item stime
-Time spent by the process in the system (kernel) context, for processing
-system calls.  The corresponding @var{value} is in the same format as for
-@code{utime}.
+システムコールの処理にたいして、システム(kernel)コンテキスト内でプロセスに消費された時間。対応する@var{value}は@code{utime}と同じフォーマット。
 
 @item time
-The sum of @code{utime} and @code{stime}.  The corresponding @var{value} is
-in the same format as for @code{utime}.
+@code{utime}と@code{stime}の和。対応する@var{value}は@code{utime}と同じフォーマット。
 
 @item cutime
 @itemx cstime
 @itemx ctime
-Like @code{utime}, @code{stime}, and @code{time}, but include the times of
-all the child processes of the given process.
+@code{utime}や@code{stime}と同様だが、与えられたプロセスのすべての子プロセスの時間が含まれる点が異なる。
 
 @item pri
-The numerical priority of the process.
+そのプロセスの数値的な優先度。
 
 @item nice
-The @dfn{nice value} of the process, a number.  (Processes with smaller nice
-values get scheduled more favorably.)
+そのプロセスの@dfn{nice値(nice value)}であるような数値(小さいnice値のプロセスがより優先的にスケジュールされる)。
 
 @item thcount
-The number of threads in the process.
+そのプロセス内のスレッド数。
 
 @item start
 The time when the process was started, in the same @code{(@var{high}
