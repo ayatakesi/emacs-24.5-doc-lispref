@@ -1240,34 +1240,21 @@ of Day, current-time})および@ref{File Attributes}の@code{file-attributes}を
 
 @c That's not very informative.  What is a transaction, and when might
 @c I want to use one?
-You can use a @dfn{transaction queue} to communicate with a subprocess using
-transactions.  First use @code{tq-create} to create a transaction queue
-communicating with a specified process.  Then you can call @code{tq-enqueue}
-to send a transaction.
+トランザクションを用いてサブプロセスと対話するために、@dfn{トランザクションキュー(transaction
+queue)}を使用できます。まず@code{tq-create}を使用して、指定したプロセスと対話するためのトランザクションキューを作成します。それからトランザクションを送信するために、@code{tq-enqueue}を呼び出すことができます。
 
 @defun tq-create process
-This function creates and returns a transaction queue communicating with
-@var{process}.  The argument @var{process} should be a subprocess capable of
-sending and receiving streams of bytes.  It may be a child process, or it
-may be a TCP connection to a server, possibly on another machine.
+この関数は、@var{process}と対話するトランザクションキューを作成してリターンする。引数@var{process}は、バイトストリームを送受信する能力をもつサブプロセスであること。これは子プロセス、または(おそらく別のマシン上の)サーバーへのTCP接続かもしれない。
 @end defun
 
 @defun tq-enqueue queue question regexp closure fn &optional delay-question
-This function sends a transaction to queue @var{queue}.  Specifying the
-queue has the effect of specifying the subprocess to talk to.
+この関数は、キュー@var{queue}にトランザクションを送信する。キューの指定は、対話するサブプロセスを指定する効果をもつ。
 
-The argument @var{question} is the outgoing message that starts the
-transaction.  The argument @var{fn} is the function to call when the
-corresponding answer comes back; it is called with two arguments:
-@var{closure}, and the answer received.
+引数@var{question}は、トランザクションを開始するために発信するメッセージである。引数@var{fn}は、それにたいする応答が返信された際に呼び出す関数である。これは@var{closure}と受信した応答という、2つの引数で呼び出される。
 
-The argument @var{regexp} is a regular expression that should match text at
-the end of the entire answer, but nothing before; that's how
-@code{tq-enqueue} determines where the answer ends.
+引数@var{regexp}は応答全体の終端にマッチし、それより前にはマッチしない正規表現であること。これが応答の終わりを@code{tq-enqueue}が決定する方法である。
 
-If the argument @var{delay-question} is non-@code{nil}, delay sending this
-question until the process has finished replying to any previous questions.
-This produces more reliable results with some processes.
+引数@var{delay-question}が非@code{nil}なら、そのプロセスが以前に発信したすべてのメッセージへの返信が完了するまで、このメッセージの送信を遅延する。これは、いくつかのプロセスにたいしてより信頼性のある結果が生成される。
 @ignore
 
 @c Let's not mention it then.
@@ -1276,13 +1263,10 @@ The return value of @code{tq-enqueue} itself is not meaningful.
 @end defun
 
 @defun tq-close queue
-Shut down transaction queue @var{queue}, waiting for all pending
-transactions to complete, and then terminate the connection or child
-process.
+保留中のすべてのトランザクションの完了を待機して、トランザクションキュー@var{queue}をシャットダウンし、それから接続または子プロセスを終了する。
 @end defun
 
-Transaction queues are implemented by means of a filter function.
-@xref{Filter Functions}.
+トランザクションキューは、フィルター関数により実装されています。@ref{Filter Functions}を参照してください。
 
 @node Network
 @section Network Connections
