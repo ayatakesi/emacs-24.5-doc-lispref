@@ -1274,23 +1274,10 @@ The return value of @code{tq-enqueue} itself is not meaningful.
 @cindex TCP
 @cindex UDP
 
-  Emacs Lisp programs can open stream (TCP) and datagram (UDP) network
-connections (@pxref{Datagrams}) to other processes on the same machine or
-other machines.  A network connection is handled by Lisp much like a
-subprocess, and is represented by a process object.  However, the process
-you are communicating with is not a child of the Emacs process, has no
-process @acronym{ID}, and you can't kill it or send it signals.  All you can
-do is send and receive data.  @code{delete-process} closes the connection,
-but does not kill the program at the other end; that program must decide
-what to do about closure of the connection.
+  Emacs
+Lispプログラムは、同一マシンまたは他のマシン上の別プロセスにたいして、ストリーム(TCP)およびデータグラム(UDP)のネットワーク接続(@ref{Datagrams}を参照)をオープンできます。ネットワーク接続はLispにより、サブプロセスと同様に処理され、プロセスオブジェクトとして表されます。しかし対話を行うそのプロセスは、Emacsの子プロセスではなく、プロセス@acronym{ID}をもたず、それをkillしたりシグナルを送信することはできません。行うことができるのは、データの送信と受信だけです。@code{delete-process}は接続をクローズしますが、他端のプログラムをkillしません。そのプログラムは接続のクローズについて何を行うか、決定しなければなりません。
 
-  Lisp programs can listen for connections by creating network servers.  A
-network server is also represented by a kind of process object, but unlike a
-network connection, the network server never transfers data itself.  When it
-receives a connection request, it creates a new network connection to
-represent the connection just made.  (The network connection inherits
-certain information, including the process plist, from the server.)  The
-network server then goes back to listening for more connection requests.
+  ネットワークサーバーを作成することにより、Lispプログラムは接続をlistenできます。ネットワークサーバーもある種のプロセスオブジェクトとして表されますが、ネットワーク接続とは異なり、ネットワークサーバーがデータ自体を転送することは決してありません。接続リクエストを受信したときは、それにたいして作成した接続を表す、新たなネットワーク接続を作成します(そのネットワーク接続はサーバーから、プロセスplistを含む特定の情報を継承する)。その後、ネットワークサーバーは更なる接続リクエストのlistenに戻ります。
 
   Network connections and servers are created by calling
 @code{make-network-process} with an argument list consisting of
