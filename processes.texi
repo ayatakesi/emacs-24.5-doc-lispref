@@ -1279,140 +1279,99 @@ Lispプログラムは、同一マシンまたは他のマシン上の別プロ�
 
   ネットワークサーバーを作成することにより、Lispプログラムは接続をlistenできます。ネットワークサーバーもある種のプロセスオブジェクトとして表されますが、ネットワーク接続とは異なり、ネットワークサーバーがデータ自体を転送することは決してありません。接続リクエストを受信したときは、それにたいして作成した接続を表す、新たなネットワーク接続を作成します(そのネットワーク接続はサーバーから、プロセスplistを含む特定の情報を継承する)。その後、ネットワークサーバーは更なる接続リクエストのlistenに戻ります。
 
-  Network connections and servers are created by calling
-@code{make-network-process} with an argument list consisting of
-keyword/argument pairs, for example @code{:server t} to create a server
-process, or @code{:type 'datagram} to create a datagram connection.
-@xref{Low-Level Network}, for details.  You can also use the
-@code{open-network-stream} function described below.
+  ネットワーク接続およびサーバーは、キーワード/引数のペアーで構成される引数リストで@code{make-network-process}を呼び出すことにより作成されます。たとえば@code{:server
+t}はサーバープロセス、@code{:type 'datagram}はデータグラム接続を作成します。詳細は@ref{Low-Level
+Network}を参照してください。以下で説明する@code{open-network-stream}を使用することもできます。
 
-  To distinguish the different types of processes, the @code{process-type}
-function returns the symbol @code{network} for a network connection or
-server, @code{serial} for a serial port connection, or @code{real} for a
-real subprocess.
+  異なるプロセスのタイプを区別するために、@code{process-type}関数はネットワーク接続またはサーバーにたいしてはシンボル@code{network}、シリアルポート接続は@code{serial}、実際のサブプロセスにたいしては@code{real}をリターンします。
 
-  The @code{process-status} function returns @code{open}, @code{closed},
-@code{connect}, or @code{failed} for network connections.  For a network
-server, the status is always @code{listen}.  None of those values is
-possible for a real subprocess.  @xref{Process Information}.
+  ネットワーク接続にたいして、@code{process-status}関数は@code{open}、@code{closed}、@code{connect}、@code{failed}をリターンします。ネットワークサーバーにたいしては、状態は常に@code{listen}になります。実際のサブプロセスにたいしては、これらの値はリターンされません。@ref{Process
+Information}を参照してください。
 
-  You can stop and resume operation of a network process by calling
-@code{stop-process} and @code{continue-process}.  For a server process,
-being stopped means not accepting new connections.  (Up to 5 connection
-requests will be queued for when you resume the server; you can increase
-this limit, unless it is imposed by the operating system---see the
-@code{:server} keyword of @code{make-network-process}, @ref{Network
-Processes}.)  For a network stream connection, being stopped means not
-processing input (any arriving input waits until you resume the
-connection).  For a datagram connection, some number of packets may be
-queued but input may be lost.  You can use the function
-@code{process-command} to determine whether a network connection or server
-is stopped; a non-@code{nil} value means yes.
+  @code{stop-process}と@code{continue-process}を呼び出すことにより、ネットワークプロセスの処理の停止と再開が可能です。サーバープロセスにたいする停止は、新たな接続の受け付けないことを意味します(サーバー再開時は5つまでの接続リクエストがキューされる。これがOSによる制限でなければこの制限は増やすことができる。@ref{Network
+Processes}の@code{make-network-process}の@code{:server}を参照されたい)。ネットワークストリーム接続にたいしては、停止は入力の処理を行わないことを意味します(到着するすべての入力は接続の再開まで待つ)。データグラム接続にたいしては、いくらかのパケットはキューされますが、入力は失われるかもしれません。ネットワーク接続またはサーバーが停止しているかどうかを判断するために、関数@code{process-command}を使用できます。これが非@code{nil}なら停止しています。
 
 @cindex network connection, encrypted
 @cindex encrypted network connections
 @cindex @acronym{TLS} network connections
 @cindex @acronym{STARTTLS} network connections
-Emacs can create encrypted network connections, using either built-in or
-external support.  The built-in support uses the GnuTLS (``Transport Layer
-Security'') library; see @uref{http://www.gnu.org/software/gnutls/, the
-GnuTLS project page}.  If your Emacs was compiled with GnuTLS support, the
-function @code{gnutls-available-p} is defined and returns non-@code{nil}.
-For more details, @pxref{Top,, Overview, emacs-gnutls, The Emacs-GnuTLS
-manual}.  The external support uses the @file{starttls.el} library, which
-requires a helper utility such as @command{gnutls-cli} to be installed on
-the system.  The @code{open-network-stream} function can transparently
-handle the details of creating encrypted connections for you, using whatever
-support is available.
+ビルトインまたは外部のサポートを使用することにより、Emacsは暗号化されたネットワーク接続を作成できます。ビルトインのサポートはGnuTLSライブラリー(``TLS:
+Transport Layer Security'')を使用します。@uref{http://www.gnu.org/software/gnutls/,
+the GnuTLS project
+page}を参照してください。GnuTLSサポートつきでEmacsをコンパイルした場合は、関数@code{gnutls-available-p}が定義され、非@code{nil}をリターンします。詳細は@pxref{Top,,
+Overview, emacs-gnutls, The Emacs-GnuTLS
+manual}を参照してください。外部のサポートの場合は、@file{starttls.el}ライブラリーを使用します。これはシステム上に@command{gnutls-cli}のようなヘルパーユーティリティーのインストールを必要とします。@code{open-network-stream}関数は、何であれ利用可能なサポートを使用して、暗号化接続作成の詳細を透過的に処理できます。
 
 @defun open-network-stream name buffer host service &rest parameters
-This function opens a TCP connection, with optional encryption, and returns
-a process object that represents the connection.
+この関数は、オプションで暗号つきでTCP接続をオープンして、その接続を表すプロセスオブジェクトをリターンする。
 
-The @var{name} argument specifies the name for the process object.  It is
-modified as necessary to make it unique.
+@var{name}引数は、プロセスオブジェクトの名前を指定する。これは必要に応じて一意になるよう修正される。
 
-The @var{buffer} argument is the buffer to associate with the connection.
-Output from the connection is inserted in the buffer, unless you specify
-your own filter function to handle the output.  If @var{buffer} is
-@code{nil}, it means that the connection is not associated with any buffer.
+@var{buffer}引数は、その接続に関連付けるバッファーである。その接続からの出力は、その出力を処理する独自のフィルター関数を指定していなければ、@var{buffer}が@code{nil}なら、その接続はバッファーに関連付けられない。
 
-The arguments @var{host} and @var{service} specify where to connect to;
-@var{host} is the host name (a string), and @var{service} is the name of a
-defined network service (a string) or a port number (an integer).
+引数@var{host}と@var{service}は、どこに接続するかを指定する。@var{host}はホスト名(文字列)、@var{service}は定義済みのネットワークサービス名(文字列)、またはポート番号(数字)である。
 
-The remaining arguments @var{parameters} are keyword/argument pairs that are
-mainly relevant to encrypted connections:
+残りの引数@var{parameters}は、主に暗号化された接続に関連する、キーワード/引数のペアーである:
 
 @table @code
 
 @item :nowait @var{boolean}
-If non-@code{nil}, try to make an asynchronous connection.
+非@code{nil}なら非同期接続を試みる。
 
 @item :type @var{type}
-The type of connection.  Options are:
+接続のタイプ。オプションは以下のとおり:
 
 @table @code
 @item plain
-An ordinary, unencrypted connection.
+通常の暗号化されていない接続。
 @item tls
 @itemx ssl
-A @acronym{TLS} (``Transport Layer Security'') connection.
+@acronym{TLS}(``Transport Layer Security'')接続。
 @item nil
 @itemx network
-Start with a plain connection, and if parameters @samp{:success} and
-@samp{:capability-command} are supplied, try to upgrade to an encrypted
-connection via @acronym{STARTTLS}.  If that fails, retain the unencrypted
-connection.
+plain接続を開始して、パラメーター@samp{:success}および@samp{:capability-command}が与えられたら、@acronym{STARTTLS}を通じて暗号化接続への更新を試みる。これが失敗したら、暗号化されていない接続のまま留まる。
 @item starttls
-As for @code{nil}, but if @acronym{STARTTLS} fails drop the connection.
+@code{nil}と同様だが、@acronym{STARTTLS}が失敗したらその接続を切断する。
 @item shell
-A shell connection.
+shell接続。
 @end table
 
 @item :always-query-capabilities @var{boolean}
-If non-@code{nil}, always ask for the server's capabilities, even when doing
-a @samp{plain} connection.
+非@code{nil}なら、たとえ@samp{plain}な接続を行っているときでも、常にサーバーの能力を問い合わせる。
 
 @item :capability-command @var{capability-command}
-Command string to query the host capabilities.
+ホストの能力を問い合わせるためのコマンド文字列。
 
 @item :end-of-command @var{regexp}
 @itemx :end-of-capability @var{regexp}
-Regular expression matching the end of a command, or the end of the command
-@var{capability-command}.  The latter defaults to the former.
+コマンドの終端、またはコマンド@var{capability-command}の終端にマッチする正規表現。前者は後者のデフォルトである。
 
 @item :starttls-function @var{function}
-Function of one argument (the response to @var{capability-command}), which
-returns either @code{nil}, or the command to activate @acronym{STARTTLS} if
-supported.
+単一の引数(@var{capability-command}にたいする応答)をとり@code{nil}、またはサポートされていれば@acronym{STARTTLS}をアクティブにするコマンドをリターンする関数。
 
 @item :success @var{regexp}
-Regular expression matching a successful @acronym{STARTTLS} negotiation.
+成功した@acronym{STARTTLS}ネゴシェーションにマッチする正規表現。
 
 @item :use-starttls-if-possible @var{boolean}
-If non-@code{nil}, do opportunistic @acronym{STARTTLS} upgrades even if
-Emacs doesn't have built-in @acronym{TLS} support.
+非@code{nil}なら、たとえEmacsがビルトインの@acronym{TLS}サポートをもっていなくても、日和見的(opportunistic)に@acronym{STARTTLS}アップグレードを行う。
 
 @item :client-certificate @var{list-or-t}
-Either a list of the form @code{(@var{key-file} @var{cert-file})}, naming
-the certificate key file and certificate file itself, or @code{t}, meaning
-to query @code{auth-source} for this information (@pxref{Top,,Overview,
-auth, The Auth-Source Manual}).  Only used for @acronym{TLS} or
-@acronym{STARTTLS}.
+証明書(certificate)のキーと、証明書のファイル自身を命名する@code{(@var{key-file}
+@var{cert-file})}という形式のリスト、またはこの情報にたいして@code{auth-source}を尋ねることを意味する@code{t}のいずれか(@ref{Top,,Overview,
+auth, The Auth-Source
+Manual}を参照)。@acronym{TLS}または@acronym{STARTTLS}にたいしてのみ使用される。
 
 @item :return-list @var{cons-or-nil}
-The return value of this function.  If omitted or @code{nil}, return a
-process object.  Otherwise, a cons of the form @code{(@var{process-object}
-. @var{plist})}, where @var{plist} has keywords:
+この関数のリターン値。省略または@code{nil}なら、プロセスオブジェクトをリターンする。それ以外なら、@code{(@var{process-object}
+. @var{plist})}という形式のコンスセルをリターンする。ここで@var{plist}は以下のキーワードである:
 
 @table @code
 @item :greeting @var{string-or-nil}
-If non-@code{nil}, the greeting string returned by the host.
+非@code{nil}なら、ホストからリターンされたgreeting(挨拶)文字列。
 @item :capabilities @var{string-or-nil}
-If non-@code{nil}, the host's capability string.
+非@code{nil}なら、ホストの能力(capability)文字列。
 @item :type @var{symbol}
-The connection type: @samp{plain} or @samp{tls}.
+接続タイプで、@samp{plain}か@samp{tls}のいずれか。
 @end table
 
 @end table
