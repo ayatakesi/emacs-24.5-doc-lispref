@@ -1382,51 +1382,32 @@ Manual}を参照)。@acronym{TLS}または@acronym{STARTTLS}にたいしての�
 @section Network Servers
 @cindex network servers
 
-  You create a server by calling @code{make-network-process} (@pxref{Network
-Processes}) with @code{:server t}.  The server will listen for connection
-requests from clients.  When it accepts a client connection request, that
-creates a new network connection, itself a process object, with the
-following parameters:
+  @code{:server
+t}で@code{make-network-process}を呼び出すことによりサーバーが作成されます(@ref{Network
+Processes}を参照)。そのサーバーは、クライアントからの接続リクエストをlistenするでしょう。クライアントの接続リクエストをaccept(受け入れる)する際は、以下のようなパラメーターで、それ自体がプロセスオブジェクトであるようなネットワーク接続を作成します。
 
 @itemize @bullet
 @item
 @c FIXME?  What about IPv6?  Say briefly what the difference is?
-The connection's process name is constructed by concatenating the server
-process's @var{name} with a client identification string.  The client
-identification string for an IPv4 connection looks like
-@samp{<@var{a}.@var{b}.@var{c}.@var{d}:@var{p}>}, which represents an
-address and port number.  Otherwise, it is a unique number in brackets, as
-in @samp{<@var{nnn}>}.  The number is unique for each connection in the
-Emacs session.
+その接続のプロセス名は、サーバープロセスの@var{name}と、クライアント識別文字列を結合して構築される。IPv4接続にたいするクライアント識別文字列は、アドレスとポート番号を表す、@samp{<@var{a}.@var{b}.@var{c}.@var{d}:@var{p}>}のような文字列である。それ以外なら、@samp{<@var{nnn}>}のようにカッコで囲まれた一意な数字である。この数字は、そのEmacsセッション内のそれぞれの接続にたいして一意である。
 
 @item
-If the server has a non-default filter, the connection process does not get
-a separate process buffer; otherwise, Emacs creates a new buffer for the
-purpose.  The buffer name is the server's buffer name or process name,
-concatenated with the client identification string.
+サーバーが非デフォルトのフィルターをもつ場合、その接続プロセスは別個にプロセスバッファーを取得しない。それ以外なら、Emacsはその目的のために新たにバッファーを作成する。サーバーのバッファー名またはプロセス名にクライアント識別文字列に結合したものがバッファー名になる。
 
-The server's process buffer value is never used directly, but the log
-function can retrieve it and use it to log connections by inserting text
-there.
+サーバーのプロセスバッファーの値が直接使用されることは決してないが、log関数はそれを取得して、そこにテキストを挿入することにより、接続のログを記録するために使用することができる。
 
 @item
-The communication type and the process filter and sentinel are inherited
-from those of the server.  The server never directly uses its filter and
-sentinel; their sole purpose is to initialize connections made to the
-server.
+通信タイプ(communication
+type)、プロセスフィルター、およびセンチネルはそれぞれ、サーバーのものから継承される。サーバーが直接フィルターとセンチネルを使用することは決してない。それらの唯一の目的は、サーバーへの接続を初期化することである。
 
 @item
-The connection's process contact information is set according to the
-client's addressing information (typically an IP address and a port
-number).  This information is associated with the @code{process-contact}
-keywords @code{:host}, @code{:service}, @code{:remote}.
+その接続のプロセスコンタクト情報は、クライアントのアドレス情報(通常はIPアドレスとポート番号)に応じてセットされる。この情報は、@code{process-contact}のキーワード@code{:host}、@code{:service}、@code{:remote}に関連付けられる。
 
 @item
-The connection's local address is set up according to the port number used
-for the connection.
+その接続のローカルアドレスは、それが使用するポート番号に応じてセットアップされる。
 
 @item
-The client process's plist is initialized from the server's plist.
+クライアントプロセスのplistは、サーバーのplistからインストールされる。
 @end itemize
 
 @node Datagrams
