@@ -1661,109 +1661,74 @@ Options}を参照してください。このフォームは、@code{make-network
 @cindex @file{COM1}
 @cindex serial connections
 
-  Emacs can communicate with serial ports.  For interactive use, @kbd{M-x
-serial-term} opens a terminal window.  In a Lisp program,
-@code{make-serial-process} creates a process object.
+  Emacsはシリアルポートと対話できます。インタラクティブな使用、@kbd{M-x
+serial-term}にたいしては端末ウィンドウをオープンし、Lispプログラム@code{make-serial-process}にたいしてはプロセスオブジェクトを作成します。
 
-  The serial port can be configured at run-time, without having to close and
-re-open it.  The function @code{serial-process-configure} lets you change
-the speed, bytesize, and other parameters.  In a terminal window created by
-@code{serial-term}, you can click on the mode line for configuration.
+  シリアルポートは、クローズと再オープンなして、実行時に設定することができます。関数@code{serial-process-configure}によりスピード、バイトサイズ、およびその他のパラメーターを変更できます。@code{serial-term}で作成された端末ウィンドウでは、モードラインをクリックして設定を行うことができます。
 
-  A serial connection is represented by a process object, which can be used in
-a similar way to a subprocess or network process.  You can send and receive
-data, and configure the serial port.  A serial process object has no process
-ID, however, and you can't send signals to it, and the status codes are
-different from other types of processes.  @code{delete-process} on the
-process object or @code{kill-buffer} on the process buffer close the
-connection, but this does not affect the device connected to the serial
-port.
+  シリアル接続はプロセスオブジェクトとして表され、サブプロセスやネットワークプロセスと同様の方法で使用できます。これによりデータの送受信や、シリアルポートの設定ができます。しかし、シリアルプロセスオブジェクトにプロセスIDはありません。それにたいしてシグナルの送信はできず、ステータスコードは他のタイプのプロセスオブジェクトとは異なります。プロセスオブジェクトへの@code{delete-process}、またはプロセスバッファーにたいする@code{kill-buffer}は接続をクローズしますが、そのシリアルポートに接続されたデバイスに影響はありません。
 
-  The function @code{process-type} returns the symbol @code{serial} for a
-process object representing a serial port connection.
+  関数@code{process-type}は、シリアルポート接続を表すプロセスオブジェクトにたいする、シンボル@code{serial}をリターンします。
 
-  Serial ports are available on GNU/Linux, Unix, and MS Windows systems.
+  シリアルポートはGNU/Linux、Unix、およびMS Windowsのシステムで利用できます。
 
 @deffn Command serial-term port speed
-Start a terminal-emulator for a serial port in a new buffer.  @var{port} is
-the name of the serial port to connect to.  For example, this could be
-@file{/dev/ttyS0} on Unix.  On MS Windows, this could be @file{COM1}, or
-@file{\\.\COM10} (double the backslashes in Lisp strings).
+新たなバッファー内で、シリアルポートにたいする端末エミュレーターを開始する。@var{port}は、接続先のシリアルポートの名前である。たとえばUnixでは、これは@file{/dev/ttyS0}のようになるだろう。MS
+Windowsでは、@file{COM1}や@file{\\.\COM10}のようになるかもしれない(Lisp文字列ではバックスラッシュは2重にする)。
 
 @c FIXME is 9600 still the most common value, or is it 115200 now?
 @c (Same value, 9600, appears below as well.)
-@var{speed} is the speed of the serial port in bits per second.  9600 is a
-common value.  The buffer is in Term mode; see @ref{Term Mode,,, emacs, The
-GNU Emacs Manual}, for the commands to use in that buffer.  You can change
-the speed and the configuration in the mode line menu.
+@var{speed}は、ビット毎秒でのシリアルポートのスピードである。一般的な値は9600。そのバッファーはTermモードになる。このバッファーで使用するコマンドについては、@ref{Term
+Mode,,, emacs, The GNU Emacs Manual}を参照のこと。モードラインメニューから、スピードと設定を変更できる。
 @end deffn
 
 @defun make-serial-process &rest args
-This function creates a process and a buffer.  Arguments are specified as
-keyword/argument pairs.  Here's the list of the meaningful keywords, with
-the first two (@var{port} and @var{speed}) being mandatory:
+この関数は、プロセスとバッファーを作成する。引数は、キーワード/引数ペアーで指定する。以下は意味のあるキーワードのリストで、最初の2つ(@var{port}と@var{speed})は必須である:
 
 @table @code
 @item :port @var{port}
-This is the name of the serial port.  On Unix and GNU systems, this is a
-file name such as @file{/dev/ttyS0}.  On Windows, this could be @file{COM1},
-or @file{\\.\COM10} for ports higher than @file{COM9} (double the
-backslashes in Lisp strings).
+これは、シリアルポートの名前である。UnixおよびGNUシステムでは@file{/dev/ttyS0}のようなファイル名、Windowsでは@file{COM1}、@file{COM9}より高位のポートでは@file{\\.\COM10}のようになるかもしれない(Lisp文字列ではバックスラッシュは2重にする)。
 
 @item :speed @var{speed}
-The speed of the serial port in bits per second.  This function calls
-@code{serial-process-configure} to handle the speed; see the following
-documentation of that function for more details.
+ビット毎秒でのシリアルポートのスピード。この関数は@code{serial-process-configure}を呼び出すことにより、スピードを操作する。この関数の更なる詳細については、以降のドキュメントを参照されたい。
 
 @item :name @var{name}
-The name of the process.  If @var{name} is not given, @var{port} will serve
-as the process name as well.
+そのプロセスの名前。@var{name}が与えられなければ、@var{port}が同様にプロセス名の役目を果たす。
 
 @item :buffer @var{buffer}
-The buffer to associate with the process.  The value can be either a buffer
-or a string that names a buffer.  Process output goes at the end of that
-buffer, unless you specify an output stream or filter function to handle the
-output.  If @var{buffer} is not given, the process buffer's name is taken
-from the value of the @code{:name} keyword.
+そのプロセスに関連付けられたバッファー。値はバッファー、またはそれがバッファーの名前であるような文字列かもしれない。出力を処理するために出力ストリーム、あるいはフィルター関数を指定しなければ、プロセス出力はそのバッファーの終端に出力される。@var{buffer}が与えられなければ、そのプロセスバッファーの名前は、@code{:name}キーワードから取得される。
 
 @item :coding @var{coding}
-If @var{coding} is a symbol, it specifies the coding system used for both
-reading and writing for this process.  If @var{coding} is a cons
-@code{(@var{decoding} . @var{encoding})}, @var{decoding} is used for
-reading, and @var{encoding} is used for writing.  If not specified, the
-default is to determine the coding systems from the data itself.
+@var{coding}は、このプロセスにたいする読み書きに使用される、コーディングシステムを指定する。@var{coding}がコンス@code{(@var{decoding}
+.
+@var{encoding})}なら、読み取りに@var{decoding}、書き込みには@var{encoding}が使用される。指定されない場合のデフォルトは、データ自身から判断されるコーディングシステムである。
 
 @item :noquery @var{query-flag}
-Initialize the process query flag to @var{query-flag}.  @xref{Query Before
-Exit}.  The flags defaults to @code{nil} if unspecified.
+プロセスqueryフラグを、@var{query-flag}に初期化する。@ref{Query Before
+Exit}を参照のこと。未指定の場合のフラグのデフォルトは@code{nil}。
 
 @item :stop @var{bool}
-Start process in the ``stopped'' state if @var{bool} is non-@code{nil}.  In
-the stopped state, a serial process does not accept incoming data, but you
-can send outgoing data.  The stopped state is cleared by
-@code{continue-process} and set by @code{stop-process}.
+@var{bool}が非@code{nil}なら、``stopped''の状態でプロセスを開始する。stopped状態では、シリアルプロセスは入力データを受け付けないが、出力データの送信は可能。stopped状態のクリアーは@code{continue-process}、セットは@code{stop-process}で行う。
 
 @item :filter @var{filter}
-Install @var{filter} as the process filter.
+プロセスフィルターとして、@var{filter}をインストールする。
 
 @item :sentinel @var{sentinel}
-Install @var{sentinel} as the process sentinel.
+プロセスセンチネルとして、@var{sentinel}をインストールする。
 
 @item :plist @var{plist}
-Install @var{plist} as the initial plist of the process.
+プロセスの初期plistとして、@var{plist}をインストールする。
 
 @item :bytesize
 @itemx :parity
 @itemx :stopbits
 @itemx :flowcontrol
-These are handled by @code{serial-process-configure}, which is called by
-@code{make-serial-process}.
+これらは、@code{make-serial-process}が呼び出す、@code{serial-process-configure}により処理される。
 @end table
 
-The original argument list, possibly modified by later configuration, is
-available via the function @code{process-contact}.
+後の設定により変更され得るオリジナルの引数リストは、関数@code{process-contact}を通じて利用可能。
 
-Here is an example:
+以下に例を示す:
 
 @example
 (make-serial-process :port "/dev/ttyS0" :speed 9600)
@@ -1777,57 +1742,33 @@ Here is an example:
 @cindex stopbits, in serial connections
 @cindex flowcontrol, in serial connections
 
-This function configures a serial port connection.  Arguments are specified
-as keyword/argument pairs.  Attributes that are not given are re-initialized
-from the process's current configuration (available via the function
-@code{process-contact}), or set to reasonable default values.  The following
-arguments are defined:
+この関数は、シリアルポート接続を設定する。引数はキーワード/引数ペアーで指定する。与えられない属性は、そのプロセスのカレントの設定(関数@code{process-contact}を通じて利用可能)から再初期化されるか、妥当なデフォルトにセットされる。以下の引数が定義されている:
 
 @table @code
 @item :process @var{process}
 @itemx :name @var{name}
 @itemx :buffer @var{buffer}
 @itemx :port @var{port}
-Any of these arguments can be given to identify the process that is to be
-configured.  If none of these arguments is given, the current buffer's
-process is used.
+設定するプロセスを識別するために、これらの引数のいずれかを与えられる。これらの引数が何も与えられなければ、カレントバッファーのプロセスが使用される。
 
 @item :speed @var{speed}
-The speed of the serial port in bits per second, a.k.a.@: @dfn{baud rate}.
-The value can be any number, but most serial ports work only at a few
-defined values between 1200 and 115200, with 9600 being the most common
-value.  If @var{speed} is @code{nil}, the function ignores all other
-arguments and does not configure the port.  This may be useful for special
-serial ports such as Bluetooth-to-serial converters, which can only be
-configured through @samp{AT} commands sent through the connection.  The
-value of @code{nil} for @var{speed} is valid only for connections that were
-already opened by a previous call to @code{make-serial-process} or
-@code{serial-term}.
+ビット毎秒、別名@dfn{ボーレート(baud
+rate)}での、シリアルポートのスピード。値には任意の数字が可能だが、ほとんどのシリアルポートは1200から115200の間の数少ない定義済みの値でのみ機能し、もっとも一般的な値は9600である。@var{speed}が@code{nil}なら、この関数は他のすべての引数を無視して、そのポートを設定しない。これは接続を通じて送信された@samp{AT}コマンドでのみ設定可能な、Bluetooth/シリアル変換アダプターのような、特殊なシリアルポートで有用かもしれない。@var{speed}にたいする値@code{nil}は、@code{make-serial-process}または@code{serial-term}の呼び出しにより、すでにオープン済みの接続にたいしてのみ有効である。
 
 @item :bytesize @var{bytesize}
-The number of bits per byte, which can be 7 or 8.  If @var{bytesize} is not
-given or @code{nil}, it defaults to 8.
+ビット/バイトでの数値で、7か8を指定できる。@var{bytesize}が与えられない、または@code{nil}の場合のデフォルトは8。
 
 @item :parity @var{parity}
-The value can be @code{nil} (don't use parity), the symbol @code{odd} (use
-odd parity), or the symbol @code{even} (use even parity).  If @var{parity}
-is not given, it defaults to no parity.
+値には@code{nil}(パリティなし)、シンボル@code{odd}(奇数パリティ)、シンボル@code{even}(偶数パリティ)を指定できる。@var{parity}が与えられない場合のデフォルトはパリティなし。
 
 @item :stopbits @var{stopbits}
-The number of stopbits used to terminate a transmission of each byte.
-@var{stopbits} can be 1 or 2.  If @var{stopbits} is not given or @code{nil},
-it defaults to 1.
+各バイトの送信を終了するために使用されるストップビットの数値。@var{stopbits}には1か2が可能。@var{stopbits}が与えられない、または@code{nil}の場合のデフォルトは1。
 
 @item :flowcontrol @var{flowcontrol}
-The type of flow control to use for this connection, which is either
-@code{nil} (don't use flow control), the symbol @code{hw} (use RTS/CTS
-hardware flow control), or the symbol @code{sw} (use XON/XOFF software flow
-control).  If @var{flowcontrol} is not given, it defaults to no flow
-control.
+この接続にたいして使用するフロー制御のタイプで、@code{nil}(フロー制御を使用しない)、シンボル@code{hw}(RTS/CTSハードウェアフロー制御)、シンボル@code{sw}(XON/XOFFソフトウェアフロー制御)のいずれか。@var{flowcontrol}が与えられない場合のデフォルトは、フロー制御なし。
 @end table
 
-Internally, @code{make-serial-process} calls @code{serial-process-configure}
-for the initial configuration of the serial port.
+シリアルポートの初期設定のために、@code{make-serial-process}は内部的に@code{serial-process-configure}を呼び出す。
 @end defun
 
 @node Byte Packing
