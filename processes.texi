@@ -1580,43 +1580,37 @@ service)フィールドにセットする等、この数字の解釈はプロト
 @node Network Feature Testing
 @subsection Testing Availability of Network Features
 
-  To test for the availability of a given network feature, use @code{featurep}
-like this:
+  与えられネットワーク機能が▼利用可能かテストするためには、以下のように@code{featurep}を使用します:
 
 @example
 (featurep 'make-network-process '(@var{keyword} @var{value}))
 @end example
 
 @noindent
-The result of this form is @code{t} if it works to specify @var{keyword}
-with value @var{value} in @code{make-network-process}.  Here are some of the
-@var{keyword}---@var{value} pairs you can test in this way.
+このフォームの結果は、@code{make-network-process}内で@var{keyword}に値@var{value}を指定することが機能するなら、@code{t}になります。以下は、この方法でテストできる@var{keyword}/@var{value}ペアーのいくつかです。
 
 @table @code
 @item (:nowait t)
-Non-@code{nil} if non-blocking connect is supported.
+非ブロッキング接続がサポートされていれば非@code{nil}。
 @item (:type datagram)
-Non-@code{nil} if datagrams are supported.
+データグラムがサポートされていれば非@code{nil}。
 @item (:family local)
-Non-@code{nil} if local (a.k.a.@: ``UNIX domain'') sockets are supported.
+ローカルsocket(別名``UNIX domain'')がサポートされていれば非@code{nil}。
 @item (:family ipv6)
-Non-@code{nil} if IPv6 is supported.
+IPv6がサポートされていれば非@code{nil}。
 @item (:service t)
-Non-@code{nil} if the system can select the port for a server.
+サーバーにたいしてシステムがポートを選択できれば非@code{nil}。
 @end table
 
-  To test for the availability of a given network option, use @code{featurep}
-like this:
+  与えられたネットワークオプションが利用可能かテストするためには、以下のように@code{featurep}を使用します:
 
 @example
 (featurep 'make-network-process '@var{keyword})
 @end example
 
 @noindent
-The accepted @var{keyword} values are @code{:bindtodevice}, etc.  For the
-complete list, @pxref{Network Options}.  This form returns non-@code{nil} if
-that particular network option is supported by @code{make-network-process}
-(or @code{set-network-process-option}).
+指定できる@var{keyword}の値は@code{:bindtodevice}等です。完全なリストは@ref{Network
+Options}を参照してください。このフォームは、@code{make-network-process}(または@code{set-network-process-option})が特定のネットワークオプションをサポートしていれば、非@code{nil}をリターンする。
 
 @node Misc Network
 @section Misc Network Facilities
