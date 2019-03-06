@@ -1480,12 +1480,13 @@ packet stream)''による接続を指定する。接続およびサーバーの�
 
 @itemize -
 @item
-`IPv4アドレスは、4つの8ビット整数と1つの16ビット整数からなる5要素のベクター@code{[@var{a} @var{b} @var{c}
+IPv4アドレスは、4つの8ビット整数と1つの16ビット整数からなる5要素のベクター@code{[@var{a} @var{b} @var{c}
 @var{d}
 @var{p}]}で表され、それぞれ数値的なIPv4アドレス@var{a}.@var{b}.@var{c}.@var{d}、およびポート番号@var{p}に対応する。
 
 @item
-IPv6アドレスは、9要素の16ビット整数ベクター@code{[@var{a} @var{b} @var{c} @var{d}
+IPv6アドレスは、9要素の16ビット整数ベクター@code{[@var{a} @var{b} @var{c} @var{d} @var{e}
+@var{f} @var{g} @var{h}
 @var{p}]}で表され、それぞれ数値的なIPv６アドレス@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h}、およびポート番号@var{p}に対応する。
 
 @item
@@ -1615,53 +1616,43 @@ Options}を参照してください。このフォームは、@code{make-network
 @node Misc Network
 @section Misc Network Facilities
 
-  These additional functions are useful for creating and operating on network
-connections.  Note that they are supported only on some systems.
+  以下の追加の関数は、ネットワーク接続の作成や操作に有用です。これらは、いくつかのシステムでのみサポートされることに注意してください。
 
 @defun network-interface-list
-This function returns a list describing the network interfaces of the
-machine you are using.  The value is an alist whose elements have the form
-@code{(@var{name} . @var{address})}.  @var{address} has the same form as the
-@var{local-address} and @var{remote-address} arguments to
-@code{make-network-process}.
+この関数は、使用しているマシン上のネットワークインターフェースを記述する、リストをリターンする。値は、要素が@code{(@var{name}
+.
+@var{address})}という形式をもつようなalistである。@var{address}は、@code{make-network-process}の引数@var{local-address}および@var{remote-address}と同じ形式をもつ。
 @end defun
 
 @defun network-interface-info ifname
-This function returns information about the network interface named
-@var{ifname}.  The value is a list of the form @code{(@var{addr} @var{bcast}
-@var{netmask} @var{hwaddr} @var{flags})}.
+この関数は、@var{ifname}という名前のネットワークインターフェースに関する情報をリターンする。値は、@code{(@var{addr}
+@var{bcast} @var{netmask} @var{hwaddr} @var{flags})}という形式をもつリストである。
 
 @table @var
 @item addr
-The Internet protocol address.
+インターネットプロトコルアドレス。
 @item bcast
-The broadcast address.
+ブロードキャストアドレス。
 @item netmask
-The network mask.
+ネットワークマスク。
 @item hwaddr
-The layer 2 address (Ethernet MAC address, for instance).
+レイヤー2アドレス(たとえばイーサネットMACアドレス)。
 @item flags
-The current flags of the interface.
+そのインターフェースのカレントのフラグ。
 @end table
 @end defun
 
 @defun format-network-address address &optional omit-port
-This function converts the Lisp representation of a network address to a
-string.
+この関数は、ネットワークアドレスのLisp表現を文字列に変換する。
 
-A five-element vector @code{[@var{a} @var{b} @var{c} @var{d} @var{p}]}
-represents an IPv4 address @var{a}.@var{b}.@var{c}.@var{d} and port number
-@var{p}.  @code{format-network-address} converts that to the string
-@code{"@var{a}.@var{b}.@var{c}.@var{d}:@var{p}"}.
+5要素のベクター@code{[@var{a} @var{b} @var{c} @var{d}
+@var{p}]}はIPv4アドレス@var{a}.@var{b}.@var{c}.@var{d}、およびポート番号@var{p}を表す。@code{format-network-address}はこれを、文字列@code{\"@var{a}.@var{b}.@var{c}.@var{d}:@var{p}\"}に変換する。
 
-A nine-element vector @code{[@var{a} @var{b} @var{c} @var{d} @var{e} @var{f}
-@var{g} @var{h} @var{p}]} represents an IPv6 address along with a port
-number.  @code{format-network-address} converts that to the string
-@code{"[@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h}]:@var{p}"}.
+9要素のベクター@code{[@var{a} @var{b} @var{c} @var{d} @var{e} @var{f} @var{g}
+@var{h}
+@var{p}]}はポート番号とともに、IPv6アドレスを表す。@code{format-network-address}はこれを、文字列@code{"[@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h}]:@var{p}"}に変換する。
 
-If the vector does not include the port number, @var{p}, or if
-@var{omit-port} is non-@code{nil}, the result does not include the
-@code{:@var{p}} suffix.
+このベクターにポート番号が含まれない、または@var{omit-port}が非@code{nil}なら、結果にサフィックス@code{:@var{p}}は含まれない。
 @end defun
 
 @node Serial Ports
