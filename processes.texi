@@ -1443,66 +1443,36 @@ address)}をもちます。フィルター関数にたいして受信された�
 @node Network Processes
 @subsection @code{make-network-process}
 
-   The basic function for creating network connections and network servers is
-@code{make-network-process}.  It can do either of those jobs, depending on
-the arguments you give it.
+   ネットワーク接続およびネットワークサーバーを作成する基本的な関数は、@code{make-network-process}です。これは与えられた引数に応じて、これらの仕事のいずれかを行うことができます。
 
 @defun make-network-process &rest args
-This function creates a network connection or server and returns the process
-object that represents it.  The arguments @var{args} are a list of
-keyword/argument pairs.  Omitting a keyword is always equivalent to
-specifying it with value @code{nil}, except for @code{:coding},
-@code{:filter-multibyte}, and @code{:reuseaddr}.  Here are the meaningful
-keywords (those corresponding to network options are listed in the following
-section):
+この関数は、ネットワーク接続またはサーバーを作成して、それを表すプロセスオブジェクトをリターンする。引数@var{args}は、キーワード/引数のペアからなるリストである。キーワードの省略は@code{:coding}、@code{:filter-multibyte}、@code{:reuseaddr}を除き、常に値として@code{nil}を指定したのと同じことになる。重要なキーワードを以下に示す(ネットワークオプションに対応するキーワードを、以降のセクションにリストする)。
 
 @table @asis
 @item :name @var{name}
-Use the string @var{name} as the process name.  It is modified if necessary
-to make it unique.
+プロセス名として、文字列@var{name}を使用する。一意にするために、必要に応じて変更され得る。
 
 @item :type @var{type}
-Specify the communication type.  A value of @code{nil} specifies a stream
-connection (the default); @code{datagram} specifies a datagram connection;
-@code{seqpacket} specifies a ``sequenced packet stream'' connection.  Both
-connections and servers can be of these types.
+コミュニケーションのタイプを指定する。値@code{nil}はストリーム接続(デフォルト)、@code{datagram}はデータグラム接続、@code{seqpacket}は``シーケンスパケットストリーム(sequenced
+packet stream)''による接続を指定する。接続およびサーバーの両方で、これらのタイプを指定できる。
 
 @item :server @var{server-flag}
-If @var{server-flag} is non-@code{nil}, create a server.  Otherwise, create
-a connection.  For a stream type server, @var{server-flag} may be an
-integer, which then specifies the length of the queue of pending connections
-to the server.  The default queue length is 5.
+@var{server-flag}が非@code{nil}ならサーバー、それ以外なら接続を作成する。ストリームタイプのサーバーでは、@var{server-flag}はそのサーバーへの保留中の接続キューの長さを指定する、整数を指定できる。キューのデフォルト長は5。
 
 @item :host @var{host}
-Specify the host to connect to.  @var{host} should be a host name or
-Internet address, as a string, or the symbol @code{local} to specify the
-local host.  If you specify @var{host} for a server, it must specify a valid
-address for the local host, and only clients connecting to that address will
-be accepted.
+接続するホストを指定する。@var{host}は、ホスト名またはインターネットアドレスを表す文字列、またはローカルホストを表すシンボル@code{local}であること。サーバーのときに@var{host}を指定する場合は、有効なローカルホストのアドレスを指定しなければならず、そのアドレスに接続するクライアントだけが受け入れられるだろう。
 
 @item :service @var{service}
-@var{service} specifies a port number to connect to; or, for a server, the
-port number to listen on.  It should be a service name that translates to a
-port number, or an integer specifying the port number directly.  For a
-server, it can also be @code{t}, which means to let the system select an
-unused port number.
+@var{service}は接続先のポート番号、またはサーバーにたいしてはlistenするポート番号である。これはポート番号に変換されるようなサービス名、または直接ポート番号を指定する整数であること。サーバーにたいしては@code{t}も指定でき、これは未使用のポート番号をシステムに選択させることを意味する。
 
 @item :family @var{family}
-@var{family} specifies the address (and protocol) family for communication.
-@code{nil} means determine the proper address family automatically for the
-given @var{host} and @var{service}.  @code{local} specifies a Unix socket,
-in which case @var{host} is ignored.  @code{ipv4} and @code{ipv6} specify to
-use IPv4 and IPv6, respectively.
+@var{family}は、接続のアドレス(またはプロトコル)のファミリーを指定する。@code{nil}は、与えられた@var{host}と@var{service}にたいして、自動的に適切なアドレスファミリーを決定する。@code{local}はUnixのsocketを指定し、この場合@var{host}は無視される。@code{ipv4}と@code{ipv6}はそれぞれ、IPv4とIPv6の使用を指定する。
 
 @item :local @var{local-address}
-For a server process, @var{local-address} is the address to listen on.  It
-overrides @var{family}, @var{host} and @var{service}, so you might as well
-not specify them.
+サーバープロセスでは、@var{local-address}はlistenするアドレスである。これは@var{family}、@var{host}、@var{service}をオーバーライドするので、これらを指定しないこともできる。
 
 @item :remote @var{remote-address}
-For a connection, @var{remote-address} is the address to connect to.  It
-overrides @var{family}, @var{host} and @var{service}, so you might as well
-not specify them.
+接続プロセスでは、@var{remote-address}は接続先のアドレスである。これは@var{family}、@var{host}、@var{service}をオーバーライドするので、これらを指定しないこともできる。
 
 For a datagram server, @var{remote-address} specifies the initial setting of
 the remote datagram address.
