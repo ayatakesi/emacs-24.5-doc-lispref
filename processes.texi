@@ -1474,167 +1474,107 @@ packet stream)''による接続を指定する。接続およびサーバーの�
 @item :remote @var{remote-address}
 接続プロセスでは、@var{remote-address}は接続先のアドレスである。これは@var{family}、@var{host}、@var{service}をオーバーライドするので、これらを指定しないこともできる。
 
-For a datagram server, @var{remote-address} specifies the initial setting of
-the remote datagram address.
+データグラムサーバーでは、@var{remote-address}はリモートデータグラムアドレスの初期セッティングを指定する。
 
-The format of @var{local-address} or @var{remote-address} depends on the
-address family:
+@var{local-address}と@var{remote-address}のフォーマットは、そのアドレスファミリーに依存する:
 
 @itemize -
 @item
-An IPv4 address is represented as a five-element vector of four 8-bit
-integers and one 16-bit integer @code{[@var{a} @var{b} @var{c} @var{d}
-@var{p}]} corresponding to numeric IPv4 address
-@var{a}.@var{b}.@var{c}.@var{d} and port number @var{p}.
+`IPv4アドレスは、4つの8ビット整数と1つの16ビット整数からなる5要素のベクター@code{[@var{a} @var{b} @var{c}
+@var{d}
+@var{p}]}で表され、それぞれ数値的なIPv4アドレス@var{a}.@var{b}.@var{c}.@var{d}、およびポート番号@var{p}に対応する。
 
 @item
-An IPv6 address is represented as a nine-element vector of 16-bit integers
-@code{[@var{a} @var{b} @var{c} @var{d} @var{e} @var{f} @var{g} @var{h}
-@var{p}]} corresponding to numeric IPv6 address
-@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h} and port
-number @var{p}.
+IPv6アドレスは、9要素の16ビット整数ベクター@code{[@var{a} @var{b} @var{c} @var{d}
+@var{p}]}で表され、それぞれ数値的なIPv６アドレス@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h}、およびポート番号@var{p}に対応する。
 
 @item
-A local address is represented as a string, which specifies the address in
-the local address space.
+ローカルアドレスは、ローカルアドレススペース内でアドレスを指定する文字列として表される。
 
 @item
-An ``unsupported family'' address is represented by a cons @code{(@var{f}
-. @var{av})}, where @var{f} is the family number and @var{av} is a vector
-specifying the socket address using one element per address data byte.  Do
-not rely on this format in portable code, as it may depend on implementation
-defined constants, data sizes, and data structure alignment.
+``未サポートファミリー(unsupported family)''のアドレスは、コンスセル@code{(@var{f}
+.
+@var{av})}で表される。ここで@var{f}はファミリー名、@var{av}はアドレスデータバイトごとに1つの要素を使用する、ソケットアドレスを指定するベクターである。可搬性のあるコードでこのフォーマットを信頼してはならない。これは実装定義の定数、データサイズ、データ構想のアライメントに依存する可能性があるからだ。
 @end itemize
 
 @item :nowait @var{bool}
-If @var{bool} is non-@code{nil} for a stream connection, return without
-waiting for the connection to complete.  When the connection succeeds or
-fails, Emacs will call the sentinel function, with a second argument
-matching @code{"open"} (if successful) or @code{"failed"}.  The default is
-to block, so that @code{make-network-process} does not return until the
-connection has succeeded or failed.
+ストリーム接続にたいして@var{bool}が非@code{nil}なら、その接続の完了を待機せずにリターンする。接続が成功または失敗時には、Emacsは@code{"open"}(成功時)、または@code{"failed"}(失敗時)にマッチするような第2引数により、センチネル関数を呼び出すだろう。デフォルトではwaitせずにblockするので、@code{make-network-process}はその接続が成功または失敗するまで、リターンしない。
 
 @item :stop @var{stopped}
-If @var{stopped} is non-@code{nil}, start the network connection or server
-in the ``stopped'' state.
+@var{stopped}が非@code{nil}なら、``stopped''の状態でネットワーク接続、またはサーバーを開始する。
 
 @item :buffer @var{buffer}
-Use @var{buffer} as the process buffer.
+プロセスバッファーとして@var{buffer}を使用する。
 
 @item :coding @var{coding}
-Use @var{coding} as the coding system for this process.  To specify
-different coding systems for decoding data from the connection and for
-encoding data sent to it, specify @code{(@var{decoding} .  @var{encoding})}
-for @var{coding}.
+このプロセスにたいするコーディングシステムとして、@var{coding}を使用する。接続からのデータのデコード、および接続への送信データのエンコードに異なるコーディングシステムを指定するには、@var{coding}にたいして@code{(@var{decoding}
+.  @var{encoding})}と指定する。
 
-If you don't specify this keyword at all, the default is to determine the
-coding systems from the data.
+このキーワードをまったく指定しないかった場合のデフォルトは、そのデータからコーディングシステムを判断する。
 
 @item :noquery @var{query-flag}
-Initialize the process query flag to @var{query-flag}.  @xref{Query Before
-Exit}.
+プロセスqueryフラグを@var{query-flag}に初期化する。@ref{Query Before Exit}を参照のこと。
 
 @item :filter @var{filter}
-Initialize the process filter to @var{filter}.
+プロセスフィルターを@var{filter}に初期化する。
 
 @item :filter-multibyte @var{multibyte}
-If @var{multibyte} is non-@code{nil}, strings given to the process filter
-are multibyte, otherwise they are unibyte.  The default is the default value
-of @code{enable-multibyte-characters}.
+@var{multibyte}が非@code{nil}ならマルチバイト文字列、それ以外ならユニバイト文字列がプロセスフィルターに与えられるデフォルトは、@code{enable-multibyte-characters}のデフォルト値である。
 
 @item :sentinel @var{sentinel}
-Initialize the process sentinel to @var{sentinel}.
+プロセスセンチネルを@var{sentinel}に初期化する。
 
 @item :log @var{log}
-Initialize the log function of a server process to @var{log}.  The log
-function is called each time the server accepts a network connection from a
-client.  The arguments passed to the log function are @var{server},
-@var{connection}, and @var{message}; where @var{server} is the server
-process, @var{connection} is the new process for the connection, and
-@var{message} is a string describing what has happened.
+サーバープロセスのlog関数を、@var{log}に初期化する。サーバーがクライアントからネットワーク接続をacceptするたびに、そのlog関数が呼び出される。log関数に渡される引数は@var{server}、@var{connection}、@var{message}である。ここで@var{server}はサーバープロセス、@var{connection}はその接続にたいする新たなプロセス、@var{message}は何が発生したかを説明する文字列である。
 
 @item :plist @var{plist}
-Initialize the process plist to @var{plist}.
+プロセスplistを@var{plist}に初期化する。
 @end table
 
-The original argument list, modified with the actual connection information,
-is available via the @code{process-contact} function.
+実際の接続情報で修正されたオリジナルの引数リストは、@code{process-contact}を通じて利用できる。
 @end defun
 
 @node Network Options
 @subsection Network Options
 
-  The following network options can be specified when you create a network
-process.  Except for @code{:reuseaddr}, you can also set or modify these
-options later, using @code{set-network-process-option}.
+  以下のネットワークオプションは、ネットワークプロセス作成時に指定できます。@code{:reuseaddr}を除き、@code{set-network-process-option}を使用して、これらのオプションを後からセットまたは変更することもできます。
 
-  For a server process, the options specified with @code{make-network-process}
-are not inherited by the client connections, so you will need to set the
-necessary options for each child connection as it is created.
+  サーバープロセスにたいしては、@code{make-network-process}で指定されたオプションはクライアントに継承されないので、子接続が作成されるたびに、必要なオプションをセットする必要があるでしょう。
 
 @table @asis
 @item :bindtodevice @var{device-name}
-If @var{device-name} is a non-empty string identifying a network interface
-name (see @code{network-interface-list}), only handle packets received on
-that interface.  If @var{device-name} is @code{nil} (the default), handle
-packets received on any interface.
+@var{device-name}が空でないネットワークインターフェースを指定する文字列なら、そのインターフェースで受信したパケットだけを処理する。@var{device-name}が@code{nil}(デフォルト)なら、任意のインターフェースが受信したパケットを処理する。
 
-Using this option may require special privileges on some systems.
+このオプションの使用にたいして、特別な特権を要求するシステムがいくつかあるかもしれない。
 
 @item :broadcast @var{broadcast-flag}
-If @var{broadcast-flag} is non-@code{nil} for a datagram process, the
-process will receive datagram packet sent to a broadcast address, and be
-able to send packets to a broadcast address.  This is ignored for a stream
-connection.
+データグラムプロセスにたいして@var{broadcast-flag}が非@code{nil}なら、そのプロセスはブロードキャストアドレスに送信されたデータグラムパケットを受信し、ブロードキャストアドレスにパケットを送信できるだろう。これはストリーム接続では無視される。
 
 @item :dontroute @var{dontroute-flag}
-If @var{dontroute-flag} is non-@code{nil}, the process can only send to
-hosts on the same network as the local host.
+@var{dontroute-flag}が非@code{nil}なら、プロセスはローカルホストと同一ネットワーク上のホストだけに送信することができる。
 
 @item :keepalive @var{keepalive-flag}
-If @var{keepalive-flag} is non-@code{nil} for a stream connection, enable
-exchange of low-level keep-alive messages.
+ストリーム接続にたいして@var{keepalive-flag}が非@code{nil}なら、低レベルのkeep-aliveメッセージの交換が有効になる。
 
 @item :linger @var{linger-arg}
-If @var{linger-arg} is non-@code{nil}, wait for successful transmission of
-all queued packets on the connection before it is deleted (see
-@code{delete-process}).  If @var{linger-arg} is an integer, it specifies the
-maximum time in seconds to wait for queued packets to be sent before closing
-the connection.  The default is @code{nil}, which means to discard unsent
-queued packets when the process is deleted.
+@var{linger-arg}が非@code{nil}なら、接続を削除(@code{delete-process}を参照)する前にキューされたすべてのパケットの送信が成功するまで待機する。@var{linger-arg}が整数なら、接続クローズ前のキュー済みパケット送信のために待機する、最大の秒数を指定する。デフォルトは@code{nil}で、これはプロセス削除時に未送信のキュー済みパケットを破棄することを意味する。
 
 @c FIXME  Where out-of-band data is ...?
 @item :oobinline @var{oobinline-flag}
-If @var{oobinline-flag} is non-@code{nil} for a stream connection, receive
-out-of-band data in the normal data stream.  Otherwise, ignore out-of-band
-data.
+ストリーム接続にたいして@var{oobinline-flag}が非@code{nil}なら、通常のデータストリーム内の帯域外(out-of-band)データを受信し、それ以外なら帯域外データは破棄する。
 
 @item :priority @var{priority}
-Set the priority for packets sent on this connection to the integer
-@var{priority}.  The interpretation of this number is protocol specific;
-such as setting the TOS (type of service) field on IP packets sent on this
-connection.  It may also have system dependent effects, such as selecting a
-specific output queue on the network interface.
+この接続で送信するパケットの優先順位を、整数@var{priority}にセットする。たとえばこの接続で送信するIPパケットのTOS(type of
+service)フィールドにセットする等、この数字の解釈はプロトコル固有である。また、そのネットワークインターフェース上で特定の出力キューを選択する等、これにはシステム依存の効果もある。
 
 @item :reuseaddr @var{reuseaddr-flag}
-If @var{reuseaddr-flag} is non-@code{nil} (the default) for a stream server
-process, allow this server to reuse a specific port number (see
-@code{:service}), unless another process on this host is already listening
-on that port.  If @var{reuseaddr-flag} is @code{nil}, there may be a period
-of time after the last use of that port (by any process on the host) where
-it is not possible to make a new server on that port.
+ストリームプロセスサーバーにたいして@var{reuseaddr-flag}が非@code{nil}(デフォルト)なら、そのホスト上の別プロセスがそのポートですでにlistenしていなければ、このサーバーは特定のポート番号(@code{:service}を参照)を再使用できる。@var{reuseaddr-flag}が@code{nil}なら、(そのホスト上の任意のプロセスが)そのポートを最後に使用した後、そのポート上で新たなサーバーを作成するのが不可能となるような、一定の期間が存在するかもしれない。
 @end table
 
 @defun set-network-process-option process option value &optional no-error
-This function sets or modifies a network option for network process
-@var{process}.  The accepted options and values are as for
-@code{make-network-process}.  If @var{no-error} is non-@code{nil}, this
-function returns @code{nil} instead of signaling an error if @var{option} is
-not a supported option.  If the function successfully completes, it returns
-@code{t}.
+この関数はネットワークプロセス@var{process}にたいして、ネットワークオプションのセットまたは変更を行う。指定できるオプションは@code{make-network-process}と同様。@var{no-error}が非@code{nil}なら、@var{option}がサポートされないオプションの場合に、この関数はエラーをシグナルせずに、@code{nil}をリターンする。この関数が成功裏に完了したら、@code{t}をリターンする。
 
-The current setting of an option is available via the @code{process-contact}
-function.
+あるオプションのカレントのセッティングは、@code{process-contact}関数を通じて利用できる。
 @end defun
 
 @node Network Feature Testing
