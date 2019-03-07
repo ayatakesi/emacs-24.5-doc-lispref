@@ -1777,79 +1777,65 @@ rate)}での、シリアルポートのスピード。値には任意の数字�
 
 @c FIXME?  No multibyte?
 @c It doesn't have any autoloads.
-  This section describes how to pack and unpack arrays of bytes, usually for
-binary network protocols.  These functions convert byte arrays to alists,
-and vice versa.  The byte array can be represented as a unibyte string or as
-a vector of integers, while the alist associates symbols either with
-fixed-size objects or with recursive sub-alists.  To use the functions
-referred to in this section, load the @code{bindat} library.
+  このセクションでは、通常はバイナリーのネットワークプロトコル用のバイト配列を、packおよびunpackする朴を説明します。以下の関数は、バイト配列とalistとの間で相互に変換を行います。バイト配列はユニバイト文字列、または整数ベクターとして表現することができます。一方alistはシンボルを固定サイズのオブジェクト、または再帰的な複alistのいずれかに関連付けます。このセクションで参照する関数を使用するためには、@code{bindat}ライブラリーをロードしてください。
 
 @cindex serializing
 @cindex deserializing
 @cindex packing
 @cindex unpacking
-  Conversion from byte arrays to nested alists is also known as
-@dfn{deserializing} or @dfn{unpacking}, while going in the opposite
-direction is also known as @dfn{serializing} or @dfn{packing}.
+  バイト配列からネストされたalistへの変換は、逆方向への変換が@dfn{シリアライズ化(serializing)}、または@dfn{pack化(packing)}として呼ばれることから、@dfn{非シリアル化【deserializing)}、または@dfn{unpack化(unpacking)}として知られています。
 
 @menu
-* Bindat Spec::              Describing data layout.
-* Bindat Functions::         Doing the unpacking and packing.
-* Bindat Examples::          Samples of what bindat.el can do for you!
+* Bindat Spec::              データレイアウトの記述。
+* Bindat Functions::         unpack化とpack化を行う。
+* Bindat Examples::          bindat.elが行えることのサンプル。
 @end menu
 
 @node Bindat Spec
 @subsection Describing Data Layout
 
-  To control unpacking and packing, you write a @dfn{data layout
-specification}, a special nested list describing named and typed
-@dfn{fields}.  This specification controls the length of each field to be
-processed, and how to pack or unpack it.  We normally keep bindat specs in
-variables whose names end in @samp{-bindat-spec}; that kind of name is
-automatically recognized as ``risky''.
+  unpackとpackを制御するためには、@dfn{データレイアウト仕様(data layout
+specification)}を記述します。これは名前付きで、かつタイプ付けされた@dfn{フィールド(field)}を記述する、特別なネスト化リストです。これは、処理する各フィールドの長さ、およびそれをpackおよびunpackする方法を制御します。わたしたちは、名前が@samp{-bindat-spec}で終わる変数では、bindatの仕様を遵守します。この類の変数名は、自動的に``risky(危険)''だと認識されます。
 
 @cindex endianness
 @cindex big endian
 @cindex little endian
 @cindex network byte ordering
-  A field's @dfn{type} describes the size (in bytes) of the object that the
-field represents and, in the case of multibyte fields, how the bytes are
-ordered within the field.  The two possible orderings are ``big endian''
-(also known as ``network byte ordering'') and ``little endian''.  For
-instance, the number @code{#x23cd} (decimal 9165) in big endian would be the
-two bytes @code{#x23} @code{#xcd}; and in little endian, @code{#xcd}
-@code{#x23}.  Here are the possible type values:
+  フィールドの@dfn{タイプ(type)}は、そのフィールドが表すオブジェクトのサイズ(バイト単位)、およびそれがマルチバイトフィールドなら、そのフィールがバイトオーダーされる方法を記述します。可能なオーダーは``ビッグエンディアン(big
+endian。ネットワークバイトオーダーとも呼ばれる)''、および``リトルエンディアン(little
+endian)''の2つです。たとえば数字@code{#x23cd}(10進の9165)のビッグエンディアンは@code{#x23}
+@code{#xcd}の2バイト、リトルエンディアンは@code{#xcd} @code{#x23}になるでしょう。以下は可能なタイプの値です:
 
 @table @code
 @item u8
 @itemx byte
-Unsigned byte, with length 1.
+長さ1の符号なしタイプ。
 
 @item u16
 @itemx word
 @itemx short
-Unsigned integer in network byte order, with length 2.
+長さ2の、ネットワークバイトオーダーによる符号なし整数。
 
 @item u24
-Unsigned integer in network byte order, with length 3.
+長さ3の、ネットワークバイトオーダーによる符号なし整数。
 
 @item u32
 @itemx dword
 @itemx long
-Unsigned integer in network byte order, with length 4.  Note: These values
-may be limited by Emacs's integer implementation limits.
+長さ4の、ネットワークバイトオーダーによる符号なし整数。注意: これらの値はEmacsの整数の実装に制限されるだろう。
 
 @item u16r
 @itemx u24r
 @itemx u32r
+それぞれ長さ2、3、4のリトルエンディアンオーダーによる符号なし整数。
 Unsigned integer in little endian order, with length 2, 3 and 4,
 respectively.
 
 @item str @var{len}
-String of length @var{len}.
+長さ@var{len}の文字列。
 
 @item strz @var{len}
-Zero-terminated string, in a fixed-size field with length @var{len}.
+長さ@var{len}の固定長フィールド内の、NUL終端された文字列。
 
 @item vec @var{len} [@var{type}]
 Vector of @var{len} elements of type @var{type}, defaulting to bytes.  The
