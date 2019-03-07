@@ -44,37 +44,26 @@
 @cindex refresh the screen
 @cindex screen refresh
 
-  The function @code{redraw-frame} clears and redisplays the entire contents
-of a given frame (@pxref{Frames}).  This is useful if the screen is
-corrupted.
+  関数@code{redraw-frame}は、与えられたフレーム(@ref{Frames}を参照)のコンテンツ全体にたいして、クリアーおよび再描画を行います。これはスクリーンが壊れている(corrupted)場合に有用です。
 
 @defun redraw-frame frame
-This function clears and redisplays frame @var{frame}.
+この関数は、フレーム@var{frame}のクリアーと再描画を行う。
 @end defun
 
-  Even more powerful is @code{redraw-display}:
+  更に強力なのが@code{redraw-display}です:
 
 @deffn Command redraw-display
-This function clears and redisplays all visible frames.
+この関数は、すべての可視なフレームのクリアーと再描画を行う。
 @end deffn
 
-  In Emacs, processing user input takes priority over redisplay.  If you call
-these functions when input is available, they don't redisplay immediately,
-but the requested redisplay does happen eventually---after all the input has
-been processed.
+  Emacsでは、ユーザー入力は再描画より優先されます。入力が可能なときにこれらの関数を呼び出すと、これらはすぐに再描画はしませんが、要求された再描画はやがて、すべての入力処理後に行われます。
 
-  On text terminals, suspending and resuming Emacs normally also refreshes the
-screen.  Some terminal emulators record separate contents for
-display-oriented programs such as Emacs and for ordinary sequential
-display.  If you are using such a terminal, you might want to inhibit the
-redisplay on resumption.
+  テキスト端末では、Emacsのサスペントと再開により、通常はスクリーンのリフレッシュも行われます。Emacsのようなディスプレイ指向のプログラムと、通常のシーケンシャル表示のプログラムで、コンテンツを区別して記録する端末エミュレーターがいくつかあります。そのような端末を使用する場合は、おそらく再開時の再表示を抑制したいでしょう。
 
 @defopt no-redraw-on-reenter
 @cindex suspend (cf. @code{no-redraw-on-reenter})
 @cindex resume (cf. @code{no-redraw-on-reenter})
-This variable controls whether Emacs redraws the entire screen after it has
-been suspended and resumed.  Non-@code{nil} means there is no need to
-redraw, @code{nil} means redrawing is needed.  The default is @code{nil}.
+この変数は、Emacsがサスペンドおよび再開された後に、スクリーン全体を再描画するかどうかを制御する。非@code{nil}なら再描画は不要、@code{nil}なら再描画が必要であることを意味する。デフォルトは@code{nil}。
 @end defopt
 
 @node Forcing Redisplay
