@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-02-17 14:59+0900\n"
-"PO-Revision-Date: 2019-03-07 13:54+0900\n"
+"PO-Revision-Date: 2019-03-07 14:19+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -5145,12 +5145,12 @@ msgstr ""
 #: processes.texi.orig:2952
 #, no-wrap
 msgid "Examples of Byte Unpacking and Packing"
-msgstr ""
+msgstr "Examples of Byte Unpacking and Packing"
 
 #. type: Plain text
 #: processes.texi.orig:2959
 msgid "Here is a complete example of byte unpacking and packing:"
-msgstr ""
+msgstr "以下は、バイトにたいしてunpackおよびpackを行う完全な例です:"
 
 #. type: lisp
 #: processes.texi.orig:2962
@@ -5158,7 +5158,7 @@ msgstr ""
 msgid ""
 "(require 'bindat)\n"
 "\n"
-msgstr ""
+msgstr "(require 'bindat)\n\n"
 
 #. type: lisp
 #: processes.texi.orig:2973
@@ -5176,6 +5176,17 @@ msgid ""
 "  \"Description of a fortune cookie index file's contents.\")\n"
 "\n"
 msgstr ""
+"(defvar fcookie-index-spec\n"
+"  '((:version  u32)\n"
+"    (:count    u32)\n"
+"    (:longest  u32)\n"
+"    (:shortest u32)\n"
+"    (:flags    u32)\n"
+"    (:delim    u8)\n"
+"    (:ignored  fill 3)\n"
+"    (:offset   repeat (:count) (:foo u32)))\n"
+"  \"fortuneクッキーのインデックスファイル内容\")\n"
+"\n"
 
 #. type: lisp
 #: processes.texi.orig:2998
@@ -5207,6 +5218,31 @@ msgid ""
 "     cookies nil beg (- end 3))))\n"
 "\n"
 msgstr ""
+"(defun fcookie (cookies &optional index)\n"
+"  \"ファイルCOOKIESからランダムなfortuneクッキーを表示する。\n"
+"オプションの第2引数INDEXは関連付けられるインデックス\n"
+"ファイル名を指定し、デフォルトは\\\"COOKIES.dat\\\"。\n"
+"バッファー\\\"*Fortune Cookie: BASENAME*\\\"内にクッキーを表示。\n"
+"BASENAMEはディレクトリー部分を除いたCOOKIES\"\n"
+"  (interactive \"fCookies file: \")\n"
+"  (let* ((info (with-temp-buffer\n"
+"                 (insert-file-contents-literally\n"
+"                  (or index (concat cookies \".dat\")))\n"
+"                 (bindat-unpack fcookie-index-spec\n"
+"                                (buffer-string))))\n"
+"         (sel (random (bindat-get-field info :count)))\n"
+"         (beg (cdar (bindat-get-field info :offset sel)))\n"
+"         (end (or (cdar (bindat-get-field info\n"
+"                                          :offset (1+ sel)))\n"
+"                  (nth 7 (file-attributes cookies)))))\n"
+"    (switch-to-buffer\n"
+"     (get-buffer-create\n"
+"      (format \"*Fortune Cookie: %s*\"\n"
+"              (file-name-nondirectory cookies))))\n"
+"    (erase-buffer)\n"
+"    (insert-file-contents-literally\n"
+"     cookies nil beg (- end 3))))\n"
+"\n"
 
 #. type: lisp
 #: processes.texi.orig:3038
@@ -5252,11 +5288,49 @@ msgid ""
 "      (let ((coding-system-for-write 'raw-text-unix))\n"
 "        (write-file (or index (concat cookies \".dat\")))))))\n"
 msgstr ""
+"(defun fcookie-create-index (cookies &optional index delim)\n"
+"  \"ファイルCOOKIESをスキャンしてインデックスファイルに書き込む。\n"
+"オプション引数INDEXは、インデックスファイル名を指定。デフォルトは\\\"COOKIES.dat\\\"。\n"
+"オプション引数DELIMはユニバイト文字で、それがCOOKIES内\n"
+"のある行で見つかったら、その行はエントリー間の境界を示す。\"\n"
+"  (interactive \"fCookies file: \")\n"
+"  (setq delim (or delim ?%))\n"
+"  (let ((delim-line (format \"\\n%c\\n\" delim))\n"
+"        (count 0)\n"
+"        (max 0)\n"
+"        min p q len offsets)\n"
+"    (unless (= 3 (string-bytes delim-line))\n"
+"      (error \"Delimiter cannot be represented in one byte\"))\n"
+"    (with-temp-buffer\n"
+"      (insert-file-contents-literally cookies)\n"
+"      (while (and (setq p (point))\n"
+"                  (search-forward delim-line (point-max) t)\n"
+"                  (setq len (- (point) 3 p)))\n"
+"        (setq count (1+ count)\n"
+"              max (max max len)\n"
+"              min (min (or min max) len)\n"
+"              offsets (cons (1- p) offsets))))\n"
+"    (with-temp-buffer\n"
+"      (set-buffer-multibyte nil)\n"
+"      (insert\n"
+"       (bindat-pack\n"
+"        fcookie-index-spec\n"
+"        `((:version . 2)\n"
+"          (:count . ,count)\n"
+"          (:longest . ,max)\n"
+"          (:shortest . ,min)\n"
+"          (:flags . 0)\n"
+"          (:delim . ,delim)\n"
+"          (:offset . ,(mapcar (lambda (o)\n"
+"                                (list (cons :foo o)))\n"
+"                              (nreverse offsets))))))\n"
+"      (let ((coding-system-for-write 'raw-text-unix))\n"
+"        (write-file (or index (concat cookies \".dat\")))))))\n"
 
 #. type: Plain text
 #: processes.texi.orig:3042
 msgid "The following is an example of defining and unpacking a complex structure.  Consider the following C structures:"
-msgstr ""
+msgstr "以下は複雑な構造体を定義してunpackする例です。以下のようなCの構造体があるものとします:"
 
 #. type: example
 #: processes.texi.orig:3050
@@ -5270,6 +5344,13 @@ msgid ""
 "@};\n"
 "\n"
 msgstr ""
+"struct header @{\n"
+"    unsigned long    dest_ip;\n"
+"    unsigned long    src_ip;\n"
+"    unsigned short   dest_port;\n"
+"    unsigned short   src_port;\n"
+"@};\n"
+"\n"
 
 #. type: example
 #: processes.texi.orig:3058
@@ -5284,6 +5365,14 @@ msgid ""
 "@};\n"
 "\n"
 msgstr ""
+"struct data @{\n"
+"    unsigned char    type;\n"
+"    unsigned char    opcode;\n"
+"    unsigned short   length;  /* ネットワークバイトオーダー */\n"
+"    unsigned char    id[8];   /* NUL終端文字列 */\n"
+"    unsigned char    data[/* (length + 3) & ~3 */];\n"
+"@};\n"
+"\n"
 
 #. type: example
 #: processes.texi.orig:3065
@@ -5297,17 +5386,24 @@ msgid ""
 "    struct data      item[/* items */];\n"
 "\n"
 msgstr ""
+"struct packet @{\n"
+"    struct header    header;\n"
+"    unsigned long    counters[2];  /* リトルエンディアンオーダー */\n"
+"    unsigned char    items;\n"
+"    unsigned char    filler[3];\n"
+"    struct data      item[/* items */];\n"
+"\n"
 
 #. type: example
 #: processes.texi.orig:3067
 #, no-wrap
 msgid "@};\n"
-msgstr ""
+msgstr "@};\n"
 
 #. type: Plain text
 #: processes.texi.orig:3070
 msgid "The corresponding data layout specification is:"
-msgstr ""
+msgstr "対応するデータレイアウト仕様が以下です:"
 
 #. type: lisp
 #: processes.texi.orig:3077
@@ -5320,6 +5416,12 @@ msgid ""
 "        (src-port  u16)))\n"
 "\n"
 msgstr ""
+"(setq header-spec\n"
+"      '((dest-ip   ip)\n"
+"        (src-ip    ip)\n"
+"        (dest-port u16)\n"
+"        (src-port  u16)))\n"
+"\n"
 
 #. type: lisp
 #: processes.texi.orig:3085
@@ -5334,6 +5436,14 @@ msgid ""
 "        (align     4)))\n"
 "\n"
 msgstr ""
+"(setq data-spec\n"
+"      '((type      u8)\n"
+"        (opcode    u8)\n"
+"        (length    u16)  ; ネットワークバイトオーダー\n"
+"        (id        strz 8)\n"
+"        (data      vec (length))\n"
+"        (align     4)))\n"
+"\n"
 
 #. type: lisp
 #: processes.texi.orig:3093
@@ -5347,11 +5457,18 @@ msgid ""
 "        (item      repeat (items)\n"
 "                   (struct data-spec))))\n"
 msgstr ""
+"(setq packet-spec\n"
+"      '((header    struct header-spec)\n"
+"        (counters  vec 2 u32r)   ; リトルエンディアンオーダー\n"
+"        (items     u8)\n"
+"        (fill      3)\n"
+"        (item      repeat (items)\n"
+"                   (struct data-spec))))\n"
 
 #. type: Plain text
 #: processes.texi.orig:3096
 msgid "A binary data representation is:"
-msgstr ""
+msgstr "バイナリーデータによる表現は:"
 
 #. type: lisp
 #: processes.texi.orig:3103
@@ -5363,11 +5480,16 @@ msgid ""
 "        2 3 0 5 ?A ?B ?C ?D ?E ?F 0 0 1 2 3 4 5 0 0 0\n"
 "        1 4 0 7 ?B ?C ?D ?E ?F ?G 0 0 6 7 8 9 10 11 12 0 ])\n"
 msgstr ""
+"(setq binary-data\n"
+"      [ 192 168 1 100 192 168 1 101 01 28 21 32\n"
+"        160 134 1 0 5 1 0 0 2 0 0 0\n"
+"        2 3 0 5 ?A ?B ?C ?D ?E ?F 0 0 1 2 3 4 5 0 0 0\n"
+"        1 4 0 7 ?B ?C ?D ?E ?F ?G 0 0 6 7 8 9 10 11 12 0 ])\n"
 
 #. type: Plain text
 #: processes.texi.orig:3106
 msgid "The corresponding decoded structure is:"
-msgstr ""
+msgstr "対応するデコードされた構造体は:"
 
 #. type: lisp
 #: processes.texi.orig:3127
@@ -5393,11 +5515,30 @@ msgid ""
 "        (opcode . 4)\n"
 "        (type . 1))))\n"
 msgstr ""
+"(setq decoded (bindat-unpack packet-spec binary-data))\n"
+"     @result{}\n"
+"((header\n"
+"  (dest-ip   . [192 168 1 100])\n"
+"  (src-ip    . [192 168 1 101])\n"
+"  (dest-port . 284)\n"
+"  (src-port  . 5408))\n"
+" (counters . [100000 261])\n"
+" (items . 2)\n"
+" (item ((data . [1 2 3 4 5])\n"
+"        (id . \"ABCDEF\")\n"
+"        (length . 5)\n"
+"        (opcode . 3)\n"
+"        (type . 2))\n"
+"       ((data . [6 7 8 9 10 11 12])\n"
+"        (id . \"BCDEFG\")\n"
+"        (length . 7)\n"
+"        (opcode . 4)\n"
+"        (type . 1))))\n"
 
 #. type: Plain text
 #: processes.texi.orig:3130
 msgid "An example of fetching data from this structure:"
-msgstr ""
+msgstr "以下はこの構造体からデータを取得する例です:"
 
 #. type: lisp
 #: processes.texi.orig:3134
@@ -5406,3 +5547,5 @@ msgid ""
 "(bindat-get-field decoded 'item 1 'id)\n"
 "     @result{} \"BCDEFG\"\n"
 msgstr ""
+"(bindat-get-field decoded 'item 1 'id)\n"
+"     @result{} \"BCDEFG\"\n"

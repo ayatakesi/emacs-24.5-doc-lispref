@@ -1974,7 +1974,7 @@ length)}は保たれます。この値は一般的に仕様またはalist単独�
 @c Maybe one or both of these examples should just be moved to the
 @c commentary of bindat.el.
 
-  Here is a complete example of byte unpacking and packing:
+  以下は、バイトにたいしてunpackおよびpackを行う完全な例です:
 
 @lisp
 (require 'bindat)
@@ -1988,14 +1988,14 @@ length)}は保たれます。この値は一般的に仕様またはalist単独�
     (:delim    u8)
     (:ignored  fill 3)
     (:offset   repeat (:count) (:foo u32)))
-  "Description of a fortune cookie index file's contents.")
+  "fortuneクッキーのインデックスファイル内容")
 
 (defun fcookie (cookies &optional index)
-  "Display a random fortune cookie from file COOKIES.
-Optional second arg INDEX specifies the associated index
-filename, by default \"COOKIES.dat\".  Display cookie text
-in buffer \"*Fortune Cookie: BASENAME*\", where BASENAME
-is COOKIES without the directory part."
+  "ファイルCOOKIESからランダムなfortuneクッキーを表示する。
+オプションの第2引数INDEXは関連付けられるインデックス
+ファイル名を指定し、デフォルトは\"COOKIES.dat\"。
+バッファー\"*Fortune Cookie: BASENAME*\"内にクッキーを表示。
+BASENAMEはディレクトリー部分を除いたCOOKIES"
   (interactive "fCookies file: ")
   (let* ((info (with-temp-buffer
                  (insert-file-contents-literally
@@ -2016,11 +2016,10 @@ is COOKIES without the directory part."
      cookies nil beg (- end 3))))
 
 (defun fcookie-create-index (cookies &optional index delim)
-  "Scan file COOKIES, and write out its index file.
-Optional arg INDEX specifies the index filename, which by
-default is \"COOKIES.dat\".  Optional arg DELIM specifies the
-unibyte character that, when found on a line of its own in
-COOKIES, indicates the border between entries."
+  "ファイルCOOKIESをスキャンしてインデックスファイルに書き込む。
+オプション引数INDEXは、インデックスファイル名を指定。デフォルトは\"COOKIES.dat\"。
+オプション引数DELIMはユニバイト文字で、それがCOOKIES内
+のある行で見つかったら、その行はエントリー間の境界を示す。"
   (interactive "fCookies file: ")
   (setq delim (or delim ?%))
   (let ((delim-line (format "\n%c\n" delim))
@@ -2056,8 +2055,7 @@ COOKIES, indicates the border between entries."
         (write-file (or index (concat cookies ".dat")))))))
 @end lisp
 
-The following is an example of defining and unpacking a complex structure.
-Consider the following C structures:
+以下は複雑な構造体を定義してunpackする例です。以下のようなCの構造体があるものとします:
 
 @example
 struct header @{
@@ -2070,14 +2068,14 @@ struct header @{
 struct data @{
     unsigned char    type;
     unsigned char    opcode;
-    unsigned short   length;  /* in network byte order  */
-    unsigned char    id[8];   /* null-terminated string  */
+    unsigned short   length;  /* ネットワークバイトオーダー */
+    unsigned char    id[8];   /* NUL終端文字列 */
     unsigned char    data[/* (length + 3) & ~3 */];
 @};
 
 struct packet @{
     struct header    header;
-    unsigned long    counters[2];  /* in little endian order  */
+    unsigned long    counters[2];  /* リトルエンディアンオーダー */
     unsigned char    items;
     unsigned char    filler[3];
     struct data      item[/* items */];
@@ -2085,7 +2083,7 @@ struct packet @{
 @};
 @end example
 
-The corresponding data layout specification is:
+対応するデータレイアウト仕様が以下です:
 
 @lisp
 (setq header-spec
@@ -2097,21 +2095,21 @@ The corresponding data layout specification is:
 (setq data-spec
       '((type      u8)
         (opcode    u8)
-        (length    u16)  ; network byte order
+        (length    u16)  ; ネットワークバイトオーダー
         (id        strz 8)
         (data      vec (length))
         (align     4)))
 
 (setq packet-spec
       '((header    struct header-spec)
-        (counters  vec 2 u32r)   ; little endian order
+        (counters  vec 2 u32r)   ; リトルエンディアンオーダー
         (items     u8)
         (fill      3)
         (item      repeat (items)
                    (struct data-spec))))
 @end lisp
 
-A binary data representation is:
+バイナリーデータによる表現は:
 
 @lisp
 (setq binary-data
@@ -2121,7 +2119,7 @@ A binary data representation is:
         1 4 0 7 ?B ?C ?D ?E ?F ?G 0 0 6 7 8 9 10 11 12 0 ])
 @end lisp
 
-The corresponding decoded structure is:
+対応するデコードされた構造体は:
 
 @lisp
 (setq decoded (bindat-unpack packet-spec binary-data))
@@ -2145,7 +2143,7 @@ The corresponding decoded structure is:
         (type . 1))))
 @end lisp
 
-An example of fetching data from this structure:
+以下はこの構造体からデータを取得する例です:
 
 @lisp
 (bindat-get-field decoded 'item 1 'id)
