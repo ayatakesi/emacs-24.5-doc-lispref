@@ -1495,7 +1495,7 @@ IPv6アドレスは、9要素の16ビット整数ベクター@code{[@var{a} @var
 @item
 ``未サポートファミリー(unsupported family)''のアドレスは、コンスセル@code{(@var{f}
 .
-@var{av})}で表される。ここで@var{f}はファミリー名、@var{av}はアドレスデータバイトごとに1つの要素を使用する、ソケットアドレスを指定するベクターである。可搬性のあるコードでこのフォーマットを信頼してはならない。これは実装定義の定数、データサイズ、データ構想のアライメントに依存する可能性があるからだ。
+@var{av})}で表される。ここで@var{f}はファミリー名、@var{av}はアドレスデータバイトごとに1つの要素を使用する、ソケットアドレスを指定するベクターである。可搬性のあるコードでこのフォーマットを信頼してはならない。これは実装定義の定数、データサイズ、データ構造のアライメントに依存する可能性があるからだ。
 @end itemize
 
 @item :nowait @var{bool}
@@ -1828,8 +1828,6 @@ endian)''の2つです。たとえば数字@code{#x23cd}(10進の9165)のビッ�
 @itemx u24r
 @itemx u32r
 それぞれ長さ2、3、4のリトルエンディアンオーダーによる符号なし整数。
-Unsigned integer in little endian order, with length 2, 3 and 4,
-respectively.
 
 @item str @var{len}
 長さ@var{len}の文字列。
@@ -1838,122 +1836,91 @@ respectively.
 長さ@var{len}の固定長フィールド内の、NUL終端された文字列。
 
 @item vec @var{len} [@var{type}]
-Vector of @var{len} elements of type @var{type}, defaulting to bytes.  The
-@var{type} is any of the simple types above, or another vector specified as
-a list of the form @code{(vec @var{len} [@var{type}])}.
+タイプ@var{type}(デフォルトはbyte)の@var{len}要素のベクター。@var{type}は上述した単純なタイプのいずれか、あるいは@code{(vec
+@var{len} [@var{type}])}という形式のリストによる別ベクターの指定である。
 
 @item ip
 @c FIXME?  IPv6?
-Four-byte vector representing an Internet address.  For example: @code{[127
-0 0 1]} for localhost.
+インターネット 」アドレスを表す、4つのbyteのベクター。たとえばlocalhostは@code{[127 0 0 1]}。
 
 @item bits @var{len}
-List of set bits in @var{len} bytes.  The bytes are taken in big endian
-order and the bits are numbered starting with @code{8 * @var{len} @minus{}
-1} and ending with zero.  For example: @code{bits 2} unpacks @code{#x28}
-@code{#x1c} to @code{(2 3 4 11 13)} and @code{#x1c} @code{#x28} to @code{(3
-5 10 11 12)}.
+@var{len}バイト内のセットされたビット位置のリスト。バイトはビッグエンディアンで、ビット位置は@code{8 * @var{len}
+@minus{} 1}で始まり0で終わるよう番号が付与される。たとえば@code{bits 2}では、@code{#x28}
+@code{#x1c}は@code{(2 3 4 11 13)}、@code{#x1c} @code{#x28}は@code{(3 5 10 11
+12)}にunpackされる。
 
 @item (eval @var{form})
-@var{form} is a Lisp expression evaluated at the moment the field is
-unpacked or packed.  The result of the evaluation should be one of the
-above-listed type specifications.
+@var{form}は、フィールドがpackまたはunpackされた瞬間に評価されるLisp式。評価した結果は、上記にリストしたタイプ使用のいずれかであること。
 @end table
 
-For a fixed-size field, the length @var{len} is given as an integer
-specifying the number of bytes in the field.
+固定長フィールドでは長さ@var{len}が、フィールド内のバイト数を指定する整数として与えられます。
 
-When the length of a field is not fixed, it typically depends on the value
-of a preceding field.  In this case, the length @var{len} can be given
-either as a list @code{(@var{name} ...)} identifying a @dfn{field name} in
-the format specified for @code{bindat-get-field} below, or by an expression
-@code{(eval @var{form})} where @var{form} should evaluate to an integer,
-specifying the field length.
+フィールド長が固定でない場合、通常は先行するフィールドの値に依存します。この場合、長さ@var{len}は後述の@code{bindat-get-field}のフォーマット指定により@dfn{フィールド名(field
+name)}を指定するリスト@code{(@var{name} ...)}、または式@code{(eval
+@var{form})}(@var{form}はフィールド長を指定する整数に評価されること)のいずれかで与えることもできます。
 
-A field specification generally has the form @code{([@var{name}]
-@var{handler})}, where @var{name} is optional.  Don't use names that are
-symbols meaningful as type specifications (above) or handler specifications
-(below), since that would be ambiguous.  @var{name} can be a symbol or an
-expression @code{(eval @var{form})}, in which case @var{form} should
-evaluate to a symbol.
+フィールド仕様は一般的に@code{([@var{name}]
+@var{handler})}という形式をもち、@var{name}はオプションです。紛らわしくなるので、タイプ仕様(上述)やハンドラー仕様(後述)で意味をもつシンボルの名前は使用しないでください。@var{name}はシンボルまたは式@code{(eval
+@var{form})}でもよく、この場合@var{form}はシンボルに評価される必要があります。
 
-@var{handler} describes how to unpack or pack the field and can be one of
-the following:
+@var{handler}はそのフィールドがpackまたはunpackされる方法を記述し、以下のいずれかを指定できます:
 
 @table @code
 @item @var{type}
-Unpack/pack this field according to the type specification @var{type}.
+タイプ仕様@var{type}に応じてこのフィールドのunpack/packを行う。
 
 @item eval @var{form}
-Evaluate @var{form}, a Lisp expression, for side-effect only.  If the field
-name is specified, the value is bound to that field name.
+副作用のためだけにLisp式@var{form}を評価する。フィールド名が指定された場合、値はそのフィールド名にバインドされる。
 
 @item fill @var{len}
-Skip @var{len} bytes.  In packing, this leaves them unchanged, which
-normally means they remain zero.  In unpacking, this means they are ignored.
+@var{len}バイトをスキップする。pack化ではそれらを未変更のままとし、通常それらは0のままとなることを意味する。unpack化では、それらが無視されることを意味する。
 
 @item align @var{len}
-Skip to the next multiple of @var{len} bytes.
+@var{len}バイトの次の倍数にスキップする。
 
 @item struct @var{spec-name}
-Process @var{spec-name} as a sub-specification.  This describes a structure
-nested within another structure.
+副仕様(sub-specification)として@var{spec-name}を処理する。これは別の構造体内にネストされる構造体を記述する。
 
 @item union @var{form} (@var{tag} @var{spec})@dots{}
 @c ??? I don't see how one would actually  use this.
 @c ??? what kind of expression would be useful for @var{form}?
-Evaluate @var{form}, a Lisp expression, find the first @var{tag} that
-matches it, and process its associated data layout specification
-@var{spec}.  Matching can occur in one of three ways:
+Lisp式@var{form}を評価して、それにマッチする最初の@var{tag}を探し、それに関連付けられたレイアウト仕様@var{spec}を処理する。マッチングは以下の3つのいずれかで発生し得る:
 
 @itemize
 @item
-If a @var{tag} has the form @code{(eval @var{expr})}, evaluate @var{expr}
-with the variable @code{tag} dynamically bound to the value of @var{form}.
-A non-@code{nil} result indicates a match.
+@var{tag}が@code{(eval
+@var{expr})}という形式をもつ場合、変数@code{tag}を動的に@var{form}の値にバインドして、@var{expr}を評価する。結果が非@code{nil}ならマッチを示す。
 
 @item
-@var{tag} matches if it is @code{equal} to the value of @var{form}.
+@var{tag}が@var{form}の値と@code{equal}ならマッチ。
 
 @item
-@var{tag} matches unconditionally if it is @code{t}.
+@var{tag}が@code{t}なら無条件にマッチ。
 @end itemize
 
 @item repeat @var{count} @var{field-specs}@dots{}
-Process the @var{field-specs} recursively, in order, then repeat starting
-from the first one, processing all the specifications @var{count} times
-overall.  The @var{count} is given using the same formats as a field
-length---if an @code{eval} form is used, it is evaluated just once.  For
-correct operation, each specification in @var{field-specs} must include a
-name.
+@var{field-specs}を順次、再帰的に処理した後、最初のものから繰り返して、すべての仕様全体を@var{count}回処理する。@var{count}はフィールド長と同じフォーマットを使用して与えられる。@code{eval}フォームが使用された場合は、1回だけ評価される。正しく処理されるには、@var{field-specs}内の各仕様は名前を含まなければならない。
 @end table
 
-For the @code{(eval @var{form})} forms used in a bindat specification, the
-@var{form} can access and update these dynamically bound variables during
-evaluation:
+bindat仕様内で仕様される@code{(eval
+@var{form})}フォームでは、評価の間に@var{form}はこれらの動的にバインドされた変数へのアクセスと更新が可能である。
 
 @table @code
 @item last
-Value of the last field processed.
+最後に処理されたフィールドの値。
 
 @item bindat-raw
-The data as a byte array.
+バイト配列のデータ。
 
 @item bindat-idx
-Current index (within @code{bindat-raw}) for unpacking or packing.
+unpack化/pack化にたいする、(@code{bindat-raw}での)カレントインデックス。
 
 @item struct
-The alist containing the structured data that have been unpacked so far, or
-the entire structure being packed.  You can use @code{bindat-get-field} to
-access specific fields of this structure.
+これまでにunpackされた構造化データ、またはpackされた構造体全体を含むalist。この構造体の特定のフィールドにアクセスするために、@code{bindat-get-field}を使用できる。
 
 @item count
 @itemx index
-Inside a @code{repeat} block, these contain the maximum number of
-repetitions (as specified by the @var{count} parameter), and the current
-repetition number (counting from 0).  Setting @code{count} to zero will
-terminate the inner-most repeat block after the current repetition has
-completed.
+@code{repeat}ブロック内部では、これらは(@var{count}パラメーターで指定された)繰り返しの最大回数、および(0から数えた)カレント繰り返し回数を含む。@code{count}を0にセットすることにより、カレントの繰り返し終了後に、最内繰り返しブロックを終了する。
 @end table
 
 @node Bindat Functions
