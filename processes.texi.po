@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-02-17 14:59+0900\n"
-"PO-Revision-Date: 2019-03-07 13:05+0900\n"
+"PO-Revision-Date: 2019-03-07 13:54+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -5049,87 +5049,87 @@ msgstr "@code{repeat}ブロック内部では、これらは(@var{count}パラ�
 #: processes.texi.orig:2884
 #, no-wrap
 msgid "Functions to Unpack and Pack Bytes"
-msgstr ""
+msgstr "Functions to Unpack and Pack Bytes"
 
 #. type: Plain text
 #: processes.texi.orig:2889
 msgid "In the following documentation, @var{spec} refers to a data layout specification, @code{bindat-raw} to a byte array, and @var{struct} to an alist representing unpacked field data."
-msgstr ""
+msgstr "以降のドキュメントでは、@var{spec}はデータレイアウト仕様、@code{bindat-raw}はバイト配列、@var{struct}はunpackされたフィールドデータを表すalistを参照します。"
 
 #. type: defun
 #: processes.texi.orig:2890
 #, no-wrap
 msgid "bindat-unpack spec bindat-raw &optional bindat-idx"
-msgstr ""
+msgstr "bindat-unpack spec bindat-raw &optional bindat-idx"
 
 #. type: defun
 #: processes.texi.orig:2897
 msgid "This function unpacks data from the unibyte string or byte array @code{bindat-raw} according to @var{spec}.  Normally, this starts unpacking at the beginning of the byte array, but if @var{bindat-idx} is non-@code{nil}, it specifies a zero-based starting position to use instead."
-msgstr ""
+msgstr "この関数はユニバイト文字列、またはバイト配列@code{bindat-raw}のデータを、@var{spec}に▼応じてunpackする。これは通常はバイト配列の先頭からunpack化を開始するが、@var{bindat-idx}が非@code{nil}なら、それはかわりに使用する0基準の開始位置を指定する。"
 
 #. type: defun
 #: processes.texi.orig:2900
 msgid "The value is an alist or nested alist in which each element describes one unpacked field."
-msgstr ""
+msgstr "値は、それぞれの要素がunpackされたフィールドを記述する、alistまたはネストされたalist。"
 
 #. type: defun
 #: processes.texi.orig:2902
 #, no-wrap
 msgid "bindat-get-field struct &rest name"
-msgstr ""
+msgstr "bindat-get-field struct &rest name"
 
 #. type: defun
 #: processes.texi.orig:2909
 msgid "This function selects a field's data from the nested alist @var{struct}.  Usually @var{struct} was returned by @code{bindat-unpack}.  If @var{name} corresponds to just one argument, that means to extract a top-level field value.  Multiple @var{name} arguments specify repeated lookup of sub-structures.  An integer name acts as an array index."
-msgstr ""
+msgstr "この関数はネストされたalistである@var{struct}から、フィールドのデータを選択する。@var{struct}は通常、@code{bindat-unpack}がリターンしたもの。@var{name}が単一の引数に対応する場合、それはトップレベルのフィールド値を抽出することを意味する。複数の@var{name}引数は、副構造体を繰り返して照合することを指定する。整数の名前は、配列のインデックスとして動作する。"
 
 #. type: defun
 #: processes.texi.orig:2913
 msgid "For example, if @var{name} is @code{(a b 2 c)}, that means to find field @code{c} in the third element of subfield @code{b} of field @code{a}.  (This corresponds to @code{struct.a.b[2].c} in C.)"
-msgstr ""
+msgstr "たとえば@var{name}が@code{(a b 2 c)}なら、それはフィールド@code{a}の副フィールド@code{b}の3番目の要素内のフィールド@code{c}(Cでは@code{struct.a.b[2].c}に相当)を意味する。"
 
 #. type: Plain text
 #: processes.texi.orig:2922
 msgid "Although packing and unpacking operations change the organization of data (in memory), they preserve the data's @dfn{total length}, which is the sum of all the fields' lengths, in bytes.  This value is not generally inherent in either the specification or alist alone; instead, both pieces of information contribute to its calculation.  Likewise, the length of a string or array being unpacked may be longer than the data's total length as described by the specification."
-msgstr ""
+msgstr "packまたはunpackの処理をすることにより、メモリー内でデータ構造が変化しても、そのデータの全フィールド長の合計バイト数である、@dfn{トータル長(total length)}は保たれます。この値は一般的に仕様またはalist単独では、固有ではありません。そのかわり、これら両方の情報が、この計算に役立つのです。同様に、unpackされる文字列や配列の長さは、仕様の記述にしたがい、そのデータのトータル長より長くなるかもしれません。"
 
 #. type: defun
 #: processes.texi.orig:2923
 #, no-wrap
 msgid "bindat-length spec struct"
-msgstr ""
+msgstr "bindat-length spec struct"
 
 #. type: defun
 #: processes.texi.orig:2926
 msgid "This function returns the total length of the data in @var{struct}, according to @var{spec}."
-msgstr ""
+msgstr "この関数は@var{struct}内のデータの、@var{spec}に応じたトータル長をリターンする。"
 
 #. type: defun
 #: processes.texi.orig:2928
 #, no-wrap
 msgid "bindat-pack spec struct &optional bindat-raw bindat-idx"
-msgstr ""
+msgstr "bindat-pack spec struct &optional bindat-raw bindat-idx"
 
 #. type: defun
 #: processes.texi.orig:2935
 msgid "This function returns a byte array packed according to @var{spec} from the data in the alist @var{struct}.  It normally creates and fills a new byte array starting at the beginning.  However, if @var{bindat-raw} is non-@code{nil}, it specifies a pre-allocated unibyte string or vector to pack into.  If @var{bindat-idx} is non-@code{nil}, it specifies the starting offset for packing into @code{bindat-raw}."
-msgstr ""
+msgstr "この関数は、alist @var{struct}内のデータから、@var{spec}に応じてpackされたバイト配列をリターンする。これは通常、先頭から充填された、新たなバイト配列を作成する。しかし@var{bindat-raw}が非@code{nil}なら、それはpack先として事前に割り当てられたユニバイト文字列、またはベクターを指定する。@var{bindat-idx}が非@code{nil}なら、それは@code{bindat-raw}へpackする開始オフセットを指定する。"
 
 #. type: defun
 #: processes.texi.orig:2938
 msgid "When pre-allocating, you should make sure @code{(length @var{bindat-raw})} meets or exceeds the total length to avoid an out-of-range error."
-msgstr ""
+msgstr "事前に割り当てる際には、out-of-rangeエラーを避けるために、@code{(length @var{bindat-raw})}がトータル長またはそれ以上であることを確認すること。"
 
 #. type: defun
 #: processes.texi.orig:2940
 #, no-wrap
 msgid "bindat-ip-to-string ip"
-msgstr ""
+msgstr "bindat-ip-to-string ip"
 
 #. type: defun
 #: processes.texi.orig:2944
 msgid "Convert the Internet address vector @var{ip} to a string in the usual dotted notation."
-msgstr ""
+msgstr "インターネットアドレスのベクター@var{ip}を、通常のドット表記による文字列に変換する。"
 
 #. type: example
 #: processes.texi.orig:2948
@@ -5138,6 +5138,8 @@ msgid ""
 "(bindat-ip-to-string [127 0 0 1])\n"
 "     @result{} \"127.0.0.1\"\n"
 msgstr ""
+"(bindat-ip-to-string [127 0 0 1])\n"
+"     @result{} \"127.0.0.1\"\n"
 
 #. type: subsection
 #: processes.texi.orig:2952
