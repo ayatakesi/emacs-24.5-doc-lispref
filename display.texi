@@ -428,73 +428,44 @@ type)}があります。このタイプはシンボルのリストです。最�
 @subsection Warning Variables
 @cindex warning variables
 
-  Programs can customize how their warnings appear by binding the variables
-described in this section.
+  プログラムは、このセクション内で説明する変数をバインドすることにより、警告が表示される方法をカスタマイズできます。
 
 @defvar warning-levels
-This list defines the meaning and severity order of the warning severity
-levels.  Each element defines one severity level, and they are arranged in
-order of decreasing severity.
+このリストは、警告の重大レベルの意味と、重大度の順序を定義する。それぞれの要素は1つの重大レベルを定義し、それらは重大度の降順で配置される。
 
-Each element has the form @code{(@var{level} @var{string} @var{function})},
-where @var{level} is the severity level it defines.  @var{string} specifies
-the textual description of this level.  @var{string} should use @samp{%s} to
-specify where to put the warning type information, or it can omit the
-@samp{%s} so as not to include that information.
+各要素は@code{(@var{level} @var{string}
+@var{function})}という形式をもち、@var{level}はその要素が定義する重大レベルである。@var{string}はそのレベルのテキストによる説明である。@var{string}は警告タイプ情報の配置箇所の指定に@samp{%s}を使用するか、さもなくばその情報を含まぬよう@samp{%s}を省略できる。
 
-The optional @var{function}, if non-@code{nil}, is a function to call with
-no arguments, to get the user's attention.
+オプションの@var{function}が非@code{nil}なら、これはユーザーの注目を得るために引数なしで呼び出される関数であること。
 
-Normally you should not change the value of this variable.
+通常は、この変数の値を変更するべきではない。
 @end defvar
 
 @defvar warning-prefix-function
-If non-@code{nil}, the value is a function to generate prefix text for
-warnings.  Programs can bind the variable to a suitable function.
-@code{display-warning} calls this function with the warnings buffer current,
-and the function can insert text in it.  That text becomes the beginning of
-the warning message.
+値が非@code{nil}なら、それは警告用にプレフィックスを生成する関数であること。プログラムは、この変数を適切な関数にバインドできる。@code{display-warning}はwarningsバッファーがカレントの状態でこの関数を呼び出し、関数はそのバッファーにテキストを挿入できる。そのテキストが、警告メッセージの先頭になる。
 
-The function is called with two arguments, the severity level and its entry
-in @code{warning-levels}.  It should return a list to use as the entry (this
-value need not be an actual member of @code{warning-levels}).  By
-constructing this value, the function can change the severity of the
-warning, or specify different handling for a given severity level.
+この関数は重大レベル、および@code{warning-levels}内でのその重大レベルのエントリーという、2つの引数で呼び出される。これは、エントリーとして使用するためのリストをリターンするべきである(この値は@code{warning-levels}の実際のメンバーである必要はない)。この値を構築することにより、関数はその警告の重大レベルを変更したり、与えられた重大レベルにたいして異なる処理を指定することができる。
 
-If the variable's value is @code{nil} then there is no function to call.
+この変数の値が@code{nil}なら、呼び出される関数は存在しない。
 @end defvar
 
 @defvar warning-series
-Programs can bind this variable to @code{t} to say that the next warning
-should begin a series.  When several warnings form a series, that means to
-leave point on the first warning of the series, rather than keep moving it
-for each warning so that it appears on the last one.  The series ends when
-the local binding is unbound and @code{warning-series} becomes @code{nil}
-again.
+プログラムは、次の警告がシリーズの開始であることを告げるために、この変数を@code{t}にバインドできる。複数の警告がシリーズを形成するということは、それぞれの警告にたいしてポイントが維持されるよう移動して、最後の警告にポイントが表示されるのではなく、そのシリーズの最初の警告にポイントを残すことを意味する。このシリーズは、そのローカルバインドが非バインドされて、@code{warning-series}が再び@code{nil}になったときに終了する。
 
-The value can also be a symbol with a function definition.  That is
-equivalent to @code{t}, except that the next warning will also call the
-function with no arguments with the warnings buffer current.  The function
-can insert text which will serve as a header for the series of warnings.
+この値は、関数定義をもつシンボルでもよい。これは、次の警告によりwarningsバッファーがカレントの状態で、引数なしでその関数が呼び出されることを除き、@code{t}と等価である。この関数は、その警告シリーズのヘッダーの役目をもつであろうテキストを挿入できる。
 
-Once a series has begun, the value is a marker which points to the buffer
-position in the warnings buffer of the start of the series.
+あるシリーズが開始されると、その値はwarningsバッファー内でシリーズ開始となるバッファー位置を指すマーカーとなる。
 
-The variable's normal value is @code{nil}, which means to handle each
-warning separately.
+この変数の通常の値は@code{nil}で、これはそれぞれの警告を個別に処理することを意味する。
 @end defvar
 
 @defvar warning-fill-prefix
-When this variable is non-@code{nil}, it specifies a fill prefix to use for
-filling each warning's text.
+この変数が非@code{nil}なら、それは各警告テキストのフィルに使用する、フィルプレフィックスを指定する。
 @end defvar
 
 @defvar warning-type-format
-This variable specifies the format for displaying the warning type in the
-warning message.  The result of formatting the type this way gets included
-in the message under the control of the string in the entry in
-@code{warning-levels}.  The default value is @code{" (%s)"}.  If you bind it
-to @code{""} then the warning type won't appear at all.
+この変数は、警告メッセージ内の警告タイプを表示するための、フォーマットを指定する。この方法でフォーマットされたタイプは、@code{warning-levels}内のエントリー内の文字列制御下にあるメッセージに含まれることになる。デフォルト値は@code{"
+(%s)"}。これを@code{""}にバインドすると、警告タイプはまったく表示されなくなる。
 @end defvar
 
 @node Warning Options
