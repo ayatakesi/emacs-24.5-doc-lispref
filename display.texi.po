@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-03-12 07:09+0900\n"
+"PO-Revision-Date: 2019-03-12 11:58+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -798,23 +798,23 @@ msgstr "この関数は、エコーエリア内にカレントで表示されて
 #: display.texi.orig:341
 #, no-wrap
 msgid "Reporting Operation Progress"
-msgstr ""
+msgstr "Reporting Operation Progress"
 
 #. type: cindex
 #: display.texi.orig:342
 #, no-wrap
 msgid "progress reporting"
-msgstr ""
+msgstr "progress reporting"
 
 #. type: Plain text
 #: display.texi.orig:348
 msgid "When an operation can take a while to finish, you should inform the user about the progress it makes.  This way the user can estimate remaining time and clearly see that Emacs is busy working, not hung.  A convenient way to do this is to use a @dfn{progress reporter}."
-msgstr ""
+msgstr "処理の完了まで暫く時間を要するかもしれない際は、その進行状況についてユーザーに通知するべきです。これによりユーザーが残り時間を予測するとともに、Emacsがhungしているのではなく、処理中であえうことが明確に確認できます。@dfn{プログレスリポーター(progress reporter)}を使用するのが、これを行う便利な方法です。"
 
 #. type: Plain text
 #: display.texi.orig:350
 msgid "Here is a working example that does nothing useful:"
-msgstr ""
+msgstr "以下は、何も有用なことを行わない、実行可能な例です:"
 
 #. type: smallexample
 #: display.texi.orig:359
@@ -828,12 +828,19 @@ msgid ""
 "    (progress-reporter-update progress-reporter k))\n"
 "  (progress-reporter-done progress-reporter))\n"
 msgstr ""
+"(let ((progress-reporter\n"
+"       (make-progress-reporter \"Collecting mana for Emacs...\"\n"
+"                               0  500)))\n"
+"  (dotimes (k 500)\n"
+"    (sit-for 0.01)\n"
+"    (progress-reporter-update progress-reporter k))\n"
+"  (progress-reporter-done progress-reporter))\n"
 
 #. type: defun
 #: display.texi.orig:361
 #, no-wrap
 msgid "make-progress-reporter message &optional min-value max-value current-value min-change min-time"
-msgstr ""
+msgstr "make-progress-reporter message &optional min-value max-value current-value min-change min-time"
 
 #. type: defun
 #: display.texi.orig:366
