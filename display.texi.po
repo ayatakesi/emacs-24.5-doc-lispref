@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-03-12 13:37+0900\n"
+"PO-Revision-Date: 2019-03-12 14:19+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -964,40 +964,40 @@ msgstr ""
 #: display.texi.orig:460
 #, no-wrap
 msgid "Logging Messages in @file{*Messages*}"
-msgstr ""
+msgstr "Logging Messages in @file{*Messages*}"
 
 #. type: cindex
 #: display.texi.orig:461
 #, no-wrap
 msgid "logging echo-area messages"
-msgstr ""
+msgstr "logging echo-area messages"
 
 #. type: Plain text
 #: display.texi.orig:472
 msgid "Almost all the messages displayed in the echo area are also recorded in the @file{*Messages*} buffer so that the user can refer back to them.  This includes all the messages that are output with @code{message}.  By default, this buffer is read-only and uses the major mode @code{messages-buffer-mode}.  Nothing prevents the user from killing the @file{*Messages*} buffer, but the next display of a message recreates it.  Any Lisp code that needs to access the @file{*Messages*} buffer directly and wants to ensure that it exists should use the function @code{messages-buffer}."
-msgstr ""
+msgstr "エコーエリア内に表示されるほとんどすべてのメッセージは、ユーザーが後で参照できるように、@file{*Messages*}バッファー内にも記録されます。これには@code{message}により出力されたメッセージも含まれます。デフォルトではこのバッファーは読み取り専用で、メジャーモード@code{messages-buffer-mode}を使用します。ユーザーによる@file{*Messages*}バッファーのkillを妨げるものは何もありませんが、次回のメッセージ表示でバッファーは再作成されます。@file{*Messages*}バッファーに直接アクセスする必要があり、それが確実に存在するようにしたいLispコードはすべて、関数@code{messages-buffer}を使用するべきです。"
 
 #. type: defun
 #: display.texi.orig:473
 #, no-wrap
 msgid "messages-buffer"
-msgstr ""
+msgstr "messages-buffer"
 
 #. type: defun
 #: display.texi.orig:476
 msgid "This function returns the @file{*Messages*} buffer.  If it does not exist, it creates it, and switches it to @code{messages-buffer-mode}."
-msgstr ""
+msgstr "この関数は、@file{*Messages*}バッファーをリターンする。バッファーが存在しなければ作成して、そのバッファーを@code{messages-buffer-mode}に切り替える。"
 
 #. type: defopt
 #: display.texi.orig:478
 #, no-wrap
 msgid "message-log-max"
-msgstr ""
+msgstr "message-log-max"
 
 #. type: defopt
 #: display.texi.orig:483
 msgid "This variable specifies how many lines to keep in the @file{*Messages*} buffer.  The value @code{t} means there is no limit on how many lines to keep.  The value @code{nil} disables message logging entirely.  Here's how to display a message and prevent it from being logged:"
-msgstr ""
+msgstr "この変数は、@file{*Messages*}バッファー内に保持するべき行数を指定する。値@code{t}は保持すべき行数に制限がないことを意味し、値@code{nil}はメッセージのロギングを完全に無効にする。以下は、メッセージを表示して、それがロギングされることを防ぐ例である:"
 
 #. type: example
 #: display.texi.orig:487
@@ -1006,26 +1006,28 @@ msgid ""
 "(let (message-log-max)\n"
 "  (message @dots{}))\n"
 msgstr ""
+"(let (message-log-max)\n"
+"  (message @dots{}))\n"
 
 #. type: Plain text
 #: display.texi.orig:494
 msgid "To make @file{*Messages*} more convenient for the user, the logging facility combines successive identical messages.  It also combines successive related messages for the sake of two cases: question followed by answer, and a series of progress messages."
-msgstr ""
+msgstr "@file{*Messages*}にたいするユーザーの利便性を向上させるために、ロギング機能は連続する同じメッセージを結合します。さらに、2つのケースのために連続する関連メッセージの結合も行います。2つのケースとは、応答を後にともなう質問(question followed by answer)と、一連のプログレスメッセージ(series of progress messages)です。"
 
 #. type: Plain text
 #: display.texi.orig:500
 msgid "A ``question followed by an answer'' means two messages like the ones produced by @code{y-or-n-p}: the first is @samp{@var{question}}, and the second is @samp{@var{question}...@var{answer}}.  The first message conveys no additional information beyond what's in the second, so logging the second message discards the first from the log."
-msgstr ""
+msgstr "``応答を後にともなう質問(question followed by an answer)''とは、@code{y-or-n-p}により生成されるような、これは1つ目が@samp{@var{question}}、2つ目が@samp{@var{question}...@var{answer}}のような、2つのメッセージです。1つ目のメッセージには、2つ目のメッセージ以上の追加の情報は伝えないので、2つ目のメッセージをロギングして、1つ目のメッセージは破棄します。"
 
 #. type: Plain text
 #: display.texi.orig:506
 msgid "A ``series of progress messages'' means successive messages like those produced by @code{make-progress-reporter}.  They have the form @samp{@var{base}...@var{how-far}}, where @var{base} is the same each time, while @var{how-far} varies.  Logging each message in the series discards the previous one, provided they are consecutive."
-msgstr ""
+msgstr "``一連のプログレスメッセージ(series of progress messages)''とは、@code{make-progress-reporter}が生成するような、連続するメッセージを意味します。これらは@samp{@var{base}...@var{how-far}}のような形式をもち、@var{how-far}は毎回異なりますが、@var{base}は常に同じです。このシリーズ内の各メッセージのロギングでは、そのメッセージが前のメッセージと連続していれば、前のメッセージを破棄します。"
 
 #. type: Plain text
 #: display.texi.orig:511
 msgid "The functions @code{make-progress-reporter} and @code{y-or-n-p} don't have to do anything special to activate the message log combination feature.  It operates whenever two consecutive messages are logged that share a common prefix ending in @samp{...}."
-msgstr ""
+msgstr "関数@code{make-progress-reporter}および@code{y-or-n-p}は、メッセージログ結合機能をアクティブにするために、何ら特別なことを行う必要はありません。これは@samp{...}で終わる共通のプレフィックスを共有する、連続する2つのメッセージをログする際は、常にこの処理を行います。"
 
 #. type: cindex
 #: display.texi.orig:514
