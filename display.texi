@@ -530,120 +530,72 @@ Overview}を参照)の実行直後、Emacsのコマンドループはこの変�
 @section Invisible Text
 
 @cindex invisible text
-You can make characters @dfn{invisible}, so that they do not appear on the
-screen, with the @code{invisible} property.  This can be either a text
-property (@pxref{Text Properties}) or an overlay property
-(@pxref{Overlays}).  Cursor motion also partly ignores these characters; if
-the command loop finds that point is inside a range of invisible text after
-a command, it relocates point to the other side of the text.
+@code{invisible}プロパティにより、スクリーン上に表示されないように、文字を@dfn{不可視(invisible)}にすることができます。これはテキストプロパティ(@ref{Text
+Properties}を参照)、またはオーバーレイプロパティ(@ref{Overlays}を参照)のいずれかで行うことができます。カーソル移動も、これらの文字を部分的に無視します。あるコマンドの後に、不可視テキスト範囲内にポイントがあることをコマンドループが検知した場合、コマンドループはポイントをそのテキストの別サイドへ再配置します。
 
-In the simplest case, any non-@code{nil} @code{invisible} property makes a
-character invisible.  This is the default case---if you don't alter the
-default value of @code{buffer-invisibility-spec}, this is how the
-@code{invisible} property works.  You should normally use @code{t} as the
-value of the @code{invisible} property if you don't plan to set
-@code{buffer-invisibility-spec} yourself.
+もっともシンプルなケースでは、非@code{nil}の@code{invisible}プロパティにより、文字は不可視になります。これがデフォルトのケースであり、もし@code{buffer-invisibility-spec}のデフォルト値を変更したくない場合は、これが@code{invisible}プロパティを機能させる方法です。自身で@code{buffer-invisibility-spec}をセットする予定がなければ、@code{invisible}プロパティの値として、通常は@code{t}を使用するべきです。
 
-More generally, you can use the variable @code{buffer-invisibility-spec} to
-control which values of the @code{invisible} property make text invisible.
-This permits you to classify the text into different subsets in advance, by
-giving them different @code{invisible} values, and subsequently make various
-subsets visible or invisible by changing the value of
-@code{buffer-invisibility-spec}.
+より一般的には、どの@code{invisible}の値がテキストを不可視にするかを制御するために、変数@code{buffer-invisibility-spec}を使用できます。テキストにたいして異なる@code{invisible}の値を与えることにより、事前に別のサブセットへテキストをクラス分けした後に、@code{buffer-invisibility-spec}の値を変更して、さまざまなサブセットを可視または不可視にすることができます。
 
-Controlling visibility with @code{buffer-invisibility-spec} is especially
-useful in a program to display the list of entries in a database.  It
-permits the implementation of convenient filtering commands to view just a
-part of the entries in the database.  Setting this variable is very fast,
-much faster than scanning all the text in the buffer looking for properties
-to change.
+特にデータベース内のエントリーのリストを表示するプログラム内では、@code{buffer-invisibility-spec}による可視性の制御は有用です。これにより、データベース内の一部だけを閲覧するフィルターコマンドを、簡便に実装することが可能になります。この変数をセットするのは非常に高速で、バッファー内のすべてのテキストにたいしてプロパティが変更されたかスキャンするより、はるかに高速です。
 
 @defvar buffer-invisibility-spec
-This variable specifies which kinds of @code{invisible} properties actually
-make a character invisible.  Setting this variable makes it buffer-local.
+この変数は、どの種類の@code{invisible}プロパティが、実際に文字を不可視にするかを指定する。この変数はセットすることにより、バッファーローカルになる。
 
 @table @asis
 @item @code{t}
-A character is invisible if its @code{invisible} property is
-non-@code{nil}.  This is the default.
+@code{invisible}プロパティが非@code{nil}なら、その文字は不可視になる。これがデフォルトである。
 
-@item a list
-Each element of the list specifies a criterion for invisibility; if a
-character's @code{invisible} property fits any one of these criteria, the
-character is invisible.  The list can have two kinds of elements:
+@item リスト
+このリスト内の各要素は、不可視性の条件を指定する。ある文字の@code{invisible}プロパティがこれらの条件のいずれかに適合したら、その文字は不可視になる。このリストは2種類の要素をもつことができる:
 
 @table @code
 @item @var{atom}
-A character is invisible if its @code{invisible} property value is
-@var{atom} or if it is a list with @var{atom} as a member; comparison is
-done with @code{eq}.
+@code{invisible}プロパティの値が@var{atom}、または@var{atom}をメンバーにもつリストなら、その文字は不可視になる。比較は@code{eq}により行われる。
 
 @item (@var{atom} . t)
-A character is invisible if its @code{invisible} property value is
-@var{atom} or if it is a list with @var{atom} as a member; comparison is
-done with @code{eq}.  Moreover, a sequence of such characters displays as an
-ellipsis.
+@code{invisible}プロパティの値が@var{atom}、または@var{atom}をメンバーにもつリストなら、その文字は不可視になる。比較は@code{eq}により行われる。さらに、そのような文字シーケンスは省略記号(ellipsis)として表示される。
 @end table
 @end table
 @end defvar
 
-  Two functions are specifically provided for adding elements to
-@code{buffer-invisibility-spec} and removing elements from it.
+  特に@code{buffer-invisibility-spec}への要素の追加と削除のために、2つの関数が提供されています。
 
 @defun add-to-invisibility-spec element
-This function adds the element @var{element} to
-@code{buffer-invisibility-spec}.  If @code{buffer-invisibility-spec} was
-@code{t}, it changes to a list, @code{(t)}, so that text whose
-@code{invisible} property is @code{t} remains invisible.
+この関数は、@code{buffer-invisibility-spec}に要素@var{element}を追加する。@code{buffer-invisibility-spec}が@code{t}なら、これはリスト@code{(t)}に変更され、@code{invisible}プロパティが@code{t}のテキストは不可視のまま留まる。
 @end defun
 
 @defun remove-from-invisibility-spec element
-This removes the element @var{element} from
-@code{buffer-invisibility-spec}.  This does nothing if @var{element} is not
-in the list.
+この関数は、@code{buffer-invisibility-spec}から要素@var{element}を削除する。リスト内に@var{element}がなければ、何も行わない。
 @end defun
 
-  A convention for use of @code{buffer-invisibility-spec} is that a major mode
-should use the mode's own name as an element of
-@code{buffer-invisibility-spec} and as the value of the @code{invisible}
-property:
+  @code{buffer-invisibility-spec}を使用するための規約として、メジャーモードは@code{buffer-invisibility-spec}の要素、および@code{invisible}プロパティの値として、自身のモード名を使用することになっている。
 
 @example
-;; @r{If you want to display an ellipsis:}
+;; @r{省略記号を表示したければ:}
 (add-to-invisibility-spec '(my-symbol . t))
-;; @r{If you don't want ellipsis:}
+;; @r{表示したくなければ:}
 (add-to-invisibility-spec 'my-symbol)
 
 (overlay-put (make-overlay beginning end)
              'invisible 'my-symbol)
 
-;; @r{When done with the invisibility:}
+;; @r{不可視状態が終わったら:}
 (remove-from-invisibility-spec '(my-symbol . t))
-;; @r{Or respectively:}
+;; @r{または各々を:}
 (remove-from-invisibility-spec 'my-symbol)
 @end example
 
-  You can check for invisibility using the following function:
+  以下の関数を使用することにより、不可視性をチェックできます:
 
 @defun invisible-p pos-or-prop
-If @var{pos-or-prop} is a marker or number, this function returns a
-non-@code{nil} value if the text at that position is invisible.
+@var{pos-or-prop}がマーカーか数字の場合、その位置のテキストが不可視なら、この関数は非@code{nil}をリターンする。
 
-If @var{pos-or-prop} is any other kind of Lisp object, that is taken to mean
-a possible value of the @code{invisible} text or overlay property.  In that
-case, this function returns a non-@code{nil} value if that value would cause
-text to become invisible, based on the current value of
-@code{buffer-invisibility-spec}.
+@var{pos-or-prop}が別の類のLispオブジェクトなら、テキストプロパティまたはオーバーレイプロパティとして可能な値を意味すると解釈される。この場合、@code{buffer-invisibility-spec}のカレント値にもとづき、もしその値がテキストを不可視とするようなら、この関数は非@code{nil}をリターンする。
 @end defun
 
 @vindex line-move-ignore-invisible
-  Ordinarily, functions that operate on text or move point do not care whether
-the text is invisible, they process invisible characters and visible
-characters alike.  The user-level line motion commands, such as
-@code{next-line}, @code{previous-line}, ignore invisible newlines if
-@code{line-move-ignore-invisible} is non-@code{nil} (the default), i.e.,
-behave like these invisible newlines didn't exist in the buffer, but only
-because they are explicitly programmed to do so.
+  通常、テキストを操作したりポイントを移動する関数は、そのテキストが不可視かどうかに注意を払わず、可視および不可視のテキストを同様に処理します。@code{next-line}や@code{previous-line}のようなユーザーレベルの行移動関数は、@code{line-move-ignore-invisible}が非@code{nil}(デフォルト)なら、不可視な改行を無視します。これらの関数は不可視な改行がそのバッファーに存在しないかのように振る舞いますが、これはそう振る舞うよう、明示的にプログラムされているからです。
 
   If a command ends with point inside or at the boundary of invisible text,
 the main editing loop relocates point to one of the two ends of the
@@ -2021,7 +1973,7 @@ This element of @var{spec} matches all terminals.  Therefore, any subsequent
 elements of @var{spec} are never used.  Normally @code{t} is used in the
 last (or only) element of @var{spec}.
 
-@item a list
+@item リスト
 If @var{display} is a list, each element should have the form
 @code{(@var{characteristic} @var{value}@dots{})}.  Here @var{characteristic}
 specifies a way of classifying terminals, and the @var{value}s are possible
