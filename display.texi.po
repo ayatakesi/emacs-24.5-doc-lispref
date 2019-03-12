@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-03-12 11:58+0900\n"
+"PO-Revision-Date: 2019-03-12 13:37+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -676,7 +676,7 @@ msgstr "この関数は、エコーエリア内にメッセージを表示する
 #. type: defun
 #: display.texi.orig:259
 msgid "In batch mode, the message is printed to the standard error stream, followed by a newline."
-msgstr "バッチモードでは、後に改行が付与されたメッセージが、標準エラーストリームにプリントされる。"
+msgstr "バッチモードでは、後に改行が付加されたメッセージが、標準エラーストリームにプリントされる。"
 
 #. type: defun
 #: display.texi.orig:265
@@ -809,7 +809,7 @@ msgstr "progress reporting"
 #. type: Plain text
 #: display.texi.orig:348
 msgid "When an operation can take a while to finish, you should inform the user about the progress it makes.  This way the user can estimate remaining time and clearly see that Emacs is busy working, not hung.  A convenient way to do this is to use a @dfn{progress reporter}."
-msgstr "処理の完了まで暫く時間を要するかもしれない際は、その進行状況についてユーザーに通知するべきです。これによりユーザーが残り時間を予測するとともに、Emacsがhungしているのではなく、処理中であえうことが明確に確認できます。@dfn{プログレスリポーター(progress reporter)}を使用するのが、これを行う便利な方法です。"
+msgstr "処理の完了まで暫く時間を要するかもしれない際は、その進行状況についてユーザーに通知するべきです。これによりユーザーが残り時間を予測するとともに、Emacsがhungしているのではなく、処理中であえうことが明確に確認できます。@dfn{プログレスリポーター(progress reporter: 進行状況リポーター)}を使用するのが、これを行う便利な方法です。"
 
 #. type: Plain text
 #: display.texi.orig:350
@@ -845,106 +845,106 @@ msgstr "make-progress-reporter message &optional min-value max-value current-val
 #. type: defun
 #: display.texi.orig:366
 msgid "This function creates and returns a progress reporter object, which you will use as an argument for the other functions listed below.  The idea is to precompute as much data as possible to make progress reporting very fast."
-msgstr ""
+msgstr "この関数は、以下に挙げる他の関数として使用されるであろう、プログレスリポーターオブジェクトを作成して、リターンする。これはプログレスリポーターを高速にするように、可能なかぎり多くのデータを事前に計算するというアイデアが元である。"
 
 #. type: defun
 #: display.texi.orig:372
 msgid "When this progress reporter is subsequently used, it will display @var{message} in the echo area, followed by progress percentage.  @var{message} is treated as a simple string.  If you need it to depend on a filename, for instance, use @code{format} before calling this function."
-msgstr ""
+msgstr "この後にこのプログレスリポーターを使用する際は、進行状況のパーセンテージを後に付加して@var{message}が表示されるだろう。@var{message}は、単なる文字列として扱われる。たとえばファイル名に依存させる必要があるなら、この関数の呼び出し前に、@code{format}を使えばよい。"
 
 #. type: defun
 #: display.texi.orig:378
 msgid "The arguments @var{min-value} and @var{max-value} should be numbers standing for the starting and final states of the operation.  For instance, an operation that ``scans'' a buffer should set these to the results of @code{point-min} and @code{point-max} correspondingly.  @var{max-value} should be greater than @var{min-value}."
-msgstr ""
+msgstr "引数@var{min-value}と@var{max-value}は、その処理の開始と終了を意味する数値であること。たとえばバッファーを``スキャン''する処理なら、これらをそれぞれ@code{point-min}と@code{point-max}にセットするべきだろう。@var{max-value}は@var{min-value}より大であること。"
 
 #. type: defun
 #: display.texi.orig:383
 msgid "Alternatively, you can set @var{min-value} and @var{max-value} to @code{nil}.  In that case, the progress reporter does not report process percentages; it instead displays a ``spinner'' that rotates a notch each time you update the progress reporter."
-msgstr ""
+msgstr "かわりに、@var{min-value}と@var{max-value}を@code{nil}にセットすることができる。この場合、プログレスリポーターは進行状況のパーセンテージを報告しない。かわりにプログレスリポーターを更新するたびに刻み(notch)を回転する``スピナー(spinner)''を表示する。"
 
 #. type: defun
 #: display.texi.orig:387
 msgid "If @var{min-value} and @var{max-value} are numbers, you can give the argument @var{current-value} a numerical value specifying the initial progress; if omitted, this defaults to @var{min-value}."
-msgstr ""
+msgstr "@var{min-value}と@var{max-value}が数値なら、進行状況の初期の数値を与える引数@var{current-value}を与えることができる。省略時のデフォルトは@var{min-value}。"
 
 #. type: defun
 #: display.texi.orig:395
 msgid "The remaining arguments control the rate of echo area updates.  The progress reporter will wait for at least @var{min-change} more percents of the operation to be completed before printing next message; the default is one percent.  @var{min-time} specifies the minimum time in seconds to pass between successive prints; the default is 0.2 seconds.  (On some operating systems, the progress reporter may handle fractions of seconds with varying precision)."
-msgstr ""
+msgstr "残りの引数は、エコーエリアの更新レートを制御する。プログレスリポーターは次のメッセージを表示する前に、その処理が少なくとも@var{min-change}パーセントより多く完了するまで待機する。デフォルトは1パーセント。@var{min-time}は連続するプリントの間に空ける最小時間をミリ秒単位で指定する(いくつかのオペレーティングシステムでは、プログレスリポーターは秒の少数部をさまざまな制度で処理するかもしれない)。"
 
 #. type: defun
 #: display.texi.orig:398
 msgid "This function calls @code{progress-reporter-update}, so the first message is printed immediately."
-msgstr ""
+msgstr "この関数は@code{progress-reporter-update}を呼び出すた、最初のメッセージは即座にプリントされる。"
 
 #. type: defun
 #: display.texi.orig:400
 #, no-wrap
 msgid "progress-reporter-update reporter &optional value"
-msgstr ""
+msgstr "progress-reporter-update reporter &optional value"
 
 #. type: defun
 #: display.texi.orig:406
 msgid "This function does the main work of reporting progress of your operation.  It displays the message of @var{reporter}, followed by progress percentage determined by @var{value}.  If percentage is zero, or close enough according to the @var{min-change} and @var{min-time} arguments, then it is omitted from the output."
-msgstr ""
+msgstr "この関数は、操作の進行状況報告に関する、主要な機能を担う。これは@var{reporter}のメッセージと、その後に@var{value}により決定された進行状況のパーセンテージを表示する。パーセンテージが0、または引数@var{min-change}と@var{min-time}に比べて十分0に近ければ、出力は省略される。"
 
 #. type: defun
 #: display.texi.orig:413
 msgid "@var{reporter} must be the result of a call to @code{make-progress-reporter}.  @var{value} specifies the current state of your operation and must be between @var{min-value} and @var{max-value} (inclusive) as passed to @code{make-progress-reporter}.  For instance, if you scan a buffer, then @var{value} should be the result of a call to @code{point}."
-msgstr ""
+msgstr "@var{reporter}は、@code{make-progress-reporter}呼び出しがリターンした結果でなければならない。@var{value}は処理のカレント状況を指定し、@code{make-progress-reporter}に渡された@var{min-value}と@var{max-value}の間(両端を含む)でなければならない。たとえばバッファーのスキャンにおいては、@var{value}は@code{point}び呼び出し結果であるべきだろう。"
 
 #. type: defun
 #: display.texi.orig:419
 msgid "This function respects @var{min-change} and @var{min-time} as passed to @code{make-progress-reporter} and so does not output new messages on every invocation.  It is thus very fast and normally you should not try to reduce the number of calls to it: resulting overhead will most likely negate your effort."
-msgstr ""
+msgstr "この関数は@code{make-progress-reporter}に渡された@var{min-change}と@var{min-time}にしたがい、毎回の呼び出しで新たなメッセージを出力しない。したがってこれは非常に高速であり、通常はこれを呼び出す回数を減らすことを試みるべきではない。結果として生じるオーバーヘッドは、あなたの努力をほぼ否定するだろう。"
 
 #. type: defun
 #: display.texi.orig:421
 #, no-wrap
 msgid "progress-reporter-force-update reporter &optional value new-message"
-msgstr ""
+msgstr "progress-reporter-force-update reporter &optional value new-message"
 
 #. type: defun
 #: display.texi.orig:424
 msgid "This function is similar to @code{progress-reporter-update} except that it prints a message in the echo area unconditionally."
-msgstr ""
+msgstr "この関数は@code{progress-reporter-update}と同様だが、これは無条件にメッセージをエコーエリアにプリントする点が異なる。"
 
 #. type: defun
 #: display.texi.orig:430
 msgid "The first two arguments have the same meaning as for @code{progress-reporter-update}.  Optional @var{new-message} allows you to change the message of the @var{reporter}.  Since this function always updates the echo area, such a change will be immediately presented to the user."
-msgstr ""
+msgstr "最初の2つの引数は、@code{progress-reporter-update}の場合と同じ意味をもつ。オプションの@var{new-message}で、@var{reporter}のメッセージを変更できる。この関数は常にエコーエリアを更新するので、そのような変更は即座にユーザーに示されるだろう。"
 
 #. type: defun
 #: display.texi.orig:432
 #, no-wrap
 msgid "progress-reporter-done reporter"
-msgstr ""
+msgstr "progress-reporter-done reporter"
 
 #. type: defun
 #: display.texi.orig:436
 msgid "This function should be called when the operation is finished.  It prints the message of @var{reporter} followed by word ``done'' in the echo area."
-msgstr ""
+msgstr "この関数は、処理の完了時に呼び出されるべきである。これはエコーエリア内に、単語``done''が付加された@var{reporter}のメッセージを表示する。"
 
 #. type: defun
 #: display.texi.orig:441
 msgid "You should always call this function and not hope for @code{progress-reporter-update} to print ``100%''.  Firstly, it may never print it, there are many good reasons for this not to happen.  Secondly, ``done'' is more explicit."
-msgstr ""
+msgstr "あなたは@code{progress-reporter-update}に``100%''とプリントさせようとせず、常にこの関数を呼び出すべきである。まず、この関数は決してそれをプリントしないだろうし、これが発生しないために多くの正当な理由がある。次に``done''はより自明である。"
 
 #. type: defmac
 #: display.texi.orig:443
 #, no-wrap
 msgid "dotimes-with-progress-reporter (var count [result]) message body@dots{}"
-msgstr ""
+msgstr "dotimes-with-progress-reporter (var count [result]) message body@dots{}"
 
 #. type: defmac
 #: display.texi.orig:447
 msgid "This is a convenience macro that works the same way as @code{dotimes} does, but also reports loop progress using the functions described above.  It allows you to save some typing."
-msgstr ""
+msgstr "これは@code{dotimes}と同じ方法で機能するが、上述の関数を使用してループ進行状況(loop progress)の報告も行う、便利なマクロである。これにより、タイプ量を幾分節約できる。"
 
 #. type: defmac
 #: display.texi.orig:450
 msgid "You can rewrite the example in the beginning of this node using this macro this way:"
-msgstr ""
+msgstr "以下の方法でこのマクロを使用することにより、このセクション冒頭の例を書き換えることができる:"
 
 #. type: example
 #: display.texi.orig:456
@@ -955,6 +955,10 @@ msgid ""
 "    \"Collecting some mana for Emacs...\"\n"
 "  (sit-for 0.01))\n"
 msgstr ""
+"(dotimes-with-progress-reporter\n"
+"    (k 500)\n"
+"    \"Collecting some mana for Emacs...\"\n"
+"  (sit-for 0.01))\n"
 
 #. type: subsection
 #: display.texi.orig:460
