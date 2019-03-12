@@ -487,42 +487,34 @@ type)}があります。このタイプはシンボルのリストです。最�
 @end defopt
 
 @defopt warning-suppress-log-types
-このリストは、ユーザーにたいしてどの警告タイプがwarningsバッファーにログされるべきではないかを指定する。このリスト内の各要素は、シンボルのリストであること。それの要素が警告タイプ内の最初の▼数要素にマッチしたら、その警告はログされない。
+このリストは、ユーザーにたいしてどの警告タイプがwarningsバッファーにログされるべきではないかを指定する。このリスト内の各要素は、シンボルのリストであること。それの要素が警告タイプ内の最初の数要素にマッチしたら、その警告はログされない。
 @end defopt
 
 @node Delayed Warnings
 @subsection Delayed Warnings
 @cindex delayed warnings
 
-Sometimes, you may wish to avoid showing a warning while a command is
-running, and only show it only after the end of the command.  You can use
-the variable @code{delayed-warnings-list} for this.
+コマンド実行中には警告の表示を避けて、コマンドの終わりでのみ警告を表示したいことがあるかもしれません。これは、変数@code{delayed-warnings-list}により行うことができます。
 
 @defvar delayed-warnings-list
-The value of this variable is a list of warnings to be displayed after the
-current command has finished.  Each element must be a list
+この変数の値は、カレントのコマンド完了後に表示される警告のリストである。各要素は以下のようなリストでなければならない:
 
 @smallexample
 (@var{type} @var{message} [@var{level} [@var{buffer-name}]])
 @end smallexample
 
 @noindent
-with the same form, and the same meanings, as the argument list of
-@code{display-warning} (@pxref{Warning Basics}).  Immediately after running
-@code{post-command-hook} (@pxref{Command Overview}), the Emacs command loop
-displays all the warnings specified by this variable, then resets it to
-@code{nil}.
+これらは、は@code{display-warning}の引数リストと同じ形式、同じ意味である(@ref{Warning
+Basics}を参照)。@code{post-command-hook}(@ref{Command
+Overview}を参照)の実行直後、Emacsのコマンドループはこの変数で指定されたすべての警告を表示してから、変数を@code{nil}にリセットする。
 @end defvar
 
-  Programs which need to further customize the delayed warnings mechanism can
-change the variable @code{delayed-warnings-hook}:
+  遅延警告メカニズムをよりカスタマイズする必要があるプログラムは、変数@code{delayed-warnings-hook}を変更することができます:
 
 @defvar delayed-warnings-hook
-This is a normal hook which is run by the Emacs command loop, after
-@code{post-command-hook}, in order to to process and display delayed
-warnings.
+これは遅延警告を処理して表示するために、@code{post-command-hook}の後にEmacsコマンドループが実行する、ノーマルフックである。
 
-Its default value is a list of two functions:
+デフォルト値は、2つの関数からなるリストである:
 
 @smallexample
 (collapse-delayed-warnings display-delayed-warnings)
@@ -531,11 +523,7 @@ Its default value is a list of two functions:
 @findex collapse-delayed-warnings
 @findex display-delayed-warnings
 @noindent
-The function @code{collapse-delayed-warnings} removes repeated entries from
-@code{delayed-warnings-list}.  The function @code{display-delayed-warnings}
-calls @code{display-warning} on each of the entries in
-@code{delayed-warnings-list}, in turn, and then sets
-@code{delayed-warnings-list} to @code{nil}.
+関数@code{collapse-delayed-warnings}は、@code{delayed-warnings-list}から重複するエントリーを削除する。関数@code{display-delayed-warnings}は、@code{delayed-warnings-list}内の各要素にたいして順次@code{display-warning}を呼び出してから、@code{delayed-warnings-list}を@code{nil}にセットする。
 @end defvar
 
 @node Invisible Text
