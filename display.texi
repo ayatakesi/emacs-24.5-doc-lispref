@@ -175,28 +175,19 @@ Streams}を参照してください。
 @end menu
 
 @node Displaying Messages
-@subsection エコーエリア内へのメッセージ表示。
+@subsection Displaying Messages in the Echo Area
 @cindex display message in echo area
 
-  This section describes the standard functions for displaying messages in the
-echo area.
+  このセクションでは、エコーエリア内にメッセージを表示する、標準的な関数を説明します。
 
 @defun message format-string &rest arguments
-This function displays a message in the echo area.  @var{format-string} is a
-format string, and @var{arguments} are the objects for its format
-specifications, like in the @code{format} function (@pxref{Formatting
-Strings}).  The resulting formatted string is displayed in the echo area; if
-it contains @code{face} text properties, it is displayed with the specified
-faces (@pxref{Faces}).  The string is also added to the @file{*Messages*}
-buffer, but without text properties (@pxref{Logging Messages}).
+この関数は、エコーエリア内にメッセージを表示する。@code{format}関数(@ref{Formatting
+Strings}を参照)の場合と同様、@var{format-string}はフォーマット文字列、@var{arguments}はそのフォーマット仕様にたいするオブジェクトである。フォーマットされた結果文字列は、エコーエリア内に表示される。それに@code{face}テキストプロパティが含まれる場合、指定されたフェイスにより表示される(@ref{Faces}を参照)。この文字列は@file{*Messages*}バッファーにも追加されるが、テキストプロパティは含まれない(@ref{Logging
+Messages}を参照)。
 
-In batch mode, the message is printed to the standard error stream, followed
-by a newline.
+バッチモードでは、後に改行が付与されたメッセージが、標準エラーストリームにプリントされる。
 
-If @var{format-string} is @code{nil} or the empty string, @code{message}
-clears the echo area; if the echo area has been expanded automatically, this
-brings it back to its normal size.  If the minibuffer is active, this brings
-the minibuffer contents back onto the screen immediately.
+@var{format-string}が@code{nil}か空文字列なら、@code{message}はエコーエリアをクリアーする。エコーエリアが自動的に拡張されていたら、これにより通常のサイズに復元される。ミニバッファーがアクティブなら、これによりスクリーン上に即座にミニバッファーのコンテンツが復元される。
 
 @example
 @group
@@ -213,62 +204,39 @@ Minibuffer depth is 0.
 @end group
 @end example
 
-To automatically display a message in the echo area or in a pop-buffer,
-depending on its size, use @code{display-message-or-buffer} (see below).
+エコーエリアやポップバッファー内に、自動的にメッセージを表示するには、そのサイズに応じて@code{display-message-or-buffer}(以下参照)を使用する。
 @end defun
 
 @defmac with-temp-message message &rest body
-This construct displays a message in the echo area temporarily, during the
-execution of @var{body}.  It displays @var{message}, executes @var{body},
-then returns the value of the last body form while restoring the previous
-echo area contents.
+この構成は@var{body}実行の間、エコーエリア内にメッセージを一時的に表示する。これは@var{message}を表示して@var{body}を実行し、それからエコーエリアの前のコンテンツをリストアするとともに、bodyの最後のフォームの値をリターンする。
 @end defmac
 
 @defun message-or-box format-string &rest arguments
-This function displays a message like @code{message}, but may display it in
-a dialog box instead of the echo area.  If this function is called in a
-command that was invoked using the mouse---more precisely, if
-@code{last-nonmenu-event} (@pxref{Command Loop Info}) is either @code{nil}
-or a list---then it uses a dialog box or pop-up menu to display the
-message.  Otherwise, it uses the echo area.  (This is the same criterion
-that @code{y-or-n-p} uses to make a similar decision; see @ref{Yes-or-No
-Queries}.)
+この関数は@code{message}と同様にメッセージを表示するが、エコーエリアではなくダイアログボックスにメッセージを表示するかもしれない。この関数があるコマンド内からマウスを使用して呼び出された場合
+--- より正確には@code{last-nonmenu-event}(@ref{Command Loop
+Info}を参照)が@code{nil}かリストなら、そのメッセージの表示にダイアログボックスまたはポップアップメニューを使用する。それ以外の場合は、エコーエリアを使用する(これは@code{y-or-n-p}が同様の決定を行う際に使用する条件と同じである。@ref{Yes-or-No
+Queries}を参照されたい)。
 
-You can force use of the mouse or of the echo area by binding
-@code{last-nonmenu-event} to a suitable value around the call.
+呼び出しの前後で@code{last-nonmenu-event}を適切な値にバインドすることにより、エコーエリアでのマウスの使用を強制できる。
 @end defun
 
 @defun message-box format-string &rest arguments
 @anchor{message-box}
-This function displays a message like @code{message}, but uses a dialog box
-(or a pop-up menu) whenever that is possible.  If it is impossible to use a
-dialog box or pop-up menu, because the terminal does not support them, then
-@code{message-box} uses the echo area, like @code{message}.
+この関数は@code{message}と同様にメッセージを表示するが、利用可能なら常にダイアログボックス(かポップアップメニュー)を使用する。端末がサポートしないために、ダイアログボックスまたはポップアップメニューが使用できなければ、@code{message-box}は@code{message}と同様にエコーエリアを使用する。
 @end defun
 
 @defun display-message-or-buffer message &optional buffer-name not-this-window frame
-This function displays the message @var{message}, which may be either a
-string or a buffer.  If it is shorter than the maximum height of the echo
-area, as defined by @code{max-mini-window-height}, it is displayed in the
-echo area, using @code{message}.  Otherwise, @code{display-buffer} is used
-to show it in a pop-up buffer.
+この関数はメッセージ@var{message}を表示する。@var{message}は文字列かバッファーを指定できる。これが@code{max-mini-window-height}で定義されるエコーエリアの最大高さより小さければ、@code{message}を使用してエコーエリアに表示される。それ以外なら、メッセージを表示するために@code{display-buffer}はポップアップバッファーを使用する。
 
-Returns either the string shown in the echo area, or when a pop-up buffer is
-used, the window used to display it.
+エコーエリアに表示したメッセージ、またはポップアップバッファー使用時はその表示に使用したウィンドウをリターンする。
 
-If @var{message} is a string, then the optional argument @var{buffer-name}
-is the name of the buffer used to display it when a pop-up buffer is used,
-defaulting to @file{*Message*}.  In the case where @var{message} is a string
-and displayed in the echo area, it is not specified whether the contents are
-inserted into the buffer anyway.
+@var{message}が文字列なら、オプション引数@var{buffer-name}はポップアップバッファー使用時にメッセージ表示に使用するバッファー名(デフォルトは@file{*Message*})である。@var{message}が文字列でエコーエリアに表示されてる場合は、いずれにせよコンテンツをバッファーに挿入するかどうかは指定されない。
 
-The optional arguments @var{not-this-window} and @var{frame} are as for
-@code{display-buffer}, and only used if a buffer is displayed.
+オプション引数@var{not-this-window}と@var{frame}は、@code{display-buffer}の場合と同様に、バッファーが表示されている場合のみ使用される。
 @end defun
 
 @defun current-message
-This function returns the message currently being displayed in the echo
-area, or @code{nil} if there is none.
+この関数は、エコーエリア内にカレントで表示されているメッセージ、またはそれが存在しなければ@code{nil}をリターンする。
 @end defun
 
 @node Progress
