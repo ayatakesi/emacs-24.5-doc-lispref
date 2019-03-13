@@ -958,71 +958,43 @@ position)''で分割される、2つのリストに格納します。一方の�
 @subsection Overlay Properties
 @cindex overlay properties
 
-  Overlay properties are like text properties in that the properties that
-alter how a character is displayed can come from either source.  But in most
-respects they are different.  @xref{Text Properties}, for comparison.
+  オーバーレイプロパティは、文字が表示される方法をどちらのソースからも取得できるという点において、テキストプロパティと似ています。しかしほとんどの観点で、両者は異なります。これらの比較は@ref{Text
+Properties}を参照してください。
 
-  Text properties are considered a part of the text; overlays and their
-properties are specifically considered not to be part of the text.  Thus,
-copying text between various buffers and strings preserves text properties,
-but does not try to preserve overlays.  Changing a buffer's text properties
-marks the buffer as modified, while moving an overlay or changing its
-properties does not.  Unlike text property changes, overlay property changes
-are not recorded in the buffer's undo list.
+  テキストプロパティは、そのテキストの一部として考えることができます。オーバーレイとそのプロパティは、特にテキストの一部としてはみなされません。したがって、さまざまなバッファーや文字列の間でテキストをコピーすると、テキストプロパティは保持されますが、オーバーレイを保持しようとは試みません。バッファーのテキストプロパティの変更は、そのバッファーを変更済みとマークしますが、オーバーレイの移動やプロパティの変更は違います。テキストプロパティの変更とは異なり、オーバーレイプロパティの変更は、バッファーのundoリストに記録されません。
 
-  Since more than one overlay can specify a property value for the same
-character, Emacs lets you specify a priority value of each overlay.  In case
-two overlays have the same priority value, and one is nested in the other,
-then the inner one will have priority over the outer one.  If neither is
-nested in the other then you should not make assumptions about which overlay
-will prevail.
+  複数のオーバーレイが同じ文字にたいしてプロパティ値を指定できるので、Emacsは各オーバーレイにたいして優先度の指定を促します。2つのオーバーレイが同じ値の優先度をもち、一方が他方にネストされている場合には、内側のオーバーレイが外側のオーバーレイより高い優先度をもちます。いずれのオーバーレイも他方をネストしない場合には、どちらのオーバーレイが優先されるかについて予測するべきではありません。
 
-  These functions read and set the properties of an overlay:
+  以下の関数は、オーバーレイのプロパティの読み取りとセットを行います:
 
 @defun overlay-get overlay prop
-This function returns the value of property @var{prop} recorded in
-@var{overlay}, if any.  If @var{overlay} does not record any value for that
-property, but it does have a @code{category} property which is a symbol,
-that symbol's @var{prop} property is used.  Otherwise, the value is
-@code{nil}.
+この関数は、@var{overlay}内に記録されたプロパティ@var{prop}の値をリターンする。そのプロパティにたいして@var{overlay}が何も値を記録していないが、シンボルであるような@code{category}プロパティをもつ場合は、そのシンボルの@var{prop}プロパティが使用される。それ以外なら値は@code{nil}。
 @end defun
 
 @defun overlay-put overlay prop value
-This function sets the value of property @var{prop} recorded in
-@var{overlay} to @var{value}.  It returns @var{value}.
+この関数は、@var{overlay}内に記録されたプロパティ@var{prop}の値に、@var{value}をセットする。リターン値は@var{value}。
 @end defun
 
 @defun overlay-properties overlay
-This returns a copy of the property list of @var{overlay}.
+これは、@var{overlay}のプロパティリストのコピーをリターンする。
 @end defun
 
-  See also the function @code{get-char-property} which checks both overlay
-properties and text properties for a given character.  @xref{Examining
-Properties}.
+  与えられた文字にたいしてテキストプロパティとオーバーレイプロパティの両方をチェックする関数@code{get-char-property}も参照してください。@ref{Examining
+Properties}を参照してください。
 
-  Many overlay properties have special meanings; here is a table of them:
+  多くのオーバーレイプロパティには特別な意味があります。以下はそれらのテーブルです:
 
 @table @code
 @item priority
 @kindex priority @r{(overlay property)}
-This property's value determines the priority of the overlay.  If you want
-to specify a priority value, use either @code{nil} (or zero), or a positive
-integer.  Any other value has undefined behavior.
+このプロパティの値は、そのオーバーレイの優先度を決定する。優先度にたいして値を指定したければ、@code{nil}(か0)、または正の整数を使用すること。それ以外のすべての値にたいして、動作は未定義である。
 
-The priority matters when two or more overlays cover the same character and
-both specify the same property; the one whose @code{priority} value is
-larger overrides the other.  For the @code{face} property, the higher
-priority overlay's value does not completely override the other value;
-instead, its face attributes override the face attributes of the lower
-priority @code{face} property.
+2つ以上のオーバーレイが同じ文字をカバーし、いずれもが同じプロパティを指定する場合には、優先度が重要になる。他より@code{priority}の値が大きいほうが他をオーバーライドする。@code{face}プロパティにたいしては、より高い優先度のオーバーレイの値は、他の値を完全にはオーバーライドしない。かわりにより低い優先度の@code{face}プロパティのface属性を、高い優先度のface属性がオーバーライドする。
 
-Currently, all overlays take priority over text properties.
+現在のところ、すべてのオーバーレイはテキストプロパティより優先される。
 
-Note that Emacs sometimes uses non-numeric priority values for some of its
-internal overlays, so do not try to do arithmetic on the priority of an
-overlay (unless it is one that you created).  If you need to put overlays in
-priority order, use the @var{sorted} argument of @code{overlays-at}.
-@xref{Finding Overlays}.
+Emacsは内部的なオーバーレイのいくつかにたいして、非数値の優先度を使用することがあるので、(自分が作成したオーバーレイでない場合は)オーバーレイ優先度の算術演算を試みないよう注意すること。オーバーレイを優先度順に配す必要があるなら、@code{overlays-at}の@var{sorted}引数を使用すること。@ref{Finding
+Overlays}を参照されたい。
 
 @item window
 @kindex window @r{(overlay property)}
