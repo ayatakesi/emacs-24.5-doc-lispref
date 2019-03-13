@@ -597,41 +597,16 @@ Properties}を参照)、またはオーバーレイプロパティ(@ref{Overlays
 @vindex line-move-ignore-invisible
   通常、テキストを操作したりポイントを移動する関数は、そのテキストが不可視かどうかに注意を払わず、可視および不可視のテキストを同様に処理します。@code{next-line}や@code{previous-line}のようなユーザーレベルの行移動関数は、@code{line-move-ignore-invisible}が非@code{nil}(デフォルト)なら、不可視な改行を無視します。これらの関数は不可視な改行がそのバッファーに存在しないかのように振る舞いますが、これはそう振る舞うよう、明示的にプログラムされているからです。
 
-  If a command ends with point inside or at the boundary of invisible text,
-the main editing loop relocates point to one of the two ends of the
-invisible text.  Emacs chooses the direction of relocation so that it is the
-same as the overall movement direction of the command; if in doubt, it
-prefers a position where an inserted char would not inherit the
-@code{invisible} property.  Additionally, if the text is not replaced by an
-ellipsis and the command only moved within the invisible text, then point is
-moved one extra character so as to try and reflect the command's movement by
-a visible movement of the cursor.
+  あるコマンドが、不可視テキストの境界内側のポイントで終了した場合、メイン編集ループはその不可視テキストの両端のうちのいずれかにポイントを再配置します。そのコマンドの移動関数の全体的な方向と同じになるように、Emacsが再配置の方向は決定します。これに疑問がある場合には、挿入された文字が@code{invisible}プロパティを継承しないような位置を優先してください。加えて、そのテキストが省略記号で置換されず、コマンドが不可視テキスト内への移動のみを行う場合、ポイントを1文字余計に移動して、目に見えるようカーソルを移動することにより、そのコマンドの移動を反映するよう試みます。
 
-  Thus, if the command moved point back to an invisible range (with the usual
-stickiness), Emacs moves point back to the beginning of that range.  If the
-command moved point forward into an invisible range, Emacs moves point
-forward to the first visible character that follows the invisible text and
-then forward one more character.
+  したがって,コマンドが(通常のstickinessをもつ)不可視範囲に、後方へとポイントを移動した場合、Emacsはポイントをその範囲の先頭へと、後方に移動します。コマンドが不可視範囲へ前方にポイントを移動した場合には、Emacsは不可視テキストの前にある最初の可視文字へと、前方にポイントを移動して、その後さらに前方へ1文字余計に移動します。
 
-  These @dfn{adjustments} of point that ended up in the middle of invisible
-text can be disabled by setting @code{disable-point-adjustment} to a
-non-@code{nil} value.  @xref{Adjusting Point}.
+  これら不可視テキスト中間で終了するポイントにたいするこれらの@dfn{調整(adjustments)}は、@code{disable-point-adjustment}を非@code{nil}にセットすることにより無効にできます。@ref{Adjusting
+Point}を参照してください。
 
-  Incremental search can make invisible overlays visible temporarily and/or
-permanently when a match includes invisible text.  To enable this, the
-overlay should have a non-@code{nil} @code{isearch-open-invisible}
-property.  The property value should be a function to be called with the
-overlay as an argument.  This function should make the overlay visible
-permanently; it is used when the match overlaps the overlay on exit from the
-search.
+  インクリメンタル検索はマッチが不可視テキストを含む場合は、一時的および/または永続的に不可視オーバーレイを可視にすることができます。これを有効にするためには、そのオーバーレイが非@code{nil}の@code{isearch-open-invisible}プロパティをもつ必要があります。プロパティの値は、そのオーバーレイを引数として呼び出される関数であるべきです。その関数は、オーバーレイを永続的に可視にする必要があります。これは検索からのexit時にマッチがそのオーバーレイに重なるときに使用されます。
 
-  During the search, such overlays are made temporarily visible by temporarily
-modifying their invisible and intangible properties.  If you want this to be
-done differently for a certain overlay, give it an
-@code{isearch-open-invisible-temporary} property which is a function.  The
-function is called with two arguments: the first is the overlay, and the
-second is @code{nil} to make the overlay visible, or @code{t} to make it
-invisible again.
+  検索の間、そのようなオーバーレイのinvisible、およびintangibleプロパティを一時的に変更することにより、オーバーレイは一時的に可視にされます。特定のオーバーレイにたいして、異なる方法でこれを行いたいなら、それを@code{isearch-open-invisible-temporary}プロパティ(関数)に与えてください。その関数は2つの引数により呼び出されます。1つ目はそのオーバーレイ、2つ目は@code{nil}ならオーバーレイを可視に、@code{t}なら再び不可視にします。
 
 @node Selective Display
 @section Selective Display
