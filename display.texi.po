@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-03-13 17:56+0900\n"
+"PO-Revision-Date: 2019-03-13 19:15+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1901,54 +1901,54 @@ msgstr "省略記号(@samp{@dots{}})にたいして他のテキストを代替�
 #: display.texi.orig:1078
 #, no-wrap
 msgid "temporary display"
-msgstr ""
+msgstr "temporary display"
 
 #. type: cindex
 #: display.texi.orig:1079
 #, no-wrap
 msgid "temporary buffer display"
-msgstr ""
+msgstr "temporary buffer display"
 
 #. type: Plain text
 #: display.texi.orig:1084
 msgid "Temporary displays are used by Lisp programs to put output into a buffer and then present it to the user for perusal rather than for editing.  Many help commands use this feature."
-msgstr ""
+msgstr "一時的表示(temporary display)は、出力をバッファーに配して、それを編集用ではなく閲覧用としてユーザーに示すために、Lispプログラムにより使用されます。多くのヘルプコマンドは、この機能を使用します。"
 
 #. type: defmac
 #: display.texi.orig:1085
 #, no-wrap
 msgid "with-output-to-temp-buffer buffer-name body@dots{}"
-msgstr ""
+msgstr "with-output-to-temp-buffer buffer-name body@dots{}"
 
 #. type: defmac
 #: display.texi.orig:1091
 msgid "This function executes the forms in @var{body} while arranging to insert any output they print into the buffer named @var{buffer-name}, which is first created if necessary, and put into Help mode.  (See the similar form @code{with-temp-buffer-window} below.)  Finally, the buffer is displayed in some window, but that window is not selected."
-msgstr ""
+msgstr "この関数は、@var{buffer-name}という名前のバッファー(必要なら最初に作成される)にプリントされた任意の出力が挿入されるようアレンジ、さらにバッファーをHelpモードにして、@var{body}内のフォームを実行する(類似する以下のフォーム@code{with-temp-buffer-window}を参照されたい)。最後に、そのバッファーはいずれかのウィンドウに表示されるが、そのウィンドウは選択されない。"
 
 #. type: defmac
 #: display.texi.orig:1099
 msgid "If the forms in @var{body} do not change the major mode in the output buffer, so that it is still Help mode at the end of their execution, then @code{with-output-to-temp-buffer} makes this buffer read-only at the end, and also scans it for function and variable names to make them into clickable cross-references.  @xref{Docstring hyperlinks, , Tips for Documentation Strings}, in particular the item on hyperlinks in documentation strings, for more details."
-msgstr ""
+msgstr "@var{body}内のフォームが出力バッファーのメジャーモードを変更しないため、実行の最後においても依然としてHelpモードにあるなら、@code{with-output-to-temp-buffer}は最後にそのバッファーを読み取り専用するとともに、クリック可能なクロスリファレンスとなるよう、関数名と変数名のスキャンも行う。特にドキュメント文字列内のハイパーリンク上アイテムに関する詳細は、@ref{Docstring hyperlinks, , Tips for Documentation Strings}を参照のこと。"
 
 #. type: defmac
 #: display.texi.orig:1104
 msgid "The string @var{buffer-name} specifies the temporary buffer, which need not already exist.  The argument must be a string, not a buffer.  The buffer is erased initially (with no questions asked), and it is marked as unmodified after @code{with-output-to-temp-buffer} exits."
-msgstr ""
+msgstr "文字列@var{buffer-name}は一時的なバッファーを指定し、これはあらかじめ存在する必要はない。引数はバッファーではなく文字列でなければならない。そのバッファーは最初に消去され(確認なし)、@code{with-output-to-temp-buffer}のexit後は未変更(unmodified)とマークされる。"
 
 #. type: defmac
 #: display.texi.orig:1111
 msgid "@code{with-output-to-temp-buffer} binds @code{standard-output} to the temporary buffer, then it evaluates the forms in @var{body}.  Output using the Lisp output functions within @var{body} goes by default to that buffer (but screen display and messages in the echo area, although they are ``output'' in the general sense of the word, are not affected).  @xref{Output Functions}."
-msgstr ""
+msgstr "@code{with-output-to-temp-buffer}は@code{standard-output}を一時的バッファーにバインドして、@var{body}内のフォームを評価する。@var{body}内のLisp出力関数を使用した出力のデフォルト出力先は、そのバッファーになる(しかしスクリーン表示、エコーエリア内のメッセージは、一般的な世界の感覚では``出力''であるものの、影響は受けない)。@ref{Output Functions}を参照のこと。"
 
 #. type: defmac
 #: display.texi.orig:1114
 msgid "Several hooks are available for customizing the behavior of this construct; they are listed below."
-msgstr ""
+msgstr "この構成の振る舞いをカスタマイズするために利用できるフックがいくつかあり、それらは以下にリストしてある。"
 
 #. type: defmac
 #: display.texi.orig:1116
 msgid "The value of the last form in @var{body} is returned."
-msgstr ""
+msgstr "リターン値は、@var{body}内の最後のフォームの値である。"
 
 #. type: group
 #: display.texi.orig:1122
@@ -1958,6 +1958,9 @@ msgid ""
 " This is the contents of foo.\n"
 "---------- Buffer: foo ----------\n"
 msgstr ""
+"---------- Buffer: foo ----------\n"
+" This is the contents of foo.\n"
+"---------- Buffer: foo ----------\n"
 
 #. type: group
 #: display.texi.orig:1129
@@ -1969,6 +1972,11 @@ msgid ""
 "@result{} #<buffer foo>\n"
 "\n"
 msgstr ""
+"(with-output-to-temp-buffer \"foo\"\n"
+"    (print 20)\n"
+"    (print standard-output))\n"
+"@result{} #<buffer foo>\n"
+"\n"
 
 #. type: group
 #: display.texi.orig:1131
@@ -1976,7 +1984,7 @@ msgstr ""
 msgid ""
 "---------- Buffer: foo ----------\n"
 "\n"
-msgstr ""
+msgstr "---------- Buffer: foo ----------\n\n"
 
 #. type: group
 #: display.texi.orig:1133
@@ -1984,7 +1992,7 @@ msgstr ""
 msgid ""
 "20\n"
 "\n"
-msgstr ""
+msgstr "20\n\n"
 
 #. type: group
 #: display.texi.orig:1135
@@ -1992,146 +2000,146 @@ msgstr ""
 msgid ""
 "#<buffer foo>\n"
 "\n"
-msgstr ""
+msgstr "#<buffer foo>\n\n"
 
 #. type: group
 #: display.texi.orig:1137
 #, no-wrap
 msgid "---------- Buffer: foo ----------\n"
-msgstr ""
+msgstr "---------- Buffer: foo ----------\n"
 
 #. type: defopt
 #: display.texi.orig:1141
 #, no-wrap
 msgid "temp-buffer-show-function"
-msgstr ""
+msgstr "temp-buffer-show-function"
 
 #. type: defopt
 #: display.texi.orig:1145
 msgid "If this variable is non-@code{nil}, @code{with-output-to-temp-buffer} calls it as a function to do the job of displaying a help buffer.  The function gets one argument, which is the buffer it should display."
-msgstr ""
+msgstr "この変数が非@code{nil}なら、@code{with-output-to-temp-buffer}はヘルプバッファーを表示する処理を行うために、その関数を呼び出す。この関数は、表示すべきバッファーという、1つの引数を受け取る。"
 
 #. type: defopt
 #: display.texi.orig:1150
 msgid "It is a good idea for this function to run @code{temp-buffer-show-hook} just as @code{with-output-to-temp-buffer} normally would, inside of @code{save-selected-window} and with the chosen window and buffer selected."
-msgstr ""
+msgstr "@code{with-output-to-temp-buffer}が通常行うように、@code{save-selected-window}内部や選択されたウィンドウ内で、バッファーか選択された状態で、@code{temp-buffer-show-hook}を実行するのは、この関数にとってよいアイデアである。"
 
 #. type: defvar
 #: display.texi.orig:1152
 #, no-wrap
 msgid "temp-buffer-setup-hook"
-msgstr ""
+msgstr "temp-buffer-setup-hook"
 
 #. type: defvar
 #: display.texi.orig:1157
 msgid "This normal hook is run by @code{with-output-to-temp-buffer} before evaluating @var{body}.  When the hook runs, the temporary buffer is current.  This hook is normally set up with a function to put the buffer in Help mode."
-msgstr ""
+msgstr "このノーマルフックは、@var{body}を評価する前に、@code{with-output-to-temp-buffer}により実行される。フック実行時は、一時的バッファーがカレントになる。このフックは通常、そのバッファーをHelpモードにするための関数にセットアップされる。"
 
 #. type: defvar
 #: display.texi.orig:1159
 #, no-wrap
 msgid "temp-buffer-show-hook"
-msgstr ""
+msgstr "temp-buffer-show-hook"
 
 #. type: defvar
 #: display.texi.orig:1163
 msgid "This normal hook is run by @code{with-output-to-temp-buffer} after displaying the temporary buffer.  When the hook runs, the temporary buffer is current, and the window it was displayed in is selected."
-msgstr ""
+msgstr "このノーマルフックは、一時的バッファー表示後に、@code{with-output-to-temp-buffer}により実行される。フック実行時は一時的バッファーがカレントになり、それが表示されているウィンドウが選択される。"
 
 #. type: defmac
 #: display.texi.orig:1165
 #, no-wrap
 msgid "with-temp-buffer-window buffer-or-name action quit-function body@dots{}"
-msgstr ""
+msgstr "with-temp-buffer-window buffer-or-name action quit-function body@dots{}"
 
 #. type: defmac
 #: display.texi.orig:1171
 msgid "This macro is similar to @code{with-output-to-temp-buffer}.  Like that construct, it executes @var{body} while arranging to insert any output it prints into the buffer named @var{buffer-or-name} and displays that buffer in some window.  Unlike @code{with-output-to-temp-buffer}, however, it does not automatically switch that buffer to Help mode."
-msgstr ""
+msgstr "このマクロは@code{with-output-to-temp-buffer}と類似している。@code{with-output-to-temp-buffer}構成同様、これはプリントされる任意の出力が@var{buffer-or-name}という名前のバッファーに挿入されるようにアレンジして@var{body}を実行し、そのバッファーをいぜれかのウィンドウに表示する。しかし@code{with-output-to-temp-buffer}とは異なり、このマクロはそのバッファーを自動的にHelpモードに切り替えない。"
 
 #. type: defmac
 #: display.texi.orig:1174
 msgid "Like @code{with-output-to-temp-buffer} it neither makes the buffer specified by @var{buffer-or-name} current when executing @var{body}."
-msgstr ""
+msgstr "@code{with-output-to-temp-buffer}と同様、これは@var{buffer-or-name}で指定されるバッファーを、@var{body}実行時カレントにしない。"
 
 #. type: findex
 #: display.texi.orig:1174
 #, no-wrap
 msgid "with-current-buffer-window"
-msgstr ""
+msgstr "with-current-buffer-window"
 
 #. type: defmac
 #: display.texi.orig:1177
 msgid "The otherwise identical macro @code{with-current-buffer-window} can be used to execute @var{body} with that buffer current."
-msgstr ""
+msgstr "@var{body}を実行するために、そのバッファーをカレントにする点以外は等価なマクロ@code{with-current-buffer-window}を使用できる。"
 
 #. type: defmac
 #: display.texi.orig:1183
 msgid "The argument @var{buffer-or-name} specifies the temporary buffer.  It can be either a buffer, which must already exist, or a string, in which case a buffer of that name is created, if necessary.  The buffer is marked as unmodified and read-only when @code{with-temp-buffer-window} exits."
-msgstr ""
+msgstr "引数@var{buffer-or-name}は、一時的バッファーを指定する。これはバッファー(既存でなければならない)、または文字列を指定でき、文字列の場合は必要ならその名前のバッファーが作成される。そのバッファーは@code{with-temp-buffer-window}のexit時、未変更かる読み取り専用とマークされる。"
 
 #. type: defmac
 #: display.texi.orig:1187
 msgid "This macro does not call @code{temp-buffer-show-function}.  Rather, it passes the @var{action} argument to @code{display-buffer} in order to display the buffer."
-msgstr ""
+msgstr "このマクロは@code{temp-buffer-show-function}を呼び出さない。かわりにそのバッファーを表示するために、@var{action}引数を@code{display-buffer}に渡す。"
 
 #. type: defmac
 #: display.texi.orig:1193
 msgid "The value of the last form in @var{body} is returned, unless the argument @var{quit-function} is specified.  In that case, it is called with two arguments: the window showing the buffer and the result of @var{body}.  The final return value is then whatever @var{quit-function} returns."
-msgstr ""
+msgstr "引数@var{quit-function}が指定されていなければ、@var{body}内の最後のフォームの値がリターンされる。指定されている場合、それはそのバッファーを表示するウィンドウと、@var{body}の結果という、2つの引数で呼び出される。その場合、最終的なリターン値は何であれ@var{quit-function}がリターンした値となる。"
 
 #. type: vindex
 #: display.texi.orig:1194
 #, no-wrap
 msgid "temp-buffer-window-setup-hook"
-msgstr ""
+msgstr "temp-buffer-window-setup-hook"
 
 #. type: vindex
 #: display.texi.orig:1195
 #, no-wrap
 msgid "temp-buffer-window-show-hook"
-msgstr ""
+msgstr "temp-buffer-window-show-hook"
 
 #. type: defmac
 #: display.texi.orig:1199
 msgid "This macro uses the normal hooks @code{temp-buffer-window-setup-hook} and @code{temp-buffer-window-show-hook} in place of the analogous hooks run by @code{with-output-to-temp-buffer}."
-msgstr ""
+msgstr "このマクロは、@code{with-output-to-temp-buffer}により実行される類似フックのかわりに、ノーマルフック@code{temp-buffer-window-setup-hook}と@code{temp-buffer-window-show-hook}使用する。"
 
 #. type: defun
 #: display.texi.orig:1201
 #, no-wrap
 msgid "momentary-string-display string position &optional char message"
-msgstr ""
+msgstr "momentary-string-display string position &optional char message"
 
 #. type: defun
 #: display.texi.orig:1205
 msgid "This function momentarily displays @var{string} in the current buffer at @var{position}.  It has no effect on the undo list or on the buffer's modification status."
-msgstr ""
+msgstr "この関数は、カレントバッファー内の@var{position}に、@var{string}を瞬間表示(momentarily display)する。これはundoリストや、そのバッファーの変更状態(modification status)に影響を与えない。"
 
 #. type: defun
 #: display.texi.orig:1213
 msgid "The momentary display remains until the next input event.  If the next input event is @var{char}, @code{momentary-string-display} ignores it and returns.  Otherwise, that event remains buffered for subsequent use as input.  Thus, typing @var{char} will simply remove the string from the display, while typing (say) @kbd{C-f} will remove the string from the display and later (presumably) move point forward.  The argument @var{char} is a space by default."
-msgstr ""
+msgstr "瞬間表示は、次の入力イベントまで留まる。次の入力イベントが@var{char}なら、@code{momentary-string-display}はそれを無視してリターンする。それ以外なら、そのイベントは後続の入力として使用するためにバッファーされる。つまり@var{char}とタイプすると、表示からその文字列を単に削除して、@var{char}ではない(たとえば)@kbd{C-f}とタイプすると表示からその文字列を削除して、後で(おそらく)ポイントを前方へ移動するだろう。引数@var{char}のデフォルトはスペース。"
 
 #. type: defun
 #: display.texi.orig:1215
 msgid "The return value of @code{momentary-string-display} is not meaningful."
-msgstr ""
+msgstr "@code{momentary-string-display}のリターン値に意味はない。"
 
 #. type: defun
 #: display.texi.orig:1220
 msgid "If the string @var{string} does not contain control characters, you can do the same job in a more general way by creating (and then subsequently deleting) an overlay with a @code{before-string} property.  @xref{Overlay Properties}."
-msgstr ""
+msgstr "文字列@var{string}がコントロール文字を含まなければ、@code{before-string}プロパティでオーバーレイを作成(してその後削除)することで、より一般的に同じことを行うことができる。@ref{Overlay Properties}を参照のこと。"
 
 #. type: defun
 #: display.texi.orig:1224
 msgid "If @var{message} is non-@code{nil}, it is displayed in the echo area while @var{string} is displayed in the buffer.  If it is @code{nil}, a default message says to type @var{char} to continue."
-msgstr ""
+msgstr "@var{message}gが非@code{nil}なら、バッファー内に@var{string}が表示されている間は、エコーエリアにそれが表示される。@code{nil}ならデフォルトは、継続するためには@var{char}をタイプするよう告げるメッセージである。"
 
 #. type: defun
 #: display.texi.orig:1227
 msgid "In this example, point is initially located at the beginning of the second line:"
-msgstr ""
+msgstr "以下の例ではポイントは最初、2行目の先頭に置かれている:"
 
 #. type: group
 #: display.texi.orig:1234
@@ -2142,6 +2150,10 @@ msgid ""
 "@point{}Second line.\n"
 "---------- Buffer: foo ----------\n"
 msgstr ""
+"---------- Buffer: foo ----------\n"
+"This is the contents of foo.\n"
+"@point{}Second line.\n"
+"---------- Buffer: foo ----------\n"
 
 #. type: group
 #: display.texi.orig:1242
@@ -2153,6 +2165,11 @@ msgid ""
 "  \"Type RET when done reading\")\n"
 "@result{} t\n"
 msgstr ""
+"(momentary-string-display\n"
+"  \"**** Important Message! ****\"\n"
+"  (point) ?\\r\n"
+"  \"Type RET when done reading\")\n"
+"@result{} t\n"
 
 #. type: group
 #: display.texi.orig:1249
@@ -2164,6 +2181,11 @@ msgid ""
 "---------- Buffer: foo ----------\n"
 "\n"
 msgstr ""
+"---------- Buffer: foo ----------\n"
+"This is the contents of foo.\n"
+"**** Important Message! ****Second line.\n"
+"---------- Buffer: foo ----------\n"
+"\n"
 
 #. type: group
 #: display.texi.orig:1253
@@ -2173,6 +2195,9 @@ msgid ""
 "Type RET when done reading\n"
 "---------- Echo Area ----------\n"
 msgstr ""
+"---------- Echo Area ----------\n"
+"Type RET when done reading\n"
+"---------- Echo Area ----------\n"
 
 #. type: cindex
 #: display.texi.orig:1259

@@ -696,41 +696,23 @@ Tables}を参照のこと。
 @cindex temporary display
 @cindex temporary buffer display
 
-  Temporary displays are used by Lisp programs to put output into a buffer and
-then present it to the user for perusal rather than for editing.  Many help
-commands use this feature.
+  一時的表示(temporary
+display)は、出力をバッファーに配して、それを編集用ではなく閲覧用としてユーザーに示すために、Lispプログラムにより使用されます。多くのヘルプコマンドは、この機能を使用します。
 
 @defmac with-output-to-temp-buffer buffer-name body@dots{}
-This function executes the forms in @var{body} while arranging to insert any
-output they print into the buffer named @var{buffer-name}, which is first
-created if necessary, and put into Help mode.  (See the similar form
-@code{with-temp-buffer-window} below.)  Finally, the buffer is displayed in
-some window, but that window is not selected.
+この関数は、@var{buffer-name}という名前のバッファー(必要なら最初に作成される)にプリントされた任意の出力が挿入されるようアレンジ、さらにバッファーをHelpモードにして、@var{body}内のフォームを実行する(類似する以下のフォーム@code{with-temp-buffer-window}を参照されたい)。最後に、そのバッファーはいずれかのウィンドウに表示されるが、そのウィンドウは選択されない。
 
-If the forms in @var{body} do not change the major mode in the output
-buffer, so that it is still Help mode at the end of their execution, then
-@code{with-output-to-temp-buffer} makes this buffer read-only at the end,
-and also scans it for function and variable names to make them into
-clickable cross-references.  @xref{Docstring hyperlinks, , Tips for
-Documentation Strings}, in particular the item on hyperlinks in
-documentation strings, for more details.
+@var{body}内のフォームが出力バッファーのメジャーモードを変更しないため、実行の最後においても依然としてHelpモードにあるなら、@code{with-output-to-temp-buffer}は最後にそのバッファーを読み取り専用するとともに、クリック可能なクロスリファレンスとなるよう、関数名と変数名のスキャンも行う。特にドキュメント文字列内のハイパーリンク上アイテムに関する詳細は、@ref{Docstring
+hyperlinks, , Tips for Documentation Strings}を参照のこと。
 
-The string @var{buffer-name} specifies the temporary buffer, which need not
-already exist.  The argument must be a string, not a buffer.  The buffer is
-erased initially (with no questions asked), and it is marked as unmodified
-after @code{with-output-to-temp-buffer} exits.
+文字列@var{buffer-name}は一時的なバッファーを指定し、これはあらかじめ存在する必要はない。引数はバッファーではなく文字列でなければならない。そのバッファーは最初に消去され(確認なし)、@code{with-output-to-temp-buffer}のexit後は未変更(unmodified)とマークされる。
 
-@code{with-output-to-temp-buffer} binds @code{standard-output} to the
-temporary buffer, then it evaluates the forms in @var{body}.  Output using
-the Lisp output functions within @var{body} goes by default to that buffer
-(but screen display and messages in the echo area, although they are
-``output'' in the general sense of the word, are not affected).
-@xref{Output Functions}.
+@code{with-output-to-temp-buffer}は@code{standard-output}を一時的バッファーにバインドして、@var{body}内のフォームを評価する。@var{body}内のLisp出力関数を使用した出力のデフォルト出力先は、そのバッファーになる(しかしスクリーン表示、エコーエリア内のメッセージは、一般的な世界の感覚では``出力''であるものの、影響は受けない)。@ref{Output
+Functions}を参照のこと。
 
-Several hooks are available for customizing the behavior of this construct;
-they are listed below.
+この構成の振る舞いをカスタマイズするために利用できるフックがいくつかあり、それらは以下にリストしてある。
 
-The value of the last form in @var{body} is returned.
+リターン値は、@var{body}内の最後のフォームの値である。
 
 @example
 @group
@@ -757,88 +739,51 @@ The value of the last form in @var{body} is returned.
 @end defmac
 
 @defopt temp-buffer-show-function
-If this variable is non-@code{nil}, @code{with-output-to-temp-buffer} calls
-it as a function to do the job of displaying a help buffer.  The function
-gets one argument, which is the buffer it should display.
+この変数が非@code{nil}なら、@code{with-output-to-temp-buffer}はヘルプバッファーを表示する処理を行うために、その関数を呼び出す。この関数は、表示すべきバッファーという、1つの引数を受け取る。
 
-It is a good idea for this function to run @code{temp-buffer-show-hook} just
-as @code{with-output-to-temp-buffer} normally would, inside of
-@code{save-selected-window} and with the chosen window and buffer selected.
+@code{with-output-to-temp-buffer}が通常行うように、@code{save-selected-window}内部や選択されたウィンドウ内で、バッファーか選択された状態で、@code{temp-buffer-show-hook}を実行するのは、この関数にとってよいアイデアである。
 @end defopt
 
 @defvar temp-buffer-setup-hook
-This normal hook is run by @code{with-output-to-temp-buffer} before
-evaluating @var{body}.  When the hook runs, the temporary buffer is
-current.  This hook is normally set up with a function to put the buffer in
-Help mode.
+このノーマルフックは、@var{body}を評価する前に、@code{with-output-to-temp-buffer}により実行される。フック実行時は、一時的バッファーがカレントになる。このフックは通常、そのバッファーをHelpモードにするための関数にセットアップされる。
 @end defvar
 
 @defvar temp-buffer-show-hook
-This normal hook is run by @code{with-output-to-temp-buffer} after
-displaying the temporary buffer.  When the hook runs, the temporary buffer
-is current, and the window it was displayed in is selected.
+このノーマルフックは、一時的バッファー表示後に、@code{with-output-to-temp-buffer}により実行される。フック実行時は一時的バッファーがカレントになり、それが表示されているウィンドウが選択される。
 @end defvar
 
 @defmac with-temp-buffer-window buffer-or-name action quit-function body@dots{}
-This macro is similar to @code{with-output-to-temp-buffer}.  Like that
-construct, it executes @var{body} while arranging to insert any output it
-prints into the buffer named @var{buffer-or-name} and displays that buffer
-in some window.  Unlike @code{with-output-to-temp-buffer}, however, it does
-not automatically switch that buffer to Help mode.
+このマクロは@code{with-output-to-temp-buffer}と類似している。@code{with-output-to-temp-buffer}構成同様、これはプリントされる任意の出力が@var{buffer-or-name}という名前のバッファーに挿入されるようにアレンジして@var{body}を実行し、そのバッファーをいぜれかのウィンドウに表示する。しかし@code{with-output-to-temp-buffer}とは異なり、このマクロはそのバッファーを自動的にHelpモードに切り替えない。
 
-Like @code{with-output-to-temp-buffer} it neither makes the buffer specified
-by @var{buffer-or-name} current when executing @var{body}.
+@code{with-output-to-temp-buffer}と同様、これは@var{buffer-or-name}で指定されるバッファーを、@var{body}実行時カレントにしない。
 @findex with-current-buffer-window
-The otherwise identical macro @code{with-current-buffer-window} can be used
-to execute @var{body} with that buffer current.
+@var{body}を実行するために、そのバッファーをカレントにする点以外は等価なマクロ@code{with-current-buffer-window}を使用できる。
 
-The argument @var{buffer-or-name} specifies the temporary buffer.  It can be
-either a buffer, which must already exist, or a string, in which case a
-buffer of that name is created, if necessary.  The buffer is marked as
-unmodified and read-only when @code{with-temp-buffer-window} exits.
+引数@var{buffer-or-name}は、一時的バッファーを指定する。これはバッファー(既存でなければならない)、または文字列を指定でき、文字列の場合は必要ならその名前のバッファーが作成される。そのバッファーは@code{with-temp-buffer-window}のexit時、未変更かる読み取り専用とマークされる。
 
-This macro does not call @code{temp-buffer-show-function}.  Rather, it
-passes the @var{action} argument to @code{display-buffer} in order to
-display the buffer.
+このマクロは@code{temp-buffer-show-function}を呼び出さない。かわりにそのバッファーを表示するために、@var{action}引数を@code{display-buffer}に渡す。
 
-The value of the last form in @var{body} is returned, unless the argument
-@var{quit-function} is specified.  In that case, it is called with two
-arguments: the window showing the buffer and the result of @var{body}.  The
-final return value is then whatever @var{quit-function} returns.
+引数@var{quit-function}が指定されていなければ、@var{body}内の最後のフォームの値がリターンされる。指定されている場合、それはそのバッファーを表示するウィンドウと、@var{body}の結果という、2つの引数で呼び出される。その場合、最終的なリターン値は何であれ@var{quit-function}がリターンした値となる。
 
 @vindex temp-buffer-window-setup-hook
 @vindex temp-buffer-window-show-hook
-This macro uses the normal hooks @code{temp-buffer-window-setup-hook} and
-@code{temp-buffer-window-show-hook} in place of the analogous hooks run by
-@code{with-output-to-temp-buffer}.
+このマクロは、@code{with-output-to-temp-buffer}により実行される類似フックのかわりに、ノーマルフック@code{temp-buffer-window-setup-hook}と@code{temp-buffer-window-show-hook}使用する。
 @end defmac
 
 @defun momentary-string-display string position &optional char message
-This function momentarily displays @var{string} in the current buffer at
-@var{position}.  It has no effect on the undo list or on the buffer's
-modification status.
+この関数は、カレントバッファー内の@var{position}に、@var{string}を瞬間表示(momentarily
+display)する。これはundoリストや、そのバッファーの変更状態(modification status)に影響を与えない。
 
-The momentary display remains until the next input event.  If the next input
-event is @var{char}, @code{momentary-string-display} ignores it and
-returns.  Otherwise, that event remains buffered for subsequent use as
-input.  Thus, typing @var{char} will simply remove the string from the
-display, while typing (say) @kbd{C-f} will remove the string from the
-display and later (presumably) move point forward.  The argument @var{char}
-is a space by default.
+瞬間表示は、次の入力イベントまで留まる。次の入力イベントが@var{char}なら、@code{momentary-string-display}はそれを無視してリターンする。それ以外なら、そのイベントは後続の入力として使用するためにバッファーされる。つまり@var{char}とタイプすると、表示からその文字列を単に削除して、@var{char}ではない(たとえば)@kbd{C-f}とタイプすると表示からその文字列を削除して、後で(おそらく)ポイントを前方へ移動するだろう。引数@var{char}のデフォルトはスペース。
 
-The return value of @code{momentary-string-display} is not meaningful.
+@code{momentary-string-display}のリターン値に意味はない。
 
-If the string @var{string} does not contain control characters, you can do
-the same job in a more general way by creating (and then subsequently
-deleting) an overlay with a @code{before-string} property.  @xref{Overlay
-Properties}.
+文字列@var{string}がコントロール文字を含まなければ、@code{before-string}プロパティでオーバーレイを作成(してその後削除)することで、より一般的に同じことを行うことができる。@ref{Overlay
+Properties}を参照のこと。
 
-If @var{message} is non-@code{nil}, it is displayed in the echo area while
-@var{string} is displayed in the buffer.  If it is @code{nil}, a default
-message says to type @var{char} to continue.
+@var{message}gが非@code{nil}なら、バッファー内に@var{string}が表示されている間は、エコーエリアにそれが表示される。@code{nil}ならデフォルトは、継続するためには@var{char}をタイプするよう告げるメッセージである。
 
-In this example, point is initially located at the beginning of the second
-line:
+以下の例ではポイントは最初、2行目の先頭に置かれている:
 
 @example
 @group
