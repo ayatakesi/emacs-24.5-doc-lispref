@@ -819,31 +819,18 @@ Type RET when done reading
 @cindex overlays
 @c FIXME: mention intervals in this section?
 
-You can use @dfn{overlays} to alter the appearance of a buffer's text on the
-screen, for the sake of presentation features.  An overlay is an object that
-belongs to a particular buffer, and has a specified beginning and end.  It
-also has properties that you can examine and set; these affect the display
-of the text within the overlay.
+プレゼンテーション機能として、バッファーのテキストのスクリーン上の見栄えを変更するために、@dfn{オーバーレイ(overlay)}を使用できます。オーバーレイとは、個々のバッファーに属するオブジェクトであり、指定された開始と終了をもっています。確認したりセットすることができるプロパティももっています。それらはオーバーレイをもつテキストの表示に影響を与えます。
 
 @cindex scalability of overlays
-The visual effect of an overlay is the same as of the corresponding text
-property (@pxref{Text Properties}).  However, due to a different
-implementation, overlays generally don't scale well (many operations take a
-time that is proportional to the number of overlays in the buffer).  If you
-need to affect the visual appearance of many portions in the buffer, we
-recommend using text properties.
+オーバーレイの視覚的効果は、対応するテキストプロパティと同様です(@ref{Text
+Properties}を参照)。しかし実装が異なるため、オーバーレイは一般的にスケーラブルではありません(処理数に応じて、バッファー内のオーバーレイ数に比例した時間を要する)。バッファー内の多数の部分の視覚的外観に効果を及ぼす必要がある場合は、テキストプロパティの使用を推奨します。
 
-An overlay uses markers to record its beginning and end; thus, editing the
-text of the buffer adjusts the beginning and end of each overlay so that it
-stays with the text.  When you create the overlay, you can specify whether
-text inserted at the beginning should be inside the overlay or outside, and
-likewise for the end of the overlay.
+オーバーレイは、その開始と終了を記録するために、マーカーを使用します。したがってバッファーのテキスト編集では、すべてのオーバーレイがそのテキストに留まるように、開始と終了が調整されます。オーバーレイ作成時には、オーバーレイ先頭、同様に終端にテキストが挿入された場合に、それがオーバーレイの内側あるいは外側であるべきかを指定できます。
 
 @menu
-* Managing Overlays::        Creating and moving overlays.
-* Overlay Properties::       How to read and set properties.  What 
-                               properties do to the screen display.
-* Finding Overlays::         Searching for overlays.
+* Managing Overlays::        オーバーレイの作成と変更。
+* Overlay Properties::       プロパティ読み取りおよびセットの方法。どのプロパティがスクリーン表示に何を行うか。
+* Finding Overlays::         オーバーレイにたいする検索。
 @end menu
 
 @node Managing Overlays
