@@ -838,95 +838,63 @@ Properties}を参照)。しかし実装が異なるため、オーバーレイ�
 @cindex managing overlays
 @cindex overlays, managing
 
-  This section describes the functions to create, delete and move overlays,
-and to examine their contents.  Overlay changes are not recorded in the
-buffer's undo list, since the overlays are not part of the buffer's
-contents.
+  このセクションでは、オーバーレイの作成、削除、移動、およびそれらのコンテンツを調べる関数を説明します。オーバーレイはバッファーのコンテンツの一部ではないので、その変更はバッファーのundoリストに記録されません。
 
 @defun overlayp object
-This function returns @code{t} if @var{object} is an overlay.
+この関数は、@var{object}がオーバーレイなら@code{t}をリターンする。
 @end defun
 
 @defun make-overlay start end &optional buffer front-advance rear-advance
-This function creates and returns an overlay that belongs to @var{buffer}
-and ranges from @var{start} to @var{end}.  Both @var{start} and @var{end}
-must specify buffer positions; they may be integers or markers.  If
-@var{buffer} is omitted, the overlay is created in the current buffer.
+この関数は@var{buffer}に属し、@var{start}から@var{end}の範囲のオーバーレイを作成してリターンする。@var{start}と@var{end}はいずれもバッファーの位置を指定しなければならず、整数またはマーカーを指定できる。@var{buffer}が省略された場合、そのオーバーレイはカレントバッファーに作成される。
 
-The arguments @var{front-advance} and @var{rear-advance} specify the marker
-insertion type for the start of the overlay and for the end of the overlay,
-respectively.  @xref{Marker Insertion Types}.  If they are both @code{nil},
-the default, then the overlay extends to include any text inserted at the
-beginning, but not text inserted at the end.  If @var{front-advance} is
-non-@code{nil}, text inserted at the beginning of the overlay is excluded
-from the overlay.  If @var{rear-advance} is non-@code{nil}, text inserted at
-the end of the overlay is included in the overlay.
+引数@var{front-advance}と@var{rear-advance}はそれぞれ、オーバーレイの開始と終了にたいするマーカーの挿入タイプを指定する。@ref{Marker
+Insertion
+Types}を参照のこと。どちらも@code{nil}(デフォルト)なら、そのオーバーレイは先頭に挿入された任意のテキストを含むように拡張されるが、終端に挿入されたテキストにたいしては拡張されない。@var{front-advance}が非@code{nil}なら、オーバーレイの先頭に挿入されたテキストは、オーバーレイから除外される。@var{rear-advance}が非@code{nil}なら、オーバーレイの終端に挿入されたテキストは、オーバーレイに含まれる。
 @end defun
 
 @defun overlay-start overlay
-This function returns the position at which @var{overlay} starts, as an
-integer.
+この関数は、@var{overlay}が開始する位置を整数でリターンする。
 @end defun
 
 @defun overlay-end overlay
-This function returns the position at which @var{overlay} ends, as an
-integer.
+この関数は、@var{overlay}が終了する位置を整数でリターンする。
 @end defun
 
 @defun overlay-buffer overlay
-This function returns the buffer that @var{overlay} belongs to.  It returns
-@code{nil} if @var{overlay} has been deleted.
+この関数は、@var{overlay}が所属するバッファーをリターンする。@var{overlay}が削除されていれば@code{nil}をリターンする。
 @end defun
 
 @defun delete-overlay overlay
-This function deletes @var{overlay}.  The overlay continues to exist as a
-Lisp object, and its property list is unchanged, but it ceases to be
-attached to the buffer it belonged to, and ceases to have any effect on
-display.
+この関数は@var{overlay}を削除する。そのオーバーレイはLispオブジェクトとして存在し続け、そのプロパティリストは変更されないが、バッファーへの所属と表示にたいするすべての効果は失う。
 
-A deleted overlay is not permanently disconnected.  You can give it a
-position in a buffer again by calling @code{move-overlay}.
+削除済みオーバーレイが、永続的に非接続という訳ではない。@code{move-overlay}を呼び出すことにより、バッファー内の位置を与えることができる。
 @end defun
 
 @defun move-overlay overlay start end &optional buffer
-This function moves @var{overlay} to @var{buffer}, and places its bounds at
-@var{start} and @var{end}.  Both arguments @var{start} and @var{end} must
-specify buffer positions; they may be integers or markers.
+この関数は@var{overlay}を@var{buffer}に移動して、その境界を@var{start}と@var{end}に配する。@var{start}と@var{end}の引数はいずれもバッファーの位置を指定しなければならず、整数またはマーカーを指定できる。
 
-If @var{buffer} is omitted, @var{overlay} stays in the same buffer it was
-already associated with; if @var{overlay} was deleted, it goes into the
-current buffer.
+@var{buffer}が省略された場合、@var{overlay}はすでに関連付けられている同じバッファーに留まる。さらに@var{overlay}が削除されていたら、それをカレントバッファーに所属させる。
 
-The return value is @var{overlay}.
+リターン値は@var{overlay}。
 
-This is the only valid way to change the endpoints of an overlay.  Do not
-try modifying the markers in the overlay by hand, as that fails to update
-other vital data structures and can cause some overlays to be ``lost''.
+これはオーバーレイの両端位置を変更する、唯一有効な方法である。手作業でオーバーレイ内のマーカーの変更を試みてはならない。それにより他の重要なデータ構造の更新が失敗して、いくつかのオーバーレイが``失われる''可能性がある。
 @end defun
 
 @defun remove-overlays &optional start end name value
-This function removes all the overlays between @var{start} and @var{end}
-whose property @var{name} has the value @var{value}.  It can move the
-endpoints of the overlays in the region, or split them.
+この関数は、プロパティ@var{name}が値@var{value}をもつ、@var{start}と@var{end}の間のすべてのオーバーレイを削除する。これによりオーバーレイの両端位置が変更されたり、分割される可能がある。
 
-If @var{name} is omitted or @code{nil}, it means to delete all overlays in
-the specified region.  If @var{start} and/or @var{end} are omitted or
-@code{nil}, that means the beginning and end of the buffer respectively.
-Therefore, @code{(remove-overlays)} removes all the overlays in the current
-buffer.
+@var{name}が省略または@code{nil}なら、それは指定されたリージョン内のすべてのオーバーレイを削除することを意味する。@var{start}および/または@var{end}が省略または@code{nil}なら、それぞれバッファーの先頭と終端を意味する。したがって@code{(remove-overlays)}は、カレントバッファー内のすべてのオーバーレイを削除する。
 @end defun
 
 @defun copy-overlay overlay
-This function returns a copy of @var{overlay}.  The copy has the same
-endpoints and properties as @var{overlay}.  However, the marker insertion
-type for the start of the overlay and for the end of the overlay are set to
-their default values (@pxref{Marker Insertion Types}).
+この関数は@var{overlay}のコピーをリターンする。このコピーは@var{overlay}と同じ両端位置とプロパティをもつ。しかしオーバーレイの開始と終了にたいするマーカー挿入タイプは、デフォルト値にセットされる(@ref{Marker
+Insertion Types}を参照)。
 @end defun
 
-  Here are some examples:
+  以下にいくつか例を示します:
 
 @example
-;; @r{Create an overlay.}
+;; @r{オーバーレイの作成}
 (setq foo (make-overlay 1 10))
      @result{} #<overlay from 1 to 10 in display.texi>
 (overlay-start foo)
@@ -935,60 +903,56 @@ their default values (@pxref{Marker Insertion Types}).
      @result{} 10
 (overlay-buffer foo)
      @result{} #<buffer display.texi>
-;; @r{Give it a property we can check later.}
+;; @r{後でチェックできるようプロパティ付与}
 (overlay-put foo 'happy t)
      @result{} t
-;; @r{Verify the property is present.}
+;; @r{プロパティが付与されたか検証}
 (overlay-get foo 'happy)
      @result{} t
-;; @r{Move the overlay.}
+;; @r{オーバーレイを移動}
 (move-overlay foo 5 20)
      @result{} #<overlay from 5 to 20 in display.texi>
 (overlay-start foo)
      @result{} 5
 (overlay-end foo)
      @result{} 20
-;; @r{Delete the overlay.}
+;; @r{オーバーレイを削除}
 (delete-overlay foo)
      @result{} nil
-;; @r{Verify it is deleted.}
+;; @r{削除されたか検証}
 foo
      @result{} #<overlay in no buffer>
-;; @r{A deleted overlay has no position.}
+;; @r{削除済みオーバーレイは位置をもたない}
 (overlay-start foo)
      @result{} nil
 (overlay-end foo)
      @result{} nil
 (overlay-buffer foo)
      @result{} nil
-;; @r{Undelete the overlay.}
+;; @r{オーバーレイの削除取り消し}
 (move-overlay foo 1 20)
      @result{} #<overlay from 1 to 20 in display.texi>
-;; @r{Verify the results.}
+;; @r{結果の検証}
 (overlay-start foo)
      @result{} 1
 (overlay-end foo)
      @result{} 20
 (overlay-buffer foo)
      @result{} #<buffer display.texi>
-;; @r{Moving and deleting the overlay does not change its properties.}
+;; @r{オーバーレイの移動と削除では、オーバーレイのプロパティは変更されない}
 (overlay-get foo 'happy)
      @result{} t
 @end example
 
-  Emacs stores the overlays of each buffer in two lists, divided around an
-arbitrary ``center position''.  One list extends backwards through the
-buffer from that center position, and the other extends forwards from that
-center position.  The center position can be anywhere in the buffer.
+  Emacsはそれぞれのバッファーのオーバーレイを、任意の``中心位置(center
+position)''で分割される、2つのリストに格納します。一方のリストはバッファーの中心位置から後方へ拡張され、もう一方は中心位置から前方へと拡張されます。中心位置は、バッファーの任意の位置をとることができます。
 
 @defun overlay-recenter pos
-This function recenters the overlays of the current buffer around position
-@var{pos}.  That makes overlay lookup faster for positions near @var{pos},
-but slower for positions far away from @var{pos}.
+この関数は、カレントバッファーのオーバーレイを、位置@var{pos}の周辺に再センタリングする。これにより位置@var{pos}近傍のオーバーレイの照合は高速になるが、@var{pos}から離れた位置にたいしては低速になる。
 @end defun
 
-  A loop that scans the buffer forwards, creating overlays, can run faster if
-you do @code{(overlay-recenter (point-max))} first.
+  バッファーを前方にスキャンしてオーバーレイを作成するループは、最初に@code{(overlay-recenter
+(point-max))}を行うことにより高速になる可能性があります。
 
 @node Overlay Properties
 @subsection Overlay Properties
