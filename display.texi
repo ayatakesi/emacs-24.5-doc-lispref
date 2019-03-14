@@ -998,70 +998,52 @@ Overlays}を参照されたい。
 
 @item window
 @kindex window @r{(overlay property)}
-If the @code{window} property is non-@code{nil}, then the overlay applies
-only on that window.
+@code{window}プロパティが非@code{nil}なら、そのオーバーレイはそのウィンドウだけに適用される。
 
 @item category
 @kindex category @r{(overlay property)}
-If an overlay has a @code{category} property, we call it the @dfn{category}
-of the overlay.  It should be a symbol.  The properties of the symbol serve
-as defaults for the properties of the overlay.
+オーバーレイが@code{category}プロパティをもつなら、それをそのオーバーレイの@dfn{カテゴリー(category)}と呼ぶ。これはシンボルであること。そのシンボルのプロパティは、そのオーバーレイのプロパティにたいしてデフォルトの役割を果たす。
 
 @item face
 @kindex face @r{(overlay property)}
-This property controls the appearance of the text (@pxref{Faces}).  The
-value of the property can be the following:
+このプロパティはテキストの外観を制御する(@ref{Faces}を参照)。プロパティの値は以下のいずれか:
 
 @itemize @bullet
 @item
-A face name (a symbol or string).
+フェイス名(シンボルか文字列)。
 
 @item
-An anonymous face: a property list of the form @code{(@var{keyword}
-@var{value} @dots{})}, where each @var{keyword} is a face attribute name and
-@var{value} is a value for that attribute.
+anonymousフェイス: @code{(@var{keyword} @var{value}
+@dots{})}という形式のプロパティリストで、@var{keyword}はフェイス属性名、@var{value}はその属性の値。
 
 @item
-A list of faces.  Each list element should be either a face name or an
-anonymous face.  This specifies a face which is an aggregate of the
-attributes of each of the listed faces.  Faces occurring earlier in the list
-have higher priority.
+フェイスのリスト。リストの要素はそれぞれフェイス名か、anonymousフェイスのいずれかであること。これはリストされた各フェイスの属性を集約するフェイスを指定する。このリスト内で先に出現するフェイスが、より高い優先度をもつ。
 
 @item
-A cons cell of the form @code{(foreground-color . @var{color-name})} or
-@code{(background-color . @var{color-name})}.  This specifies the foreground
-or background color, similar to @code{(:foreground @var{color-name})} or
-@code{(:background @var{color-name})}.  This form is supported for backward
-compatibility only, and should be avoided.
+@code{(foreground-color . @var{color-name})}または@code{(background-color
+. @var{color-name})}という形式のコンスセル。これは@code{(:foreground
+@var{color-name})}や@code{(:background
+@var{color-name})}と同様、フォアグラウンドとバックグラウンドのカラーを指定する。この形式は後方互換性のためだけにサポートされており、避けるべきである。
 @end itemize
 
 @item mouse-face
 @kindex mouse-face @r{(overlay property)}
-This property is used instead of @code{face} when the mouse is within the
-range of the overlay.  However, Emacs ignores all face attributes from this
-property that alter the text size (e.g., @code{:height}, @code{:weight}, and
-@code{:slant}).  Those attributes are always the same as in the
-unhighlighted text.
+このプロパティは、マウスがオーバーレイ範囲内にあるとき、@code{face}のかわりに使用される。しかしEmacsは、このプロパティのテキストのサイズを変更する、すべてのフェイス属性(@code{:height}、@code{:weight}、@code{:slant})を無視する。これらの属性は、ハイライトされていないテキストでは、常に同一である。
 
 @item display
 @kindex display @r{(overlay property)}
-This property activates various features that change the way text is
-displayed.  For example, it can make text appear taller or shorter, higher
-or lower, wider or narrower, or replaced with an image.  @xref{Display
-Property}.
+このプロパティは、テキストが表示される方法を変更する、さまざまな機能をアクティブにする。たとえばこれは、テキストの外観を縦長(taller)や横長(shorter)にしたり、高く(higher)したり低く(lower)したり、イメージで置き換える。@ref{Display
+Property}を参照のこと。
 
 @item help-echo
 @kindex help-echo @r{(overlay property)}
-If an overlay has a @code{help-echo} property, then when you move the mouse
-onto the text in the overlay, Emacs displays a help string in the echo area,
-or in the tooltip window.  For details see @ref{Text help-echo}.
+あるオーバーレイが@code{help-echo}プロパティをもつなら、そのオーバーレイ内のテキスト上にマウスを移動した際、Emacsはエコーエリアまたはツールチップウィンドウにヘルプ文字列を表示する。詳細は@ref{Text
+help-echo}を参照のこと。
 
 @item field
 @kindex field @r{(overlay property)}
 @c Copied from Special Properties.
-Consecutive characters with the same @code{field} property constitute a
-@emph{field}.  Some motion functions including @code{forward-word} and
-@code{beginning-of-line} stop moving at a field boundary.  @xref{Fields}.
+同じ@code{field}プロパティをもつ連続する文字は、@emph{フィールド(field)}を形成する。@code{forward-word}や@code{beginning-of-line}を含むいくつかの移動関数は、フィールド境界で移動を停止する。@ref{Fields}を参照のこと。
 
 @item modification-hooks
 @kindex modification-hooks @r{(overlay property)}
