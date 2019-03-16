@@ -1047,113 +1047,77 @@ help-echo}を参照のこと。
 
 @item modification-hooks
 @kindex modification-hooks @r{(overlay property)}
-This property's value is a list of functions to be called if any character
-within the overlay is changed or if text is inserted strictly within the
-overlay.
+このプロパティの値は、オーバーレイ内の任意の文字の変更、またはオーバーレイの厳密に内側にテキストが挿入された場合に呼び出される、関数のリストである。
 
-The hook functions are called both before and after each change.  If the
-functions save the information they receive, and compare notes between
-calls, they can determine exactly what change has been made in the buffer
-text.
+このフックの関数は、各変更の前後両方で呼び出される。これらの関数が受け取った情報を保存し、呼び出し間で記録を比較すれば、バッファー内のテキストでどのような変更が行われたかを、正確に判断できる。
 
-When called before a change, each function receives four arguments: the
-overlay, @code{nil}, and the beginning and end of the text range to be
-modified.
+変更前に呼び出された際、各関数はオーバーレイ、@code{nil}、変更されたテキスト範囲の開始と終了という、4つの引数を受け取る。
 
-When called after a change, each function receives five arguments: the
-overlay, @code{t}, the beginning and end of the text range just modified,
-and the length of the pre-change text replaced by that range.  (For an
-insertion, the pre-change length is zero; for a deletion, that length is the
-number of characters deleted, and the post-change beginning and end are
-equal.)
+変更後に呼び出された際、各関数はオーバーレイ、@code{t}、変更されたテキスト範囲の開始と終了、およびその範囲により置き換えられた変更前のテキスト長という、5つの引数を受け取る(変更前の長さは、挿入では0、削除では削除された文字数であり、変更後の先頭と終端が等しくなる)。
 
-If these functions modify the buffer, they should bind
-@code{inhibit-modification-hooks} to @code{t} around doing so, to avoid
-confusing the internal mechanism that calls these hooks.
+これらの関数がバッファーを変更する場合は、これらのフックを呼び出す内部的メカニズムの混乱を避けるために、それを行う前後で@code{inhibit-modification-hooks}を@code{t}にバインドすること。
 
-Text properties also support the @code{modification-hooks} property, but the
-details are somewhat different (@pxref{Special Properties}).
+テキストプロパティも@code{modification-hooks}プロパティをサポートするが、詳細は幾分か異なる(@ref{Special
+Properties}を参照)。
 
 @item insert-in-front-hooks
 @kindex insert-in-front-hooks @r{(overlay property)}
-This property's value is a list of functions to be called before and after
-inserting text right at the beginning of the overlay.  The calling
-conventions are the same as for the @code{modification-hooks} functions.
+このプロパティの値は、オーバーレイ先頭へのテキスト挿入前後に呼び出される、関数のリストである。呼び出し方は、@code{modification-hooks}の関数と同様。
 
 @item insert-behind-hooks
 @kindex insert-behind-hooks @r{(overlay property)}
-This property's value is a list of functions to be called before and after
-inserting text right at the end of the overlay.  The calling conventions are
-the same as for the @code{modification-hooks} functions.
+このプロパティの値は、オーバーレイ終端へのテキスト挿入前後に呼び出される、関数のリストである。呼び出し方は、@code{modification-hooks}の関数と同様。
 
 @item invisible
 @kindex invisible @r{(overlay property)}
-The @code{invisible} property can make the text in the overlay invisible,
-which means that it does not appear on the screen.  @xref{Invisible Text},
-for details.
+@code{invisible}プロパティにより、オーバーレイ内のテキストを不可視似出来る。これはそのテキストが、スクリーン上に表示されないことを意味する。詳細は、@xref{Invisible
+Text}を下さいのこと。
 
 @item intangible
 @kindex intangible @r{(overlay property)}
-The @code{intangible} property on an overlay works just like the
-@code{intangible} text property.  @xref{Special Properties}, for details.
+オーバーレイの@code{intangible}プロパティは、正に@code{intangible}テキストプロパティと同様に機能する。詳細は@xref{Special
+Properties}を参照のこと。
 
 @item isearch-open-invisible
-This property tells incremental search how to make an invisible overlay
-visible, permanently, if the final match overlaps it.  @xref{Invisible
-Text}.
+このプロパティは、インクリメンタル検索にたいして、最後のマッチがそのオーバーレイに重なる場合に、不可視なオーバーレイを永続的に可視にする方法を告げる。@ref{Invisible
+Text}を参照のこと。
 
 @item isearch-open-invisible-temporary
-This property tells incremental search how to make an invisible overlay
-visible, temporarily, during the search.  @xref{Invisible Text}.
+このプロパティは、インクリメンタル検索にたいして、検索の間に、不可視なオーバーレイを一時的に可視にする方法を告げる。@ref{Invisible
+Text}を参照のこと。
 
 @item before-string
 @kindex before-string @r{(overlay property)}
-This property's value is a string to add to the display at the beginning of
-the overlay.  The string does not appear in the buffer in any sense---only
-on the screen.
+このプロパティの値は、オーバーレイ先頭に表示するために追加する文字列である。この文字列は、いかなる意味においてもバッファー内には表れず、スクリーン上にのみ表れる。
 
 @item after-string
 @kindex after-string @r{(overlay property)}
-This property's value is a string to add to the display at the end of the
-overlay.  The string does not appear in the buffer in any sense---only on
-the screen.
+このプロパティの値は、オーバーレイ終端に表示するために追加する文字列である。この文字列は、いかなる意味においてもバッファー内には表れず、スクリーン上にのみ表れる。
 
 @item line-prefix
-This property specifies a display spec to prepend to each non-continuation
-line at display-time.  @xref{Truncation}.
+このプロパティは、表示時にそれぞれの非継続行の後に追加する、表示仕様(display
+spec)を指定する。@ref{Truncation}を参照のこと。
 
 @item wrap-prefix
-This property specifies a display spec to prepend to each continuation line
-at display-time.  @xref{Truncation}.
+このプロパティは、表示時にそれぞれの継続行の前に追加する、表示仕様(display spec)を指定する。@ref{Truncation}を参照のこと。
 
 @item evaporate
 @kindex evaporate @r{(overlay property)}
-If this property is non-@code{nil}, the overlay is deleted automatically if
-it becomes empty (i.e., if its length becomes zero).  If you give an empty
-overlay a non-@code{nil} @code{evaporate} property, that deletes it
-immediately.
+このプロパティが非@code{nil}の場合は、そのオーバーレイが空(長さが0)になったら、自動的に削除される。空のオーバーレイにたいして非@code{nil}の@code{evaporate}プロパティを与えた場合は、即座に削除される。
 
 @item keymap
 @cindex keymap of character (and overlays)
 @kindex keymap @r{(overlay property)}
-If this property is non-@code{nil}, it specifies a keymap for a portion of
-the text.  This keymap is used when the character after point is within the
-overlay, and takes precedence over most other keymaps.  @xref{Active
-Keymaps}.
+このプロパティがから@code{nil}なら、それはそのテキスト範囲にたいしてキーマップを指定する。このキーマップは、ポイントの後の文字がそのオーバーレイ内にあるときに使用され、他のほとんどのキーマップより優先される。@ref{Active
+Keymaps}を参照のこと。
 
 @item local-map
 @kindex local-map @r{(overlay property)}
-The @code{local-map} property is similar to @code{keymap} but replaces the
-buffer's local map rather than augmenting existing keymaps.  This also means
-it has lower precedence than minor mode keymaps.
+@code{local-map}プロパティは@code{keymap}プロパティと同様だが、既存のキーマップに付け加えるのではなく、バッファーのローカルマップを置き換える点が異なる。これは、そのキーマップがマイナーモードキーマップより低い優先度をもつことも意味する。
 @end table
 
-The @code{keymap} and @code{local-map} properties do not affect a string
-displayed by the @code{before-string}, @code{after-string}, or
-@code{display} properties.  This is only relevant for mouse clicks and other
-mouse events that fall on the string, since point is never on the string.
-To bind special mouse events for the string, assign it a @code{keymap} or
-@code{local-map} text property.  @xref{Special Properties}.
+@code{keymap}と@code{local-map}プロパティは、@code{before-string}、@code{after-string}、@code{display}プロパティにより表示された文字列には影響しません。これはポイントがその文字列上にない場合の、マウスクリックや、その文字列に関する他のマウスイベントにのみ関係があります。その文字列に特別なマウスイベントをバインドするには、そのイベントを@code{keymap}か@code{local-map}プロパティに割り当てます。@ref{Special
+Properties}を参照してください。
 
 @node Finding Overlays
 @subsection Searching for Overlays
