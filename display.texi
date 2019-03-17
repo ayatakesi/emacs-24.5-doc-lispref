@@ -1125,14 +1125,9 @@ Properties}を参照してください。
 @cindex overlays, searching for
 
 @defun overlays-at pos &optional sorted
-This function returns a list of all the overlays that cover the character at
-position @var{pos} in the current buffer.  If @var{sorted} is
-non-@code{nil}, the list is in decreasing order of priority, otherwise it is
-in no particular order.  An overlay contains position @var{pos} if it begins
-at or before @var{pos}, and ends after @var{pos}.
+この関数は、カレントバッファー内の位置@var{pos}にある文字をカバーする、すべてオーバーレイのリストをリターンする。@var{sorted}が非@code{nil}ならリストは優先度降順、それ以外なら特定の順にはソートされない。オーバーレイが@var{pos}、またはそれより前から始まり、かつ@var{pos}の後で終わる場合、位置@var{pos}はオーバーレイに含まれる。
 
-To illustrate usage, here is a Lisp function that returns a list of the
-overlays that specify property @var{prop} for the character at point:
+使い方を説明するために、ポイント位置の文字にたいして、プロパティ@var{prop}を指定するオーバーレイのリストをリターンするLisp関数である:
 
 @smallexample
 (defun find-overlays-specifying (prop)
@@ -1148,30 +1143,19 @@ overlays that specify property @var{prop} for the character at point:
 @end defun
 
 @defun overlays-in beg end
-This function returns a list of the overlays that overlap the region
-@var{beg} through @var{end}.  ``Overlap'' means that at least one character
-is contained within the overlay and also contained within the specified
-region; however, empty overlays are included in the result if they are
-located at @var{beg}, strictly between @var{beg} and @var{end}, or at
-@var{end} when @var{end} denotes the position at the end of the buffer.
+この関数は、@var{beg}から@var{end}のリージョンと重複(overlap)する、オーバーレイのリストをリターンする。``重複''とは、少なくとも1つの文字がそのオーバーレイに含まれ、かつ指定されたリージョンにも含まれることを意味する。しかし、空のオーバーレイが@var{beg}、厳密に言うと@var{beg}と@var{end}にある場合、または@var{end}がバッファーの終端を示す場合は、その空のオーバーレイも結果に含まれる。
 @end defun
 
 @defun next-overlay-change pos
-This function returns the buffer position of the next beginning or end of an
-overlay, after @var{pos}.  If there is none, it returns @code{(point-max)}.
+この関数は@var{pos}の後にあるオーバーレイの、開始または終了となるバッファー位置をリターンする。それが存在しなければ@code{(point-max)}をリターンする。
 @end defun
 
 @defun previous-overlay-change pos
-This function returns the buffer position of the previous beginning or end
-of an overlay, before @var{pos}.  If there is none, it returns
-@code{(point-min)}.
+この関数は@var{pos}の前にあるオーバーレイの、開始または終了となるバッファー位置をリターンする。それが存在しなければ@code{(point-min)}をリターンする。
 @end defun
 
-  As an example, here's a simplified (and inefficient) version of the
-primitive function @code{next-single-char-property-change} (@pxref{Property
-Search}).  It searches forward from position @var{pos} for the next position
-where the value of a given property @code{prop}, as obtained from either
-overlays or text properties, changes.
+  以下に例として、プリミティブ関数@code{next-single-char-property-change}(@ref{Property
+Search}を参照)の、単純化(かつ非効率的な)したバージョンを示します。これは位置@var{pos}から前方へ、与えられたプロパティ@code{prop}にたいして、オーバーレイプロパティまたはテキストプロパティのいずれかの値が変化した、次の位置を検索します。
 
 @smallexample
 (defun next-single-char-property-change (position prop)
