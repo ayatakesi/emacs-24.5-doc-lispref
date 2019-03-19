@@ -1853,32 +1853,20 @@ alias)}は、あるフェイスにたいして等価な名前を提供します�
 @cindex automatic face assignment
 @cindex faces, automatic choice
 
-  This hook is used for automatically assigning faces to text in the buffer.
-It is part of the implementation of Jit-Lock mode, used by Font-Lock.
+  以下のフックは、バッファー内のテキストに自動的にフェイスを割り当てるために使用されます。これはJit-Lockモードの実装の一部であり、Font-Lockにより使用されます。
 
 @defvar fontification-functions
-This variable holds a list of functions that are called by Emacs redisplay
-as needed, just before doing redisplay.  They are called even when Font Lock
-Mode isn't enabled.  When Font Lock Mode is enabled, this variable usually
-holds just one function, @code{jit-lock-function}.
+この変数は、再表示を行う直前に、Emacsの再表示により呼び出される関数のリストを保持する。これらはFont
+Lockが有効でないときでも呼び出される。Font
+Lockモードが有効なら、この変数は通常は単一の関数@code{jit-lock-function}だけを保持する。
 
-The functions are called in the order listed, with one argument, a buffer
-position @var{pos}.  Collectively they should attempt to assign faces to the
-text in the current buffer starting at @var{pos}.
+関数は、バッファー位置@var{pos}を単一の引数として、リストされた順に呼び出される。これらは、カレントバッファー内の@var{pos}で開始されるテキストにたいして、集合的にフェイスの割り当てを試みるべきである。
 
-The functions should record the faces they assign by setting the @code{face}
-property.  They should also add a non-@code{nil} @code{fontified} property
-to all the text they have assigned faces to.  That property tells redisplay
-that faces have been assigned to that text already.
+関数は@code{face}プロパティをセットするおとにより、割り当てるフェイスを記録すること。またフェイスを割り当てたすべてのテキストに、非@code{nil}の@code{fontified}プロパティも追加するべきである。このプロパティは再表示に、そのテキストにたいしてそのフェイスがすでに割り当て済みであることを告げる。
 
-It is probably a good idea for the functions to do nothing if the character
-after @var{pos} already has a non-@code{nil} @code{fontified} property, but
-this is not required.  If one function overrides the assignments made by a
-previous one, the properties after the last function finishes are the ones
-that really matter.
+@var{pos}の後の文字がすでに非@code{nil}の@code{fontified}プロパティをもつが、フォント表示化を要さない場合に、何も行わない関数を追加するのは、おそらくよいアイデアである。ある関数が、前の関数による割り当てをオーバーライドする場合には、実際に問題となるのは最後の関数終了後のプロパティである。
 
-For efficiency, we recommend writing these functions so that they usually
-assign faces to around 400 to 600 characters at each call.
+効率化のために、通常は各呼び出しにおいて400から600前後の文字にフェイスを割り当てるように、これらの関数を記述することを推奨する。
 @end defvar
 
 @node Basic Faces
