@@ -1215,29 +1215,12 @@ Position}を参照)により使用されます。
 
 オプション引数@var{from}が非@code{nil}なら、それは考慮すべき最初のテキスト位置を指定し、デフォルトはそのバッファーのアクセス可能な最小の位置である。@var{from}が@code{t}なら、それは改行文字ではない、アクセス可能な最小位置を使用する。オプション引数@var{to}が非@code{nil}なら、それは考慮すべき最後のテキスト位置を指定し、デフォルトはそのバッファーのアクセス可能な最大の位置である。@var{to}が@code{t}なら、それは改行文字ではない、アクセス可能な最大位置を使用する。
 
-The optional argument @var{x-limit}, if non-@code{nil}, specifies the
-maximum pixel-width that can be returned.  @var{x-limit} @code{nil} or
-omitted, means to use the pixel-width of @var{window}'s body (@pxref{Window
-Sizes}); this is useful when the caller does not intend to change the width
-of @var{window}.  Otherwise, the caller should specify here the maximum
-width @var{window}'s body may assume.  Text whose x-coordinate is beyond
-@var{x-limit} is ignored.  Since calculating the width of long lines can
-take some time, it's always a good idea to make this argument as small as
-needed; in particular, if the buffer might contain long lines that will be
-truncated anyway.
+オプション引数@var{x-limit}が非@code{nil}なら、それはリターンされ得る、最大ピクセル幅を指定する。@var{x-limit}が@code{nil}または省略された場合には、@var{window}のbody(@ref{Window
+Sizes}を参照)のピクセル幅を使用する。これは、呼び出し側が@var{window}の幅の変更を意図しない場合に有用である。それ以外なら、呼び出し側はここで想定される@var{window}のbodyの、最大幅を指定するべきである。X座標を超えるテキストの@var{x-limit}は無視される。長い行の幅の計算には多くの時間を要する可能性があるので、特にいずれにせよ切り詰められるであろう長い行を含むバッファーの場合には、必要に応じて、この引数の値を小さくすることは、よいアイデアである。
 
-The optional argument @var{y-limit}, if non-@code{nil}, specifies the
-maximum pixel-height that can be returned.  Text lines whose y-coordinate is
-beyond @var{y-limit} are ignored.  Since calculating the pixel-height of a
-large buffer can take some time, it makes sense to specify this argument; in
-particular, if the caller does not know the size of the buffer.
+オプション引数@var{y-limit}が非@code{nil}なら、それはリターンされ得る、最大ピクセル高さを指定する。Y座標を超えるテキストの@var{y-limit}は無視される。大きなバッファーのピクセル高さの計算には多くの時間を要する可能性があるので、特に呼び出し側がバッファーのサイズを知らない場合、この変数の指定は合理的である。
 
-The optional argument @var{mode-and-header-line} @code{nil} or omitted means
-to not include the height of the mode- or header-line of @var{window} in the
-return value.  If it is either the symbol @code{mode-line} or
-@code{header-line}, include only the height of that line, if present, in the
-return value.  If it is @code{t}, include the height of both, if present, in
-the return value.
+オプション引数@var{mode-and-header-line}が@code{nil}または省略された場合は、リターン値に@var{window}のモードラインとヘッダーラインの高さを含めないことを意味する。これがシンボル@code{mode-line}または@code{header-line}のいずれかなら、それらが存在する場合は、リターン値にそのラインの高さだけを含める。これが@code{t}なら、存在する場合は両方の高さをリターン値に含める。
 @end defun
 
 
