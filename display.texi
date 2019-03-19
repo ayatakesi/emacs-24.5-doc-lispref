@@ -1279,55 +1279,40 @@ Parameters}を参照)を使用することにより、フレーム内のすべ�
 @section Faces
 @cindex faces
 
-  A @dfn{face} is a collection of graphical attributes for displaying text:
-font, foreground color, background color, optional underlining, etc.  Faces
-control how Emacs displays text in buffers, as well as other parts of the
-frame such as the mode line.
+  @dfn{フェイス(face)}とはフォント、フォアグラウンドカラー、バックグラウンドカラー、オプションのアンダーライン等のテキストを表示するための、グラフィカルな属性のコレクションのことです。フェイスはEmacsがバッファー内、同様にモードラインのようなフレームの他の部分で、テキストを表示する方法を制御します。
 
 @cindex anonymous face
-  One way to represent a face is as a property list of attributes, like
-@code{(:foreground "red" :weight bold)}.  Such a list is called an
-@dfn{anonymous face}.  For example, you can assign an anonymous face as the
-value of the @code{face} text property, and Emacs will display the
-underlying text with the specified attributes.  @xref{Special Properties}.
+  フェイスを表現する1つの方法として、@code{(:foreground "red" :weight
+bold)}のような属性のプロパティリストがあります。このようなリストは、@dfn{anonymousフェイス(anonymous
+face)}と呼ばれます。たとえば@code{face}テキストプロパティとしてanonymousフェイスを割り当てることができ、Emacsは指定された属性でテキストを表示するでしょう。@ref{Special
+Properties}を参照してください。
 
 @cindex face name
-  More commonly, a face is referred to via a @dfn{face name}: a Lisp symbol
-associated with a set of face attributes@footnote{For backward
-compatibility, you can also use a string to specify a face name; that is
-equivalent to a Lisp symbol with the same name.}.  Named faces are defined
-using the @code{defface} macro (@pxref{Defining Faces}).  Emacs comes with
-several standard named faces (@pxref{Basic Faces}).
+  より一般的には、フェイスは@dfn{フェイス名(face
+name)}を通じて参照されます。これはフェイス属性のセットに関連付けられたLispシンボル@footnote{後方互換のため、フェイス名の指定に文字列も使用できます。これは同名のLispシンボルと等価です。}。です。名前つきフェイスは@code{defface}マクロを使用して定義できます(@ref{Defining
+Faces}を参照)。Emacsにはいくつかの標準名前つきフェイスが同梱されています(@ref{Basic Faces}を参照)。
 
-  Many parts of Emacs required named faces, and do not accept anonymous
-faces.  These include the functions documented in @ref{Attribute Functions},
-and the variable @code{font-lock-keywords} (@pxref{Search-based
-Fontification}).  Unless otherwise stated, we will use the term @dfn{face}
-to refer only to named faces.
+  Emacsの多くの箇所で名前つきフェイスが要求され、anonymousフェイスは受け入れられません。これらには@ref{Attribute
+Functions}に記述される関数、および変数@code{font-lock-keywords}(@ref{Search-based
+Fontification}を参照)が含まれます。特に明記しないかぎり、名前つきフェイスの参照だけに用語@dfn{フェイス}を使用することとします。
 
 @defun facep object
-This function returns a non-@code{nil} value if @var{object} is a named
-face: a Lisp symbol or string which serves as a face name.  Otherwise, it
-returns @code{nil}.
+この関数は@var{object}が名前つきフェイス(フェイス名の役目をもつLispシンボルまたは文字列)なら、非@code{nil}をリターンする。それ以外なら@code{nil}をリターンする。
 @end defun
 
 @menu
-* Face Attributes::          What is in a face?
-* Defining Faces::           How to define a face.
-* Attribute Functions::      Functions to examine and set face attributes.
-* Displaying Faces::         How Emacs combines the faces specified for a 
-                               character.
-* Face Remapping::           Remapping faces to alternative definitions.
-* Face Functions::           How to define and examine faces.
-* Auto Faces::               Hook for automatic face assignment.
-* Basic Faces::              Faces that are defined by default.
-* Font Selection::           Finding the best available font for a face.
-* Font Lookup::              Looking up the names of available fonts and 
-                               information about them.
-* Fontsets::                 A fontset is a collection of fonts that handle 
-                               a range of character sets.
-* Low-Level Font::           Lisp representation for character display 
-                               fonts.
+* Face Attributes::          フェイスとは?
+* Defining Faces::           フェイスを定義する方法。
+* Attribute Functions::      フェイス属性の確認およびセットを行う関数。
+* Displaying Faces::         ある文字にたいして指定されたフェイスをEmacsが組み合わせる方法。
+* Face Remapping::           フェイスを別の定義にリマップする。
+* Face Functions::           フェイスの定義、および確認する方法。
+* Auto Faces::               自動的にフェイスを割り当てるフック。
+* Basic Faces::              デフォルトで定義されるフェイス。
+* Font Selection::           あるフェイスに最適なフォントを見つける。
+* Font Lookup::              利用可能なフォント名とそれらの情報の照会。
+* Fontsets::                 フォントセット、それは文字セットの範囲を処理するフォントコレクションである。
+* Low-Level Font::           文字表示フォントのLisp表現。
 @end menu
 
 @node Face Attributes
