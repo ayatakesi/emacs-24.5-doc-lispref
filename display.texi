@@ -1467,114 +1467,71 @@ Faces}を参照)。フェイスのリストが使用された場合、リスト�
 @cindex defining faces
 
 @cindex face spec
-  The usual way to define a face is through the @code{defface} macro.  This
-macro associates a face name (a symbol) with a default @dfn{face spec}.  A
-face spec is a construct which specifies what attributes a face should have
-on any given terminal; for example, a face spec might specify one foreground
-color on high-color terminals, and a different foreground color on low-color
-terminals.
+  フェイスを定義する通常の方法は、@code{defface}マクロを通じて定義する方法です。このマクロはフェイス名(シンボル)を、デフォルトの@dfn{フェイスspec(face
+spec)}と関連付けます。フェイスspecは、任意の与えられた端末上でフェイスがどの属性をもつべきかを指定する構成です。たとえばあるフェイスspecは、高カラー端末ではあるフォアグラウンドカラーを指定し、低カラー端末では異なるフォアグラウンドカラーを指定するかもしれません。
 
-  People are sometimes tempted to create a variable whose value is a face
-name.  In the vast majority of cases, this is not necessary; the usual
-procedure is to define a face with @code{defface}, and then use its name
-directly.
+  値がフェイス名であるような変数を作りたがる人がいます。ほとんどの場合、これは必要ありません。通常手順は、@code{defface}でフェイスを定義して、その名前を直接使用することです。
 
 @defmac defface face spec doc [keyword value]@dots{}
-This macro declares @var{face} as a named face whose default face spec is
-given by @var{spec}.  You should not quote the symbol @var{face}, and it
-should not end in @samp{-face} (that would be redundant).  The argument
-@var{doc} is a documentation string for the face.  The additional
-@var{keyword} arguments have the same meanings as in @code{defgroup} and
-@code{defcustom} (@pxref{Common Keywords}).
+このマクロは、@var{spec}によりデフォルトフェイスspecが与えられるような、名前つきフェイスとして@var{face}を宣言する。シンボル@var{face}はクォートせず、@samp{-face}で終わらないこと(冗長であろう)。引数@var{doc}は、そのフェイスにたいするドキュメント文字列。追加の@var{keyword}引数は、@code{defgroup}および@code{defcustom}の場合と同じ意味をもつ(@ref{Common
+Keywords}を参照)。
 
 If @var{face} already has a default face spec, this macro does nothing.
 
-The default face spec determines @var{face}'s appearance when no
-customizations are in effect (@pxref{Customization}).  If @var{face} has
-already been customized (via Custom themes or via customizations read from
-the init file), its appearance is determined by the custom face spec(s),
-which override the default face spec @var{spec}.  However, if the
-customizations are subsequently removed, the appearance of @var{face} will
-again be determined by its default face spec.
+デフォルトフェイスspecは、何もカスタマイゼーション(@ref{Customization}を参照)の効果がないときに、@var{face}の外観を決定する。@var{face}が、(Customテーマやinitファイルから読み込んだカスタマイズにより)すでにカスタマイズ済みなら、その外観はデフォルトフェイスspecの@var{spec}をオーバーライドする、カスタムフェイスspecにより決定される。しかしその後カスタマイゼーションが削除されたなら、@var{face}の外観は再びそのデフォルトフェイスspecにより決定されるだろう。
 
-As an exception, if you evaluate a @code{defface} form with @kbd{C-M-x} in
-Emacs Lisp mode (@code{eval-defun}), a special feature of @code{eval-defun}
-overrides any custom face specs on the face, causing the face to reflect
-exactly what the @code{defface} says.
+例外として、Emacs
+Lispモードで@kbd{C-M-x}(@code{eval-defun})から@code{defface}を評価した場合は、@code{eval-defun}の特別な機能により、@code{defface}が何を指示するかをフェイスが正確に反映するように、そのフェイス上の任意のカスタムフェイスをオーバーライドする。
 
-The @var{spec} argument is a @dfn{face spec}, which states how the face
-should appear on different kinds of terminals.  It should be an alist whose
-elements each have the form
+@var{spec}引数は、異なる種別の端末上でそのフェイスがどのような外観で表示されるべきかを示す、@dfn{フェイスspec}である。これは各要素が以下の形式であるようなalistであること
 
 @example
 (@var{display} . @var{plist})
 @end example
 
 @noindent
-@var{display} specifies a class of terminals (see below).  @var{plist} is a
-property list of face attributes and their values, specifying how the face
-appears on such terminals.  For backward compatibility, you can also write
-an element as @code{(@var{display} @var{plist})}.
+@var{display}は端末のクラス(以下参照)を指定する。@var{plist}は、そのような端末上でフェイスがどのような外観かを指定する、フェイス属性とその値からなるプロパティリストであること。後方互換性のために、@code{(@var{display}
+@var{plist})}のように要素を記述することもできる。
 
-The @var{display} part of an element of @var{spec} determines which
-terminals the element matches.  If more than one element of @var{spec}
-matches a given terminal, the first element that matches is the one used for
-that terminal.  There are three possibilities for @var{display}:
+@var{spec}の要素の@var{display}の部分は、その要素がマッチする端末を決定する。与えられた端末にたいして複数の要素がマッチした場合は、最初にマッチした要素がその端末にたいして使用される。@var{display}には以下の3つが可能:
 
 @table @asis
 @item @code{default}
-This element of @var{spec} doesn't match any terminal; instead, it specifies
-defaults that apply to all terminals.  This element, if used, must be the
-first element of @var{spec}.  Each of the following elements can override
-any or all of these defaults.
+@var{spec}のこの要素は、どの端末にもマッチしない。かわりにすべての端末に適用されるデフォルトを指定する。この要素が仕様された場合は、@var{spec}の最初の要素でなければならない。この後の要素はこれらのデフォルトの一部、またはすべてをオーバーライドできる。
 
 @item @code{t}
-This element of @var{spec} matches all terminals.  Therefore, any subsequent
-elements of @var{spec} are never used.  Normally @code{t} is used in the
-last (or only) element of @var{spec}.
+@var{spec}のこの要素は、すべての端末にマッチする。したがって@var{spec}の後続要素が使用されることはない。通常@code{t}は、@var{spec}の最後(または唯一)の要素として使用される。
 
 @item リスト
-If @var{display} is a list, each element should have the form
-@code{(@var{characteristic} @var{value}@dots{})}.  Here @var{characteristic}
-specifies a way of classifying terminals, and the @var{value}s are possible
-classifications which @var{display} should apply to.  Here are the possible
-values of @var{characteristic}:
+@var{display}がリストなら、各要素は@code{(@var{characteristic}
+@var{value}@dots{})}という形式をもつこと。ここで@var{characteristic}は端末をクラス分けする方法、@var{value}は@var{display}に適用されるべき可能なクラス分類である。@var{characteristic}で利用可能な値は:
 
 @table @code
 @item type
-The kind of window system the terminal uses---either @code{graphic} (any
-graphics-capable display), @code{x}, @code{pc} (for the MS-DOS console),
-@code{w32} (for MS Windows 9X/NT/2K/XP), or @code{tty} (a
-non-graphics-capable display).  @xref{Window Systems, window-system}.
+その端末が使用するウィンドウシステムの種類で@code{graphic}(任意のグラフィック対応ディスプレイ)、@code{x}、@code{pc}(MS-DOSコンソール)、@code{w32}
+(MS Windows 9X/NT/2K/XP)、または@code{tty}(グラフィック非対応ディスプレイ)のいずれか。@ref{Window
+Systems, window-system}を参照のこと。
 
 @item class
-What kinds of colors the terminal supports---either @code{color},
-@code{grayscale}, or @code{mono}.
+その端末がサポートするカラーの種類で、@code{color}、@code{grayscale}、または@code{mono}のいずれか。
 
 @item background
-The kind of background---either @code{light} or @code{dark}.
+バックグラウンドの種類で@code{light}か@code{dark}のいずれか。
 
 @item min-colors
-An integer that represents the minimum number of colors the terminal should
-support.  This matches a terminal if its @code{display-color-cells} value is
-at least the specified integer.
+その端末がサポートするべき最小カラー数を表す整数。端末の@code{display-color-cells}の値が少なくとも指定された整数なら、その端末にマッチする。
 
 @item supports
-Whether or not the terminal can display the face attributes given in
-@var{value}@dots{} (@pxref{Face Attributes}).  @xref{Display Face Attribute
-Testing}, for more information on exactly how this testing is done.
+その端末が@var{value}@dots{}で与えられたフェイス属性を表示可能か否か(@ref{Face
+Attributes}を参照)。このテストがどのように行われるかについてのより正確な情報は、@ref{Display Face Attribute
+Testing}を参照のこと。
 @end table
 
-If an element of @var{display} specifies more than one @var{value} for a
-given @var{characteristic}, any of those values is acceptable.  If
-@var{display} has more than one element, each element should specify a
-different @var{characteristic}; then @emph{each} characteristic of the
-terminal must match one of the @var{value}s specified for it in
-@var{display}.
+与えられた@var{characteristic}にたいして、@var{display}の要素が複数の@var{value}を指定する場合は、いずれの値も許容され得る。@var{display}が複数の要素をもつ場合、各要素は異なる@var{characteristic}を指定すること。その端末の@emph{それぞれ}のcharacteristicは、@var{display}内で指定された値のいずれか1つとマッチしなければならない。
 @end table
 @end defmac
 
-  For example, here's the definition of the standard face @code{highlight}:
+  たとえば以下は、標準フェイス@code{highlight}の定義です:
 
 @example
 (defface highlight
@@ -1593,42 +1550,21 @@ terminal must match one of the @var{value}s specified for it in
   :group 'basic-faces)
 @end example
 
-  Internally, Emacs stores each face's default spec in its
-@code{face-defface-spec} symbol property (@pxref{Symbol Properties}).  The
-@code{saved-face} property stores any face spec saved by the user using the
-customization buffer; the @code{customized-face} property stores the face
-spec customized for the current session, but not saved; and the
-@code{theme-face} property stores an alist associating the active
-customization settings and Custom themes with the face specs for that face.
-The face's documentation string is stored in the @code{face-documentation}
-property.
+  内部的には、Emacsはフェイスのシンボルプロパティ@code{face-defface-spec}内にそれぞれのフェイスのデフォルトspecを格納します(@ref{Symbol
+Properties}を参照)。@code{saved-face}プロパティは、カスタマイゼーションバッファーを使用してユーザーが保存した、任意のフェイスspecを格納します。@code{customized-face}プロパティは、カレントセッションにたいしてカスタマイズされた保存されていないフェイスspecを格納します。そして@code{theme-face}プロパティは、そのフェイスにたいするアクティブなカスタマイゼーションセッティングと、フェイスspecをもつCustomテーマを関連付けるalistです。そのフェイスのドキュメント文字列は、@code{face-documentation}プロパティ内に格納されます。
 
-  Normally, a face is declared just once, using @code{defface}, and any
-further changes to its appearance are applied using the Customize framework
-(e.g., via the Customize user interface or via the @code{custom-set-faces}
-function; @pxref{Applying Customizations}), or by face remapping
-(@pxref{Face Remapping}).  In the rare event that you need to change a face
-spec directly from Lisp, you can use the @code{face-spec-set} function.
+  通常フェイスは@code{defface}を使用して1回だけ宣言され、その外観にたいするそれ以上の変更はCustomizeフレームワーク(Customizeユーザーインターフェース、または@code{custom-set-faces}関数を通じて。@ref{Applying
+Customizations}を参照されたい)、またはフェイスリマッピング(@ref{Face
+Remapping}を参照)により行われます。Lispから触接フェイスspec変更を要する稀な機会では、@code{face-spec-set}関数を使用できます。
 
 @defun face-spec-set face spec &optional spec-type
-This function applies @var{spec} as a face spec for @code{face}.  @var{spec}
-should be a face spec, as described in the above documentation for
-@code{defface}.
+この関数は、@code{face}にたいするフェイスspecとして、@var{spec}を適用する。@var{spec}は、上述した@code{defface}にたいするフェイスspecであること。
 
-This function also defines @var{face} as a valid face name if it is not
-already one, and (re)calculates its attributes on existing frames.
+この関数は、もしそれが既存のものでなければ、有効なフェイス名として@var{face}を定義して、既存フレームのその属性を(再)計算することも行う。
 
 @cindex override spec @r{(for a face)}
-The argument @var{spec-type} determines which spec to set.  If it is
-@code{nil} or @code{face-override-spec}, this function sets the
-@dfn{override spec}, which overrides over all other face specs on
-@var{face}.  If it is @code{customized-face} or @code{saved-face}, this
-function sets the customized spec or the saved custom spec.  If it is
-@code{face-defface-spec}, this function sets the default face spec (the same
-one set by @code{defface}).  If it is @code{reset}, this function clears out
-all customization specs and override specs from @var{face} (in this case,
-the value of @var{spec} is ignored).  Any other value of @var{spec-type} is
-reserved for internal use.
+引数@var{spec-type}は、どのspecをセットするべきかを決定する。これが@code{nil}または@code{face-override-spec}なら、この関数は@dfn{オーバーライドspec(override
+spec)}をセットする。これは@var{face}上の他のすべてのフェイスspecをオーバーライドする。@code{customized-face}または@code{saved-face}なら、この関数はカスタマイズされたspec、または保存されたカスタムspecをセットする。@code{face-defface-spec}なら、この関数はデフォルトフェイスspec(@code{defface}によりセットされるものと同一)をセットする。@code{reset}なら、この関数は@var{face}からすべてのカスタマイゼーションspecとオーバーライドspecをクリアーする(この場合、@var{spec}の値は無視される)。@var{spec-type}にたいする他のすべての値は、内部的な使用のために予約済みである。
 @end defun
 
 @node Attribute Functions
