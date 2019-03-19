@@ -1319,226 +1319,147 @@ Fontification}を参照)が含まれます。特に明記しないかぎり、�
 @subsection Face Attributes
 @cindex face attributes
 
-  @dfn{Face attributes} determine the visual appearance of a face.  The
-following table lists all the face attributes, their possible values, and
-their effects.
+  @dfn{フェイス属性(Face
+attributes)}は、フェイスの視覚的外観を決定します。以下はすべてのフェイス属性と、それらの可能な値と効果に関するテーブルです。
 
-  Apart from the values given below, each face attribute can have the value
-@code{unspecified}.  This special value means that the face doesn't specify
-that attribute directly.  An @code{unspecified} attribute tells Emacs to
-refer instead to a parent face (see the description @code{:inherit}
-attribute below); or, failing that, to an underlying face (@pxref{Displaying
-Faces}).  The @code{default} face must specify all attributes.
+  以下の値とは別に、各フェイス属性は値@code{unspecified}をもつことができます。この特殊な値は、フェイスがその属性を直接指定しないことを意味します。@code{unspecified}属性は、Emacsにかわりに親フェイス(以下の@code{:inherit}属性の記述を参照)を参照すること、それに失敗した場合は基礎フェイス(@ref{Displaying
+Faces}を参照)を参照することを指示します。@code{default}フェイスはすべての属性を指定しなければなりません。
 
-  Some of these attributes are meaningful only on certain kinds of displays.
-If your display cannot handle a certain attribute, the attribute is ignored.
+  これらの属性のいくつかは、特定の種類のディスプレイにおいてのみ意味があります。ディスプレイが特定の属性を処理できなければ、その属性は無視されます。
 
 @table @code
 @item :family
-Font family or fontset (a string).  @xref{Fonts,,, emacs, The GNU Emacs
-Manual}, for more information about font families.  The function
-@code{font-family-list} (see below) returns a list of available family
-names.  @xref{Fontsets}, for information about fontsets.
+フォントファミリーまたはフォントセット(文字列)。フォントファミリーに関する詳細は、@xref{Fonts,,, emacs, The GNU
+Emacs
+Manual}を参照のこと。関数@code{font-family-list}(以下参照)は、利用可能なファミリー名のリストをリターンする。フォントセットに関する情報は、@ref{Fontsets}を参照されたい。
 
 @item :foundry
-The name of the @dfn{font foundry} for the font family specified by the
-@code{:family} attribute (a string).  @xref{Fonts,,, emacs, The GNU Emacs
-Manual}.
+@code{:family}属性により指定されるフォントファミリーにたいする@dfn{フォントfoundry(font
+foundry)}(文字列)。@ref{Fonts,,, emacs, The GNU Emacs Manual}を参照のこと。
 
 @item :width
-Relative character width.  This should be one of the symbols
-@code{ultra-condensed}, @code{extra-condensed}, @code{condensed},
-@code{semi-condensed}, @code{normal}, @code{semi-expanded}, @code{expanded},
-@code{extra-expanded}, or @code{ultra-expanded}.
+相対的な文字幅。これはシンボル@code{ultra-condensed}、@code{extra-condensed}、@code{condensed}、@code{semi-condensed}、@code{normal}、@code{semi-expanded}、@code{expanded}、@code{extra-expanded}、@code{ultra-expanded}のいずれかであること。
 
 @item :height
-The height of the font.  In the simplest case, this is an integer in units
-of 1/10 point.
+フォントの高さ。もっともシンプルなケースでは1/10ポイントを単位とする整数。
 
-The value can also be floating point or a function, which specifies the
-height relative to an @dfn{underlying face} (@pxref{Displaying Faces}).  A
-floating-point value specifies the amount by which to scale the height of
-the underlying face.  A function value is called with one argument, the
-height of the underlying face, and returns the height of the new face.  If
-the function is passed an integer argument, it must return an integer.
+値には@dfn{基礎フェイス(underlying
+face)}にたいして相対的に高さを指定する浮動小数点数、または関数も指定できる(@ref{Displaying
+Faces}を参照)。浮動小数点数は基礎フェイスの高さをスケーリングする量を指定する。関数値は基礎フェイスの高さを単一の引数として呼び出され、新たなフェイスの高さをリターンする。関数が整数を引数として渡された場合には、整数をリターンしなければならない。
 
-The height of the default face must be specified using an integer; floating
-point and function values are not allowed.
+デフォルトフェイスの高さは、整数を使用して指定しなければならない。浮動小数点数および関数は受け入れられない。
 
 @item :weight
-Font weight---one of the symbols (from densest to faintest)
-@code{ultra-bold}, @code{extra-bold}, @code{bold}, @code{semi-bold},
-@code{normal}, @code{semi-light}, @code{light}, @code{extra-light}, or
-@code{ultra-light}.  On text terminals which support variable-brightness
-text, any weight greater than normal is displayed as extra bright, and any
-weight less than normal is displayed as half-bright.
+フォントのweight。(太字から細字順に)シンボル@code{ultra-bold}、@code{extra-bold}、@code{bold}、@code{semi-bold}、@code{normal}、@code{semi-light}、@code{light}、@code{extra-light}、@code{ultra-light}のいずれか。可変輝度テキストをサポートするテキスト端末では、normalより大なweightはより高輝度、小なweightはより低輝度で表示される。
 
 @cindex italic text
 @item :slant
-Font slant---one of the symbols @code{italic}, @code{oblique},
-@code{normal}, @code{reverse-italic}, or @code{reverse-oblique}.  On text
-terminals that support variable-brightness text, slanted text is displayed
-as half-bright.
+フォントのslant。シンボル@code{italic}、@code{oblique}、@code{normal}、@code{reverse-italic}、@code{reverse-oblique}のいずれか。可変輝度テキストをサポートするテキスト端末では、slantされたテキストはhalf-brightで表示される。
 
 @item :foreground
-Foreground color, a string.  The value can be a system-defined color name,
-or a hexadecimal color specification.  @xref{Color Names}.  On
-black-and-white displays, certain shades of gray are implemented by stipple
-patterns.
+フォアグラウンドカラー(文字列)。値にはシステム定義済みカラー、または16進カラー仕様を指定できる。@ref{Color
+Names}を参照のこと。白黒ディスプレイでは、特定のグレー色調が点描パターンで実装されている。
 
 @item :distant-foreground
-Alternative foreground color, a string.  This is like @code{:foreground} but
-the color is only used as a foreground when the background color is near to
-the foreground that would have been used.  This is useful for example when
-marking text (i.e. the region face).  If the text has a foreground that is
-visible with the region face, that foreground is used.  If the foreground is
-near the region face background, @code{:distant-foreground} is used instead
-so the text is readable.
+代替えのフォアグラウンドカラー(文字列)。これは@code{:foreground}と似ているが、使用されるであろうフォアグラウンドカラーが、バックグラウンドカラーに近いときのみフォアグラウンドカラーとして使用される点が異なる。これはたとえばテキストをマーク時(リージョンフェイス)に有用である。そのテキストが、リージョンフェイスとして可視なフォアグラウンドをもつ場合は、そのフォアグラウンドが使用される。フォアグラウンドがリージョンフェイスのバックグラウンドに近ければ、テキストを可読にするために@code{:distant-foreground}が使用される。
 
 @item :background
-Background color, a string.  The value can be a system-defined color name,
-or a hexadecimal color specification.  @xref{Color Names}.
+バックグラウンドカラー(文字列)。値にはシステム定義済みカラー、または16進カラー仕様を指定できる。@ref{Color Names}を参照のこと。
 
 @cindex underlined text
 @item :underline
-Whether or not characters should be underlined, and in what way.  The
-possible values of the @code{:underline} attribute are:
+文字にアンダーラインを引くべきか否かと、その方法。@code{:underline}属性として可能な値は以下のとおり:
 
 @table @asis
 @item @code{nil}
-Don't underline.
+アンダーラインを引かない。
 
 @item @code{t}
-Underline with the foreground color of the face.
+そのフェイスのフォアグラウンドカラーでアンダーラインを引く。
 
 @item @var{color}
-Underline in color @var{color}, a string specifying a color.
+文字列@var{color}で指定されたカラーでアンダーラインを引く。
 
 @item @code{(:color @var{color} :style @var{style})}
-@var{color} is either a string, or the symbol @code{foreground-color},
-meaning the foreground color of the face.  Omitting the attribute
-@code{:color} means to use the foreground color of the face.  @var{style}
-should be a symbol @code{line} or @code{wave}, meaning to use a straight or
-wavy line.  Omitting the attribute @code{:style} means to use a straight
-line.
+@var{color}は文字列、またはそのフェイスのフォアグラウンドカラーを意味するシンボル@code{foreground-color}。属性@code{:color}の省略は、そのフェイスのフォアグラウンドカラーの使用を意味する。@var{style}には直線を意味する@code{line}、または波線を意味する@code{wave}いずれかのシンボルであること。属性@code{:style}の省略は直線を意味する。
 @end table
 
 @cindex overlined text
 @item :overline
-Whether or not characters should be overlined, and in what color.  If the
-value is @code{t}, overlining uses the foreground color of the face.  If the
-value is a string, overlining uses that color.  The value @code{nil} means
-do not overline.
+文字にオーバーラインを引くべきか否かと、そのカラー。値が@code{t}なら、そのフェイスのフォアグラウンドカラーを使用してオーバーラインを引く。値が文字列なら、そのカラーを使用してオーバーラインを引く。値@code{nil}はオーバーラインを引かないことを意味する。
 
 @cindex strike-through text
 @item :strike-through
-Whether or not characters should be strike-through, and in what color.  The
-value is used like that of @code{:overline}.
+文字に取り消し線を引くべきか否かと、そのカラー。値は@code{:overline}で使用される値と同じ。
 
 @cindex 2D box
 @cindex 3D box
 @item :box
-Whether or not a box should be drawn around characters, its color, the width
-of the box lines, and 3D appearance.  Here are the possible values of the
-@code{:box} attribute, and what they mean:
+文字周囲に枠(box)を描画するか否か、そのカラー、枠線の幅、3D外観。以下は@code{:box}の可能な値と意味である:
 
 @table @asis
 @item @code{nil}
-Don't draw a box.
+枠を描画しない。
 
 @item @code{t}
-Draw a box with lines of width 1, in the foreground color.
+幅1の枠線、フォアグラウンドカラーで枠を描画する。
 
 @item @var{color}
-Draw a box with lines of width 1, in color @var{color}.
+幅1の枠線、カラー@var{color}で枠を描画する。
 
 @item @code{(:line-width @var{width} :color @var{color} :style @var{style})}
-This way you can explicitly specify all aspects of the box.  The value
-@var{width} specifies the width of the lines to draw; it defaults to 1.  A
-negative width @var{-n} means to draw a line of width @var{n} that occupies
-the space of the underlying text, thus avoiding any increase in the
-character height or width.
+この方法では、枠のすべての形相を明示的に指定できる。値@var{width}は描画する線の幅を指定し、デフォルトは1。負の幅@var{-n}は、基礎テキストのスペースを占有する線幅@var{n}を意味し、文字の高さまたは幅を避けることができる。
 
-The value @var{color} specifies the color to draw with.  The default is the
-foreground color of the face for simple boxes, and the background color of
-the face for 3D boxes.
+値@var{color}は描画するカラーを指定する。シンプルな枠線ではフェイスのフォアグラウンドカラー、3D枠線ではフェイスのバックグラウンドカラーがデフォルト。
 
-The value @var{style} specifies whether to draw a 3D box.  If it is
-@code{released-button}, the box looks like a 3D button that is not being
-pressed.  If it is @code{pressed-button}, the box looks like a 3D button
-that is being pressed.  If it is @code{nil} or omitted, a plain 2D box is
-used.
+値@var{style}は3D枠線を描画するか否かを指定する。@code{released-button}なら、枠は押下された3Dボタンのような外観、@code{pressed-button}なら押下されていない3Dボタンのような外観、@code{nil}または省略された場合は2D枠線が使用される。
 @end table
 
 @item :inverse-video
-Whether or not characters should be displayed in inverse video.  The value
-should be @code{t} (yes) or @code{nil} (no).
+文字が反転表示されて表示されるべきか否か。値は@code{t}(反転表示する)、または@code{nil}(反転表示しない)であること。
 
 @item :stipple
-The background stipple, a bitmap.
+バックグラウンドの点描(ビットマップ)。
 
-The value can be a string; that should be the name of a file containing
-external-format X bitmap data.  The file is found in the directories listed
-in the variable @code{x-bitmap-file-path}.
+値には文字列を指定でき、それは外部形式Xビットマップデータを含むファイルの名前であること。ファイルは変数@code{x-bitmap-file-path}にリストされるディレクトリー内で検索される。
 
-Alternatively, the value can specify the bitmap directly, with a list of the
-form @code{(@var{width} @var{height} @var{data})}.  Here, @var{width} and
-@var{height} specify the size in pixels, and @var{data} is a string
-containing the raw bits of the bitmap, row by row.  Each row occupies
-@math{(@var{width} + 7) / 8} consecutive bytes in the string (which should
-be a unibyte string for best results).  This means that each row always
-occupies at least one whole byte.
+かわりに@code{(@var{width} @var{height}
+@var{data})}という形式のリストにより、ビットマップで直接値を指定できる。ここで@var{width}と@var{height}はピクセル単位によるサイズ、@var{data}は行単位でビットマップのrawビットを含む文字列。各行は文字列内で連続する@math{(@var{width}
++ 7) / 8}バイトを占める(最善の結果を得るためにはユニバイト文字列であるべき)。これは各行が常に少なくとも、1バイト全体を占めることを意味する。
 
-If the value is @code{nil}, that means use no stipple pattern.
+値が@code{nil}なら、点描パターンを使用しないことを意味する。
 
-Normally you do not need to set the stipple attribute, because it is used
-automatically to handle certain shades of gray.
+これは特定のグレー色調を処理するために自動的に使用されるので、通常はstipple属性のセットは必要ない。
 
 @item :font
-The font used to display the face.  Its value should be a font object.
-@xref{Low-Level Font}, for information about font objects, font specs, and
-font entities.
+そのフェイスの表示に使用されるフォント。値はフォントオブジェクトであること。フォントオブジェクト、フォントスペース、フォントエンティティーに関する情報は、@ref{Low-Level
+Font}を参照のこと。
 
-When specifying this attribute using @code{set-face-attribute}
-(@pxref{Attribute Functions}), you may also supply a font spec, a font
-entity, or a string.  Emacs converts such values to an appropriate font
-object, and stores that font object as the actual attribute value.  If you
-specify a string, the contents of the string should be a font name
-(@pxref{Fonts,,, emacs, The GNU Emacs Manual}); if the font name is an XLFD
-containing wildcards, Emacs chooses the first font matching those
-wildcards.  Specifying this attribute also changes the values of the
-@code{:family}, @code{:foundry}, @code{:width}, @code{:height},
-@code{:weight}, and @code{:slant} attributes.
+@code{set-face-attribute}(@pxref{Attribute
+Functions})を使用してこの属性を指定する際にはフォントspec、フォントエンティティー、または文字列を与えることもできる。Emacsはそのような値を適切なフォントオブジェクトに変換して、実際の属性値としてそのフォントオブジェクトを格納する。文字列を指定する場合、その文字列のコンテンツはフォント名であること(@ref{Fonts,,,
+emacs, The GNU Emacs
+Manual}を参照)。フォント名がワイルドカードを含むXLFDなら、Emacsはそれらのワイルドカードに最初にマッチするフォントを選択する。この属性の指定により、@code{:family}、@code{:foundry}、@code{:width}、@code{:height}、@code{:weight}、@code{:slant}の属性値も変更される。
 
 @cindex inheritance, for faces
 @item :inherit
-The name of a face from which to inherit attributes, or a list of face
-names.  Attributes from inherited faces are merged into the face like an
-underlying face would be, with higher priority than underlying faces
-(@pxref{Displaying Faces}).  If a list of faces is used, attributes from
-faces earlier in the list override those from later faces.
+属性を継承するフェイス名、またはフェイス名のリスト。継承フェイス由来の属性は、基礎フェイスより高い優先度で、基礎フェイスの場合と同じような方法でマージされる(@ref{Displaying
+Faces}を参照)。フェイスのリストが使用された場合、リスト内先頭側フェイスの属性が末尾側フェイスの属性をオーバーライドする。
 @end table
 
 @defun font-family-list &optional frame
-This function returns a list of available font family names.  The optional
-argument @var{frame} specifies the frame on which the text is to be
-displayed; if it is @code{nil}, the selected frame is used.
+この関数は、利用可能なフォントファミリー名のリストをリターンする。オプション引数@var{frame}はそのテキストが表示されるフレームを指定する。これが@code{nil}なら選択されたフレームが使用される。
 @end defun
 
 @defopt underline-minimum-offset
-This variable specifies the minimum distance between the baseline and the
-underline, in pixels, when displaying underlined text.
+この変数は、アンダーラインが引かれたテキスト表示時に、ベースラインとアンダーライン間の最小距離を、ピクセル単位で指定する。
 @end defopt
 
 @defopt x-bitmap-file-path
-This variable specifies a list of directories for searching for bitmap
-files, for the @code{:stipple} attribute.
+この変数は@code{:stipple}属性のビットマップファイルを検索する、ディレクトリーのリストを指定する。
 @end defopt
 
 @defun bitmap-spec-p object
-This returns @code{t} if @var{object} is a valid bitmap specification,
-suitable for use with @code{:stipple} (see above).  It returns @code{nil}
-otherwise.
+これは@var{object}が、@code{:stipple}(上記参照)での使用に適す有効なビットマップ仕様なら@code{t}、それ以外なら@code{nil}をリターンする。
 @end defun
 
 @node Defining Faces
