@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-03-19 19:01+0900\n"
+"PO-Revision-Date: 2019-03-19 20:05+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -4608,93 +4608,93 @@ msgstr "各ステージにおいて、フェイスが有効な@code{:inherit}属
 #: display.texi.orig:2701
 #, no-wrap
 msgid "face remapping"
-msgstr ""
+msgstr "face remapping"
 
 #. type: Plain text
 #: display.texi.orig:2707
 msgid "The variable @code{face-remapping-alist} is used for buffer-local or global changes in the appearance of a face.  For instance, it is used to implement the @code{text-scale-adjust} command (@pxref{Text Scale,,, emacs, The GNU Emacs Manual})."
-msgstr ""
+msgstr "変数@code{face-remapping-alist}は、あるフェイスの外観のバッファーローカル、またはグローバルな変更にたいして使用されます。たとえばこれは、@code{text-scale-adjust}コマンド(@ref{Text Scale,,, emacs, The GNU Emacs Manual}を参照)の実装に使用されています。"
 
 #. type: defvar
 #: display.texi.orig:2708
 #, no-wrap
 msgid "face-remapping-alist"
-msgstr ""
+msgstr "face-remapping-alist"
 
 #. type: defvar
 #: display.texi.orig:2713
 msgid "The value of this variable is an alist whose elements have the form @code{(@var{face} . @var{remapping})}.  This causes Emacs to display any text having the face @var{face} with @var{remapping}, rather than the ordinary definition of @var{face}."
-msgstr ""
+msgstr "この変数の値は、要素が@code{(@var{face} . @var{remapping})}という形式をもつalistである。これによりEmacsは、フェイス@var{face}をもつ任意のテキストを、通常の@var{face}の定義ではなく、@var{remapping}で表示する。"
 
 #. type: defvar
 #: display.texi.orig:2721
 msgid "@var{remapping} may be any face spec suitable for a @code{face} text property: either a face (i.e., a face name or a property list of attribute/value pairs), or a list of faces.  For details, see the description of the @code{face} text property in @ref{Special Properties}.  @var{remapping} serves as the complete specification for the remapped face---it replaces the normal definition of @var{face}, instead of modifying it."
-msgstr ""
+msgstr "@var{remapping}には、テキストプロパティ@code{face}にたいして適切な任意のフェイスspec、すなわちフェイス(フェイス名または属性/値ペアーのプロパティリスト)、またはフェイスのリストのいずれかを指定できる。詳細は、@ref{Special Properties}の@code{face}テキストプロパティの記述を参照のこと。@var{remapping}はリマップされるフェイスにたいる、完全な仕様としての役目をもつ。これは通常の@var{face}を変更せずに置き換える。"
 
 #. type: defvar
 #: display.texi.orig:2724
 msgid "If @code{face-remapping-alist} is buffer-local, its local value takes effect only within that buffer."
-msgstr ""
+msgstr "@code{face-remapping-alist}がバッファーローカルなら、そのローカル値はそのバッファーでのみ効果をもつ。"
 
 #. type: defvar
 #: display.texi.orig:2731
 msgid "Note: face remapping is non-recursive.  If @var{remapping} references the same face name @var{face}, either directly or via the @code{:inherit} attribute of some other face in @var{remapping}, that reference uses the normal definition of @var{face}.  For instance, if the @code{mode-line} face is remapped using this entry in @code{face-remapping-alist}:"
-msgstr ""
+msgstr "注意: フェイスのリマッピングは再帰的ではない。@var{remapping}が同じフェイス名@var{face}を参照する場合、直接または@var{remapping}内の他の何らかのフェイスの@code{:inherit}属性を通じて、その参照は@var{face}の通常の定義を使用する。たとえば@code{mode-line}フェイスが、@code{face-remapping-alist}内の以下のエントリーでリマップされる場合:"
 
 #. type: example
 #: display.texi.orig:2734
 #, no-wrap
 msgid "(mode-line italic mode-line)\n"
-msgstr ""
+msgstr "(mode-line italic mode-line)\n"
 
 #. type: defvar
 #: display.texi.orig:2740
 msgid "then the new definition of the @code{mode-line} face inherits from the @code{italic} face, and the @emph{normal} (non-remapped) definition of @code{mode-line} face."
-msgstr ""
+msgstr "@code{mode-line}フェイスの新たな定義は@code{italic}フェイス、および(リマップされていない)@emph{通常}の@code{mode-line}フェイスの定義から継承される。"
 
 #. type: cindex
 #: display.texi.orig:2742
 #, no-wrap
 msgid "relative remapping, faces"
-msgstr ""
+msgstr "relative remapping, faces"
 
 #. type: cindex
 #: display.texi.orig:2743
 #, no-wrap
 msgid "base remapping, faces"
-msgstr ""
+msgstr "base remapping, faces"
 
 #. type: Plain text
 #: display.texi.orig:2751
 msgid "The following functions implement a higher-level interface to @code{face-remapping-alist}.  Most Lisp code should use these functions instead of setting @code{face-remapping-alist} directly, to avoid trampling on remappings applied elsewhere.  These functions are intended for buffer-local remappings, so they all make @code{face-remapping-alist} buffer-local as a side-effect. They manage @code{face-remapping-alist} entries of the form"
-msgstr ""
+msgstr "以下の関数は、@code{face-remapping-alist}にたいする高レベルなインターフェースを実装します。ほとんどのLispコードは、リマッピングが他の場所に適用されてしまうのを避けるために、@code{face-remapping-alist}を直接セットするのではなく、これらの関数を使用するべきです。これらの関数はバッファーローカルなリマッピングを意図しており、すべてが副作用として@code{face-remapping-alist}をバッファーローカルにします。これらは、以下の形式の@code{face-remapping-alist}エントリーを管理します"
 
 #. type: example
 #: display.texi.orig:2754
 #, no-wrap
 msgid "  (@var{face} @var{relative-spec-1} @var{relative-spec-2} @var{...} @var{base-spec})\n"
-msgstr ""
+msgstr "  (@var{face} @var{relative-spec-1} @var{relative-spec-2} @var{...} @var{base-spec})\n"
 
 #. type: Plain text
 #: display.texi.orig:2767
 msgid "where, as explained above, each of the @var{relative-spec-N} and @var{base-spec} is either a face name, or a property list of attribute/value pairs.  Each of the @dfn{relative remapping} entries, @var{relative-spec-N}, is managed by the @code{face-remap-add-relative} and @code{face-remap-remove-relative} functions; these are intended for simple modifications like changing the text size.  The @dfn{base remapping} entry, @var{base-spec}, has the lowest priority and is managed by the @code{face-remap-set-base} and @code{face-remap-reset-base} functions; it is intended for major modes to remap faces in the buffers they control."
-msgstr ""
+msgstr "上述したように、@var{relative-spec-N}と@var{base-spec}はそれぞれ、フェイス名または属性/値ペアーのプロパティリストです。@dfn{相対的リマッピング(relative remapping)}エントリー@var{relative-spec-N}はそれぞれ、@code{face-remap-add-relative}および@code{face-remap-remove-relative}関数により管理されます。これらはテキストサイズ変更のような、単純な変更を意図しています。@dfn{ベースリマッピング(base remapping)}エントリー@var{base-spec}は最低の優先度をもち、@code{face-remap-set-base}および@code{face-remap-reset-base}関数により管理されます。これは、メジャーモードが制御下のバッファーでフェイスをリマップするために用いることを意図しています。"
 
 #. type: defun
 #: display.texi.orig:2768
 #, no-wrap
 msgid "face-remap-add-relative face &rest specs"
-msgstr ""
+msgstr "face-remap-add-relative face &rest specs"
 
 #. type: defun
 #: display.texi.orig:2773
 msgid "This function adds the face spec in @var{specs} as relative remappings for face @var{face} in the current buffer.  The remaining arguments, @var{specs}, should form either a list of face names, or a property list of attribute/value pairs."
-msgstr ""
+msgstr "この関数は、カレントバッファー内のフェイス@var{face}にたいして、相対的リマッピングとして、@var{specs}内にフェイスspecを追加する。残りの引数@var{specs}はフェイス名のリスト、または属性/値ペアーのプロパティリストという、いずれかの形式であること。"
 
 #. type: defun
 #: display.texi.orig:2777
 msgid "The return value is a Lisp object that serves as a ``cookie''; you can pass this object as an argument to @code{face-remap-remove-relative} if you need to remove the remapping later."
-msgstr ""
+msgstr "リターン値は、``cookie''としての役目をもつLispオブジェクトである。後でそのリマッピングの削除を要する場合は、引数として@code{face-remap-remove-relative}にこのオブジェクトを渡すことができる。"
 
 #. type: example
 #: display.texi.orig:2782
@@ -4705,6 +4705,10 @@ msgid ""
 "(face-remap-add-relative 'escape-glyph 'highlight 'italic)\n"
 "\n"
 msgstr ""
+";; `escape-glyph'フェイスを`highlight'と`italic'\n"
+";; の組み合わせにリマップ:\n"
+"(face-remap-add-relative 'escape-glyph 'highlight 'italic)\n"
+"\n"
 
 #. type: example
 #: display.texi.orig:2785
@@ -4713,44 +4717,46 @@ msgid ""
 ";; Increase the size of the `default' face by 50%:\n"
 "(face-remap-add-relative 'default :height 1.5)\n"
 msgstr ""
+";; `default'フェイスのサイズを50%増加:\n"
+"(face-remap-add-relative 'default :height 1.5)\n"
 
 #. type: defun
 #: display.texi.orig:2788
 #, no-wrap
 msgid "face-remap-remove-relative cookie"
-msgstr ""
+msgstr "face-remap-remove-relative cookie"
 
 #. type: defun
 #: display.texi.orig:2793
 msgid "This function removes a relative remapping previously added by @code{face-remap-add-relative}.  @var{cookie} should be the Lisp object returned by @code{face-remap-add-relative} when the remapping was added."
-msgstr ""
+msgstr "この関数は、以前@code{face-remap-add-relative}で追加された相対的リマッピングを削除する。@var{cookie}は、そのリマッピングが追加されたときに、@code{face-remap-add-relative}がリターンしたLispオブジェクトであること。"
 
 #. type: defun
 #: display.texi.orig:2795
 #, no-wrap
 msgid "face-remap-set-base face &rest specs"
-msgstr ""
+msgstr "face-remap-set-base face &rest specs"
 
 #. type: defun
 #: display.texi.orig:2802
 msgid "This function sets the base remapping of @var{face} in the current buffer to @var{specs}.  If @var{specs} is empty, the default base remapping is restored, similar to calling @code{face-remap-reset-base} (see below); note that this is different from @var{specs} containing a single value @code{nil}, which has the opposite result (the global definition of @var{face} is ignored)."
-msgstr ""
+msgstr "この関数は、カレントバッファー内の@var{face}のベースリマッピングを、@var{specs}にセットする。@var{specs}が空なら、@code{face-remap-reset-base}(以下参照)を呼び出したように、デフォルトベースリマッピングがリストアされる。これは単一の値@code{nil}を含む@var{specs}とは異なることに注意。これは逆の結果をもたらす(@var{face}のグローバル定義は無視される)。"
 
 #. type: defun
 #: display.texi.orig:2806
 msgid "This overwrites the default @var{base-spec}, which inherits the global face definition, so it is up to the caller to add such inheritance if so desired."
-msgstr ""
+msgstr "これは、グローバルなフェイス定義を継承した、デフォルトの@var{base-spec}を上書きするので、必要ならそのような継承を追加するのは呼び出し側の責任である。"
 
 #. type: defun
 #: display.texi.orig:2808
 #, no-wrap
 msgid "face-remap-reset-base face"
-msgstr ""
+msgstr "face-remap-reset-base face"
 
 #. type: defun
 #: display.texi.orig:2811
 msgid "This function sets the base remapping of @var{face} to its default value, which inherits from @var{face}'s global definition."
-msgstr ""
+msgstr "この関数は、@var{face}のベースリマッピングに、@var{face}のグローバル定義から継承した、デフォルト値にセットする。"
 
 #. type: subsection
 #: display.texi.orig:2814
