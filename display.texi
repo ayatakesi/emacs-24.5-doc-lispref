@@ -1229,91 +1229,51 @@ Sizes}を参照)のピクセル幅を使用する。これは、呼び出し側�
 @cindex line height
 @cindex height of a line
 
-  The total height of each display line consists of the height of the contents
-of the line, plus optional additional vertical line spacing above or below
-the display line.
+  各ディスプレイ行のトータル高さは、その行のコンテンツ高さに、そのディスプレイ上部または下部にオプションで追加される垂直行スペーシングを加えて構成されます。
 
-  The height of the line contents is the maximum height of any character or
-image on that display line, including the final newline if there is one.  (A
-display line that is continued doesn't include a final newline.)  That is
-the default line height, if you do nothing to specify a greater height.  (In
-the most common case, this equals the height of the default frame font.)
+  行のコンテンツ高さは、もしあれば最後の改行を含む、そのディスプレイ行の文字またはイメージの最大高さです(継続されるディスプレイ行には最後の改行が含まれない)。特にこれより大きい高さを指定しなければ、これがデフォルトの行高さになります(一般的には、これはデフォルトのフレームフォント高さに等しい)。
 
-  There are several ways to explicitly specify a larger line height, either by
-specifying an absolute height for the display line, or by specifying
-vertical space.  However, no matter what you specify, the actual line height
-can never be less than the default.
+  より大きい行高さを明示的に指定するためにはディスプレイ行の絶対高さ、または垂直スペースを指定することによる、複数の方法が存在します。しかし何を指定したかに関わらず、実際の行高さがデフォルトの高さより小さくなることはありません。
 
 @kindex line-height @r{(text property)}
-  A newline can have a @code{line-height} text or overlay property that
-controls the total height of the display line ending in that newline.
+  改行は、その改行で終わるディスプレイ行のトータル高さを制御する、テキストプロパティまたはオーバーレイプロパティ@code{line-height}をもつことができます。
 
-  If the property value is @code{t}, the newline character has no effect on
-the displayed height of the line---the visible contents alone determine the
-height.  This is useful for tiling small images (or image slices) without
-adding blank areas between the images.
+  プロパティの値が@code{t}なら、改行文字はその行の表示高さにたいして効果をもたず、可視なコンテンツだけが高さを決定します。これはイメージ間に追加のブランク領域をもたない、小さなイメージ(またはイメージスライス)にたいして有用です。
 
-  If the property value is a list of the form @code{(@var{height}
-@var{total})}, that adds extra space @emph{below} the display line.  First
-Emacs uses @var{height} as a height spec to control extra space @emph{above}
-the line; then it adds enough space @emph{below} the line to bring the total
-line height up to @var{total}.  In this case, the other ways to specify the
-line spacing are ignored.
+  プロパティの値が@code{(@var{height}
+@var{total})}という形式のリストなら、これはディスプレイ行の@emph{下部}に余分なスペースを追加します。最初にEmacsは、その行の@emph{上部}の余分なスペースを制御するための高さspecとして、@var{height}を使用します。それから行のトータル高さを@var{total}にするために、行の@emph{下部}に必要なスペースを追加します。この場合、行のスペーシングを指定する他の方法は無視されます。
 
 @cindex height spec
-  Any other kind of property value is a height spec, which translates into a
-number---the specified line height.  There are several ways to write a
-height spec; here's how each of them translates into a number:
+  他の種類のプロパティ値は高さspec(height
+spec)です。これは行の高さを指定する数値に変換されます。高さspecを記述するためには複数の方法があります。以下はそれらが数値に変換される方法です:
 
 @table @code
 @item @var{integer}
-If the height spec is a positive integer, the height value is that integer.
+高さspecが正の整数なら、高さの値はその整数。
 @item @var{float}
-If the height spec is a float, @var{float}, the numeric height value is
-@var{float} times the frame's default line height.
+高さspecが浮動小数点数@var{float}なら、高さ数値はそのフレームのデフォルト行高さの@var{float}倍。
 @item (@var{face} . @var{ratio})
-If the height spec is a cons of the format shown, the numeric height is
-@var{ratio} times the height of face @var{face}.  @var{ratio} can be any
-type of number, or @code{nil} which means a ratio of 1.  If @var{face} is
-@code{t}, it refers to the current face.
+高さspecがこのフォーマットのコンスなら、高さ数値はフェイス@var{face}の高さの@var{ratio}倍。@var{ratio}には任意の型の数値を指定でき、@code{nil}は1のratioを意味する。@var{face}が@code{t}なら、カレントフェイスを参照する。
 @item (nil . @var{ratio})
-If the height spec is a cons of the format shown, the numeric height is
-@var{ratio} times the height of the contents of the line.
+高さspecがこのフォーマットのコンスなら、高さ数値はその行のコンテンツ高さの@var{ratio}倍。
 @end table
 
-  Thus, any valid height spec determines the height in pixels, one way or
-another.  If the line contents' height is less than that, Emacs adds extra
-vertical space above the line to achieve the specified total height.
+  したがって、任意の有効な種々の高さspecにより、ピクセル単位で高さが決定されます。行のコンテンツ高さがこれより小さければ、Emacsは指定されたトータル高さになるよう、余分な垂直スペースを行の上部に追加します。
 
-  If you don't specify the @code{line-height} property, the line's height
-consists of the contents' height plus the line spacing.  There are several
-ways to specify the line spacing for different parts of Emacs text.
+  @code{line-height}プロパティを指定しない場合、その行の高さは行のコンテンツ高さとに行スペーシングを追加して構成されます。Emacsの異なるさまざまな部分のテキストにたいして、行スペーシングを指定する複数の方法が存在します。
 
-  On graphical terminals, you can specify the line spacing for all lines in a
-frame, using the @code{line-spacing} frame parameter (@pxref{Layout
-Parameters}).  However, if the default value of @code{line-spacing} is
-non-@code{nil}, it overrides the frame's @code{line-spacing} parameter.  An
-integer specifies the number of pixels put below lines.  A floating-point
-number specifies the spacing relative to the frame's default line height.
+  グラフィカルなディスプレイでは、フレームパラメーター@code{line-spacing}(@ref{Layout
+Parameters}を参照)を使用することにより、フレーム内のすべての行にたいして行スペーシングを指定できます。しかし@code{line-spacing}のデフォルト値が非@code{nil}なら、それはそのフレームのフレームパラメーター@code{line-spacing}をオーバーライドします。整数は行の下部に配するピクセル数を指定します。浮動小数点数はフレームのデフォルト行高さに相対的にスペーシングを指定します。
 
 @vindex line-spacing
-  You can specify the line spacing for all lines in a buffer via the
-buffer-local @code{line-spacing} variable.  An integer specifies the number
-of pixels put below lines.  A floating-point number specifies the spacing
-relative to the default frame line height.  This overrides line spacings
-specified for the frame.
+  バッファーローカル変数@code{line-spacing}を通じて、バッファー内のすべての行の行スペーシングを指定できます。整数は行の下部に配するピクセル数を指定します。浮動小数点数はデフォルトフレーム行高さに相対的にスペーシングを指定します。これは、そのフレームにたいして指定された行スペーシングをオーバーライドします。
 
 @kindex line-spacing @r{(text property)}
-  Finally, a newline can have a @code{line-spacing} text or overlay property
-that overrides the default frame line spacing and the buffer local
-@code{line-spacing} variable, for the display line ending in that newline.
+  最後に改行は、改行で終わるディスプレイ行にたいして、デフォルトフレーム行スペーシングおよびバッファーローカル変数@code{line-spacing}をオーバーライドする、テキストプロパティまたはオーバーレイプロパティ@code{line-spacing}をもつことができます。
 
-  One way or another, these mechanisms specify a Lisp value for the spacing of
-each line.  The value is a height spec, and it translates into a Lisp value
-as described above.  However, in this case the numeric height value
-specifies the line spacing, rather than the line height.
+  種々の方法により、これらのメカニズムは各行のスペーシングにたいするLisp値を指定します。値は高さspecで、これは上述したLisp値に変換されます。しかしこの場合高さ数値は行高さではなく行スペーシングを指定します。
 
-  On text terminals, the line spacing cannot be altered.
+  テキスト端末では、行スペーシングは変更できません。
 
 @node Faces
 @section Faces
