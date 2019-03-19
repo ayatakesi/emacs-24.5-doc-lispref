@@ -1571,34 +1571,19 @@ spec)}をセットする。これは@var{face}上の他のすべてのフェイ�
 @subsection Face Attribute Functions
 @cindex face attributes, access and modification
 
-  This section describes functions for directly accessing and modifying the
-attributes of a named face.
+  このセクションでは、名前つきフェイスの属性に直接アクセスしたり、変更する関数を説明します。
 
 @defun face-attribute face attribute &optional frame inherit
-This function returns the value of the @var{attribute} attribute for
-@var{face} on @var{frame}.
+この関数は、@var{frame}上の@var{face}にたいする、属性@var{attribute}の値をリターンする。
 
-If @var{frame} is @code{nil}, that means the selected frame (@pxref{Input
-Focus}).  If @var{frame} is @code{t}, this function returns the value of the
-specified attribute for newly-created frames (this is normally
-@code{unspecified}, unless you have specified some value using
-@code{set-face-attribute}; see below).
+@var{frame}が@code{nil}なら、それは選択されたフレームを意味する(@ref{Input
+Focus}を参照)。@var{frame}が@code{t}なら、この関数は新たに作成されるフレームにたいする、指定された属性の値をリターンする(これは下記の@code{set-face-attribute}を使用して何らかの値を指定していなければ、通常は@code{unspecified}である)。
 
-If @var{inherit} is @code{nil}, only attributes directly defined by
-@var{face} are considered, so the return value may be @code{unspecified}, or
-a relative value.  If @var{inherit} is non-@code{nil}, @var{face}'s
-definition of @var{attribute} is merged with the faces specified by its
-@code{:inherit} attribute; however the return value may still be
-@code{unspecified} or relative.  If @var{inherit} is a face or a list of
-faces, then the result is further merged with that face (or faces), until it
-becomes specified and absolute.
+@var{inherit}が@code{nil}なら、@var{face}により定義される属性だけが考慮されるので、リターンされる値は@code{unspecified}、または相対的な値かもしれない。@var{inherit}が非@code{nil}なら、@var{face}の@var{attribute}の定義が、@code{:inherit}属性で指定されたフェイスとマージされる。しかしリターンされる値は依然として@code{unspecified}、または相対的な値かもしれない。@var{inherit}がフェイス、またはフェイスのリストなら、指定された絶対的な値になるまで、結果はそのフェイス(1つ以上)と更にマージされる。
 
-To ensure that the return value is always specified and absolute, use a
-value of @code{default} for @var{inherit}; this will resolve any unspecified
-or relative values by merging with the @code{default} face (which is always
-completely specified).
+リターン値が指定されていて、かつ絶対的であることを保証するためには、@var{inherit}にたいして@code{default}の値を使用すること。(常に完全に指定される)@code{default}フェイスとマージすることにより、すべての未指定または相対的な値は解決されるだろう。
 
-For example,
+たとえば
 
 @example
 (face-attribute 'bold :weight)
@@ -1608,15 +1593,13 @@ For example,
 
 @c FIXME: Add an index for "relative face attribute", maybe here?  --xfq
 @defun face-attribute-relative-p attribute value
-This function returns non-@code{nil} if @var{value}, when used as the value
-of the face attribute @var{attribute}, is relative.  This means it would
-modify, rather than completely override, any value that comes from a
-subsequent face in the face list or that is inherited from another face.
+この関数は@var{value}がフェイス属性@var{attribute}の値として使用された際に相対的なら、非@code{nil}をリターンする。This
+function returns non- if , when used as the value of the face attribute , is
+relative.これはフェイスリスト内の後続のフェイス、または継承した他のフェイスが由来となる、任意の値で完全にオーバーライドするのではなく、変更されるであろうことを意味する。
 
-@code{unspecified} is a relative value for all attributes.  For
-@code{:height}, floating point and function values are also relative.
+すべての属性にたいして、@code{unspecified}は相対的な値である。@code{:height}にたいしては、浮動小数点数と関数値も相対的である。
 
-For example:
+たとえば:
 
 @example
 (face-attribute-relative-p :height 2.0)
@@ -1625,35 +1608,22 @@ For example:
 @end defun
 
 @defun face-all-attributes face &optional frame
-This function returns an alist of attributes of @var{face}.  The elements of
-the result are name-value pairs of the form @w{@code{(@var{attr-name}
-. @var{attr-value})}}.  Optional argument @var{frame} specifies the frame
-whose definition of @var{face} to return; if omitted or @code{nil}, the
-returned value describes the default attributes of @var{face} for newly
-created frames.
+この関数は、@var{face}の属性のalistをリターンする。結果の要素は、@w{@code{(@var{attr-name}
+.
+@var{attr-value})}}という形式の、名前/値ペアーである。オプション引数@var{frame}は、リターンするべき@var{face}の定義をもつフレームを指定する。省略または@code{nil}なら、リターン値には新たに作成されるフレームにたいする、@var{face}のデフォルト属性が記述される。
 @end defun
 
 @defun merge-face-attribute attribute value1 value2
-If @var{value1} is a relative value for the face attribute @var{attribute},
-returns it merged with the underlying value @var{value2}; otherwise, if
-@var{value1} is an absolute value for the face attribute @var{attribute},
-returns @var{value1} unchanged.
+@var{value1}がフェイス属性@var{attribute}にたいして相対的な値なら、基礎的な値@var{value2}とマージしてリターンする。それ以外の場合、@var{value1}がフェイス属性@var{attribute}にたいして絶対的な値なら、@var{value1}を変更せずにリターンする。
 @end defun
 
-  Normally, Emacs uses the face specs of each face to automatically calculate
-its attributes on each frame (@pxref{Defining Faces}).  The function
-@code{set-face-attribute} can override this calculation by directly
-assigning attributes to a face, either on a specific frame or for all
-frames.  This function is mostly intended for internal usage.
+  通常、Emacsは各フレームのフェイス属性を自動的に計算するために、各フェイスのフェイスspecを使用します(@ref{Defining
+Faces}を参照)。関数@code{set-face-attribute}は、特定またはすべてのフレームのフェイスに直接属性を割り当てることにより、この計算をオーバーライドできます。この関数は主として、内部的な使用を意図したものです。
 
 @defun set-face-attribute face frame &rest arguments
-This function sets one or more attributes of @var{face} for @var{frame}.
-The attributes specifies in this way override the face spec(s) belonging to
-@var{face}.
+この関数は、@var{frame}にたいする@var{face}の1つ以上の属性をセットする。この方法で指定された属性は、@var{face}に属するフェイスspec(1つ以上)をオーバーライドする。
 
-The extra arguments @var{arguments} specify the attributes to set, and the
-values for them.  They should consist of alternating attribute names (such
-as @code{:family} or @code{:underline}) and values.  Thus,
+余分の引数@var{arguments}は、セットするべき属性と、それらの値を指定する。これらは、(@code{:family}や@code{:underline}のような)属性名と、値が交互になるよう構成されていること。すなわち、
 
 @example
 (set-face-attribute 'foo nil :weight 'bold :slant 'italic)
@@ -1664,101 +1634,74 @@ sets the attribute @code{:weight} to @code{bold} and the attribute
 @code{:slant} to @code{italic}.
 
 
-If @var{frame} is @code{t}, this function sets the default attributes for
-newly created frames.  If @var{frame} is @code{nil}, this function sets the
-attributes for all existing frames, as well as for newly created frames.
+@var{frame}が@code{t}なら、この関数は新たに作成されるフレームにたいする、デフォルト属性をセットする。@var{frame}が@code{nil}なら、この関数はすべての既存フレーム、同様に新たに作成されるフレームにたいして、その属性をセットする。
 @end defun
 
-  The following commands and functions mostly provide compatibility with old
-versions of Emacs.  They work by calling @code{set-face-attribute}.  Values
-of @code{t} and @code{nil} for their @var{frame} argument are handled just
-like @code{set-face-attribute} and @code{face-attribute}.  The commands read
-their arguments using the minibuffer, if called interactively.
+  以下のコマンドと関数は主として、古いバージョンのEmacsにたいする互換性のために提供されます。これらは@code{set-face-attribute}を呼び出すことにより機能します。これらの@var{frame}引数にたいする値@code{t}と@code{nil}は、@code{set-face-attribute}および@code{face-attribute}の場合と同様に処理されます。コマンドがインタラクティブに呼び出された場合は、ミニバッファーを使用して引数を読み取ります。
 
 @deffn Command set-face-foreground face color &optional frame
 @deffnx Command set-face-background face color &optional frame
-These set the @code{:foreground} attribute (or @code{:background} attribute,
-respectively) of @var{face} to @var{color}.
+これらはそれぞれ@var{face}の@code{:foreground}属性、または@code{:background}属性に@var{color}をセットする。
 @end deffn
 
 @deffn Command set-face-stipple face pattern &optional frame
-This sets the @code{:stipple} attribute of @var{face} to @var{pattern}.
+これは@var{face}の@code{:stipple}属性に、@var{pattern}をセットする。
 @end deffn
 
 @deffn Command set-face-font face font &optional frame
-This sets the @code{:font} attribute of @var{face} to @var{font}.
+これは@var{face}の@code{:font}属性に、@var{font}をセットする。
 @end deffn
 
 @defun set-face-bold face bold-p &optional frame
-This sets the @code{:weight} attribute of @var{face} to @var{normal} if
-@var{bold-p} is @code{nil}, and to @var{bold} otherwise.
+これは@var{face}の@code{:weight}属性にたいして、@var{bold-p}が@code{nil}なら@var{normal}、それ以外なら@var{bold}をセットする。
 @end defun
 
 @defun set-face-italic face italic-p &optional frame
-This sets the @code{:slant} attribute of @var{face} to @var{normal} if
-@var{italic-p} is @code{nil}, and to @var{italic} otherwise.
+これは@var{face}の@code{:slant}属性にたいして、@var{italic-p}が@code{nil}なら@var{normal}、それ以外なら@var{italic}をセットする。
 @end defun
 
 @defun set-face-underline face underline &optional frame
-This sets the @code{:underline} attribute of @var{face} to @var{underline}.
+これは@var{face}の@code{:underline}属性に、@var{underline}をセットする。
 @end defun
 
 @defun set-face-inverse-video face inverse-video-p &optional frame
-This sets the @code{:inverse-video} attribute of @var{face} to
-@var{inverse-video-p}.
+これは@var{face}の@code{:inverse-video}属性に、@var{inverse-video-p}をセットする。
 @end defun
 
 @deffn Command invert-face face &optional frame
-This swaps the foreground and background colors of face @var{face}.
+これはフェイス@var{face}のフォアグラウンドカラーとバックグラウンドカラーを交換する。
 @end deffn
 
-  The following functions examine the attributes of a face.  They mostly
-provide compatibility with old versions of Emacs.  If you don't specify
-@var{frame}, they refer to the selected frame; @code{t} refers to the
-default data for new frames.  They return @code{unspecified} if the face
-doesn't define any value for that attribute.  If @var{inherit} is
-@code{nil}, only an attribute directly defined by the face is returned.  If
-@var{inherit} is non-@code{nil}, any faces specified by its @code{:inherit}
-attribute are considered as well, and if @var{inherit} is a face or a list
-of faces, then they are also considered, until a specified attribute is
-found.  To ensure that the return value is always specified, use a value of
-@code{default} for @var{inherit}.
+  以下は、フェイスの属性を調べる関数です。これらは主として、古いバージョンのEmacsとの互換性のために提供されます。これらにたいして@var{frame}を指定しなければ選択されたフレームを、@code{t}なら新たなフレームにたいするデフォルトデータを参照します。フェイスがその属性にたいして何の値も定義していなければ、@code{unspecified}がリターンされます。@var{inherit}が@code{nil}なら、そのフェイスにより直接定義された属性だけがリターンされます。@var{inherit}が非@code{nil}なら、そのフェイスの@code{:inherit}属性により指定される任意のフェイスを、@var{inherit}がフェイスまたはフェイスのリストなら、指定された属性が見つかるまで、それらも考慮されます。リターンされる値が常に指定された値であることを保証するためには、@var{inherit}にたいして値@code{default}を使用してください。
 
 @defun face-font face &optional frame
-This function returns the name of the font of face @var{face}.
+この関数は、フェイス@var{face}のフォント名をリターンする。
 @end defun
 
 @defun face-foreground face &optional frame inherit
 @defunx face-background face &optional frame inherit
-These functions return the foreground color (or background color,
-respectively) of face @var{face}, as a string.
+これらの関数はそれぞれ、フェイス@var{face}のフォアグラウンドカラーまたはバックグラウンドカラーを、文字列としてリターンする。
 @end defun
 
 @defun face-stipple face &optional frame inherit
-This function returns the name of the background stipple pattern of face
-@var{face}, or @code{nil} if it doesn't have one.
+この関数は、フェイス@var{face}のバックグラウンド点描パターンの名前、もしなければ@code{nil}をリターンする。
 @end defun
 
 @defun face-bold-p face &optional frame inherit
-This function returns a non-@code{nil} value if the @code{:weight} attribute
-of @var{face} is bolder than normal (i.e., one of @code{semi-bold},
-@code{bold}, @code{extra-bold}, or @code{ultra-bold}).  Otherwise, it
-returns @code{nil}.
+この関数は@var{face}の@code{:weight}属性がnormalよりbold寄り(@code{semi-bold}、@code{bold}、
+@code{extra-bold}、@code{ultra-bold}のいずれか)なら、非@code{nil}、それ以外なら@code{nil}をリターンする。
 @end defun
 
 @defun face-italic-p face &optional frame inherit
-This function returns a non-@code{nil} value if the @code{:slant} attribute
-of @var{face} is @code{italic} or @code{oblique}, and @code{nil} otherwise.
+この関数は、@var{face}の@code{:slant}属性が@code{italic}か@code{oblique}なら非@code{nil}、それ以外なら@code{nil}をリターンする。
 @end defun
 
 @defun face-underline-p face &optional frame inherit
-This function returns non-@code{nil} if face @var{face} specifies a
-non-@code{nil} @code{:underline} attribute.
+この関数は、フェイス@var{face}が非@code{nil}の@code{:underline}属性を指定する場合は、非@code{nil}をリターンする。
 @end defun
 
 @defun face-inverse-video-p face &optional frame inherit
-This function returns non-@code{nil} if face @var{face} specifies a
-non-@code{nil} @code{:inverse-video} attribute.
+この関数は、フェイス@var{face}が非@code{nil}の@code{:inverse-video}属性を指定する場合は、非@code{nil}をリターンする。
 @end defun
 
 @node Displaying Faces
