@@ -2024,85 +2024,57 @@ Focus}を参照)。
 @subsection Fontsets
 @cindex fontset
 
-  A @dfn{fontset} is a list of fonts, each assigned to a range of character
-codes.  An individual font cannot display the whole range of characters that
-Emacs supports, but a fontset can.  Fontsets have names, just as fonts do,
-and you can use a fontset name in place of a font name when you specify the
-``font'' for a frame or a face.  Here is information about defining a
-fontset under Lisp program control.
+  @dfn{フォントセット(fontset)}とは、それぞれが文字コードの範囲に割り当てられる、フォントのリストのことです。個々のフォントでは、Emacsがサポートする文字の全範囲を表示できませんが、フォントセットであれば表示することができます。フォントのようにフォントセットは名前をもつことができ、フレームやフェイスにたいして``フォント''を指定する際、フォント名としてフォントセット名を使用できます。以下は、Lispプログラム制御下でのフォントセット定義に関する情報です。
 
 @defun create-fontset-from-fontset-spec fontset-spec &optional style-variant-p noerror
-This function defines a new fontset according to the specification string
-@var{fontset-spec}.  The string should have this format:
+この関数は、仕様文字列@var{fontset-spec}に応じて、新たなフォントセットを定義する。この文字列は以下のような形式であること:
 
 @smallexample
 @var{fontpattern}, @r{[}@var{charset}:@var{font}@r{]@dots{}}
 @end smallexample
 
 @noindent
-Whitespace characters before and after the commas are ignored.
+カンマの前後の空白文字は無視される。
 
-The first part of the string, @var{fontpattern}, should have the form of a
-standard X font name, except that the last two fields should be
-@samp{fontset-@var{alias}}.
+この文字列の最初の部分@var{fontpattern}は、最後の2つのフィールドが@samp{fontset-@var{alias}}であることを除外して、標準Xフォント名形式をもつこと。
 
-The new fontset has two names, one long and one short.  The long name is
-@var{fontpattern} in its entirety.  The short name is
-@samp{fontset-@var{alias}}.  You can refer to the fontset by either name.
-If a fontset with the same name already exists, an error is signaled, unless
-@var{noerror} is non-@code{nil}, in which case this function does nothing.
+新たなフォントセットはlong名とshort名という、2つの名前をもつ。long名は、それ全体が@var{fontpattern}であり、short名は@samp{fontset-@var{alias}}である。いずれの名前でもこのフォントセットを参照できる。同じ名前がすでに存在するフォントセットでは、@var{noerror}が@code{nil}ならエラーがシグナルされ、@var{noerror}が非@code{nil}ならこの関数は何も行わない。
 
-If optional argument @var{style-variant-p} is non-@code{nil}, that says to
-create bold, italic and bold-italic variants of the fontset as well.  These
-variant fontsets do not have a short name, only a long one, which is made by
-altering @var{fontpattern} to indicate the bold and/or italic status.
+オプション引数@var{style-variant-p}が非@code{nil}なら、そのフォントセットのbold、italic、およびbold-italicも同様に作成するよう指示する。これらの変種フォントセットはshort名をもたず、bold、および/またはitalicを示すように@var{fontpattern}を変更して作成したlong名だけをもつ。
 
-The specification string also says which fonts to use in the fontset.  See
-below for the details.
+仕様文字列は、そのフォントセット内でどのフォントを使用するかも宣言する。詳細は以下を参照。
 @end defun
 
-  The construct @samp{@var{charset}:@var{font}} specifies which font to use
-(in this fontset) for one particular character set.  Here, @var{charset} is
-the name of a character set, and @var{font} is the font to use for that
-character set.  You can use this construct any number of times in the
-specification string.
+  構成@samp{@var{charset}:@var{font}}は、ある特定の文字セットにたいして、(このフォントセット内の)どのフォントを使用するかを指定します。ここで@var{charset}は文字セットの名前、@var{font}はその文字セットにたいして使用するフォントです。仕様文字列内で、この構成を任意の回数使用できます。
 
-  For the remaining character sets, those that you don't specify explicitly,
-Emacs chooses a font based on @var{fontpattern}: it replaces
-@samp{fontset-@var{alias}} with a value that names one character set.  For
-the @acronym{ASCII} character set, @samp{fontset-@var{alias}} is replaced
-with @samp{ISO8859-1}.
+  明示的に指定しなかった残りの文字セットにたいして、Emacsは@var{fontpattern}にもとづきフォントを選択します。これは@samp{fontset-@var{alias}}を、その文字セットを命名する値に置き換えます。文字セット@acronym{ASCII}にたいしては、@samp{fontset-@var{alias}}は@samp{ISO8859-1}に置き換えられます。
 
-  In addition, when several consecutive fields are wildcards, Emacs collapses
-them into a single wildcard.  This is to prevent use of auto-scaled fonts.
-Fonts made by scaling larger fonts are not usable for editing, and scaling a
-smaller font is not useful because it is better to use the smaller font in
-its own size, which Emacs does.
+  加えて、後続の複数フィールドがワイルドカードなら、Emacsはそれらを1つのワイルドカードにまとめます。これは自動スケールフォント(auto-scaled
+fonts)の使用を防ぐためです。フォントを大きくスケーリングすることにより作成されたフォントは編集に使用できず、小さくスケーリングされたフォントは、それ自身のサイズがより小さいフォントを使用する(Emacsが行う方法)ほうがよいので、有用ではありません。
 
-  Thus if @var{fontpattern} is this,
+  つまり、以下のような@var{fontpattern}なら
 
 @example
 -*-fixed-medium-r-normal-*-24-*-*-*-*-*-fontset-24
 @end example
 
 @noindent
-the font specification for @acronym{ASCII} characters would be this:
+@acronym{ASCII}にたいするフォントspecは、以下のようになるでしょう:
 
 @example
 -*-fixed-medium-r-normal-*-24-*-ISO8859-1
 @end example
 
 @noindent
-and the font specification for Chinese GB2312 characters would be this:
+また、Chinese GB2312文字にたいするフォントspecは、以下のようになるでしょう:
 
 @example
 -*-fixed-medium-r-normal-*-24-*-gb2312*-*
 @end example
 
-  You may not have any Chinese font matching the above font specification.
-Most X distributions include only Chinese fonts that have @samp{song ti} or
-@samp{fangsong ti} in the @var{family} field.  In such a case,
-@samp{Fontset-@var{n}} can be specified as below:
+  上記のフォントspecにマッチするChineseフォントをもっていないかもしれません。ほとんどのXディストリビューションには、@var{family}フィールドに@samp{song
+ti}か@samp{fangsong
+ti}をもつChineseフォントだけが含まれます。そのような場合には、以下のように@samp{Fontset-@var{n}}を指定できます:
 
 @smallexample
 Emacs.Fontset-0: -*-fixed-medium-r-normal-*-24-*-*-*-*-*-fontset-24,\
@@ -2110,48 +2082,35 @@ Emacs.Fontset-0: -*-fixed-medium-r-normal-*-24-*-*-*-*-*-fontset-24,\
 @end smallexample
 
 @noindent
-Then, the font specifications for all but Chinese GB2312 characters have
-@samp{fixed} in the @var{family} field, and the font specification for
-Chinese GB2312 characters has a wild card @samp{*} in the @var{family}
-field.
+この場合、Chinese
+GB2312以外のすべての文にたいするフォントspecは@var{family}フィールドに@samp{fixed}をもち、Chinese
+GB2312にたいするフォントspecは@var{family}フィールドにワイルドカード@samp{*}をもちます。
 
 @defun set-fontset-font name character font-spec &optional frame add
-This function modifies the existing fontset @var{name} to use the font
-matching with @var{font-spec} for the character @var{character}.
+この関数は、文字@var{character}にたいして、@var{font-spec}のフォントマッチングを使用するよう、既存のフォントセット@var{name}を変更する。
 
-If @var{name} is @code{nil}, this function modifies the fontset of the
-selected frame or that of @var{frame} if @var{frame} is not @code{nil}.
+@var{name}が@code{nil}なら、この関数は@var{frame}のフォントセット、@var{frame}が@code{nil}なら選択されたフレームのフォントセットを変更する。
 
-If @var{name} is @code{t}, this function modifies the default fontset, whose
-short name is @samp{fontset-default}.
+@var{name}が@code{t}なら、この関数はshort名が@samp{fontset-default}であるような、デフォルトフォントセットを変更する。
 
-@var{character} may be a cons; @code{(@var{from} . @var{to})}, where
-@var{from} and @var{to} are character codepoints.  In that case, use
-@var{font-spec} for all characters in the range @var{from} and @var{to}
-(inclusive).
+@var{character}には@code{(@var{from}
+.
+@var{to})}のようなコンスを指定できる。ここで@var{from}と@var{to}は文字コードポイントである。この場合、範囲@var{from}から@var{to}(両端を含む)までのすべての文字にたいして、@var{font-spec}を使用する。
 
-@var{character} may be a charset.  In that case, use @var{font-spec} for all
-character in the charsets.
+@var{character}には文字セットも指定できる。この場合は、その文字セット内のすべての文字にたいして、@var{font-spec}を使用する。
 
-@var{character} may be a script name.  In that case, use @var{font-spec} for
-all character in the charsets.
+@var{character}にはスクリプト名も指定できる。この場合は、その文字セット内のすべての文字にたいして、@var{font-spec}を使用する。
 
-@var{font-spec} may be a cons; @code{(@var{family} . @var{registry})}, where
-@var{family} is a family name of a font (possibly including a foundry name
-at the head), @var{registry} is a registry name of a font (possibly
-including an encoding name at the tail).
+@var{font-spec}にはコンス@code{(@var{family}
+.
+@var{registry})}を指定できる。ここで@var{family}はフォントのファミリー名(先頭にfoundry名が含まれるかもしれない)、@var{registry}はフォントのレジストリー名(末尾にエンコーディング名が含まれるかもしれない)である。
 
-@var{font-spec} may be a font name string.
+@var{font-spec}には、フォント名文字列も指定できる。
 
-The optional argument @var{add}, if non-@code{nil}, specifies how to add
-@var{font-spec} to the font specifications previously set.  If it is
-@code{prepend}, @var{font-spec} is prepended.  If it is @code{append},
-@var{font-spec} is appended.  By default, @var{font-spec} overrides the
-previous settings.
+オプション引数@var{add}が非@code{nil}なら、以前セットされたフォントspecに@var{font-spec}を追加する方法を指定する。@code{prepend}なら@var{font-spec}は先頭に、@code{append}なら@var{font-spec}は末尾に追加される。デフォルトでは、@var{font-spec}は以前のセッティングをオーバーライドする。
 
-For instance, this changes the default fontset to use a font of which family
-name is @samp{Kochi Gothic} for all characters belonging to the charset
-@code{japanese-jisx0208}.
+たとえば、以下は文字セット@code{japanese-jisx0208}に属するすえての文字にたいして、ファミリー名が@samp{Kochi
+Gothic}であるようなフォントを使用するように、デフォルトフォントセットを変更する。
 
 @smallexample
 (set-fontset-font t 'japanese-jisx0208
@@ -2160,12 +2119,9 @@ name is @samp{Kochi Gothic} for all characters belonging to the charset
 @end defun
 
 @defun char-displayable-p char
-This function returns @code{t} if Emacs ought to be able to display
-@var{char}.  More precisely, if the selected frame's fontset has a font to
-display the character set that @var{char} belongs to.
+この関数は、Emacsが@var{char}を表示できるべきなら、@code{t}をリターンする。より正確には、選択されたフレームのフォントセットが、@var{char}が属する文字セットを表示するためのフォントをもつ場合は、@code{t}をリターンする。
 
-Fontsets can specify a font on a per-character basis; when the fontset does
-that, this function's value may not be accurate.
+フォントセットは、文字単位でフォントを指定できる。フォントセットがこれを行う場合、この関数の値は正確ではないかもしれない。
 @end defun
 
 @node Low-Level Font
