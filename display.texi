@@ -2494,56 +2494,32 @@ Emacsの中核機能では使用されない。
 @subsection The Overlay Arrow
 @c @cindex overlay arrow  Duplicates variable names
 
-  The @dfn{overlay arrow} is useful for directing the user's attention to a
-particular line in a buffer.  For example, in the modes used for interface
-to debuggers, the overlay arrow indicates the line of code about to be
-executed.  This feature has nothing to do with @dfn{overlays}
-(@pxref{Overlays}).
+  @dfn{オーバーレイ矢印(overlay
+arrow)}は、バッファー内の特定の行にたいして、ユーザーに注意を促すために有用です。たとえば、デバッガーでのインターフェースに使用されるモードでは、オーバーレイ矢印は実行されているコード行を示します。この機能は@dfn{オーバーレイ(overlays)}にたいして、何も行いません(@ref{Overlays}を参照)。
 
 @defvar overlay-arrow-string
-This variable holds the string to display to call attention to a particular
-line, or @code{nil} if the arrow feature is not in use.  On a graphical
-display the contents of the string are ignored; instead a glyph is displayed
-in the fringe area to the left of the display area.
+この変数は、特定の行にたいして注意を喚起するために表示する文字列、または矢印機能が使用されていなければ@code{nil}を保持する。グラフィカルなディスプレイでは、この文字列のコンテンツは無視され、かわりにフリンジ領域からディスプレイ領域左側にグリフが表示される。
 @end defvar
 
 @defvar overlay-arrow-position
-This variable holds a marker that indicates where to display the overlay
-arrow.  It should point at the beginning of a line.  On a non-graphical
-display the arrow text appears at the beginning of that line, overlaying any
-text that would otherwise appear.  Since the arrow is usually short, and the
-line usually begins with indentation, normally nothing significant is
-overwritten.
+この変数は、オーバーレイ矢印を表示する箇所を示すマーカーを保持する。これは行の先頭となるポイントであること。非グラフィカルなディスプレイでは、その行の先頭に矢印テキストが表示され、矢印テキストが表示されないときに表示されるべきテキストがオーバーレイされる。その矢印は通常は短く、行は普通はインデントで開始されるので、通常は上書きが問題となることはない。
 
 @c !!! overlay-arrow-position: but the overlay string may remain in the display
 @c of some other buffer until an update is required.  This should be fixed
 @c now.  Is it?
-The overlay-arrow string is displayed in any given buffer if the value of
-@code{overlay-arrow-position} in that buffer points into that buffer.  Thus,
-it is possible to display multiple overlay arrow strings by creating
-buffer-local bindings of @code{overlay-arrow-position}.  However, it is
-usually cleaner to use @code{overlay-arrow-variable-list} to achieve this
-result.
+オーバーレイ矢印の文字列は、そのバッファーの@code{overlay-arrow-position}の値が、そのバッファー内を指す場合は、与えられた任意のバッファーで表示される。したがって、@code{overlay-arrow-position}のバッファーローカルなバインディングを作成することにより、複数のオーバーレイ矢印の表示が可能である。しかしこれを達成するためには、@code{overlay-arrow-variable-list}を使用するほうが、通常はより明快である。
 @end defvar
 
-  You can do a similar job by creating an overlay with a @code{before-string}
-property.  @xref{Overlay Properties}.
+  @code{before-string}プロパティをもつオーバーレイを作成することにより、同様のことを行うことができます。@ref{Overlay
+Properties}を参照してください。
 
-  You can define multiple overlay arrows via the variable
-@code{overlay-arrow-variable-list}.
+  変数@code{overlay-arrow-variable-list}を通じて、複数のオーバーレイ矢印を定義できます。
 
 @defvar overlay-arrow-variable-list
-This variable's value is a list of variables, each of which specifies the
-position of an overlay arrow.  The variable @code{overlay-arrow-position}
-has its normal meaning because it is on this list.
+この変数の値は、それぞれがオーバーレイ矢印の位置を指定する、変数のリストである。変数@code{overlay-arrow-position}はこのリスト上にあるため、通常の意味をもつ。
 @end defvar
 
-Each variable on this list can have properties @code{overlay-arrow-string}
-and @code{overlay-arrow-bitmap} that specify an overlay arrow string (for
-text terminals) or fringe bitmap (for graphical terminals) to display at the
-corresponding overlay arrow position.  If either property is not set, the
-default @code{overlay-arrow-string} or @code{overlay-arrow} fringe indicator
-is used.
+このリスト上の各変数は、対応するオーバーレイ矢印位置に表示するための、オーバーレイ矢印文字列を指定する@code{overlay-arrow-string}プロパティ(テキスト端末用)、およびフリンジビットマップを指定する@code{overlay-arrow-bitmap}プロパティ(グラフィカル端末用)をもつことができます。これらのプロパティがセットされていなければ、デフォルトのフリンジインジケーター@code{overlay-arrow-string}と@code{overlay-arrow}が使用されます。
 
 @node Scroll Bars
 @section Scroll Bars
