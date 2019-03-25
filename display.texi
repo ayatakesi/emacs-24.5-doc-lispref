@@ -1921,103 +1921,69 @@ Properties}を参照)。
 @cindex font selection
 @cindex selecting a font
 
-  Before Emacs can draw a character on a graphical display, it must select a
-@dfn{font} for that character@footnote{In this context, the term @dfn{font}
-has nothing to do with Font Lock (@pxref{Font Lock Mode}).}.  @xref{Fonts,,,
-emacs, The GNU Emacs Manual}.  Normally, Emacs automatically chooses a font
-based on the faces assigned to that character---specifically, the face
-attributes @code{:family}, @code{:weight}, @code{:slant}, and @code{:width}
-(@pxref{Face Attributes}).  The choice of font also depends on the character
-to be displayed; some fonts can only display a limited set of characters.
-If no available font exactly fits the requirements, Emacs looks for the
-@dfn{closest matching font}.  The variables in this section control how
-Emacs makes this selection.
+  Emacsがグラフィカルなディスプレイ上で文字を描画可能になる前に、まずその文字にたいする@dfn{フォント(font)}を選択しなければなりません@footnote{このコンテキストでは、用語@dfn{font}はFont
+Lock(@ref{Font Lock Mode}を参照)にたいして何も行いません。}。@ref{Fonts,,, emacs, The GNU
+Emacs
+Manual}を参照してください。通常、Emacsはその文字に割り当てられたフェイス、特にフェイス属性@code{:family}、@code{:weight}、@code{:slant}、@code{:width}(@ref{Face
+Attributes}を参照)にもとづいて、自動的にフォントを選択します。フォントの選択は、表示される文字にも依存します。表示できるのは文字セットが限定されているフォントもいくつかあります。利用可能なフォントがこの要件を完全に満たさない場合、Emacsは@dfn{もっとも近いフォント(closest
+matching font)}を探します。このセクション内の変数は、Emacsがこの選択を行う方法を制御します。
 
 @defopt face-font-family-alternatives
-If a given family is specified but does not exist, this variable specifies
-alternative font families to try.  Each element should have this form:
+あるfamilyが指定されたが存在しない場合、この変数は試みるべき代替えのフォントfamilyを指定する。各要素は以下の形式をもつ:
 
 @example
 (@var{family} @var{alternate-families}@dots{})
 @end example
 
-If @var{family} is specified but not available, Emacs will try the other
-families given in @var{alternate-families}, one by one, until it finds a
-family that does exist.
+@var{family}が指定されたが利用できなければ、Emacsは@var{alternate-families}で与えられるfamilyで存在するものが見つかるまで、1つずつfamilyを試みる。
 @end defopt
 
 @defopt face-font-selection-order
-If there is no font that exactly matches all desired face attributes
-(@code{:width}, @code{:height}, @code{:weight}, and @code{:slant}), this
-variable specifies the order in which these attributes should be considered
-when selecting the closest matching font.  The value should be a list
-containing those four attribute symbols, in order of decreasing importance.
-The default is @code{(:width :height :weight :slant)}.
+希望するすべてのフェイス属性(@code{:width}、@code{:height}、@code{:weight}、@code{:slant})に完全にマッチするフォントが存在しない場合、この変数はもっとも近いフォントの選択時に考慮すべき、これらの属性の順序を指定する。値はこれらの属性シンボルを重要度降順で含むリストであること。デフォルトは@code{(:width
+:height :weight :slant)}。
 
-Font selection first finds the best available matches for the first
-attribute in the list; then, among the fonts which are best in that way, it
-searches for the best matches in the second attribute, and so on.
+フォント選択はまず、このリスト内の最初の属性にたいして利用可能な最適マッチを探す。その後、この方法で最適なフォントの中から、2つ目の属性にたいして最適なマッチを検索、...のように選択を行う。
 
-The attributes @code{:weight} and @code{:width} have symbolic values in a
-range centered around @code{normal}.  Matches that are more extreme (farther
-from @code{normal}) are somewhat preferred to matches that are less extreme
-(closer to @code{normal}); this is designed to ensure that non-normal faces
-contrast with normal ones, whenever possible.
+属性@code{:weight}および@code{:width}は、@code{normal}を中心とする範囲のような、シンボリック値をもつ。より極端(@code{normal}から離れた)なマッチは、より極端ではない(@code{normal}に近い)マッチより、幾分優先される。これは、可能なかぎり非normalなフェイスが、normalなフェイスとは対照的になることを保証するようにデザインされている。
 
-One example of a case where this variable makes a difference is when the
-default font has no italic equivalent.  With the default ordering, the
-@code{italic} face will use a non-italic font that is similar to the default
-one.  But if you put @code{:slant} before @code{:height}, the @code{italic}
-face will use an italic font, even if its height is not quite right.
+この変数が違いを生むケースの例は、デフォルトフォントに等価なイタリックがない場合である。デフォルトの順では、@code{italic}フェイスは、デフォルトのフォントに類似した非イタリックのフォントを使用するだろう。しかし@code{:height}の前に@code{:slant}を置くと、@code{italic}フェイスはたとえheightが同じでなくとも、イタリックフォントを使用するだろう。
 @end defopt
 
 @defopt face-font-registry-alternatives
-This variable lets you specify alternative font registries to try, if a
-given registry is specified and doesn't exist.  Each element should have
-this form:
+この変数は、registryが指定されたがそれが存在しない場合に試みるべき、代替えのフォントregistryを指定する。各要素は以下の形式をもつ:
 
 @example
 (@var{registry} @var{alternate-registries}@dots{})
 @end example
 
-If @var{registry} is specified but not available, Emacs will try the other
-registries given in @var{alternate-registries}, one by one, until it finds a
-registry that does exist.
+@var{registry}が指定されたが利用できなければ、Emacsは@var{alternate-registries}内で存在するregistryが見つかるまで、他のregistryを1つずつ試みる。
 @end defopt
 
 @cindex scalable fonts
-  Emacs can make use of scalable fonts, but by default it does not use them.
+  Emacsがスケーラブルフォントを使用するようにできますが、デフォルトではそれらを使用しないようになっています。
 
 @defopt scalable-fonts-allowed
-This variable controls which scalable fonts to use.  A value of @code{nil},
-the default, means do not use scalable fonts.  @code{t} means to use any
-scalable font that seems appropriate for the text.
+この変数は、どのスケーラブルフォントを使用するかを制御する。値@code{nil}(デフォルト)は、スケーラブルフォントを使用しないことを意味する。@code{t}はそのテキストにたいして適切と思われる、任意のスケーラブルフォントを使用することを意味する。
 
-Otherwise, the value must be a list of regular expressions.  Then a scalable
-font is enabled for use if its name matches any regular expression in the
-list.  For example,
+それ以外なら、値は正規表現のリストであること。その場合、名前がこのリスト内の正規表現にマッチする、任意のスケーラブルフォントの使用が有効になる。たとえば、
 
 @example
 (setq scalable-fonts-allowed '("iso10646-1$"))
 @end example
 
 @noindent
-allows the use of scalable fonts with registry @code{iso10646-1}.
+これは、registryが@code{iso10646-1}のようなスケーラブルフォントの使用を可能にする。
 @end defopt
 
 @defvar face-font-rescale-alist
-This variable specifies scaling for certain faces.  Its value should be a
-list of elements of the form
+この変数は、特定のフォントにたいするスケーリングを指定する。値は、以下の形式の要素をもつリストであること
 
 @example
 (@var{fontname-regexp} . @var{scale-factor})
 @end example
 
-If @var{fontname-regexp} matches the font name that is about to be used,
-this says to choose a larger similar font according to the factor
-@var{scale-factor}.  You would use this feature to normalize the font size
-if certain fonts are bigger or smaller than their nominal heights and widths
-would suggest.
+使用しようとするフォントの名前が@var{fontname-regexp}にマッチする場合、これはfactor
+@var{scale-factor}に対応した、同様な大きさのフォントの選択を指示する。特定のフォントが提示する通常のheightやwidthが大きい、または小さい場合に、フォントサイズを正規化するためにこの機能を使用できるだろう。
 @end defvar
 
 @node Font Lookup
