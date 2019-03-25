@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-03-25 18:44+0900\n"
+"PO-Revision-Date: 2019-03-25 19:12+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -6795,33 +6795,33 @@ msgstr "メインテキスト側面へのテキストまたはイメージの表
 #: display.texi.orig:4058
 #, no-wrap
 msgid "Display Specs That Replace The Text"
-msgstr ""
+msgstr "Display Specs That Replace The Text"
 
 #. type: cindex
 #: display.texi.orig:4059
 #, no-wrap
 msgid "replacing display specs"
-msgstr ""
+msgstr "replacing display specs"
 
 #. type: Plain text
 #: display.texi.orig:4066
 msgid "Some kinds of display specifications specify something to display instead of the text that has the property.  These are called @dfn{replacing} display specifications.  Emacs does not allow the user to interactively move point into the middle of buffer text that is replaced in this way."
-msgstr ""
+msgstr "ある種のディスプレイ仕様は、そのプロパティをもつテキストのかわりに表示する何かを指定します。これらは@dfn{置換(replacing)}ディスプレイ仕様と呼ばれます。Emacsはユーザーにたいして、この方法で置換されたバッファーテキストの中間への対話的なポイント移動を許していません。"
 
 #. type: Plain text
 #: display.texi.orig:4071
 msgid "If a list of display specifications includes more than one replacing display specification, the first overrides the rest.  Replacing display specifications make most other display specifications irrelevant, since those don't apply to the replacement."
-msgstr ""
+msgstr "ディスプレイ仕様のリストに1つ以上の置換ディスプレイ仕様が含まれる場合は、最初の置換ディスプレイ仕様が残りをオーバーライドします。置換ディスプレイ仕様は、他のほとんどのディスプレイ仕様は置換を許容しないので、それらとは無関係です。"
 
 #. type: Plain text
 #: display.texi.orig:4078
 msgid "For replacing display specifications, ``the text that has the property'' means all the consecutive characters that have the same Lisp object as their @code{display} property; these characters are replaced as a single unit.  If two characters have different Lisp objects as their @code{display} properties (i.e., objects which are not @code{eq}), they are handled separately."
-msgstr ""
+msgstr "置換ディスプレイ仕様では、``そのプロパティをもつテキスト''とは、@code{display}プロパティとして同一のLispオブジェクトをもつ、連続したすべての文字を意味します。これらの文字は単一の単位として置換されます。@code{display}プロパティに異なるLispオブジェクト(@code{eq}ではないオブジェクト)をもつ2つの文字は、個別に処理されます。"
 
 #. type: Plain text
 #: display.texi.orig:4083
 msgid "Here is an example which illustrates this point.  A string serves as a replacing display specification, which replaces the text that has the property with the specified string (@pxref{Other Display Specs}).  Consider the following function:"
-msgstr ""
+msgstr "以下は、この要点を示すための例です。文字列が置換ディスプレイ仕様としての役割をもち、指定された文字列のプロパティをもつテキストを置換します(@ref{Other Display Specs}を参照)。以下の関数を考えてみてください:"
 
 #. type: smallexample
 #: display.texi.orig:4091
@@ -6834,11 +6834,17 @@ msgid ""
 "      (put-text-property start (1+ start) 'display string)\n"
 "      (put-text-property start (+ 2 start) 'display string))))\n"
 msgstr ""
+"(defun foo ()\n"
+"  (dotimes (i 5)\n"
+"    (let ((string (concat \"A\"))\n"
+"          (start (+ i i (point-min))))\n"
+"      (put-text-property start (1+ start) 'display string)\n"
+"      (put-text-property start (+ 2 start) 'display string))))\n"
 
 #. type: Plain text
 #: display.texi.orig:4103
 msgid "This function gives each of the first ten characters in the buffer a @code{display} property which is a string @code{\"A\"}, but they don't all get the same string object.  The first two characters get the same string object, so they are replaced with one @samp{A}; the fact that the display property was assigned in two separate calls to @code{put-text-property} is irrelevant.  Similarly, the next two characters get a second string (@code{concat} creates a new string object), so they are replaced with one @samp{A}; and so on.  Thus, the ten characters appear as five A's."
-msgstr ""
+msgstr "この関数は、バッファー内の最初の10文字それぞれにたいして、文字列@code{\"A\"}であるような@code{display}プロパティを与えますが、これらはすべて同じ文字列オブジェクトを取得しません。最初の2文字は同じ文字列オブジェクトなので、1つの@samp{A}に置換されます。2つの別々の@code{put-text-property}呼び出しでそのディスプレイプロパティが割り当てられたという事実は、無関係です。同様に次の2文字は2つ目の文字列(@code{concat}により新たに作成された文字列オブジェクト)を取得するので、1つの@samp{A}で置換され、...となります。したがって、10文字は5つのAで表示されます。"
 
 #. type: subsection
 #: display.texi.orig:4105
