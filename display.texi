@@ -1929,13 +1929,13 @@ Attributes}を参照)にもとづいて、自動的にフォントを選択し�
 matching font)}を探します。このセクション内の変数は、Emacsがこの選択を行う方法を制御します。
 
 @defopt face-font-family-alternatives
-あるfamilyが指定されたが存在しない場合、この変数は試みるべき代替えのフォントfamilyを指定する。各要素は以下の形式をもつ:
+あるfamilyが指定されたが存在しない場合、この変数は試みるべき代替えのフォントファミリーを指定する。各要素は以下の形式をもつ:
 
 @example
 (@var{family} @var{alternate-families}@dots{})
 @end example
 
-@var{family}が指定されたが利用できなければ、Emacsは@var{alternate-families}で与えられるfamilyで存在するものが見つかるまで、1つずつfamilyを試みる。
+@var{family}が指定されたが利用できなければ、Emacsは@var{alternate-families}で与えられるファミリーで存在するものが見つかるまで、1つずつファミリーを試みる。
 @end defopt
 
 @defopt face-font-selection-order
@@ -1950,13 +1950,13 @@ matching font)}を探します。このセクション内の変数は、Emacsが
 @end defopt
 
 @defopt face-font-registry-alternatives
-この変数は、registryが指定されたがそれが存在しない場合に試みるべき、代替えのフォントregistryを指定する。各要素は以下の形式をもつ:
+この変数は、registryが指定されたがそれが存在しない場合に試みるべき、代替えのフォントレジストリーを指定する。各要素は以下の形式をもつ:
 
 @example
 (@var{registry} @var{alternate-registries}@dots{})
 @end example
 
-@var{registry}が指定されたが利用できなければ、Emacsは@var{alternate-registries}内で存在するregistryが見つかるまで、他のregistryを1つずつ試みる。
+@var{registry}が指定されたが利用できなければ、Emacsは@var{alternate-registries}内で存在するレジストリーが見つかるまで、他のレジストリーを1つずつ試みる。
 @end defopt
 
 @cindex scalable fonts
@@ -1972,7 +1972,7 @@ matching font)}を探します。このセクション内の変数は、Emacsが
 @end example
 
 @noindent
-これは、registryが@code{iso10646-1}のようなスケーラブルフォントの使用を可能にする。
+これは、レジストリーが@code{iso10646-1}のようなスケーラブルフォントの使用を可能にする。
 @end defopt
 
 @defvar face-font-rescale-alist
@@ -1982,8 +1982,7 @@ matching font)}を探します。このセクション内の変数は、Emacsが
 (@var{fontname-regexp} . @var{scale-factor})
 @end example
 
-使用しようとするフォントの名前が@var{fontname-regexp}にマッチする場合、これはfactor
-@var{scale-factor}に対応した、同様な大きさのフォントの選択を指示する。特定のフォントが提示する通常のheightやwidthが大きい、または小さい場合に、フォントサイズを正規化するためにこの機能を使用できるだろう。
+使用しようとするフォントの名前が@var{fontname-regexp}にマッチする場合、これはファクター@var{scale-factor}に対応した、同様な大きさのフォントの選択を指示する。特定のフォントが提示する通常のheightやwidthが大きい、または小さい場合に、フォントサイズを正規化するためにこの機能を使用できるだろう。
 @end defvar
 
 @node Font Lookup
@@ -1992,53 +1991,33 @@ matching font)}を探します。このセクション内の変数は、Emacsが
 @cindex looking up fonts
 
 @defun x-list-fonts name &optional reference-face frame maximum width
-This function returns a list of available font names that match @var{name}.
-@var{name} should be a string containing a font name in either the
-Fontconfig, GTK, or XLFD format (@pxref{Fonts,,, emacs, The GNU Emacs
-Manual}).  Within an XLFD string, wildcard characters may be used: the
-@samp{*} character matches any substring, and the @samp{?} character matches
-any single character.  Case is ignored when matching font names.
+この関数は、@var{name}にマッチする利用可能なフォント名のリストをリターンする。@var{name}はFontconfig、GTK、またはXLFDのいずれかのフォーマットによるフォント名を含む文字列であること(@ref{Fonts,,,
+emacs, The GNU Emacs
+Manual}を参照)。XLFD文字列では、ワイルドカード文字が使用できる。@samp{*}文字は任意の部分文字列、@samp{?}は任意の単一文字にマッチする。フォント名のマッチングでは、大文字小文字の違いは無視される。
 
-If the optional arguments @var{reference-face} and @var{frame} are
-specified, the returned list includes only fonts that are the same size as
-@var{reference-face} (a face name) currently is on the frame @var{frame}.
+オプション引数@var{reference-face}および@var{frame}が指定された場合は、リターンされるリストにはその時点でフレーム@var{frame}上での@var{reference-face}(フェイス名)と同じサイズのフォントだけが含まれる。
 
-The optional argument @var{maximum} sets a limit on how many fonts to
-return.  If it is non-@code{nil}, then the return value is truncated after
-the first @var{maximum} matching fonts.  Specifying a small value for
-@var{maximum} can make this function much faster, in cases where many fonts
-match the pattern.
+オプション引数@var{maximum}は、リターンされるフォント数の制限をセットする。これが非@code{nil}なら、リターン値は最初にマッチした@var{maximum}個のフォントの後が切り捨てられる。@var{maximum}に小さい値を指定すれば、そのパターンに多くのフォントがマッチするような場合に、この関数をより高速にできる。
 
-The optional argument @var{width} specifies a desired font width.  If it is
-non-@code{nil}, the function only returns those fonts whose characters are
-(on average) @var{width} times as wide as @var{reference-face}.
+オプション引数@var{width}は、希望するフォントの幅を指定する。これが非@code{nil}なら、この関数は文字の幅(平均)が、@var{reference-face}の@var{width}倍の幅であるようなフォントだけをリターンする。
 @end defun
 
 @defun x-family-fonts &optional family frame
-This function returns a list describing the available fonts for family
-@var{family} on @var{frame}.  If @var{family} is omitted or @code{nil}, this
-list applies to all families, and therefore, it contains all available
-fonts.  Otherwise, @var{family} must be a string; it may contain the
-wildcards @samp{?} and @samp{*}.
+この関数は、@var{frame}上のファミリー@var{family}にたいして利用可能なフォントを記述するリストをリターンする。@var{family}が省略または@code{nil}なら、このリストはすべてのファミリーに適用され、すなわち利用可能なすべてのフォントを含む。それ以外なら、@var{family}は文字列であること。これにはワイルドカード@samp{?}と@samp{*}を含めることができる。
 
-The list describes the display that @var{frame} is on; if @var{frame} is
-omitted or @code{nil}, it applies to the selected frame's display
-(@pxref{Input Focus}).
+このリストは、@var{frame}のあるディスプレイを記述する。@var{frame}が省略または@code{nil}なら、これは選択されたフレームのディスプレイに適用される(@ref{Input
+Focus}を参照)。
 
-Each element in the list is a vector of the following form:
+このリスト内の各要素は、以下の形式のベクターであること:
 
 @example
 [@var{family} @var{width} @var{point-size} @var{weight} @var{slant}
  @var{fixed-p} @var{full} @var{registry-and-encoding}]
 @end example
 
-The first five elements correspond to face attributes; if you specify these
-attributes for a face, it will use this font.
+最初の5つの要素はフェイス属性に対応する。あるフェイスにたいしてこれらの属性を指定した場合は、このフォントが使用されるだろう。
 
-The last three elements give additional information about the font.
-@var{fixed-p} is non-@code{nil} if the font is fixed-pitch.  @var{full} is
-the full name of the font, and @var{registry-and-encoding} is a string
-giving the registry and encoding of the font.
+最後の3つの要素は、そのフォントに関する追加の情報を与える。そのフォントが固定ピッチ(fixed-pitch)でなければ、@var{fixed-p}は非@code{nil}である。@var{full}はそのフォントのフルネーム、@var{registry-and-encoding}はそのフォントのレジストリーとエンコーディングを与える。
 @end defun
 
 @node Fontsets
