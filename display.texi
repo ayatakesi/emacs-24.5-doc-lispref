@@ -2128,172 +2128,115 @@ Gothic}であるようなフォントを使用するように、デフォルト�
 @subsection Low-Level Font Representation
 @cindex font property
 
-  Normally, it is not necessary to manipulate fonts directly.  In case you
-need to do so, this section explains how.
+  通常は、フォントを直接扱う必要はありません。これを行う必要がある場合には、このセクションでその方法を説明します。
 
-  In Emacs Lisp, fonts are represented using three different Lisp object
-types: @dfn{font objects}, @dfn{font specs}, and @dfn{font entities}.
+  Emacs Lispでは、フォントは@dfn{フォントオブジェクト(font objects)}、@dfn{フォントspec(font
+specs)}、@dfn{フォントエンティティー(font entities)}という、3つの異なるLispオブジェクトを使用して表現されます。
 
 @defun fontp object &optional type
-Return @code{t} if @var{object} is a font object, font spec, or font
-entity.  Otherwise, return @code{nil}.
+@var{object}がフォントオブジェクト、フォントspec、フォントエンティティーなら@code{t}、それ以外なら@code{nil}をリターンする。
 
-The optional argument @var{type}, if non-@code{nil}, determines the exact
-type of Lisp object to check for.  In that case, @var{type} should be one of
-@code{font-object}, @code{font-spec}, or @code{font-entity}.
+オプション引数@var{type}が非@code{nil}なら、チェックするLispオブジェクトの正確なタイプを決定する。この場合、@var{type}は@code{font-object}、@code{font-spec}、@code{font-entity}のいずれかであること。
 @end defun
 
 @cindex font object
-  A font object is a Lisp object that represents a font that Emacs has
-@dfn{opened}.  Font objects cannot be modified in Lisp, but they can be
-inspected.
+  フォントオブジェクトは、Emacsが@dfn{オープンした}フォントを表します。Lispでフォントオブジェクトは変更できませんが、調べることはできます。
 
 @defun font-at position &optional window string
-Return the font object that is being used to display the character at
-position @var{position} in the window @var{window}.  If @var{window} is
-@code{nil}, it defaults to the selected window.  If @var{string} is
-@code{nil}, @var{position} specifies a position in the current buffer;
-otherwise, @var{string} should be a string, and @var{position} specifies a
-position in that string.
+ウィンドウ@var{window}内の位置@var{position}にある文字を表示するために使用されている、フォントオブジェクトをリターンする。@var{window}が@code{nil}の場合のデフォルトは、選択されたウィンドウである。@var{string}が@code{nil}なら、@var{position}はカレントバッファー内の位置を指定する。それ以外なら、@var{string}は文字列で、@var{position}はその文字列内での位置を指定すること。
 @end defun
 
 @cindex font spec
-  A font spec is a Lisp object that contains a set of specifications that can
-be used to find a font.  More than one font may match the specifications in
-a font spec.
+  フォントspecは、フォントを探すために使用できる仕様セットを含むLispオブジェクトです。フォントspec内の仕様にたいして、1つ以上のフォントがマッチすることができます。
 
 @defun font-spec &rest arguments
-Return a new font spec using the specifications in @var{arguments}, which
-should come in @code{property}-@code{value} pairs.  The possible
-specifications are as follows:
+@var{arguments}内の仕様を使用して、新たなフォントspecをリターンする。これは@code{property}-@code{value}のペアーであること。可能な仕様は以下のとおり:
 
 @table @code
 @item :name
-The font name (a string), in either XLFD, Fontconfig, or GTK format.
-@xref{Fonts,,, emacs, The GNU Emacs Manual}.
+XLFD、Fontconfig、GTKいずれかのフォーマットによるフォント名(文字列)。@ref{Fonts,,, emacs, The GNU
+Emacs Manual}を参照のこと。
 
 @item :family
 @itemx :foundry
 @itemx :weight
 @itemx :slant
 @itemx :width
-These have the same meanings as the face attributes of the same name.
-@xref{Face Attributes}.
+これらは、同名のフェイス属性と同じ意味をもつ。@ref{Face Attributes}を参照のこと。
 
 @item :size
-The font size---either a non-negative integer that specifies the pixel size,
-or a floating-point number that specifies the point size.
+フォントサイズ。非負の整数はピクセル単位、浮動小数点数ならポイントサイズを指定する。
 
 @item :adstyle
-Additional typographic style information for the font, such as @samp{sans}.
-The value should be a string or a symbol.
+@samp{sans}のように、そのフォントにたいするタイポグラフィックスタイル(typographic
+style)の追加情報。値は文字列またはシンボルであること。
 
 @cindex font registry
 @item :registry
-The charset registry and encoding of the font, such as @samp{iso8859-1}.
-The value should be a string or a symbol.
+@samp{iso8859-1}のような、フォントの文字セットレジストリーとエンコーディング。値は文字列またはシンボルであること。
 
 @item :script
-The script that the font must support (a symbol).
+そのフォントがサポートしなければならないスクリプト(シンボル)。
 
 @item :otf
 @cindex OpenType font
-The font must be an OpenType font that supports these OpenType features,
-provided Emacs is compiled with support for @samp{libotf} (a library for
-performing complex text layout in certain scripts).  The value must be a
-list of the form
+Emacsが@samp{libotf}サポートつきでコンパイルされている場合、そのフォントはそれらのOpenType機能をサポートする、OpenTypeフォントでなければならない。値は以下の形式のリストでなければならない
 
 @smallexample
 @code{(@var{script-tag} @var{langsys-tag} @var{gsub} @var{gpos})}
 @end smallexample
 
-where @var{script-tag} is the OpenType script tag symbol; @var{langsys-tag}
-is the OpenType language system tag symbol, or @code{nil} to use the default
-language system; @code{gsub} is a list of OpenType GSUB feature tag symbols,
-or @code{nil} if none is required; and @code{gpos} is a list of OpenType
-GPOS feature tag symbols, or @code{nil} if none is required.  If @code{gsub}
-or @code{gpos} is a list, a @code{nil} element in that list means that the
-font must not match any of the remaining tag symbols.  The @code{gpos}
-element may be omitted.
+ここで@var{script-tag}はOpenTypeスクリプトタグシンボル、@var{langsys-tag}はOpenType言語システムタグシンボル(@code{nil}ならデフォルト言語システムを使用)、@code{gsub}はOpenType
+GSUB機能タグシンボル(何も要求されない場合は@code{nil})、@code{gpos}はOpenType
+GPOS機能タグシンボルのリスト(何も要求されない場合は@code{nil})である。@code{gsub}または@code{gpos}がリストなら、そのリスト内の@code{nil}要素は、そのフォントが残りすべてのタグシンボルにマッチしてはならないことを意味する。@code{gpos}は省略することができる。
 @end table
 @end defun
 
 @defun font-put font-spec property value
-Set the font property @var{property} in the font-spec @var{font-spec} to
-@var{value}.
+フォントspec @var{font-spec}内のプロパティ@var{property}に、@var{value}をセットする。
 @end defun
 
 @cindex font entity
-  A font entity is a reference to a font that need not be open.  Its
-properties are intermediate between a font object and a font spec: like a
-font object, and unlike a font spec, it refers to a single, specific font.
-Unlike a font object, creating a font entity does not load the contents of
-that font into computer memory.  Emacs may open multiple font objects of
-different sizes from a single font entity referring to a scalable font.
+  フォントエンティティーは、オープンする必要がないフォントへの参照です。フォントオブジェクトとフォントspecの中間的な性質をもち、フォントspecとは異なり、フォントオブジェクトと同様、単一かつ特定のフォントを参照します。フォントオブジェクトとは異なり、フォントエンティティーの作成では、そのフォントのコンテンツはコンピューターへのメモリーにロードされません。Emacsは、スケーラブルフォントを参照するために単一のフォントエンティティーから、複数の異なるサイズのフォントオブジェクトをオープンするかもしれません。
 
 @defun find-font font-spec &optional frame
-This function returns a font entity that best matches the font spec
-@var{font-spec} on frame @var{frame}.  If @var{frame} is @code{nil}, it
-defaults to the selected frame.
+この関数は、フレーム@var{frame}上のフォントspec
+@var{font-spec}にもっともマッチするフォントエンティティーをリターンする。@var{frame}が@code{nil}の場合のデフォルトは、選択されたフレームである。
 @end defun
 
 @defun list-fonts font-spec &optional frame num prefer
-This function returns a list of all font entities that match the font spec
-@var{font-spec}.
+この関数は、フォントspec @var{font-spec}にマッチする、すべてのフォントエンティティーのリストをリターンする。
 
-The optional argument @var{frame}, if non-@code{nil}, specifies the frame on
-which the fonts are to be displayed.  The optional argument @var{num}, if
-non-@code{nil}, should be an integer that specifies the maximum length of
-the returned list.  The optional argument @var{prefer}, if non-@code{nil},
-should be another font spec, which is used to control the order of the
-returned list; the returned font entities are sorted in order of decreasing
-``closeness'' to that font spec.
+オプション引数@var{frame}が非@code{nil}なら、そのフォントが表示されるフレームを指定する。オプション引数@var{num}が非@code{nil}なら、それはリターンされるリストの最大長を指定する整数だること。オプション引数@var{prefer}が非@code{nil}なら、それはリターンされるリスト順を制御するために使用する、別のフォントspecであること。リターンされるフォントspecはそのフォントspecに``もっとも近い''降順にソートされて格納される。
 @end defun
 
-  If you call @code{set-face-attribute} and pass a font spec, font entity, or
-font name string as the value of the @code{:font} attribute, Emacs opens the
-best ``matching'' font that is available for display.  It then stores the
-corresponding font object as the actual value of the @code{:font} attribute
-for that face.
+  @code{:font}属性の値としてフォントspec、フォントエンティティー、フォント名文字列を渡して@code{set-face-attribute}を呼び出すと、Emacsは表示に利用できるもっとも``マッチする''フォントをオープンします。そして。そのフェイスにたいする@code{:font}属性の実際の値として、対応するフォントオブジェクトを格納します。
 
-  The following functions can be used to obtain information about a font.  For
-these functions, the @var{font} argument can be a font object, a font
-entity, or a font spec.
+  以下の関数は、フォントに関する情報を取得するために使用できます。これらの関数の@var{font}引数にはフォントオブジェクト、フォントエンティティー、またはフォントspecを指定できます。
 
 @defun font-get font property
-This function returns the value of the font property @var{property} for
-@var{font}.
+この関数は、@var{font}にたいするフォントプロパティ@var{property}の値をリターンする。
 
-If @var{font} is a font spec and the font spec does not specify
-@var{property}, the return value is @code{nil}.  If @var{font} is a font
-object or font entity, the value for the @var{:script} property may be a
-list of scripts supported by the font.
+@var{font}がフォントspecで、そのフォントspecが@var{property}を指定しなければ、リターン値は@code{nil}である。@var{font}がフォントオブジェクト、またはフォントエンティティーなら、@var{:script}プロパティにたいする値は、そのフォントがサポートするスクリプトのリストかもしれない。
 @end defun
 
 @defun font-face-attributes font &optional frame
-This function returns a list of face attributes corresponding to
-@var{font}.  The optional argument @var{frame} specifies the frame on which
-the font is to be displayed.  If it is @code{nil}, the selected frame is
-used.  The return value has the form
+この関数は、@var{font}に対応するフェイス属性のリストをリターンする。オプション引数@var{frame}は、そのフォントが表示されるフレームを指定する。これが@code{nil}なら、選択されたフレームが使用される。リターン値は以下の形式である
 
 @smallexample
 (:family @var{family} :height @var{height} :weight @var{weight}
    :slant @var{slant} :width @var{width})
 @end smallexample
 
-where the values of @var{family}, @var{height}, @var{weight}, @var{slant},
-and @var{width} are face attribute values.  Some of these key-attribute
-pairs may be omitted from the list if they are not specified by @var{font}.
+ここで@var{family}、@var{height}、@var{weight}、@var{slant}、@var{width}の値は、フェイス属性の値である。@var{font}により指定されない場合いくつかのキー/属性ペアーは、このリストから省略されるかもしれない。
 @end defun
 
 @defun font-xlfd-name font &optional fold-wildcards
-This function returns the XLFD (X Logical Font Descriptor), a string,
-matching @var{font}.  @xref{Fonts,,, emacs, The GNU Emacs Manual}, for
-information about XLFDs.  If the name is too long for an XLFD (which can
-contain at most 255 characters), the function returns @code{nil}.
+この関数は、@var{font}にマッチするXLFD((X Logical Font
+Descriptor))を文字列としてリターンする。XLFDに関する情報は、@ref{Fonts,,, emacs, The GNU Emacs
+Manual}を参照のこと。その名前がXLFD(最大255文字を含むことが可能)にたいして長すぎる場合、この関数は@code{nil}をリターンする。
 
-If the optional argument @var{fold-wildcards} is non-@code{nil}, consecutive
-wildcards in the XLFD are folded into one.
+オプション引数@var{fold-wildcards}が非@code{nil}なら、連続するワイルドカードは1つにまとめられる。
 @end defun
 
 @node Fringes
