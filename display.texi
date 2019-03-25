@@ -2296,102 +2296,75 @@ Windows}を参照)を通じて実際に効果をもちます。これらの変�
 @cindex fringe indicators
 @cindex indicators, fringe
 
-  @dfn{Fringe indicators} are tiny icons displayed in the window fringe to
-indicate truncated or continued lines, buffer boundaries, etc.
+  @dfn{フリンジインジケーター(Fringe
+indicators)}は、行の切り詰めや継続、バッファー境界などを示す、ウィンドウフリンジ内に表示される小さいアイコンのことです。
 
 @defopt indicate-empty-lines
 @cindex fringes, and empty line indication
 @cindex empty lines, indicating
-When this is non-@code{nil}, Emacs displays a special glyph in the fringe of
-each empty line at the end of the buffer, on graphical displays.
-@xref{Fringes}.  This variable is automatically buffer-local in every
-buffer.
+これが非@code{nil}なら、Emacsはグラフィカルなディスプレイ上で、バッファー終端にある空行それぞれにたいして、フリンジ内に特別なグリフを表示する。@ref{Fringes}を参照のこと。この変数はすべてのバッファーにおいて、自動的にバッファーローカルになる。
 @end defopt
 
 @defopt indicate-buffer-boundaries
 @cindex buffer boundaries, indicating
-This buffer-local variable controls how the buffer boundaries and window
-scrolling are indicated in the window fringes.
+このバッファーローカル変数は、ウィンドウフリンジ内でバッファー境界とウィンドウのスクロールを示す方法を制御する。
 
-Emacs can indicate the buffer boundaries---that is, the first and last line
-in the buffer---with angle icons when they appear on the screen.  In
-addition, Emacs can display an up-arrow in the fringe to show that there is
-text above the screen, and a down-arrow to show there is text below the
-screen.
+Emacsはバッファー境界(そのバッファーの最初の行と最後の行)がスクリーン上に表示された際、それを三角アイコン(angle
+icon)で示すことができる。加えて、スクリーンより上にテキストが存在する場合は上矢印(up-arrow)、スクリーンの下にテキストが存在する場合は下矢印(down-arrow)をフリンジ内に表示して、それを示すことができる。
 
-There are three kinds of basic values:
+基本的な値として3つの値がある:
 
 @table @asis
 @item @code{nil}
-Don't display any of these fringe icons.
+これらのフリンジアイコンを何も表示しない。
 @item @code{left}
-Display the angle icons and arrows in the left fringe.
+左フリンジに三角アイコンと矢印を表示する。
 @item @code{right}
-Display the angle icons and arrows in the right fringe.
-@item any non-alist
-Display the angle icons in the left fringe and don't display the arrows.
+右フリンジに三角アイコンと矢印を表示する。
+@item その他の非alist
+左フリンジに三角アイコンを表示して、矢印を表示しない。
 @end table
 
-Otherwise the value should be an alist that specifies which fringe
-indicators to display and where.  Each element of the alist should have the
-form @code{(@var{indicator} . @var{position})}.  Here, @var{indicator} is
-one of @code{top}, @code{bottom}, @code{up}, @code{down}, and @code{t}
-(which covers all the icons not yet specified), while @var{position} is one
-of @code{left}, @code{right} and @code{nil}.
+値がそれ以外なら、どのフリンジインジケーターをどこに表示するかを指定する、alistであること。alistの各要素は、@code{(@var{indicator}
+.
+@var{position})}のような形式をもつ。ここで@var{indicator}は@code{top}、@code{bottom}、@code{up}、@code{down}、または@code{t}(指定されていないすべてのアイコンをカバーする)のいずれかであり、@var{position}は@code{left}、@code{right}、または@code{nil}のいずれかである。
 
-For example, @code{((top . left) (t . right))} places the top angle bitmap
-in left fringe, and the bottom angle bitmap as well as both arrow bitmaps in
-right fringe.  To show the angle bitmaps in the left fringe, and no arrow
-bitmaps, use @code{((top .  left) (bottom . left))}.
+たとえば@code{((top . left) (t . right))}は左フリンジにtop angleビットマップを、右フリンジにbottom
+angleビットマップと両arrowビットマップを配置する。左フリンジにangleビットマップを表示してarrowビットマップを表示しないようにするには、@code{((top
+.  left) (bottom . left))}を使用する。
 @end defopt
 
 @defvar fringe-indicator-alist
-This buffer-local variable specifies the mapping from logical fringe
-indicators to the actual bitmaps displayed in the window fringes.  The value
-is an alist of elements @code{(@var{indicator} . @var{bitmaps})}, where
-@var{indicator} specifies a logical indicator type and @var{bitmaps}
-specifies the fringe bitmaps to use for that indicator.
+このバッファーローカル変数は、論理的ロジカルフリンジインジケーターから、ウィンドウフリンジ内に実際に表示されるビットマップへのマッピングを指定する。値は@code{(@var{indicator}
+.
+@var{bitmaps})}のような要素をもつalistである。ここで@var{indicator}は論理的インジケータータイプ、@var{bitmaps}はそのインジケーターに使用するフリンジビットマップを指定する。
 
-  Each @var{indicator} should be one of the following symbols:
+  @var{indicator}はそれぞれ、以下のシンボルのいずれかであること:
 
 @table @asis
 @item @code{truncation}, @code{continuation}.
-Used for truncation and continuation lines.
+行の切り詰めと継続に使用される。
 
 @item @code{up}, @code{down}, @code{top}, @code{bottom}, @code{top-bottom}
-Used when @code{indicate-buffer-boundaries} is non-@code{nil}: @code{up} and
-@code{down} indicate a buffer boundary lying above or below the window edge;
-@code{top} and @code{bottom} indicate the topmost and bottommost buffer text
-line; and @code{top-bottom} indicates where there is just one line of text
-in the buffer.
+@code{indicate-buffer-boundaries}が非@code{nil}の際に使用される。@code{up}および@code{down}は、そのウィンドウ端より上または下にあるバッファー境界を示す。@code{top}および@code{bottom}はバッファーの最上端または最下端のテキスト行を示す。@code{top-bottom}はバッファー内にテキスト行1行だけが存在することを示す。
 
 @item @code{empty-line}
-Used to indicate empty lines when @code{indicate-empty-lines} is
-non-@code{nil}.
+@code{indicate-empty-lines}が非@code{nil}の際に、空行を示すために使用される。
 
 @item @code{overlay-arrow}
 @c Is this used anywhere?
 @c @item Unknown bitmap indicator:
 @c @code{unknown}.
-Used for overlay arrows (@pxref{Overlay Arrow}).
+オーバーレイ矢印に使用される(@ref{Overlay Arrow}を参照)。
 @end table
 
-  Each @var{bitmaps} value may be a list of symbols @code{(@var{left}
-@var{right} [@var{left1} @var{right1}])}.  The @var{left} and @var{right}
-symbols specify the bitmaps shown in the left and/or right fringe, for the
-specific indicator.  @var{left1} and @var{right1} are specific to the
-@code{bottom} and @code{top-bottom} indicators, and are used to indicate
-that the last text line has no final newline.  Alternatively, @var{bitmaps}
-may be a single symbol which is used in both left and right fringes.
+  各@var{bitmaps}の値には、シンボルのリスト@code{(@var{left} @var{right} [@var{left1}
+@var{right1}])}を指定できる。シンボル@var{left}と@var{right}は、特定のインジケーターにたいして左、および/または右フリンジに表示するビットマップを指定する。@var{left1}と@var{right1}は、インジケーター@code{bottom}と@code{top-bottom}に固有であり、最後の改行をもたない最後のテキスト行を示すために使用される。かわりに、@var{bitmaps}に左フリンジと右フリンジの両方で使用される、単一のシンボルを指定することもできる。
 
-  @xref{Fringe Bitmaps}, for a list of standard bitmap symbols and how to
-define your own.  In addition, @code{nil} represents the empty bitmap (i.e.,
-an indicator that is not shown).
+  標準のビットマップシンボルのリストと、自身で定義する方法については、@ref{Fringe
+Bitmaps}を参照のこと。加えて、@code{nil}は空ビットマップ(表示されないインジケーター)を表す。
 
-  When @code{fringe-indicator-alist} has a buffer-local value, and there is no
-bitmap defined for a logical indicator, or the bitmap is @code{t}, the
-corresponding value from the default value of @code{fringe-indicator-alist}
-is used.
+  @code{fringe-indicator-alist}がバッファーローカルな値をもち、論理的インジケーターにたいしてビットマップが定義されていない、またはビットマップが@code{t}ならば、@code{fringe-indicator-alist}のデフォルト値から、対応する値が使用される。
 @end defvar
 
 @node Fringe Cursors
