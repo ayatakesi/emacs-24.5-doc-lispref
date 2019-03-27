@@ -1435,8 +1435,8 @@ Names}を参照のこと。白黒ディスプレイでは、特定のグレー�
 そのフェイスの表示に使用されるフォント。値はフォントオブジェクトであること。フォントオブジェクト、フォントスペース、フォントエンティティーに関する情報は、@ref{Low-Level
 Font}を参照のこと。
 
-@code{set-face-attribute}(@pxref{Attribute
-Functions})を使用してこの属性を指定する際にはフォントspec、フォントエンティティー、または文字列を与えることもできる。Emacsはそのような値を適切なフォントオブジェクトに変換して、実際の属性値としてそのフォントオブジェクトを格納する。文字列を指定する場合、その文字列のコンテンツはフォント名であること(@ref{Fonts,,,
+@code{set-face-attribute}(@ref{Attribute
+Functions}を参照)を使用してこの属性を指定する際にはフォントspec、フォントエンティティー、または文字列を与えることもできる。Emacsはそのような値を適切なフォントオブジェクトに変換して、実際の属性値としてそのフォントオブジェクトを格納する。文字列を指定する場合、その文字列のコンテンツはフォント名であること(@ref{Fonts,,,
 emacs, The GNU Emacs
 Manual}を参照)。フォント名がワイルドカードを含むXLFDなら、Emacsはそれらのワイルドカードに最初にマッチするフォントを選択する。この属性の指定により、@code{:family}、@code{:foundry}、@code{:width}、@code{:height}、@code{:weight}、@code{:slant}の属性値も変更される。
 
@@ -1630,8 +1630,7 @@ Faces}を参照)。関数@code{set-face-attribute}は、特定またはすべて
 @end example
 
 @noindent
-sets the attribute @code{:weight} to @code{bold} and the attribute
-@code{:slant} to @code{italic}.
+これは属性@code{:weight}を@code{bold}、.属性@code{:slant}を@code{italic}にセットする。
 
 
 @var{frame}が@code{t}なら、この関数は新たに作成されるフレームにたいする、デフォルト属性をセットする。@var{frame}が@code{nil}なら、この関数はすべての既存フレーム、同様に新たに作成されるフレームにたいして、その属性をセットする。
@@ -2686,27 +2685,21 @@ width)}仕様でも可(@ref{Pixel Specification}を参照)。
 height)}でも可(@ref{Pixel Specification}を参照)。
 
 @item :relative-height @var{factor}
-Specifies the height of the space, multiplying the ordinary height of the
-text having this display specification by @var{factor}.
+このディスプレイ仕様をもつテキストの通常の高さに@var{factor}を乗じることにより、スペースの高さを指定する。
 
 @item :ascent @var{ascent}
-If the value of @var{ascent} is a non-negative number no greater than 100,
-it specifies that @var{ascent} percent of the height of the space should be
-considered as the ascent of the space---that is, the part above the
-baseline.  The ascent may also be specified in pixel units with a @dfn{pixel
-ascent} specification (@pxref{Pixel Specification}).
+@var{ascent}の値が非負の100以下の数字なら、スペースの高さの@var{ascent}パーセントをスペースのアセント(ascent:
+上方)、すなわちベースラインより上の部分とみなす。@dfn{ピクセルアセント(pixel
+ascent)}仕様により、アセントをピクセル単位で指定することも可(@ref{Pixel Specification}を参照)。
 
 @end table
 
-  Don't use both @code{:height} and @code{:relative-height} together.
+  @code{:height}と@code{:relative-height}を両方一緒に使用しないでください。
 
-  The @code{:width} and @code{:align-to} properties are supported on
-non-graphic terminals, but the other space properties in this section are
-not.
+  @code{:width}と@code{:align-to}プロパティは非グラフィック端末でサポートされますが、このセクションのその他のスペースプロパティはサポートされません。
 
-  Note that space properties are treated as paragraph separators for the
-purposes of reordering bidirectional text for display.  @xref{Bidirectional
-Display}, for the details.
+  スペースプロパティは、双方向テキスト表示の並べ替えのために、パラグラフ区切りとして扱われます。詳細は、@ref{Bidirectional
+Display}を参照してください。
 
 @node Pixel Specification
 @subsection Pixel Specification for Spaces
