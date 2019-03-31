@@ -2728,37 +2728,28 @@ Display}を参照してください。
 
   単位@code{in}、@code{mm}、@code{cm}はそれぞれインチ、ミリメートル、センチメートルごとのピクセル数を指定します。単位@code{width}と@code{height}はそれぞれ、カレントフェイスのデフォルトの幅と高さに対応します。イメージ仕様@code{image}は、そのイメージの幅、または高さに対応します。
 
-  The elements @code{left-fringe}, @code{right-fringe}, @code{left-margin},
-@code{right-margin}, @code{scroll-bar}, and @code{text} specify to the width
-of the corresponding area of the window.
+  要素@code{left-fringe}、@code{right-fringe}、@code{left-margin}、@code{right-margin}、@code{scroll-bar}、@code{text}は、そのウィンドウの対応する領域の幅を指定します。
 
-  The @code{left}, @code{center}, and @code{right} positions can be used with
-@code{:align-to} to specify a position relative to the left edge, center, or
-right edge of the text area.
+  位置@code{left}、@code{center}、@code{right}はテキストエリアの左端、中央、右端から相対的に位置を指定するために、@code{:align-to}とともに使用できます。
 
-  Any of the above window elements (except @code{text}) can also be used with
-@code{:align-to} to specify that the position is relative to the left edge
-of the given area.  Once the base offset for a relative position has been
-set (by the first occurrence of one of these symbols), further occurrences
-of these symbols are interpreted as the width of the specified area.  For
-example, to align to the center of the left-margin, use
+  (@code{text}を除く)上記ウィンドウ要素は、与えられたエリアの左端から相対的に位置を指定するために、@code{:align-to}とともに使用することもできます。
+Any of the above window elements (except ) can also be used with  to specify
+that the position is relative to the left edge of the given area.
+(最初に出現するこれらシンボルのいずれかにより)相対的位置にたいするベースオフセットが一度セットがされると、残りのシンボルは指定されたエリアの幅として解釈されます。たとえば左マージンの中央に位置揃えするには、以下のようにします
 
 @example
 :align-to (+ left-margin (0.5 . left-margin))
 @end example
 
-  If no specific base offset is set for alignment, it is always relative to
-the left edge of the text area.  For example, @samp{:align-to 0} in a
-header-line aligns with the first text column in the text area.
+  位置揃えにたいしてベースオフセットが何も指定されなければ、テキストエリア左端にたいして常に相対的になります。たとえばヘッダーライン内の@samp{:align-to
+0}は、テキストエリアの最初のテキスト行に位置揃えします。
 
-  A value of the form @code{(@var{num} . @var{expr})} stands for the product
-of the values of @var{num} and @var{expr}.  For example, @code{(2 . in)}
-specifies a width of 2 inches, while @code{(0.5 .  @var{image})} specifies
-half the width (or height) of the specified image.
+  @code{(@var{num}
+. @var{expr})}という形式の値は、@var{num}と@var{expr}により生成される値を意味します。たとえば@code{(2
+. in)}は2インチの幅、@code{(0.5 .  @var{image})}は指定されたイメージの幅(または高さ)の半分を指定します。
 
-  The form @code{(+ @var{expr} ...)} adds up the value of the expressions.
-The form @code{(- @var{expr} ...)} negates or subtracts the value of the
-expressions.
+  フォーム@code{(+ @var{expr} ...)}は、式の値を合計します。フォーム@code{(- @var{expr}
+...)}は式の値を否定または減算します。
 
 @node Other Display Specs
 @subsection Other Display Specifications
