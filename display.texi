@@ -2763,7 +2763,7 @@ that the position is relative to the left edge of the given area.
 再帰的なディスプレイ仕様はサポートされない。つまり@var{string}の@code{display}プロパティがあっても、それは使用されない。
 
 @item (image . @var{image-props})
-この種のディスプレイ仕様は、イメージディスクリプターである(@ref{Images}を参照)。ディスプレイ仕様として使用時は、そのディスプレイ仕様をもつテキストのかわりに表示するイメージを意味する。
+この種のディスプレイ仕様は、イメージディスクリプタである(@ref{Images}を参照)。ディスプレイ仕様として使用時は、そのディスプレイ仕様をもつテキストのかわりに表示するイメージを意味する。
 
 @item (slice @var{x} @var{y} @var{width} @var{height})
 この仕様は@code{image}とともに、表示するイメージの@dfn{スライス(slice:
@@ -2824,60 +2824,40 @@ Bitmaps}を参照のこと。
 @cindex display margins
 @cindex margins, display
 
-  A buffer can have blank areas called @dfn{display margins} on the left and
-on the right.  Ordinary text never appears in these areas, but you can put
-things into the display margins using the @code{display} property.  There is
-currently no way to make text or images in the margin mouse-sensitive.
+  バッファーはその左側と右側に、@dfn{ディスプレイマージン(display
+margins)}と呼ばれる、ブランクエリアをもつことができます。それらのエリア内には、通常はテキストが出現することはありませんが、@code{display}プロパティを使用して、ディスプレイマージン内に何かを配置することができます。現在のところ、マージン内のテキストやイメージをマウスセンシティブにする方法はありません。
 
-  The way to display something in the margins is to specify it in a margin
-display specification in the @code{display} property of some text.  This is
-a replacing display specification, meaning that the text you put it on does
-not get displayed; the margin display appears, but that text does not.
+  マージン内に何かを表示するには、テキストの@code{display}プロパティのマージン表示仕様(margin display
+specification)で、それを指定します。これは、配置したテキストが表示されないことを意味する、置換表示仕様です。マージン表示は表示されますが、そのテキストは表示されません。
 
-  A margin display specification looks like @code{((margin right-margin)
-@var{spec})} or @code{((margin left-margin) @var{spec})}.  Here, @var{spec}
-is another display specification that says what to display in the margin.
-Typically it is a string of text to display, or an image descriptor.
+  マージン表示仕様とは@code{((margin right-margin) @var{spec})}や@code{((margin
+left-margin)
+@var{spec})}のようなものです。ここで@var{spec}は、マージン内に何を表示するかを告げる、別の表示仕様です。典型的にはこれは表示するテキスト文字列、またはイメージディスクリプタです。
 
-  To display something in the margin @emph{in association with} certain buffer
-text, without altering or preventing the display of that text, put a
-@code{before-string} property on the text and put the margin display
-specification on the contents of the before-string.
+  特定のバッファーテキストに@emph{関連する}マージンに何かを表示するためには、そのテキストに@code{before-string}プロパティを付して、そのコンテンツとしてマージン表示仕様をputします。
 
-  Before the display margins can display anything, you must give them a
-nonzero width.  The usual way to do that is to set these variables:
+  ディスプレイマージンが何かを表示可能になる前に、それらに非0の幅を与えなければなりません。これを行う通常の方法は、以下の変数をセットする方法です:
 
 @defvar left-margin-width
-This variable specifies the width of the left margin, in character cell
-(a.k.a.@: ``column'') units.  It is buffer-local in all buffers.  A value of
-@code{nil} means no left marginal area.
+この変数は左マージンの幅を、文字セル(別名は``列'')単位で指定する。これは、すべてのバッファーでバッファーローカルである。値@code{nil}は、左マージンエリアなしを意味する。
 @end defvar
 
 @defvar right-margin-width
-This variable specifies the width of the right margin, in character cell
-units.  It is buffer-local in all buffers.  A value of @code{nil} means no
-right marginal area.
+この変数は右マージンの幅を、文字セル単位で指定する。これは、すべてのバッファーでバッファーローカルである。値@code{nil}は、右マージンエリアなしを意味する。
 @end defvar
 
-  Setting these variables does not immediately affect the window.  These
-variables are checked when a new buffer is displayed in the window.  Thus,
-you can make changes take effect by calling @code{set-window-buffer}.
+  これらの変数をセットしても、そのウィンドウには即座には反映されません。これらの変数は、そのウィンドウ内に新たなバッファーを表示する際にチェックされます。したがって、@code{set-window-buffer}を呼び出すことにより、変更を反映することができます。
 
-  You can also set the margin widths immediately.
+  マージン幅を即座にセットすることもできます。
 
 @defun set-window-margins window left &optional right
-This function specifies the margin widths for window @var{window}, in
-character cell units.  The argument @var{left} controls the left margin, and
-@var{right} controls the right margin (default @code{0}).
+この関数は、ウィンドウ@var{window}のマージン幅を、文字セル単位で指定する。引数@var{left}は左マージン、@var{right}は右マージン(デフォルトは@code{0})を制御する。
 @end defun
 
 @defun window-margins &optional window
-This function returns the width of the left and right margins of
-@var{window} as a cons cell of the form @w{@code{(@var{left}
-. @var{right})}}.  If one of the two marginal areas does not exist, its
-width is returned as @code{nil}; if neither of the two margins exist, the
-function returns @code{(nil)}.  If @var{window} is @code{nil}, the selected
-window is used.
+この関数は、@var{window}の左マージンと右マージンの幅を、@w{@code{(@var{left}
+.
+@var{right})}}という形式のコンスセルでリターンする。2つのマージンエリアのいずれか一方が存在しなければ、その幅は@code{nil}としてリターンされる。2つのマージンがどちらも存在しない場合、この関数は@code{(nil)}をリターンする。@var{window}が@code{nil}なら、選択されたウィンドウが使用される。
 @end defun
 
 @node Images
