@@ -2918,95 +2918,64 @@ Images}を参照してください。ImageMagickを通じて表示されるす�
 @subsection Image Descriptors
 @cindex image descriptor
 
-  An @dfn{image descriptor} is a list which specifies the underlying data for
-an image, and how to display it.  It is typically used as the value of a
-@code{display} overlay or text property (@pxref{Other Display Specs}); but
-@xref{Showing Images}, for convenient helper functions to insert images into
-buffers.
+  @dfn{イメージディスクリプタ(image
+descriptor)}とは、イメージにたいする基礎的なデータと、それを表示する方法を指定するリストです。これは通常、オーバーレイプロパティまたはテキストプロパティ@code{display}(@ref{Other
+Display Specs}を参照)の値を通じて使用されますが、バッファーにイメージを挿入する便利なヘルパー関数については、@ref{Showing
+Images}を参照してください。
 
-  Each image descriptor has the form @code{(image . @var{props})}, where
-@var{props} is a property list of alternating keyword symbols and values,
-including at least the pair @code{:type @var{type}} that specifies the image
-type.
+  イメージディスクリプタはそれぞれ@code{(image
+.
+@var{props})}という形式をもちます。ここで@var{props}はキーワードシンボルと値のペアーからなるプロパティリストで、少なくともそのイメージタイプを指定するペアー@code{:type
+@var{type}}を含みます。
 
-  The following is a list of properties that are meaningful for all image
-types (there are also properties which are meaningful only for certain image
-types, as documented in the following subsections):
+  以下は、すべてのイメージタイプにたいして意味のあるプロパティのリストです(以降のサブセクションで説明するように、特定のイメージタイプにたいしてのみ意味があるプロパティも存在する):
 
 @table @code
 @item :type @var{type}
-The image type.
+イメージタイプ。
 @ifnottex
-@xref{Image Formats}.
+@ref{Image Formats}を参照のこと。
 @end ifnottex
-Every image descriptor must include this property.
+すべてのイメージディスクリプタは。このプロパティを含まなければならない。
 
 @item :file @var{file}
-This says to load the image from file @var{file}.  If @var{file} is not an
-absolute file name, it is expanded in @code{data-directory}.
+これは、ファイル@var{file}からイメージをロードすることを意味する。@var{file}が絶対ファイル名でなければ、それは@code{data-directory}内で展開される。
 
 @item :data @var{data}
-This specifies the raw image data.  Each image descriptor must have either
-@code{:data} or @code{:file}, but not both.
+これは、rawイメージデータを指定する。すべてのイメージディスクリプタは、@code{:data}か@code{:file}のいずれかをもたなければならないが、両方もつことはできない。
 
-For most image types, the value of a @code{:data} property should be a
-string containing the image data.  Some image types do not support
-@code{:data}; for some others, @code{:data} alone is not enough, so you need
-to use other image properties along with @code{:data}.  See the following
-subsections for details.
+ほとんどのイメージタイプにたいして、@code{:data}プロパティの値はイメージデータを含む、文字列であること。いくつかのイメージタイプは、@code{:data}をサポートしない。それ以外のイメージタイプにたいしては、@code{:data}単独では不十分であり、@code{:data}とともに他のイメージプロパティを使用する必要がある。詳細は、以下のサブセクションを参照のこと。
 
 @item :margin @var{margin}
-This specifies how many pixels to add as an extra margin around the image.
-The value, @var{margin}, must be a non-negative number, or a pair
-@code{(@var{x} . @var{y})} of such numbers.  If it is a pair, @var{x}
-specifies how many pixels to add horizontally, and @var{y} specifies how
-many pixels to add vertically.  If @code{:margin} is not specified, the
-default is zero.
+これは、そのイメージ周囲に余分なマージンとして、何ピクセル追加するかを指定する。値@var{margin}は非負の数値、またはそのような数値のペアー@code{(@var{x}
+.
+@var{y})}でなければならない。ペアーの場合、@var{x}は水平方向に追加するピクセル数、@var{y}は垂直方向に追加するピクセル数を指定する。@code{:margin}が指定されない場合のデフォルトは0。
 
 @item :ascent @var{ascent}
-This specifies the amount of the image's height to use for its ascent---that
-is, the part above the baseline.  The value, @var{ascent}, must be a number
-in the range 0 to 100, or the symbol @code{center}.
+これは、イメージのアセント(ベースラインの上の部分)に使用する、そのイメージの高さの分量を指定する。値@var{ascent}は、から100の数値、またはシンボル@code{center}でなければならない。
 
-If @var{ascent} is a number, that percentage of the image's height is used
-for its ascent.
+@var{ascent}が数値なら、アセントに使用するイメージの高さのパーセンテージであること。
 
-If @var{ascent} is @code{center}, the image is vertically centered around a
-centerline which would be the vertical centerline of text drawn at the
-position of the image, in the manner specified by the text properties and
-overlays that apply to the image.
+@var{ascent}が@code{center}なら、そのイメージにたいしてテキストプロパティおよびオーバーレイプロパティにより指定される方法で、センターライン(そのイメージ位置にテキストを描画する際の垂直方向のセンターライン)の垂直方向中心にイメージが配置される。
 
-If this property is omitted, it defaults to 50.
+このプロパティが省略された場合のデフォルトは500。
 
 @item :relief @var{relief}
-This adds a shadow rectangle around the image.  The value, @var{relief},
-specifies the width of the shadow lines, in pixels.  If @var{relief} is
-negative, shadows are drawn so that the image appears as a pressed button;
-otherwise, it appears as an unpressed button.
+これは、イメージ注意にシャドー矩形を追加する。値@var{relief}は、シャドーライン幅をピクセルで指定する。@var{relief}が負ならボタンを押下した状態、それ以外はボタンを押下していない状態のイメージでシャドーを描画する。
 
 @item :conversion @var{algorithm}
-This specifies a conversion algorithm that should be applied to the image
-before it is displayed; the value, @var{algorithm}, specifies which
-algorithm.
+これは、イメージを表示する前に適用するべき、変換アルゴリズムを指定する。値@var{algorithm}は、どのアルゴリズムかを指定する。
 
 @table @code
 @item laplace
 @itemx emboss
-Specifies the Laplace edge detection algorithm, which blurs out small
-differences in color while highlighting larger differences.  People
-sometimes consider this useful for displaying the image for a ``disabled''
-button.
+カラーの大きい差異を強調して小さな差異を不鮮明にする、ラプラスエッジ検出アルゴリズム(Laplace edge detection
+algorithm)を指定する。``無効''なボタンのイメージ表示に、これが役立つと考える人もいます。
 
 @item (edge-detection :matrix @var{matrix} :color-adjust @var{adjust})
 @cindex edge detection, images
-Specifies a general edge-detection algorithm.  @var{matrix} must be either a
-nine-element list or a nine-element vector of numbers.  A pixel at position
-@math{x/y} in the transformed image is computed from original pixels around
-that position.  @var{matrix} specifies, for each pixel in the neighborhood
-of @math{x/y}, a factor with which that pixel will influence the transformed
-pixel; element @math{0} specifies the factor for the pixel at
-@math{x-1/y-1}, element @math{1} the factor for the pixel at @math{x/y-1}
-etc., as shown below:
+一般的なエッジ検出アルゴリズムを指定する。@var{matrix}は数値からなる9要素のリスト、またはベクターでなければならない。変換されたイメージ内の位置@math{x/y}にあるピクセルは、その位置周辺にある元のピクセルから計算される。@var{matrix}は、@math{x/y}に近接する各ピクセルにたいして、そのピクセルが変換先ピクセルに影響するファクター(factor:
+要因)を指定する。以下のように、要素@math{0}は@math{x-1/y-1}にあるピクセルのファクター、要素@math{1}は@math{x/y-1}にあるピクセルにたいするファクター、...を指定する。
 @iftex
 @tex
 $$\pmatrix{x-1/y-1 & x/y-1  & x+1/y-1 \cr
@@ -3022,12 +2991,9 @@ $$\pmatrix{x-1/y-1 & x/y-1  & x+1/y-1 \cr
 @end display
 @end ifnottex
 
-The resulting pixel is computed from the color intensity of the color
-resulting from summing up the RGB values of surrounding pixels, multiplied
-by the specified factors, and dividing that sum by the sum of the factors'
-absolute values.
+結果のピクセルは、周辺ピクセルのRGB値を合計したカラーを指定されたファクターで乗じ、その合計をファクター絶対値の合計で除した色強度から計算される。
 
-Laplace edge-detection currently uses a matrix of
+ラプラスエッジ検出は、現在のところは以下のマトリクス
 @iftex
 @tex
 $$\pmatrix{1 & 0 & 0 \cr
@@ -3043,7 +3009,7 @@ $$\pmatrix{1 & 0 & 0 \cr
 @end display
 @end ifnottex
 
-Emboss edge-detection uses a matrix of
+エンボスエッジ検出(Emboss edge-detection)は以下のマトリクスを使用する
 @iftex
 @tex
 $$\pmatrix{ 2 & -1 &  0 \cr
@@ -3060,62 +3026,47 @@ $$\pmatrix{ 2 & -1 &  0 \cr
 @end ifnottex
 
 @item disabled
-Specifies transforming the image so that it looks ``disabled''.
+イメージが``無効(disabled)''に見えるよう変換することを指定する。
 @end table
 
 @item :mask @var{mask}
-If @var{mask} is @code{heuristic} or @code{(heuristic @var{bg})}, build a
-clipping mask for the image, so that the background of a frame is visible
-behind the image.  If @var{bg} is not specified, or if @var{bg} is @code{t},
-determine the background color of the image by looking at the four corners
-of the image, assuming the most frequently occurring color from the corners
-is the background color of the image.  Otherwise, @var{bg} must be a list
-@code{(@var{red} @var{green} @var{blue})} specifying the color to assume for
-the background of the image.
+@var{mask}が@code{heuristic}か@code{(heuristic
+@var{bg})}なら、フレームのバックグラウンドがイメージ背後に見えるよう、そのイメージのクリッピングマスクを構築する。@var{bg}が未指定または@code{t}なら、イメージ4隅に最頻するカラーをそのイメージのバックグラウンドカラーとみなしてバックグラウンドカラーを決定する。それ以外なら@var{bg}は、そのイメージのバックグラウンドとみなすべきカラーを指定するリスト@code{(@var{red}
+@var{green} @var{blue})}でなければならない。
 
-If @var{mask} is @code{nil}, remove a mask from the image, if it has one.
-Images in some formats include a mask which can be removed by specifying
-@code{:mask nil}.
+@var{mask}が@code{nil}なら、イメージがマスクをもつ場合はマスクを削除する。マスクを含むフォーマットのイメージは、@code{:mask
+nil}を指定することにより削除される可能性がある。
 
 @item :pointer @var{shape}
-This specifies the pointer shape when the mouse pointer is over this image.
-@xref{Pointer Shape}, for available pointer shapes.
+これはマウスポインターがそのイメージ上にある際の、ポインターシェイプを指定する。利用可能なポインターシェイプについては、@ref{Pointer
+Shape}を参照のこと。
 
 @item :map @var{map}
 @cindex image maps
-This associates an image map of @dfn{hot spots} with this image.
+これは、そのイメージに@dfn{ホットスポット(hot spots)}のイメージマップを関連付ける。
 
-An image map is an alist where each element has the format @code{(@var{area}
-@var{id} @var{plist})}.  An @var{area} is specified as either a rectangle, a
-circle, or a polygon.
+イメージマップは、各要素が@code{(@var{area} @var{id}
+@var{plist})}という形式をもつalistである。@var{area}はにはrectangle(矩形)、circle(円)、またはpolygon(ポリゴン、多角形)のいずれかを指定する。
 
-A rectangle is a cons @code{(rect . ((@var{x0} . @var{y0}) . (@var{x1}
-. @var{y1})))} which specifies the pixel coordinates of the upper left and
-bottom right corners of the rectangle area.
+rectangleは、矩形エリアの左上隅と右下隅のピクセル座標を指定するコンス@code{(rect . ((@var{x0} . @var{y0})
+. (@var{x1} . @var{y1})))}である。
 
-A circle is a cons @code{(circle . ((@var{x0} . @var{y0}) . @var{r}))} which
-specifies the center and the radius of the circle; @var{r} may be a float or
-integer.
+circleは、円の中心と半径を指定するコンス@code{(circle . ((@var{x0} . @var{y0})
+. @var{r}))}である。@var{r}は整数または浮動小数点数。
 
-A polygon is a cons @code{(poly . [@var{x0} @var{y0} @var{x1} @var{y1}
-...])} where each pair in the vector describes one corner in the polygon.
+polygonは、各ペアーが多角形の1つの頂点を記述するコンス@code{(poly . [@var{x0} @var{y0} @var{x1}
+@var{y1} ...])}である。
 
-When the mouse pointer lies on a hot-spot area of an image, the @var{plist}
-of that hot-spot is consulted; if it contains a @code{help-echo} property,
-that defines a tool-tip for the hot-spot, and if it contains a
-@code{pointer} property, that defines the shape of the mouse cursor when it
-is on the hot-spot.  @xref{Pointer Shape}, for available pointer shapes.
+マウスポインターがホットスポット上にある際は、そのホットスポットの@var{plist}が参照される。これが@code{help-echo}プロパティを含むならそのホットスポットのツールチップを指定し、@code{pointer}プロパティを含む場合はマウスカーソルがホットスポット上にあるときのマウスカーソルのシェイプを指定する。利用可能なポインターシェイプについては、@ref{Pointer
+Shape}を参照のこと。
 
-When you click the mouse when the mouse pointer is over a hot-spot, an event
-is composed by combining the @var{id} of the hot-spot with the mouse event;
-for instance, @code{[area4 mouse-1]} if the hot-spot's @var{id} is
-@code{area4}.
+マウスポインターがホットスポット上にあるときにマウスをクリックしたときのイベントは、ホットスポットの@var{id}とマウスイベントを組み合わせて構成される。たとえば、ホットスポットの@var{id}が@code{area4}なら、@code{[area4
+mouse-1]}となる。
 @end table
 
 @defun image-mask-p spec &optional frame
-This function returns @code{t} if image @var{spec} has a mask bitmap.
-@var{frame} is the frame on which the image will be displayed.  @var{frame}
-@code{nil} or omitted means to use the selected frame (@pxref{Input Focus}).
+この関数は、イメージ@var{spec}がマスクビットマップをもつなら、@code{t}をリターンする。@var{frame}はそのイメージが表示されるフレームである。@var{frame}が@code{nil}または省略された場合は、選択されたフレームが使用される(@ref{Input
+Focus}を参照)。
 @end defun
 
 @node XBM Images
