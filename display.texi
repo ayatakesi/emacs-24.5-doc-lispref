@@ -3149,79 +3149,48 @@ Focus}を参照)。
 @cindex ImageMagick images
 @cindex images, support for more formats
 
-  If you build Emacs with ImageMagick support, you can use the ImageMagick
-library to load many image formats (@pxref{File Conveniences,,, emacs, The
-GNU Emacs Manual}).  The image type symbol for images loaded via ImageMagick
-is @code{imagemagick}, regardless of the actual underlying image format.
+  ImageMagickのサポートつきでEmacsをビルドした場合には、多くくのイメージフォーマットをロードするために、ImageMagickライブラリーを使用できます(@ref{File
+Conveniences,,, emacs, The GNU Emacs
+Manual}を参照)。ImageMagickを通じてロードしたイメージのイメージタイプシンボルは、基礎となる実際のイメージフォーマットとは無関係に、@code{imagemagick}になります。
 
 @defun imagemagick-types
-This function returns a list of image file extensions supported by the
-current ImageMagick installation.  Each list element is a symbol
-representing an internal ImageMagick name for an image type, such as
-@code{BMP} for @file{.bmp} images.
+この関数は、カレントのImageMagickインストールによりサポートされる、イメージファイル拡張子のリストをリターンする。リストの各要素は、@file{.bmp}イメージは@code{BMP}のように、イメージタイプにたいして内部的なImageMagick名を表すシンボルである。
 @end defun
 
 @defopt imagemagick-enabled-types
-The value of this variable is a list of ImageMagick image types which Emacs
-may attempt to render using ImageMagick.  Each list element should be one of
-the symbols in the list returned by @code{imagemagick-types}, or an
-equivalent string.  Alternatively, a value of @code{t} enables ImageMagick
-for all possible image types.  Regardless of the value of this variable,
-@code{imagemagick-types-inhibit} (see below) takes precedence.
+この変数の値は、EmacsがImageMagickを使用してレンダリングを試みるかもしれない、ImageMagickイメージタイプのリストである。リストの各要素は、@code{imagemagick-types}がリターンするリスト内のシンボルのいずれか、または等価な文字列である。もしくは値@code{t}はImageMagickにたいして利用できるすべてのイメージタイプを有効にする。この変数の値とは関係なく、@code{imagemagick-types-inhibit}(以下参照)が優先される。
 @end defopt
 
 @defopt imagemagick-types-inhibit
-The value of this variable lists the ImageMagick image types which should
-never be rendered using ImageMagick, regardless of the value of
-@code{imagemagick-enabled-types}.  A value of @code{t} disables ImageMagick
-entirely.
+この変数の値は、@code{imagemagick-enabled-types}の値とは無関係に、ImageMagickを使用して決してレンダリングされることのない、ImageMagickイメージタイプのリストである。値@code{t}は、ImageMagickを完全に無効にする。
 @end defopt
 
 @defvar image-format-suffixes
-This variable is an alist mapping image types to file name extensions.
-Emacs uses this in conjunction with the @code{:format} image property (see
-below) to give a hint to the ImageMagick library as to the type of an
-image.  Each element has the form @code{(@var{type} @var{extension})}, where
-@var{type} is a symbol specifying an image content-type, and @var{extension}
-is a string that specifies the associated file name extension.
+この変数は、イメージタイプをファイル名拡張子にマッピングするalistである。Emacsは、ImageMagickライブラリーにイメージのタイプに関するヒントを与えるために、この変数と@code{:format}イメージプロパティ(以下参照)を組み合わせて使用する。各要素は@code{(@var{type}
+@var{extension})}という形式をもち、@var{type}はイメージのcontent-typeを指定するシンボル、@var{extension}は関連付けられるファイル名拡張子を指定する文字列である。
 @end defvar
 
-  Images loaded with ImageMagick support the following additional image
-descriptor properties:
+  ImageMagickによりロードされたイメージは、追加で以下のイメージディスクリプタプロパティをサポートします:
 
 @table @code
 @item :background @var{background}
-@var{background}, if non-@code{nil}, should be a string specifying a color,
-which is used as the image's background color if the image supports
-transparency.  If the value is @code{nil}, it defaults to the frame's
-background color.
+@var{background}が非@code{nil}なら、カラーを指定する文字列であること。これはイメージが透明度をサポートする場合に、そのイメージのバックグラウンドカラーとして使用される。値が@code{nil}の場合のデフォルトは、そのフレームのバックグラウンドカラー。
 
 @item :width @var{width}, :height @var{height}
-The @code{:width} and @code{:height} keywords are used for scaling the
-image.  If only one of them is specified, the other one will be calculated
-so as to preserve the aspect ratio.  If both are specified, aspect ratio may
-not be preserved.
+キーワード@code{:width}と@code{:height}は、イメージのスケーリングに使用される。いずれか一方のみが指定された場合には、アスペクト比を保つために、もう一方は算出される。両方が指定された場合には、アスペクト比は保たれないかもしれない。
 
 @item :max-width @var{max-width}, :max-height @var{max-height}
-The @code{:max-width} and @code{:max-height} keywords are used for scaling
-if the size of the image of the image exceeds these values.  If
-@code{:width} is set it will have precedence over @code{max-width}, and if
-@code{:height} is set it will have precedence over @code{max-height}, but
-you can otherwise mix these keywords as you wish.  @code{:max-width} and
-@code{:max-height} will always preserve the aspect ratio.
+キーワード@code{:max-width}と@code{:max-height}は、イメージのサイズがこれらの値を超過した場合のスケーリングに使用される。@code{:width}がセットされた場合には@code{max-width}より優先され、@code{:height}がセットされた場合には@code{max-height}より優先されるだろうが、それ以外ではこれらのキーワードを望むように混交できる。@code{:max-width}と@code{:max-height}は常に、アスペクト比を保つであろう。
 
 @item :format @var{type}
-The value, @var{type}, should be a symbol specifying the type of the image
-data, as found in @code{image-format-suffixes}.  This is used when the image
-does not have an associated file name, to provide a hint to ImageMagick to
-help it detect the image type.
+値@var{type}は、@code{image-format-suffixes}で見られるような、イメージのタイプを指定するシンボルであること。これはイメージが関連付けられたファイル名をもたない際に、そのイメージタイプを検出する助けとなるヒントをImageMagickに提供する。
 
 @item :rotation @var{angle}
-Specifies a rotation angle in degrees.
+回転角度を度数で指定する。
 
 @item :index @var{frame}
 @c Doesn't work: http://debbugs.gnu.org/7978
-@xref{Multi-Frame Images}.
+@ref{Multi-Frame Images}を参照のこと。
 @end table
 
 @node Other Image Types
