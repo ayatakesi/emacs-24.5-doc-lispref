@@ -3073,59 +3073,41 @@ Focus}を参照)。
 @subsection XBM Images
 @cindex XBM
 
-  To use XBM format, specify @code{xbm} as the image type.  This image format
-doesn't require an external library, so images of this type are always
-supported.
+  XBMフォーマットを使用するには、イメージタイプとして@code{xbm}を指定します。このイメージフォーマットは外部ライブラリーを要求せず、このタイプのイメージは常にサポートされます。
 
-  Additional image properties supported for the @code{xbm} image type are:
+  @code{xbm}イメージタイプにたいして、追加のイメージプロパティがサポートされます:
 
 @table @code
 @item :foreground @var{foreground}
-The value, @var{foreground}, should be a string specifying the image
-foreground color, or @code{nil} for the default color.  This color is used
-for each pixel in the XBM that is 1.  The default is the frame's foreground
-color.
+値@var{foreground}はそのイメージのフォアグラウンドカラーを指定する文字列、またはデフォルトカラーを指定する@code{nil}であること。このカラーはXBM内の1の各ピクセルに使用される。デフォルトは、そのフレームのフォアグラウンドカラーである。
 
 @item :background @var{background}
-The value, @var{background}, should be a string specifying the image
-background color, or @code{nil} for the default color.  This color is used
-for each pixel in the XBM that is 0.  The default is the frame's background
-color.
+値@var{background}はそのイメージのバックグラウンドカラーを指定する文字列、またはデフォルトカラーを指定する@code{nil}であること。このカラーはXBM内の0の各ピクセルに使用される。デフォルトは、そのフレームのバックグラウンドカラーである。
 @end table
 
-  If you specify an XBM image using data within Emacs instead of an external
-file, use the following three properties:
+  外部ファイルのかわりに、Emacs内のデータを指定してXBMイメージを指定するには、以下の3つのプロパティを使用する:
 
 @table @code
 @item :data @var{data}
-The value, @var{data}, specifies the contents of the image.  There are three
-formats you can use for @var{data}:
+値@var{data}は、そのイメージのコンテンツを指定する。@var{data}として使用できる、3つのフォーマットが存在する:
 
 @itemize @bullet
 @item
-A vector of strings or bool-vectors, each specifying one line of the image.
-Do specify @code{:height} and @code{:width}.
+それぞれがイメージの1ラインを指定するような、文字列ベクターまたはboolベクター。@code{:height}と@code{:width}を指定する。
 
 @item
-A string containing the same byte sequence as an XBM file would contain.
-You must not specify @code{:height} and @code{:width} in this case, because
-omitting them is what indicates the data has the format of an XBM file.  The
-file contents specify the height and width of the image.
+文字列なら、XBMファイルが含むのと同じバイトシーケンスを含む。この場合は@code{:height}と@code{:width}を指定してはならない。これらを省略することが、そのデータがXBMファイルのフォーマットをもつことを示すからである。イメージの高さと幅は、ファイルのコンテンツにより指定される。
 
 @item
-A string or a bool-vector containing the bits of the image (plus perhaps
-some extra bits at the end that will not be used).  It should contain at
-least @var{width} * @code{height} bits.  In this case, you must specify
-@code{:height} and @code{:width}, both to indicate that the string contains
-just the bits rather than a whole XBM file, and to specify the size of the
-image.
+イメージのビット(もしかしたら終端の使用されない余分なビットを含む)を含む文字列、またはboolベクター。少なくとも@var{width} *
+@code{height}ビットを含むこと。この場合は、その文字列がXBMファイル全体ではなく、単にビットだけを含むことを示すとともに、そのイメージのサイズを指定するために、@code{:height}と@code{:width}を指定しなければならない。
 @end itemize
 
 @item :width @var{width}
-The value, @var{width}, specifies the width of the image, in pixels.
+値@var{width}は、ピクセル単位でイメージの幅を指定する。
 
 @item :height @var{height}
-The value, @var{height}, specifies the height of the image, in pixels.
+値@var{height}は、ピクセル単位でイメージの高さを指定する。
 @end table
 
 @node XPM Images
