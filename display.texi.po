@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-04-09 11:22+0900\n"
+"PO-Revision-Date: 2019-04-10 23:45+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -8227,60 +8227,60 @@ msgstr "イメージタイプ@code{tiff}。@code{:index}プロパティをサポ
 #: display.texi.orig:4936
 #, no-wrap
 msgid "define image"
-msgstr ""
+msgstr "define image"
 
 #. type: Plain text
 #: display.texi.orig:4940
 msgid "The functions @code{create-image}, @code{defimage} and @code{find-image} provide convenient ways to create image descriptors."
-msgstr ""
+msgstr "関数@code{create-image}、@code{defimage}、@code{find-image}はイメージディスクリプタを作成するための便利な手段を提供します。"
 
 #. type: defun
 #: display.texi.orig:4941
 #, no-wrap
 msgid "create-image file-or-data &optional type data-p &rest props"
-msgstr ""
+msgstr "create-image file-or-data &optional type data-p &rest props"
 
 #. type: defun
 #: display.texi.orig:4946
 msgid "This function creates and returns an image descriptor which uses the data in @var{file-or-data}.  @var{file-or-data} can be a file name or a string containing the image data; @var{data-p} should be @code{nil} for the former case, non-@code{nil} for the latter case."
-msgstr ""
+msgstr "この関数は、@var{file-or-data}内のデータを使用するイメージディスクリプタを作成してリターンする。@var{file-or-data}はファイル名、またはイメージデータを含む文字列を指定できる。前者の場合@var{data-p}は@code{nil}、後者なら非@code{nil}であること。"
 
 #. type: defun
 #: display.texi.orig:4951
 msgid "The optional argument @var{type} is a symbol specifying the image type.  If @var{type} is omitted or @code{nil}, @code{create-image} tries to determine the image type from the file's first few bytes, or else from the file's name."
-msgstr ""
+msgstr "オプション引数@var{type}は、イメージタイプを指定するシンボルである。@var{type}が省略または@code{nil}なら、@code{create-image}はファイル先頭の数バイト、またはファイル名からイメージタイプの判断を試みる。"
 
 #. type: defun
 #: display.texi.orig:4954
 msgid "The remaining arguments, @var{props}, specify additional image properties---for example,"
-msgstr ""
+msgstr "残りの引数@var{props}は追加のイメージプロパティを指定する。たとえば、"
 
 #. type: example
 #: display.texi.orig:4958
 #, no-wrap
 msgid "(create-image \"foo.xpm\" 'xpm nil :heuristic-mask t)\n"
-msgstr ""
+msgstr "(create-image \"foo.xpm\" 'xpm nil :heuristic-mask t)\n"
 
 #. type: defun
 #: display.texi.orig:4962
 msgid "The function returns @code{nil} if images of this type are not supported.  Otherwise it returns an image descriptor."
-msgstr ""
+msgstr "このタイプのイメージがサポートされていなければ、この関数は@code{nil}、それ以外ならイメージディスクリプタをリターンする。"
 
 #. type: defmac
 #: display.texi.orig:4964
 #, no-wrap
 msgid "defimage symbol specs &optional doc"
-msgstr ""
+msgstr "defimage symbol specs &optional doc"
 
 #. type: defmac
 #: display.texi.orig:4968
 msgid "This macro defines @var{symbol} as an image name.  The arguments @var{specs} is a list which specifies how to display the image.  The third argument, @var{doc}, is an optional documentation string."
-msgstr ""
+msgstr "このマクロは、イメージマクロとして@var{symbol}を定義する。引数@var{specs}は、そのイメージの表示方法を指定するリストである。3つ目の引数@var{doc}は、オプションのドキュメント文字列である。"
 
 #. type: defmac
 #: display.texi.orig:4976
 msgid "Each argument in @var{specs} has the form of a property list, and each one should specify at least the @code{:type} property and either the @code{:file} or the @code{:data} property.  The value of @code{:type} should be a symbol specifying the image type, the value of @code{:file} is the file to load the image from, and the value of @code{:data} is a string containing the actual image data.  Here is an example:"
-msgstr ""
+msgstr "@var{specs}内の各要素はプロパティリストの形式をもち、それぞれが少なくとも@code{:type}プロパティと、@code{:file}か@code{:data}いずれかのプロパティをもつべきである。@code{:type}の値はイメージタイプを指定するシンボル、@code{:file}の値はイメージをロードするファイル、@code{:data}の値は実際のイメージデータを含む文字列であること。以下は例である:"
 
 #. type: example
 #: display.texi.orig:4981
@@ -8290,90 +8290,93 @@ msgid ""
 "  ((:type xpm :file \"~/test1.xpm\")\n"
 "   (:type xbm :file \"~/test1.xbm\")))\n"
 msgstr ""
+"(defimage test-image\n"
+"  ((:type xpm :file \"~/test1.xpm\")\n"
+"   (:type xbm :file \"~/test1.xbm\")))\n"
 
 #. type: defmac
 #: display.texi.orig:4987
 msgid "@code{defimage} tests each argument, one by one, to see if it is usable---that is, if the type is supported and the file exists.  The first usable argument is used to make an image descriptor which is stored in @var{symbol}."
-msgstr ""
+msgstr "@code{defimage}はそれが使用可能か、つまりそのタイプがサポートされているかとファイルが存在するかを確認するために、各要素を1つずつテストする。最初に使用可能な引数が、@var{symbol}内に格納するイメージディスクリプタを作成するために使用される。"
 
 #. type: defmac
 #: display.texi.orig:4990
 msgid "If none of the alternatives will work, then @var{symbol} is defined as @code{nil}."
-msgstr ""
+msgstr "機能する候補がなければ、@var{symbol}は@code{nil}として定義される。"
 
 #. type: defun
 #: display.texi.orig:4992
 #, no-wrap
 msgid "find-image specs"
-msgstr ""
+msgstr "find-image specs"
 
 #. type: defun
 #: display.texi.orig:4995
 msgid "This function provides a convenient way to find an image satisfying one of a list of image specifications @var{specs}."
-msgstr ""
+msgstr "この関数は、イメージ仕様@var{specs}のリストの1つを満足するイメージを探す、便利な手段を提供する。"
 
 #. type: defun
 #: display.texi.orig:5005
 msgid "Each specification in @var{specs} is a property list with contents depending on image type.  All specifications must at least contain the properties @code{:type @var{type}} and either @w{@code{:file @var{file}}} or @w{@code{:data @var{data}}}, where @var{type} is a symbol specifying the image type, e.g., @code{xbm}, @var{file} is the file to load the image from, and @var{data} is a string containing the actual image data.  The first specification in the list whose @var{type} is supported, and @var{file} exists, is used to construct the image specification to be returned.  If no specification is satisfied, @code{nil} is returned."
-msgstr ""
+msgstr "@var{specs}内の各仕様は、イメージタイプに応じた内容のプロパティリストである。すべての仕様は少なくとも@code{:type @var{type}}、および@w{@code{:file @var{file}}}か@w{@code{:data @var{data}}}いずれかのプロパティを含まなければならない。ここで@var{type}は@code{xbm}のようにイメージタイプを指定するシンボル、@var{file}はイメージをロードするファイル、@var{data}は実際のイメージデータを含む文字列である。このリスト内で@var{type}がサポートされていて、かつ@var{file}が存在する最初の仕様は、リターンされるイメージ仕様の構築に使用される。満足する仕様がなければ、@code{nil}がリターンされる。"
 
 #. type: defun
 #: display.texi.orig:5007
 msgid "The image is looked for in @code{image-load-path}."
-msgstr ""
+msgstr "イメージは、@code{image-load-path}内で検索される。"
 
 #. type: defvar
 #: display.texi.orig:5009
 #, no-wrap
 msgid "image-load-path"
-msgstr ""
+msgstr "image-load-path"
 
 #. type: defvar
 #: display.texi.orig:5015
 msgid "This variable's value is a list of locations in which to search for image files.  If an element is a string or a variable symbol whose value is a string, the string is taken to be the name of a directory to search.  If an element is a variable symbol whose value is a list, that is taken to be a list of directory names to search."
-msgstr ""
+msgstr "この変数の値は、イメージファイルを検索する場所のリストである。要素が文字列、または値が文字列であるような変数シンボルなら、その文字列は検索を行うディレクトリーとされる。値がリストであるような変数シンボルの場合、それは検索を行うディレクトリーのリストとされる。"
 
 #. type: defvar
 #: display.texi.orig:5024
 msgid "The default is to search in the @file{images} subdirectory of the directory specified by @code{data-directory}, then the directory specified by @code{data-directory}, and finally in the directories in @code{load-path}.  Subdirectories are not automatically included in the search, so if you put an image file in a subdirectory, you have to supply the subdirectory name explicitly.  For example, to find the image @file{images/foo/bar.xpm} within @code{data-directory}, you should specify the image as follows:"
-msgstr ""
+msgstr "デフォルトでは@code{data-directory}で指定されたディレクトリーのサブディレクトリー@file{images}、次に@code{data-directory}で指定されたディレクトリー、最後に@code{load-path}で指定されたディレクトリー内を検索する。サブディレクトリーは自動的には検索に含まれないので、イメージファイルをサブディレクトリー内に配置した場合は、サブディレクトリー名を明示的に与える必要がある。たとえば@code{data-directory}内でイメージ@file{images/foo/bar.xpm}を見つけるには、以下のようにそのイメージを指定すること:"
 
 #. type: example
 #: display.texi.orig:5027
 #, no-wrap
 msgid "(defimage foo-image '((:type xpm :file \"foo/bar.xpm\")))\n"
-msgstr ""
+msgstr "(defimage foo-image '((:type xpm :file \"foo/bar.xpm\")))\n"
 
 #. type: defun
 #: display.texi.orig:5030
 #, no-wrap
 msgid "image-load-path-for-library library image &optional path no-error"
-msgstr ""
+msgstr "image-load-path-for-library library image &optional path no-error"
 
 #. type: defun
 #: display.texi.orig:5033
 msgid "This function returns a suitable search path for images used by the Lisp package @var{library}."
-msgstr ""
+msgstr "この関数は、Lispパッケージ@var{library}により使用されるイメージにたいして、適切な検索パスをリターンする。"
 
 #. type: defun
 #: display.texi.orig:5040
 msgid "The function searches for @var{image} first using @code{image-load-path}, excluding @file{@code{data-directory}/images}, and then in @code{load-path}, followed by a path suitable for @var{library}, which includes @file{../../etc/images} and @file{../etc/images} relative to the library file itself, and finally in @file{@code{data-directory}/images}."
-msgstr ""
+msgstr "この関数はまず@code{image-load-path}(@file{@code{data-directory}/images}を除外)を使用し、次に@code{load-path}の後に@var{library}にとって適切なパス(ライブラリーファイル自身にたいする相対パス@file{../../etc/images}と@file{../etc/images}を含む)を補い、最後に@file{@code{data-directory}/images}から@var{image}を検索する。"
 
 #. type: defun
 #: display.texi.orig:5045
 msgid "Then this function returns a list of directories which contains first the directory in which @var{image} was found, followed by the value of @code{load-path}.  If @var{path} is given, it is used instead of @code{load-path}."
-msgstr ""
+msgstr "その後にこの関数は、先頭に@var{image}が見つかったディレクトリー、その後に@code{load-path}の値が続く、ディレクトリーのリストをリターンする。@var{path}が与えられた場合は、それを@code{load-path}のかわりに使用する。"
 
 #. type: defun
 #: display.texi.orig:5049
 msgid "If @var{no-error} is non-@code{nil} and a suitable path can't be found, don't signal an error.  Instead, return a list of directories as before, except that @code{nil} appears in place of the image directory."
-msgstr ""
+msgstr "@var{no-error}が非@code{nil}で、かつ適切なパスが見つからない場合に、エラーをシグナルしない。かわりに前記のディレクトリーリストをリターンするが、イメージのディレクトリーの箇所に@code{nil}が出現する点が異なる。"
 
 #. type: defun
 #: display.texi.orig:5051
 msgid "Here is an example of using @code{image-load-path-for-library}:"
-msgstr ""
+msgstr "以下は@code{image-load-path-for-library}の使用例である:"
 
 #. type: example
 #: display.texi.orig:5059
@@ -8386,6 +8389,12 @@ msgid ""
 "                              image-load-path)))\n"
 "  (mh-tool-bar-folder-buttons-init))\n"
 msgstr ""
+"(defvar image-load-path) ; shush compiler\n"
+"(let* ((load-path (image-load-path-for-library\n"
+"                    \"mh-e\" \"mh-logo.xpm\"))\n"
+"       (image-load-path (cons (car load-path)\n"
+"                              image-load-path)))\n"
+"  (mh-tool-bar-folder-buttons-init))\n"
 
 #. type: cindex
 #: display.texi.orig:5064
