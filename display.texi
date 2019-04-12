@@ -3569,68 +3569,56 @@ Lockモードにより割り当てられたフェイス)、そのボタンのフ
 @subsection Manipulating Buttons
 @cindex manipulating buttons
 
-These are functions for getting and setting properties of buttons.  Often
-these are used by a button's invocation function to determine what to do.
+ボタンのプロパティの取得、およびセットを行う関数が存在します。これらは何を行うかを判断するために、ボタンが呼び出す価数によりよく使用される関数です。
 
-Where a @var{button} parameter is specified, it means an object referring to
-a specific button, either an overlay (for overlay buttons), or a
-buffer-position or marker (for text property buttons).  Such an object is
-passed as the first argument to a button's invocation function when it is
-invoked.
+@var{button}パラメーターが指定された場合は、オーバーレイ(オーバーレイボタンの場合)、またはバッファー位置やマーカー(テキストプロパティボタンの場合)いずれかの、特定のボタンを参照するオブジェクトを意味します。そのようなオブジェクトは、ボタンが関数を呼び出す際に1つ目の引数として渡されます。
 
 @defun button-start button
-Return the position at which @var{button} starts.
+@var{button}が開始される位置をリターンする。
 @end defun
 
 @defun button-end button
-Return the position at which @var{button} ends.
+@var{button}が終了する位置をリターンする。
 @end defun
 
 @defun button-get button prop
-Get the property of button @var{button} named @var{prop}.
+ボタン@var{button}の@var{prop}という名前のプロパティを取得する。
 @end defun
 
 @defun button-put button prop val
-Set @var{button}'s @var{prop} property to @var{val}.
+@var{button}の@var{prop}プロパティに@var{val}をセットする。
 @end defun
 
 @defun button-activate button &optional use-mouse-action
-Call @var{button}'s @code{action} property (i.e., invoke the function that
-is the value of that property, passing it the single argument
-@var{button}).  If @var{use-mouse-action} is non-@code{nil}, try to invoke
-the button's @code{mouse-action} property instead of @code{action}; if the
-button has no @code{mouse-action} property, use @code{action} as normal.
+@var{button}の@code{action}プロパティを呼び出す(単一の引数@var{button}を渡して、そのプロパティの値である関数を呼び出す)。@var{use-mouse-action}が非@code{nil}なら、@code{action}のかわりにそのボタンの@code{mouse-action}プロパティの呼び出しを試みる。ボタンが@code{mouse-action}プロパティをもたなければ、通常どおり@code{action}を使用する。
 @end defun
 
 @defun button-label button
-Return @var{button}'s text label.
+@var{button}のテキストラベルをリターンする。
 @end defun
 
 @defun button-type button
-Return @var{button}'s button-type.
+@var{button}のボタンタイプをリターンする。
 @end defun
 
 @defun button-has-type-p button type
-Return @code{t} if @var{button} has button-type @var{type}, or one of
-@var{type}'s subtypes.
+@var{button}がボタンタイプ@var{type}、または@var{type}のsubtypeのいずれかをもつなら@code{t}をリターンする。
 @end defun
 
 @defun button-at pos
-Return the button at position @var{pos} in the current buffer, or
-@code{nil}.  If the button at @var{pos} is a text property button, the
-return value is a marker pointing to @var{pos}.
+カレントバッファー内の位置@var{pos}にあるボタン、または@code{nil}をリターンする。@var{pos}にあるボタンがテキストプロパティボタンなら、リターン値は@var{pos}を指すマーカーとなる。
 @end defun
 
 @defun button-type-put type prop val
-Set the button-type @var{type}'s @var{prop} property to @var{val}.
+ボタンタイプ@var{type}の@var{prop}プロパティに、@var{val}をセットする。
 @end defun
 
 @defun button-type-get type prop
-Get the property of button-type @var{type} named @var{prop}.
+ボタンタイプ@var{type}の、@var{prop}という名前のプロパティを取得する。
 @end defun
 
 @defun button-type-subtype-p type supertype
-Return @code{t} if button-type @var{type} is a subtype of @var{supertype}.
+ボタンタイプ@var{type}が@var{supertype}のsubtypeなら、@code{t}をリターンする。
 @end defun
 
 @node Button Buffer Commands
