@@ -3534,55 +3534,35 @@ value}ペアーのシーケンスを形成する。これは、そのタイプ�
 @subsection Making Buttons
 @cindex making buttons
 
-  Buttons are associated with a region of text, using an overlay or text
-properties to hold button-specific information, all of which are initialized
-from the button's type (which defaults to the built-in button type
-@code{button}).  Like all Emacs text, the appearance of the button is
-governed by the @code{face} property; by default (via the @code{face}
-property inherited from the @code{button} button-type)  this is a simple
-underline, like a typical web-page link.
+  ボタンは、ボタン固有の情報を保持するために、オーバーレイプロパティかテキストプロパティを使用して、テキストのリージョンに関連付けられます。これらはすべて、そのボタンのタイプ(デフォルトはビルトインのボタンタイプ@code{button})から初期化されます。すべてのEmacsテキストと同様、ボタンの外観は@code{face}プロパティにより制御されます。(ボタンタイプ@code{button}から継承された@code{face}プロパティを通じることにより)デフォルトでは典型的なウェブページリンクのような、シンプルなアンダーラインです。
 
-  For convenience, there are two sorts of button-creation functions, those
-that add button properties to an existing region of a buffer, called
-@code{make-...button}, and those that also insert the button text, called
-@code{insert-...button}.
+  簡便さのために2種類のボタン作成関数があります。1つはバッファーの既存リージョンにボタンプロパティを追加する、@code{make-...button}と呼ばれる関数と、ボタンテキストを挿入する@code{insert-...button}と呼ばれる関数です。
 
-  The button-creation functions all take the @code{&rest} argument
-@var{properties}, which should be a sequence of @var{property value} pairs,
-specifying properties to add to the button; see @ref{Button Properties}.  In
-addition, the keyword argument @code{:type} may be used to specify a
-button-type from which to inherit other properties; see @ref{Button Types}.
-Any properties not explicitly specified during creation will be inherited
-from the button's type (if the type defines such a property).
+  すべてのボタン作成関数は、@code{&rest}引数の@var{properties}を受け取ります。これはボタンに追加するプロパティを指定する、@var{property
+value}ペアーのシーケンスである必要があります。@ref{Button
+Properties}を参照してください。これに加えて、他のプロパティの継承元となるボタンタイプの指定に、キーワード引数@code{:type}を使用できます。@ref{Button
+Types}を参照してください。作成の間に明示的に指定されなかったプロパティは、(そのタイプがそのようなプロパティを定義していれば)そのボタンのタイプから継承されます。
 
-  The following functions add a button using an overlay (@pxref{Overlays}) to
-hold the button properties:
+  以下の関数は、ボタンプロパティを保持するために、オーバーレイを使用してボタンを追加します(@ref{Overlays}を参照)。
 
 @defun make-button beg end &rest properties
-This makes a button from @var{beg} to @var{end} in the current buffer, and
-returns it.
+これはカレントバッファー内の@var{beg}から@var{end}にボタンを作成して、それをリターンする。
 @end defun
 
 @defun insert-button label &rest properties
-This insert a button with the label @var{label} at point, and returns it.
+これはポイント位置にラベル@var{label}のボタンを挿入して、それをリターンする。
 @end defun
 
-  The following functions are similar, but using text properties (@pxref{Text
-Properties}) to hold the button properties.  Such buttons do not add markers
-to the buffer, so editing in the buffer does not slow down if there is an
-extremely large numbers of buttons.  However, if there is an existing face
-text property on the text (e.g., a face assigned by Font Lock mode), the
-button face may not be visible.  Both of these functions return the starting
-position of the new button.
+  以下の関数も同様ですが、ボタンプロパティを保持するためにテキストプロパティを使用します(@ref{Text
+Properties}を参照)。この種のボタンはバッファーにマーカーを追加せず、非常に多数のボタンが存在しても、バッファーでの編集が低速になることはありません。しかしそのテキストに既存のfaceテキストプロパティが存在する場合(たとえばFont
+Lockモードにより割り当てられたフェイス)、そのボタンのフェイスは可視にならないかもしれません。これらの関数はいずれも、新たなボタンの開始位置をリターンします。
 
 @defun make-text-button beg end &rest properties
-This makes a button from @var{beg} to @var{end} in the current buffer, using
-text properties.
+これはテキストプロパティを使用して、カレントバッファー内の@var{beg}から@var{end}にボタンを作成する。
 @end defun
 
 @defun insert-text-button label &rest properties
-This inserts a button with the label @var{label} at point, using text
-properties.
+これはテキストプロパティを使用して、ポイント位置にラベル@var{label}のボタンを挿入する。
 @end defun
 
 @node Manipulating Buttons
