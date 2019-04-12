@@ -3516,28 +3516,19 @@ Text}を参照のこと。
 @subsection Button Types
 @cindex button types
 
-  Every button has a @dfn{button type}, which defines default values for the
-button's properties.  Button types are arranged in a hierarchy, with
-specialized types inheriting from more general types, so that it's easy to
-define special-purpose types of buttons for specific tasks.
+  すべてのボタンは、そのボタンのプロパティにたいするデフォルト値を定義する、@dfn{ボタンタイプ(button
+type)}をもっています。ボタンタイプは、より汎用的なタイプから特化したタイプへと継承される階層構造で構成されており、特定のタスクにたいしては、特殊用途のボタンを簡単に定義できます。
 
 @defun define-button-type name &rest properties
-Define a `button type' called @var{name} (a symbol).  The remaining
-arguments form a sequence of @var{property value} pairs, specifying default
-property values for buttons with this type (a button's type may be set by
-giving it a @code{type} property when creating the button, using the
-@code{:type} keyword argument).
+@var{name}(シンボル)と呼ばれるボタンタイプを定義する。残りの引数は@var{property
+value}ペアーのシーケンスを形成する。これは、そのタイプのボタンにたいする、デフォルトのプロパティ値を指定する(ボタンのタイプはキーワード引数@code{:type}を使用して、ボタン作成時にそれを@code{type}プロパティに与えることによりセット可能)。
 
-In addition, the keyword argument @code{:supertype} may be used to specify a
-button-type from which @var{name} inherits its default property values.
-Note that this inheritance happens only when @var{name} is defined;
-subsequent changes to a supertype are not reflected in its subtypes.
+加えて、@var{name}がデフォルトプロパティ値を継承するボタンタイプ指定するために、キーワード引数@code{:supertype}を使用できる。この継承は、@var{name}の定義時のみ発生することに注意。その後にsupertypeに行われた変更は、そのsubtypeには反映されない。
 @end defun
 
-  Using @code{define-button-type} to define default properties for buttons is
-not necessary---buttons without any specified type use the built-in
-button-type @code{button}---but it is encouraged, since doing so usually
-makes the resulting code clearer and more efficient.
+  @code{define-button-type}を使用してボタンのデフォルトプロパティを定義するのは必須ではありません ---
+特定のタイプをもたないボタンはビルトインのボタンタイプ@code{button}を使用します ---
+が推奨されません。これを行うことにより通常はコードがより明快かつ効果的になるからです。
 
 @node Making Buttons
 @subsection Making Buttons
