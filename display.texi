@@ -3309,41 +3309,26 @@ Emacsがサポート可能な、残りのイメージタイプは以下のとお
 @subsection Showing Images
 @cindex show image
 
-  You can use an image descriptor by setting up the @code{display} property
-yourself, but it is easier to use the functions in this section.
+  自分で@code{display}プロパティをセットアップすることでイメージディスクリプタを使用できますが、このセクションの関数を使用するほうがより簡単です。
 
 @defun insert-image image &optional string area slice
-This function inserts @var{image} in the current buffer at point.  The value
-@var{image} should be an image descriptor; it could be a value returned by
-@code{create-image}, or the value of a symbol defined with @code{defimage}.
-The argument @var{string} specifies the text to put in the buffer to hold
-the image.  If it is omitted or @code{nil}, @code{insert-image} uses @code{"
-"} by default.
+この関数は、カレントバッファーのポイント位置に@var{image}を挿入する。@var{image}は、イメージディスクリプタであること。これは@code{create-image}によりリターンされた値、または@code{defimage}で定義されたシンボルの値かもしれない。引数@var{string}は、イメージを保持するためにバッファー内に配すテキストを指定する。これが省略または@code{nil}なら、@code{insert-image}はデフォルトで@code{"
+"}を使用する。
 
-The argument @var{area} specifies whether to put the image in a margin.  If
-it is @code{left-margin}, the image appears in the left margin;
-@code{right-margin} specifies the right margin.  If @var{area} is @code{nil}
-or omitted, the image is displayed at point within the buffer's text.
+引数@var{area}は、マージン内にイメージを置くかどうかを指定する。これが@code{left-margin}なら左マージンにイメージが表示され、@code{right-margin}なら右マージンを指定する。@var{area}が@code{nil}または省略された場合、イメージはバッファーのテキスト内のポイント位置に表示される。
 
-The argument @var{slice} specifies a slice of the image to insert.  If
-@var{slice} is @code{nil} or omitted the whole image is inserted.
-Otherwise, @var{slice} is a list @code{(@var{x} @var{y} @var{width}
-@var{height})} which specifies the @var{x} and @var{y} positions and
-@var{width} and @var{height} of the image area to insert.  Integer values
-are in units of pixels.  A floating-point number in the range 0.0--1.0
-stands for that fraction of the width or height of the entire image.
+引数@var{slice}は、挿入するイメージのスライスを指定する。@var{slice}が@code{nil}または省略された場合は、そのイメージ全体が挿入される。それ以外では、@var{slice}がリスト@code{(@var{x}
+@var{y} @var{width}
+@var{height})}なら@var{x}と@var{y}は位置、@var{width}と@var{height}は挿入するイメージの領域を指定する。整数値はピクセル単位。0.0から1.0までの浮動小数点数は、イメージ全体の幅または高さにたいする割合を指定する。
 
-Internally, this function inserts @var{string} in the buffer, and gives it a
-@code{display} property which specifies @var{image}.  @xref{Display
-Property}.
+内部的には、この関数はバッファー内に@var{string}を挿入して、@var{image}を指定する@code{display}プロパティにそれを渡す。@ref{Display
+Property}を参照のこと。
 @end defun
 
 @cindex slice, image
 @cindex image slice
 @defun insert-sliced-image image &optional string area rows cols
-This function inserts @var{image} in the current buffer at point, like
-@code{insert-image}, but splits the image into @var{rows}x@var{cols} equally
-sized slices.
+この関数は@code{insert-image}と同様、カレントバッファー内に@var{image}を挿入するが、イメージを@var{rows}✕@var{cols}の同一サイズのスライスに分割する。
 
 If an image is inserted ``sliced'', Emacs displays each slice as a separate
 image, and allow more intuitive scrolling up/down, instead of jumping
@@ -3361,10 +3346,7 @@ to the default.
 The argument @var{image} must be an image descriptor, perhaps returned by
 @code{create-image} or stored by @code{defimage}.
 
-The argument @var{area} specifies whether to put the image in a margin.  If
-it is @code{left-margin}, the image appears in the left margin;
-@code{right-margin} specifies the right margin.  If @var{area} is @code{nil}
-or omitted, the image is displayed at point within the buffer's text.
+引数@var{area}は、マージン内にイメージを置くかどうかを指定する。これが@code{left-margin}なら左マージンにイメージが表示され、@code{right-margin}なら右マージンを指定する。@var{area}が@code{nil}または省略された場合、イメージはバッファーのテキスト内のポイント位置に表示される。
 
 Internally, this function creates an overlay, and gives it a
 @code{before-string} property containing text that has a @code{display}
