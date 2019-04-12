@@ -74,36 +74,26 @@ Previous: <a href="Warning-Options.html#Warning-Options" accesskey="p" rel="prev
 <h4 class="subsection">37.5.4 Delayed Warnings</h4>
 <a name="index-delayed-warnings"></a>
 
-<p>Sometimes, you may wish to avoid showing a warning while a command is
-running, and only show it only after the end of the command.  You can use
-the variable <code>delayed-warnings-list</code> for this.
+<p>コマンド実行中には警告の表示を避けて、コマンドの終わりでのみ警告を表示したいことがあるかもしれません。これは、変数<code>delayed-warnings-list</code>により行うことができます。
 </p>
 <dl>
 <dt><a name="index-delayed_002dwarnings_002dlist"></a>Variable: <strong>delayed-warnings-list</strong></dt>
-<dd><p>The value of this variable is a list of warnings to be displayed after the
-current command has finished.  Each element must be a list
+<dd><p>この変数の値は、カレントのコマンド完了後に表示される警告のリストである。各要素は以下のようなリストでなければならない:
 </p>
 <div class="smallexample">
 <pre class="smallexample">(<var>type</var> <var>message</var> [<var>level</var> [<var>buffer-name</var>]])
 </pre></div>
 
-<p>with the same form, and the same meanings, as the argument list of
-<code>display-warning</code> (see <a href="Warning-Basics.html#Warning-Basics">Warning Basics</a>).  Immediately after running
-<code>post-command-hook</code> (see <a href="Command-Overview.html#Command-Overview">Command Overview</a>), the Emacs command loop
-displays all the warnings specified by this variable, then resets it to
-<code>nil</code>.
+<p>これらは、は<code>display-warning</code>の引数リストと同じ形式、同じ意味である(<a href="Warning-Basics.html#Warning-Basics">Warning Basics</a>を参照)。<code>post-command-hook</code>(<a href="Command-Overview.html#Command-Overview">Command Overview</a>を参照)の実行直後、Emacsのコマンドループはこの変数で指定されたすべての警告を表示してから、変数を<code>nil</code>にリセットする。
 </p></dd></dl>
 
-<p>Programs which need to further customize the delayed warnings mechanism can
-change the variable <code>delayed-warnings-hook</code>:
+<p>遅延警告メカニズムをよりカスタマイズする必要があるプログラムは、変数<code>delayed-warnings-hook</code>を変更することができます:
 </p>
 <dl>
 <dt><a name="index-delayed_002dwarnings_002dhook"></a>Variable: <strong>delayed-warnings-hook</strong></dt>
-<dd><p>This is a normal hook which is run by the Emacs command loop, after
-<code>post-command-hook</code>, in order to to process and display delayed
-warnings.
+<dd><p>これは遅延警告を処理して表示するために、<code>post-command-hook</code>の後にEmacsコマンドループが実行する、ノーマルフックである。
 </p>
-<p>Its default value is a list of two functions:
+<p>デフォルト値は、2つの関数からなるリストである:
 </p>
 <div class="smallexample">
 <pre class="smallexample">(collapse-delayed-warnings display-delayed-warnings)
@@ -111,11 +101,7 @@ warnings.
 
 <a name="index-collapse_002ddelayed_002dwarnings"></a>
 <a name="index-display_002ddelayed_002dwarnings"></a>
-<p>The function <code>collapse-delayed-warnings</code> removes repeated entries from
-<code>delayed-warnings-list</code>.  The function <code>display-delayed-warnings</code>
-calls <code>display-warning</code> on each of the entries in
-<code>delayed-warnings-list</code>, in turn, and then sets
-<code>delayed-warnings-list</code> to <code>nil</code>.
+<p>関数<code>collapse-delayed-warnings</code>は、<code>delayed-warnings-list</code>から重複するエントリーを削除する。関数<code>display-delayed-warnings</code>は、<code>delayed-warnings-list</code>内の各要素にたいして順次<code>display-warning</code>を呼び出してから、<code>delayed-warnings-list</code>を<code>nil</code>にセットする。
 </p></dd></dl>
 
 

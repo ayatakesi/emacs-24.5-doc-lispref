@@ -3813,9 +3813,8 @@ ewocは作成時にカレントだったバッファー内のテキストを保�
 @node Abstract Display Example
 @subsection Abstract Display Example
 
-  Here is a simple example using functions of the ewoc package to implement a
-``color components display'', an area in a buffer that represents a vector
-of three integers (itself representing a 24-bit RGB value) in various ways.
+  以下は、3つの整数からなるベクターを表すバッファー内の領域である、``color components
+display''を、ewocパッケージ内の関数を使用して、さまざまな方法で実装するシンプルな例です。
 
 @example
 (setq colorcomp-ewoc nil
@@ -3842,8 +3841,8 @@ of three integers (itself representing a 24-bit RGB value) in various ways.
               "\n"))))
 
 (defun colorcomp (color)
-  "Allow fiddling with COLOR in a new buffer.
-The buffer is in Color Components mode."
+  "新たなバッファー内でCOLORの編集を許可する。
+そのバッファーはColor Componentsモードになる。"
   (interactive "sColor (name or #RGB or #RRGGBB): ")
   (when (string= "" color)
     (setq color "green"))
@@ -3872,10 +3871,8 @@ The buffer is in Color Components mode."
 @end example
 
 @cindex controller part, model/view/controller
-  This example can be extended to be a ``color selection widget'' (in other
-words, the controller part of the ``model/view/controller'' design paradigm)
-by defining commands to modify @code{colorcomp-data} and to ``finish'' the
-selection process, and a keymap to tie it all together conveniently.
+  この例は、@code{colorcomp-data}の変更して、選択プロセスを``完了''し、それらを互いに簡便に結ぶキーマップを定義することにより(別の言い方をすると``model/view/controller''デザインパラダイムのcontroller部分)、``color
+selection widget''への拡張が可能です。
 
 @smallexample
 (defun colorcomp-mod (index limit delta)
@@ -3895,8 +3892,8 @@ selection process, and a keymap to tie it all together conveniently.
 (defun colorcomp-B-less () (interactive) (colorcomp-mod 2 0 -1))
 
 (defun colorcomp-copy-as-kill-and-exit ()
-  "Copy the color components into the kill ring and kill the buffer.
-The string is formatted #RRGGBB (hash followed by six hex digits)."
+  "color componentsをkillリングにコピーしてバッファーをkill。
+文字列は#RRGGBB(6桁16進が付加されたハッシュ)にフォーマットされる。"
   (interactive)
   (kill-new (format "#%02X%02X%02X"
                     (aref colorcomp-data 0)
@@ -3917,9 +3914,7 @@ The string is formatted #RRGGBB (hash followed by six hex digits)."
         m))
 @end smallexample
 
-Note that we never modify the data in each node, which is fixed when the
-ewoc is created to be either @code{nil} or an index into the vector
-@code{colorcomp-data}, the actual color components.
+わたしたちが決して各ノード内のデータを変更していないことに注意してください。それらのデータはewoc作成時に@code{nil}、または実際のカラーコンポーネントであるベクター@code{colorcomp-data}にたいするインデックスに固定されています。
 
 @node Blinking
 @section Blinking Parentheses

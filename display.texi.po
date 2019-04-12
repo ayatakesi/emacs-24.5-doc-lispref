@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-04-12 17:08+0900\n"
+"PO-Revision-Date: 2019-04-12 17:49+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -9682,7 +9682,7 @@ msgstr "これは@var{ewoc}内の各データ要素にたいして@var{map-funct
 #. type: Plain text
 #: display.texi.orig:5849
 msgid "Here is a simple example using functions of the ewoc package to implement a ``color components display'', an area in a buffer that represents a vector of three integers (itself representing a 24-bit RGB value) in various ways."
-msgstr ""
+msgstr "以下は、3つの整数からなるベクターを表すバッファー内の領域である、``color components display''を、ewocパッケージ内の関数を使用して、さまざまな方法で実装するシンプルな例です。"
 
 #. type: example
 #: display.texi.orig:5855
@@ -9694,6 +9694,11 @@ msgid ""
 "      colorcomp-labels [\"Red\" \"Green\" \"Blue\"])\n"
 "\n"
 msgstr ""
+"(setq colorcomp-ewoc nil\n"
+"      colorcomp-data nil\n"
+"      colorcomp-mode-map nil\n"
+"      colorcomp-labels [\"Red\" \"Green\" \"Blue\"])\n"
+"\n"
 
 #. type: example
 #: display.texi.orig:5873
@@ -9718,6 +9723,24 @@ msgid ""
 "              \"\\n\"))))\n"
 "\n"
 msgstr ""
+"(defun colorcomp-pp (data)\n"
+"  (if data\n"
+"      (let ((comp (aref colorcomp-data data)))\n"
+"        (insert (aref colorcomp-labels data) \"\\t: #x\"\n"
+"                (format \"%02X\" comp) \" \"\n"
+"                (make-string (ash comp -2) ?#) \"\\n\"))\n"
+"    (let ((cstr (format \"#%02X%02X%02X\"\n"
+"                        (aref colorcomp-data 0)\n"
+"                        (aref colorcomp-data 1)\n"
+"                        (aref colorcomp-data 2)))\n"
+"          (samp \" (sample text) \"))\n"
+"      (insert \"Color\\t: \"\n"
+"              (propertize samp 'face\n"
+"                          `(foreground-color . ,cstr))\n"
+"              (propertize samp 'face\n"
+"                          `(background-color . ,cstr))\n"
+"              \"\\n\"))))\n"
+"\n"
 
 #. type: example
 #: display.texi.orig:5902
@@ -9752,17 +9775,45 @@ msgid ""
 "    (ewoc-enter-last ewoc 2)\n"
 "    (ewoc-enter-last ewoc nil)))\n"
 msgstr ""
+"(defun colorcomp (color)\n"
+"  \"新たなバッファー内でCOLORの編集を許可する。\n"
+"そのバッファーはColor Componentsモードになる。\"\n"
+"  (interactive \"sColor (name or #RGB or #RRGGBB): \")\n"
+"  (when (string= \"\" color)\n"
+"    (setq color \"green\"))\n"
+"  (unless (color-values color)\n"
+"    (error \"No such color: %S\" color))\n"
+"  (switch-to-buffer\n"
+"   (generate-new-buffer (format \"originally: %s\" color)))\n"
+"  (kill-all-local-variables)\n"
+"  (setq major-mode 'colorcomp-mode\n"
+"        mode-name \"Color Components\")\n"
+"  (use-local-map colorcomp-mode-map)\n"
+"  (erase-buffer)\n"
+"  (buffer-disable-undo)\n"
+"  (let ((data (apply 'vector (mapcar (lambda (n) (ash n -8))\n"
+"                                     (color-values color))))\n"
+"        (ewoc (ewoc-create 'colorcomp-pp\n"
+"                           \"\\nColor Components\\n\\n\"\n"
+"                           (substitute-command-keys\n"
+"                            \"\\n\\\\@{colorcomp-mode-map@}\"))))\n"
+"    (set (make-local-variable 'colorcomp-data) data)\n"
+"    (set (make-local-variable 'colorcomp-ewoc) ewoc)\n"
+"    (ewoc-enter-last ewoc 0)\n"
+"    (ewoc-enter-last ewoc 1)\n"
+"    (ewoc-enter-last ewoc 2)\n"
+"    (ewoc-enter-last ewoc nil)))\n"
 
 #. type: cindex
 #: display.texi.orig:5904
 #, no-wrap
 msgid "controller part, model/view/controller"
-msgstr ""
+msgstr "controller part, model/view/controller"
 
 #. type: Plain text
 #: display.texi.orig:5910
 msgid "This example can be extended to be a ``color selection widget'' (in other words, the controller part of the ``model/view/controller'' design paradigm) by defining commands to modify @code{colorcomp-data} and to ``finish'' the selection process, and a keymap to tie it all together conveniently."
-msgstr ""
+msgstr "この例は、@code{colorcomp-data}の変更して、選択プロセスを``完了''し、それらを互いに簡便に結ぶキーマップを定義することにより(別の言い方をすると``model/view/controller''デザインパラダイムのcontroller部分)、``color selection widget''への拡張が可能です。"
 
 #. type: smallexample
 #: display.texi.orig:5920
@@ -9778,6 +9829,15 @@ msgid ""
 "     (ewoc-nth colorcomp-ewoc -1))))\n"
 "\n"
 msgstr ""
+"(defun colorcomp-mod (index limit delta)\n"
+"  (let ((cur (aref colorcomp-data index)))\n"
+"    (unless (= limit cur)\n"
+"      (aset colorcomp-data index (+ cur delta)))\n"
+"    (ewoc-invalidate\n"
+"     colorcomp-ewoc\n"
+"     (ewoc-nth colorcomp-ewoc index)\n"
+"     (ewoc-nth colorcomp-ewoc -1))))\n"
+"\n"
 
 #. type: smallexample
 #: display.texi.orig:5927
@@ -9791,6 +9851,13 @@ msgid ""
 "(defun colorcomp-B-less () (interactive) (colorcomp-mod 2 0 -1))\n"
 "\n"
 msgstr ""
+"(defun colorcomp-R-more () (interactive) (colorcomp-mod 0 255 1))\n"
+"(defun colorcomp-G-more () (interactive) (colorcomp-mod 1 255 1))\n"
+"(defun colorcomp-B-more () (interactive) (colorcomp-mod 2 255 1))\n"
+"(defun colorcomp-R-less () (interactive) (colorcomp-mod 0 0 -1))\n"
+"(defun colorcomp-G-less () (interactive) (colorcomp-mod 1 0 -1))\n"
+"(defun colorcomp-B-less () (interactive) (colorcomp-mod 2 0 -1))\n"
+"\n"
 
 #. type: smallexample
 #: display.texi.orig:5937
@@ -9807,6 +9874,16 @@ msgid ""
 "  (kill-buffer nil))\n"
 "\n"
 msgstr ""
+"(defun colorcomp-copy-as-kill-and-exit ()\n"
+"  \"color componentsをkillリングにコピーしてバッファーをkill。\n"
+"文字列は#RRGGBB(6桁16進が付加されたハッシュ)にフォーマットされる。\"\n"
+"  (interactive)\n"
+"  (kill-new (format \"#%02X%02X%02X\"\n"
+"                    (aref colorcomp-data 0)\n"
+"                    (aref colorcomp-data 1)\n"
+"                    (aref colorcomp-data 2)))\n"
+"  (kill-buffer nil))\n"
+"\n"
 
 #. type: smallexample
 #: display.texi.orig:5949
@@ -9824,11 +9901,22 @@ msgid ""
 "        (define-key m \" \" 'colorcomp-copy-as-kill-and-exit)\n"
 "        m))\n"
 msgstr ""
+"(setq colorcomp-mode-map\n"
+"      (let ((m (make-sparse-keymap)))\n"
+"        (suppress-keymap m)\n"
+"        (define-key m \"i\" 'colorcomp-R-less)\n"
+"        (define-key m \"o\" 'colorcomp-R-more)\n"
+"        (define-key m \"k\" 'colorcomp-G-less)\n"
+"        (define-key m \"l\" 'colorcomp-G-more)\n"
+"        (define-key m \",\" 'colorcomp-B-less)\n"
+"        (define-key m \".\" 'colorcomp-B-more)\n"
+"        (define-key m \" \" 'colorcomp-copy-as-kill-and-exit)\n"
+"        m))\n"
 
 #. type: Plain text
 #: display.texi.orig:5954
 msgid "Note that we never modify the data in each node, which is fixed when the ewoc is created to be either @code{nil} or an index into the vector @code{colorcomp-data}, the actual color components."
-msgstr ""
+msgstr "わたしたちが決して各ノード内のデータを変更していないことに注意してください。それらのデータはewoc作成時に@code{nil}、または実際のカラーコンポーネントであるベクター@code{colorcomp-data}にたいするインデックスに固定されています。"
 
 #. type: section
 #: display.texi.orig:5956
