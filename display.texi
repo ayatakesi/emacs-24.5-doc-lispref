@@ -3330,65 +3330,40 @@ Property}を参照のこと。
 @defun insert-sliced-image image &optional string area rows cols
 この関数は@code{insert-image}と同様、カレントバッファー内に@var{image}を挿入するが、イメージを@var{rows}✕@var{cols}の同一サイズのスライスに分割する。
 
-If an image is inserted ``sliced'', Emacs displays each slice as a separate
-image, and allow more intuitive scrolling up/down, instead of jumping
-up/down the entire image when paging through a buffer that displays (large)
-images.
+イメージが``スライス''されて挿入されると、Emacsは各スライスを個別のイメージとして表示して、(巨大な)イメージを表示するバッファーのページングの際、イメージ全体を上下にジャンプするのではなく、より直感的な上下スクロールが可能になる。
 @end defun
 
 @defun put-image image pos &optional string area
-This function puts image @var{image} in front of @var{pos} in the current
-buffer.  The argument @var{pos} should be an integer or a marker.  It
-specifies the buffer position where the image should appear.  The argument
-@var{string} specifies the text that should hold the image as an alternative
-to the default.
+この関数は、カレントバッファー内の@var{pos}の前に、イメージ@var{image}を配置する。引数@var{pos}は整数、またはマーカーであること。これは、イメージが表示されるべきバッファー位置を指定する。引数@var{string}は、代替として表示されるべきデフォルトのイメージを保持するテキストであること。
 
-The argument @var{image} must be an image descriptor, perhaps returned by
-@code{create-image} or stored by @code{defimage}.
+引数@var{image}はイメージディスクリプタでなければならず、それは@code{create-image}がリターンされたか、あるいは@code{defimage}により格納されたイメージディスクリプタかもしれない。
 
 引数@var{area}は、マージン内にイメージを置くかどうかを指定する。これが@code{left-margin}なら左マージンにイメージが表示され、@code{right-margin}なら右マージンを指定する。@var{area}が@code{nil}または省略された場合、イメージはバッファーのテキスト内のポイント位置に表示される。
 
-Internally, this function creates an overlay, and gives it a
-@code{before-string} property containing text that has a @code{display}
-property whose value is the image.  (Whew!)
+内部的には、この関数はオーバーレイを作成して、値がそのイメージであるような@code{display}プロパティをもつテキストを含む、@code{before-string}プロパティをそのオーバーレイに与えている(なんと!)。
 @end defun
 
 @defun remove-images start end &optional buffer
-This function removes images in @var{buffer} between positions @var{start}
-and @var{end}.  If @var{buffer} is omitted or @code{nil}, images are removed
-from the current buffer.
+この関数は、@var{buffer}の位置@var{start}と@var{end}の間のイメージを削除する。@var{buffer}が省略または@code{nil}なら、カレントバッファーからイメージを削除する。
 
-This removes only images that were put into @var{buffer} the way
-@code{put-image} does it, not images that were inserted with
-@code{insert-image} or in other ways.
+これは@code{put-image}が行う方法で@var{buffer}に配置されたイメージだけを削除し、@code{insert-image}や他の方法で挿入されたイメージは削除しない。
 @end defun
 
 @defun image-size spec &optional pixels frame
 @cindex size of image
-This function returns the size of an image as a pair @w{@code{(@var{width}
-. @var{height})}}.  @var{spec} is an image specification.  @var{pixels}
-non-@code{nil} means return sizes measured in pixels, otherwise return sizes
-measured in canonical character units (fractions of the width/height of the
-frame's default font).  @var{frame} is the frame on which the image will be
-displayed.  @var{frame} null or omitted means use the selected frame
-(@pxref{Input Focus}).
+この関数は、ペアー@w{@code{(@var{width}
+.
+@var{height})}}として、イメージのサイズをリターンする。@var{spec}はイメージ仕様である。@var{pixels}が非@code{nil}ならピクセル単位、それ以外ならcanonicalな文字単位(そのフレームのデフォルトフォントの幅/高さの割合)で量ったサイズをリターンする。@var{frame}は、イメージが表示されるフレームである。@var{frame}が@code{nil}または省略された場合は、選択されたフレームを使用する(@ref{Input
+Focus}を参照)。
 @end defun
 
 @defvar max-image-size
-This variable is used to define the maximum size of image that Emacs will
-load.  Emacs will refuse to load (and display) any image that is larger than
-this limit.
+この変数は、Emacsがロードするイメージの最大サイズを定義するために使用される。Emacsはこの制限より大きいイメージのロード(と表示)を拒絶するだろう。
 
-If the value is an integer, it directly specifies the maximum image height
-and width, measured in pixels.  If it is floating point, it specifies the
-maximum image height and width as a ratio to the frame height and width.  If
-the value is non-numeric, there is no explicit limit on the size of images.
+値が整数なら、それはピクセル単位で量ったイメージの最大の高さと幅を、直接指定する。浮動小数点数なら、そのフレームの高さおよび幅にたいする比率として、イメージの最大の高さと幅を指定する。値が数値でなければ、イメージサイズにたいする明示的な制限は存在しない。
 
-The purpose of this variable is to prevent unreasonably large images from
-accidentally being loaded into Emacs.  It only takes effect the first time
-an image is loaded.  Once an image is placed in the image cache, it can
-always be displayed, even if the value of @code{max-image-size} is
-subsequently changed (@pxref{Image Cache}).
+この変数の目的は、意図せずEmacsに不当に大きなイメージがロードされるとを防ぐことである。これは、イメージの初回ロード時だけ効果がある。イメージが一度イメージキャッシュに置かれると、その後@code{max-image-size}の値が変更されても、そのイメージは常に表示可能である(@ref{Image
+Cache}を参照)。
 @end defvar
 
 @node Multi-Frame Images
