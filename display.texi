@@ -3657,59 +3657,44 @@ Text}を参照してください。
 @cindex model/view/controller
 @cindex view part, model/view/controller
 
-  The Ewoc package constructs buffer text that represents a structure of Lisp
-objects, and updates the text to follow changes in that structure.  This is
-like the ``view'' component in the ``model/view/controller'' design
-paradigm.  Ewoc means ``Emacs's Widget for Object Collections''.
+  Ewocパッケージは、Lispオブジェクトの構造を表すバッファーテキストを構成し、その構造体の変更にしたがってテキストを更新します。これはデザインパラダイム``model/view/controller''内の、``view''コンポーネントと似ています。Ewocは、``Emacs's
+Widget for Object Collections(オブジェクトコレクション用Emacsウィジェット)''を意味します。
 
-  An @dfn{ewoc} is a structure that organizes information required to
-construct buffer text that represents certain Lisp data.  The buffer text of
-the ewoc has three parts, in order: first, fixed @dfn{header} text; next,
-textual descriptions of a series of data elements (Lisp objects that you
-specify); and last, fixed @dfn{footer} text.  Specifically, an ewoc contains
-information on:
+  @dfn{ewoc}は特定のLispデータを表現するバッファーテキストの構築に要される情報を組織化します。ewocのバッファーテキストは順番に、まず固定された@dfn{header}テキスト、次に一連のデータ要素のテキスト記述(あなたが指定するLispオブジェクト)、最後に固定された@dfn{footer}テキストという、3つのパートをもっています。具体的には、ewocは以下の情報を含んでいます:
 
 @itemize @bullet
 @item
-The buffer which its text is generated in.
+そのテキストが生成されたバッファー。
 
 @item
-The text's start position in the buffer.
+バッファー内でのそのテキストの開始位置。
 
 @item
-The header and footer strings.
+ヘッダー文字列とフッター文字列。
 
 @item
 @cindex node, ewoc
 @c or "@cindex node, abstract display"?
-A doubly-linked chain of @dfn{nodes}, each of which contains:
+2重リンクされた@dfn{ノード(nodes)}のチェーン。各ノードは以下を含む:
 
 @itemize
 @item
-A @dfn{data element}, a single Lisp object.
+@dfn{データ要素(data element)}。単一のLispオブジェクトである。
 
 @item
-Links to the preceding and following nodes in the chain.
+そのチェーン内で先行および後続するノードへのリンク。
 @end itemize
 
 @item
-A @dfn{pretty-printer} function which is responsible for inserting the
-textual representation of a data element value into the current buffer.
+カレントバッファー内にデータ要素値のテキスト表現を挿入する責務をもつ、@dfn{pretty-printer}関数。
 @end itemize
 
-  Typically, you define an ewoc with @code{ewoc-create}, and then pass the
-resulting ewoc structure to other functions in the Ewoc package to build
-nodes within it, and display it in the buffer.  Once it is displayed in the
-buffer, other functions determine the correspondence between buffer
-positions and nodes, move point from one node's textual representation to
-another, and so forth.  @xref{Abstract Display Functions}.
+  通常は@code{ewoc-create}によりewocを定義して、その結果のewoc構造体内にノードを構築するために、それをEwocパッケージ内の別の関数に渡してバッファー内に表示します。バッファー内でこれが一度表示されれば、他の関数はバッファー位置とノードの対応を判断したり、あるノードのテキスト表現から別のノードのテキスト表現への移動等を行います。@ref{Abstract
+Display Functions}を参照してください。
 
 @cindex encapsulation, ewoc
 @c or "@cindex encapsulation, abstract display"?
-  A node @dfn{encapsulates} a data element much the way a variable holds a
-value.  Normally, encapsulation occurs as a part of adding a node to the
-ewoc.  You can retrieve the data element value and place a new value in its
-place, like so:
+  ノードは、変数が値を保持するのと同じ方法で、データ要素を@dfn{カプセル化(encapsulate)}します。カプセル化は通常、ewocへのノード追加の一部として発生します。以下のように、データ要素値を取得して、その場所に新たな値を配置することができます:
 
 @lisp
 (ewoc-data @var{node})
@@ -3720,22 +3705,14 @@ place, like so:
 @end lisp
 
 @noindent
-You can also use, as the data element value, a Lisp object (list or vector)
-that is a container for the ``real'' value, or an index into some other
-structure.  The example (@pxref{Abstract Display Example})  uses the latter
-approach.
+データ要素値として、``実際''の値のコンテナーであるようなLispオブジェクト(リストまたはベクター)、または他の構造体へのインデックスも使用できます。例(@ref{Abstract
+Display Example}を参照)では、後者のアプローチを使用しています。
 
-  When the data changes, you will want to update the text in the buffer.  You
-can update all nodes by calling @code{ewoc-refresh}, or just specific nodes
-using @code{ewoc-invalidate}, or all nodes satisfying a predicate using
-@code{ewoc-map}.  Alternatively, you can delete invalid nodes using
-@code{ewoc-delete} or @code{ewoc-filter}, and add new nodes in their place.
-Deleting a node from an ewoc deletes its associated textual description from
-buffer, as well.
+  データが変更された際には、バッファー内のテキストを更新したいでしょう。@code{ewoc-refresh}呼び出しにより全ノード、@code{ewoc-invalidate}を使用して特定のノード、または@code{ewoc-map}を使用して述語を満足するすべてのノードを更新できます。あるいは、@code{ewoc-delete}を使用して無効なノードを削除したり、その場所に新たなノードを追加できます。ewocからのノード削除は、バッファーからそれに関連付けられたテキスト記述も同様に削除します。
 
 @menu
-* Abstract Display Functions::  Functions in the Ewoc package.
-* Abstract Display Example::  Example of using Ewoc.
+* Abstract Display Functions::  Ewocパッケージ内の関数。
+* Abstract Display Example::  Ewocの使用例。
 @end menu
 
 @node Abstract Display Functions
