@@ -3718,133 +3718,96 @@ Display Example}を参照)では、後者のアプローチを使用していま
 @node Abstract Display Functions
 @subsection Abstract Display Functions
 
-  In this subsection, @var{ewoc} and @var{node} stand for the structures
-described above (@pxref{Abstract Display}), while @var{data} stands for an
-arbitrary Lisp object used as a data element.
+  このセクションでは、@var{ewoc}と@var{node}は上述(@ref{Abstract
+Display}を参照)の構造体を、@var{data}はデータ要素として使用される任意のLispオブジェクトを意味します。
 
 @defun ewoc-create pretty-printer &optional header footer nosep
-This constructs and returns a new ewoc, with no nodes (and thus no data
-elements).  @var{pretty-printer} should be a function that takes one
-argument, a data element of the sort you plan to use in this ewoc, and
-inserts its textual description at point using @code{insert} (and never
-@code{insert-before-markers}, because that would interfere with the Ewoc
-package's internal mechanisms).
+これは、ノード(とデータ要素)をもたない新たなewocを構築してリターンする。@var{pretty-printer}は1つの引数をとる関数であること。この引数は当該ewoc内で使用を計画する類のデータ要素であり、@code{insert}を使用してポイント位置にそのテキスト記述を挿入する(Ewocパッケージの内部的メカニズムと干渉するため@code{insert-before-markers}は決して使用しない)。
 
-Normally, a newline is automatically inserted after the header, the footer
-and every node's textual description.  If @var{nosep} is non-@code{nil}, no
-newline is inserted.  This may be useful for displaying an entire ewoc on a
-single line, for example, or for making nodes ``invisible'' by arranging for
-@var{pretty-printer} to do nothing for those nodes.
+通常ヘッダー、フッター、およびすべてのノードのテキスト記述の後には、自動的に改行が挿入される。@var{nosep}が非@code{nil}なら、改行は何も挿入されない。これはewoc全体を単一行に表示したり、これらのノードにたいして何も行わないよう@var{pretty-printer}をアレンジすることによりノードを``不可視''にするために有用かもしれない。
 
-An ewoc maintains its text in the buffer that is current when you create it,
-so switch to the intended buffer before calling @code{ewoc-create}.
+ewocは作成時にカレントだったバッファー内のテキストを保守するので、@code{ewoc-create}呼び出し前に意図するバッファーへ切り替えること。
 @end defun
 
 @defun ewoc-buffer ewoc
-This returns the buffer where @var{ewoc} maintains its text.
+これは、@var{ewoc}がそのテキストを保守するバッファーをリターンする。
 @end defun
 
 @defun ewoc-get-hf ewoc
-This returns a cons cell @code{(@var{header} . @var{footer})} made from
-@var{ewoc}'s header and footer.
+これは、@var{ewoc}のヘッダーとフッターから作成された、コンスセル@code{(@var{header}
+. @var{footer})}をリターンする。
 @end defun
 
 @defun ewoc-set-hf ewoc header footer
-This sets the header and footer of @var{ewoc} to the strings @var{header}
-and @var{footer}, respectively.
+これは、@var{ewoc}のヘッダーおよびフッターに、文字列@var{header}および@var{footer}をセットする。
 @end defun
 
 @defun ewoc-enter-first ewoc data
 @defunx ewoc-enter-last ewoc data
-These add a new node encapsulating @var{data}, putting it, respectively, at
-the beginning or end of @var{ewoc}'s chain of nodes.
+これらはそれぞれ、@var{data}を新たなノードにカプセル化して、それを@var{ewoc}のチェーンノードの先頭または終端に配置する。
 @end defun
 
 @defun ewoc-enter-before ewoc node data
 @defunx ewoc-enter-after ewoc node data
-These add a new node encapsulating @var{data}, adding it to @var{ewoc}
-before or after @var{node}, respectively.
+これらはそれぞれ、@var{data}を新たなノードにカプセル化して、それを@var{ewoc}の@var{node}の前または後に追加する。
 @end defun
 
 @defun ewoc-prev ewoc node
 @defunx ewoc-next ewoc node
-These return, respectively, the previous node and the next node of
-@var{node} in @var{ewoc}.
+これらはそれぞれ、@var{ewoc}内の@var{node}の前、または次のノードをリターンする。
 @end defun
 
 @defun ewoc-nth ewoc n
-This returns the node in @var{ewoc} found at zero-based index @var{n}.  A
-negative @var{n} means count from the end.  @code{ewoc-nth} returns
-@code{nil} if @var{n} is out of range.
+これは、@var{ewoc}内で0基準のインデックス@var{n}で見つかったノードをリターンする。負の@var{n}は、終端から数えることを意味する。@var{n}が範囲外なら、@code{ewoc-nth}は@code{nil}をリターンする。
 @end defun
 
 @defun ewoc-data node
-This extracts the data encapsulated by @var{node} and returns it.
+これは、@var{node}にカプセル化されたデータを抽出して、それをリターンする。
 @end defun
 
 @defun ewoc-set-data node data
-This sets the data encapsulated by @var{node} to @var{data}.
+これは、@var{node}にカプセル化されるデータとして、@var{data}をセットする。
 @end defun
 
 @defun ewoc-locate ewoc &optional pos guess
-This determines the node in @var{ewoc} which contains point (or @var{pos} if
-specified), and returns that node.  If @var{ewoc} has no nodes, it returns
-@code{nil}.  If @var{pos} is before the first node, it returns the first
-node; if @var{pos} is after the last node, it returns the last node.  The
-optional third arg @var{guess} should be a node that is likely to be near
-@var{pos}; this doesn't alter the result, but makes the function run faster.
+これはポイント(指定された場合は@var{pos})を含む@var{ewoc}内のノードを判断して、そのノードをリターンする。@var{ewoc}がノードをもたなければ、@code{nil}をリターンする。@var{pos}が最初のノードの前なら最初のノード、最後のノードの後なら最後のノードをリターンする。オプションの3つ目の引数@var{guess}は、@var{pos}近傍にあると思われるノードであること。これは結果を変更しないが、関数の実行を高速にする。
 @end defun
 
 @defun ewoc-location node
-This returns the start position of @var{node}.
+これは、@var{node}の開始位置をリターンする。
 @end defun
 
 @defun ewoc-goto-prev ewoc arg
 @defunx ewoc-goto-next ewoc arg
-These move point to the previous or next, respectively, @var{arg}th node in
-@var{ewoc}.  @code{ewoc-goto-prev} does not move if it is already at the
-first node or if @var{ewoc} is empty, whereas @code{ewoc-goto-next} moves
-past the last node, returning @code{nil}.  Excepting this special case,
-these functions return the node moved to.
+これらはそれぞれ、@var{ewoc}内の前、または次の@var{arg}番目のノードにポイントを移動する。すでに最初のノードにポイントがある場合、または@var{ewoc}が空の場合、@code{ewoc-goto-prev}は移動しない。また@code{ewoc-goto-next}が最後のノードを超えて移動した場合、結果は@code{nil}となる。この特殊なケースを除き、これらの関数は移動先のノードをリターンする。
 @end defun
 
 @defun ewoc-goto-node ewoc node
-This moves point to the start of @var{node} in @var{ewoc}.
+これは、@var{ewoc}内の@var{node}の開始にポイントを移動する。
 @end defun
 
 @defun ewoc-refresh ewoc
-This function regenerates the text of @var{ewoc}.  It works by deleting the
-text between the header and the footer, i.e., all the data elements'
-representations, and then calling the pretty-printer function for each node,
-one by one, in order.
+この関数は、@var{ewoc}のテキストを再生成する。これはヘッダーとフッターの間のテキスト、すなわちすべてのデータ要素の表現を削除して、各ノードにたいして1つずつ順にpretty-printer関数を呼び出すことによりすることにより機能する。
 @end defun
 
 @defun ewoc-invalidate ewoc &rest nodes
-This is similar to @code{ewoc-refresh}, except that only @var{nodes} in
-@var{ewoc} are updated instead of the entire set.
+これは@code{ewoc-refresh}と似ているが、@var{ewoc}内のノードセット全体ではなく、@var{nodes}だけを対象とする点が異なる。
 @end defun
 
 @defun ewoc-delete ewoc &rest nodes
-This deletes each node in @var{nodes} from @var{ewoc}.
+これは、@var{ewoc}から@var{nodes}内の各要素を削除する。
 @end defun
 
 @defun ewoc-filter ewoc predicate &rest args
-This calls @var{predicate} for each data element in @var{ewoc} and deletes
-those nodes for which @var{predicate} returns @code{nil}.  Any @var{args}
-are passed to @var{predicate}.
+これは@var{ewoc}内の各データ要素にたいして@var{predicate}を呼び出し、@var{predicate}が@code{nil}をリターンしたノードを削除する。任意の@var{args}を、@var{predicate}に渡すことができる。
 @end defun
 
 @defun ewoc-collect ewoc predicate &rest args
-This calls @var{predicate} for each data element in @var{ewoc} and returns a
-list of those elements for which @var{predicate} returns non-@code{nil}.
-The elements in the list are ordered as in the buffer.  Any @var{args} are
-passed to @var{predicate}.
+これは@var{ewoc}内の各データ要素にたいして@var{predicate}を呼び出し、@var{predicate}が非@code{nil}をリターンしたノードのリストをリターンする。リスト内の要素は、そのバッファー内での順序になる。任意の@var{args}を、@var{predicate}に渡すことができる。
 @end defun
 
 @defun ewoc-map map-function ewoc &rest args
-This calls @var{map-function} for each data element in @var{ewoc} and
-updates those nodes for which @var{map-function} returns non-@code{nil}.
-Any @var{args} are passed to @var{map-function}.
+これは@var{ewoc}内の各データ要素にたいして@var{map-function}を呼び出し、@var{map-function}が非@code{nil}をリターンしたノードを更新する。任意の@var{args}を、@var{map-function}に渡すことができる。
 @end defun
 
 @node Abstract Display Example
