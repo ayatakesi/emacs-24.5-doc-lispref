@@ -3922,47 +3922,34 @@ selection widget''への拡張が可能です。
 @cindex blinking parentheses
 @cindex balancing parentheses
 
-  This section describes the mechanism by which Emacs shows a matching open
-parenthesis when the user inserts a close parenthesis.
+  このセクションでは、ユーザーが閉カッコを挿入した際に、マッチする開カッコをEmacsが示すメカニズムを説明します。
 
 @defvar blink-paren-function
-The value of this variable should be a function (of no arguments) to be
-called whenever a character with close parenthesis syntax is inserted.  The
-value of @code{blink-paren-function} may be @code{nil}, in which case
-nothing is done.
+この変数の値は、閉カッコ構文(close parenthesis
+syntax)の文字が挿入された際に、常に呼び出される関数(引数なし)であること。@code{blink-paren-function}の値は@code{nil}も可能で、この場合は何も行わない。
 @end defvar
 
 @defopt blink-matching-paren
-If this variable is @code{nil}, then @code{blink-matching-open} does
-nothing.
+この変数が@code{nil}なら、@code{blink-matching-open}は何も行わない。
 @end defopt
 
 @defopt blink-matching-paren-distance
-This variable specifies the maximum distance to scan for a matching
-parenthesis before giving up.
+この変数は、ギブアップする前にマッチするカッコをスキャンする、最大の距離を指定する。
 @end defopt
 
 @defopt blink-matching-delay
-This variable specifies the number of seconds to keep indicating the
-matching parenthesis.  A fraction of a second often gives good results, but
-the default is 1, which works on all systems.
+この変数は、マッチするカッコを示し続ける秒数を指定する。分数の秒もよい結果をもたらすことがあるが、デフォルトはすべてのシステムで機能する1である。
 @end defopt
 
 @deffn Command blink-matching-open
-This function is the default value of @code{blink-paren-function}.  It
-assumes that point follows a character with close parenthesis syntax and
-applies the appropriate effect momentarily to the matching opening
-character.  If that character is not already on the screen, it displays the
-character's context in the echo area.  To avoid long delays, this function
-does not search farther than @code{blink-matching-paren-distance}
-characters.
+この関数は、@code{blink-paren-function}のデフォルト値である。この関数は、閉カッコ構文の文字の後にポイントがあると仮定し、マッチする開カッコに瞬時適切な効果を適用する。その文字がまだスクリーン上になければ、エコーエリア内にその文字のコンテキストを表示する。長い遅延を避けるために、この関数は文字数@code{blink-matching-paren-distance}より遠くを検索しない。
 
-Here is an example of calling this function explicitly.
+以下は、この関数を明示的に呼び出す例である。
 
 @smallexample
 @group
 (defun interactive-blink-matching-open ()
-  "Indicate momentarily the start of parenthesized sexp before point."
+  "ポイント前のカッコによるsexp開始を瞬時示す"
   (interactive)
 @end group
 @group

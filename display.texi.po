@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-04-12 17:49+0900\n"
+"PO-Revision-Date: 2019-04-12 18:17+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -9922,90 +9922,90 @@ msgstr "わたしたちが決して各ノード内のデータを変更してい
 #: display.texi.orig:5956
 #, no-wrap
 msgid "Blinking Parentheses"
-msgstr ""
+msgstr "Blinking Parentheses"
 
 #. type: cindex
 #: display.texi.orig:5957
 #, no-wrap
 msgid "parenthesis matching"
-msgstr ""
+msgstr "parenthesis matching"
 
 #. type: cindex
 #: display.texi.orig:5958
 #, no-wrap
 msgid "blinking parentheses"
-msgstr ""
+msgstr "blinking parentheses"
 
 #. type: cindex
 #: display.texi.orig:5959
 #, no-wrap
 msgid "balancing parentheses"
-msgstr ""
+msgstr "balancing parentheses"
 
 #. type: Plain text
 #: display.texi.orig:5963
 msgid "This section describes the mechanism by which Emacs shows a matching open parenthesis when the user inserts a close parenthesis."
-msgstr ""
+msgstr "このセクションでは、ユーザーが閉カッコを挿入した際に、マッチする開カッコをEmacsが示すメカニズムを説明します。"
 
 #. type: defvar
 #: display.texi.orig:5964
 #, no-wrap
 msgid "blink-paren-function"
-msgstr ""
+msgstr "blink-paren-function"
 
 #. type: defvar
 #: display.texi.orig:5969
 msgid "The value of this variable should be a function (of no arguments) to be called whenever a character with close parenthesis syntax is inserted.  The value of @code{blink-paren-function} may be @code{nil}, in which case nothing is done."
-msgstr ""
+msgstr "この変数の値は、閉カッコ構文(close parenthesis syntax)の文字が挿入された際に、常に呼び出される関数(引数なし)であること。@code{blink-paren-function}の値は@code{nil}も可能で、この場合は何も行わない。"
 
 #. type: defopt
 #: display.texi.orig:5971
 #, no-wrap
 msgid "blink-matching-paren"
-msgstr ""
+msgstr "blink-matching-paren"
 
 #. type: defopt
 #: display.texi.orig:5974
 msgid "If this variable is @code{nil}, then @code{blink-matching-open} does nothing."
-msgstr ""
+msgstr "この変数が@code{nil}なら、@code{blink-matching-open}は何も行わない。"
 
 #. type: defopt
 #: display.texi.orig:5976
 #, no-wrap
 msgid "blink-matching-paren-distance"
-msgstr ""
+msgstr "blink-matching-paren-distance"
 
 #. type: defopt
 #: display.texi.orig:5979
 msgid "This variable specifies the maximum distance to scan for a matching parenthesis before giving up."
-msgstr ""
+msgstr "この変数は、ギブアップする前にマッチするカッコをスキャンする、最大の距離を指定する。"
 
 #. type: defopt
 #: display.texi.orig:5981
 #, no-wrap
 msgid "blink-matching-delay"
-msgstr ""
+msgstr "blink-matching-delay"
 
 #. type: defopt
 #: display.texi.orig:5985
 msgid "This variable specifies the number of seconds to keep indicating the matching parenthesis.  A fraction of a second often gives good results, but the default is 1, which works on all systems."
-msgstr ""
+msgstr "この変数は、マッチするカッコを示し続ける秒数を指定する。分数の秒もよい結果をもたらすことがあるが、デフォルトはすべてのシステムで機能する1である。"
 
 #. type: deffn
 #: display.texi.orig:5987
 #, no-wrap
 msgid "Command blink-matching-open"
-msgstr ""
+msgstr "Command blink-matching-open"
 
 #. type: deffn
 #: display.texi.orig:5995
 msgid "This function is the default value of @code{blink-paren-function}.  It assumes that point follows a character with close parenthesis syntax and applies the appropriate effect momentarily to the matching opening character.  If that character is not already on the screen, it displays the character's context in the echo area.  To avoid long delays, this function does not search farther than @code{blink-matching-paren-distance} characters."
-msgstr ""
+msgstr "この関数は、@code{blink-paren-function}のデフォルト値である。この関数は、閉カッコ構文の文字の後にポイントがあると仮定し、マッチする開カッコに瞬時適切な効果を適用する。その文字がまだスクリーン上になければ、エコーエリア内にその文字のコンテキストを表示する。長い遅延を避けるために、この関数は文字数@code{blink-matching-paren-distance}より遠くを検索しない。"
 
 #. type: deffn
 #: display.texi.orig:5997
 msgid "Here is an example of calling this function explicitly."
-msgstr ""
+msgstr "以下は、この関数を明示的に呼び出す例である。"
 
 #. type: group
 #: display.texi.orig:6003
@@ -10015,6 +10015,9 @@ msgid ""
 "  \"Indicate momentarily the start of parenthesized sexp before point.\"\n"
 "  (interactive)\n"
 msgstr ""
+"(defun interactive-blink-matching-open ()\n"
+"  \"ポイント前のカッコによるsexp開始を瞬時示す\"\n"
+"  (interactive)\n"
 
 #. type: group
 #: display.texi.orig:6009
@@ -10025,6 +10028,10 @@ msgid ""
 "        (blink-matching-paren t))\n"
 "    (blink-matching-open)))\n"
 msgstr ""
+"  (let ((blink-matching-paren-distance\n"
+"         (buffer-size))\n"
+"        (blink-matching-paren t))\n"
+"    (blink-matching-open)))\n"
 
 #. type: Plain text
 #: display.texi.orig:6025
