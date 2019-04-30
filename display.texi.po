@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-03-07 14:36+0900\n"
-"PO-Revision-Date: 2019-04-23 13:31+0900\n"
+"PO-Revision-Date: 2019-05-01 06:11+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -10245,83 +10245,83 @@ msgstr "ディスプレイテーブルの通常の要素は、文字コードに
 #. type: Plain text
 #: display.texi.orig:6159
 msgid "@strong{Warning:} if you use the display table to change the display of newline characters, the whole buffer will be displayed as one long ``line''."
-msgstr ""
+msgstr "@strong{警告:} 改行文字の表示を変更するためにディスプレイテーブルを使用すると、バッファー全体が1つの長い``行''として表示されるだろう。"
 
 #. type: Plain text
 #: display.texi.orig:6163
 msgid "The display table also has six ``extra slots'' which serve special purposes.  Here is a table of their meanings; @code{nil} in any slot means to use the default for that slot, as stated below."
-msgstr ""
+msgstr "ディスプレイテーブルは特殊用途向けに、6つの``エクストラスロット(extra slots)''をもつこともできます。以下は、それらの意味についてのテーブルです。@code{nil}のスロットは、以下で示すそのスロットにたいするデフォルトの使用を意味します。"
 
 #. type: item
 #: display.texi.orig:6165
 #, no-wrap
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #. type: table
 #: display.texi.orig:6170
 msgid "The glyph for the end of a truncated screen line (the default for this is @samp{$}).  @xref{Glyphs}.  On graphical terminals, Emacs uses arrows in the fringes to indicate truncation, so the display table has no effect."
-msgstr ""
+msgstr "切り詰められたスクリーン行終端のグリフ(デフォルトでは@samp{$})。@ref{Glyphs}を参照のこと。グラフィカルな端末では、Emacsは切り詰められたことをフリンジ内の矢印で示し、ディスプレイテーブルは使用しない。"
 
 #. type: item
 #: display.texi.orig:6171
 #, no-wrap
 msgid "1"
-msgstr ""
+msgstr "1"
 
 #. type: table
 #: display.texi.orig:6175
 msgid "The glyph for the end of a continued line (the default is @samp{\\}).  On graphical terminals, Emacs uses curved arrows in the fringes to indicate continuation, so the display table has no effect."
-msgstr ""
+msgstr "継続行終端のグリフ(デフォルトは@samp{\\})。グラフィカルな端末では、Emacsは継続ををフリンジ内の曲矢印で示し、ディスプレイテーブルは使用しない。"
 
 #. type: item
 #: display.texi.orig:6176
 #, no-wrap
 msgid "2"
-msgstr ""
+msgstr "2"
 
 #. type: table
 #: display.texi.orig:6179
 msgid "The glyph for indicating a character displayed as an octal character code (the default is @samp{\\})."
-msgstr ""
+msgstr "8進文字コードとして表示される文字を示すグリフ(デフォルトは@samp{\\})。"
 
 #. type: item
 #: display.texi.orig:6180
 #, no-wrap
 msgid "3"
-msgstr ""
+msgstr "3"
 
 #. type: table
 #: display.texi.orig:6182
 msgid "The glyph for indicating a control character (the default is @samp{^})."
-msgstr ""
+msgstr "コントロール文字を示す(デフォルトは@samp{^})。"
 
 #. type: item
 #: display.texi.orig:6183
 #, no-wrap
 msgid "4"
-msgstr ""
+msgstr "4"
 
 #. type: table
 #: display.texi.orig:6186
 msgid "A vector of glyphs for indicating the presence of invisible lines (the default is @samp{...}).  @xref{Selective Display}."
-msgstr ""
+msgstr "不可視行があることを示すグリフのベクター(デフォルトは@samp{...})。@ref{Selective Display}を参照のこと。"
 
 #. type: item
 #: display.texi.orig:6187
 #, no-wrap
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #. type: table
 #: display.texi.orig:6192
 msgid "The glyph used to draw the border between side-by-side windows (the default is @samp{|}).  @xref{Splitting Windows}.  This takes effect only when there are no scroll bars; if scroll bars are supported and in use, a scroll bar separates the two windows."
-msgstr ""
+msgstr "横並びのウィンドウ間のボーダー描画に使用されるグリフ(デフォルトは@samp{|})。@ref{Splitting Windows}を参照のこと。これは、スクロールバーが存在するときだけ効果をもつ。スクロールバーがサポートされていて使用中なら、スクロールバーが2つのウィンドウを分割する。"
 
 #. type: Plain text
 #: display.texi.orig:6197
 msgid "For example, here is how to construct a display table that mimics the effect of setting @code{ctl-arrow} to a non-@code{nil} value (@pxref{Glyphs}, for the function @code{make-glyph-code}):"
-msgstr ""
+msgstr "たとえば以下は、関数@code{make-glyph-code}にたいして@code{ctl-arrow}に非@code{nil}をセットして得られる効果を模倣するディスプレイテーブル(@ref{Glyphs}を参照のこと)を構築する例です:"
 
 #. type: example
 #: display.texi.orig:6209
@@ -10338,50 +10338,60 @@ msgid ""
 "      (vector (make-glyph-code ?^ 'escape-glyph)\n"
 "              (make-glyph-code ?? 'escape-glyph)))))\n"
 msgstr ""
+"(setq disptab (make-display-table))\n"
+"(dotimes (i 32)\n"
+"  (or (= i ?\\t)\n"
+"      (= i ?\\n)\n"
+"      (aset disptab i\n"
+"            (vector (make-glyph-code ?^ 'escape-glyph)\n"
+"                    (make-glyph-code (+ i 64) 'escape-glyph)))))\n"
+"(aset disptab 127\n"
+"      (vector (make-glyph-code ?^ 'escape-glyph)\n"
+"              (make-glyph-code ?? 'escape-glyph)))))\n"
 
 #. type: defun
 #: display.texi.orig:6211
 #, no-wrap
 msgid "display-table-slot display-table slot"
-msgstr ""
+msgstr "display-table-slot display-table slot"
 
 #. type: defun
 #: display.texi.orig:6217
 msgid "This function returns the value of the extra slot @var{slot} of @var{display-table}.  The argument @var{slot} may be a number from 0 to 5 inclusive, or a slot name (symbol).  Valid symbols are @code{truncation}, @code{wrap}, @code{escape}, @code{control}, @code{selective-display}, and @code{vertical-border}."
-msgstr ""
+msgstr "この関数は、@var{display-table}のエクストラスロット@var{slot}の値をリターンする。引数@var{slot}には0から5の数字(両端含む)、またはスロット名(シンボル)を指定できる。有効なシンボルは@code{truncation}、@code{wrap}、@code{escape}、@code{control}、@code{selective-display}、@code{vertical-border}。"
 
 #. type: defun
 #: display.texi.orig:6219
 #, no-wrap
 msgid "set-display-table-slot display-table slot value"
-msgstr ""
+msgstr "set-display-table-slot display-table slot value"
 
 #. type: defun
 #: display.texi.orig:6225
 msgid "This function stores @var{value} in the extra slot @var{slot} of @var{display-table}.  The argument @var{slot} may be a number from 0 to 5 inclusive, or a slot name (symbol).  Valid symbols are @code{truncation}, @code{wrap}, @code{escape}, @code{control}, @code{selective-display}, and @code{vertical-border}."
-msgstr ""
+msgstr "この関数は、@var{display-table}のエクストラスロット@var{slot}に@var{value}を格納する。引数@var{slot}には0から5の数字(両端含む)、またはスロット名(シンボル)を指定できる。有効なシンボルは@code{truncation}、@code{wrap}、@code{escape}、@code{control}、@code{selective-display}、@code{vertical-border}。"
 
 #. type: defun
 #: display.texi.orig:6227
 #, no-wrap
 msgid "describe-display-table display-table"
-msgstr ""
+msgstr "describe-display-table display-table"
 
 #. type: defun
 #: display.texi.orig:6230
 msgid "This function displays a description of the display table @var{display-table} in a help buffer."
-msgstr ""
+msgstr "この関数は、ヘルプバッファーにディスプレイテーブル@var{display-table}の説明を表示する。"
 
 #. type: deffn
 #: display.texi.orig:6232
 #, no-wrap
 msgid "Command describe-current-display-table"
-msgstr ""
+msgstr "Command describe-current-display-table"
 
 #. type: deffn
 #: display.texi.orig:6235
 msgid "This command displays a description of the current display table in a help buffer."
-msgstr ""
+msgstr "このコマンドは、ヘルプバッファーにカレントディスプレイテーブルの説明を表示する。"
 
 #. type: cindex
 #: display.texi.orig:6239
