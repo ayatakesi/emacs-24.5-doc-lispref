@@ -4187,40 +4187,32 @@ Chars}を参照)。
 @subsection Glyphless Character Display
 @cindex glyphless characters
 
-  @dfn{Glyphless characters} are characters which are displayed in a special
-way, e.g., as a box containing a hexadecimal code, instead of being
-displayed literally.  These include characters which are explicitly defined
-to be glyphless, as well as characters for which there is no available font
-(on a graphical display), and characters which cannot be encoded by the
-terminal's coding system (on a text terminal).
+  @dfn{グリフ無し文字(glyphless
+characters)}とは、literalに表示されるのではなく特別な方法、すなわち16進コードを中に含むボックスとして表示される文字です。これらの文字には、グリフが無いと明示的に定義された文字や、利用可能なフォントがない文字(グラフィカルなディスプレイ)、その端末のコーディングシステムではエンコードできない文字(テキスト端末)が同様に含まれます。
 
 @defvar glyphless-char-display
-The value of this variable is a char-table which defines glyphless
-characters and how they are displayed.  Each entry must be one of the
-following display methods:
+この変数の値はグリフ無し文字と、それらの表示方法を定義する文字テーブルである。エントリーはそれぞれ、以下の表示メソッドのいずれかでなければならない:
 
 @table @asis
 @item @code{nil}
-Display the character in the usual way.
+通常の方法でその文字を表示する。
 
 @item @code{zero-width}
-Don't display the character.
+その文字を表示しない。
 
 @item @code{thin-space}
-Display a thin space, 1-pixel wide on graphical displays, or 1-character
-wide on text terminals.
+グラフィカルな端末では幅が1ピクセル、テキスト端末では幅が1文字の狭いスペース。
 
 @item @code{empty-box}
-Display an empty box.
+空のボックスを表示する。
 
 @item @code{hex-code}
-Display a box containing the Unicode codepoint of the character, in
-hexadecimal notation.
+その文字のUnicodeコードポイントの16進表記を含むボックスを表示する。
 
-@item an @acronym{ASCII} string
-Display a box containing that string.
+@item @acronym{ASCII}文字列
+その文字列を含むボックスを表示する。
 
-@item a cons cell @code{(@var{graphical} . @var{text})}
+@item コンスセル @code{(@var{graphical} . @var{text})}
 Display with @var{graphical} on graphical displays, and with @var{text} on
 text terminals.  Both @var{graphical} and @var{text} must be one of the
 display methods described above.
