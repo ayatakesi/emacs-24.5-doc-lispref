@@ -4282,53 +4282,37 @@ bell) @samp{vb}の能力を定義する。
 @node Window Systems
 @section Window Systems
 
-  Emacs works with several window systems, most notably the X Window System.
-Both Emacs and X use the term ``window'', but use it differently.  An Emacs
-frame is a single window as far as X is concerned; the individual Emacs
-windows are not known to X at all.
+  Emacsは複数のウィンドウシステムで機能しますが、特にXウィンドウシステムにおいてもっとも機能します。EmacsとXはどちらも``ウィンドウ''を使用しますが、異なる使い方をします。Emacsのフレームは、Xにおいては単一のウィンドウです。Emacsの個々のウィンドウについては、Xはまったく関知しません。
 
 @defvar window-system
-This terminal-local variable tells Lisp programs what window system Emacs is
-using for displaying the frame.  The possible values are
+この端末ローカルな変数は、Emacsがフレームを表示するのに、何のウィンドウシステムを使用しているかを示す。可能な値は、
 
 @table @code
 @item x
 @cindex X Window System
-Emacs is displaying the frame using X.
+EmacsはXを使用してフレームを表示している。
 @item w32
-Emacs is displaying the frame using native MS-Windows GUI.
+EmacsはネイティブMS-Windows GUIを使用してフレームを表示している。
 @item ns
-Emacs is displaying the frame using the Nextstep interface (used on GNUstep
-and Mac OS X).
+EmacsはNextstepインターフェイスを使用してフレームを表示している(GNUstepとMac OS Xで使用されている)。
 @item pc
-Emacs is displaying the frame using MS-DOS direct screen writes.
+EmacsはMS-DOSのスクリーン直接書き込みを使用してフレームを表示している。
 @item nil
-Emacs is displaying the frame on a character-based terminal.
+Emacsは文字ベース端末を使用してフレームを表示している。
 @end table
 @end defvar
 
 @defvar initial-window-system
-This variable holds the value of @code{window-system} used for the first
-frame created by Emacs during startup.  (When Emacs is invoked with the
-@option{--daemon} option, it does not create any initial frames, so
-@code{initial-window-system} is @code{nil}.  @xref{Initial Options, daemon,,
-emacs, The GNU Emacs Manual}.)
+この変数は、スタートアップの間にEmacsが作成する最初のフレームにたいして使用される、@code{window-system}の値を保持する。(Emacsを@option{--daemon}オプションで呼び出し時には初期フレームを作成しないので、@code{initial-window-system}は@code{nil}である。@ref{Initial
+Options, daemon,, emacs, The GNU Emacs Manual}を参照されたい。)
 @end defvar
 
 @defun window-system &optional frame
-This function returns a symbol whose name tells what window system is used
-for displaying @var{frame} (which defaults to the currently selected
-frame).  The list of possible symbols it returns is the same one documented
-for the variable @code{window-system} above.
+この関数は、@var{frame}を表示するために使用されているウィンドウシステムを示す名前のシンボルをリターンする。この関数がリターンし得るシンボルのリストは、変数@code{window-system}の記述と同様である。
 @end defun
 
-  Do @emph{not} use @code{window-system} and @code{initial-window-system} as
-predicates or boolean flag variables, if you want to write code that works
-differently on text terminals and graphic displays.  That is because
-@code{window-system} is not a good indicator of Emacs capabilities on a
-given display type.  Instead, use @code{display-graphic-p} or any of the
-other @code{display-*-p} predicates described in @ref{Display Feature
-Testing}.
+  テキスト端末とグラフィカルなディスプレイで異なる処理を行うコードを記述したいときは、@code{window-system}と@code{initial-window-system}を、述語やブーリーンフラグ変数として@emph{not}@emph{使用しないでください}。これは、与えられたディスプレイタイプでのEmacsの能力指標として、@code{window-system}が適していないからです。かわりに@code{display-graphic-p}、または@ref{Display
+Feature Testing}で説明しているその他の述語@code{display-*-p}を使用してください。
 
 @node Bidirectional Display
 @section Bidirectional Display
