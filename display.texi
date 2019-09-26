@@ -4319,15 +4319,11 @@ Feature Testing}で説明しているその他の述語@code{display-*-p}を使�
 @cindex bidirectional display
 @cindex right-to-left text
 
-  Emacs can display text written in scripts, such as Arabic, Farsi, and
-Hebrew, whose natural ordering for horizontal text display runs from right
-to left.  Furthermore, segments of Latin script and digits embedded in
-right-to-left text are displayed left-to-right, while segments of
-right-to-left script embedded in left-to-right text (e.g., Arabic or Hebrew
-text in comments or strings in a program source file) are appropriately
-displayed right-to-left.  We call such mixtures of left-to-right and
-right-to-left text @dfn{bidirectional text}.  This section describes the
-facilities and options for editing and displaying bidirectional text.
+  Emacsはアラビア語、ペルシア語、ヘブライ語のような、水平方向テキストの自然な表示順がR2L(right-to-left:
+右から左)に実行されるようなスクリプトで記述されたテキストを表示できます。さらにL2R(right-to-left:
+左から右)のテキストに埋め込まれたR2Lスクリプト(例:
+プログラムソースファイル内のアラビア語やヘブライ語のコメント)は適宜右から左にR2Lに表示される一方、ラテンスクリプト部やR2Lテキストに埋め込まれた数字はL2Rで表示されます。わたしたちは、そのようなL2RとR2Lが混交されたテキストを@dfn{双方向テキスト(bidirectional
+text)}と呼びます。このセクションでは、双方向テキストの編集と表示にたいする機能とオプションんついて説明します。
 
 @cindex logical order
 @cindex reading order
@@ -4336,190 +4332,97 @@ facilities and options for editing and displaying bidirectional text.
 @cindex UBA
 @cindex bidirectional reordering
 @cindex reordering, of bidirectional text
-  Text is stored in Emacs buffers and strings in @dfn{logical} (or
-@dfn{reading}) order, i.e., the order in which a human would read each
-character.  In right-to-left and bidirectional text, the order in which
-characters are displayed on the screen (called @dfn{visual order}) is not
-the same as logical order; the characters' screen positions do not increase
-monotonically with string or buffer position.  In performing this
-@dfn{bidirectional reordering}, Emacs follows the Unicode Bidirectional
-Algorithm (a.k.a.@: @acronym{UBA}), which is described in Annex #9 of the
-Unicode standard (@url{http://www.unicode.org/reports/tr9/}).  Emacs
-currently provides a ``Non-isolate Bidirectionality'' class implementation
-of the @acronym{UBA}: it does not yet support the isolate directional
-formatting characters introduced with Unicode Standard v6.3.0.
+  テキストは@dfn{ロジカル}な順序(または@dfn{読込順})、すなわち人間が各文字を読み込むであろう順序で、テキストをEmacsバッファーおよび文字列に格納します。R2Lおよび双方向テキストでは、スクリーン上で文字が表示される順序(@dfn{ビジュアル順}と呼ばれる)はロジカル順と同一ではありません。それら各文字のスクリーン位置は、文字列またはバッファー位置により単調に増加しません。この@dfn{双方向の並べ替え(bidirectional
+reordering)}を処理を行うに際、EmacsはUnicode双方向アルゴリズム(@acronym{UBA}： Unicode
+Bidirectional
+Algorithm)にしたがいます(@url{http://www.unicode.org/reports/tr9/})。現在のところEmacsは、@acronym{UBA}の``Non-isolate
+Bidirectionality(双方向非分離)''なクラスの実装を提供します。これはまだ、Unicode Standard
+v6.3.0で提唱された方向分離フォーマットをサポートしていません。
 
 @defvar bidi-display-reordering
-If the value of this buffer-local variable is non-@code{nil} (the default),
-Emacs performs bidirectional reordering for display.  The reordering affects
-buffer text, as well as display strings and overlay strings from text and
-overlay properties in the buffer (@pxref{Overlay Properties}, and
-@pxref{Display Property}).  If the value is @code{nil}, Emacs does not
-perform bidirectional reordering in the buffer.
+このバッファーローカル変数の値が非@code{nil}(デフォルト)なら、Emacsは表示で双方向の並べ替えを行う。この並べ替えはバッファーテキスト、同様に文字列表示やバッファー内のテキストプロパティやオーバーレイプロパティ由来のオーバーレイ文字列に効果を及ぼす(@ref{Overlay
+Properties}および@ref{Display
+Property}を参照)。値が@code{nil}なら、Emacsはバッファー内での双方向の並べ替えを行わない。
 
-The default value of @code{bidi-display-reordering} controls the reordering
-of strings which are not directly supplied by a buffer, including the text
-displayed in mode lines (@pxref{Mode Line Format})  and header lines
-(@pxref{Header Lines}).
+@code{bidi-display-reordering}のデフォルト値は、モードライン内に表示されるテキスト(@ref{Mode Line
+Format}を参照)、およびヘッダー行(@ref{Header
+Lines}を参照)を含む、バッファーにより直接提供されない文字列の並べ替えを制御する。
 @end defvar
 
 @cindex unibyte buffers, and bidi reordering
-  Emacs never reorders the text of a unibyte buffer, even if
-@code{bidi-display-reordering} is non-@code{nil} in the buffer.  This is
-because unibyte buffers contain raw bytes, not characters, and thus lack the
-directionality properties required for reordering.  Therefore, to test
-whether text in a buffer will be reordered for display, it is not enough to
-test the value of @code{bidi-display-reordering} alone.  The correct test is
-this:
+  たとえバッファーの@code{bidi-display-reordering}が非@code{nil}でも、Emacsがユニバイトバッファーのテキストの並べ替えを行うことはありません。これはユニバイトバッファーに含まれるのが文字ではなくrawバイトであり、並べ替えに要する方向的なプロパティを欠くからです。したがって、あるバッファーのテキストが並べ替えられるかどうかテストするには、@code{bidi-display-reordering}のテスト単独では不十分です。正しいテストは以下のようになります:
 
 @example
  (if (and enable-multibyte-characters
           bidi-display-reordering)
-     ;; Buffer is being reordered for display
+     ;; 表示時にバッファーは並べ替えられるだろう
    )
 @end example
 
-  However, unibyte display and overlay strings @emph{are} reordered if their
-parent buffer is reordered.  This is because plain-@sc{ascii} strings are
-stored by Emacs as unibyte strings.  If a unibyte display or overlay string
-includes non-@sc{ascii} characters, these characters are assumed to have
-left-to-right direction.
+  とはいえ、親バッファーが並べ替えられた際には、ユニバイト表示およびオーバーレイ文字列は@emph{並べ替えられます}。これはEmacsにより、プレーン@sc{ascii}文字列がユニバイト文字列に格納されるからです。ユニバイト表示またはオーバーレイ文字列が非@sc{ascii}文字列を含むなら、それらの文字はL2Rの方向をもつとみなされます。
 
 @cindex display properties, and bidi reordering of text
-  Text covered by @code{display} text properties, by overlays with
-@code{display} properties whose value is a string, and by any other
-properties that replace buffer text, is treated as a single unit when it is
-reordered for display.  That is, the entire chunk of text covered by these
-properties is reordered together.  Moreover, the bidirectional properties of
-the characters in such a chunk of text are ignored, and Emacs reorders them
-as if they were replaced with a single character @code{U+FFFC}, known as the
-@dfn{Object Replacement Character}.  This means that placing a display
-property over a portion of text may change the way that the surrounding text
-is reordered for display.  To prevent this unexpected effect, always place
-such properties on text whose directionality is identical with text that
-surrounds it.
+  テキストプロパティ@code{display}、値が文字列であるような@code{display}プロパティによるオーバーレイ、バッファーテキストを置換するその他任意のプロパティにカバーされたテキストは、表示時の並べ替え時に単一の単位として扱われます。つまり、これらのプロパティにカバーされたテキストのchunk全体が、一緒に並べ替えられます。さらに、そのようなテキストchunk内の文字の双方向的なプロパティは無視され、Emacsはあたかもそれらが@dfn{オブジェクト置換文字(Object
+Replacement
+Character)}として知られる単一文字で置換されたかのように、それらを並べ替えます。これは、テキスト範囲上にdisplayプロパティを配すことにより、表示時に周辺テキストを並べ替える方法が変更され得ることを意味しています。このような予期せぬ効果を防ぐには、常に周辺テキストと等しい方向のテキストにたいしてそのようなプロパティを配してください。
 
 @cindex base direction of a paragraph
-  Each paragraph of bidirectional text has a @dfn{base direction}, either
-right-to-left or left-to-right.  Left-to-right paragraphs are displayed
-beginning at the left margin of the window, and are truncated or continued
-when the text reaches the right margin.  Right-to-left paragraphs are
-displayed beginning at the right margin, and are continued or truncated at
-the left margin.
+  双方向テキストのパラグラフはそれぞれ、R2LまたはL2Rいずれかの@dfn{基本方向(base
+direction)}をもちます。L2Rパラグラフは、そのウィンドウの左マージンを先頭に表示され、そのテキストが右マージンに達したら切り詰め、または継続されます。R2Lパラグラフは、そのウィンドウの右マージンを先頭に表示され、そのテキストが左マージンに達したら切り詰め、または継続されます。
 
-  By default, Emacs determines the base direction of each paragraph by looking
-at the text at its beginning.  The precise method of determining the base
-direction is specified by the @acronym{UBA}; in a nutshell, the first
-character in a paragraph that has an explicit directionality determines the
-base direction of the paragraph.  However, sometimes a buffer may need to
-force a certain base direction for its paragraphs.  For example, buffers
-containing program source code should force all paragraphs to be displayed
-left-to-right.  You can use following variable to do this:
+  デフォルトでは、Emacsはテキスト先頭を調べることにより、各パラグラフの基本方向を判断します。基本方向の精細な決定手法は@acronym{UBA}により指定されており、簡潔に言うとその明示にな方向生をもつそのパラグラフ内の最初の文字が、そのパラグラフの基本方向を決定します。とはいえ、あるバッファーが自身のパラグラフにたいして、特定の基本方向の強制を要する場合もあります。たとえば、プログラムソースコードを含むバッファーは、すべてのパラグラフがL2Rで表示されるよう強制されるべきでしょう。これを行うために、以下の変数を使用できます:
 
 @defvar bidi-paragraph-direction
-If the value of this buffer-local variable is the symbol
-@code{right-to-left} or @code{left-to-right}, all paragraphs in the buffer
-are assumed to have that specified direction.  Any other value is equivalent
-to @code{nil} (the default), which means to determine the base direction of
-each paragraph from its contents.
+このバッファーローカル変数の値が、@code{right-to-left}または@code{left-to-right}いずれかのシンボルなら、そのバッファー内のすべてのパラグラフがその指定された方向をもつとみなされる。その他すべての値は@code{nil}(デフォルト)と等価であり、各パラグラフの基本方向はその内容により判断されることを意味する。
 
 @cindex @code{prog-mode}, and @code{bidi-paragraph-direction}
-Modes for program source code should set this to @code{left-to-right}.  Prog
-mode does this by default, so modes derived from Prog mode do not need to
-set this explicitly (@pxref{Basic Major Modes}).
+プログラムソースコードにたいするモードは、これを@code{left-to-right}にセットすること。Progモードはデフォルトでこれを行うので、Progモードから派生したモードは、これを明示的にセットする必要はない(@ref{Basic
+Major Modes}を参照)。
 @end defvar
 
 @defun current-bidi-paragraph-direction &optional buffer
-This function returns the paragraph direction at point in the named
-@var{buffer}.  The returned value is a symbol, either @code{left-to-right}
-or @code{right-to-left}.  If @var{buffer} is omitted or @code{nil}, it
-defaults to the current buffer.  If the buffer-local value of the variable
-@code{bidi-paragraph-direction} is non-@code{nil}, the returned value will
-be identical to that value; otherwise, the returned value reflects the
-paragraph direction determined dynamically by Emacs.  For buffers whose
-value of @code{bidi-display-reordering} is @code{nil} as well as unibyte
-buffers, this function always returns @code{left-to-right}.
+この関数は、@var{buffer}という名前のバッファーのポイント位置のパラグラフ方向をリターンする。リターンされる値は、@code{left-to-right}か@code{right-to-left}いずれかのシンボルである。@var{buffer}が省略または@code{nil}の場合のデフォルトは、カレントバッファーである。変数@code{bidi-paragraph-direction}のバッファーローカル値が非@code{nil}なら、リターンされる値はその値と等しくなるだろう。それ以外なら、リターンされる値はEmacsにより動的に決定されたそのパラグラフの方向を反映する。@code{bidi-display-reordering}の値が@code{nil}のバッファー、同様にユニバイトバッファーにたいしては、この関数は常に@code{left-to-right}をリターンする。
 @end defun
 
 @cindex visual-order cursor motion
-  Sometimes there's a need to move point in strict visual order, either to the
-left or to the right of its current screen position.  Emacs provides a
-primitive to do that.
+  バッファーのカレントのスクリーン位置にたいして、ビジュアル順に、L2RまたはR2Lいずれかの方向へ、厳密なポイント移動を要す場合があります。Emacsはこれを行うためのプリミティブを提供します。
 
 @defun move-point-visually direction
-This function moves point of the currently selected window to the buffer
-position that appears immediately to the right or to the left of point on
-the screen.  If @var{direction} is positive, point will move one screen
-position to the right, otherwise it will move one screen position to the
-left.  Note that, depending on the surrounding bidirectional context, this
-could potentially move point many buffer positions away.  If invoked at the
-end of a screen line, the function moves point to the rightmost or leftmost
-screen position of the next or previous screen line, as appropriate for the
-value of @var{direction}.
+この関数は、そのバッファーにたいしてカレントで選択されたウィンドウのポイントを、スクリーン上ですぐ右または左のポイントへ移動する。@var{direction}が正ならスクリーン位置は右へ、それ以外ならスクリーン位置は左へ移動するだろう。周囲の双方向コンテキストに依存して、これは潜在的に多くのバッファーのポイントを移動してしまい得ることに注意。スクリーン行終端で呼び出された場合、この関数は@var{direction}に応じて適宜、次行または前行の、右端または左端のスクリーン位置にポイントを移動する。
 
-The function returns the new buffer position as its value.
+この関数はその値として、新たなバッファー位置をリターンする。
 @end defun
 
 @cindex layout on display, and bidirectional text
 @cindex jumbled display of bidirectional text
 @cindex concatenating bidirectional strings
-  Bidirectional reordering can have surprising and unpleasant effects when two
-strings with bidirectional content are juxtaposed in a buffer, or otherwise
-programmatically concatenated into a string of text.  A typical problematic
-case is when a buffer consists of sequences of text ``fields'' separated by
-whitespace or punctuation characters, like Buffer Menu mode or Rmail Summary
-Mode.  Because the punctuation characters used as separators have @dfn{weak
-directionality}, they take on the directionality of surrounding text.  As
-result, a numeric field that follows a field with bidirectional content can
-be displayed @emph{to the left} of the preceding field, messing up the
-expected layout.  There are several ways to avoid this problem:
+  バッファー内で双方向の内容をもつ2つの文字列が並置されているときや、プログラムで1つのテキスト文字列に結合した場合、双方向の並べ替えは以外かつ不快な効果を与える可能性があります。典型的な問題ケースはBuffer
+MenuモードやRmail
+Summaryモードのように、バッファーがスペースや区切り文字分割されたテキストの``フィールド''のシーケンスで構成されているときです。それはセパレーターとして使用されている区切り文字が、@dfn{弱い方向性}をもち、周囲のテキストの方向を採用するためです。結果として、双方向の内容のフィールドが後続する数値フィールドは、先行するフィールドヘ@emph{左方向}に表示され、期待したレイアウトを破壊してしまいます。この問題を回避するための方法がいくつかあります：
 
 @itemize @minus
 @item
-Append the special character @code{U+200E}, LEFT-TO-RIGHT MARK, or
-@acronym{LRM}, to the end of each field that may have bidirectional content,
-or prepend it to the beginning of the following field.  The function
-@code{bidi-string-mark-left-to-right}, described below, comes in handy for
-this purpose.  (In a right-to-left paragraph, use @code{U+200F},
-RIGHT-TO-LEFT MARK, or @acronym{RLM}, instead.)  This is one of the
-solutions recommended by the UBA.
+双方向の内容をもち得る各フィールド終端に、スペシャル文字LEFT-TO-RIGHT
+MARK(略して@acronym{LRM})の@code{U+200E}を付加する。後述の関数@code{bidi-string-mark-left-to-right}は、この目的に手頃である。(R2LパラグラフではかわりにRIGHT-TO-LEFT
+MARK、略して@acronym{RLM}の@code{U+200F}を使用する。) これはUBAにより推奨される解決策の1つである。
 
 @item
-Include the tab character in the field separator.  The tab character plays
-the role of @dfn{segment separator} in bidirectional reordering, causing the
-text on either side to be reordered separately.
+フィールドセパレーターにタブ文字を含める。タブ文字は双方向の並べ替えにおいて@dfn{セグメントセパレーター(segment
+separator)}の役割を演じ、両側のテキストを個別に並べ替えさせる。
 
 @cindex @code{space} display spec, and bidirectional text
 @item
-Separate fields with a @code{display} property or overlay with a property
-value of the form @code{(space . PROPS)} (@pxref{Specified Space}).  Emacs
-treats this display specification as a @dfn{paragraph separator}, and
-reorders the text on either side separately.
+@code{display}プロパティ、または@code{(space . PROPS)}という形式の値をもつオーバーレイ(@ref{Specified
+Space}を参照)でフィールドを区切る。Emacsはこのdisplay仕様を@dfn{パラグラフセパレーター(paragraph
+separator)}として扱い、両側のテキストを個別に並べ替える。
 @end itemize
 
 @defun bidi-string-mark-left-to-right string
-This function returns its argument @var{string}, possibly modified, such
-that the result can be safely concatenated with another string, or
-juxtaposed with another string in a buffer, without disrupting the relative
-layout of this string and the next one on display.  If the string returned
-by this function is displayed as part of a left-to-right paragraph, it will
-always appear on display to the left of the text that follows it.  The
-function works by examining the characters of its argument, and if any of
-those characters could cause reordering on display, the function appends the
-@acronym{LRM} character to the string.  The appended @acronym{LRM} character
-is made invisible by giving it an @code{invisible} text property of @code{t}
-(@pxref{Invisible Text}).
+この関数は、結果を安全に他の文字列に結合できるよう、あるいはこの文字列とスクリーン上で次行となる行に関連するレイアウトを乱すことなく、バッファー内の他の文字列に並置できるよう、自身への引数@var{string}を恐らく変更してリターンする。この関数がリターンする文字列がR2Lパラグラフの一部として表示される文字列なら、それは常に後続するテキストの左に出現するだろう。この関数は自身の引数の文字を検証することにより機能し、もしそれらの文字のいずれかがディスプレイ上の並べ替えを発生し得るなら、この関数はその文字列に@acronym{LRM}文字を付加する。付加された@acronym{LRM}文字はテキストプロパティ@code{invisible}に@code{t}を与えることにより、不可視にできる(@ref{Invisible
+Text}を参照)。
 @end defun
 
-  The reordering algorithm uses the bidirectional properties of the characters
-stored as their @code{bidi-class} property (@pxref{Character Properties}).
-Lisp programs can change these properties by calling the
-@code{put-char-code-property} function.  However, doing this requires a
-thorough understanding of the @acronym{UBA}, and is therefore not
-recommended.  Any changes to the bidirectional properties of a character
-have global effect: they affect all Emacs frames and windows.
+  並べ替えアルゴリズムは、@code{bidi-class}プロパティとして格納された、その文字の双方向プロパティを使用します(@ref{Character
+Properties}を参照)。Lispプログラムは@code{put-char-code-property}関数を呼び出すことにより、これらのプロパティを変更できます。しかしこれを行うには@acronym{UBA}の完全な理解が要求されるので、推奨しません。ある文字の双方向プロパティにたいする任意の変更は、グローバルな効果をもちます。これらはEmacsのフレームのすべてのフレームとウィンドウに影響します。
 
-  Similarly, the @code{mirroring} property is used to display the appropriate
-mirrored character in the reordered text.  Lisp programs can affect the
-mirrored display by changing this property.  Again, any such changes affect
-all of Emacs display.
+  同様に、@code{mirroring}プロパティは、並べ替えられたテキスト内の、適切にミラーされた文字の表示に使用されます。Lispプログラムは、このプロパティを変更することにより、ミラーされた表示に影響を与えることができます。繰り返しますが、そのような変更はEmacsのすべての表示に影響を与えます。
