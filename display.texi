@@ -4259,33 +4259,24 @@ Hyphen)のようにグラフィックイメージをもつ文字を除く。
 @section Beeping
 @cindex bell
 
-  This section describes how to make Emacs ring the bell (or blink the screen)
-to attract the user's attention.  Be conservative about how often you do
-this; frequent bells can become irritating.  Also be careful not to use just
-beeping when signaling an error is more appropriate (@pxref{Errors}).
+  このセクションでは、ユーザーの注意を喚起するために、Emacsでベルを鳴らす方法を説明します。これを行う頻度は控え目にしてください。頻繁なベルは刺激過剰になる恐れがあります。。同様に、エラーのシグナル時に過度にビープ音を使用しないよう注意してください。
 
 @defun ding &optional do-not-terminate
 @cindex keyboard macro termination
-This function beeps, or flashes the screen (see @code{visible-bell} below).
-It also terminates any keyboard macro currently executing unless
-@var{do-not-terminate} is non-@code{nil}.
+この関数はビープ音を鳴らす、またはスクリーンをフラッシュする(後述の@code{visible-bell}を参照)。@var{do-not-terminate}が@code{nil}なら、この関数はカレントで実行中のキーボードマクロも終了する。
 @end defun
 
 @defun beep &optional do-not-terminate
-This is a synonym for @code{ding}.
+これは@code{ding}のシノニムである。
 @end defun
 
 @defopt visible-bell
-This variable determines whether Emacs should flash the screen to represent
-a bell.  Non-@code{nil} means yes, @code{nil} means no.  This is effective
-on graphical displays, and on text terminals provided the terminal's Termcap
-entry defines the visible bell capability (@samp{vb}).
+この変数は、ベルを表すためにスクリーンをフラッシュすべきかどうかを決定する。非@code{nil}ならフラッシュし、@code{nil}ならフラッシュしない。これはグラフィカルなディスプレイで効果的であり、テキスト端末ではその端末のTermcapエントリーが可視ベル(visible
+bell) @samp{vb}の能力を定義する。
 @end defopt
 
 @defvar ring-bell-function
-If this is non-@code{nil}, it specifies how Emacs should ``ring the bell''.
-Its value should be a function of no arguments.  If this is non-@code{nil},
-it takes precedence over the @code{visible-bell} variable.
+これが非@code{nil}なら、それはEmacsがどのように``ベルを鳴らす''かを定義するべきである。値は引数なしの関数であること。これが非@code{nil}の場合、@code{visible-bell}より優先される。
 @end defvar
 
 @node Window Systems
