@@ -4213,66 +4213,46 @@ characters)}とは、literalに表示されるのではなく特別な方法、�
 その文字列を含むボックスを表示する。
 
 @item コンスセル @code{(@var{graphical} . @var{text})}
-Display with @var{graphical} on graphical displays, and with @var{text} on
-text terminals.  Both @var{graphical} and @var{text} must be one of the
-display methods described above.
+グラフィカルな端末では@var{graphical}、テキスト端末では@var{text}で表示する。@var{graphical}と@var{text}はいずれも、上述した表示メソッドのいずれかでなければならない。
 @end table
 
 @noindent
-The @code{thin-space}, @code{empty-box}, @code{hex-code}, and
-@acronym{ASCII} string display methods are drawn with the
-@code{glyphless-char} face.
+@code{thin-space}、@code{empty-box}、@code{hex-code}、および@acronym{ASCII}文字列は@code{glyphless-char}フェイスで描画される。
 
-The char-table has one extra slot, which determines how to display any
-character that cannot be displayed with any available font, or cannot be
-encoded by the terminal's coding system.  Its value should be one of the
-above display methods, except @code{zero-width} or a cons cell.
+文字テーブルには、利用可能なすべてのフォントでも表示できない、またはその端末のコーディングシステムでエンコードできないすべての文字の表示方法を定義する、余分なスロットが1つある。その値は、上述した表示メソッドのうち@code{zero-width}とコンスセル以外のいずれかでなければならない。
 
-If a character has a non-@code{nil} entry in an active display table, the
-display table takes effect; in this case, Emacs does not consult
-@code{glyphless-char-display} at all.
+アクティブなディスプレイテーブル内に非@code{nil}なエントリーをもつ文字では、そのディスプレイテーブルが効果をもつ。この場合、Emacsは@code{glyphless-char-display}をまったく参照しない。
 @end defvar
 
 @defopt glyphless-char-display-control
-This user option provides a convenient way to set
-@code{glyphless-char-display} for groups of similar characters.  Do not set
-its value directly from Lisp code; the value takes effect only via a custom
-@code{:set} function (@pxref{Variable Definitions}), which updates
-@code{glyphless-char-display}.
+このユーザーオプションは、似かよった文字のグループにたいして@code{glyphless-char-display}をセットする便利な手段を提供する。Lispコードから、この値を直接セットしてはならない。@code{glyphless-char-display}更新する、カスタム関数@code{:set}を通じた場合のみ、その値は効果をもつ。
 
-Its value should be an alist of elements @code{(@var{group}
-. @var{method})}, where @var{group} is a symbol specifying a group of
-characters, and @var{method} is a symbol specifying how to display them.
+この値は、要素が@code{(@var{group}
+.
+@var{method})}であるようなalistであること。ここで@var{group}は文字びグループを指定するシンボル、@var{method}はそれらを表示する方法を指定するシンボルである。
 
-@var{group} should be one of the following:
+@var{group}は以下のいずれかであること:
 
 @table @code
 @item c0-control
-@acronym{ASCII} control characters @code{U+0000} to @code{U+001F}, excluding
-the newline and tab characters (normally displayed as escape sequences like
-@samp{^A}; @pxref{Text Display,, How Text Is Displayed, emacs, The GNU Emacs
-Manual}).
+改行文字とタブ文字を除く@code{U+0000}から@code{U+001F}までの@acronym{ASCII}コントロール文字(通常は@samp{^A}のようなエスケープシーケンスとして表示される。@ref{Text
+Display,, How Text Is Displayed, emacs, The GNU Emacs Manual}を参照されたい)。
 
 @item c1-control
-Non-@acronym{ASCII}, non-printing characters @code{U+0080} to @code{U+009F}
-(normally displayed as octal escape sequences like @samp{\230}).
+@code{U+0080}から@code{U+009F}までの非@acronym{ASCII}、非プリント文字(通常は@samp{\230}のような8進エスケープシーケンスとして表示される)。
 
 @item format-control
-Characters of Unicode General Category `Cf', such as @samp{U+200E}
-(Left-to-Right Mark), but excluding characters that have graphic images,
-such as @samp{U+00AD} (Soft Hyphen).
+@samp{U+200E}のようなUnicode General Category `Cf'の文字だが、@samp{U+00AD}(Soft
+Hyphen)のようにグラフィックイメージをもつ文字を除く。
 
 @item no-font
-Characters for there is no suitable font, or which cannot be encoded by the
-terminal's coding system.
+適切なフォントが存在しないか、その端末のコーディングシステムではエンコードできない文字。
 @end table
 
 @c FIXME: this can also be `acronym', but that's not currently
 @c completely implemented; it applies only to the format-control
 @c group, and only works if the acronym is in `char-acronym-table'.
-The @var{method} symbol should be one of @code{zero-width},
-@code{thin-space}, @code{empty-box}, or @code{hex-code}.  These have the
-same meanings as in @code{glyphless-char-display}, above.
+@var{method}シンボルは@code{zero-width}、@code{thin-space}、@code{empty-box}、@code{hex-code}のいずれかであること。これらは上述の@code{glyphless-char-display}での場合と同様の意味をもつ。
 @end defopt
 
 @node Beeping
