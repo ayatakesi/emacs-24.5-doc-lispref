@@ -57,148 +57,105 @@ Emacs}を参照してください。端末とスクリーンに関連するオ�
 @cindex startup of Emacs
 @cindex @file{startup.el}
 
-  When Emacs is started up, it performs the following operations (see
-@code{normal-top-level} in @file{startup.el}):
+  Emacsは起動時に、以下の処理を行います(@file{startup.el}内の@code{normal-top-level}を参照):
 
 @enumerate
 @item
-It adds subdirectories to @code{load-path}, by running the file named
-@file{subdirs.el} in each directory in the list.  Normally, this file adds
-the directory's subdirectories to the list, and those are scanned in their
-turn.  The files @file{subdirs.el} are normally generated automatically when
-Emacs is installed.
+このリストの各ディレクトリー内にある@file{subdirs.el}という名前のファイルを実行することにより、@code{load-path}にサブディレクトリーを追加する。通常このファイルは、そのディレクトリー内にあるサブディレクトリーをこのリストに追加して、順にそれらをスキャンする。通常、ファイル@file{subdirs.el}は、Emacsインストール時に自動的に作成される。
 
 @item
-It loads any @file{leim-list.el} that it finds in the @code{load-path}
-directories.  This file is intended for registering input methods.  The
-search is only for any personal @file{leim-list.el} files that you may have
-created; it skips the directories containing the standard Emacs libraries
-(these should contain only a single @file{leim-list.el} file, which is
-compiled into the Emacs executable).
+@code{load-path}のディレクトリー内で見つかった、すべての@file{leim-list.el}をロードする。このファイルは、入力メソッドの登録を意図している。この検索は、ユーザーが作成するかもしれない、個人的な@file{leim-list.el}すべてにたいしてのみ行われる。標準的なEmacsライブラリーを含むディレクトリーはスキップされる(これらは単一の@file{leim-list.el}だけに含まれるべきであり、Emacs実行形式にコンパイル済である)。
 
 @vindex before-init-time
 @item
-It sets the variable @code{before-init-time} to the value of
-@code{current-time} (@pxref{Time of Day}).  It also sets
-@code{after-init-time} to @code{nil}, which signals to Lisp programs that
-Emacs is being initialized.
+変数@code{before-init-time}に、@code{current-time}の値をセットする(@ref{Time of
+Day}を参照)。これは@code{after-init-time}に@code{nil}をセットすることにより、Emacs初期化時にLispプログラムへの合図も行う。
 
 @c set-locale-environment
 @item
-It sets the language environment and the terminal coding system, if
-requested by environment variables such as @env{LANG}.
+@env{LANG}のような環境変数がそれを要するなら、言語環境と端末のコーディングシステムをセットする。
 
 @item
-It does some basic parsing of the command-line arguments.
+コマンドライン引数にたいして、いくつかの基本的なパースを行う。
 
 @vindex initial-window-system@r{, and startup}
 @vindex window-system-initialization-alist
 @item
-If not running in batch mode, it initializes the window system that the
-variable @code{initial-window-system} specifies (@pxref{Window Systems,
-initial-window-system}).  The initialization function for each supported
-window system is specified by @code{window-system-initialization-alist}.  If
-the value of @code{initial-window-system} is @var{windowsystem}, then the
-appropriate initialization function is defined in the file
-@file{term/@var{windowsystem}-win.el}.  This file should have been compiled
-into the Emacs executable when it was built.
+batchモードで実行されていなければ、変数@code{initial-window-system}が指定するウィンドウシステムを初期化する(@ref{Window
+Systems,
+initial-window-system}を参照)。サポートされる各ウィンドウシステムにたいする初期化関数は、@code{window-system-initialization-alist}により指定される。@code{initial-window-system}の値が@var{windowsystem}なら、ファイル@file{term/@var{windowsystem}-win.el}内で適切な初期化関数が定義されている。このファイルはビルド時に、Emacs実行可能形式にコンパイルされているべきである。
 
 @item
-It runs the normal hook @code{before-init-hook}.
+ノーマルフック@code{before-init-hook}を実行する。
 
 @item
-If appropriate, it creates a graphical frame.  This is not done if the
-options @samp{--batch} or @samp{--daemon} were specified.
+それが適切なら、グラフィカルなフレームを作成する。これはオプション@samp{--batch}か@samp{--daemon}が指定されていたら行われない。
 
 @item
-It initializes the initial frame's faces, and sets up the menu bar and tool
-bar if needed.  If graphical frames are supported, it sets up the tool bar
-even if the current frame is not a graphical one, since a graphical frame
-may be created later on.
+初期フレームのフェイスを初期化して、必要ならメニューバーとツールバーをセットする。グフィカルなフレームがサポートされていたら、たとえカレントフレームがグラフィカルでなくても、後でグラフィカルなフレームが作成されるかもしれないので、ツールバーをセットアップする。
 
 @item
-It use @code{custom-reevaluate-setting} to re-initialize the members of the
-list @code{custom-delayed-init-variables}.  These are any pre-loaded user
-options whose default value depends on the run-time, rather than build-time,
-context.  @xref{Building Emacs, custom-initialize-delay}.
+リスト@code{custom-delayed-init-variables}内のメンバーを再初期化するために、@code{custom-reevaluate-setting}を使用する。これらのメンバーはデフォルト値が、ビルド時ではなく実行時のコンテキストに依存する、すべての事前ロード済ユーザーオプションである。@ref{Building
+Emacs, custom-initialize-delay}を参照のこと。
 
 @c @item
 @c It registers the colors available for tty frames.
 
 @item
-It loads the library @file{site-start}, if it exists.  This is not done if
-the options @samp{-Q} or @samp{--no-site-file} were specified.
+存在する場合はライブラリー@file{site-start}をロードする。これはオプション@samp{-Q}か@samp{--no-site-file}が指定された場合は行われない。
 @cindex @file{site-start.el}
 
 @item
-It loads your init file (@pxref{Init File}).  This is not done if the
-options @samp{-q}, @samp{-Q}, or @samp{--batch} were specified.  If the
-@samp{-u} option was specified, Emacs looks for the init file in that user's
-home directory instead.
+ユーザーのinitファイルをロードする(@ref{Init
+File}を参照)。これはオプション@samp{-q}、@samp{-Q}、または@samp{--batch}が指定されていたら行われない。@samp{-u}オプションが指定された場合、Emacsはかわりにそのユーザーのホームディレクトリー内でinitファイルを探す。
 
 @item
-It loads the library @file{default}, if it exists.  This is not done if
-@code{inhibit-default-init} is non-@code{nil}, nor if the options @samp{-q},
-@samp{-Q}, or @samp{--batch} were specified.
+存在する場合はライブラリー@file{default}をロードする。これは@code{inhibit-default-init}が非@code{nil}、あるいはオプション@samp{-q}、@samp{-Q}、または@samp{--batch}指定された場合は行われない。
 @cindex @file{default.el}
 
 @item
-It loads your abbrevs from the file specified by @code{abbrev-file-name}, if
-that file exists and can be read (@pxref{Abbrev Files, abbrev-file-name}).
-This is not done if the option @samp{--batch} was specified.
+もしファイルが存在して、かつ読み込み可能なら、@code{abbrev-file-name}で指定されるファイルから、ユーザーのabbrevをロードする(@ref{Abbrev
+Files, abbrev-file-name}を参照)。オプション@samp{--batch}が指定されていたら、これは行われない。
 
 @item
-If @code{package-enable-at-startup} is non-@code{nil}, it calls the function
-@code{package-initialize} to activate any optional Emacs Lisp package that
-has been installed.  @xref{Packaging Basics}.
+@code{package-enable-at-startup}が非@code{nil}なら、インストール済のオプションのEmacs
+Lispパッケージすべてをアクティブにするために、関数@code{package-initialize}を呼び出す。@ref{Packaging
+Basics}を参照のこと。
 
 @vindex after-init-time
 @item
-It sets the variable @code{after-init-time} to the value of
-@code{current-time}.  This variable was set to @code{nil} earlier; setting
-it to the current time signals that the initialization phase is over, and,
-together with @code{before-init-time}, provides the measurement of how long
-it took.
+変数@code{after-init-time}に、@code{current-time}の値をセットする。この変数は事前に@code{nil}にセットされている。これをカレント時刻にセットすることが、初期化フェーズが終わったことの合図となり、かつ@code{before-init-time}と共に用いることにより、初期化に要した時間の計測手段を提供する。
 
 @item
-It runs the normal hook @code{after-init-hook}.
+ノーマルフック@code{after-init-hook}を実行する。
 
 @item
-If the buffer @file{*scratch*} exists and is still in Fundamental mode (as
-it should be by default), it sets its major mode according to
-@code{initial-major-mode}.
+バッファー@file{*scratch*}が存在し、それがまだ(デフォルトであるべき)Fundamentalモードなら、@code{initial-major-mode}に応じたメジャーモードをセットする。
 
 @item
-If started on a text terminal, it loads the terminal-specific Lisp library
-(@pxref{Terminal-Specific}), and runs the hook @code{tty-setup-hook}.  This
-is not done in @code{--batch} mode, nor if @code{term-file-prefix} is
-@code{nil}.
+テキスト端末で開始された場合は、その端末固有のLispライブラリー(@ref{Terminal-Specific}を参照)をロードして、フック@code{tty-setup-hook}を実行する。これは@code{--batch}モード、または@code{term-file-prefix}が@code{nil}なら実行されない。
 
 @c Now command-line calls command-line-1.
 
 @item
-It displays the initial echo area message, unless you have suppressed that
-with @code{inhibit-startup-echo-area-message}.
+@code{inhibit-startup-echo-area-message}で抑制していなければ、エコーエリアに初期メッセージを表示する。
 
 @item
-It processes any command-line options that were not handled earlier.
+これ以前に処理されていない、すべてのコマンドラインオプションを処理する。
 
 @c This next one is back in command-line, but the remaining bits of
 @c command-line-1 are not done if noninteractive.
 @item
-It now exits if the option @code{--batch} was specified.
+オプション@code{--batch}が指定されていたら、ここでexitする。
 
 @item
-If @code{initial-buffer-choice} is a string, it visits the file (or
-directory) with that name.  If it is a function, it calls the function with
-no arguments and selects the buffer that it returns.
+@code{initial-buffer-choice}が文字列なら、その名前のファイル(またはディレクトリー)をvisitする。それが関数なら引数なしでその関数を呼び出して、それがリターンしたバッファーを選択する。
 @ignore
 @c I do not think this should be mentioned.  AFAICS it is just a dodge
 @c around inhibit-startup-screen not being settable on a site-wide basis.
 If it is @code{t}, it selects the @file{*scratch*} buffer.
 @end ignore
-If the @file{*scratch*} buffer exists and is empty, it inserts
-@code{initial-scratch-message} into that buffer.
+@file{*scratch*}が存在し空ならば、そのバッファーに@code{initial-scratch-message}を挿入する。
 
 @c To make things nice and confusing, the next three items can be
 @c called from two places.  If displaying a startup screen, they are
@@ -210,24 +167,18 @@ If the @file{*scratch*} buffer exists and is empty, it inserts
 @c daemon/session restore step?
 
 @item
-It runs @code{emacs-startup-hook}.
+@code{emacs-startup-hook}を実行する。
 
 @item
-It calls @code{frame-notice-user-settings}, which modifies the parameters of
-the selected frame according to whatever the init files specify.
+initファイルの指定が何であれ、それに応じて選択されたフレームのパラメーターを変更する@code{frame-notice-user-settings}を呼び出す。
 
 @item
-It runs @code{window-setup-hook}.  The only difference between this hook and
-@code{emacs-startup-hook} is that this one runs after the previously
-mentioned modifications to the frame parameters.
+@code{window-setup-hook}を実行する。このフックと@code{emacs-startup-hook}の違いは、前述したフレームパラメーターの変更後にこれが実行される点だけである。
 
 @item
 @cindex startup screen
-It displays the @dfn{startup screen}, which is a special buffer that
-contains information about copyleft and basic Emacs usage.  This is not done
-if @code{inhibit-startup-screen} or @code{initial-buffer-choice} are
-non-@code{nil}, or if the @samp{--no-splash} or @samp{-Q} command-line
-options were specified.
+copyleftとEmacsの基本的な使い方を含む特別なバッファーである、@dfn{スタートアップスクリーン(startup
+screen)}ヲ表示する。これは@code{inhibit-startup-screen}か@code{initial-buffer-choice}が非@code{nil}、あるいはコマンドラインオプション@samp{--no-splash}か@samp{-Q}が指定されていたら行われない。
 
 @c End of command-line-1.
 
@@ -237,14 +188,12 @@ options were specified.
 @c last few bits of command-line-1 are not done in batch mode.
 
 @item
-If the option @code{--daemon} was specified, it calls @code{server-start}
-and detaches from the controlling terminal.  @xref{Emacs Server,,, emacs,
-The GNU Emacs Manual}.
+オプション@code{--daemon}ガ指定されていたら、@code{server-start}を呼び出して、制御端末からデタッチする。@ref{Emacs
+Server,,, emacs, The GNU Emacs Manual}を参照のこと。
 
 @item
-If started by the X session manager, it calls @code{emacs-session-restore}
-passing it as argument the ID of the previous session.  @xref{Session
-Management}.
+セッションマネージャーにより開始された場合には、以前のセッションのIDを引数として、@code{emacs-session-restore}を呼び出す。@ref{Session
+Management}を参照のこと。
 
 @c End of command-line.
 
@@ -253,81 +202,62 @@ Management}.
 @end enumerate
 
 @noindent
-The following options affect some aspects of the startup sequence.
+以下のオプションは、スタートアップシーケンスの側面のいくつかに影響を与えます。
 
 @defopt inhibit-startup-screen
-This variable, if non-@code{nil}, inhibits the startup screen.  In that
-case, Emacs typically displays the @file{*scratch*} buffer; but see
-@code{initial-buffer-choice}, below.
+この変数が非@code{nil}なら、スタートアップスクリーンを抑制する。この場合、通常Emacsは@file{*scratch*}バッファーを表示する。しかし、以下の@code{initial-buffer-choice}を参照されたい。
 
-Do not set this variable in the init file of a new user, or in a way that
-affects more than one user, as that would prevent new users from receiving
-information about copyleft and basic Emacs usage.
+新しいユーザーがcopyleftやEmacsの基本的な使い方に関する情報を入手するのを防げるので、新しいユーザーのinitファイル内や、複数のユーザーぶ影響するような方法でこの変数をセットしてはならない
 
 @vindex inhibit-startup-message
 @vindex inhibit-splash-screen
-@code{inhibit-startup-message} and @code{inhibit-splash-screen} are aliases
-for this variable.
+@code{inhibit-startup-message}と@code{inhibit-splash-screen}は、この変数にたいするエイリアスである。
 @end defopt
 
 @defopt initial-buffer-choice
-If non-@code{nil}, this variable is a string that specifies a file or
-directory for Emacs to display after starting up, instead of the startup
-screen.  If its value is a function, Emacs calls that function which must
-return a buffer which is then displayed.  If its value is @code{t}, Emacs
-displays the @file{*scratch*} buffer.
+非@code{nil}なら、この変数はスタートアップ後にスタートアップスクリーンのかわりにEmacsが表示するファイルを指定する文字列であること。この変数が関数なら、Emacsはその関数を呼び出し、その関数はその後に表示するバッファーをリターンしなければならない。値が@code{t}なら、Emacsは@file{*scratch*}バッファーを表示する。
 @end defopt
 
 @defopt inhibit-startup-echo-area-message
-This variable controls the display of the startup echo area message.  You
-can suppress the startup echo area message by adding text with this form to
-your init file:
+この変数はエコーエリアのスタートアップメッセージの表示を制御する。ユーザーのinitファイル内に以下の形式のテキストを追加することにより、エコーエリアのスタートアップメッセージを抑制できる:
 
 @example
 (setq inhibit-startup-echo-area-message
       "@var{your-login-name}")
 @end example
 
-Emacs explicitly checks for an expression as shown above in your init file;
-your login name must appear in the expression as a Lisp string constant.
-You can also use the Customize interface.  Other methods of setting
-@code{inhibit-startup-echo-area-message} to the same value do not inhibit
-the startup message.  This way, you can easily inhibit the message for
-yourself if you wish, but thoughtless copying of your init file will not
-inhibit the message for someone else.
+Emacsはユーザーのinitファイル内の、上記のような式を明示的にチェックする。ユーザーのロフイン名は、Lispの文字列定数としてこの式内に記述されていなければならない。Customizeインターフェイスを使用することもできる。他の方法で同じ値に@code{inhibit-startup-echo-area-message}をセットしても、スタートアップメッセージは抑制されない。この方法により、望むならユーザー自身で簡単にメッセージを抑制できるが、単に自分用のiniファイルを別のユーザーにコピーしても、メッセージは抑制されないだろう。
 @end defopt
 
 @defopt initial-scratch-message
-This variable, if non-@code{nil}, should be a string, which is inserted into
-the @file{*scratch*} buffer when Emacs starts up.  If it is @code{nil}, the
-@file{*scratch*} buffer is empty.
+この変数が非@code{nil}なら、Emacsスタートアップ時に@file{*scratch*}バッファーに挿入する文字列であること。@code{nil}なら@file{*scratch*}バッファーは空になる。
 @end defopt
 
 @noindent
-The following command-line options affect some aspects of the startup
-sequence.  @xref{Initial Options,,, emacs, The GNU Emacs Manual}.
+以下のコマンドラインオプションは、スタートアップシーケンスのいくつかの側面に影響を与えます。@ref{Initial Options,,, emacs,
+The GNU Emacs Manual}を参照してください。
 
 @table @code
 @item --no-splash
-Do not display a splash screen.
+スプラッシュスクリーンを表示しない。
 
 @item --batch
-Run without an interactive terminal.  @xref{Batch Mode}.
+対話的な端末なしで実行する。@ref{Batch Mode}を参照のこと。
 
 @item --daemon
-Do not initialize any display; just start a server in the background.
+表示の初期化を何も行わず、単にバックグラウンドでサーバーを開始する。
 
 @item --no-init-file
 @itemx -q
-Do not load either the init file, or the @file{default} library.
+initファイルと@file{default}ライブラリーをいずれもロードしない。
 
 @item --no-site-file
-Do not load the @file{site-start} library.
+@file{site-start}ライブラリーをロードしない。
 
 @item --quick
 @itemx -Q
 @c and --no-site-lisp, but let's not mention that here.
-Equivalent to @samp{-q --no-site-file --no-splash}.
+@samp{-q --no-site-file --no-splash}と等価。
 @end table
 
 
