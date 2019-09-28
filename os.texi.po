@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-09-27 06:37+0900\n"
-"PO-Revision-Date: 2019-09-29 01:11+0900\n"
+"PO-Revision-Date: 2019-09-29 02:59+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1231,70 +1231,70 @@ msgstr "@code{save-buffers-kill-terminal}がEmacsをkillする際には、標準
 #: os.texi.orig:687
 #, no-wrap
 msgid "suspending Emacs"
-msgstr ""
+msgstr "suspending Emacs"
 
 #. type: Plain text
 #: os.texi.orig:696
 msgid "On text terminals, it is possible to @dfn{suspend Emacs}, which means stopping Emacs temporarily and returning control to its superior process, which is usually the shell.  This allows you to resume editing later in the same Emacs process, with the same buffers, the same kill ring, the same undo history, and so on.  To resume Emacs, use the appropriate command in the parent shell---most likely @code{fg}."
-msgstr ""
+msgstr "テキスト端末では、@dfn{Emacsのサスペンド}ができます。これはEmacsを一時的にストップして上位のプロセスに制御を返します。これは通常はshellになります。これにより後で同じEmacsプロセス内の、同じバッファー、同じkillリング、同じアンドゥヒストリー、...で編集を再開できます。Emacsを再開するには、親shell内で適切なコマンド --- 恐らくは@code{fg} --- を使用します。"
 
 #. type: cindex
 #: os.texi.orig:697
 #, no-wrap
 msgid "controlling terminal"
-msgstr ""
+msgstr "controlling terminal"
 
 #. type: Plain text
 #: os.texi.orig:704
 msgid "Suspending works only on a terminal device from which the Emacs session was started.  We call that device the @dfn{controlling terminal} of the session.  Suspending is not allowed if the controlling terminal is a graphical terminal.  Suspending is usually not relevant in graphical environments, since you can simply switch to another application without doing anything special to Emacs."
-msgstr ""
+msgstr "そのEmacsセッションが開始された端末デバイス上でのみサスペンドは機能します。そのデバイスのことを、そのセッションの@dfn{制御端末(controlling terminal)}と呼びます。制御端末がグラフィカルな端末の場合、サスペンドは許されません。グラフィカルな端末では、Emacsで特別なことをせずに単に別のアプリケーションにスイッチできるので、サスペンドは通常は関係ありません。"
 
 #. type: cindex
 #: os.texi.orig:707
 #, no-wrap
 msgid "SIGTSTP"
-msgstr ""
+msgstr "SIGTSTP"
 
 #. type: Plain text
 #: os.texi.orig:712
 msgid "Some operating systems (those without @code{SIGTSTP}, or MS-DOS) do not support suspension of jobs; on these systems, ``suspension'' actually creates a new shell temporarily as a subprocess of Emacs.  Then you would exit the shell to return to Emacs."
-msgstr ""
+msgstr "いくつかのオペレーティングシステム(@code{SIGTSTP}のないシステムやMS-DOS)では、ジョブの停止はサポートされません。これらのシステムでの``停止''は、Emacsのサブプロセスとして新たなshellを一時的に作成します。Emacsに戻るためには、そのshellをexitすればよいでしょう。"
 
 #. type: deffn
 #: os.texi.orig:713
 #, no-wrap
 msgid "Command suspend-emacs &optional string"
-msgstr ""
+msgstr "Command suspend-emacs &optional string"
 
 #. type: deffn
 #: os.texi.orig:717
 msgid "This function stops Emacs and returns control to the superior process.  If and when the superior process resumes Emacs, @code{suspend-emacs} returns @code{nil} to its caller in Lisp."
-msgstr ""
+msgstr "この関数はEmacsを停止して、上位のプロセスに制御を返す。上位プロセスがEmacsを再開するとその際には、Lispでの@code{suspend-emacs}の呼び出し元に@code{nil}をリターンする。"
 
 #. type: deffn
 #: os.texi.orig:724
 msgid "This function works only on the controlling terminal of the Emacs session; to relinquish control of other tty devices, use @code{suspend-tty} (see below).  If the Emacs session uses more than one terminal, you must delete the frames on all the other terminals before suspending Emacs, or this function signals an error.  @xref{Multiple Terminals}."
-msgstr ""
+msgstr "この関数は、そのEmacsセッションの制御端末上でのみ機能する。他のTTYデバイスの制御を放棄するには、@code{suspend-tty}を使用する(下記参照)。そのEmacsセッションが複数の端末を使用する場合には、Emacsのサスペンド前に他のすべての端末からフレームを削除しなければならず、さもないとこの関数はエラーをシグナルする。@ref{Multiple Terminals}を参照のこと。"
 
 #. type: deffn
 #: os.texi.orig:730
 msgid "If @var{string} is non-@code{nil}, its characters are sent to Emacs's superior shell, to be read as terminal input.  The characters in @var{string} are not echoed by the superior shell; only the results appear."
-msgstr ""
+msgstr "@var{string}が非@code{nil}なら、その各文字はEmacsの上位shellに端末入力として送信される。@var{string}内の文字は上位shellによりエコーされずに、結果だけが表示される。"
 
 #. type: deffn
 #: os.texi.orig:735
 msgid "Before suspending, @code{suspend-emacs} runs the normal hook @code{suspend-hook}.  After the user resumes Emacs, @code{suspend-emacs} runs the normal hook @code{suspend-resume-hook}.  @xref{Hooks}."
-msgstr ""
+msgstr "サスペンドする前に、@code{suspend-emacs}はノーマルフック@code{suspend-hook}を実行する。ユーザーがEmacs再開後に、@code{suspend-emacs}はノーマルフック@code{suspend-resume-hook}を実行する。@ref{Hooks}を参照のこと。"
 
 #. type: deffn
 #: os.texi.orig:739
 msgid "The next redisplay after resumption will redraw the entire screen, unless the variable @code{no-redraw-on-reenter} is non-@code{nil}.  @xref{Refresh Screen}."
-msgstr ""
+msgstr "再開後の次回再表示では、変数@code{no-redraw-on-reenter}が@code{nil}ならスクリーン全体が再描画される。@ref{Refresh Screen}を参照のこと。"
 
 #. type: deffn
 #: os.texi.orig:741
 msgid "Here is an example of how you could use these hooks:"
-msgstr ""
+msgstr "以下はこれらのフックの使用例である:"
 
 #. type: group
 #: os.texi.orig:747
@@ -1304,6 +1304,9 @@ msgid ""
 "          (lambda () (or (y-or-n-p \"Really suspend? \")\n"
 "                         (error \"Suspend canceled\"))))\n"
 msgstr ""
+"(add-hook 'suspend-hook\n"
+"          (lambda () (or (y-or-n-p \"Really suspend? \")\n"
+"                         (error \"Suspend canceled\"))))\n"
 
 #. type: smallexample
 #: os.texi.orig:750
@@ -1312,11 +1315,13 @@ msgid ""
 "(add-hook 'suspend-resume-hook (lambda () (message \"Resumed!\")\n"
 "                                 (sit-for 2)))\n"
 msgstr ""
+"(add-hook 'suspend-resume-hook (lambda () (message \"Resumed!\")\n"
+"                                 (sit-for 2)))\n"
 
 #. type: deffn
 #: os.texi.orig:755
 msgid "Here is what you would see upon evaluating @code{(suspend-emacs \"pwd\")}:"
-msgstr ""
+msgstr "@code{(suspend-emacs \"pwd\")}を評価すると以下を目にするだろう:"
 
 #. type: group
 #: os.texi.orig:761
@@ -1326,6 +1331,9 @@ msgid ""
 "Really suspend? @kbd{y}\n"
 "---------- Buffer: Minibuffer ----------\n"
 msgstr ""
+"---------- Buffer: Minibuffer ----------\n"
+"Really suspend? @kbd{y}\n"
+"---------- Buffer: Minibuffer ----------\n"
 
 #. type: group
 #: os.texi.orig:767
@@ -1335,6 +1343,9 @@ msgid ""
 "bash$ /home/username\n"
 "bash$ fg\n"
 msgstr ""
+"---------- Parent Shell ----------\n"
+"bash$ /home/username\n"
+"bash$ fg\n"
 
 #. type: group
 #: os.texi.orig:772
@@ -1343,109 +1354,111 @@ msgid ""
 "---------- Echo Area ----------\n"
 "Resumed!\n"
 msgstr ""
+"---------- Echo Area ----------\n"
+"Resumed!\n"
 
 #. type: deffn
 #: os.texi.orig:778
 msgid "Note that @samp{pwd} is not echoed after Emacs is suspended.  But it is read and executed by the shell."
-msgstr ""
+msgstr "Emacsサスペンド後に@samp{pwd}がエコーされないことに注意。エコーはされないが、shellにより読み取られ実行されている。"
 
 #. type: defvar
 #: os.texi.orig:780
 #, no-wrap
 msgid "suspend-hook"
-msgstr ""
+msgstr "suspend-hook"
 
 #. type: defvar
 #: os.texi.orig:782
 msgid "This variable is a normal hook that Emacs runs before suspending."
-msgstr ""
+msgstr "この変数は、Emacsがサスペンド前に実行するノーマルフックである。"
 
 #. type: defvar
 #: os.texi.orig:784
 #, no-wrap
 msgid "suspend-resume-hook"
-msgstr ""
+msgstr "suspend-resume-hook"
 
 #. type: defvar
 #: os.texi.orig:787
 msgid "This variable is a normal hook that Emacs runs on resuming after a suspension."
-msgstr ""
+msgstr "この変数は、サスペンド後の再開時にEmacsが実行するノーマルフックである。"
 
 #. type: defun
 #: os.texi.orig:789
 #, no-wrap
 msgid "suspend-tty &optional tty"
-msgstr ""
+msgstr "suspend-tty &optional tty"
 
 #. type: defun
 #: os.texi.orig:796
 msgid "If @var{tty} specifies a terminal device used by Emacs, this function relinquishes the device and restores it to its prior state.  Frames that used the device continue to exist, but are not updated and Emacs doesn't read input from them.  @var{tty} can be a terminal object, a frame (meaning the terminal for that frame), or @code{nil} (meaning the terminal for the selected frame).  @xref{Multiple Terminals}."
-msgstr ""
+msgstr "@var{tty}にEmacsが使用する端末デバイスを指定すると、この関数はそのデバイスを放棄して、それを以前の状態にリストアする。そのデバイスを使用していたフレームは存在を続けるが更新はされず、Emacsはそれらのフレームから入力を読み取らない。@var{tty}には端末オブジェクト、フレーム(そのフレームの端末の意)、@code{nil}(選択されたフレームの端末の意)を指定できる。@ref{Multiple Terminals}を参照のこと。"
 
 #. type: defun
 #: os.texi.orig:798
 msgid "If @var{tty} is already suspended, this function does nothing."
-msgstr ""
+msgstr "@var{tty}がサスペンド済みなら、この関数は何も行わない。"
 
 #. type: vindex
 #: os.texi.orig:799
 #, no-wrap
 msgid "suspend-tty-functions"
-msgstr ""
+msgstr "suspend-tty-functions"
 
 #. type: defun
 #: os.texi.orig:802
 msgid "This function runs the hook @code{suspend-tty-functions}, passing the terminal object as an argument to each function."
-msgstr ""
+msgstr "この関数は、端末オブジェクトを各関数への引数として、フック@code{suspend-tty-functions}を実行する。"
 
 #. type: defun
 #: os.texi.orig:804
 #, no-wrap
 msgid "resume-tty &optional tty"
-msgstr ""
+msgstr "resume-tty &optional tty"
 
 #. type: defun
 #: os.texi.orig:808
 msgid "This function resumes the previously suspended terminal device @var{tty}; where @var{tty} has the same possible values as it does for @code{suspend-tty}."
-msgstr ""
+msgstr "この関数は、以前にサスペンドされたデバイス@var{tty}を再開する。ここで@var{tty}は、@code{suspend-tty}に指定できるのと同じである。"
 
 #. type: vindex
 #: os.texi.orig:809
 #, no-wrap
 msgid "resume-tty-functions"
-msgstr ""
+msgstr "resume-tty-functions"
 
 #. type: defun
 #: os.texi.orig:814
 msgid "This function reopens the terminal device, re-initializes it, and redraws it with that terminal's selected frame.  It then runs the hook @code{resume-tty-functions}, passing the terminal object as an argument to each function."
-msgstr ""
+msgstr "この関数は端末デバイスの再オープンと再初期化を行い、その端末の選択されたフレームで端末を再描画する。それから端末ブジェクトを各関数への引数として、フック@code{resume-tty-functions}を実行する。"
 
 #. type: defun
 #: os.texi.orig:818
 msgid "If the same device is already used by another Emacs terminal, this function signals an error.  If @var{tty} is not suspended, this function does nothing."
-msgstr ""
+msgstr "同じデバイスが別のEmacs端末で使用済みなら、この関数はエラーをシグナルする。@var{tty}がサスペンドされていなければ、この関数は何もしない。"
 
 #. type: defun
 #: os.texi.orig:820
 #, no-wrap
 msgid "controlling-tty-p &optional tty"
-msgstr ""
+msgstr "controlling-tty-p &optional tty"
 
 #. type: defun
 #: os.texi.orig:825
 msgid "This function returns non-@code{nil} if @var{tty} is the controlling terminal of the Emacs session; @var{tty} can be a terminal object, a frame (meaning the terminal for that frame), or @code{nil} (meaning the terminal for the selected frame)."
-msgstr ""
+msgstr "この関数は、@var{tty}がそのEmacsセッションの制御端末なら、非@code{nil}をリターンする。@var{tty}には端末オブジェクト、フレーム(そのフレームの端末の意)、@code{nil}(選択されたフレームの端末の意)を指定できる。"
 
 #. type: deffn
 #: os.texi.orig:827
 #, no-wrap
 msgid "Command suspend-frame"
-msgstr ""
+msgstr "Command suspend-frame"
 
 #. type: deffn
 #: os.texi.orig:833
 msgid "This command @dfn{suspends} a frame.  For GUI frames, it calls @code{iconify-frame} (@pxref{Visibility of Frames}); for frames on text terminals, it calls either @code{suspend-emacs} or @code{suspend-tty}, depending on whether the frame is displayed on the controlling terminal device or not."
-msgstr ""
+msgstr "このコマンドはフレームを@dfn{サスペンド}する。GUIフレームでは@code{iconify-frame}を呼び出す(@ref{Visibility of Frames}を参照)。テキスト端末上のフレームでは、そのフレームが制御端末デバイス上で表示されていれば@code{suspend-emacs}、されていなければ@code{suspend-tty}のいずれかを呼び出す。"
 
 #. type: section
 #: os.texi.orig:836

@@ -484,54 +484,33 @@ Mode}を参照)にも、自動的にこれが呼び出される。
 @subsection Suspending Emacs
 @cindex suspending Emacs
 
-  On text terminals, it is possible to @dfn{suspend Emacs}, which means
-stopping Emacs temporarily and returning control to its superior process,
-which is usually the shell.  This allows you to resume editing later in the
-same Emacs process, with the same buffers, the same kill ring, the same undo
-history, and so on.  To resume Emacs, use the appropriate command in the
-parent shell---most likely @code{fg}.
+  テキスト端末では、@dfn{Emacsのサスペンド}ができます。これはEmacsを一時的にストップして上位のプロセスに制御を返します。これは通常はshellになります。これにより後で同じEmacsプロセス内の、同じバッファー、同じkillリング、同じアンドゥヒストリー、...で編集を再開できます。Emacsを再開するには、親shell内で適切なコマンド
+--- 恐らくは@code{fg} --- を使用します。
 
 @cindex controlling terminal
-  Suspending works only on a terminal device from which the Emacs session was
-started.  We call that device the @dfn{controlling terminal} of the
-session.  Suspending is not allowed if the controlling terminal is a
-graphical terminal.  Suspending is usually not relevant in graphical
-environments, since you can simply switch to another application without
-doing anything special to Emacs.
+  そのEmacsセッションが開始された端末デバイス上でのみサスペンドは機能します。そのデバイスのことを、そのセッションの@dfn{制御端末(controlling
+terminal)}と呼びます。制御端末がグラフィカルな端末の場合、サスペンドは許されません。グラフィカルな端末では、Emacsで特別なことをせずに単に別のアプリケーションにスイッチできるので、サスペンドは通常は関係ありません。
 
 @c FIXME?  Are there any systems Emacs still supports that do not
 @c have SIGTSTP?
 @cindex SIGTSTP
-  Some operating systems (those without @code{SIGTSTP}, or MS-DOS) do not
-support suspension of jobs; on these systems, ``suspension'' actually
-creates a new shell temporarily as a subprocess of Emacs.  Then you would
-exit the shell to return to Emacs.
+  いくつかのオペレーティングシステム(@code{SIGTSTP}のないシステムやMS-DOS)では、ジョブの停止はサポートされません。これらのシステムでの``停止''は、Emacsのサブプロセスとして新たなshellを一時的に作成します。Emacsに戻るためには、そのshellをexitすればよいでしょう。
 
 @deffn Command suspend-emacs &optional string
-This function stops Emacs and returns control to the superior process.  If
-and when the superior process resumes Emacs, @code{suspend-emacs} returns
-@code{nil} to its caller in Lisp.
+この関数はEmacsを停止して、上位のプロセスに制御を返す。上位プロセスがEmacsを再開するとその際には、Lispでの@code{suspend-emacs}の呼び出し元に@code{nil}をリターンする。
 
-This function works only on the controlling terminal of the Emacs session;
-to relinquish control of other tty devices, use @code{suspend-tty} (see
-below).  If the Emacs session uses more than one terminal, you must delete
-the frames on all the other terminals before suspending Emacs, or this
-function signals an error.  @xref{Multiple Terminals}.
+この関数は、そのEmacsセッションの制御端末上でのみ機能する。他のTTYデバイスの制御を放棄するには、@code{suspend-tty}を使用する(下記参照)。そのEmacsセッションが複数の端末を使用する場合には、Emacsのサスペンド前に他のすべての端末からフレームを削除しなければならず、さもないとこの関数はエラーをシグナルする。@ref{Multiple
+Terminals}を参照のこと。
 
 @c FIXME?  It seems to me that shell does echo STRING.
-If @var{string} is non-@code{nil}, its characters are sent to Emacs's
-superior shell, to be read as terminal input.  The characters in
-@var{string} are not echoed by the superior shell; only the results appear.
+@var{string}が非@code{nil}なら、その各文字はEmacsの上位shellに端末入力として送信される。@var{string}内の文字は上位shellによりエコーされずに、結果だけが表示される。
 
-Before suspending, @code{suspend-emacs} runs the normal hook
-@code{suspend-hook}.  After the user resumes Emacs, @code{suspend-emacs}
-runs the normal hook @code{suspend-resume-hook}.  @xref{Hooks}.
+サスペンドする前に、@code{suspend-emacs}はノーマルフック@code{suspend-hook}を実行する。ユーザーがEmacs再開後に、@code{suspend-emacs}はノーマルフック@code{suspend-resume-hook}を実行する。@ref{Hooks}を参照のこと。
 
-The next redisplay after resumption will redraw the entire screen, unless
-the variable @code{no-redraw-on-reenter} is non-@code{nil}.  @xref{Refresh
-Screen}.
+再開後の次回再表示では、変数@code{no-redraw-on-reenter}が@code{nil}ならスクリーン全体が再描画される。@ref{Refresh
+Screen}を参照のこと。
 
-Here is an example of how you could use these hooks:
+以下はこれらのフックの使用例である:
 
 @smallexample
 @group
@@ -545,7 +524,7 @@ Here is an example of how you could use these hooks:
 @c The sit-for prevents the @code{nil} that suspend-emacs returns
 @c hiding the message.
 
-Here is what you would see upon evaluating @code{(suspend-emacs "pwd")}:
+@code{(suspend-emacs "pwd")}を評価すると以下を目にするだろう:
 
 @smallexample
 @group
@@ -567,63 +546,44 @@ Resumed!
 @end smallexample
 
 @c FIXME?  AFAICS, it is echoed.
-Note that @samp{pwd} is not echoed after Emacs is suspended.  But it is read
-and executed by the shell.
+Emacsサスペンド後に@samp{pwd}がエコーされないことに注意。エコーはされないが、shellにより読み取られ実行されている。
 @end deffn
 
 @defvar suspend-hook
-This variable is a normal hook that Emacs runs before suspending.
+この変数は、Emacsがサスペンド前に実行するノーマルフックである。
 @end defvar
 
 @defvar suspend-resume-hook
-This variable is a normal hook that Emacs runs on resuming after a
-suspension.
+この変数は、サスペンド後の再開時にEmacsが実行するノーマルフックである。
 @end defvar
 
 @defun suspend-tty &optional tty
-If @var{tty} specifies a terminal device used by Emacs, this function
-relinquishes the device and restores it to its prior state.  Frames that
-used the device continue to exist, but are not updated and Emacs doesn't
-read input from them.  @var{tty} can be a terminal object, a frame (meaning
-the terminal for that frame), or @code{nil} (meaning the terminal for the
-selected frame).  @xref{Multiple Terminals}.
+@var{tty}にEmacsが使用する端末デバイスを指定すると、この関数はそのデバイスを放棄して、それを以前の状態にリストアする。そのデバイスを使用していたフレームは存在を続けるが更新はされず、Emacsはそれらのフレームから入力を読み取らない。@var{tty}には端末オブジェクト、フレーム(そのフレームの端末の意)、@code{nil}(選択されたフレームの端末の意)を指定できる。@ref{Multiple
+Terminals}を参照のこと。
 
-If @var{tty} is already suspended, this function does nothing.
+@var{tty}がサスペンド済みなら、この関数は何も行わない。
 
 @vindex suspend-tty-functions
-This function runs the hook @code{suspend-tty-functions}, passing the
-terminal object as an argument to each function.
+この関数は、端末オブジェクトを各関数への引数として、フック@code{suspend-tty-functions}を実行する。
 @end defun
 
 @defun resume-tty &optional tty
-This function resumes the previously suspended terminal device @var{tty};
-where @var{tty} has the same possible values as it does for
-@code{suspend-tty}.
+この関数は、以前にサスペンドされたデバイス@var{tty}を再開する。ここで@var{tty}は、@code{suspend-tty}に指定できるのと同じである。
 
 @vindex resume-tty-functions
-This function reopens the terminal device, re-initializes it, and redraws it
-with that terminal's selected frame.  It then runs the hook
-@code{resume-tty-functions}, passing the terminal object as an argument to
-each function.
+この関数は端末デバイスの再オープンと再初期化を行い、その端末の選択されたフレームで端末を再描画する。それから端末ブジェクトを各関数への引数として、フック@code{resume-tty-functions}を実行する。
 
-If the same device is already used by another Emacs terminal, this function
-signals an error.  If @var{tty} is not suspended, this function does
-nothing.
+同じデバイスが別のEmacs端末で使用済みなら、この関数はエラーをシグナルする。@var{tty}がサスペンドされていなければ、この関数は何もしない。
 @end defun
 
 @defun controlling-tty-p &optional tty
-This function returns non-@code{nil} if @var{tty} is the controlling
-terminal of the Emacs session; @var{tty} can be a terminal object, a frame
-(meaning the terminal for that frame), or @code{nil} (meaning the terminal
-for the selected frame).
+この関数は、@var{tty}がそのEmacsセッションの制御端末なら、非@code{nil}をリターンする。@var{tty}には端末オブジェクト、フレーム(そのフレームの端末の意)、@code{nil}(選択されたフレームの端末の意)を指定できる。
 @end defun
 
 @deffn Command suspend-frame
-This command @dfn{suspends} a frame.  For GUI frames, it calls
-@code{iconify-frame} (@pxref{Visibility of Frames}); for frames on text
-terminals, it calls either @code{suspend-emacs} or @code{suspend-tty},
-depending on whether the frame is displayed on the controlling terminal
-device or not.
+このコマンドはフレームを@dfn{サスペンド}する。GUIフレームでは@code{iconify-frame}を呼び出す(@ref{Visibility
+of
+Frames}を参照)。テキスト端末上のフレームでは、そのフレームが制御端末デバイス上で表示されていれば@code{suspend-emacs}、されていなければ@code{suspend-tty}のいずれかを呼び出す。
 @end deffn
 
 @node System Environment
