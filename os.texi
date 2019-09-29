@@ -590,102 +590,82 @@ Frames}を参照)。テキスト端末上のフレームでは、そのフレー
 @section Operating System Environment
 @cindex operating system environment
 
-  Emacs provides access to variables in the operating system environment
-through various functions.  These variables include the name of the system,
-the user's @acronym{UID}, and so on.
+  Emacsはさまざまな変数を通じて、オペレーティングシステム環境内の変数へのアクセスを提供します。これらの変数には、システムの名前、ユーザーの@acronym{UID}などが含まれます。
 
 @defvar system-configuration
-This variable holds the standard GNU configuration name for the
-hardware/software configuration of your system, as a string.  For example, a
-typical value for a 64-bit GNU/Linux system is
-@samp{"x86_64-unknown-linux-gnu"}.
+この変数は、ユーザーのシステムのハードウェアとソフトウェアにたいするGNUの標準コンフィグレーション名(standard GNU
+configuration
+name)を保持する。たとえば64ビットGNU/Linuxシステムにたいする典型的な値は@samp{"x86_64-unknown-linux-gnu"}である。
 @end defvar
 
 @cindex system type and name
 @defvar system-type
-The value of this variable is a symbol indicating the type of operating
-system Emacs is running on.  The possible values are:
+この変数の値は、Emacs実行中のオペレーティングシステムのタイプを示すシンボルである。可能な値は：
 
 @table @code
 @item aix
-IBM's AIX.
+IBMのAIX。
 
 @item berkeley-unix
-Berkeley BSD and its variants.
+Berkeley BSDとその変種。
 
 @item cygwin
-Cygwin, a Posix layer on top of MS-Windows.
+MS-Windows上のPosixレイヤーであるCygwin。
 
 @item darwin
-Darwin (Mac OS X).
+Darwin (Mac OS X)。
 
 @item gnu
-The GNU system (using the GNU kernel, which consists of the HURD and Mach).
+(HURDとMachから構成される)GNUシステム。
 
 @item gnu/linux
-A GNU/Linux system---that is, a variant GNU system, using the Linux kernel.
-(These systems are the ones people often call ``Linux'', but actually Linux
-is just the kernel, not the whole system.)
+GNU/Linuxシステム ---
+すなわちLinuxカーネルを使用するGNUシステムの変種。(これらのシステムは人がしばしば``Linux''と呼ぶシステムだが、実際にはLinuxは単なるカーネルであり、システム全体ではない。)
 
 @item gnu/kfreebsd
-A GNU (glibc-based) system with a FreeBSD kernel.
+FreeBSDカーネルによる(glibcベースの)GNUシステム。
 
 @item hpux
-Hewlett-Packard HPUX operating system.
+ヒューレット・パッカードのHPUXオペレーティングシステム。
 
 @item irix
-Silicon Graphics Irix system.
+シリコングラフィックスのIrixシステム。
 
 @item ms-dos
-Microsoft's DOS@.  Emacs compiled with DJGPP for MS-DOS binds
-@code{system-type} to @code{ms-dos} even when you run it on MS-Windows.
+MicrosoftのDOS。MS-DOSにたいするDJGPPでコンパイルされたEmacsは、たとえMS-Windows上で実行されていても@code{system-type}が@code{ms-dos}にバインドされる。
 
 @item usg-unix-v
-AT&T Unix System V.
+AT&TのUnix System V。
 
 @item windows-nt
-Microsoft Windows NT, 9X and later.  The value of @code{system-type} is
-always @code{windows-nt}, e.g., even on Windows 7.
+MicrosoftのWindows NT、9X以降。たとえばWindows
+7でも@code{system-type}の値は常に@code{windows-nt}である。
 
 @end table
 
-We do not wish to add new symbols to make finer distinctions unless it is
-absolutely necessary! In fact, we hope to eliminate some of these
-alternatives in the future.  If you need to make a finer distinction than
-@code{system-type} allows for, you can test @code{system-configuration},
-e.g., against a regexp.
+わたしたちは絶対に必要になるまでは、より細分化するために新たなシンボルを追加したくありません。実際のところ、将来的にはこれらの候補のいくつかを取り除きたいと思っています。@code{system-type}で許されているより細分化する必要がある場合には、たとえば正規表現にたいして@code{system-configuration}をテストできます。
 @end defvar
 
 @defun system-name
-This function returns the name of the machine you are running on, as a
-string.
+この関数は、実行中のマシン名を文字列としてリターンする。
 @end defun
 
-  The symbol @code{system-name} is a variable as well as a function.  In fact,
-the function returns whatever value the variable @code{system-name}
-currently holds.  Thus, you can set the variable @code{system-name} in case
-Emacs is confused about the name of your system.  The variable is also
-useful for constructing frame titles (@pxref{Frame Titles}).
+  シンボル@code{system-name}は変数であり、同時に関数である。実際のところ、その関数は変数@code{system-name}がカレントで保持する値が何であれ、それをリターンする。したがって、Emacsがシステム名について混乱する場合には、変数@code{system-name}をセットできる。この変数は、フレームタイトルを構築するのにも有用である(@ref{Frame
+Titles}を参照)。
 
 @c FIXME seems like this section is not the best place for this option?
 @defopt mail-host-address
 @c FIXME sounds like should probably give this a :set-after and some
 @c custom-initialize-delay voodoo.
-If this variable is non-@code{nil}, it is used instead of @code{system-name}
-for purposes of generating email addresses.  For example, it is used when
-constructing the default value of @code{user-mail-address}.  @xref{User
-Identification}.  (Since this is done when Emacs starts up, the value
-actually used is the one saved when Emacs was dumped.  @xref{Building
-Emacs}.)
+この変数が非@code{nil}の場合にはこの変数が、emailアドレスを生成するために@code{system-name}のかわりに使用される。たとえばこれは、@code{user-mail-address}のデフォルト値の構築時に使用される。@ref{User
+Identification}を参照のこと。(これはEmacsスタートアップ時に行われるので、実際に使用されるのはEmacsのdump時に保存されたものである。@ref{Building
+Emacs}を参照されたい。)
 @end defopt
 
 @deffn Command getenv var &optional frame
 @cindex environment variable access
-This function returns the value of the environment variable @var{var}, as a
-string.  @var{var} should be a string.  If @var{var} is undefined in the
-environment, @code{getenv} returns @code{nil}.  It returns @samp{""} if
-@var{var} is set but null.  Within Emacs, a list of environment variables
-and their values is kept in the variable @code{process-environment}.
+この関数は、環境変数@var{var}の値を文字列としてリターンする。@var{var}は文字列であること。その環境内で@var{var}が未定義なら、@code{getenv}は@code{nil}をリターンする。@var{var}がセットされているがnull(訳注:
+空文字列)なら、@samp{""}をリターンする。Emacs内では、環境変数とそれらの値のリストは、変数@code{process-environment}内に保持されている。
 
 @example
 @group
@@ -694,7 +674,7 @@ and their values is kept in the variable @code{process-environment}.
 @end group
 @end example
 
-The shell command @code{printenv} prints all or part of the environment:
+shellコマンド@code{printenv}は環境変数すべて、または一部をプリントする:
 
 @example
 @group
@@ -712,32 +692,19 @@ HOME=/home/lewis
 @end deffn
 
 @deffn Command setenv variable &optional value substitute
-This command sets the value of the environment variable named @var{variable}
-to @var{value}.  @var{variable} should be a string.  Internally, Emacs Lisp
-can handle any string.  However, normally @var{variable} should be a valid
-shell identifier, that is, a sequence of letters, digits and underscores,
-starting with a letter or underscore.  Otherwise, errors may occur if
-subprocesses of Emacs try to access the value of @var{variable}.  If
-@var{value} is omitted or @code{nil} (or, interactively, with a prefix
-argument), @code{setenv} removes @var{variable} from the environment.
-Otherwise, @var{value} should be a string.
+このコマンドは、@var{variable}という名前の環境変数の値に、@var{value}をセットする。@var{variable}は文字列であること。内部的には、Emacs
+Lispは任意の文字列を扱える。しかし通常@var{variable}はshell識別子として有効、すなわちアルファベットかアンダースコアで始まる、アルファベット、数字またはアンダースコアのシーケンスであること。それ以外の場合、Emacsのサブプロセスが@var{variable}の値にアクセスを試みるとエラーが発生するかもしれない。@var{value}が省略または@code{nil}の場合(またはプレフィクス引数とともにインタラクティブに呼び出された場合)、@code{setenv}はその環境から@var{variable}を削除する。それ以外の場合、@var{variable}は文字列であること。
 
 @c FIXME: Document `substitute-env-vars'?  --xfq
-If the optional argument @var{substitute} is non-@code{nil}, Emacs calls the
-function @code{substitute-env-vars} to expand any environment variables in
-@var{value}.
+オプション引数@var{substitute}が非@code{nil}なら、@var{value}内のすべての環境変数を展開するために、Emacsは関数@code{substitute-env-vars}を呼び出す。
 
-@code{setenv} works by modifying @code{process-environment}; binding that
-variable with @code{let} is also reasonable practice.
+@code{setenv}は@code{process-environment}を変更することにより機能する。この変数を@code{let}でバインドするのも、合理的プラクティスである。
 
-@code{setenv} returns the new value of @var{variable}, or @code{nil} if it
-removed @var{variable} from the environment.
+@code{setenv}は@var{variable}の新たな値、または環境から@var{variable}が削除されていれば@code{nil}をリターンする。
 @end deffn
 
 @defvar process-environment
-This variable is a list of strings, each describing one environment
-variable.  The functions @code{getenv} and @code{setenv} work by means of
-this variable.
+この変数は、それぞれが1つの環境変数を記す文字列リストである。関数@code{getenv}と@code{setenv}は、この変数により機能する。
 
 @smallexample
 @group
@@ -753,20 +720,15 @@ process-environment
 @end group
 @end smallexample
 
-If @code{process-environment} contains ``duplicate'' elements that specify
-the same environment variable, the first of these elements specifies the
-variable, and the other ``duplicates'' are ignored.
+@code{process-environment}に同じ環境変数を指定する``重複''した要素が含まれる場合、それらの最初の要素が変数を指定し、他の``重複''は無視される。
 @end defvar
 
 @defvar initial-environment
-This variable holds the list of environment variables Emacs inherited from
-its parent process when Emacs started.
+この変数は、Emacs開始時にその親プロセスからEmacsが継承した環境変数のリストを保持する。
 @end defvar
 
 @defvar path-separator
-This variable holds a string that says which character separates directories
-in a search path (as found in an environment variable).  Its value is
-@code{":"} for Unix and GNU systems, and @code{";"} for MS systems.
+この変数は、(環境変数で見つけた)検索パス内でディレクトリーを区切る文字を示す文字列を保持する。値はUnixとGNUシステムでは@code{":"}、MSシステムでは@code{";"}である。
 @end defvar
 
 @defun parse-colon-path path
@@ -783,42 +745,27 @@ Although the function's name says ``colon'', it actually uses the value of
 @end defun
 
 @defvar invocation-name
-This variable holds the program name under which Emacs was invoked.  The
-value is a string, and does not include a directory name.
+この変数は、Emacsが呼び出された時のプログラム名を保持する。値は文字列で、ディレクトリー名は含まれない。
 @end defvar
 
 @defvar invocation-directory
-This variable holds the directory from which the Emacs executable was
-invoked, or @code{nil} if that directory cannot be determined.
+この変数は、Emacs実行可能形式が呼び出されたディレクトリー名、そのディレクトリーが判断できなければ@code{nil}をリターンする。
 @end defvar
 
 @defvar installation-directory
-If non-@code{nil}, this is a directory within which to look for the
-@file{lib-src} and @file{etc} subdirectories.  In an installed Emacs, it is
-normally @code{nil}.  It is non-@code{nil} when Emacs can't find those
-directories in their standard installed locations, but can find them in a
-directory related somehow to the one containing the Emacs executable (i.e.,
-@code{invocation-directory}).
+非@code{nil}なら、それはサブディレクトリー@file{lib-src}と@file{etc}を探すディレクトリーである。インストールされたEmacsなら、通常は@code{nil}。Emacsが標準のインストール位置にそれらのディレクトリーを見つけられないものの、Emacs実行可能形式を含むディレクトリー(たとえば@code{invocation-directory})に何らかの関連があるディレクトリーで見つかることができたら非@code{nil}ならとなる。
 @end defvar
 
 @defun load-average &optional use-float
-This function returns the current 1-minute, 5-minute, and 15-minute system
-load averages, in a list.  The load average indicates the number of
-processes trying to run on the system.
+この関数は現在、1分、5分、15分のロードアベレージ(load averages:
+平均負荷)をリストでリターンする。このロードアベレージは、そのシステム上で実行を試みているプロセス数を示す。
 
-By default, the values are integers that are 100 times the system load
-averages, but if @var{use-float} is non-@code{nil}, then they are returned
-as floating-point numbers without multiplying by 100.
+デフォルトでは、この値はシステムロードアベレージを100倍にした整数だが、@var{use-float}が非@code{nil}なら100を乗ずることなくこれらの値は浮動小数点数としてリターンされる。
 
 @c FIXME which platforms are these?  Are they still relevant?
-If it is impossible to obtain the load average, this function signals an
-error.  On some platforms, access to load averages requires installing Emacs
-as setuid or setgid so that it can read kernel information, and that usually
-isn't advisable.
+ロードアベレージ入手が不可能なら、この関数はエラーをシグナルする。いくつかのプラットフォームでは、ロードアベレージへのアクセスにカーネル情報を読み取れるよう、通常は推奨されないsetuidかsetgidしたEmacsのインストールを要する。
 
-If the 1-minute load average is available, but the 5- or 15-minute averages
-are not, this function returns a shortened list containing the available
-averages.
+1分のロードアベレージは利用できるが、5分と15分のアレージは利用できない場合、この関数は利用可能なアベレージを含んだ短縮されたリストをリターンする。
 
 @example
 @group
@@ -831,19 +778,17 @@ averages.
 @end group
 @end example
 
-The shell command @code{uptime} returns similar information.
+shellコマンドの@code{uptime}は、これと類似した情報をリターンする。
 @end defun
 
 @defun emacs-pid
-This function returns the process @acronym{ID} of the Emacs process, as an
-integer.
+この関数は、Emacsプロセスのプロセス@acronym{ID}を整数としてリターンする。
 @end defun
 
 @defvar tty-erase-char
 @c FIXME?  Seems untrue since 23.1.  For me, it is 0.
 @c The value is @code{nil} if Emacs is running under a window system.
-This variable holds the erase character that was selected in the system's
-terminal driver, before Emacs was started.
+この変数は、Emacs開始前にそのシステムの端末ドライバーで選択されていた、erase文字を保持する。
 @end defvar
 
 @node User Identification
