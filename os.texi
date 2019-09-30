@@ -927,94 +927,65 @@ Environment}を参照してください。たとえば@code{(setenv "TZ"
 @cindex calendrical information
 @cindex time conversion
 
-  These functions convert time values (lists of two to four integers, as
-explained in the previous section) into calendrical information and vice
-versa.
+  以下の関数はtime値(前セクションで説明した2個から4個の整数リスト)を、暦情報に変換したり、逆変換を行います。
 
-  Many 32-bit operating systems are limited to time values containing 32 bits
-of information; these systems typically handle only the times from
-1901-12-13 20:45:52 UTC through 2038-01-19 03:14:07 UTC@.  However, 64-bit
-and some 32-bit operating systems have larger time values, and can represent
-times far in the past or future.
+  32ビットオペレーティングシステムの多くは、32ビット情報を含んだtime値に制限されます。これらのシステムは、通常は1901-12-13
+20:45:52 UTCから2038-01-19 03:14:07
+UTCまでの時刻だけを処理します。しかし64ビット、およびいくつかの32ビットオペレーティングシステムは、より大きなtime値をもち、より遠い過去や未来の時刻を表現できます。
 
-  Time conversion functions always use the Gregorian calendar, even for dates
-before the Gregorian calendar was introduced.  Year numbers count the number
-of years since the year 1 B.C., and do not skip zero as traditional
-Gregorian years do; for example, the year number @minus{}37 represents the
-Gregorian year 38 B.C@.
+  時刻変換関数は、たとえグレゴリオ暦導入前の日付にたいしても、常にグレゴリオ暦を使用します。年はB.C.
+1年から年数を数え、伝統的なグレゴリオ年が行うように0年をスキップしません。たとえば年数@minus{}37は、グレゴリオ年のB.C.
+38年を表します。
 
 @defun decode-time &optional time
-This function converts a time value into calendrical information.  If you
-don't specify @var{time}, it decodes the current time.  The return value is
-a list of nine elements, as follows:
+この関数は、time値を暦情報に変換する。@var{time}を指定しなければ、カレント時刻をデコードする。リターン値は、以下のような9要素のリストである:
 
 @example
 (@var{seconds} @var{minutes} @var{hour} @var{day} @var{month} @var{year} @var{dow} @var{dst} @var{zone})
 @end example
 
-Here is what the elements mean:
+以下に各要素の意味を示す:
 
 @table @var
 @item seconds
-The number of seconds past the minute, as an integer between 0 and 59.  On
-some operating systems, this is 60 for leap seconds.
+0から59までの整数で表した分を過ぎた時分秒の秒。いくつかのオペレーティングシステムでは、閏秒にたいして60となる。
 @item minutes
-The number of minutes past the hour, as an integer between 0 and 59.
+0から59までの整数で表した、時を過ぎた時分秒の分。
 @item hour
-The hour of the day, as an integer between 0 and 23.
+0から23までの整数で表した時分秒の時。
 @item day
-The day of the month, as an integer between 1 and 31.
+1から31までの整数で表した、年月日の日。
 @item month
-The month of the year, as an integer between 1 and 12.
+1から12までの整数で表した、年月日の月。
 @item year
-The year, an integer typically greater than 1900.
+通常は1900より大きい整数で表した、年月日の年。
 @item dow
-The day of week, as an integer between 0 and 6, where 0 stands for Sunday.
+0から6までの整数で表した曜日で、0は日曜日を意味する。
 @item dst
-@code{t} if daylight saving time is effect, otherwise @code{nil}.
+夏時間が有効なら@code{t}、それ以外は@code{nil}。
 @item zone
-An integer indicating the time zone, as the number of seconds east of
-Greenwich.
+グリニッジ以東の秒数による、タイムゾーンを示す整数。
 @end table
 
-@strong{Common Lisp Note:} Common Lisp has different meanings for @var{dow}
-and @var{zone}.
+@strong{Common Lispに関する注意:} Common Lispでは@var{dow}と@var{zone}の意味が異なる。
 @end defun
 
 @defun encode-time seconds minutes hour day month year &optional zone
-This function is the inverse of @code{decode-time}.  It converts seven items
-of calendrical data into a time value.  For the meanings of the arguments,
-see the table above under @code{decode-time}.
+この関数は@code{decode-time}の逆版である。これは7アイテムの暦データをtime値に変換する。引数の意味は、上述@code{decode-time}のテーブルを参照のこと。
 
-Year numbers less than 100 are not treated specially.  If you want them to
-stand for years above 1900, or years above 2000, you must alter them
-yourself before you call @code{encode-time}.
+100未満の年が特別に扱われることはない。これを1900または2000を超える年を意味させたい場合は、@code{encode-time}を呼び出す前に自身でこれらを修正しなければならない。
 
-The optional argument @var{zone} defaults to the current time zone and its
-daylight saving time rules.  If specified, it can be either a list (as you
-would get from @code{current-time-zone}), a string as in the @env{TZ}
-environment variable, @code{t} for Universal Time, or an integer (as you
-would get from @code{decode-time}).  The specified zone is used without any
-further alteration for daylight saving time.
+オプション引数@var{zone}のデフォルトは、カレントのタイムゾーンと夏時間ルールである。指定する場合は(@code{current-time-zone}で得られるような)リスト、環境変数@env{TZ}の値のような文字列、@code{t}は万国標準時、(@code{decode-time}で得られるような)整数のいずれかを指定できる。指定されたゾーンは夏時間による更なる変更を受けずに使用される。
 
-If you pass more than seven arguments to @code{encode-time}, the first six
-are used as @var{seconds} through @var{year}, the last argument is used as
-@var{zone}, and the arguments in between are ignored.  This feature makes it
-possible to use the elements of a list returned by @code{decode-time} as the
-arguments to @code{encode-time}, like this:
+@code{encode-time}にたいして7個より多い引数を渡した、最初の6つは@var{seconds}から@var{year}、最後の引数が@var{zone}として使用され、その間の引数は無視される。これにより、以下のように@code{decode-time}がリターンしたリストの要素を、@code{encode-time}の引数として使用することが可能になる:
 
 @example
 (apply 'encode-time (decode-time @dots{}))
 @end example
 
-You can perform simple date arithmetic by using out-of-range values for the
-@var{seconds}, @var{minutes}, @var{hour}, @var{day}, and @var{month}
-arguments; for example, day 0 means the day preceding the given month.
+@var{seconds}、@var{minutes}、@var{hour}、@var{day}、@var{month}の引数に範囲外の値を使用することにより、単純な日付計算ができます。たとえば@var{day}が0なら、それは与えられた@var{month}の前月末になります。
 
-The operating system puts limits on the range of possible time values; if
-you try to encode a time that is out of range, an error results.  For
-instance, years before 1970 do not work on some systems; on others, years as
-early as 1901 do work.
+オペレーティングシステムは、可能なtime値の範囲に制限を設けます。範囲外の時刻のエンコードを試みると、結果はエラーとなります。たとえばあるシステムでは1970年以前では機能せず、別のシステムではより以前の1901年以降から機能します。
 @end defun
 
 @node Time Parsing
