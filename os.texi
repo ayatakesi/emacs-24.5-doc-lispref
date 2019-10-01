@@ -1139,39 +1139,33 @@ Basics, most-positive-fixnum}を参照)。
 @cindex processor run time
 @cindex Emacs process run time
 
-  Emacs provides several functions and primitives that return time, both
-elapsed and processor time, used by the Emacs process.
+  Emacsは、Emacsプロセスにより使用された経過時間(elapsed time)、プロセッサー時間(processor
+time)の両方にたいして、それらをリターンする関数とプリミティブをいくつか提供します。
 
 @deffn Command emacs-uptime &optional format
 @cindex uptime of Emacs
-This function returns a string representing the Emacs @dfn{uptime}---the
-elapsed wall-clock time this instance of Emacs is running.  The string is
-formatted by @code{format-seconds} according to the optional argument
-@var{format}.  For the available format descriptors, see @ref{Time Parsing,
-format-seconds}.  If @var{format} is @code{nil} or omitted, it defaults to
-@code{"%Y, %D, %H, %M, %z%S"}.
+この関数はEmacsの@dfn{uptime} ---
+このEmacsインスタンスが実行してから経過した、実世界における稼動時間。この文字列はオプション引数@var{format}に応じて、@code{format-seconds}によりフォーマットされる。利用できるフォーマット記述子については、@ref{Time
+Parsing,
+format-seconds}を参照のこと。@var{format}が@code{nil}または省略された場合のデフォルトは@code{"%Y, %D,
+%H, %M, %z%S"}。
 
-When called interactively, it prints the uptime in the echo area.
+インタラクティブに呼び出された場合には、エコーエリアにuptimeをプリントする。
 @end deffn
 
 @defun get-internal-run-time
-This function returns the processor run time used by Emacs as a list of four
-integers: @code{(@var{high} @var{low} @var{microsec} @var{picosec})}, using
-the same format as @code{current-time} (@pxref{Time of Day}).
+この関数はEmacsにより使用されたプロセッサーの実行時間を、@code{current-time}の場合と同じフォーマット(@ref{Time of
+Day}を参照)である4つの整数のリスト@code{(@var{high} @var{low} @var{microsec}
+@var{picosec})}でリターンする。
 
-Note that the time returned by this function excludes the time Emacs was not
-using the processor, and if the Emacs process has several threads, the
-returned value is the sum of the processor times used up by all Emacs
-threads.
+この関数がリターンする値にはEmacsがプロセッサーを使用していない時間は含まれないこと、そしてEmacsプロセスが複数のスレッドをもつ場合には、すべてのEmacsスレッドにより使用されたプロセッサー時間の合計値がリターンされることに注意。
 
-If the system doesn't provide a way to determine the processor run time,
-@code{get-internal-run-time} returns the same time as @code{current-time}.
+システムがプロセッサー実行時間を判断する方法を提供しない場合、@code{get-internal-run-time}は@code{current-time}と同じ値をリターンする。
 @end defun
 
 @deffn Command emacs-init-time
-This function returns the duration of the Emacs initialization
-(@pxref{Startup Summary}) in seconds, as a string.  When called
-interactively, it prints the duration in the echo area.
+この関数は、Emacs初期化(@ref{Startup
+Summary}を参照)にかかった秒数を、文字列としてリターンする。インタラクティブに呼び出された場合には、それをエコーエリアにプリントする。
 @end deffn
 
 @node Time Calculations
