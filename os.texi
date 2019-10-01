@@ -1208,135 +1208,72 @@ Summary}を参照)にかかった秒数を、文字列としてリターンす�
 @section Timers for Delayed Execution
 @cindex timer
 
-  You can set up a @dfn{timer} to call a function at a specified future time
-or after a certain length of idleness.
+  将来の特定時刻や特定の長さのアイドル時間経過後に関数を呼び出すために、@dfn{タイマー(timer)}をセットアップできます。
 
-  Emacs cannot run timers at any arbitrary point in a Lisp program; it can run
-them only when Emacs could accept output from a subprocess: namely, while
-waiting or inside certain primitive functions such as @code{sit-for} or
-@code{read-event} which @emph{can} wait.  Therefore, a timer's execution may
-be delayed if Emacs is busy.  However, the time of execution is very precise
-if Emacs is idle.
+  Emacsは、Lispプログラム内の任意の時点では、タイマーを実行できません。サブプロセスからの出力が受け入れ可能なときだけ、Emacsはタイマーを実行できます。つまり待機中や、待機することが@emph{可能}な、@code{sit-for}や@code{read-event}のような特定のプリミティブ関数内部でのみ、タイマーを実行できます。したがってEmacsがbusyなら、タイマーの実行は遅延するかもしれません。しかしEmacsがidleなら、実行される時刻は非常に正確になります。
 
-  Emacs binds @code{inhibit-quit} to @code{t} before calling the timer
-function, because quitting out of many timer functions can leave things in
-an inconsistent state.  This is normally unproblematical because most timer
-functions don't do a lot of work.  Indeed, for a timer to call a function
-that takes substantial time to run is likely to be annoying.  If a timer
-function needs to allow quitting, it should use @code{with-local-quit}
-(@pxref{Quitting}).  For example, if a timer function calls
-@code{accept-process-output} to receive output from an external process,
-that call should be wrapped inside @code{with-local-quit}, to ensure that
-@kbd{C-g} works if the external process hangs.
+  quitにより、多くのタイマー関数が物事を不整合な状態に放置し得るので、ターマー関数呼び出し前にEmacsは@code{inhibit-quit}に@code{t}をバインドします。ほとんどのタイマー関数は多くの作業を行わないので、これは通常は問題にはなりません。しかし実際には、実行に長時間を要する関数を呼び出すタイマーは問題となる恐れがあります。タイマー関数がquitを許容する必要がある場合は、@code{with-local-quit}を使用するべきです(@ref{Quitting}を参照)。たとえば、外部プロセスから出力を受け取るためにタイマー関数が@code{accept-process-output}を呼び出す場合、外部プロセスのハング時の@kbd{C-g}を確実に機能させるために、その呼び出しを@code{with-local-quit}内部にラップすべきです。
+For exam；ple, if a timer function calls  to receive output from an external
+process, that call should be wrapped inside , to ensure that  works if the
+external process hangs.
 
-  It is usually a bad idea for timer functions to alter buffer contents.  When
-they do, they usually should call @code{undo-boundary} both before and after
-changing the buffer, to separate the timer's changes from user commands'
-changes and prevent a single undo entry from growing to be quite large.
+  バッファー内容の変更のためにタイマー関数を呼び出すのは、通常は悪いアイデアです。これを行うときには、そのタイマーによる変更とユーザーのコマンドによる変更を分離して、単一のアンドゥエントリーが巨大になるのを防ぐために、バッファーの変更前後で、通常は@code{undo-boundary}を呼び出すべきです。
 
-  Timer functions should also avoid calling functions that cause Emacs to
-wait, such as @code{sit-for} (@pxref{Waiting}).  This can lead to
-unpredictable effects, since other timers (or even the same timer) can run
-while waiting.  If a timer function needs to perform an action after a
-certain time has elapsed, it can do this by scheduling a new timer.
+  タイマー関数は@code{sit-for}のようなEmacsに待機を発生させるような関数(@ref{Waiting}を参照)の呼び出しも避けるべきです。その待機中に別のタイマー(同じタイマーとう可能性さえある)が実行され得るので、これは予測不可能な効果を導く恐れがあります。特定時間の経過後に処理される必要があるタイマー関数は、新たなタイマーをスケジュールすることにより、これを行うことができます。
 
-  If a timer function calls functions that can change the match data, it
-should save and restore the match data.  @xref{Saving Match Data}.
+  マッチデータを変更するかもしれない関数を呼び出すタイマー関数は、マッチデータの保存とリストアをするべきです。@ref{Saving Match
+Data}を参照してください。
 
 @deffn Command run-at-time time repeat function &rest args
-This sets up a timer that calls the function @var{function} with arguments
-@var{args} at time @var{time}.  If @var{repeat} is a number (integer or
-floating point), the timer is scheduled to run again every @var{repeat}
-seconds after @var{time}.  If @var{repeat} is @code{nil}, the timer runs
-only once.
+これは時刻@var{time}に、引数@var{args}で関数@var{function}を呼び出すタイマーをセットアップする。@var{repeat}が数値(整数か浮動小数点数)なら、そのタイマーは@var{time}後の各@var{repeat}秒ごとに再実行されるようスケジュールされる。@var{repeat}が@code{nil}なら、そのタイマーは1回だけ実行される。
 
-@var{time} may specify an absolute or a relative time.
+@var{time}には、絶対時刻と相対時刻を指定できる。
 
-Absolute times may be specified using a string with a limited variety of
-formats, and are taken to be times @emph{today}, even if already in the
-past.  The recognized forms are @samp{@var{xxxx}}, @samp{@var{x}:@var{xx}},
-or @samp{@var{xx}:@var{xx}} (military time), and @samp{@var{xx}am},
-@samp{@var{xx}AM}, @samp{@var{xx}pm}, @samp{@var{xx}PM},
-@samp{@var{xx}:@var{xx}am}, @samp{@var{xx}:@var{xx}AM},
-@samp{@var{xx}:@var{xx}pm}, or @samp{@var{xx}:@var{xx}PM}.  A period can be
-used instead of a colon to separate the hour and minute parts.
+絶対時刻は限定された種々フォーマットの文字列を使用して指定でき、すでに経過後の時刻であっても@emph{当日}の時刻とみなされる。認識される形式は@samp{@var{xxxx}}、@samp{@var{x}:@var{xx}}、or
+@samp{@var{xx}:@var{xx}} (military time)、and
+@samp{@var{xx}am}、@samp{@var{xx}AM}、@samp{@var{xx}pm}、@samp{@var{xx}PM}、@samp{@var{xx}:@var{xx}am}、@samp{@var{xx}:@var{xx}AM}、@samp{@var{xx}:@var{xx}pm}、@samp{@var{xx}:@var{xx}PM}のいずれか。時と分をの部分を区切るのは、コロンのかわりにピリオドも使用できる。
 
-To specify a relative time as a string, use numbers followed by units.  For
-example:
+相対時刻は単位を付加した数字を、文字列として指定する。たとえば:
 
 @table @samp
 @item 1 min
-denotes 1 minute from now.
+現在時刻から1分後を表す。
 @item 1 min 5 sec
-denotes 65 seconds from now.
+現在時刻から65秒後を表す。
 @item 1 min 2 sec 3 hour 4 day 5 week 6 fortnight 7 month 8 year
-denotes exactly 103 months, 123 days, and 10862 seconds from now.
+現在時刻から丁度103ヵ月123日10862秒後を表す。
 @end table
 
-For relative time values, Emacs considers a month to be exactly thirty days,
-and a year to be exactly 365.25 days.
+総体time値にたいして、Emacsは月を正確に30日、年を正確に365.25とみなす。
 
-Not all convenient formats are strings.  If @var{time} is a number (integer
-or floating point), that specifies a relative time measured in seconds.  The
-result of @code{encode-time} can also be used to specify an absolute value
-for @var{time}.
+有用なフォーマットのすべてが文字列という訳ではない。@var{time}が数字(整数か浮動小数点数)なら、それは秒で数えた相対時刻を指定する。@code{encode-time}の結果は、@var{time}にたいする絶対時刻の指定にも使用できる。
 
-In most cases, @var{repeat} has no effect on when @emph{first} call takes
-place---@var{time} alone specifies that.  There is one exception: if
-@var{time} is @code{t}, then the timer runs whenever the time is a multiple
-of @var{repeat} seconds after the epoch.  This is useful for functions like
-@code{display-time}.
+ほとんどの場合、@emph{最初}に呼び出されている際は@var{repeat}の効果はなく、@var{time}単独で時刻を指定する。例外が1つあり@var{time}が@code{t}なら、エポックから@var{repeat}の倍数秒ごとに毎回そのタイマーが実行される。これは@code{display-time}のような関数にとって有用である。
 
-The function @code{run-at-time} returns a timer value that identifies the
-particular scheduled future action.  You can use this value to call
-@code{cancel-timer} (see below).
+関数@code{run-at-time}は、スケジュール済みの将来の特定アクションを識別するtime値をリターンする。@code{cancel-timer}(以下参照)の呼び出しに、この値を使用できる。
 @end deffn
 
-  A repeating timer nominally ought to run every @var{repeat} seconds, but
-remember that any invocation of a timer can be late.  Lateness of one
-repetition has no effect on the scheduled time of the next repetition.  For
-instance, if Emacs is busy computing for long enough to cover three
-scheduled repetitions of the timer, and then starts to wait, it will
-immediately call the timer function three times in immediate succession
-(presuming no other timers trigger before or between them).  If you want a
-timer to run again no less than @var{n} seconds after the last invocation,
-don't use the @var{repeat} argument.  Instead, the timer function should
-explicitly reschedule the timer.
+  タイマーのリピートは名目上@var{repeat}秒ごとに毎回実行されますが、すべてのタイマー呼び出しは遅延する可能性があることを忘れないでください。1つの繰り返しの遅延が、次の繰り返しに影響を与えることはありません。たとえば3回分のスケジュール済みのタイマー繰り返しをカバーするほど計算等によりEmacsがbusyでも、それらは待機を開始して、連続してそのタイマー関数が3回呼び出されることになります(それらの間の別のタイマー呼び出しは想定していない)。最後の呼び出しから@var{n}秒より短くならずにタイマーを再実行したい場合には、@var{repeat}引数を使用しないでください。タイマー関数は、かわりにそのタイマーを明示的に再スケジュールするべきです。
 
 @defopt timer-max-repeats
-This variable's value specifies the maximum number of times to repeat
-calling a timer function in a row, when many previously scheduled calls were
-unavoidably delayed.
+この変数の値は、以前スケジュールされていた呼び出しが止むを得ずに遅延された際に、タイマー関数がリピートによりまとめて呼び出される最大の回数を指定する
 @end defopt
 
 @defmac with-timeout (seconds timeout-forms@dots{}) body@dots{}
-Execute @var{body}, but give up after @var{seconds} seconds.  If @var{body}
-finishes before the time is up, @code{with-timeout} returns the value of the
-last form in @var{body}.  If, however, the execution of @var{body} is cut
-short by the timeout, then @code{with-timeout} executes all the
-@var{timeout-forms} and returns the value of the last of them.
+@var{body}を実行するが、@var{seconds}秒後に実行を諦める。タイムアップ前に@var{body}が終了したら、@code{with-timeout}は@var{body}内の最後のフォームの値をリターンする。ただし、タイムアウトにより@var{body}の実行が打ち切られた場合には、@code{with-timeout}は@var{timeout-forms}をすべて実行して、それの最後のフォームの値をリターンする。
 
-This macro works by setting a timer to run after @var{seconds} seconds.  If
-@var{body} finishes before that time, it cancels the timer.  If the timer
-actually runs, it terminates execution of @var{body}, then executes
-@var{timeout-forms}.
+このマクロは、@var{seconds}秒後に実行するタイマーをセットすることにより機能する。その時刻前に@var{body}が終了したらそのタイマーを削除し、タイマーが実際に実行されたら@var{body}の実行を終了して、それから@var{timeout-forms}を実行する。
 
-Since timers can run within a Lisp program only when the program calls a
-primitive that can wait, @code{with-timeout} cannot stop executing
-@var{body} while it is in the midst of a computation---only when it calls
-one of those primitives.  So use @code{with-timeout} only with a @var{body}
-that waits for input, not one that does a long computation.
+Lispプログラムでは、待機を行えるプリミティブをプログラムが呼び出している時のみタイマーを実行できるので、@var{body}が計算途中の間は@code{with-timeout}は実行を停止できない
+---
+そのプログラムがこれらのプリミティブのいずれかを呼び出したときのみ停止できる。そのため、@var{body}で長時間の計算を行う場合ではなく、入力を待機する場合だけ@code{with-timeout}を使用すること。
 @end defmac
 
-  The function @code{y-or-n-p-with-timeout} provides a simple way to use a
-timer to avoid waiting too long for an answer.  @xref{Yes-or-No Queries}.
+  あまりに長時間応答を待機するのを避けるために、関数@code{y-or-n-p-with-timeout}はタイマーを使用するシンプルな方法を提供します。@ref{Yes-or-No
+Queries}を参照してください。
 
 @defun cancel-timer timer
-This cancels the requested action for @var{timer}, which should be a
-timer---usually, one previously returned by @code{run-at-time} or
-@code{run-with-idle-timer}.  This cancels the effect of that call to one of
-these functions; the arrival of the specified time will not cause anything
-special to happen.
+これは@var{timer}にたいして要求されたアクションをキャンセルする。ここで@var{timer}はタイマーであること。これは通常は以前に@code{run-at-time}か@code{run-with-idle-timer}がリターンしたものである。この関数は、これらの関数の1つの呼び出しの効果をキャンセルする。指定した時刻が到来しても、特別ni何も起きないだろう。
 @end defun
 
 @node Idle Timers
