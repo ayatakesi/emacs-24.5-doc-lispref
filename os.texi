@@ -1460,56 +1460,41 @@ file)}をオープンする。リターン値は@code{nil}。termscriptファイ
 @section Sound Output
 @cindex sound
 
-  To play sound using Emacs, use the function @code{play-sound}.  Only certain
-systems are supported; if you call @code{play-sound} on a system which
-cannot really do the job, it gives an error.
+  Emacsを使用してサウンドを再生するためには、関数@code{play-sound}を使用します。特定のシステムだけがサポートされています。実際に処理を行うことができないシステムで@code{play-sound}を呼び出すと、エラーが発生します。
 
 @c FIXME: Add indexes for Au and WAV?  --xfq
-  The sound must be stored as a file in RIFF-WAVE format (@samp{.wav})  or Sun
-Audio format (@samp{.au}).
+  サウンドはRIFF-WAVEフォーマット(@samp{.wav})か、Sun
+Audioフォーマット(@samp{.au})で格納されていなければなりません。
 
 @defun play-sound sound
-This function plays a specified sound.  The argument, @var{sound}, has the
-form @code{(sound @var{properties}...)}, where the @var{properties} consist
-of alternating keywords (particular symbols recognized specially) and values
-corresponding to them.
+この関数は、指定されたサウンドを再生する。引数@var{sound}は、@code{(sound
+@var{properties}...)}という形式をもつ。ここで@var{properties}はキーワード(特定のシンボルが特別に認識される)とそれに対応する値で交互に構成されている。
 
-Here is a table of the keywords that are currently meaningful in
-@var{sound}, and their meanings:
+以下に、現在のところ@var{sound}内で意味をもつキーワードと、それらの意味をテーブルに記した:
 
 @table @code
 @item :file @var{file}
-This specifies the file containing the sound to play.  If the file name is
-not absolute, it is expanded against the directory @code{data-directory}.
+これは、再生するサウンドを含んだファイルを指定する。絶対ファイル名でなければ、ディレクトリー@code{data-directory}にたいして展開される。
 
 @item :data @var{data}
-This specifies the sound to play without need to refer to a file.  The
-value, @var{data}, should be a string containing the same bytes as a sound
-file.  We recommend using a unibyte string.
+これは、ファイルを参照する必要がないサウンドの再生を指定する。値@var{data}は、サウンドファイルと同じバイトを含む文字列であること。わたしたちはユニバイト文字列の使用を推奨する。
 
 @item :volume @var{volume}
-This specifies how loud to play the sound.  It should be a number in the
-range of 0 to 1.  The default is to use whatever volume has been specified
-before.
+これはサウンド再生での音の大きさを指定する。これは0から1までの数値であること。どんな値であれ、以前に指定されたボリュームがデフォルトとして使用される。
 
 @item :device @var{device}
-This specifies the system device on which to play the sound, as a string.
-The default device is system-dependent.
+これはサウンドを再生するシステムデバイスを、文字列で指定する。デフォルトのデバイスはシステム依存である。
 @end table
 
-Before actually playing the sound, @code{play-sound} calls the functions in
-the list @code{play-sound-functions}.  Each function is called with one
-argument, @var{sound}.
+実際にサウンドを再生する前に、@code{play-sound}はリスト@code{play-sound-functions}内の関数を呼び出す。関数はそれぞれ1つの引数@var{sound}で呼び出される。
 @end defun
 
 @deffn Command play-sound-file file &optional volume device
-This function is an alternative interface to playing a sound @var{file}
-specifying an optional @var{volume} and @var{device}.
+この関数は、オプションで@var{volume}と@var{device}を指定し、サウンド@var{file}を再生する、代替インターフェイスである。
 @end deffn
 
 @defvar play-sound-functions
-A list of functions to be called before playing a sound.  Each function is
-called with one argument, a property list that describes the sound.
+リストの関数は、サウンド再生前に呼び出される。関数はそれぞれ、そのサウンドを記述するプロパティリストを単一の引数として呼び出される。
 @end defvar
 
 @node X11 Keysyms
