@@ -1790,73 +1790,55 @@ bodyのテキストをサポートする。
 @cindex file notifications
 @cindex watch, for filesystem events
 
-Several operating systems support watching of filesystems for changes of
-files.  If configured properly, Emacs links a respective library like
-@file{gfilenotify}, @file{inotify}, or @file{w32notify} statically.  These
-libraries enable watching of filesystems on the local machine.
+いくつかのオペレーティングシステムは、ファイル変更にたいする、ファイルシステムの監視をサポートします。正しく設定されている場合には、Emacsは@file{gfilenotify}、@file{inotify}、@file{w32notify}のようなライブラリーを静的にリンクします。これらのライブラリーにより、ローカルマシン上でのファイルシステムの監視が有効になります。
 
-It is also possible to watch filesystems on remote machines, @pxref{Remote
-Files,, Remote Files, emacs, The GNU Emacs Manual} This does not depend on
-one of the libraries linked to Emacs.
+リモートマシン上のファイルシステムの監視も可能です。@ref{Remote Files,, Remote Files, emacs, The GNU
+Emacs Manual}を参照してください。これはEmacsにリンク済みのライブラリーの、いずれか1つに依存する訳ではありません。
 
-Since all these libraries emit different events on notified file changes,
-there is the Emacs library @code{filenotify} which provides a unique
-interface.
+通知されたファイル変更によりこれらすべてのライブラリーは異なるイベントを発行するので、Emacsは一意な参照を提供するライブラリー@code{filenotify}を提供しています。
 
 @defun file-notify-add-watch file flags callback
-Add a watch for filesystem events pertaining to @var{file}.  This arranges
-for filesystem events pertaining to @var{file} to be reported to Emacs.
+@var{file}に関するファイルシステムイベントの監視を追加する。これは、@var{file}に関するファイルシステムイベントがEmacsに報告されるように取り計らう。
 
-The returned value is a descriptor for the added watch.  Its type depends on
-the underlying library, it cannot be assumed to be an integer as in the
-example below.  It should be used for comparison by @code{equal} only.
+リターン値は、追加された監視のディスクリプター(descriptor)である。これのタイプは背景にあるライブラリーに依存し、以下の例に示すとおり、整数とみなすことはできない。これの比較には、@code{equal}を使用すること。
 
-If the @var{file} cannot be watched for some reason, this function signals a
-@code{file-notify-error} error.
+何らかの理由により、@var{file}が監視不可能なら、この関数はエラー@code{file-notify-error}をシグナルする。
 
-Sometimes, mounted filesystems cannot be watched for file changes.  This is
-not detected by this function, a non-@code{nil} return value does not
-guarantee that changes on @var{file} will be notified.
+マウントされたファイルシステムでファイル変更を監視できないことがある。これはこの関数により検出されず、非@code{nil}のリターン値が@var{file}の変更の通知を保証するものではない。
 
-@var{flags} is a list of conditions to set what will be watched for.  It can
-include the following symbols:
+@var{flags}は、何を監視するかセットするための、コンディションのリストである。以下のシンボルを含めることができる:
 
 @table @code
 @item change
-watch for file changes
+ファイル変更を監視。
 @item attribute-change
-watch for file attribute changes, like permissions or modification time
+パーミッションや変更時刻のような、ファイル属性の変更を監視。
 @end table
 
-If @var{file} is a directory, changes for all files in that directory will
-be notified.  This does not work recursively.
+@var{file}がディレクトリーなら、そのディレクトリー内のすべてのファイルの変更が通知される。これは再帰的には機能しない。
 
-When any event happens, Emacs will call the @var{callback} function passing
-it a single argument @var{event}, which is of the form
+何らかのイベント発生時には、以下の形式の@var{event}を単一の引数として、Emacsは関数@var{callback}を呼び出す:
 
 @lisp
 (@var{descriptor} @var{action} @var{file} [@var{file1}])
 @end lisp
 
-@var{descriptor} is the same object as the one returned by this function.
-@var{action} is the description of the event.  It could be any one of the
-following symbols:
+@var{descriptor}は、この関数がリターンするオブジェクトと同じである。@var{action}はイベントを示し、以下のシンボルのいずれかである:
 
 @table @code
 @item created
-@var{file} was created
+@var{file}が作成された。
 @item deleted
-@var{file} was deleted
+@var{file}が削除された。
 @item changed
-@var{file} has changed
+@var{file}が変更された。
 @item renamed
-@var{file} has been renamed to @var{file1}
+@var{file}が@var{file1}にリネームされた。
 @item attribute-changed
-a @var{file} attribute was changed
+@var{file}の属性が変更された。
 @end table
 
-@var{file} and @var{file1} are the name of the file(s) whose event is being
-reported.  For example:
+@var{file}および@var{file1}は、イベントが報告されたファイルの名前である。たとえば:
 
 @example
 @group
@@ -1897,10 +1879,7 @@ reported.  For example:
 @end group
 @end example
 
-Whether the action @code{renamed} is returned, depends on the used watch
-library.  It can be expected, when a directory is watched, and both
-@var{file} and @var{file1} belong to this directory.  Otherwise, the actions
-@code{deleted} and @code{created} could be returned in a random order.
+アクション@code{renamed}がリターンされるかどうかは、使用する監視ライブラリーに依存する。@var{file}と@var{file1}の両方が同じディレクトリーに属し、そのディレクトリーが監視されていればリターンを期待できる。それ以外ではアクション@code{deleted}と@code{created}がランダムな順にリターンされる。
 
 @example
 @group
@@ -1927,9 +1906,7 @@ library.  It can be expected, when a directory is watched, and both
 @end defun
 
 @defun file-notify-rm-watch descriptor
-Removes an existing file watch specified by its @var{descriptor}.
-@var{descriptor} should be an object returned by
-@code{file-notify-add-watch}.
+@var{descriptor}に指定された、既存のファイル監視を削除する。@var{descriptor}は、@code{file-notify-add-watch}がリターンしたオブジェクトであること。
 @end defun
 
 @node Dynamic Libraries
