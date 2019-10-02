@@ -1546,25 +1546,16 @@ keysymの名前はそれぞれ修飾子Alt、Meta、Hyper、Superを意味する
 @section Batch Mode
 @cindex batch mode
 
-  The command-line option @samp{-batch} causes Emacs to run noninteractively.
-In this mode, Emacs does not read commands from the terminal, it does not
-alter the terminal modes, and it does not expect to be outputting to an
-erasable screen.  The idea is that you specify Lisp programs to run; when
-they are finished, Emacs should exit.  The way to specify the programs to
-run is with @samp{-l @var{file}}, which loads the library named @var{file},
-or @samp{-f @var{function}}, which calls @var{function} with no arguments,
-or @samp{--eval @var{form}}.
+  コマンドラインオプション@samp{-batch}で、Emacsを非対話的に実行できます。このモードでは、Emacsは端末からコマンドを読み取りません。また終端モード(terminal
+modes)を変更せず、消去可能なスクリーンへの出力も待ち受けません。これは、Lispプログラムの実行を指示して、終了したらEmacsが終了するというアイデアです。これを行うには@samp{-l
+@var{file}}により@var{file}という名前のライブラリーをロード、@samp{-f
+@var{function}}により引数なしで@var{function}を呼び出す、または@samp{--eval
+@var{form}}で実行するプログラムを指定できます。
 
-  Any Lisp program output that would normally go to the echo area, either
-using @code{message}, or using @code{prin1}, etc., with @code{t} as the
-stream, goes instead to Emacs's standard error descriptor when in batch
-mode.  Similarly, input that would normally come from the minibuffer is read
-from the standard input descriptor.  Thus, Emacs behaves much like a
-noninteractive application program.  (The echo area output that Emacs itself
-normally generates, such as command echoing, is suppressed entirely.)
+  通常はエコーエリアに出力したり、ストリームとして@code{t}を指定する@code{message}や@code{prin1}等を使用したLispプログラムの出力は、batchモードではEmacsの標準エラー出力へと送られます。同様に、通常はミニバッファーから読み取られる入力は、標準入力から読み取られます。つまり、Emacsは非インタラクティブなアプリケーションプログラムのように振る舞います。(コマンドのエコーのように、通常Emacsが生成するエコーエリアへの出力はすべて抑制される。)
 
 @defvar noninteractive
-This variable is non-@code{nil} when Emacs is running in batch mode.
+Emacsがbatchモードで実行中なら、この変数は非@code{nil}。
 @end defvar
 
 @node Session Management
