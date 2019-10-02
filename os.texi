@@ -1602,135 +1602,97 @@ Summary}を参照のこと。
 @cindex desktop notifications
 @cindex notifications, on desktop
 
-Emacs is able to send @dfn{notifications} on systems that support the
-freedesktop.org Desktop Notifications Specification.  In order to use this
-functionality, Emacs must have been compiled with D-Bus support, and the
-@code{notifications} library must be loaded.  @xref{Top, , D-Bus,dbus,D-Bus
-integration in Emacs}.
+Emacsはfreedesktop.orgのDesktop Notifications
+Specificationをサポートするシステムでは、@dfn{通知(notifications)}を送ることができます。この機能を使用するには、EmacsがD-Busサポート付きでコンパイルされていて、@code{notifications}ライブラリーがロードされていなければなりません。@ref{Top,
+, D-Bus,dbus,D-Bus integration in Emacs}を参照してください。
 
 @defun notifications-notify &rest params
-This function sends a notification to the desktop via D-Bus, consisting of
-the parameters specified by the @var{params} arguments.  These arguments
-should consist of alternating keyword and value pairs.  The supported
-keywords and values are as follows:
+この関数は、引数@var{params}で指定された構成したパラメーターにより、D-Busを通じてデスクトップに通知を送信する。これらの引数は、交互になったキーワードと値のペアーで構成されていること。以下はサポートされているキーワードと値である:
 
 @table @code
 @item :bus @var{bus}
-The D-Bus bus.  This argument is needed only if a bus other than
-@code{:session} shall be used.
+D-Busのバス。この引数は、@code{:session}以外のバスを使用する場合のみ必要となる。
 
 @item :title @var{title}
-The notification title.
+通知のタイトル。
 
 @item :body @var{text}
-The notification body text.  Depending on the implementation of the
-notification server, the text could contain HTML markups, like
-@samp{"<b>bold text</b>"}, hyperlinks, or images.  Special HTML characters
-must be encoded, as @samp{"Contact &lt;postmaster@@localhost&gt;!"}.
+通知ボディのテキスト。通知サーバーの実装に依存して@samp{"<b>bold
+text</b>"}のようなHTMLマークアップ、ハイパーリンク、イメージをテキストに含むことができる。HTML特殊文字は@samp{"Contact
+&lt;postmaster@@localhost&gt;!"}のように、エンコードしなければならない。
 
 @item :app-name @var{name}
-The name of the application sending the notification.  The default is
-@code{notifications-application-name}.
+その通知を送信するアプリケーション名。デフォルトは@code{notifications-application-name}。
 
 @item :replaces-id @var{id}
-The notification @var{id} that this notification replaces.  @var{id} must be
-the result of a previous @code{notifications-notify} call.
+この通知が置換する通知の@var{id}。@var{id}は、@code{notifications-notify}の以前の呼び出し結果でなければならない。
 
 @item :app-icon @var{icon-file}
-The file name of the notification icon.  If set to @code{nil}, no icon is
-displayed.  The default is @code{notifications-application-icon}.
+通知アイコンのファイル名。@code{nil}ならアイコンは表示されない。デフォルトは@code{notifications-application-icon}。
 
 @item :actions (@var{key} @var{title} @var{key} @var{title} ...)
-A list of actions to be applied.  @var{key} and @var{title} are both
-strings.  The default action (usually invoked by clicking the notification)
-should have a key named @samp{"default"}.  The title can be anything, though
-implementations are free not to display it.
+適用されるアクションのリスト。@var{key}と@var{title}はどちらも文字列。(通常は通知クリックで呼び出される)デフォルトのアクションは、@samp{"default"}という名前であること。実装がそれを表示しないようにするには自由だが、titleは何でもよい。
 
 @item :timeout @var{timeout}
-The timeout time in milliseconds since the display of the notification at
-which the notification should automatically close.  If @minus{}1, the
-notification's expiration time is dependent on the notification server's
-settings, and may vary for the type of notification.  If 0, the notification
-never expires.  Default value is @minus{}1.
+timeoutは、通知が表示されてからその通知が自動的にクローズされるまでの、ミリ秒での時間。@minus{}1なら、その通知の有効期限は通知サーバーのセッティングに依存し、通知のタイプにより異なるかもしれない。0なら、その通知は失効しない。デフォルト値は@minus{}1。
 
 @item :urgency @var{urgency}
-The urgency level.  It can be @code{low}, @code{normal}, or @code{critical}.
+緊急レベル。@code{low}、@code{normal}、@code{critical}のいずれか。
 
 @item :action-items
-When this keyword is given, the @var{title} string of the actions is
-interpreted as icon name.
+このキーワードが与えられると、そのアクションの@var{title}文字列はアイコン名として解釈される。
 
 @item :category @var{category}
-The type of notification this is, a string.  See the
-@uref{http://developer.gnome.org/notification-spec/#categories, Desktop
-Notifications Specification} for a list of standard categories.
+通知の種類で、文字列。標準のカテゴリーのリストは、@uref{http://developer.gnome.org/notification-spec/#categories,
+Desktop Notifications Specification}を参照されたい。
 
 @item :desktop-entry @var{filename}
-This specifies the name of the desktop filename representing the calling
-program, like @samp{"emacs"}.
+これは@samp{"emacs"}のように、そのプログラムを呼び出すデスクトップファイル名の名前を指定する。
 
 @item :image-data (@var{width} @var{height} @var{rowstride} @var{has-alpha} @var{bits} @var{channels} @var{data})
-This is a raw data image format that describes the width, height, rowstride,
-whether there is an alpha channel, bits per sample, channels and image data,
-respectively.
+これはそれぞれwidth、height、rowstride、およびalpha channel、bits per
+sample、channels、image dataの有無を記述するrawデータのイメージフォーマット。
 
 @item :image-path @var{path}
-This is represented either as a URI (@samp{file://} is the only URI schema
-supported right now) or a name in a freedesktop.org-compliant icon theme
-from @samp{$XDG_DATA_DIRS/icons}.
+これはURI(現在サポートされているのはURIスキーマは@samp{file://}のみ)、または@samp{$XDG_DATA_DIRS/icons}にあるfreedesktop.org準拠のアイコンテーマ名のいずれかを表される。
 
 @item :sound-file @var{filename}
-The path to a sound file to play when the notification pops up.
+通知ポップアップ時に再生するサウンドファイルのパス。
 
 @item :sound-name @var{name}
-A themable named sound from the freedesktop.org sound naming specification
-from @samp{$XDG_DATA_DIRS/sounds}, to play when the notification pops up.
-Similar to the icon name, only for sounds. An example would be
-@samp{"message-new-instant"}.
+通知ポップアップ時に再生する、@samp{$XDG_DATA_DIRS/sounds}にあるfreedesktop.orgサウンド命名仕様準拠の、テーマに対応した名前付きサウンド。アイコン名と同様、サウンドにたいしてのみ。例としては@samp{"message-new-instant"}。
 
 @item :suppress-sound
-Causes the server to suppress playing any sounds, if it has that ability.
+それが可能なら、サーバーにすべてのサウンドの再生を抑制させる。
 
 @item :resident
-When set the server will not automatically remove the notification when an
-action has been invoked. The notification will remain resident in the server
-until it is explicitly removed by the user or by the sender. This hint is
-likely only useful when the server has the @code{:persistence} capability.
+セットした場合、アクション呼び出し時にサーバーはその通知を自動的に削除しない。ユーザーか送信者により明示的に削除されるまで、その通知はサーバー内に常駐し続ける。恐らくこのヒントは、そのサーバーが@code{:persistence}能力をもつときのみ有用。
 
 @item :transient
-When set the server will treat the notification as transient and by-pass the
-server's persistence capability, if it should exist.
+セットした場合、サーバーはその通知を過渡的なものとして扱い、もしそれが永続的であるべきなら、そのサーバーのpersistence能力をバイパスする。
 
 @item :x @var{position}
 @itemx :y @var{position}
-Specifies the X, Y location on the screen that the notification should point
-to.  Both arguments must be used together.
+その通知がポイントすべき、スクリーン上のXとYの座標を指定する。これらの引数は併せて使用しなければならない。
 
 @item :on-action @var{function}
-Function to call when an action is invoked.  The notification @var{id} and
-the @var{key} of the action are passed as arguments to the function.
+アクション呼び出し時に呼び出す関数。通知@var{id}とアクションの@var{key}は、引数としてその関数に渡される。
 
 @item :on-close @var{function}
-Function to call when the notification has been closed by timeout or by the
-user.  The function receive the notification @var{id} and the closing
-@var{reason} as arguments:
+タイムアウトかユーザーにより通知がクローズされたときに呼び出す関数。通知@var{id}とクローズ理由@var{reason}は、引数としてその関数に渡される。:
 
 @itemize
-@item @code{expired} if the notification has expired
-@item @code{dismissed} if the notification was dismissed by the user
-@item @code{close-notification} if the notification was closed by a call to
-@code{notifications-close-notification}
-@item @code{undefined} if the notification server hasn't provided a reason
+@item 通知が失効した場合は@code{expired}。
+@item ユーザーが通知を却下したら@code{dismissed}。
+@item notifications-close-notification呼び出しにより、
+@code{通知がクローズされたら@code{close-notification}。}
+@item 通知サーバーが理由を提供しなかったら@code{undefined}。
 @end itemize
 @end table
 
-Which parameters are accepted by the notification server can be checked via
-@code{notifications-get-capabilities}.
+通知サーバーがどのパラメーターを受け入れるかのチェックは、@code{notifications-get-capabilities}を通じて行うことができる。
 
-This function returns a notification id, an integer, which can be used to
-manipulate the notification item with
-@code{notifications-close-notification} or the @code{:replaces-id} argument
-of another @code{notifications-notify} call.  For example:
+この関数は、整数の通知idをリターンする。このidは@code{notifications-close-notification}や、別の@code{notifications-notify}呼び出しの@code{:replaces-id}引数で、通知アイテムの操作に使用できる。たとえば:
 
 @example
 @group
@@ -1764,72 +1726,63 @@ A message window opens on the desktop.  Press "I agree"
 @end defun
 
 @defun notifications-close-notification id &optional bus
-This function closes a notification with identifier @var{id}.  @var{bus} can
-be a string denoting a D-Bus connection, the default is @code{:session}.
+この関数は、識別子@var{id}の通知をクローズする。@var{bus}はD-Bus接続を表す文字列で、デフォルトは@code{:session}。
 @end defun
 
 @defun notifications-get-capabilities &optional bus
-Returns the capabilities of the notification server, a list of symbols.
-@var{bus} can be a string denoting a D-Bus connection, the default is
-@code{:session}.  The following capabilities can be expected:
+通知サーバーの能力を、シンボルのリストでリターンする。@var{bus}はD-Bus接続を表す文字列で、デフォルトは@code{:session}。期待され得る能力は以下のとおり:
 
 @table @code
 @item :actions
-The server will provide the specified actions to the user.
+そのサーバーはユーザーにたいする指定されたアクションを提供する。
 
 @item :body
-Supports body text.
+bodyのテキストをサポートする。
 
 @item :body-hyperlinks
-The server supports hyperlinks in the notifications.
+サーバーは通知内のハイパーリンクをサポートする。
 
 @item :body-images
-The server supports images in the notifications.
+サーバーは通知内のイメージをサポートする。
 
 @item :body-markup
-Supports markup in the body text.
+サーバーは通知内のマークアップをサポートする。
 
 @item :icon-multi
-The server will render an animation of all the frames in a given image
-array.
+サーバーは与えられたイメージ配列内のすべてのフレームのアニメーションを描画できる。
 
 @item :icon-static
-Supports display of exactly 1 frame of any given image array.  This value is
-mutually exclusive with @code{:icon-multi}.
+与えられたイメージ配列内の、正確に1フレームの表示をサポートする。この値は、@code{:icon-multi}と相互に排他である。
 
 @item :persistence
-The server supports persistence of notifications.
+サーバーは通知の永続性をサポートする。
 
 @item :sound
-The server supports sounds on notifications.
+サーバーは通知のサウンドをサポートする。
 @end table
 
-Further vendor-specific caps start with @code{:x-vendor}, like
-@code{:x-gnome-foo-cap}.
+これらに加えて、ベンダー固有の能力は@code{:x-gnome-foo-cap}のように、@code{:x-vendor}で始まる。
 @end defun
 
 @defun notifications-get-server-information &optional bus
-Return information on the notification server, a list of strings.  @var{bus}
-can be a string denoting a D-Bus connection, the default is
-@code{:session}.  The returned list is @code{(@var{name} @var{vendor}
-@var{version} @var{spec-version})}.
+通知サーバーの情報を、文字列のリストでリターンする。@var{bus}はD-Bus接続を表す文字列で、デフォルトは@code{:session}。リターンされるリストは@code{(@var{name}
+@var{vendor} @var{version} @var{spec-version})}。
 
 @table @var
 @item name
-The product name of the server.
+そのサーバーのプロダクト名。
 
 @item vendor
-The vendor name.  For example, @samp{"KDE"}, @samp{"GNOME"}.
+ベンダー名。たとえば@samp{"KDE"}や@samp{"GNOME"}。
 
 @item version
-The server's version number.
+サーバーのバージョン番号。
 
 @item spec-version
-The specification version the server is compliant with.
+サーバーが準拠する仕様のバージョン。
 @end table
 
-If @var{spec_version} is @code{nil}, the server supports a specification
-prior to @samp{"1.0"}.
+@var{spec_version}が@code{nil}なら、サーバーは@samp{"1.0"}以前の仕様をサポートする。
 @end defun
 
 @node File Notifications
