@@ -1913,25 +1913,18 @@ Emacs Manual}を参照してください。これはEmacsにリンク済みの�
 @section Dynamically Loaded Libraries
 @cindex dynamic libraries
 
-  A @dfn{dynamically loaded library} is a library that is loaded on demand,
-when its facilities are first needed.  Emacs supports such on-demand loading
-of support libraries for some of its features.
+  @dfn{ダイナミックにロードされるライブラリー(dynamically loaded
+library)}とは、その機能が最初に必要になったときに、オンデマンドでロードされるライブラリーです。Emacsは自身の機能をサポートするライブラリーのオンデマンドロードのように、それらをサポートします。
 
 @defvar dynamic-library-alist
-This is an alist of dynamic libraries and external library files
-implementing them.
+これはダイナミックライブラリーと、それらを実装する外部ライブラリーファイルのalistである。
 
-Each element is a list of the form @w{@code{(@var{library}
-@var{files}@dots{})}}, where the @code{car} is a symbol representing a
-supported external library, and the rest are strings giving alternate
-filenames for that library.
+要素はそれぞれ、@w{@code{(@var{library}
+@var{files}@dots{})}}という形式のリストである。ここで@code{car}はサポートされた外部ライブラリーを表すシンボルで、残りはそのライブラリーにたいして候補となるファイル名を与える文字列である。
 
-Emacs tries to load the library from the files in the order they appear in
-the list; if none is found, the Emacs session won't have access to that
-library, and the features it provides will be unavailable.
+Emacsは、このリスト内のファイル出現順で、そのライブラリーのロードを試みる。何も見つからない場合、そのEmacsセッションはライブラリーにアクセスできず、それが提供する機能は利用できない。
 
-Image support on some platforms uses this facility.  Here's an example of
-setting this variable for supporting images on MS-Windows:
+いくつかのプラットフォーム上におけるイメージのサポートは、この機能を使用している。以下は、MS-Windows上でイメージをサポートするために、この変数をセットする例である:
 
 @example
 (setq dynamic-library-alist
@@ -1948,14 +1941,9 @@ setting this variable for supporting images on MS-Windows:
 	(gobject "libgobject-2.0-0.dll")))
 @end example
 
-Note that image types @code{pbm} and @code{xbm} do not need entries in this
-variable because they do not depend on external libraries and are always
-available in Emacs.
+イメージタイプ@code{pbm}と@code{xbm}は外部ライブラリーに依存せず、Emacsで常に利用可能なので、この変数内にエントリーがないことに注意。
 
-Also note that this variable is not meant to be a generic facility for
-accessing external libraries; only those already known by Emacs can be
-loaded through it.
+これは、外部ライブラリーへのアクセスにたいする、一般的な機能を意図したものではないことにも注意されたい。Emacsにとって既知のライブラリーだけが、これを通じてロードできる。
 
-This variable is ignored if the given @var{library} is statically linked
-into Emacs.
+与えられた@var{library}が、Emacsに静的にリンクされている場合、この変数は無視される。
 @end defvar

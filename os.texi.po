@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-09-27 06:37+0900\n"
-"PO-Revision-Date: 2019-10-02 16:00+0900\n"
+"PO-Revision-Date: 2019-10-02 16:53+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -4965,44 +4965,44 @@ msgstr "@var{descriptor}に指定された、既存のファイル監視を削�
 #: os.texi.orig:2687
 #, no-wrap
 msgid "Dynamically Loaded Libraries"
-msgstr ""
+msgstr "Dynamically Loaded Libraries"
 
 #. type: cindex
 #: os.texi.orig:2688
 #, no-wrap
 msgid "dynamic libraries"
-msgstr ""
+msgstr "dynamic libraries"
 
 #. type: Plain text
 #: os.texi.orig:2693
 msgid "A @dfn{dynamically loaded library} is a library that is loaded on demand, when its facilities are first needed.  Emacs supports such on-demand loading of support libraries for some of its features."
-msgstr ""
+msgstr "@dfn{ダイナミックにロードされるライブラリー(dynamically loaded library)}とは、その機能が最初に必要になったときに、オンデマンドでロードされるライブラリーです。Emacsは自身の機能をサポートするライブラリーのオンデマンドロードのように、それらをサポートします。"
 
 #. type: defvar
 #: os.texi.orig:2694
 #, no-wrap
 msgid "dynamic-library-alist"
-msgstr ""
+msgstr "dynamic-library-alist"
 
 #. type: defvar
 #: os.texi.orig:2697
 msgid "This is an alist of dynamic libraries and external library files implementing them."
-msgstr ""
+msgstr "これはダイナミックライブラリーと、それらを実装する外部ライブラリーファイルのalistである。"
 
 #. type: defvar
 #: os.texi.orig:2702
 msgid "Each element is a list of the form @w{@code{(@var{library} @var{files}@dots{})}}, where the @code{car} is a symbol representing a supported external library, and the rest are strings giving alternate filenames for that library."
-msgstr ""
+msgstr "要素はそれぞれ、@w{@code{(@var{library} @var{files}@dots{})}}という形式のリストである。ここで@code{car}はサポートされた外部ライブラリーを表すシンボルで、残りはそのライブラリーにたいして候補となるファイル名を与える文字列である。"
 
 #. type: defvar
 #: os.texi.orig:2707
 msgid "Emacs tries to load the library from the files in the order they appear in the list; if none is found, the Emacs session won't have access to that library, and the features it provides will be unavailable."
-msgstr ""
+msgstr "Emacsは、このリスト内のファイル出現順で、そのライブラリーのロードを試みる。何も見つからない場合、そのEmacsセッションはライブラリーにアクセスできず、それが提供する機能は利用できない。"
 
 #. type: defvar
 #: os.texi.orig:2710
 msgid "Image support on some platforms uses this facility.  Here's an example of setting this variable for supporting images on MS-Windows:"
-msgstr ""
+msgstr "いくつかのプラットフォーム上におけるイメージのサポートは、この機能を使用している。以下は、MS-Windows上でイメージをサポートするために、この変数をセットする例である:"
 
 #. type: example
 #: os.texi.orig:2724
@@ -5021,18 +5021,30 @@ msgid ""
 "        (glib \"libglib-2.0-0.dll\")\n"
 "\t(gobject \"libgobject-2.0-0.dll\")))\n"
 msgstr ""
+"(setq dynamic-library-alist\n"
+"      '((xpm \"libxpm.dll\" \"xpm4.dll\" \"libXpm-nox4.dll\")\n"
+"        (png \"libpng12d.dll\" \"libpng12.dll\" \"libpng.dll\"\n"
+"             \"libpng13d.dll\" \"libpng13.dll\")\n"
+"        (jpeg \"jpeg62.dll\" \"libjpeg.dll\" \"jpeg-62.dll\"\n"
+"              \"jpeg.dll\")\n"
+"        (tiff \"libtiff3.dll\" \"libtiff.dll\")\n"
+"        (gif \"giflib4.dll\" \"libungif4.dll\" \"libungif.dll\")\n"
+"        (svg \"librsvg-2-2.dll\")\n"
+"        (gdk-pixbuf \"libgdk_pixbuf-2.0-0.dll\")\n"
+"        (glib \"libglib-2.0-0.dll\")\n"
+"\t(gobject \"libgobject-2.0-0.dll\")))\n"
 
 #. type: defvar
 #: os.texi.orig:2729
 msgid "Note that image types @code{pbm} and @code{xbm} do not need entries in this variable because they do not depend on external libraries and are always available in Emacs."
-msgstr ""
+msgstr "イメージタイプ@code{pbm}と@code{xbm}は外部ライブラリーに依存せず、Emacsで常に利用可能なので、この変数内にエントリーがないことに注意。"
 
 #. type: defvar
 #: os.texi.orig:2733
 msgid "Also note that this variable is not meant to be a generic facility for accessing external libraries; only those already known by Emacs can be loaded through it."
-msgstr ""
+msgstr "これは、外部ライブラリーへのアクセスにたいする、一般的な機能を意図したものではないことにも注意されたい。Emacsにとって既知のライブラリーだけが、これを通じてロードできる。"
 
 #. type: defvar
 #: os.texi.orig:2736
 msgid "This variable is ignored if the given @var{library} is statically linked into Emacs."
-msgstr ""
+msgstr "与えられた@var{library}が、Emacsに静的にリンクされている場合、この変数は無視される。"
