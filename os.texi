@@ -1501,50 +1501,41 @@ Audioフォーマット(@samp{.au})で格納されていなければなりませ
 @section Operating on X11 Keysyms
 @cindex X11 keysyms
 
-To define system-specific X11 keysyms, set the variable
-@code{system-key-alist}.
+システム固有のX11 keysym(key symbol:
+キーシンボル)を定義するには、変数@code{system-key-alist}をセットします。
 
 @defvar system-key-alist
-This variable's value should be an alist with one element for each
-system-specific keysym.  Each element has the form @code{(@var{code}
-. @var{symbol})}, where @var{code} is the numeric keysym code (not including
-the ``vendor specific'' bit,
+この変数の値は、システム固有のkeysymそれぞれにたいして1つの要素をもつようなalistであること。要素はそれぞれ@code{(@var{code}
+. @var{symbol})}という形式をもつ。ここで@var{code}は数字のkeysymコード(``ベンダー固有''の
 @ifnottex
 @minus{}2**28),
 @end ifnottex
 @tex
 $-2^{28}$),
 @end tex
-and @var{symbol} is the name for the function key.
+のビットは含まない)、@var{symbol}はそのファンクションキーの名前である。
 
-For example @code{(168 . mute-acute)} defines a system-specific key (used by
-HP X servers) whose numeric code is
+たとえば@code{(168 . mute-acute)}は、数字コード
 @ifnottex
 @minus{}2**28
 @end ifnottex
 @tex
 $-2^{28}$
 @end tex
-+ 168.
++ 168のシステム固有キーを定義する(HP Xサーバーで使用される)。
 
-It is not crucial to exclude from the alist the keysyms of other X servers;
-those do no harm, as long as they don't conflict with the ones used by the X
-server actually in use.
+このalistから、他のXサーバーのkeysymを除外することは重要ではない。実際に使用中のXサーバーが使用するkeysymが、これらと競合しないかぎり無害である.
 
-The variable is always local to the current terminal, and cannot be
-buffer-local.  @xref{Multiple Terminals}.
+この変数は常にカレント端末にたいしてローカルであり、バッファーローカルにできない。@ref{Multiple Terminals}を参照のこと。
 @end defvar
 
-You can specify which keysyms Emacs should use for the Meta, Alt, Hyper, and
-Super modifiers by setting these variables:
+以下の変数をセットすれば、Emacsが修飾キーMeta、Alt、Hyper、Superにたいして何のkeysymを使用するべきか指定できます。
 
 @defvar x-alt-keysym
 @defvarx x-meta-keysym
 @defvarx x-hyper-keysym
 @defvarx x-super-keysym
-The name of the keysym that should stand for the Alt modifier (respectively,
-for Meta, Hyper, and Super).  For example, here is how to swap the Meta and
-Alt modifiers within Emacs:
+keysymの名前はそれぞれ修飾子Alt、Meta、Hyper、Superを意味する名前であること。たとえば、以下はMeta修飾キーとAlt修飾キーを交換する方法である:
 @lisp
 (setq x-alt-keysym 'meta)
 (setq x-meta-keysym 'alt)
