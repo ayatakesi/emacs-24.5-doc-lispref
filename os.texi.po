@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-09-27 06:37+0900\n"
-"PO-Revision-Date: 2019-10-02 12:09+0900\n"
+"PO-Revision-Date: 2019-10-02 12:52+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -4027,61 +4027,61 @@ msgstr "Emacsがbatchモードで実行中なら、この変数は非@code{nil}�
 #: os.texi.orig:2238
 #, no-wrap
 msgid "session manager"
-msgstr ""
+msgstr "session manager"
 
 #. type: Plain text
 #: os.texi.orig:2247
 msgid "Emacs supports the X Session Management Protocol, which is used to suspend and restart applications.  In the X Window System, a program called the @dfn{session manager} is responsible for keeping track of the applications that are running.  When the X server shuts down, the session manager asks applications to save their state, and delays the actual shutdown until they respond.  An application can also cancel the shutdown."
-msgstr ""
+msgstr "Emacsはアプリケーションのサスペンドとリスタートに使用される、Xセッション管理プロトコル(X Session Management Protocol)をサポートしています。Xウィンドウシステムでは、@dfn{セッションマネージャー(session manager)}と呼ばれるプログラムが、実行中アプリケーション追跡の責を負います。Xサーバーのシャットダウン時、セッションマネージャーはアプリケーションに状態を保存するか尋ね、それらが応答するまでシャットダウンを遅延します。アプリケーションがそのシャットダウンをキャンセルすることもできます。"
 
 #. type: Plain text
 #: os.texi.orig:2253
 msgid "When the session manager restarts a suspended session, it directs these applications to individually reload their saved state.  It does this by specifying a special command-line argument that says what saved session to restore.  For Emacs, this argument is @samp{--smid @var{session}}."
-msgstr ""
+msgstr "セッションマネージャーがサスペンドされたセッションをリスタートする際には、これらのアプリケーションにたいして保存された状態をリロードするよう、個別に指示します。これはリストアする保存済みセッションが何かを指定する、特別なコマンドラインオプションを指定することにより行われます。これは、Emacsでは@samp{--smid @var{session}}という引数です。"
 
 #. type: defvar
 #: os.texi.orig:2254
 #, no-wrap
 msgid "emacs-save-session-functions"
-msgstr ""
+msgstr "emacs-save-session-functions"
 
 #. type: cindex
 #: os.texi.orig:2255
 #, no-wrap
 msgid "session file"
-msgstr ""
+msgstr "session file"
 
 #. type: defvar
 #: os.texi.orig:2263
 msgid "Emacs supports saving state via a hook called @code{emacs-save-session-functions}.  Emacs runs this hook when the session manager tells it that the window system is shutting down.  The functions are called with no arguments, and with the current buffer set to a temporary buffer.  Each function can use @code{insert} to add Lisp code to this buffer.  At the end, Emacs saves the buffer in a file, called the @dfn{session file}."
-msgstr ""
+msgstr "Emacsは、@code{emacs-save-session-functions}と呼ばれるフックを介して、状態の保存をサポートする。セッションマネージャーがウィンドウシステムのシャットダウンを告げた際に、Emacsはこのフックを実行する。これらの関数は、カレントバッファーを一時バッファーにセットされて、引数なしで呼び出されるそれぞれの関数は、このバッファーにLispコードを追加するために@code{insert}を使用できる。最後にEmacsは、@dfn{セッションファイル(session file)}と呼ばれるファイル内にそのバッファーを保存する。"
 
 #. type: findex
 #: os.texi.orig:2264
 #, no-wrap
 msgid "emacs-session-restore"
-msgstr ""
+msgstr "emacs-session-restore"
 
 #. type: defvar
 #: os.texi.orig:2269
 msgid "Subsequently, when the session manager restarts Emacs, it loads the session file automatically (@pxref{Loading}).  This is performed by a function named @code{emacs-session-restore}, which is called during startup.  @xref{Startup Summary}."
-msgstr ""
+msgstr "その後セッションマネージャーがEmacsを再開する際、Emacsはセッションファイルを自動的にロードする(@ref{Loading}を参照)。これはスタートアップ中に呼び出される、@code{emacs-session-restore}という名前の関数により処理される。@ref{Startup Summary}を参照のこと。"
 
 #. type: defvar
 #: os.texi.orig:2273
 msgid "If a function in @code{emacs-save-session-functions} returns non-@code{nil}, Emacs tells the session manager to cancel the shutdown."
-msgstr ""
+msgstr "@code{emacs-save-session-functions}内の関数が非@code{nil}をリターンすると、Emacsはセッションマネージャーにシャットダウンのキャンセルを要求します。"
 
 #. type: Plain text
 #: os.texi.orig:2277
 msgid "Here is an example that just inserts some text into @file{*scratch*} when Emacs is restarted by the session manager."
-msgstr ""
+msgstr "以下は、セッションマネージャによりEmacsがリストアされる際に、単に@file{*scratch*}にテキストを挿入する例です。"
 
 #. type: group
 #: os.texi.orig:2281
 #, no-wrap
 msgid "(add-hook 'emacs-save-session-functions 'save-yourself-test)\n"
-msgstr ""
+msgstr "(add-hook 'emacs-save-session-functions 'save-yourself-test)\n"
 
 #. type: group
 #: os.texi.orig:2289
@@ -4093,6 +4093,11 @@ msgid ""
 "  (insert \\\"I am restored\\\"))\")\n"
 "  nil)\n"
 msgstr ""
+"(defun save-yourself-test ()\n"
+"  (insert \"(save-current-buffer\n"
+"  (switch-to-buffer \\\"*scratch*\\\")\n"
+"  (insert \\\"I am restored\\\"))\")\n"
+"  nil)\n"
 
 #. type: cindex
 #: os.texi.orig:2294
