@@ -1,0 +1,217 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2019-10-03 16:18+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: node
+#: anti.texi.orig:8
+#, no-wrap
+msgid "Antinews"
+msgstr ""
+
+#. type: appendix
+#: anti.texi.orig:9
+#, no-wrap
+msgid "Emacs 23 Antinews"
+msgstr ""
+
+#. type: Plain text
+#: anti.texi.orig:16
+msgid ""
+"For those users who live backwards in time, here is information about "
+"downgrading to Emacs version 23.4.  We hope you will enjoy the greater "
+"simplicity that results from the absence of many Emacs @value{EMACSVER} "
+"features."
+msgstr ""
+
+#. type: section
+#: anti.texi.orig:17
+#, no-wrap
+msgid "Old Lisp Features in Emacs 23"
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:26
+msgid ""
+"Support for lexical scoping has been removed; all variables are dynamically "
+"scoped.  The @code{lexical-binding} variable has been removed, and so has "
+"the @var{lexical} argument to @code{eval}.  The @code{defvar} and "
+"@code{defconst} forms no longer mark variables as dynamic, since all "
+"variables are dynamic."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:31
+msgid ""
+"Having only dynamic binding follows the spirit of Emacs extensibility, for "
+"it allows any Emacs code to access any defined variable with a minimum of "
+"fuss.  But @xref{Dynamic Binding Tips}, for tips to avoid making your "
+"programs hard to understand."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:39
+msgid ""
+"Calling a minor mode function from Lisp with a @code{nil} or omitted "
+"argument does not enable the minor mode unconditionally; instead, it toggles "
+"the minor mode---which is the straightforward thing to do, since that is the "
+"behavior when invoked interactively.  One downside is that it is more "
+"troublesome to enable minor modes from hooks; you have to do something like"
+msgstr ""
+
+#. type: example
+#: anti.texi.orig:42
+#, no-wrap
+msgid "(add-hook 'foo-hook (lambda () (bar-mode 1)))\n"
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:46
+msgid "or define @code{turn-on-bar-mode} and call that from the hook."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:52
+msgid ""
+"The @code{prog-mode} dummy major mode has been removed.  Instead of using it "
+"as a crutch to meet programming mode conventions, you should explicitly "
+"ensure that your mode follows those conventions.  @xref{Major Mode "
+"Conventions}."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:61
+msgid ""
+"Emacs no longer supports bidirectional display and editing.  Since there is "
+"no need to worry about the insertion of right-to-left text messing up how "
+"lines and paragraphs are displayed, the function "
+"@code{bidi-string-mark-left-to-right} has been removed; so have many other "
+"functions and variables related to bidirectional display.  Unicode "
+"directionality characters like @code{U+200E} (\"left-to-right mark\") have "
+"no special effect on display."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:68
+msgid ""
+"Emacs windows now have most of their internal state hidden from Lisp.  "
+"Internal windows are no longer visible to Lisp; functions such as "
+"@code{window-parent}, window parameters related to window arrangement, and "
+"window-local buffer lists have all been removed.  Functions for resizing "
+"windows can delete windows if they become too small."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:76
+msgid ""
+"The ``action function'' feature for controlling buffer display has been "
+"removed, including @code{display-buffer-overriding-action} and related "
+"variables, as well as the @var{action} argument to @code{display-buffer} and "
+"other functions.  The way to programmatically control how Emacs chooses a "
+"window to display a buffer is to bind the right combination of "
+"@code{pop-up-frames} and other variables."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:85
+msgid ""
+"The standard completion interface has been simplified, eliminating the "
+"@code{completion-extra-properties} variable, the @code{metadata} action flag "
+"for completion functions, and the concept of ``completion categories''.  "
+"Lisp programmers may now find the choice of methods for tuning completion "
+"less bewildering, but if a package finds the streamlined interface "
+"insufficient for its needs, it must implement its own specialized completion "
+"feature."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:92
+msgid ""
+"@code{copy-directory} now behaves the same whether or not the destination is "
+"an existing directory: if the destination exists, the @emph{contents} of the "
+"first directory are copied into it (with subdirectories handled "
+"recursively), rather than copying the first directory into a subdirectory."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:99
+msgid ""
+"The @var{trash} arguments for @code{delete-file} and @code{delete-directory} "
+"have been removed.  The variable @code{delete-by-moving-to-trash} must now "
+"be used with care; whenever it is non-@code{nil}, all calls to "
+"@code{delete-file} or @code{delete-directory} use the trash."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:105
+msgid ""
+"Because Emacs no longer supports SELinux file contexts, the "
+"@var{preserve-selinux-context} argument to @code{copy-file} has been "
+"removed.  The return value of @code{backup-buffer} no longer has an entry "
+"for the SELinux file context."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:111
+msgid ""
+"For mouse click input events in the text area, the Y pixel coordinate in the "
+"@var{position} list (@pxref{Click Events}) now counts from the top of the "
+"header line, if there is one, rather than the top of the text area."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:115
+msgid ""
+"Bindings in menu keymaps (@pxref{Format of Keymaps}) now sometimes get an "
+"additional @var{cache} entry in their definitions, like this:"
+msgstr ""
+
+#. type: example
+#: anti.texi.orig:118
+#, no-wrap
+msgid "(@var{type} @var{item-name} @var{cache} . @var{binding})\n"
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:125
+msgid ""
+"The @var{cache} entry is used internally by Emacs to record equivalent "
+"keyboard key sequences for invoking the same command; Lisp programs should "
+"never use it."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:131
+msgid ""
+"The @code{gnutls} library has been removed, and the function "
+"@code{open-network-stream} correspondingly simplified.  Lisp programs that "
+"want an encrypted network connection must now call external utilities such "
+"as @command{starttls} or @command{gnutls-cli}."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:135
+msgid ""
+"Tool bars can no longer display separators, which frees up several pixels of "
+"space on each graphical frame."
+msgstr ""
+
+#. type: itemize
+#: anti.texi.orig:139
+msgid ""
+"As part of the ongoing quest for simplicity, many other functions and "
+"variables have been eliminated."
+msgstr ""
