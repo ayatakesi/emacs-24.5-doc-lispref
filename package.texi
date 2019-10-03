@@ -150,63 +150,38 @@ Basics}で説明したように、1つ以上のautoloadマジックコメント�
 @section Multi-file Packages
 @cindex multi-file package
 
-  A multi-file package is less convenient to create than a single-file
-package, but it offers more features: it can include multiple Emacs Lisp
-files, an Info manual, and other file types (such as images).
+  複数ファイルパッケージは、単一ファイルパッケージより作成の手軽さが少し劣りますが、より多くの機能を提供します。複数ファイルパッケージには複数のEmacs
+Lispファイル、Infoマニュアル、および(イメージのような)他のファイルタイプを含めることができます。
 
-  Prior to installation, a multi-file package is stored in a package archive
-as a tar file.  The tar file must be named
-@file{@var{name}-@var{version}.tar}, where @var{name} is the package name
-and @var{version} is the version number.  Its contents, once extracted, must
-all appear in a directory named @file{@var{name}-@var{version}}, the
-@dfn{content directory} (@pxref{Packaging Basics}).  Files may also extract
-into subdirectories of the content directory.
+  インストールに先立ち、複数パッケージはファイルとしてパッケージアーカイブに含まれます。このtarファイルは@file{@var{name}-@var{version}.tar}という名前でなければなりません。ここで@var{name}はパッケージ名、@var{version}はバージョン番号です。tarのコンテンツは一度解凍されたなら、@dfn{コンテンツディレクトリcontent
+directory)}である@file{@var{name}-@var{version}}という名前のディレクトリーにすべて解凍されなければなりません(@ref{Packaging
+Basics}を参照)。このコンテンツディレクトリーのサブディレクトリーにも、ファイルが抽出されるかもしれません。
 
-  One of the files in the content directory must be named
-@file{@var{name}-pkg.el}.  It must contain a single Lisp form, consisting of
-a call to the function @code{define-package}, described below.  This defines
-the package's version, brief description, and requirements.
+  このコンテンツディレクトリー内のファイルのうち1つは、@file{@var{name}-pkg.el}という名前のファイルでなければなりません。このファイルには、以下で説明する関数@code{define-package}の呼び出しから構成される、単一のLispフォームを含まなければなりません。これは、そのパッケージのバージョン、簡単な説明(brief
+description)、必要条件(requirements)を定義します。
 
-  For example, if we distribute version 1.3 of the superfrobnicator as a
-multi-file package, the tar file would be @file{superfrobnicator-1.3.tar}.
-Its contents would extract into the directory @file{superfrobnicator-1.3},
-and one of these would be the file @file{superfrobnicator-pkg.el}.
+  たとえば、複数ファイルパッケージとしてsuperfrobnicatorのバージョン1.3を配布する場合、tarファイルは@file{superfrobnicator-1.3.tar}になります。これのコンテンツは@file{superfrobnicator-1.3}に解凍され、そのうちの1つはファイル@file{superfrobnicator-pkg.el}になるでしょう。
 
 @defun define-package name version &optional docstring requirements
-This function defines a package.  @var{name} is the package name, a string.
-@var{version} is the version, as a string of a form that can be understood
-by the function @code{version-to-list}.  @var{docstring} is the brief
-description.
+この関数はパッケージを定義する。@var{name}は、そのパッケージの名前(文字列)、@var{version}は関数@code{version-to-list}が理解できる形式のバージョン(文字列)@var{docstring}は簡単な説明(brief
+description)。
 
-@var{requirements} is a list of required packages and their versions.  Each
-element in this list should have the form @code{(@var{dep-name}
-@var{dep-version})}, where @var{dep-name} is a symbol whose name is the
-dependency's package name, and @var{dep-version} is the dependency's version
-(a string).
+@var{requirements}は、必要となるパッケージとそれらのバージョン番号。このリスト内の各要素は@code{(@var{dep-name}
+@var{dep-version})}という形式であること。ここで@var{dep-name}はその依存するパッケージ名が名前であるようなシンボル、@var{dep-version}は依存するパッケージのバージョン番号(文字列)である。
 @end defun
 
-  If the content directory contains a file named @file{README}, this file is
-used as the long description.
+  コンテンツディレクトリーに@file{README}という名前のファイルがあれば、それは長い説明(long description)として使用されます。
 
-  If the content directory contains a file named @file{dir}, this is assumed
-to be an Info directory file made with @command{install-info}.
-@xref{Invoking install-info, Invoking install-info, Invoking install-info,
-texinfo, Texinfo}.  The relevant Info files should also be present in the
-content directory.  In this case, Emacs will automatically add the content
-directory to @code{Info-directory-list} when the package is activated.
+  コンテンツディレクトリーに@file{dir}という名前のファイルがあれば、@command{install-info}で作成されるInfoディレクトリーファイル名と▽みなされます。@ref{Invoking
+install-info, Invoking install-info, Invoking install-info, texinfo,
+Texinfo}を参照してください。関係のあるInfoファイルも、このコンテンツディレクトリー内に解凍される必要があります。この場合、そのパッケージがアクティブ化されたとき、Emacsは自動的に@code{Info-directory-list}にコンテンツディレクトリーを追加します。
 
-  Do not include any @file{.elc} files in the package.  Those are created when
-the package is installed.  Note that there is no way to control the order in
-which files are byte-compiled.
+  パッケージ内に、@file{.elc}ファイルを含めないでください。これらは、そのパッケージのインストール時に作成されます。ファイルがバイトコンパイルされる順序を制御する方法は存在しないことに注意してください。
 
-  Do not include any file named @file{@var{name}-autoloads.el}.  This file is
-reserved for the package's autoload definitions (@pxref{Packaging Basics}).
-It is created automatically when the package is installed, by searching all
-the Lisp files in the package for autoload magic comments.
+  @file{@var{name}-autoloads.el}という名前のファイルを含めてはなりません。このファイルは、そのパッケージのautoload定義のために予約済みです(@ref{Packaging
+Basics}を参照)。これはパッケージのインストール時に、そのパッケージ内のすべてのLispファイルからautoloadマジックコメントを検索する際、自動的に作成されます。
 
-  If the multi-file package contains auxiliary data files (such as images),
-the package's Lisp code can refer to these files via the variable
-@code{load-file-name} (@pxref{Loading}).  Here is an example:
+  複数パッケージファイルが、(イメージのような)補助的なデータファイルを含む場合、パッケージ内のLispファイルは変数@code{load-file-name}を通じて、それらのファイルを参照できます(@ref{Loading}を参照)。以下は例です:
 
 @smallexample
 (defconst superfrobnicator-base (file-name-directory load-file-name))
