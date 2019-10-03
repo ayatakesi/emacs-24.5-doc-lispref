@@ -71,33 +71,32 @@ dummy <code>defvar</code> definitions for these variables, like this:
 <pre class="example">(defvar foo)
 </pre></div>
 
-<p>Such a definition has no effect except to tell the compiler
-not to warn about uses of the variable <code>foo</code> in this file.
+<p>Such a definition has no effect except to tell the compiler not to warn
+about uses of the variable <code>foo</code> in this file.
 </p>
-</li><li> Similarly, to avoid a compiler warning about an undefined function
-that you know <em>will</em> be defined, use a <code>declare-function</code>
-statement (see <a href="Declaring-Functions.html#Declaring-Functions">Declaring Functions</a>).
+</li><li> Similarly, to avoid a compiler warning about an undefined function that you
+know <em>will</em> be defined, use a <code>declare-function</code> statement
+(see <a href="Declaring-Functions.html#Declaring-Functions">Declaring Functions</a>).
 
-</li><li> If you use many functions and variables from a certain file, you can
-add a <code>require</code> for that package to avoid compilation warnings
-for them.  For instance,
+</li><li> If you use many functions and variables from a certain file, you can add a
+<code>require</code> for that package to avoid compilation warnings for them.  For
+instance,
 
 <div class="example">
 <pre class="example">(eval-when-compile
   (require 'foo))
 </pre></div>
 
-</li><li> If you bind a variable in one function, and use it or set it in
-another function, the compiler warns about the latter function unless
-the variable has a definition.  But adding a definition would be
-unclean if the variable has a short name, since Lisp packages should
-not define short variable names.  The right thing to do is to rename
-this variable to start with the name prefix used for the other
-functions and variables in your package.
+</li><li> If you bind a variable in one function, and use it or set it in another
+function, the compiler warns about the latter function unless the variable
+has a definition.  But adding a definition would be unclean if the variable
+has a short name, since Lisp packages should not define short variable
+names.  The right thing to do is to rename this variable to start with the
+name prefix used for the other functions and variables in your package.
 
-</li><li> The last resort for avoiding a warning, when you want to do something
-that is usually a mistake but you know is not a mistake in your usage,
-is to put it inside <code>with-no-warnings</code>.  See <a href="Compiler-Errors.html#Compiler-Errors">Compiler Errors</a>.
+</li><li> The last resort for avoiding a warning, when you want to do something that
+is usually a mistake but you know is not a mistake in your usage, is to put
+it inside <code>with-no-warnings</code>.  See <a href="Compiler-Errors.html#Compiler-Errors">Compiler Errors</a>.
 </li></ul>
 
 
