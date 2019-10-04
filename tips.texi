@@ -300,35 +300,23 @@ Editing}を参照っされたい。
 @cindex execution speed
 @cindex speedups
 
-  Here are ways of improving the execution speed of byte-compiled Lisp
-programs.
+  以下は、バイトコンパイル済みLispプログラムの実行速度を改善する方法です。
 
 @itemize @bullet
 @item
-Profile your program, to find out where the time is being spent.
-@xref{Profiling}.
+その時間がどこで消費されているか見つかるために、プログラムのプロファイルを行う。@ref{Profiling}を参照のこと。
 
 @item
-Use iteration rather than recursion whenever possible.  Function calls are
-slow in Emacs Lisp even when a compiled function is calling another compiled
-function.
+可能なら常に再帰ではなく繰り返しを使用する。Emacs
+Lispでは、コンパイル済み関数が別のコンパイル済み関数を呼び出すときでさえ、関数呼び出しは低速である
 
 @item
-Using the primitive list-searching functions @code{memq}, @code{member},
-@code{assq}, or @code{assoc} is even faster than explicit iteration.  It can
-be worth rearranging a data structure so that one of these primitive search
-functions can be used.
+プリミティブのリスト検索関数@code{memq}、@code{member}、@code{assq}、@code{assoc}は明示的な繰り返しより更に高速である。これらの検索プリミティブを使用できるように、データ構造を再配置することにも価値が有り得る。
 
 @item
-Certain built-in functions are handled specially in byte-compiled code,
-avoiding the need for an ordinary function call.  It is a good idea to use
-these functions rather than alternatives.  To see whether a function is
-handled specially by the compiler, examine its @code{byte-compile}
-property.  If the property is non-@code{nil}, then the function is handled
-specially.
+特定のビルトイン関数は、通常の関数呼び出しの必要を回避するよう、バイトコンパイル済みコードでは特別に扱われる。別の候補案のかわりにこれらの関数を使用するのは、良いアイデアである。コンパイラーにより特別に扱われる関数かどうかを確認するには、それの@code{byte-compile}プロパティを調べればよい。そのプロパティが非@code{nil}なら、その関数は特別に扱われる。
 
-For example, the following input will show you that @code{aref} is compiled
-specially (@pxref{Array Functions}):
+たとえば以下を入力すると、@code{aref}が特別にコンパイルされえることが示される(@ref{Array Functions}を参照):
 
 @example
 @group
@@ -338,16 +326,11 @@ specially (@pxref{Array Functions}):
 @end example
 
 @noindent
-Note that in this case (and many others), you must first load the
-@file{bytecomp} library, which defines the @code{byte-compile} property.
+この場合(および他の多くの場合)、最初に@code{byte-compile}プロパティを定義する、@file{bytecomp}ライブラリーをロードしなければならない。
 
 @item
-If calling a small function accounts for a substantial part of your
-program's running time, make the function inline.  This eliminates the
-function call overhead.  Since making a function inline reduces the
-flexibility of changing the program, don't do it unless it gives a
-noticeable speedup in something slow enough that users care about the
-speed.  @xref{Inline Functions}.
+プログラム内で実行時間のある程度を占める小さい関数を呼び出すなら、その関数をinlineにする。これにより、関数呼び出しのオーバーヘッドがなくなる。関数のinline化はプログラム変更の自由度を減少させるので、ユーザーがスピードを気にするに足るほど低速であり、inline化により顕著に速度が改善されるのでなければ、これを行ってはならない。@ref{Inline
+Functions}を参照のこと。
 @end itemize
 
 @node Warning Tips
