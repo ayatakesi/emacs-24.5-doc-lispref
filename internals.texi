@@ -134,83 +134,42 @@ Collection}を参照)は無効です。そのような通常なら発生しな�
 @section Garbage Collection
 
 @cindex memory allocation
-  When a program creates a list or the user defines a new function (such as by
-loading a library), that data is placed in normal storage.  If normal
-storage runs low, then Emacs asks the operating system to allocate more
-memory.  Different types of Lisp objects, such as symbols, cons cells, small
-vectors, markers, etc., are segregated in distinct blocks in memory.  (Large
-vectors, long strings, buffers and certain other editing types, which are
-fairly large, are allocated in individual blocks, one per object; small
-strings are packed into blocks of 8k bytes, and small vectors are packed
-into blocks of 4k bytes).
+  プログラムがリストを作成するときや、(ライブライのロード等により)ユーザーが新しい関数を定義する際、そのデータは通常ストレージに配置されます。通常ストレージが少なくなると、Emacsはもっとメモリーを割り当てるようオペレーティングシステムに要求します。シンボル、コンスセル、小さいベクター、マーカー等のような別のタイプのLispオブジェクトは、メモリー内の個別のブロックに隔離されます(大きいベクター、長い文字列、バッファー、および他の特定の編集タイプは非常に巨大であり、1つのオブジェクトにたいして個別のブロックが割り当てられ、小さな文字列は8kバイトのブロック、小さいベクターは4kバイトのブロックにパックされる)。
 
 @cindex vector-like objects, storage
 @cindex storage of vector-like Lisp objects
-  Beyond the basic vector, a lot of objects like window, buffer, and frame are
-managed as if they were vectors.  The corresponding C data structures
-include the @code{struct vectorlike_header} field whose @code{size} member
-contains the subtype enumerated by @code{enum pvec_type} and an information
-about how many @code{Lisp_Object} fields this structure contains and what
-the size of the rest data is.  This information is needed to calculate the
-memory footprint of an object, and used by the vector allocation code while
-iterating over the vector blocks.
+  基本的なベクトではないウィンドウ、バッファー、フレームがあたかもベクターであるかのように管理されています。対応するCデータ構造体には@code{struct
+vectorlike_header}フィールドが含まれ、そのメンバー@code{size}には@code{enum
+pvec_type}で列挙されたサブタイプ、その構造体が含む@code{Lisp_Object}フィールドの数に関する情報、および残りのデータのサイズが含まれます。この情報は、オブジェクトのメモリーフットプリントの計算に必要であり、ベクターブロックの繰り返し処理の際のベクター割り当てコードにより使用されます。
 
 @cindex garbage collection
-  It is quite common to use some storage for a while, then release it by (for
-example) killing a buffer or deleting the last pointer to an object.  Emacs
-provides a @dfn{garbage collector} to reclaim this abandoned storage.  The
-garbage collector operates by finding and marking all Lisp objects that are
-still accessible to Lisp programs.  To begin with, it assumes all the
-symbols, their values and associated function definitions, and any data
-presently on the stack, are accessible.  Any objects that can be reached
-indirectly through other accessible objects are also accessible.
+  しばらくの間いくつかのストレージを使用して、(たとえば)バッファーのkillやあるオブジェクトを指す最後のポインターの削除によりそれを開放するのは、非常に一般的なことです。この放棄されたストレージを再利用するために、Emacsは@dfn{ガーベージコレクター(garbage
+collector)}を提供します。ガーベージコレクターは、いまだLispプログラムからアクセス可能なすべてのLispオブジェクトを検索、マークすることにより動作します。これを開始するには、すべてのシンボル、それらの値と関連付けられている関数定義、現在スタック上にあるすべてのデータをアクセス可能と仮定します。別のアクセス可能オブジェクトを介して間接的に到達できるスベテのオブジェクトも、アクセス可能とみなされます。
 
-  When marking is finished, all objects still unmarked are garbage.  No matter
-what the Lisp program or the user does, it is impossible to refer to them,
-since there is no longer a way to reach them.  Their space might as well be
-reused, since no one will miss them.  The second (``sweep'') phase of the
-garbage collector arranges to reuse them.
+  マーキングが終了して、それでもマークされないオブジェクトはすべてガーベージ(garbage:
+ごみ)です。Lispプログラムかユーザーの行為かに関わらず、それらに到達する手段はもはや存在しないので、それらを参照することは不可能です。誰もそれを失うことはないので、それらのスペースは再利用されることになります。ガーベージコレクターの2つ目の((``スイープ(sweep:
+一掃'')))のフェーズでは、それらの再利用を計らいます。
 
 @c ??? Maybe add something describing weak hash tables here?
 
 @cindex free list
-  The sweep phase puts unused cons cells onto a @dfn{free list} for future
-allocation; likewise for symbols and markers.  It compacts the accessible
-strings so they occupy fewer 8k blocks; then it frees the other 8k blocks.
-Unreachable vectors from vector blocks are coalesced to create largest
-possible free areas; if a free area spans a complete 4k block, that block is
-freed.  Otherwise, the free area is recorded in a free list array, where
-each entry corresponds to a free list of areas of the same size.  Large
-vectors, buffers, and other large objects are allocated and freed
-individually.
+  スイープフェーズは将来の割り当て用に、シンボルやマーカーと同様に、未使用のコンスセルを@dfn{フリーリスト(free
+list)}上に配置します。これは、アクセス可能な文字列は少数の8kブロックを占有するように圧縮して、その後に他の8kブロックを開放します。ベクターブロックから到達不可能はベクターは、可能なかぎり最大のフリーエリアを作成するために統合し、フリーエリアが完全な4kブロックに跨がるようなら、そのブロックは開放されます。それ以外なら、そのフリーエリアはフリーリスト配列に記録されます。これは、各エントリーが同サイズのエリアのフリーリストに対応します。巨大なベクター、バッファー、その他の巨大なオブジェクトは、個別に割り当てと開放が行われます。
 
 @cindex CL note---allocate more storage
 @quotation
-@b{Common Lisp note:} Unlike other Lisps, GNU Emacs Lisp does not call the
-garbage collector when the free list is empty.  Instead, it simply requests
-the operating system to allocate more storage, and processing continues
-until @code{gc-cons-threshold} bytes have been used.
+@b{Common Lispに関する注意:} 他のLispと異なり、GNU Emacs
+Lispはフリーリストが空のときにガーベージコレクターを呼び出さない。かわりに、単にオペレーティングシステムに更なるストレージの割り当てを要求して、@code{gc-cons-threshold}バイトを使い切るまで処理を継続する。
 
-This means that you can make sure that the garbage collector will not run
-during a certain portion of a Lisp program by calling the garbage collector
-explicitly just before it (provided that portion of the program does not use
-so much space as to force a second garbage collection).
+これは特定のLispプログラムの範囲の実行直前に、明示的にガーベージコレクターを呼び出せば、その範囲の実行中はガーベージコレクターが実行されないだろうと確信できることを意味する(そのプログラム範囲が2回目のガーベージコレクションを強制するほど、多くのスペースを使用しないという前提)。
 @end quotation
 
 @deffn Command garbage-collect
-This command runs a garbage collection, and returns information on the
-amount of space in use.  (Garbage collection can also occur spontaneously if
-you use more than @code{gc-cons-threshold} bytes of Lisp data since the
-previous garbage collection.)
+このコマンドはガーベージコレクションを実行して、使用中のスペース量の情報をリターンする(前回のガーベージコレクション以降、@code{gc-cons-threshold}バイトより多いLispデータを使用した場合には、自然にガーベージコレクションが発生することもあり得る)。
 
-@code{garbage-collect} returns a list with information on amount of space in
-use, where each entry has the form @samp{(@var{name} @var{size} @var{used})}
-or @samp{(@var{name} @var{size} @var{used} @var{free})}.  In the entry,
-@var{name} is a symbol describing the kind of objects this entry represents,
-@var{size} is the number of bytes used by each one, @var{used} is the number
-of those objects that were found live in the heap, and optional @var{free}
-is the number of those objects that are not live but that Emacs keeps around
-for future allocations.  So an overall result is:
+@code{garbage-collect}は使用中のスペース量の情報をリストでリターンする。これの各エントリーは@samp{(@var{name}
+@var{size}
+@var{used})}という形式をもつ。このエントリーで@var{name}はそのエントリーが対応するオブジェクトの種類を記述するシンボル、@var{size}はそれが使用するバイト数、@var{used}はヒープ内で生きていることが解ったオブケウトの数、オプションの@var{free}は、生きていないがEmacsが将来の割り当て用に保持しているオブジェクトの数である。全体的な結果は以下のようになる:
 
 @example
 ((@code{conses} @var{cons-size} @var{used-conses} @var{free-conses})
@@ -226,7 +185,7 @@ for future allocations.  So an overall result is:
  (@code{heap} @var{unit-size} @var{total-size} @var{free-size}))
 @end example
 
-Here is an example:
+以下に例を示す:
 
 @example
 (garbage-collect)
@@ -238,198 +197,152 @@ Here is an example:
                  (heap 1024 11715 2678))
 @end example
 
-Below is a table explaining each element.  Note that last @code{heap} entry
-is optional and present only if an underlying @code{malloc} implementation
-provides @code{mallinfo} function.
+以下は、各要素を説明するためのテーブルである。最後の@code{heap}エントリーはオプションであり、背景の@code{malloc}実装が@code{mallinfo}関数を提供する場合のみ与えられることに注意。
 
 @table @var
 @item cons-size
-Internal size of a cons cell, i.e., @code{sizeof (struct Lisp_Cons)}.
+コンスセルの内部的サイズ(@code{sizeof (struct Lisp_Cons)})。
 
 @item used-conses
-The number of cons cells in use.
+使用中のコンスセルの数。
 
 @item free-conses
-The number of cons cells for which space has been obtained from the
-operating system, but that are not currently being used.
+オペレーティングシステムから取得したスペースにあるが、カレントで未使用のコンスセルの数。
 
 @item symbol-size
-Internal size of a symbol, i.e., @code{sizeof (struct Lisp_Symbol)}.
+シンボルの内部的サイズ(@code{sizeof (struct Lisp_Symbol)})。
 
 @item used-symbols
-The number of symbols in use.
+使用中のシンボルの数。
 
 @item free-symbols
-The number of symbols for which space has been obtained from the operating
-system, but that are not currently being used.
+オペレーティングシステムから取得したスペースにあるが、カレントで未使用のシンボルの数。
 
 @item misc-size
-Internal size of a miscellaneous entity, i.e., @code{sizeof (union
-Lisp_Misc)}, which is a size of the largest type enumerated in @code{enum
-Lisp_Misc_Type}.
+雑多なエンティティーの内部的なサイズ。@code{sizeof (union Lisp_Misc)}は@code{enum
+Lisp_Misc_Type}に列挙された最大タイプのサイズ。
 
 @item used-miscs
-The number of miscellaneous objects in use.  These include markers and
-overlays, plus certain objects not visible to users.
+使用中の雑多なエンティティーの数。これらのエンティティーにはマーカー、オーバーレイに加えて、ユーザーにとって不可視な特定オブジェクトが含まれる。
 
 @item free-miscs
-The number of miscellaneous objects for which space has been obtained from
-the operating system, but that are not currently being used.
+オペレーティングシステムから取得したスペースにあるが、カレントで未使用の雑多なオブジェクトの数。
 
 @item string-size
-Internal size of a string header, i.e., @code{sizeof (struct Lisp_String)}.
+文字列ヘッダーの内部的サイズ(@code{sizeof (struct Lisp_String)})。
 
 @item used-strings
-The number of string headers in use.
+使用中の文字列ヘッダーの数。
 
 @item free-strings
-The number of string headers for which space has been obtained from the
-operating system, but that are not currently being used.
+オペレーティングシステムから取得したスペースにあるが、カレントで未使用の文字列ヘッダーの数。
 
 @item byte-size
-This is used for convenience and equals to @code{sizeof (char)}.
+これは利便性のために使用され、@code{sizeof (char)}と同じ。
 
 @item used-bytes
-The total size of all string data in bytes.
+すべての文字列データの総バイト数。
 
 @item vector-size
-Internal size of a vector header, i.e., @code{sizeof (struct Lisp_Vector)}.
+ベクターヘッダーの内部的サイズ(@code{sizeof (struct Lisp_Vector)})。
 
 @item used-vectors
-The number of vector headers allocated from the vector blocks.
+ベクターブロックから割り当てられたベクターブロック数。
 
 @item slot-size
-Internal size of a vector slot, always equal to @code{sizeof (Lisp_Object)}.
+ベクタースロットの内部的なサイズで、常に@code{sizeof (Lisp_Object)}と等しい。
 
 @item used-slots
-The number of slots in all used vectors.
+使用されているすべてのベクターのスロット数。
 
 @item free-slots
-The number of free slots in all vector blocks.
+すべてのベクターブロックのフリースロットの数。
 
 @item float-size
-Internal size of a float object, i.e., @code{sizeof (struct Lisp_Float)}.
-(Do not confuse it with the native platform @code{float} or @code{double}.)
+浮動小数点数オブジェクトの内部的なサイズ(@code{sizeof (struct
+Lisp_Float)})。(ネイティブプラットフォームの@code{float}や@code{double}と混同しないこと。)
 
 @item used-floats
-The number of floats in use.
+使用中の浮動小数点数の数。
 
 @item free-floats
-The number of floats for which space has been obtained from the operating
-system, but that are not currently being used.
+オペレーティングシステムから取得したスペースにあるが、カレントで未使用の浮動小数点数の数。
 
 @item interval-size
-Internal size of an interval object, i.e., @code{sizeof (struct interval)}.
+インターバルオブジェクト(interval object)の内部的なサイズ(@code{sizeof (struct interval)})。
 
 @item used-intervals
-The number of intervals in use.
+使用中のインターバルの数。
 
 @item free-intervals
-The number of intervals for which space has been obtained from the operating
-system, but that are not currently being used.
+オペレーティングシステムから取得したスペースにあるが、カレントで未使用のインターバルの数。
 
 @item buffer-size
-Internal size of a buffer, i.e., @code{sizeof (struct buffer)}.  (Do not
-confuse with the value returned by @code{buffer-size} function.)
+バッファーの内部的なサイズ(@code{sizeof (struct
+buffer)})。(@code{buffer-size}関数がリターンする値と混同しないこと。)
 
 @item used-buffers
-The number of buffer objects in use.  This includes killed buffers invisible
-to users, i.e., all buffers in @code{all_buffers} list.
+使用中のバッファーオブジェクトの数。これにはユーザーからは不可視のkillされたバッファー、つまりリスト@code{all_buffers}内のバッファーすべてが含まれる。
 
 @item unit-size
-The unit of heap space measurement, always equal to 1024 bytes.
+ヒープスペースを計る単位で、常に1024バイトと等しい。
 
 @item total-size
-Total heap size, in @var{unit-size} units.
+@var{unit-size}単位での総ヒープサイズ。
 
 @item free-size
-Heap space which is not currently used, in @var{unit-size} units.
+@var{unit-size}単位での、カレントで未使用のヒープスペース。
 @end table
 
-If there was overflow in pure space (@pxref{Pure Storage}),
-@code{garbage-collect} returns @code{nil}, because a real garbage collection
-cannot be done.
+純粋スペース(@ref{Pure
+Storage}を参照)内にオーバーフローがあれば、実際にガーベージコレクションを行うことは不可能なので、@code{garbage-collect}は@code{nil}をリターンする。
 @end deffn
 
 @defopt garbage-collection-messages
-If this variable is non-@code{nil}, Emacs displays a message at the
-beginning and end of garbage collection.  The default value is @code{nil}.
+この変数が非@code{nil}なら、Emacsはガーベージコレクションの最初と最後にメッセージを表示する。デフォルト値は@code{nil}。
 @end defopt
 
 @defvar post-gc-hook
-This is a normal hook that is run at the end of garbage collection.  Garbage
-collection is inhibited while the hook functions run, so be careful writing
-them.
+これはガーベージコレクションの終わりに実行される、ノーマルフックである。ガーベージコレクションは、このフックの関数の実行中は抑制されるので、慎重に記述されたい。
 @end defvar
 
 @defopt gc-cons-threshold
-The value of this variable is the number of bytes of storage that must be
-allocated for Lisp objects after one garbage collection in order to trigger
-another garbage collection.  You can use the result returned by
-@code{garbage-collect} to get an information about size of the particular
-object type; space allocated to the contents of buffers does not count.
-Note that the subsequent garbage collection does not happen immediately when
-the threshold is exhausted, but only the next time the Lisp interpreter is
-called.
+この変数の値は、別のガーベージコレクションをトリガーするために、ガーベージコレクション後にLispオブジェクト用に割り当てなければならない、ストレージのバイト数である。特定ノオブジェクトタイプに関する情報を取得するために、@code{garbage-collect}がリターンした結果を使用できる。バッファーのコンテンツに割り当てられたスペースは、勘定に入らない。後続のガーベージコレクションは、このthreshold(閾値)が消費されても即座には実行されず、次回にLispインタープリターが呼び出されたときのみ実行されることに注意。
 
-The initial threshold value is @code{GC_DEFAULT_THRESHOLD}, defined in
-@file{alloc.c}.  Since it's defined in @code{word_size} units, the value is
-400,000 for the default 32-bit configuration and 800,000 for the 64-bit
-one.  If you specify a larger value, garbage collection will happen less
-often.  This reduces the amount of time spent garbage collecting, but
-increases total memory use.  You may want to do this when running a program
-that creates lots of Lisp data.
+thresholdの初期値は@code{GC_DEFAULT_THRESHOLD}で、これは@file{alloc.c}内で定義されている。これは@code{word_size}単位で定義されているので、デフォルトの32ビット設定では400,000800,000、64ビット設定ではになる。大きい値を指定すると、ガーベージコレクションの頻度が下る。これはガーベージコレクションにより費やされる時間を減少させるが、メモリーの総使用量は増大する。大量のLispデータを作成するプログラムの実行時には、これを行いたいと思うかもしれない。
 
-You can make collections more frequent by specifying a smaller value, down
-to 1/10th of @code{GC_DEFAULT_THRESHOLD}.  A value less than this minimum
-will remain in effect only until the subsequent garbage collection, at which
-time @code{garbage-collect} will set the threshold back to the minimum.
+@code{GC_DEFAULT_THRESHOLD}の1/10まで下げた小さな値を指定することにより、より頻繁にガーベージコレクションを発生させることができる。この最小値より小さい値は、後続のガーベージコレクションで、@code{garbage-collect}がthresholdを最小値に戻すときまでしか効果をもたないだろう。
 @end defopt
 
 @defopt gc-cons-percentage
-The value of this variable specifies the amount of consing before a garbage
-collection occurs, as a fraction of the current heap size.  This criterion
-and @code{gc-cons-threshold} apply in parallel, and garbage collection
-occurs only when both criteria are satisfied.
+この変数の値は、ガーベージコレクション発生するまでのコンス(訳注:
+これは@code{gc-cons-threshold}や@code{gc-cons-percentage}の@samp{-cons-}のことで、これらの変数が定義されている@file{alloc.c}内では、Lisp方言での@samp{cons}をより一般化したメモリー割り当てプロセスのことを指すようです)の量を、カレントヒープサイズにたいする割り合いで指定する。この条件と@code{gc-cons-threshold}を並行して適用し、条件が両方満足されたときだけ、ガーベージコレクションが発生する。
 
-As the heap size increases, the time to perform a garbage collection
-increases.  Thus, it can be desirable to do them less frequently in
-proportion.
+ヒープサイズ増加にともない、ガーベージコレクションの処理時間は増大する。したがって、ガーベージコレクションの頻度割合を減らすのが望ましいことがある。
 @end defopt
 
-  The value returned by @code{garbage-collect} describes the amount of memory
-used by Lisp data, broken down by data type.  By contrast, the function
-@code{memory-limit} provides information on the total amount of memory Emacs
-is currently using.
+  @code{garbage-collect}がリターンする値は、データ型に分類されたLispデータノめもりー使用量を記述します。それと対照的に関数@code{memory-limit}は、Emacsがカレントで使用中の総メモリー量の情報を提供します。
 
 @defun memory-limit
-This function returns the address of the last byte Emacs has allocated,
-divided by 1024.  We divide the value by 1024 to make sure it fits in a Lisp
-integer.
+この関数は、Emacsが割り当てたメモリーの最後のバイトアドレスを1024で除した値をリターンする。その値を1024で除しているのは、Lisp整数に収まるようにするためである。
 
-You can use this to get a general idea of how your actions affect the memory
-usage.
+あなたのアクションがメモリー使用に与える影響について、大まかなアイデアを得るために、これを使用することができる。
 @end defun
 
 @defvar memory-full
-This variable is @code{t} if Emacs is nearly out of memory for Lisp objects,
-and @code{nil} otherwise.
+この変数は、Lispオブジェクト用のメモリーが不足に近い状態なら@code{t}、それ以外なら@code{nil}となる。
 @end defvar
 
 @defun memory-use-counts
-This returns a list of numbers that count the number of objects created in
-this Emacs session.  Each of these counters increments for a certain kind of
-object.  See the documentation string for details.
+これはそのEmacsセッションで作成されたオブジェクト数をカウントしたリストである。これらのカウンターはそれぞれ、特定の種類のオブジェクトを数える。詳細はドキュメント文字列を参照のこと。
 @end defun
 
 @defvar gcs-done
-This variable contains the total number of garbage collections done so far
-in this Emacs session.
+この変数は、そのEmacsセッションでそれまでに行われたガーベージコレクションの合計回数である。
 @end defvar
 
 @defvar gc-elapsed
-This variable contains the total number of seconds of elapsed time during
-garbage collection so far in this Emacs session, as a floating-point number.
+この変数は、そのEmacsセッションでガーベージコレクションの間に費やされた経過時間を、浮動小数点数で表した総秒数である。
 @end defvar
 
 @node Memory Usage
