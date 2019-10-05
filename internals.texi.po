@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-10-05 03:38+0900\n"
-"PO-Revision-Date: 2019-10-05 16:05+0900\n"
+"PO-Revision-Date: 2019-10-05 16:50+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -303,65 +303,65 @@ msgstr "すでにダンプ済みのEmacs内でこの関数を使用する場合�
 #: internals.texi.orig:162
 #, no-wrap
 msgid "pure storage"
-msgstr ""
+msgstr "pure storage"
 
 #. type: Plain text
 #: internals.texi.orig:170
 msgid "Emacs Lisp uses two kinds of storage for user-created Lisp objects: @dfn{normal storage} and @dfn{pure storage}.  Normal storage is where all the new data created during an Emacs session are kept (@pxref{Garbage Collection}).  Pure storage is used for certain data in the preloaded standard Lisp files---data that should never change during actual use of Emacs."
-msgstr ""
+msgstr "Emacs Lispはユーザー作成Lispオブジェクトにたいして、@dfn{通常ストレージ(normal storage)}と@dfn{純粋ストレージ(pure storage)}という、2種のストレージをもちます。通常ストレージは、Emacsセッションが維持される間に、新たにデータが作成される場所です。純粋ストレージは、事前ロードされた標準Lispファイル内の、特定のデータのために使用されます。このデータは実際のEmacs使用中に決して変更されるべきではないデータです。"
 
 #. type: Plain text
 #: internals.texi.orig:186
 msgid "Pure storage is allocated only while @command{temacs} is loading the standard preloaded Lisp libraries.  In the file @file{emacs}, it is marked as read-only (on operating systems that permit this), so that the memory space can be shared by all the Emacs jobs running on the machine at once.  Pure storage is not expandable; a fixed amount is allocated when Emacs is compiled, and if that is not sufficient for the preloaded libraries, @file{temacs} allocates dynamic memory for the part that didn't fit.  The resulting image will work, but garbage collection (@pxref{Garbage Collection}) is disabled in this situation, causing a memory leak.  Such an overflow normally won't happen unless you try to preload additional libraries or add features to the standard ones.  Emacs will display a warning about the overflow when it starts.  If this happens, you should increase the compilation parameter @code{SYSTEM_PURESIZE_EXTRA} in the file @file{src/puresize.h} and rebuild Emacs."
-msgstr ""
+msgstr "純粋ストレージは、@command{temacs}が標準的な事前ローLispライブラリーのロード中だけ割り当てられます。ファイル@file{emacs}では、このメモリースペースは読み取り専用とマークされるので、そのマシン上で実行中のすべてのEmacsジョブで共有できます。純粋ストレージは拡張できません。Emacsのコンパイル時に固定された量が割り当てられ、それが事前ロードされるライブラリーにたいして不足なら、@file{temacs}はそれに収まらない部分を動的メモリーに割り当てます。結果イメージは動作するでしょうが、この状況ではメモリーリークとなるので、ガーベージコレクション(@ref{Garbage Collection}を参照)は無効です。そのような通常なら発生しないオーバーフローは、あなたが事前ロードライブラリの追加や、標準的な事前ロードライブラリに追加を試みないかぎり発生しません。Emacsはオーバーロードの開始時に、オーバーロードに関する警告を表示するでしょう。これが発生したら、ファイル@file{src/puresize.h}内のコンパイルパラメーターを@code{SYSTEM_PURESIZE_EXTRA}を増やして、Emacsをリビルドする必要があります。"
 
 #. type: defun
 #: internals.texi.orig:187
 #, no-wrap
 msgid "purecopy object"
-msgstr ""
+msgstr "purecopy object"
 
 #. type: defun
 #: internals.texi.orig:194
 msgid "This function makes a copy in pure storage of @var{object}, and returns it.  It copies a string by simply making a new string with the same characters, but without text properties, in pure storage.  It recursively copies the contents of vectors and cons cells.  It does not make copies of other objects such as symbols, but just returns them unchanged.  It signals an error if asked to copy markers."
-msgstr ""
+msgstr "この関数は純粋ストレージに@var{object}のコピーを作成して、それをリターンする。これは同じ文字で新たに文字列を作成することにより文字列をコピーするが、純粋ストレージではテキストプロパティはない。これはベクターとコンスセルのコンテンツを、再帰的にコピーする。シンボルのような他のオブジェクトのコピーは作成しないが、それらを未変更でリターンする。マーカーのコピーを試みると、エラーをシグナルする。"
 
 #. type: defun
 #: internals.texi.orig:197
 msgid "This function is a no-op except while Emacs is being built and dumped; it is usually called only in preloaded Lisp files."
-msgstr ""
+msgstr "この関数は、Emacsのビルド中とダンプ中を除き、何もしない。通常は事前ロードされるLispファイル内でのみ呼び出される。"
 
 #. type: defvar
 #: internals.texi.orig:199
 #, no-wrap
 msgid "pure-bytes-used"
-msgstr ""
+msgstr "pure-bytes-used"
 
 #. type: defvar
 #: internals.texi.orig:204
 msgid "The value of this variable is the number of bytes of pure storage allocated so far.  Typically, in a dumped Emacs, this number is very close to the total amount of pure storage available---if it were not, we would preallocate less."
-msgstr ""
+msgstr "この変数の値は、これまでに割り当てられた純粋ストレージのバイト数である。ダンプされたEmacsでは、通常は利用可能な純粋ストレージの総量とほとんど同じであり、もしそうでないならわたしたちは事前割り当てをもっと少なくするだろう。"
 
 #. type: defvar
 #: internals.texi.orig:206
 #, no-wrap
 msgid "purify-flag"
-msgstr ""
+msgstr "purify-flag"
 
 #. type: defvar
 #: internals.texi.orig:210
 msgid "This variable determines whether @code{defun} should make a copy of the function definition in pure storage.  If it is non-@code{nil}, then the function definition is copied into pure storage."
-msgstr ""
+msgstr "この変数は、@code{defun}が純粋ストレージにその関数定義のコピーを作成するべきか否かを判断する。これが非@code{nil}なら、その関数の定義は純粋ストレージにコピーされる。"
 
 #. type: defvar
 #: internals.texi.orig:216
 msgid "This flag is @code{t} while loading all of the basic functions for building Emacs initially (allowing those functions to be shareable and non-collectible).  Dumping Emacs as an executable always writes @code{nil} in this variable, regardless of the value it actually has before and after dumping."
-msgstr ""
+msgstr "このフラグは、Emacsのビルド用の基本的な関数の初回ロード中は@code{t}となる。実行可能形式としてEmacsをダンプすることにより、ダンプ前後の実際の値とは無関係に、常にこの変数に@code{nil}が書き込まれる。"
 
 #. type: defvar
 #: internals.texi.orig:218
 msgid "You should not change this flag in a running Emacs."
-msgstr ""
+msgstr "実行中のEmacsで、このフラグを変更しないこと。"
 
 #. type: cindex
 #: internals.texi.orig:223
