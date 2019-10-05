@@ -77,14 +77,14 @@ Next: <a href="Process-Internals.html#Process-Internals" accesskey="n" rel="next
 </p>
 </dd>
 <dt><code>parent</code></dt>
-<dd><p>Internally, Emacs arranges windows in a tree; each group of siblings has
-a parent window whose area includes all the siblings.  This field points
-to a window&rsquo;s parent.
+<dd><p>Internally, Emacs arranges windows in a tree; each group of siblings has a
+parent window whose area includes all the siblings.  This field points to a
+window&rsquo;s parent.
 </p>
 <p>Parent windows do not display buffers, and play little role in display
-except to shape their child windows.  Emacs Lisp programs usually have
-no access to the parent windows; they operate on the windows at the
-leaves of the tree, which actually display buffers.
+except to shape their child windows.  Emacs Lisp programs usually have no
+access to the parent windows; they operate on the windows at the leaves of
+the tree, which actually display buffers.
 </p>
 </dd>
 <dt><code>hchild</code></dt>
@@ -92,16 +92,15 @@ leaves of the tree, which actually display buffers.
 <dd><p>These fields contain the window&rsquo;s leftmost child and its topmost child
 respectively.  <code>hchild</code> is used if the window is subdivided
 horizontally by child windows, and <code>vchild</code> if it is subdivided
-vertically.  In a live window, only one of <code>hchild</code>, <code>vchild</code>,
-and <code>buffer</code> (q.v.) is non-<code>nil</code>.
+vertically.  In a live window, only one of <code>hchild</code>, <code>vchild</code>, and
+<code>buffer</code> (q.v.) is non-<code>nil</code>.
 </p>
 </dd>
 <dt><code>next</code></dt>
 <dt><code>prev</code></dt>
 <dd><p>The next sibling and previous sibling of this window.  <code>next</code> is
 <code>nil</code> if the window is the right-most or bottom-most in its group;
-<code>prev</code> is <code>nil</code> if it is the left-most or top-most in its
-group.
+<code>prev</code> is <code>nil</code> if it is the left-most or top-most in its group.
 </p>
 </dd>
 <dt><code>left_col</code></dt>
@@ -110,15 +109,15 @@ leftmost column in the frame (column 0).
 </p>
 </dd>
 <dt><code>top_line</code></dt>
-<dd><p>The top edge of the window, measured in lines, relative to the topmost
-line in the frame (line 0).
+<dd><p>The top edge of the window, measured in lines, relative to the topmost line
+in the frame (line 0).
 </p>
 </dd>
 <dt><code>total_cols</code></dt>
 <dt><code>total_lines</code></dt>
 <dd><p>The width and height of the window, measured in columns and lines
-respectively.  The width includes the scroll bar and fringes, and/or
-the separator line on the right of the window (if any).
+respectively.  The width includes the scroll bar and fringes, and/or the
+separator line on the right of the window (if any).
 </p>
 </dd>
 <dt><code>buffer</code></dt>
@@ -126,8 +125,8 @@ the separator line on the right of the window (if any).
 </p>
 </dd>
 <dt><code>start</code></dt>
-<dd><p>A marker pointing to the position in the buffer that is the first
-character displayed in the window.
+<dd><p>A marker pointing to the position in the buffer that is the first character
+displayed in the window.
 </p>
 </dd>
 <dt><code>pointm</code></dt>
@@ -137,22 +136,21 @@ selected; when it is not selected, it retains its previous value.
 </p>
 </dd>
 <dt><code>force_start</code></dt>
-<dd><p>If this flag is non-<code>nil</code>, it says that the window has been
-scrolled explicitly by the Lisp program.  This affects what the next
-redisplay does if point is off the screen: instead of scrolling the
-window to show the text around point, it moves point to a location that
-is on the screen.
+<dd><p>If this flag is non-<code>nil</code>, it says that the window has been scrolled
+explicitly by the Lisp program.  This affects what the next redisplay does
+if point is off the screen: instead of scrolling the window to show the text
+around point, it moves point to a location that is on the screen.
 </p>
 </dd>
 <dt><code>frozen_window_start_p</code></dt>
 <dd><p>This field is set temporarily to 1 to indicate to redisplay that
-<code>start</code> of this window should not be changed, even if point
-gets invisible.
+<code>start</code> of this window should not be changed, even if point gets
+invisible.
 </p>
 </dd>
 <dt><code>start_at_line_beg</code></dt>
-<dd><p>Non-<code>nil</code> means current value of <code>start</code> was the beginning of a line
-when it was chosen.
+<dd><p>Non-<code>nil</code> means current value of <code>start</code> was the beginning of a
+line when it was chosen.
 </p>
 </dd>
 <dt><code>use_time</code></dt>
@@ -165,18 +163,18 @@ when it was chosen.
 </p>
 </dd>
 <dt><code>last_modified</code></dt>
-<dd><p>The <code>modiff</code> field of the window&rsquo;s buffer, as of the last time
-a redisplay completed in this window.
+<dd><p>The <code>modiff</code> field of the window&rsquo;s buffer, as of the last time a
+redisplay completed in this window.
 </p>
 </dd>
 <dt><code>last_overlay_modified</code></dt>
-<dd><p>The <code>overlay_modiff</code> field of the window&rsquo;s buffer, as of the last
-time a redisplay completed in this window.
+<dd><p>The <code>overlay_modiff</code> field of the window&rsquo;s buffer, as of the last time
+a redisplay completed in this window.
 </p>
 </dd>
 <dt><code>last_point</code></dt>
-<dd><p>The buffer&rsquo;s value of point, as of the last time a redisplay completed
-in this window.
+<dd><p>The buffer&rsquo;s value of point, as of the last time a redisplay completed in
+this window.
 </p>
 </dd>
 <dt><code>last_had_star</code></dt>
@@ -206,8 +204,8 @@ othersize they are between the margin and the text.
 </p>
 </dd>
 <dt><code>window_end_pos</code></dt>
-<dd><p>This is computed as <code>z</code> minus the buffer position of the last glyph
-in the current matrix of the window.  The value is only valid if
+<dd><p>This is computed as <code>z</code> minus the buffer position of the last glyph in
+the current matrix of the window.  The value is only valid if
 <code>window_end_valid</code> is not <code>nil</code>.
 </p>
 </dd>
@@ -221,10 +219,10 @@ in the current matrix of the window.  The value is only valid if
 </p>
 </dd>
 <dt><code>window_end_valid</code></dt>
-<dd><p>This field is set to a non-<code>nil</code> value if <code>window_end_pos</code> is truly
-valid.  This is <code>nil</code> if nontrivial redisplay is pre-empted, since in that
-case the display that <code>window_end_pos</code> was computed for did not get
-onto the screen.
+<dd><p>This field is set to a non-<code>nil</code> value if <code>window_end_pos</code> is
+truly valid.  This is <code>nil</code> if nontrivial redisplay is pre-empted,
+since in that case the display that <code>window_end_pos</code> was computed for
+did not get onto the screen.
 </p>
 </dd>
 <dt><code>cursor</code></dt>
@@ -242,8 +240,8 @@ onto the screen.
 <dt><code>phys_cursor_type</code></dt>
 <dt><code>phys_cursor_height</code></dt>
 <dt><code>phys_cursor_width</code></dt>
-<dd><p>The type, height, and width of the cursor that was last displayed on
-this window.
+<dd><p>The type, height, and width of the cursor that was last displayed on this
+window.
 </p>
 </dd>
 <dt><code>phys_cursor_on_p</code></dt>
@@ -251,13 +249,13 @@ this window.
 </p>
 </dd>
 <dt><code>cursor_off_p</code></dt>
-<dd><p>Non-zero means the cursor in this window is logically off.  This is
-used for blinking the cursor.
+<dd><p>Non-zero means the cursor in this window is logically off.  This is used for
+blinking the cursor.
 </p>
 </dd>
 <dt><code>last_cursor_off_p</code></dt>
-<dd><p>This field contains the value of <code>cursor_off_p</code> as of the time of
-the last redisplay.
+<dd><p>This field contains the value of <code>cursor_off_p</code> as of the time of the
+last redisplay.
 </p>
 </dd>
 <dt><code>must_be_updated_p</code></dt>
@@ -286,19 +284,19 @@ horizontally to the left.  Normally, this is 0.
 </p>
 </dd>
 <dt><code>base_line_number</code></dt>
-<dd><p>The line number of a certain position in the buffer, or <code>nil</code>.
-This is used for displaying the line number of point in the mode line.
+<dd><p>The line number of a certain position in the buffer, or <code>nil</code>.  This is
+used for displaying the line number of point in the mode line.
 </p>
 </dd>
 <dt><code>base_line_pos</code></dt>
-<dd><p>The position in the buffer for which the line number is known, or
-<code>nil</code> meaning none is known.  If it is a buffer, don&rsquo;t display
-the line number as long as the window shows that buffer.
+<dd><p>The position in the buffer for which the line number is known, or <code>nil</code>
+meaning none is known.  If it is a buffer, don&rsquo;t display the line number as
+long as the window shows that buffer.
 </p>
 </dd>
 <dt><code>column_number_displayed</code></dt>
-<dd><p>The column number currently displayed in this window&rsquo;s mode line, or <code>nil</code>
-if column numbers are not being displayed.
+<dd><p>The column number currently displayed in this window&rsquo;s mode line, or
+<code>nil</code> if column numbers are not being displayed.
 </p>
 </dd>
 <dt><code>current_matrix</code></dt>

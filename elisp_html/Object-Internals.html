@@ -66,10 +66,10 @@ Next: <a href="C-Integer-Types.html#C-Integer-Types" accesskey="n" rel="next">C 
 <p>Emacs Lisp provides a rich set of the data types.  Some of them, like cons
 cells, integers and strings, are common to nearly all Lisp dialects.  Some
 others, like markers and buffers, are quite special and needed to provide
-the basic support to write editor commands in Lisp.  To implement such
-a variety of object types and provide an efficient way to pass objects between
-the subsystems of an interpreter, there is a set of C data structures and
-a special type to represent the pointers to all of them, which is known as
+the basic support to write editor commands in Lisp.  To implement such a
+variety of object types and provide an efficient way to pass objects between
+the subsystems of an interpreter, there is a set of C data structures and a
+special type to represent the pointers to all of them, which is known as
 <em>tagged pointer</em>.
 </p>
 <p>In C, the tagged pointer is an object of type <code>Lisp_Object</code>.  Any
@@ -82,12 +82,12 @@ bits is the value itself.  Integers are immediate, i.e., directly
 represented by those <em>value bits</em>, and all other objects are represented
 by the C pointers to a corresponding object allocated from the heap.  Width
 of the <code>Lisp_Object</code> is platform- and configuration-dependent: usually
-it&rsquo;s equal to the width of an underlying platform pointer (i.e., 32-bit on
-a 32-bit machine and 64-bit on a 64-bit one), but also there is a special
-configuration where <code>Lisp_Object</code> is 64-bit but all pointers are 32-bit.
-The latter trick was designed to overcome the limited range of values for
-Lisp integers on a 32-bit system by using 64-bit <code>long long</code> type for
-<code>Lisp_Object</code>.
+it&rsquo;s equal to the width of an underlying platform pointer (i.e., 32-bit on a
+32-bit machine and 64-bit on a 64-bit one), but also there is a special
+configuration where <code>Lisp_Object</code> is 64-bit but all pointers are
+32-bit.  The latter trick was designed to overcome the limited range of
+values for Lisp integers on a 32-bit system by using 64-bit <code>long long</code>
+type for <code>Lisp_Object</code>.
 </p>
 <p>The following C data structures are defined in <samp>lisp.h</samp> to represent
 the basic data types beyond integers:
@@ -118,21 +118,21 @@ the basic data types beyond integers:
 </p></dd>
 </dl>
 
-<p>These types are the first-class citizens of an internal type system.
-Since the tag space is limited, all other types are the subtypes of either
+<p>These types are the first-class citizens of an internal type system.  Since
+the tag space is limited, all other types are the subtypes of either
 <code>Lisp_Vectorlike</code> or <code>Lisp_Misc</code>.  Vector subtypes are enumerated
-by <code>enum pvec_type</code>, and nearly all complex objects like windows, buffers,
-frames, and processes fall into this category.  The rest of special types,
-including markers and overlays, are enumerated by <code>enum Lisp_Misc_Type</code>
-and form the set of subtypes of <code>Lisp_Misc</code>.
+by <code>enum pvec_type</code>, and nearly all complex objects like windows,
+buffers, frames, and processes fall into this category.  The rest of special
+types, including markers and overlays, are enumerated by <code>enum
+Lisp_Misc_Type</code> and form the set of subtypes of <code>Lisp_Misc</code>.
 </p>
 <p>Below there is a description of a few subtypes of <code>Lisp_Vectorlike</code>.
 Buffer object represents the text to display and edit.  Window is the part
 of display structure which shows the buffer or used as a container to
-recursively place other windows on the same frame.  (Do not confuse Emacs Lisp
-window object with the window as an entity managed by the user interface
-system like X; in Emacs terminology, the latter is called frame.)  Finally,
-process object is used to manage the subprocesses.
+recursively place other windows on the same frame.  (Do not confuse Emacs
+Lisp window object with the window as an entity managed by the user
+interface system like X; in Emacs terminology, the latter is called frame.)
+Finally, process object is used to manage the subprocesses.
 </p>
 <table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="Buffer-Internals.html#Buffer-Internals" accesskey="1">Buffer Internals</a></td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Components of a buffer structure.
