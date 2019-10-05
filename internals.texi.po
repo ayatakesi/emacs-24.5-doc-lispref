@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-10-05 03:38+0900\n"
-"PO-Revision-Date: 2019-10-05 13:32+0900\n"
+"PO-Revision-Date: 2019-10-05 16:05+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -118,186 +118,186 @@ msgstr "Emacs内部でCの整数型が使用される方法。"
 #: internals.texi.orig:26
 #, no-wrap
 msgid "building Emacs"
-msgstr ""
+msgstr "building Emacs"
 
 #. type: pindex
 #: internals.texi.orig:27
 #, no-wrap
 msgid "temacs"
-msgstr ""
+msgstr "temacs"
 
 #. type: Plain text
 #: internals.texi.orig:33
 msgid "This section explains the steps involved in building the Emacs executable.  You don't have to know this material to build and install Emacs, since the makefiles do all these things automatically.  This information is pertinent to Emacs developers."
-msgstr ""
+msgstr "このセクションでは、Emacs実行可能形式のビルドに関するステップの説明をします。makefileがこれらすべてを自動的に行うので、Emacsをビイルドおよびインストールするために、この題材を知る必要はありません。この情報は、Emacs開発者にとって適切です。"
 
 #. type: Plain text
 #: internals.texi.orig:38
 msgid "Compilation of the C source files in the @file{src} directory produces an executable file called @file{temacs}, also called a @dfn{bare impure Emacs}.  It contains the Emacs Lisp interpreter and I/O routines, but not the editing commands."
-msgstr ""
+msgstr "@file{src}ディレクトリー内のCソースファイルをコンパイルすることにより、@file{temacs}と呼ばれる実行可能形式ファイルが生成されます。これは@dfn{bare impure Emacs()裸で不純なEmacs}とも呼ばれます。これにはEmacs LispインタープリターとI/Oルーチンが含まれますが、編集コマンドは含まれません。"
 
 #. type: file{#1}
 #: internals.texi.orig:39
 #, no-wrap
 msgid "loadup.el"
-msgstr ""
+msgstr "loadup.el"
 
 #. type: Plain text
 #: internals.texi.orig:45
 msgid "The command @w{@command{temacs -l loadup}} would run @file{temacs} and direct it to load @file{loadup.el}.  The @code{loadup} library loads additional Lisp libraries, which set up the normal Emacs editing environment.  After this step, the Emacs executable is no longer @dfn{bare}."
-msgstr ""
+msgstr "コマンド@w{@command{temacs -l loadup}}は@file{temacs}を実行して、それが@file{loadup.el}をロードするよう計らいます。@code{loadup}ライブラリーは、通常のEmacs編集環境をセットアップする、追加のLispライブラリーをロードします。このステップの後には、そのEmacs実行可能形式は@dfn{bare(裸)}ではなくなります。"
 
 #. type: cindex
 #: internals.texi.orig:46
 #, no-wrap
 msgid "dumping Emacs"
-msgstr ""
+msgstr "dumping Emacs"
 
 #. type: Plain text
 #: internals.texi.orig:56
 msgid "Because it takes some time to load the standard Lisp files, the @file{temacs} executable usually isn't run directly by users.  Instead, as one of the last steps of building Emacs, the command @samp{temacs -batch -l loadup dump} is run.  The special @samp{dump} argument causes @command{temacs} to dump out an executable program, called @file{emacs}, which has all the standard Lisp files preloaded.  (The @samp{-batch} argument prevents @file{temacs} from trying to initialize any of its data on the terminal, so that the tables of terminal information are empty in the dumped Emacs.)"
-msgstr ""
+msgstr "標準的なLispファイルのロードには若干の時間を要するので、ユーザーが直接@file{temacs}実行可能形式を実行することは、通常はありません。そのかわり、Emacsビルドの最終ステップとして、コマンド@samp{temacs -batch -l loadup dump}が実行されます。特別な引数@samp{dump}により、@command{temacs}は@file{emacs}と呼ばれる実行可能形式のプログラムにダンプされます。これには、標準的なLispファイルがすべて事前ロードされています。(引数@samp{-batch}は@file{temacs}がその端末上でデータの初期化を試みることを防げるので、端末情報のテーブルはダンプされたEmacsでは空になる。)"
 
 #. type: cindex
 #: internals.texi.orig:57
 #, no-wrap
 msgid "preloaded Lisp files"
-msgstr ""
+msgstr "preloaded Lisp files"
 
 #. type: vindex
 #: internals.texi.orig:58
 #, no-wrap
 msgid "preloaded-file-list"
-msgstr ""
+msgstr "preloaded-file-list"
 
 #. type: Plain text
 #: internals.texi.orig:65
 msgid "The dumped @file{emacs} executable (also called a @dfn{pure} Emacs)  is the one which is installed.  The variable @code{preloaded-file-list} stores a list of the Lisp files preloaded into the dumped Emacs.  If you port Emacs to a new operating system, and are not able to implement dumping, then Emacs must load @file{loadup.el} each time it starts."
-msgstr ""
+msgstr "ダンプされた@file{emacs}実行可能形式(@dfn{純粋}なEmacsとも呼ばれる)が、インストールされるEmacsになります。変数@code{preloaded-file-list}には、ダンプ済みEmacsに事前ロードされるLispファイルのリストが格納されています。新たなオペレーティングシステムにEmacsをポートする際、そのOSがダンプを実装していなければ、Emacsは起動時に毎回@file{loadup.el}をロードしなければなりません。"
 
 #. type: file{#1}
 #: internals.texi.orig:66
 #, no-wrap
 msgid "site-load.el"
-msgstr ""
+msgstr "site-load.el"
 
 #. type: Plain text
 #: internals.texi.orig:70
 msgid "You can specify additional files to preload by writing a library named @file{site-load.el} that loads them.  You may need to rebuild Emacs with an added definition"
-msgstr ""
+msgstr "@file{site-load.el}という名前のライブラリーを記述することにより、事前ロードするファイルを追加指定できます。追加するファイルを保持するための純粋なスペース@var{n}バイトを追加するように、以下の定義"
 
 #. type: example
 #: internals.texi.orig:73
 #, no-wrap
 msgid "#define SITELOAD_PURESIZE_EXTRA @var{n}\n"
-msgstr ""
+msgstr "#define SITELOAD_PURESIZE_EXTRA @var{n}\n"
 
 #. type: Plain text
 #: internals.texi.orig:81
 msgid "to make @var{n} added bytes of pure space to hold the additional files; see @file{src/puresize.h}.  (Try adding increments of 20000 until it is big enough.)  However, the advantage of preloading additional files decreases as machines get faster.  On modern machines, it is usually not advisable."
-msgstr ""
+msgstr "でEmacsをリビルドする必要があるでしょう。@file{src/puresize.h}を参考にしてください(十分大きくなるまで、20000▽ずつ増加させる)。しかし、追加ファイルの事前ロードの優位は、マシンの高速化により減少します。現代的なマシンでは、通常はお勧めしません。"
 
 #. type: Plain text
 #: internals.texi.orig:87
 msgid "After @file{loadup.el} reads @file{site-load.el}, it finds the documentation strings for primitive and preloaded functions (and variables) in the file @file{etc/DOC} where they are stored, by calling @code{Snarf-documentation} (@pxref{Definition of Snarf-documentation,, Accessing Documentation})."
-msgstr ""
+msgstr "@file{loadup.el}が@file{site-load.el}を読み込んだ後に@code{Snarf-documentation}を呼び出すことにより、それらが格納された場所のファイル@file{etc/DOC}内にある、プリミティブと事前ロードされる関数(と変数)のドキュメント文字列を探します(@ref{Definition of Snarf-documentation,, Accessing Documentation}を参照)。"
 
 #. type: file{#1}
 #: internals.texi.orig:88
 #, no-wrap
 msgid "site-init.el"
-msgstr ""
+msgstr "site-init.el"
 
 #. type: cindex
 #: internals.texi.orig:89
 #, no-wrap
 msgid "preloading additional functions and variables"
-msgstr ""
+msgstr "preloading additional functions and variables"
 
 #. type: Plain text
 #: internals.texi.orig:93
 msgid "You can specify other Lisp expressions to execute just before dumping by putting them in a library named @file{site-init.el}.  This file is executed after the documentation strings are found."
-msgstr ""
+msgstr "@file{site-init.el}という名前のライブラリー名に配置することにより、ダンプ直前に実行する他のLisp式を指定できます。このファイルは、ドキュメント文字列を見つけた後に実行されます。"
 
 #. type: Plain text
 #: internals.texi.orig:97
 msgid "If you want to preload function or variable definitions, there are three ways you can do this and make their documentation strings accessible when you subsequently run Emacs:"
-msgstr ""
+msgstr "関数または変数の定義を事前ロードしたい場合には、それを行うために、3つの方法があります。それらにより定義ロードして、その後のEmacs実行時にドキュメント文字列をアクセス可能にします:"
 
 #. type: itemize
 #: internals.texi.orig:102
 msgid "Arrange to scan these files when producing the @file{etc/DOC} file, and load them with @file{site-load.el}."
-msgstr ""
+msgstr "@file{etc/DOC}の生成時にそれらのファイルをスキャンするよう計らい、それらを@file{site-load.el}でロードする。"
 
 #. type: itemize
 #: internals.texi.orig:106
 msgid "Load the files with @file{site-init.el}, then copy the files into the installation directory for Lisp files when you install Emacs."
-msgstr ""
+msgstr "ファイルを@file{site-init.el}でロードして、Emacsインストール時にLispファイルのインストール先ディレクトリーに、そのファイルをコピーする。"
 
 #. type: itemize
 #: internals.texi.orig:113
 msgid "Specify a @code{nil} value for @code{byte-compile-dynamic-docstrings} as a local variable in each of these files, and load them with either @file{site-load.el} or @file{site-init.el}.  (This method has the drawback that the documentation strings take up space in Emacs all the time.)"
-msgstr ""
+msgstr "それらの各ファイルで、ローカル変数として@code{byte-compile-dynamic-docstrings}に@code{nil}値を指定して、それらを@file{site-load.el}か@file{site-init.el}でロードする(この手法には、Emacsが毎回そのドキュメント文字列用のスペースを確保するという欠点がある)。"
 
 #. type: cindex
 #: internals.texi.orig:115
 #, no-wrap
 msgid "change @code{load-path} at configure time"
-msgstr ""
+msgstr "change @code{load-path} at configure time"
 
 #. type: cindex
 #: internals.texi.orig:116
 #, no-wrap
 msgid "@option{--enable-locallisppath} option to @command{configure}"
-msgstr ""
+msgstr "@option{--enable-locallisppath} option to @command{configure}"
 
 #. type: Plain text
 #: internals.texi.orig:127
 msgid "It is not advisable to put anything in @file{site-load.el} or @file{site-init.el} that would alter any of the features that users expect in an ordinary unmodified Emacs.  If you feel you must override normal features for your site, do it with @file{default.el}, so that users can override your changes if they wish.  @xref{Startup Summary}.  Note that if either @file{site-load.el} or @file{site-init.el} changes @code{load-path}, the changes will be lost after dumping.  @xref{Library Search}.  To make a permanent change to @code{load-path}, use the @option{--enable-locallisppath} option of @command{configure}."
-msgstr ""
+msgstr "通常の未変更のEmacsでユーザーが期待する何らかの機能を変更するような何かを、@file{site-load.el}または@file{site-init.el}内に配置することはお勧めしません。あなたのサイトで通常の機能をオーバーライドしなければならないと感じた場合には、@file{default.el}でそれを行えば、ユーザーが望む場合にあなたの変更をオーバーライドできます。@ref{Startup Summary}を参照してください。@file{site-load.el}か@file{site-init.el}のいずれかが@code{load-path}を変更する場合、その変更はダンプ後に失われます。@ref{Library Search}を参照してください。@code{load-path}を永続的に変更するには、@command{configure}の@option{--enable-locallisppath}オプションを指定してください。"
 
 #. type: Plain text
 #: internals.texi.orig:137
 msgid "In a package that can be preloaded, it is sometimes necessary (or useful) to delay certain evaluations until Emacs subsequently starts up.  The vast majority of such cases relate to the values of customizable variables.  For example, @code{tutorial-directory} is a variable defined in @file{startup.el}, which is preloaded.  The default value is set based on @code{data-directory}.  The variable needs to access the value of @code{data-directory} when Emacs starts, not when it is dumped, because the Emacs executable has probably been installed in a different location since it was dumped."
-msgstr ""
+msgstr "事前ロード可能なパッケージでは、その後のEmacsスタートアップまで、特定の評価を遅延させのが必要(または便利)なことがあります。そのようなケースの大半は、カスタマイズ可能な変数の値に関するものです。たとえば@code{tutorial-directory}は、事前ロードされる@file{startup.el}内で定義される変数です。これのデフォルト値は、@code{data-directory}にもとづいてセットされます。この変数はEmacsダンプ時ではなく、スタート時に@code{data-directory}の値を必要とします。なぜならEmacs実行可能形式はダンプされたものなので、恐らく異なる場所にインストールされます。"
 
 #. type: defun
 #: internals.texi.orig:138
 #, no-wrap
 msgid "custom-initialize-delay symbol value"
-msgstr ""
+msgstr "custom-initialize-delay symbol value"
 
 #. type: defun
 #: internals.texi.orig:144
 msgid "This function delays the initialization of @var{symbol} to the next Emacs start.  You normally use this function by specifying it as the @code{:initialize} property of a customizable variable.  (The argument @var{value} is unused, and is provided only for compatibility with the form Custom expects.)"
-msgstr ""
+msgstr "この関数は、次回のEmacs開始まで@var{symbol}の初期化を遅延する。通常は、カスタマイズ可能変数の@code{:initialize}プロパティとしてこの関数を指定することにより使用する(引数@var{value}はフォームCustom由来の互換性のためだけに提供されており使用しない)。"
 
 #. type: Plain text
 #: internals.texi.orig:149
 msgid "In the unlikely event that you need a more general functionality than @code{custom-initialize-delay} provides, you can use @code{before-init-hook} (@pxref{Startup Summary})."
-msgstr ""
+msgstr "@code{custom-initialize-delay}が提供するより一般的な機能を要するような稀なケースでは、@code{before-init-hook}を使用できます(@ref{Startup Summary}を参照)。"
 
 #. type: defun
 #: internals.texi.orig:150
 #, no-wrap
 msgid "dump-emacs to-file from-file"
-msgstr ""
+msgstr "dump-emacs to-file from-file"
 
 #. type: cindex
 #: internals.texi.orig:151
 #, no-wrap
 msgid "unexec"
-msgstr ""
+msgstr "unexec"
 
 #. type: defun
 #: internals.texi.orig:155
 msgid "This function dumps the current state of Emacs into an executable file @var{to-file}.  It takes symbols from @var{from-file} (this is normally the executable file @file{temacs})."
-msgstr ""
+msgstr "この関数は、Emacsのカレント状態を、実行可能ファイル@var{to-file}にダンプする。これは@var{from-file}(通常はファイル@file{temacs})からシンボルを取得する。"
 
 #. type: defun
 #: internals.texi.orig:158
 msgid "If you want to use this function in an Emacs that was already dumped, you must run Emacs with @samp{-batch}."
-msgstr ""
+msgstr "すでにダンプ済みのEmacs内でこの関数を使用する場合には、@samp{-batch}でEmacsを実行しなければならない。"
 
 #. type: cindex
 #: internals.texi.orig:162
