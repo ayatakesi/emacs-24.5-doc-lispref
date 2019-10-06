@@ -606,75 +606,47 @@ DEFUN ("coordinates-in-window-p", Fcoordinates_in_window_p,
 @section Object Internals
 @cindex object internals
 
-  Emacs Lisp provides a rich set of the data types.  Some of them, like cons
-cells, integers and strings, are common to nearly all Lisp dialects.  Some
-others, like markers and buffers, are quite special and needed to provide
-the basic support to write editor commands in Lisp.  To implement such a
-variety of object types and provide an efficient way to pass objects between
-the subsystems of an interpreter, there is a set of C data structures and a
-special type to represent the pointers to all of them, which is known as
-@dfn{tagged pointer}.
+  Emacs
+Lispは豊富なデータタイプのセットを提供します。コンスセル、整数、文字列のようにこれらのいくつかは、ほとんどすべてのLisp方言で一般的です。マーカやバッファーのようなそれ以外のものは、Lisp内でエディターコマンドを記述するための基本的サポートを提供するために、極めて特別で必要なものです。そのような種々のオブジェクトタイプを実装して、インタープリターのサブシステムとの間でオブジェクトを渡す効果的な方法を提供するに、Cデータ構造体セットとそれらすべてにたいするポインターを表す、@dfn{タグ付きポインター(tagged
+pointer)}と呼ばれる、特別なタイプが存在します。
 
-  In C, the tagged pointer is an object of type @code{Lisp_Object}.  Any
-initialized variable of such a type always holds the value of one of the
-following basic data types: integer, symbol, string, cons cell, float,
-vectorlike or miscellaneous object.  Each of these data types has the
-corresponding tag value.  All tags are enumerated by @code{enum Lisp_Type}
-and placed into a 3-bit bitfield of the @code{Lisp_Object}.  The rest of the
-bits is the value itself.  Integers are immediate, i.e., directly
-represented by those @dfn{value bits}, and all other objects are represented
-by the C pointers to a corresponding object allocated from the heap.  Width
-of the @code{Lisp_Object} is platform- and configuration-dependent: usually
-it's equal to the width of an underlying platform pointer (i.e., 32-bit on a
-32-bit machine and 64-bit on a 64-bit one), but also there is a special
-configuration where @code{Lisp_Object} is 64-bit but all pointers are
-32-bit.  The latter trick was designed to overcome the limited range of
-values for Lisp integers on a 32-bit system by using 64-bit @code{long long}
-type for @code{Lisp_Object}.
+  Cでは、タグ付きポインターは、タイプ@code{Lisp_Object}のオブジェクトです。そのようなタイプの初期化された変数は、基本的なデータタイプである整数、シンボル、文字列、コンスセル、浮動小数点数、ベクター様オブジェクトや、その他の雑多なオブジェクトのいずれかを、常に値として保持します。これらのデータタイプのそれぞれは、対応するタグ値をもちます。すべてのタグは@code{enum
+Lisp_Type}により列挙され、@code{Lisp_Object}の3ビットのビットフィールソに配置されます。残りのビットは、それ自身の値です。整数は即値(@dfn{値ビット}で直接表される)、他のすべてのオブジェクトは、ヒープに割り当てられた対応するオブジェクトへのCポインターで表されます。@code{Lisp_Object}のサイズはプラットフォームと設定に依存します。これは通常は背景プラットフォームのポインターと等しい(32ビットマシンなら32ビット、64ビットマシンなら64ビット)ですが、@code{Lisp_Object}が64ビットでも、すべてのポインターが32ビットのような特別な構成もあります。後者は@code{Lisp_Object}にたいして、64ビットの@code{long
+long}タイプを使用することにより、32ビットシステム上のLisp整数にたいする、値範囲の制限を乗り越えるためにデザインされたトリックです。
 
-  The following C data structures are defined in @file{lisp.h} to represent
-the basic data types beyond integers:
+  以下のCデータ構造体は、整数ではない基本的なデータタイプを表すために、@file{lisp.h}で定義されています:
 
 @table @code
 @item struct Lisp_Cons
-Cons cell, an object used to construct lists.
+コンスセル。リストを構築するために使用されるオブジェクトである。
 
 @item struct Lisp_String
-String, the basic object to represent a sequence of characters.
+文字列。文字シーケンスを表す基本的オブジェクトである。
 
 @item struct Lisp_Vector
-Array, a fixed-size set of Lisp objects which may be accessed by an index.
+配列。インデックスによりアクセスできる、固定サイズのLispオブジェクトのセットである。
 
 @item struct Lisp_Symbol
-Symbol, the unique-named entity commonly used as an identifier.
+シンボル。一般的に識別子として使用される一意な名前のエンティティである。
 
 @item struct Lisp_Float
 Floating-point value.
 
 @item union Lisp_Misc
-Miscellaneous kinds of objects which don't fit into any of the above.
+上記のいずれにも適合しない、雑多な種類のオブジェクト。
 @end table
 
-  These types are the first-class citizens of an internal type system.  Since
-the tag space is limited, all other types are the subtypes of either
-@code{Lisp_Vectorlike} or @code{Lisp_Misc}.  Vector subtypes are enumerated
-by @code{enum pvec_type}, and nearly all complex objects like windows,
-buffers, frames, and processes fall into this category.  The rest of special
-types, including markers and overlays, are enumerated by @code{enum
-Lisp_Misc_Type} and form the set of subtypes of @code{Lisp_Misc}.
+  これらのタイプは、内部的タイプシステムの一級クラスの市民です。タグスペースは限られているので、他のすべてのタイプは@code{Lisp_Vectorlike}か@code{Lisp_Misc}のサブクラスです。サブタイプのベクターは@code{enum
+pvec_type}により列挙されておりウィンドウ、バッファー、フレーム、プロセスのようなほとんどすべての複雑なオブジェクトは、このカテゴリーに分類されます。マーカーとオーバーレイを含む残りのスペシャルタイプは、@code{enum
+Lisp_Misc_Type}により列挙されており、@code{Lisp_Misc}のサブタイプセットを形成します。
 
-  Below there is a description of a few subtypes of @code{Lisp_Vectorlike}.
-Buffer object represents the text to display and edit.  Window is the part
-of display structure which shows the buffer or used as a container to
-recursively place other windows on the same frame.  (Do not confuse Emacs
-Lisp window object with the window as an entity managed by the user
-interface system like X; in Emacs terminology, the latter is called frame.)
-Finally, process object is used to manage the subprocesses.
+  @code{Lisp_Vectorlike}のいくつかのサブタイプを説明します。バッファーオブジェクトは、表示および編集を行うテキストを表します。ウィンドウはバッファーを表示したり、同一フレーム上で再帰的に他のウィンドウを配置するためのコンテナーに使用される、表示構造の一部です(Emacs
+Lispのウィンドウオブジェクトと、Xのようなユーザーインターフェースシステムに管理されるエンティティとしてのウィンドウを混同しないこと。Emacsの用語では後者はフレームと呼ばれる)。最後に、プロセスオブジェクトは、サブプロセスの管理に使用されます。
 
 @menu
-* Buffer Internals::         Components of a buffer structure.
-* Window Internals::         Components of a window structure.
-* Process Internals::        Components of a process structure.
+* Buffer Internals::         バッファー構造体の構成子。
+* Window Internals::         ウィンドウ構造体の構成子。
+* Process Internals::        プロセス構造体の構成子。
 @end menu
 
 @node Buffer Internals
