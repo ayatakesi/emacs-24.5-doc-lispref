@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-10-05 03:38+0900\n"
-"PO-Revision-Date: 2019-10-06 02:09+0900\n"
+"PO-Revision-Date: 2019-10-06 18:38+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -1086,29 +1086,29 @@ msgstr "そう遠くない将来のある時点で、基本となるC方言はC8
 #: internals.texi.orig:595
 #, no-wrap
 msgid "primitive function internals"
-msgstr ""
+msgstr "primitive function internals"
 
 #. type: cindex
 #: internals.texi.orig:596
 #, no-wrap
 msgid "writing Emacs primitives"
-msgstr ""
+msgstr "writing Emacs primitives"
 
 #. type: Plain text
 #: internals.texi.orig:602
 msgid "Lisp primitives are Lisp functions implemented in C@.  The details of interfacing the C function so that Lisp can call it are handled by a few C macros.  The only way to really understand how to write new C code is to read the source, but we can explain some things here."
-msgstr ""
+msgstr "Lispプリミティブとは、Cで実装されたLisp関数です。Lispから呼び出せるように、C関数インターフェースの詳細は、Cのマクロで処理されます。新たなCコードの記述のしかたを真に理解するには、ソースを読むのが唯一の方法ですが、ここではいくつかの事について説明します。"
 
 #. type: Plain text
 #: internals.texi.orig:606
 msgid "An example of a special form is the definition of @code{or}, from @file{eval.c}.  (An ordinary function would have the same general appearance.)"
-msgstr ""
+msgstr "スペシャルフォームの例として、以下は@file{eval.c}の@code{or}です(通常の関数は、同様の一般的な外観をもつ)。"
 
 #. type: cindex
 #: internals.texi.orig:607
 #, no-wrap
 msgid "garbage collection protection"
-msgstr ""
+msgstr "garbage collection protection"
 
 #. type: group
 #: internals.texi.orig:615
@@ -1120,6 +1120,11 @@ msgid ""
 "The remaining args are not evalled at all.\n"
 "If all args return nil, return nil.\n"
 msgstr ""
+"DEFUN (\"or\", For, Sor, 0, UNEVALLED, 0,\n"
+"  doc: /* Eval args until one of them yields non-nil, then return\n"
+"that value.\n"
+"The remaining args are not evalled at all.\n"
+"If all args return nil, return nil.\n"
 
 #. type: group
 #: internals.texi.orig:622
@@ -1131,12 +1136,17 @@ msgid ""
 "  register Lisp_Object val = Qnil;\n"
 "  struct gcpro gcpro1;\n"
 msgstr ""
+"usage: (or CONDITIONS ...)  */)\n"
+"  (Lisp_Object args)\n"
+"@{\n"
+"  register Lisp_Object val = Qnil;\n"
+"  struct gcpro gcpro1;\n"
 
 #. type: group
 #: internals.texi.orig:626
 #, no-wrap
 msgid "  GCPRO1 (args);\n"
-msgstr ""
+msgstr "  GCPRO1 (args);\n"
 
 #. type: group
 #: internals.texi.orig:636
@@ -1150,6 +1160,13 @@ msgid ""
 "      args = XCDR (args);\n"
 "    @}\n"
 msgstr ""
+"  while (CONSP (args))\n"
+"    @{\n"
+"      val = eval_sub (XCAR (args));\n"
+"      if (!NILP (val))\n"
+"        break;\n"
+"      args = XCDR (args);\n"
+"    @}\n"
 
 #. type: group
 #: internals.texi.orig:642
@@ -1159,95 +1176,98 @@ msgid ""
 "  return val;\n"
 "@}\n"
 msgstr ""
+"  UNGCPRO;\n"
+"  return val;\n"
+"@}\n"
 
 #. type: cindex
 #: internals.texi.orig:645
 #, no-wrap
 msgid "@code{DEFUN}, C macro to define Lisp primitives"
-msgstr ""
+msgstr "@code{DEFUN}, C macro to define Lisp primitives"
 
 #. type: Plain text
 #: internals.texi.orig:648
 msgid "Let's start with a precise explanation of the arguments to the @code{DEFUN} macro.  Here is a template for them:"
-msgstr ""
+msgstr "では@code{DEFUN}マクロの引数について、詳細に説明しましょう。以下は、それらのテンプレートです:"
 
 #. type: example
 #: internals.texi.orig:651
 #, no-wrap
 msgid "DEFUN (@var{lname}, @var{fname}, @var{sname}, @var{min}, @var{max}, @var{interactive}, @var{doc})\n"
-msgstr ""
+msgstr "DEFUN (@var{lname}, @var{fname}, @var{sname}, @var{min}, @var{max}, @var{interactive}, @var{doc})\n"
 
 #. type: item
 #: internals.texi.orig:654
 #, no-wrap
 msgid "lname"
-msgstr ""
+msgstr "lname"
 
 #. type: table
 #: internals.texi.orig:657
 msgid "This is the name of the Lisp symbol to define as the function name; in the example above, it is @code{or}."
-msgstr ""
+msgstr "これは、関数名として定義する、Lispシンボル名である。上記例では@code{or}。"
 
 #. type: item
 #: internals.texi.orig:658
 #, no-wrap
 msgid "fname"
-msgstr ""
+msgstr "fname"
 
 #. type: table
 #: internals.texi.orig:664
 msgid "This is the C function name for this function.  This is the name that is used in C code for calling the function.  The name is, by convention, @samp{F} prepended to the Lisp name, with all dashes (@samp{-}) in the Lisp name changed to underscores.  Thus, to call this function from C code, call @code{For}."
-msgstr ""
+msgstr "これは、その関数のC関数名である。これはCコードでその関数を呼び出すために使用される名前である。名前は慣習として@samp{F}の後にLisp名をつけ、Lisp名のすべてのダッシュ(@samp{-})は、アンダースコアに変更する。つまりCコードから呼び出す場合は、@code{For}を呼び出す。"
 
 #. type: item
 #: internals.texi.orig:665
 #, no-wrap
 msgid "sname"
-msgstr ""
+msgstr "sname"
 
 #. type: table
 #: internals.texi.orig:672
 msgid "This is a C variable name to use for a structure that holds the data for the subr object that represents the function in Lisp.  This structure conveys the Lisp symbol name to the initialization routine that will create the symbol and store the subr object as its definition.  By convention, this name is always @var{fname} with @samp{F} replaced with @samp{S}."
-msgstr ""
+msgstr "これは、Lispでその関数を表すsubrオブジェクト用に、データ保持のための構造体に使用されるC変数名である。この構造体は、そのシンボルを作成してそれの定義にsubrオブジェクトを格納する初期化ルーチンにおいて、Lispシンボル名を伝達する。慣習により、これは常に@var{fname}の@samp{F}を@samp{S}に置き換えた名前になる"
 
 #. type: item
 #: internals.texi.orig:673
 #, no-wrap
 msgid "min"
-msgstr ""
+msgstr "min"
 
 #. type: table
 #: internals.texi.orig:676
 msgid "This is the minimum number of arguments that the function requires.  The function @code{or} allows a minimum of zero arguments."
-msgstr ""
+msgstr "これは、その関数が要求する、引数の最小個数である。関数@code{or}は、最小で0個の関数を受け入れる。"
 
 #. type: item
 #: internals.texi.orig:677
 #, no-wrap
 msgid "max"
-msgstr ""
+msgstr "max"
 
 #. type: table
 #: internals.texi.orig:685
 msgid "This is the maximum number of arguments that the function accepts, if there is a fixed maximum.  Alternatively, it can be @code{UNEVALLED}, indicating a special form that receives unevaluated arguments, or @code{MANY}, indicating an unlimited number of evaluated arguments (the equivalent of @code{&rest}).  Both @code{UNEVALLED} and @code{MANY} are macros.  If @var{max} is a number, it must be more than @var{min} but less than 8."
-msgstr ""
+msgstr "これは、その関数が受け入れる引数の最大個数が定数なら、引数の最大個数である。または@code{UNEVALLED}ならそれは未評価の引数を受け取るスペシャルフォームを示し、@code{MANY}なら評価される引数の個数に制限がないことを意味する(@code{&rest}と等価)。@code{UNEVALLED}と@code{MANY}は、いずれもマクロである。@var{max}が数字ならそれは@var{min}より大きく、8より小さいこと。"
 
 #. type: cindex
 #: internals.texi.orig:686
 #, no-wrap
 msgid "interactive specification in primitives"
-msgstr ""
+msgstr "interactive specification in primitives"
 
 #. type: item
 #: internals.texi.orig:687
 #, no-wrap
 msgid "interactive"
-msgstr ""
+msgstr "interactive"
 
 #. type: table
 #: internals.texi.orig:695
 msgid "This is an interactive specification, a string such as might be used as the argument of @code{interactive} in a Lisp function.  In the case of @code{or}, it is 0 (a null pointer), indicating that @code{or} cannot be called interactively.  A value of @code{\"\"} indicates a function that should receive no arguments when called interactively.  If the value begins with a @samp{\"(}, the string is evaluated as a Lisp form.  For example:"
-msgstr ""
+msgstr "これはLisp関数で@code{interactive}の引数として使用されるような、インタラクティブ仕様である(文字列)。@code{or}の場合は0(nullポインター)で、それは@code{or}がインタラクティブに呼び出せないことを示す。値@code{\"\"}は、インタラクティブに呼び出し時、関数が引き受けるべきではないことを示す。値が@samp{\"(}で始まる場合、その文字列はLispフォームとして評価される。たとえば:"
 
 #. type: group
 #: internals.texi.orig:703
@@ -1259,163 +1279,168 @@ msgid ""
 "              t))\",\n"
 "  doc: /* @dots{} /*)\n"
 msgstr ""
+"DEFUN (\"foo\", Ffoo, Sfoo, 0, UNEVALLED,\n"
+"       \"(list (read-char-by-name \\\"Insert character: \\\")\\\n"
+"              (prefix-numeric-value current-prefix-arg)\\\n"
+"              t))\",\n"
+"  doc: /* @dots{} /*)\n"
 
 #. type: item
 #: internals.texi.orig:706
 #, no-wrap
 msgid "doc"
-msgstr ""
+msgstr "doc"
 
 #. type: table
 #: internals.texi.orig:713
 msgid "This is the documentation string.  It uses C comment syntax rather than C string syntax because comment syntax requires nothing special to include multiple lines.  The @samp{doc:} identifies the comment that follows as the documentation string.  The @samp{/*} and @samp{*/} delimiters that begin and end the comment are not part of the documentation string."
-msgstr ""
+msgstr "これはドキュメント文字列である。複数行を含むために特別なことを要しないので、これにはCの文字列構文ではなく、Cコメント構文を使用する。@samp{doc:}の後のコメントは、ドキュメント文字列として認識する。コメントの開始と終了の区切り文字@samp{/*}と@samp{*/}は、ドキュメント文字列の一部にはならない。"
 
 #. type: table
 #: internals.texi.orig:720
 msgid "If the last line of the documentation string begins with the keyword @samp{usage:}, the rest of the line is treated as the argument list for documentation purposes.  This way, you can use different argument names in the documentation string from the ones used in the C code.  @samp{usage:} is required if the function has an unlimited number of arguments."
-msgstr ""
+msgstr "ドキュメント文字列の最後の行がキーワード@samp{usage:}で始まる場合、その行の残りの部分は引数リストをドキュメント化するためのものとして扱われる。この方法により、Cコード内で使用される引数名とは異なる引数名を、ドキュメント文字列内で使用することができる。その関数の引数の個数に制限がない場合、@samp{usage:}は必須。"
 
 #. type: table
 #: internals.texi.orig:724
 msgid "All the usual rules for documentation strings in Lisp code (@pxref{Documentation Tips}) apply to C code documentation strings too."
-msgstr ""
+msgstr "Lispコードでのドキュメント文字列にたいする通常ルールのすべて(@ref{Documentation Tips}を参照)は、Cコードのドキュメント文字列にも適用される。"
 
 #. type: Plain text
 #: internals.texi.orig:741
 msgid "After the call to the @code{DEFUN} macro, you must write the argument list for the C function, including the types for the arguments.  If the primitive accepts a fixed maximum number of Lisp arguments, there must be one C argument for each Lisp argument, and each argument must be of type @code{Lisp_Object}.  (Various macros and functions for creating values of type @code{Lisp_Object} are declared in the file @file{lisp.h}.)  If the primitive has no upper limit on the number of Lisp arguments, it must have exactly two C arguments: the first is the number of Lisp arguments, and the second is the address of a block containing their values.  These have types @code{int} and @w{@code{Lisp_Object *}} respectively.  Since @code{Lisp_Object} can hold any Lisp object of any data type, you can determine the actual data type only at run time; so if you want a primitive to accept only a certain type of argument, you must check the type explicitly using a suitable predicate (@pxref{Type Predicates})."
-msgstr ""
+msgstr "@code{DEFUN}マクロ呼び出しの後には、そのC関数にたいする引数リストを、その引数のタイプを含めて記述しなければなりません。そのプリミティブがLispで固定された最大個数をもつ引数を受け入れるなら、Lisp引数それぞれにたいして1つのC引数をもち、各引数のタイプは@code{Lisp_Object}でなければなりません(ファイル@file{lisp.h}では、タイプ@code{Lisp_Object}の値を作成する種々のマクロと関数が宣言されている)。そのプリミティブのLispの最大引数個数に上限がない場合、それは正確に2つのC引数をもたなければなりません。1つ目はLisp引数の個数で、2つ目はそれらの値を含むブロックのアドレスです。これらはそれぞれ@code{int}、@w{@code{Lisp_Object *}}のタイプをもちます。@code{Lisp_Object}は任意のデータ型と任意のLispオブジェクトを保持できるので、実行時のみ実際のデータ型を判断できます。特定のタイプの引数だけを受け入れるプリミティブを記述したい場合は、適切な述語を使用してタイプを明確にチェックしなければなりません(@ref{Type Predicates}を参照)。"
 
 #. type: cindex
 #: internals.texi.orig:741
 #, no-wrap
 msgid "type checking internals"
-msgstr ""
+msgstr "type checking internals"
 
 #. type: cindex
 #: internals.texi.orig:743
 #, no-wrap
 msgid "@code{GCPRO} and @code{UNGCPRO}"
-msgstr ""
+msgstr "@code{GCPRO} and @code{UNGCPRO}"
 
 #. type: cindex
 #: internals.texi.orig:744
 #, no-wrap
 msgid "protect C variables from garbage collection"
-msgstr ""
+msgstr "protect C variables from garbage collection"
 
 #. type: Plain text
 #: internals.texi.orig:754
 msgid "Within the function @code{For} itself, note the use of the macros @code{GCPRO1} and @code{UNGCPRO}.  These macros are defined for the sake of the few platforms which do not use Emacs' default stack-marking garbage collector.  The @code{GCPRO1} macro ``protects'' a variable from garbage collection, explicitly informing the garbage collector that that variable and all its contents must be as accessible.  GC protection is necessary in any function which can perform Lisp evaluation by calling @code{eval_sub} or @code{Feval} as a subroutine, either directly or indirectly."
-msgstr ""
+msgstr "関数@code{For}自身の中では、マクロ@code{GCPRO1}と@code{UNGCPRO}の使用に注意してください。これらのマクロは、Emacsのデフォルトであるスタックマーキングを使用したガーベージコレクションを使用しない、いくつかのプラットフォームのために定義されています。@code{GCPRO1}マクロは、ガーベージコレクションにその変数とコンテンツすべてがアクセス可能でなければならないと、明示的にガーベージコレクションに通知して、ガーベージコレクションから変数を``保護''します。直接または間接的に、サブルーチンとして@code{eval_sub}か@code{Feval}を呼び出してLisp評価を行うかもしれないすべての関数で、GC保護は必要です。"
 
 #. type: Plain text
 #: internals.texi.orig:761
 msgid "It suffices to ensure that at least one pointer to each object is GC-protected.  Thus, a particular local variable can do without protection if it is certain that the object it points to will be preserved by some other pointer (such as another local variable that has a @code{GCPRO}).  Otherwise, the local variable needs a @code{GCPRO}."
-msgstr ""
+msgstr "各オブジェクトにたいして、それを指すポインターが少なくとも1つあれば、GCからの保護を確実に満足することができます。つまり、ある特定のローカル変数が、(@code{GCPRO}をもつ別のローカル変数のような)別のポインターにより保護されるであろうオブジュクトを指すことが確実なら、保護なしでこれを行うことができます。それ以外なら、そのローカル変数には@code{GCPRO}が必要になります。"
 
 #. type: Plain text
 #: internals.texi.orig:769
 msgid "The macro @code{GCPRO1} protects just one local variable.  If you want to protect two variables, use @code{GCPRO2} instead; repeating @code{GCPRO1} will not work.  Macros @code{GCPRO3}, @code{GCPRO4}, @code{GCPRO5}, and @code{GCPRO6} also exist.  All these macros implicitly use local variables such as @code{gcpro1}; you must declare these explicitly, with type @code{struct gcpro}.  Thus, if you use @code{GCPRO2}, you must declare @code{gcpro1} and @code{gcpro2}."
-msgstr ""
+msgstr "マクロ@code{GCPRO1}は、ただ1つのローカル変数を保護します。2つの変数を保護したい場合には、かわりに@code{GCPRO2}を使用します。@code{GCPRO1}を繰り返しても、機能しないでしょう。@code{GCPRO3}、@code{GCPRO4}、@code{GCPRO5}、@code{GCPRO6}のマクロもあります。これらのマクロのすべては、@code{gcpro1}のようなローカル変数を暗黙に使用します。あなたはこれらをタイプ@code{struct gcpro}で、明示的に宣言しなければなりません。つまり@code{GCPRO2}を使用するなら、@code{gcpro1}と@code{gcpro2}を宣言しなければなりません。"
 
 #. type: Plain text
 #: internals.texi.orig:773
 msgid "@code{UNGCPRO} cancels the protection of the variables that are protected in the current function.  It is necessary to do this explicitly."
-msgstr ""
+msgstr "@code{UNGCPRO}は、カレントの関数内で保護された、変数の保護を取り消します。これは明示的に行う必要があります。"
 
 #. type: Plain text
 #: internals.texi.orig:779
 msgid "You must not use C initializers for static or global variables unless the variables are never written once Emacs is dumped.  These variables with initializers are allocated in an area of memory that becomes read-only (on certain operating systems) as a result of dumping Emacs.  @xref{Pure Storage}."
-msgstr ""
+msgstr "一度Emacsがダンプされた後に、その変数に何か書き込まれているときには、その静的変数またはグローバル変数に、Cの初期化を使用してはなりません。初期化されたこれらの変数は、Emacsのダンプの結果として、(特定のオペレーティングシステムでは)読み取り専用となるメモリーエリアに割り当てられます。@ref{Pure Storage}を参照してください。"
 
 #. type: cindex
 #: internals.texi.orig:780
 #, no-wrap
 msgid "@code{defsubr}, Lisp symbol for a primitive"
-msgstr ""
+msgstr "@code{defsubr}, Lisp symbol for a primitive"
 
 #. type: Plain text
 #: internals.texi.orig:785
 msgid "Defining the C function is not enough to make a Lisp primitive available; you must also create the Lisp symbol for the primitive and store a suitable subr object in its function cell.  The code looks like this:"
-msgstr ""
+msgstr "C関数の定義だけでは、Lispプリミティブを利用可能にするのに十分ではありません。そのプリミティブにたいしてLispシンボルを作成して、その関数セルに適切なsubrオブジェクトを格納しなければなりません。このコードは以下のようになるでしょう:"
 
 #. type: example
 #: internals.texi.orig:788
 #, no-wrap
 msgid "defsubr (&@var{sname});\n"
-msgstr ""
+msgstr "defsubr (&@var{sname});\n"
 
 #. type: Plain text
 #: internals.texi.orig:792
 msgid "Here @var{sname} is the name you used as the third argument to @code{DEFUN}."
-msgstr ""
+msgstr "ここで@var{sname}は、@code{DEFUN}の3つ目の引数として使用する名前です。"
 
 #. type: Plain text
 #: internals.texi.orig:801
 msgid "If you add a new primitive to a file that already has Lisp primitives defined in it, find the function (near the end of the file) named @code{syms_of_@var{something}}, and add the call to @code{defsubr} there.  If the file doesn't have this function, or if you create a new file, add to it a @code{syms_of_@var{filename}} (e.g., @code{syms_of_myfile}).  Then find the spot in @file{emacs.c} where all of these functions are called, and add a call to @code{syms_of_@var{filename}} there."
-msgstr ""
+msgstr "すでにLispプリミティブが定義されたファイルにプリミティブを追加する場合には、(そのファイル終端付近にある)@code{syms_of_@var{something}}という名前の関数を探して、そこに@code{defsubr}の呼び出しを追加してください。そのファイルにこの関数がない、または新たなファイルを作成する場合には、それに@code{syms_of_@var{filename}}(例: @code{syms_of_myfile})を追加します。それから@file{emacs.c}で、それらの関数すべてが呼び出されるが呼び出される箇所を探して、そこに@code{syms_of_@var{filename}}の呼び出しを追加してください。"
 
 #. type: anchor{#1}
 #: internals.texi.orig:803
 msgid "Defining Lisp variables in C"
-msgstr ""
+msgstr "Defining Lisp variables in C"
 
 #. type: vindex
 #: internals.texi.orig:803
 #, no-wrap
 msgid "byte-boolean-vars"
-msgstr ""
+msgstr "byte-boolean-vars"
 
 #. type: cindex
 #: internals.texi.orig:804
 #, no-wrap
 msgid "defining Lisp variables in C"
-msgstr ""
+msgstr "defining Lisp variables in C"
 
 #. type: cindex
 #: internals.texi.orig:805
 #, no-wrap
 msgid "@code{DEFVAR_INT}, @code{DEFVAR_LISP}, @code{DEFVAR_BOOL}"
-msgstr ""
+msgstr "@code{DEFVAR_INT}, @code{DEFVAR_LISP}, @code{DEFVAR_BOOL}"
 
 #. type: Plain text
 #: internals.texi.orig:815
 msgid "The function @code{syms_of_@var{filename}} is also the place to define any C variables that are to be visible as Lisp variables.  @code{DEFVAR_LISP} makes a C variable of type @code{Lisp_Object} visible in Lisp.  @code{DEFVAR_INT} makes a C variable of type @code{int} visible in Lisp with a value that is always an integer.  @code{DEFVAR_BOOL} makes a C variable of type @code{int} visible in Lisp with a value that is either @code{t} or @code{nil}.  Note that variables defined with @code{DEFVAR_BOOL} are automatically added to the list @code{byte-boolean-vars} used by the byte compiler."
-msgstr ""
+msgstr "関数@code{syms_of_@var{filename}}は、Lisp変数として可視となるすべてのC変数を定義する場所でもあります。@code{DEFVAR_LISP}はタイプ@code{Lisp_Object}のC変数を、Lispから可視にします。@code{DEFVAR_INT}はタイプ@code{int}のC変数を、常に整数となる値をもつようにして、Lispから可視にします。@code{DEFVAR_BOOL}はタイプ@code{int}のC変数を、常に@code{t}か@code{nil}のいずれかとなる値をもつようにして、Lispから可視にします。@code{DEFVAR_BOOL}で定義された変数は、バイトコンパイラーに使用されるリスト@code{byte-boolean-vars}に、自動的に追加されることに注意してください。"
 
 #. type: cindex
 #: internals.texi.orig:816
 #, no-wrap
 msgid "defining customization variables in C"
-msgstr ""
+msgstr "defining customization variables in C"
 
 #. type: Plain text
 #: internals.texi.orig:820
 msgid "If you want to make a Lisp variables that is defined in C behave like one declared with @code{defcustom}, add an appropriate entry to @file{cus-start.el}."
-msgstr ""
+msgstr "Cで定義されたLisp変数を、@code{defcustom}で宣言された変数のように振る舞わせたい場合は、@file{cus-start.el}に適切なエントリーを追加してください。"
 
 #. type: cindex
 #: internals.texi.orig:821
 #, no-wrap
 msgid "@code{staticpro}, protection from GC"
-msgstr ""
+msgstr "@code{staticpro}, protection from GC"
 
 #. type: Plain text
 #: internals.texi.orig:825
 msgid "If you define a file-scope C variable of type @code{Lisp_Object}, you must protect it from garbage-collection by calling @code{staticpro} in @code{syms_of_@var{filename}}, like this:"
-msgstr ""
+msgstr "タイプ@code{Lisp_Object}のファイルをスコープとするC変数を定義する場合には、以下のように@code{syms_of_@var{filename}}内で@code{staticpro}を呼び出して、ガーベージコレクションからそれを保護しなければなりません:"
 
 #. type: example
 #: internals.texi.orig:828
 #, no-wrap
 msgid "staticpro (&@var{variable});\n"
-msgstr ""
+msgstr "staticpro (&@var{variable});\n"
 
 #. type: Plain text
 #: internals.texi.orig:833
 msgid "Here is another example function, with more complicated arguments.  This comes from the code in @file{window.c}, and it demonstrates the use of macros and functions to manipulate Lisp objects."
-msgstr ""
+msgstr "以下は、より複雑な引数をもつ別の関数例です。これは@file{window.c}からのコードで、Lispオブジェクトを操作するためのマクロと関数の使用を示すものです。"
 
 #. type: group
 #: internals.texi.orig:840
@@ -1426,6 +1451,10 @@ msgid ""
 "  doc: /* Return non-nil if COORDINATES are in WINDOW.\n"
 "  ...\n"
 msgstr ""
+"DEFUN (\"coordinates-in-window-p\", Fcoordinates_in_window_p,\n"
+"  Scoordinates_in_window_p, 2, 2, 0,\n"
+"  doc: /* Return non-nil if COORDINATES are in WINDOW.\n"
+"  ...\n"
 
 #. type: group
 #: internals.texi.orig:849
@@ -1439,6 +1468,13 @@ msgid ""
 "  int x, y;\n"
 "  Lisp_Object lx, ly;\n"
 msgstr ""
+"  or `right-margin' is returned.  */)\n"
+"  (register Lisp_Object coordinates, Lisp_Object window)\n"
+"@{\n"
+"  struct window *w;\n"
+"  struct frame *f;\n"
+"  int x, y;\n"
+"  Lisp_Object lx, ly;\n"
 
 #. type: group
 #: internals.texi.orig:862
@@ -1455,6 +1491,16 @@ msgid ""
 "  x = FRAME_PIXEL_X_FROM_CANON_X (f, lx) + FRAME_INTERNAL_BORDER_WIDTH(f);\n"
 "  y = FRAME_PIXEL_Y_FROM_CANON_Y (f, ly) + FRAME_INTERNAL_BORDER_WIDTH(f);\n"
 msgstr ""
+"  CHECK_LIVE_WINDOW (window);\n"
+"  w = XWINDOW (window);\n"
+"  f = XFRAME (w->frame);\n"
+"  CHECK_CONS (coordinates);\n"
+"  lx = Fcar (coordinates);\n"
+"  ly = Fcdr (coordinates);\n"
+"  CHECK_NUMBER_OR_FLOAT (lx);\n"
+"  CHECK_NUMBER_OR_FLOAT (ly);\n"
+"  x = FRAME_PIXEL_X_FROM_CANON_X (f, lx) + FRAME_INTERNAL_BORDER_WIDTH(f);\n"
+"  y = FRAME_PIXEL_Y_FROM_CANON_Y (f, ly) + FRAME_INTERNAL_BORDER_WIDTH(f);\n"
 
 #. type: group
 #: internals.texi.orig:869
@@ -1465,6 +1511,10 @@ msgid ""
 "    case ON_NOTHING:            /* NOT in window at all. */\n"
 "      return Qnil;\n"
 msgstr ""
+"  switch (coordinates_in_window (w, x, y))\n"
+"    @{\n"
+"    case ON_NOTHING:            /* NOT in window at all. */\n"
+"      return Qnil;\n"
 
 #. type: smallexample
 #: internals.texi.orig:872 internals.texi.orig:879
@@ -1472,7 +1522,7 @@ msgstr ""
 msgid ""
 "    ...\n"
 "\n"
-msgstr ""
+msgstr "    ...\n\n"
 
 #. type: group
 #: internals.texi.orig:876
@@ -1481,6 +1531,8 @@ msgid ""
 "    case ON_MODE_LINE:          /* In mode line of window. */\n"
 "      return Qmode_line;\n"
 msgstr ""
+"    case ON_MODE_LINE:          /* In mode line of window. */\n"
+"      return Qmode_line;\n"
 
 #. type: group
 #: internals.texi.orig:884
@@ -1490,6 +1542,9 @@ msgid ""
 "      /* Historically we are supposed to return nil in this case.  */\n"
 "      return Qnil;\n"
 msgstr ""
+"    case ON_SCROLL_BAR:         /* On scroll-bar of window.  */\n"
+"      /* Historically we are supposed to return nil in this case.  */\n"
+"      return Qnil;\n"
 
 #. type: group
 #: internals.texi.orig:891
@@ -1500,26 +1555,30 @@ msgid ""
 "    @}\n"
 "@}\n"
 msgstr ""
+"    default:\n"
+"      abort ();\n"
+"    @}\n"
+"@}\n"
 
 #. type: Plain text
 #: internals.texi.orig:904
 msgid "Note that C code cannot call functions by name unless they are defined in C@.  The way to call a function written in Lisp is to use @code{Ffuncall}, which embodies the Lisp function @code{funcall}.  Since the Lisp function @code{funcall} accepts an unlimited number of arguments, in C it takes two: the number of Lisp-level arguments, and a one-dimensional array containing their values.  The first Lisp-level argument is the Lisp function to call, and the rest are the arguments to pass to it.  Since @code{Ffuncall} can call the evaluator, you must protect pointers from garbage collection around the call to @code{Ffuncall}."
-msgstr ""
+msgstr "Cコードは、それらがCで記述されていなければ、名前で呼び出すことはできないことに注意してください。Lispで記述された関数を呼び出すには、関数@code{funcall}を具現化した@code{Ffuncall}を使用します。Lisp関数@code{funcall}は個数制限なしの引数を受け付けるので、Cでの引数はLispレベルでの引数個数と、それらの値を含む1次元配列という、2個の引数になります。Lispレベルでの1つ目の引数は呼び出す関数で、残りはそれに渡す引数です。@code{Ffuncall}は評価機能(evaluator)を呼び出すかもしれないので、@code{Ffuncall}の呼び出し前後でガーベージコレクションからポインターを保護しなければなりません。"
 
 #. type: Plain text
 #: internals.texi.orig:908
 msgid "The C functions @code{call0}, @code{call1}, @code{call2}, and so on, provide handy ways to call a Lisp function conveniently with a fixed number of arguments.  They work by calling @code{Ffuncall}."
-msgstr ""
+msgstr "C関数@code{call0}、@code{call1}、@code{call2}、...は個数が固定された引数でLisp関数を手軽に呼び出す、便利な方法を提供します。これらは@code{Ffuncall}を呼び出すことにより機能します。"
 
 #. type: Plain text
 #: internals.texi.orig:912
 msgid "@file{eval.c} is a very good file to look through for examples; @file{lisp.h} contains the definitions for some important macros and functions."
-msgstr ""
+msgstr "@file{eval.c}は例を探すには、よいファイルです。@file{lisp.h}には、重要なマクロと関数の定義がいくつか含まれています。"
 
 #. type: Plain text
 #: internals.texi.orig:917
 msgid "If you define a function which is side-effect free, update the code in @file{byte-opt.el} that binds @code{side-effect-free-fns} and @code{side-effect-and-error-free-fns} so that the compiler optimizer knows about it."
-msgstr ""
+msgstr "副作用をもたない関数を定義する場合には、コンパイラーのオプティマイザーに知らせるために@code{side-effect-free-fns}と@code{side-effect-and-error-free-fns}をバインドする、@file{byte-opt.el}内のコードを更新してください。"
 
 #. type: cindex
 #: internals.texi.orig:920
