@@ -610,7 +610,7 @@ DEFUN ("coordinates-in-window-p", Fcoordinates_in_window_p,
 Lispは豊富なデータタイプのセットを提供します。コンスセル、整数、文字列のようにこれらのいくつかは、ほとんどすべてのLisp方言で一般的です。マーカやバッファーのようなそれ以外のものは、Lisp内でエディターコマンドを記述するための基本的サポートを提供するために、極めて特別で必要なものです。そのような種々のオブジェクトタイプを実装して、インタープリターのサブシステムとの間でオブジェクトを渡す効果的な方法を提供するに、Cデータ構造体セットとそれらすべてにたいするポインターを表す、@dfn{タグ付きポインター(tagged
 pointer)}と呼ばれる、特別なタイプが存在します。
 
-  Cでは、タグ付きポインターは、タイプ@code{Lisp_Object}のオブジェクトです。そのようなタイプの初期化された変数は、基本的なデータタイプである整数、シンボル、文字列、コンスセル、浮動小数点数、ベクター様オブジェクトや、その他の雑多なオブジェクトのいずれかを、常に値として保持します。これらのデータタイプのそれぞれは、対応するタグ値をもちます。すべてのタグは@code{enum
+  Cでは、タグ付きポインターは、タイプ@code{Lisp_Object}のオブジェクトです。そのようなタイプの初期化された変数は、基本的なデータタイプである整数、シンボル、文字列、コンスセル、浮動小数点数、ベクター類似オブジェクトや、その他の雑多なオブジェクトのいずれかを、常に値として保持します。これらのデータタイプのそれぞれは、対応するタグ値をもちます。すべてのタグは@code{enum
 Lisp_Type}により列挙され、@code{Lisp_Object}の3ビットのビットフィールソに配置されます。残りのビットは、それ自身の値です。整数は即値(@dfn{値ビット}で直接表される)、他のすべてのオブジェクトは、ヒープに割り当てられた対応するオブジェクトへのCポインターで表されます。@code{Lisp_Object}のサイズはプラットフォームと設定に依存します。これは通常は背景プラットフォームのポインターと等しい(32ビットマシンなら32ビット、64ビットマシンなら64ビット)ですが、@code{Lisp_Object}が64ビットでも、すべてのポインターが32ビットのような特別な構成もあります。後者は@code{Lisp_Object}にたいして、64ビットの@code{long
 long}タイプを使用することにより、32ビットシステム上のLisp整数にたいする、値範囲の制限を乗り越えるためにデザインされたトリックです。
 
@@ -654,161 +654,119 @@ Lispのウィンドウオブジェクトと、Xのようなユーザーインタ
 @cindex internals, of buffer
 @cindex buffer internals
 
-  Two structures (see @file{buffer.h}) are used to represent buffers in C@.
-The @code{buffer_text} structure contains fields describing the text of a
-buffer; the @code{buffer} structure holds other fields.  In the case of
-indirect buffers, two or more @code{buffer} structures reference the same
-@code{buffer_text} structure.
+  2つの構造体(@file{buffer.h}を参照)は、Cでバッファーを表すために使用されます。@code{buffer_text}構造体には、バッファーのテキストを記述するフィールドが含まれます。@code{buffer}構造体は他のフィールドを保持します。インダイレクトバッファーの場合には、2つ以上の@code{buffer}構造体が、同じ@code{buffer_text}構造体を参照します。
 
-Here are some of the fields in @code{struct buffer_text}:
+以下に@code{struct buffer_text}内のフィールドをいくつか示します:
 
 @table @code
 @item beg
-The address of the buffer contents.
+バッファーコンテンツのアドレス。
 
 @item gpt
 @itemx gpt_byte
-The character and byte positions of the buffer gap.  @xref{Buffer Gap}.
+バッファーのギャップの文字位置とバイト位置。@ref{Buffer Gap}を参照のこと。
 
 @item z
 @itemx z_byte
-The character and byte positions of the end of the buffer text.
+バッファーテキストの終端の文字位置とバイト位置。
 
 @item gap_size
-The size of buffer's gap.  @xref{Buffer Gap}.
+バッファーのギャップのサイズ。@ref{Buffer Gap}を参照のこと。
 
 @item modiff
 @itemx save_modiff
 @itemx chars_modiff
 @itemx overlay_modiff
-These fields count the number of buffer-modification events performed in
-this buffer.  @code{modiff} is incremented after each buffer-modification
-event, and is never otherwise changed; @code{save_modiff} contains the value
-of @code{modiff} the last time the buffer was visited or saved;
-@code{chars_modiff} counts only modifications to the characters in the
-buffer, ignoring all other kinds of changes; and @code{overlay_modiff}
-counts only modifications to the overlays.
+これらのフィールドは、そのバッファーで行われた、バッファー変更イベントの数をカウントする。@code{modiff}はバッファー変更イベントのたびに増分され、それ以外では決して変化しない。@code{save_modiff}には、そのバッファーが最後にvisitまたは保存されたときの、@code{modiff}の値が含まれる。@code{chars_modiff}は、そのバッファー内の文字にたいする変更だけをカウントし、その他すべての種類の変更を無視する。@code{overlay_modiff}は、オーバーレイにたいする変更だけをカウントする。
 
 @item beg_unchanged
 @itemx end_unchanged
-The number of characters at the start and end of the text that are known to
-be unchanged since the last complete redisplay.
+最後の再表示完了以降に、未変更だと解っているテキストの、開始と終了の箇所での文字数。
 
 @item unchanged_modified
 @itemx overlay_unchanged_modified
-The values of @code{modiff} and @code{overlay_modiff}, respectively, after
-the last complete redisplay.  If their current values match @code{modiff} or
-@code{overlay_modiff}, that means @code{beg_unchanged} and
-@code{end_unchanged} contain no useful information.
+それぞれ、最後に再表示が完了した後の@code{modiff}と@code{overlay_modiff}の値。これらのカレント値が@code{modiff}や@code{overlay_modiff}とマッチしたら、それは@code{beg_unchanged}と@code{end_unchanged}に有用な情報が含まれないことを意味する。
 
 @item markers
-The markers that refer to this buffer.  This is actually a single marker,
-and successive elements in its marker @code{chain} are the other markers
-referring to this buffer text.
+このバッファーを参照するマーカー。これは実際には単一のマーカーであり、自身のマーカー``チェーン''内の一連の要素が、そのバッファー内のテキストを参照する他のマーカーになる。
 
 @item intervals
-The interval tree which records the text properties of this buffer.
+そのバッファーのテキストプロパティを記録する、インターバルツリー。
 @end table
 
-Some of the fields of @code{struct buffer} are:
+@code{struct buffer}のいくつかのフィールドを以下に示します:
 
 @table @code
 @item header
-A header of type @code{struct vectorlike_header} is common to all vectorlike
-objects.
+タイプ@code{struct vectorlike_header}のヘッダーは、すべてのベクター類似のオブジェクトに共通。
 
 @item own_text
-A @code{struct buffer_text} structure that ordinarily holds the buffer
-contents.  In indirect buffers, this field is not used.
+構造体@code{struct
+buffer_text}は、通常はバッファーのコンテンツを保持する。インダイレクトバッファーでは、このフィールドは使用されない。
 
 @item text
-A pointer to the @code{buffer_text} structure for this buffer.  In an
-ordinary buffer, this is the @code{own_text} field above.  In an indirect
-buffer, this is the @code{own_text} field of the base buffer.
+そのバッファーの@code{buffer_text}構造体へのポインター。通常のバッファーでは、上述の@code{own_text}フィールドである。インダイレクトバッファーでは、そのベースバッファーの@code{own_text}フィールドになる。
 
 @item next
-A pointer to the next buffer, in the chain of all buffers, including killed
-buffers.  This chain is used only for allocation and garbage collection, in
-order to collect killed buffers properly.
+killされたバッファーを含むすべてのバッファーのチェーン内において、次のバッファーへのポインター。このチェーンは、killされたバッファーを正しく回収するために、割り当てとガーベージコレクションのためだけに使用される。
 
 @item pt
 @itemx pt_byte
-The character and byte positions of point in a buffer.
+バッファー内のポイントの文字位置とバイト位置。
 
 @item begv
 @itemx begv_byte
-The character and byte positions of the beginning of the accessible range of
-text in the buffer.
+そのバッファー内のアクセス可能範囲の、先頭位置の文字位置とバイト位置。
 
 @item zv
 @itemx zv_byte
-The character and byte positions of the end of the accessible range of text
-in the buffer.
+そのバッファー内のアクセス可能範囲の、終端位置の文字位置とバイト位置。
 
 @item base_buffer
-In an indirect buffer, this points to the base buffer.  In an ordinary
-buffer, it is null.
+インダイレクトバッファーでは、これはベースバッファーのポイントである。通常のバッファーではnull。
 
 @item local_flags
-This field contains flags indicating that certain variables are local in
-this buffer.  Such variables are declared in the C code using
-@code{DEFVAR_PER_BUFFER}, and their buffer-local bindings are stored in
-fields in the buffer structure itself.  (Some of these fields are described
-in this table.)
+このフィールドは、そのバッファー内でローカルな変数にたいして、それを示すフラグを含む。そのような変数はCコードでは@code{DEFVAR_PER_BUFFER}を使用して宣言され、それらのバッファーローカルなバインディングは、このバッファー構造体自身内のフィールドに格納される(これらのフィールドのいくつかは、このテーブル内で説明されておる)。
 
 @item modtime
-The modification time of the visited file.  It is set when the file is
-written or read.  Before writing the buffer into a file, this field is
-compared to the modification time of the file to see if the file has changed
-on disk.  @xref{Buffer Modification}.
+visitされているファイルの変更時刻。これは、そのファイルの書き込みおよび読み込み時にセットされる。そのバッファーをファイルに書き込む前に、そのファイルがディスク上で変更されていないことを確認するために、このフィールドとそのファイルの変更時刻を比較する。@ref{Buffer
+Modification}を参照のこと。
 
 @item auto_save_modified
-The time when the buffer was last auto-saved.
+そのバッファーが最後に自動保存さらたときの時刻。
 
 @item last_window_start
-The @code{window-start} position in the buffer as of the last time the
-buffer was displayed in a window.
+そのバッファー最後にウィンドウに表示されたときの、の@code{window-start}位置。
 
 @item clip_changed
-This flag indicates that narrowing has changed in the buffer.
-@xref{Narrowing}.
+このフラグは、そのバッファーでのナローイングが変更されているかを示す。@ref{Narrowing}を参照のこと。
 
 @item prevent_redisplay_optimizations_p
-This flag indicates that redisplay optimizations should not be used to
-display this buffer.
+このフラグは、そのバッファーの表示において、再表示最適化が使用されるべきではないことを示す。
 
 @item overlay_center
-This field holds the current overlay center position.  @xref{Managing
-Overlays}.
+このフィールドは、カレントオーバーレイの中心位置を保持する。@ref{Managing Overlays}を参照のこと。
 
 @item overlays_before
 @itemx overlays_after
-These fields hold, respectively, a list of overlays that end at or before
-the current overlay center, and a list of overlays that end after the
-current overlay center.  @xref{Managing Overlays}.  @code{overlays_before}
-is sorted in order of decreasing end position, and @code{overlays_after} is
-sorted in order of increasing beginning position.
+これらのフィールドは、カレントオーバーレイ中心、またはその前で終わるオーバーレイのリスト、およびカレントオーバーレイの後で終わるオーバーレイのリストである。@ref{Managing
+Overlays}を参照のこと。@code{overlays_before}は終端位置の記述順に格納され、@code{overlays_after}は先頭位置増加順で格納される。
 
 @c FIXME? the following are now all Lisp_Object BUFFER_INTERNAL_FIELD (foo).
 
 @item name
-A Lisp string that names the buffer.  It is guaranteed to be unique.
-@xref{Buffer Names}.
+そのバッファーを命名するLisp文字列。これは一意であることが保証されている。@ref{Buffer Names}を参照のこと。
 
 @item save_length
-The length of the file this buffer is visiting, when last read or saved.
-This and other fields concerned with saving are not kept in the
-@code{buffer_text} structure because indirect buffers are never saved.
+そのバッファーがvisitしているファイルを、最後に読み込みまたは保存したときの長さ。インダイレクトバッファーは決して保存されることはないので、保存に関して、このフィールドとその他のフィールドは、@code{buffer_text}構造体で維持されない
 
 @item directory
-The directory for expanding relative file names.  This is the value of the
-buffer-local variable @code{default-directory} (@pxref{File Name
-Expansion}).
+相対ファイル名を展開するディレクトリー。これはバッファーローカル変数@code{default-directory}の値である(@ref{File
+Name Expansion}を参照)。
 
 @item filename
-The name of the file visited in this buffer, or @code{nil}.  This is the
-value of the buffer-local variable @code{buffer-file-name} (@pxref{Buffer
-File Name}).
+そのバッファーがvisitしているファイルの名前。これは、バッファーローカル変数@code{buffer-file-name}の値である(@ref{Buffer
+File Name}を参照)。
 
 @item undo_list
 @itemx backed_up
@@ -820,54 +778,45 @@ File Name}).
 @itemx invisibility_spec
 @itemx display_count
 @itemx display_time
-These fields store the values of Lisp variables that are automatically
-buffer-local (@pxref{Buffer-Local Variables}), whose corresponding variable
-names have the additional prefix @code{buffer-} and have underscores
-replaced with dashes.  For instance, @code{undo_list} stores the value of
-@code{buffer-undo-list}.
+これらのフィールドは、自動的にバッファーローカル(@ref{Buffer-Local
+Variables}を参照)になるLisp変数の値を格納する。これらに対応する変数は、名前に追加のプレフィクス@code{buffer-}がつき、アンダースコアがダッシュで置換される。たとえば@code{undo_list}は、@code{buffer-undo-list}の値を格納する。
 
 @item mark
-The mark for the buffer.  The mark is a marker, hence it is also included on
-the list @code{markers}.  @xref{The Mark}.
+そのバッファーにたいするマーク。マークはマーカーなので、リスト@code{markers}内にも含まれる。@ref{The Mark}を参照のこと。
 
 @item local_var_alist
-The association list describing the buffer-local variable bindings of this
-buffer, not including the built-in buffer-local bindings that have special
-slots in the buffer object.  (Those slots are omitted from this table.)
-@xref{Buffer-Local Variables}.
+この連想リストは、そのバッファーのバッファーローカル変数のバインディングを記述する。これにはバッファーオブジェクト内に特別なスロットをもつ、ビルトインのバッファーローカルなバインディングは含まれない(このテーブルでは、それらのスロットは省略している)。@ref{Buffer-Local
+Variables}を参照のこと。
 
 @item major_mode
-Symbol naming the major mode of this buffer, e.g., @code{lisp-mode}.
+そのバッファーのメジャーモードを命名するシンボル(例: @code{lisp-mode})。
 
 @item mode_name
-Pretty name of the major mode, e.g., @code{"Lisp"}.
+そのメジャーモードの愛称(例: @code{"Lisp"})。
 
 @item keymap
 @itemx abbrev_table
 @itemx syntax_table
 @itemx category_table
 @itemx display_table
-These fields store the buffer's local keymap (@pxref{Keymaps}), abbrev table
-(@pxref{Abbrev Tables}), syntax table (@pxref{Syntax Tables}), category
-table (@pxref{Categories}), and display table (@pxref{Display Tables}).
+これらのフィールドは、そのバッファーのローカルキーマップ(@ref{Keymaps}を参照)、abbrevテーブル(@ref{Abbrev
+Tables}を参照)、構文テーブル(@ref{Syntax
+Tables}を参照)、カテゴリーテーブル(@ref{Categories}を参照)、ディスプレーテーブル(@ref{Display
+Tables}を参照)を格納する。
 
 @item downcase_table
 @itemx upcase_table
 @itemx case_canon_table
-These fields store the conversion tables for converting text to lower case,
-upper case, and for canonicalizing text for case-fold search.  @xref{Case
-Tables}.
+これらのフィールドはテキストを小文字、大文字、およびcase-fold検索でのテキストの正規化の変換テーブルを格納する。@ref{Case
+Tables}を参照のこと。
 
 @item minor_modes
-An alist of the minor modes of this buffer.
+そのバッファーのマイナーモードのalist。
 
 @item pt_marker
 @itemx begv_marker
 @itemx zv_marker
-These fields are only used in an indirect buffer, or in a buffer that is the
-base of an indirect buffer.  Each holds a marker that records @code{pt},
-@code{begv}, and @code{zv} respectively, for this buffer when the buffer is
-not current.
+これらのフィールドはインダイレクトバッファー、またはインダイレクトバッファーのベースバッファーであるようなバッファーでのみ使用される。これらはそれぞれ、そのバッファーがカレントでないときに、そのバッファーにたいする@code{pt}、@code{begv}、@code{zv}を記録するマーカーを保持する。
 
 @item mode_line_format
 @itemx header_line_format
@@ -902,14 +851,11 @@ not current.
 @itemx scroll_down_aggressively
 @itemx cursor_type
 @itemx cursor_in_non_selected_windows
-These fields store the values of Lisp variables that are automatically
-buffer-local (@pxref{Buffer-Local Variables}), whose corresponding variable
-names have underscores replaced with dashes.  For instance,
-@code{mode_line_format} stores the value of @code{mode-line-format}.
+これらのフィールドは、自動的にバッファーローカル(@ref{Buffer-Local
+Variables}を参照)になるLisp変数の値を格納する。これらに対応する変数は、名前のアンダースコアがダッシュで置換される。たとえば@code{mode_line_format}は、@code{mode-line-format}の値を格納する。
 
 @item last_selected_window
-This is the last window that was selected with this buffer in it, or
-@code{nil} if that window no longer displays this buffer.
+これは、最後に選択されていたときにそのバッファーを表示していたウィンドウ、またはそのウィンドウがすでにそのバッファーを表示していなければ@code{nil}である。
 @end table
 
 @node Window Internals
@@ -917,204 +863,160 @@ This is the last window that was selected with this buffer in it, or
 @cindex internals, of window
 @cindex window internals
 
-  The fields of a window (for a complete list, see the definition of
-@code{struct window} in @file{window.h}) include:
+  ウィンドウのフィールドには、以下が含まれます(完全なリストは@file{window.h}の@code{struct window}を参照されたい):
 
 @table @code
 @item frame
-The frame that this window is on.
+そのウィンドウがあるフレーム。
 
 @item mini_p
-Non-@code{nil} if this window is a minibuffer window.
+そのウィンドウがミニバッファーウィンドウなら非@code{nil}。
 
 @item parent
-Internally, Emacs arranges windows in a tree; each group of siblings has a
-parent window whose area includes all the siblings.  This field points to a
-window's parent.
+Emacsは内部的に、ウィンドウをツリーにアレンジする。ウィンドウの兄弟グループは、そのエリアがすべての兄弟を含むような親ウィンドウをもつ。このフィールドは、ウィンドウの親を指す。
 
-Parent windows do not display buffers, and play little role in display
-except to shape their child windows.  Emacs Lisp programs usually have no
-access to the parent windows; they operate on the windows at the leaves of
-the tree, which actually display buffers.
+親ウィンドウはバッファーを表示せず、子ウィンドウ形成を除き、表示では少ししか役割を果たさない。Emacs
+Lispプログラムでからは、通常は親ウィンドウへのアクセスがない。Emacs
+Lispプログラムでは、実際にバッファーを表示するツリーの子ノードのウィンドウにたいして操作を行う。
 
 @c FIXME: These two slots and the `buffer' slot below were replaced
 @c with a single slot `contents' on 2013-03-28.  --xfq
 @item hchild
 @itemx vchild
-These fields contain the window's leftmost child and its topmost child
-respectively.  @code{hchild} is used if the window is subdivided
-horizontally by child windows, and @code{vchild} if it is subdivided
-vertically.  In a live window, only one of @code{hchild}, @code{vchild}, and
-@code{buffer} (q.v.@:) is non-@code{nil}.
+これらのフィールドは、そのウィンドウの左端の子、上端の子を含む。子ウィンドウによりウィンドウが分割される場合は@code{hchild}、垂直に分割される場合は@code{vchild}が使用される。生きたウィンドウでは@code{hchild}、@code{vchild}、@code{buffer}のいずれか1つだけが非@code{nil}となる。
 
 @item next
 @itemx prev
-The next sibling and previous sibling of this window.  @code{next} is
-@code{nil} if the window is the right-most or bottom-most in its group;
-@code{prev} is @code{nil} if it is the left-most or top-most in its group.
+そのウィンドウの次の兄弟と、前の兄弟。自身のグループ内でそのウィンドウが右端か下端なら、@code{next}は@code{nil}。自身のグループ内でそのウィンドウが左端か上端なら、@code{prev}は@code{nil}。
 
 @item left_col
-The left-hand edge of the window, measured in columns, relative to the
-leftmost column in the frame (column 0).
+そのウィンドウの左端を、そのフレームの最左列(列0)から相対的に数えた列数。
 
 @item top_line
-The top edge of the window, measured in lines, relative to the topmost line
-in the frame (line 0).
+そのウィンドウの上端を、そのフレームの最上行(行0)から相対的に数えた行数。
 
 @item total_cols
 @itemx total_lines
-The width and height of the window, measured in columns and lines
-respectively.  The width includes the scroll bar and fringes, and/or the
-separator line on the right of the window (if any).
+列数と行数で数えた、そのウィンドウの幅と高さ。幅にはスクロールバーとフリンジ、および/または(もしあれば)ウィンドウ右側のセパレーターラインが含まれる。
 
 @item buffer
-The buffer that the window is displaying.
+そのウィンドウが表示しているバッファー。
 
 @item start
-A marker pointing to the position in the buffer that is the first character
-displayed in the window.
+そのウィンドウ内に表示されるバッファーで、ウィンドウに最初に表示される文字の位置を指すマーカー。
 
 @item pointm
 @cindex window point internals
-This is the value of point in the current buffer when this window is
-selected; when it is not selected, it retains its previous value.
+これは、そのウィンドウが選択されているときの、カレントバッファーのポイント値。選択されていなければ、前の値が保たれる。
 
 @item force_start
-If this flag is non-@code{nil}, it says that the window has been scrolled
-explicitly by the Lisp program.  This affects what the next redisplay does
-if point is off the screen: instead of scrolling the window to show the text
-around point, it moves point to a location that is on the screen.
+このフラグが非@code{nil}なら、Lispプログラムによりそのウィンドウが明示的にスクロールされたことを示す。これはポイントがスクリーン外の場合の、次回再表示に影響を与える。影響とは、ポイント周辺のテキストを表示するためにウィンドウをスクロールするかわりに、スクリーン上にある位置にポイントを移動するというものである。
 
 @item frozen_window_start_p
-This field is set temporarily to 1 to indicate to redisplay that
-@code{start} of this window should not be changed, even if point gets
-invisible.
+このフィールドは再表示にたいして、たとえポイントが不可視になったとしても、そのウィンドウの@code{start}を変更するべきではないことを示すために、一時的に1にセットされる。
 
 @item start_at_line_beg
-Non-@code{nil} means current value of @code{start} was the beginning of a
-line when it was chosen.
+非@code{nil}は、@code{start}のカレント値が、そのウィンドウ選択時に先頭行だったことを意味する。
 
 @item use_time
-This is the last time that the window was selected.  The function
-@code{get-lru-window} uses this field.
+これは、そのウィンドウが最後に選択された時刻である。関数@code{get-lru-window}はこの値を使用する。
 
 @item sequence_number
-A unique number assigned to this window when it was created.
+そのウィンドウ作成時に割り当てられた一意な番号。
 
 @item last_modified
-The @code{modiff} field of the window's buffer, as of the last time a
-redisplay completed in this window.
+前回のそのウィンドウの再表示完了時の、そのウィンドウのバッファーの@code{modiff}フィールド。
 
 @item last_overlay_modified
-The @code{overlay_modiff} field of the window's buffer, as of the last time
-a redisplay completed in this window.
+前回のそのウィンドウの再表示完了時の、そのウィンドウのバッファーの@code{overlay_modiff}フィールド。
 
 @item last_point
-The buffer's value of point, as of the last time a redisplay completed in
-this window.
+前回のそのウィンドウの再表示完了時の、そのウィンドウのバッファーのポイント値。
 
 @item last_had_star
-A non-@code{nil} value means the window's buffer was ``modified'' when the
-window was last updated.
+非@code{nil}値は、そのウィンドウが最後に更新されたとき、そのウィンドウのバッファーが``変更''されたことを意味する。
 
 @item vertical_scroll_bar
-This window's vertical scroll bar.
+そのウィンドウの垂直スクロールバー。
 
 @item left_margin_cols
 @itemx right_margin_cols
-The widths of the left and right margins in this window.  A value of
-@code{nil} means no margin.
+そのウィンドウの、左マージンと右マージンの幅。値@code{nil}はマージンがないことを意味する。
 
 @item left_fringe_width
 @itemx right_fringe_width
-The widths of the left and right fringes in this window.  A value of
-@code{nil} or @code{t} means use the values of the frame.
+そのウィンドウの、左フリンジと右フリンジの幅。値@code{nil}と@code{t}は、フレームの値の使用を意味する。
 
 @item fringes_outside_margins
-A non-@code{nil} value means the fringes outside the display margins;
-othersize they are between the margin and the text.
+非@code{nil}値は、ディスプレーマージン外側のフリンジ、それ以外ならフリンジはマージンとテキストの間にあることを意味する。
 
 @item window_end_pos
-This is computed as @code{z} minus the buffer position of the last glyph in
-the current matrix of the window.  The value is only valid if
-@code{window_end_valid} is not @code{nil}.
+これは@code{z}から、そのウィンドウのカレントマトリクス内の最後のグリフのバッファー位置を減じて算出される。この値は、@code{window_end_valid}が非@code{nil}のときだけ有効である。
 
 @item window_end_bytepos
-The byte position corresponding to @code{window_end_pos}.
+@code{window_end_pos}に対応するバイト位置。
 
 @item window_end_vpos
-The window-relative vertical position of the line containing
-@code{window_end_pos}.
+@code{window_end_pos}を含む行の、ウィンドウに相対的な垂直位置。
 
 @item window_end_valid
-This field is set to a non-@code{nil} value if @code{window_end_pos} is
-truly valid.  This is @code{nil} if nontrivial redisplay is pre-empted,
-since in that case the display that @code{window_end_pos} was computed for
-did not get onto the screen.
+このフィールドは、@code{window_end_pos}が真に有効なら、非@code{nil}値にセットされる。これは重要な再表示が先に割り込んだ場合には、@code{window_end_pos}を算出した表示がスクリーン上に出現しなくなるので@code{nil}となる。
 
 @item cursor
-A structure describing where the cursor is in this window.
+そのウィンドウ内でカーソルがどこにあるかを記述する構造体。
 
 @item last_cursor
-The value of @code{cursor} as of the last redisplay that finished.
+完了した最後の表示での@code{cursor}の値。
 
 @item phys_cursor
-A structure describing where the cursor of this window physically is.
+そのウィンドウのカーソルが物理的にどこにあるかを記述する構造体。
 
 @item phys_cursor_type
 @c FIXME What is this?
 @c itemx phys_cursor_ascent
 @itemx phys_cursor_height
 @itemx phys_cursor_width
-The type, height, and width of the cursor that was last displayed on this
-window.
+そのウィンドウの最後の表示での、カーソルのタイプ、高さ、幅。
 
 @item phys_cursor_on_p
-This field is non-zero if the cursor is physically on.
+このフィールドは、カーソルが物理的にオンなら非0。
 
 @item cursor_off_p
-Non-zero means the cursor in this window is logically off.  This is used for
-blinking the cursor.
+非0はそのウィンドウのカーソルが、論理的にオフであることを意味する。これはカーソルの点滅に使用される。
 
 @item last_cursor_off_p
-This field contains the value of @code{cursor_off_p} as of the time of the
-last redisplay.
+このフィールドは最後の再表示時の、@code{cursor_off_p}の値を含む。
 
 @item must_be_updated_p
-This is set to 1 during redisplay when this window must be updated.
+これは、そのウィンドウを更新しなければならないとき、再表示の間1にセットされる。
 
 @item hscroll
-This is the number of columns that the display in the window is scrolled
-horizontally to the left.  Normally, this is 0.
+これは、そのウィンドウ内の表示が左へ水平スクロールされている列数。通常これは0。
 
 @item vscroll
-Vertical scroll amount, in pixels.  Normally, this is 0.
+ピクセル単位での垂直スクロール量。通常これは0。
 
 @item dedicated
-Non-@code{nil} if this window is dedicated to its buffer.
+そのウィンドウがそれのバッファー専用(dedicated)なら、非@code{nil}。
 
 @item display_table
-The window's display table, or @code{nil} if none is specified for it.
+そのウィンドウのディスプレーテーブル、それが何も指定されていなければ@code{nil}。
 
 @item update_mode_line
-Non-@code{nil} means this window's mode line needs to be updated.
+非@code{nil}は、そのウィンドウのモードラインの更新が必要なことを意味する。
 
 @item base_line_number
-The line number of a certain position in the buffer, or @code{nil}.  This is
-used for displaying the line number of point in the mode line.
+そのバッファーの特定の位置の行番号か@code{nil}。これは、モードラインでポイントの行番号を表示するために使用される。
 
 @item base_line_pos
-The position in the buffer for which the line number is known, or @code{nil}
-meaning none is known.  If it is a buffer, don't display the line number as
-long as the window shows that buffer.
+行番号が既知であるバッファー位置、それが知られていなければ@code{nil}。これがバッファーなら、そのウィンドウがバッファーを表示するかぎり、行番号は表示されない。
 
 @item column_number_displayed
-The column number currently displayed in this window's mode line, or
-@code{nil} if column numbers are not being displayed.
+そのウィンドウのモードラインに表示されているカレント列番号、列番号が表示されていなければ@code{nil}。
 
 @item current_matrix
 @itemx desired_matrix
-Glyph matrices describing the current and desired display of this window.
+そのウィンドウのカレント、および望まれる表示を記述するグリフ。
 @end table
 
 @node Process Internals
