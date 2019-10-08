@@ -1,0 +1,5779 @@
+This is elisp, produced by makeinfo version 6.6 from elisp.texi.
+
+This is the ‘GNU Emacs Lisp Reference Manual’
+corresponding to Emacs version 24.5.
+
+   Copyright © 1990–1996, 1998–2015 Free Software
+Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or
+     modify this document under the terms of the GNU
+     Free Documentation License, Version 1.3 or any
+     later version published by the Free Software
+     Foundation; with the Invariant Sections being “GNU
+     General Public License,” with the Front-Cover Texts
+     being “A GNU Manual,” and with the Back-Cover Texts
+     as in (a) below.  A copy of the license is included
+     in the section entitled “GNU Free Documentation
+     License.”
+
+     (a) The FSF’s Back-Cover Text is: “You have the
+     freedom to copy and modify this GNU manual.  Buying
+     copies from the FSF supports it in developing GNU
+     and promoting software freedom.”
+INFO-DIR-SECTION Emacs lisp
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).               The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+
+File: elisp,  Node: Bindat Functions,  Next: Bindat Examples,  Prev: Bindat Spec,  Up: Byte Packing
+
+36.20.2 Functions to Unpack and Pack Bytes
+------------------------------------------
+
+以降のドキュメントでは、SPECはデータレイアウト仕様、
+‘bindat-raw’はバイト配列、STRUCTはunpackされたフィールド
+データを表すalistを参照します。
+
+ -- Function: bindat-unpack spec bindat-raw &optional
+          bindat-idx
+     この関数はユニバイト文字列、またはバイト配列
+     ‘bindat-raw’のデータを、SPECに▼応じてunpackする。こ
+     れは通常はバイト配列の先頭からunpack化を開始するが
+     、BINDAT-IDXが非‘nil’なら、それはかわりに使用する
+     0基準の開始位置を指定する。
+
+     値は、それぞれの要素がunpackされたフィールドを記述
+     する、alistまたはネストされたalist。
+
+ -- Function: bindat-get-field struct &rest name
+     この関数はネストされたalistであるSTRUCTから、フィー
+     ルドのデータを選択する。STRUCTは通常、
+     ‘bindat-unpack’がリターンしたもの。NAMEが単一の引数
+     に対応する場合、それはトップレベルのフィールド値を
+     抽出することを意味する。複数のNAME引数は、副構造体
+     を繰り返して照合することを指定する。整数の名前は、
+     配列のインデックスとして動作する。
+
+     たとえばNAMEが‘(a b 2 c)’なら、それはフィールド
+     ‘a’の副フィールド‘b’の3番目の要素内のフィールド
+     ‘c’(Cでは‘struct.a.b[2].c’に相当)を意味する。
+
+   packまたはunpackの処理をすることにより、メモリー内で
+データ構造が変化しても、そのデータの全フィールド長の合計
+バイト数である、“トータル長(total length)”は保たれます。
+この値は一般的に仕様またはalist単独では、固有ではありま
+せん。そのかわり、これら両方の情報が、この計算に役立つの
+です。同様に、unpackされる文字列や配列の長さは、仕様の記
+述にしたがい、そのデータのトータル長より長くなるかもしれ
+ません。
+
+ -- Function: bindat-length spec struct
+     この関数はSTRUCT内のデータの、SPECに応じたトータル
+     長をリターンする。
+
+ -- Function: bindat-pack spec struct &optional
+          bindat-raw bindat-idx
+     この関数は、alist STRUCT内のデータから、SPECに応じ
+     てpackされたバイト配列をリターンする。これは通常、
+     先頭から充填された、新たなバイト配列を作成する。し
+     かしBINDAT-RAWが非‘nil’なら、それはpack先として事前
+     に割り当てられたユニバイト文字列、またはベクターを
+     指定する。BINDAT-IDXが非‘nil’なら、それは
+     ‘bindat-raw’へpackする開始オフセットを指定する。
+
+     事前に割り当てる際には、out-of-rangeエラーを避ける
+     ために、‘(length BINDAT-RAW)’がトータル長またはそれ
+     以上であることを確認すること。
+
+ -- Function: bindat-ip-to-string ip
+     インターネットアドレスのベクターIPを、通常のドット
+     表記による文字列に変換する。
+
+          (bindat-ip-to-string [127 0 0 1])
+               ⇒ "127.0.0.1"
+
+
+File: elisp,  Node: Bindat Examples,  Prev: Bindat Functions,  Up: Byte Packing
+
+36.20.3 Examples of Byte Unpacking and Packing
+----------------------------------------------
+
+以下は、バイトにたいしてunpackおよびpackを行う完全な例で
+す:
+
+     (require 'bindat)
+
+     (defvar fcookie-index-spec
+       '((:version  u32)
+         (:count    u32)
+         (:longest  u32)
+         (:shortest u32)
+         (:flags    u32)
+         (:delim    u8)
+         (:ignored  fill 3)
+         (:offset   repeat (:count) (:foo u32)))
+       "fortuneクッキーのインデックスファイル内容")
+
+     (defun fcookie (cookies &optional index)
+       "ファイルCOOKIESからランダムなfortuneクッキーを表示する。
+     オプションの第2引数INDEXは関連付けられるインデックス
+     ファイル名を指定し、デフォルトは\"COOKIES.dat\"。
+     バッファー\"*Fortune Cookie: BASENAME*\"内にクッキーを表示。
+     BASENAMEはディレクトリー部分を除いたCOOKIES"
+       (interactive "fCookies file: ")
+       (let* ((info (with-temp-buffer
+                      (insert-file-contents-literally
+                       (or index (concat cookies ".dat")))
+                      (bindat-unpack fcookie-index-spec
+                                     (buffer-string))))
+              (sel (random (bindat-get-field info :count)))
+              (beg (cdar (bindat-get-field info :offset sel)))
+              (end (or (cdar (bindat-get-field info
+                                               :offset (1+ sel)))
+                       (nth 7 (file-attributes cookies)))))
+         (switch-to-buffer
+          (get-buffer-create
+           (format "*Fortune Cookie: %s*"
+                   (file-name-nondirectory cookies))))
+         (erase-buffer)
+         (insert-file-contents-literally
+          cookies nil beg (- end 3))))
+
+     (defun fcookie-create-index (cookies &optional index delim)
+       "ファイルCOOKIESをスキャンしてインデックスファイルに書き込む。
+     オプション引数INDEXは、インデックスファイル名を指定。デフォルトは\"COOKIES.dat\"。
+     オプション引数DELIMはユニバイト文字で、それがCOOKIES内
+     のある行で見つかったら、その行はエントリー間の境界を示す。"
+       (interactive "fCookies file: ")
+       (setq delim (or delim ?%))
+       (let ((delim-line (format "\n%c\n" delim))
+             (count 0)
+             (max 0)
+             min p q len offsets)
+         (unless (= 3 (string-bytes delim-line))
+           (error "Delimiter cannot be represented in one byte"))
+         (with-temp-buffer
+           (insert-file-contents-literally cookies)
+           (while (and (setq p (point))
+                       (search-forward delim-line (point-max) t)
+                       (setq len (- (point) 3 p)))
+             (setq count (1+ count)
+                   max (max max len)
+                   min (min (or min max) len)
+                   offsets (cons (1- p) offsets))))
+         (with-temp-buffer
+           (set-buffer-multibyte nil)
+           (insert
+            (bindat-pack
+             fcookie-index-spec
+             `((:version . 2)
+               (:count . ,count)
+               (:longest . ,max)
+               (:shortest . ,min)
+               (:flags . 0)
+               (:delim . ,delim)
+               (:offset . ,(mapcar (lambda (o)
+                                     (list (cons :foo o)))
+                                   (nreverse offsets))))))
+           (let ((coding-system-for-write 'raw-text-unix))
+             (write-file (or index (concat cookies ".dat")))))))
+
+   以下は複雑な構造体を定義してunpackする例です。以下の
+ようなCの構造体があるものとします:
+
+     struct header {
+         unsigned long    dest_ip;
+         unsigned long    src_ip;
+         unsigned short   dest_port;
+         unsigned short   src_port;
+     };
+
+     struct data {
+         unsigned char    type;
+         unsigned char    opcode;
+         unsigned short   length;  /* ネットワークバイトオーダー */
+         unsigned char    id[8];   /* NUL終端文字列 */
+         unsigned char    data[/* (length + 3) & ~3 */];
+     };
+
+     struct packet {
+         struct header    header;
+         unsigned long    counters[2];  /* リトルエンディアンオーダー */
+         unsigned char    items;
+         unsigned char    filler[3];
+         struct data      item[/* items */];
+
+     };
+
+   対応するデータレイアウト仕様が以下です:
+
+     (setq header-spec
+           '((dest-ip   ip)
+             (src-ip    ip)
+             (dest-port u16)
+             (src-port  u16)))
+
+     (setq data-spec
+           '((type      u8)
+             (opcode    u8)
+             (length    u16)  ; ネットワークバイトオーダー
+             (id        strz 8)
+             (data      vec (length))
+             (align     4)))
+
+     (setq packet-spec
+           '((header    struct header-spec)
+             (counters  vec 2 u32r)   ; リトルエンディアンオーダー
+             (items     u8)
+             (fill      3)
+             (item      repeat (items)
+                        (struct data-spec))))
+
+   バイナリーデータによる表現は:
+
+     (setq binary-data
+           [ 192 168 1 100 192 168 1 101 01 28 21 32
+             160 134 1 0 5 1 0 0 2 0 0 0
+             2 3 0 5 ?A ?B ?C ?D ?E ?F 0 0 1 2 3 4 5 0 0 0
+             1 4 0 7 ?B ?C ?D ?E ?F ?G 0 0 6 7 8 9 10 11 12 0 ])
+
+   対応するデコードされた構造体は:
+
+     (setq decoded (bindat-unpack packet-spec binary-data))
+          ⇒
+     ((header
+       (dest-ip   . [192 168 1 100])
+       (src-ip    . [192 168 1 101])
+       (dest-port . 284)
+       (src-port  . 5408))
+      (counters . [100000 261])
+      (items . 2)
+      (item ((data . [1 2 3 4 5])
+             (id . "ABCDEF")
+             (length . 5)
+             (opcode . 3)
+             (type . 2))
+            ((data . [6 7 8 9 10 11 12])
+             (id . "BCDEFG")
+             (length . 7)
+             (opcode . 4)
+             (type . 1))))
+
+   以下はこの構造体からデータを取得する例です:
+
+     (bindat-get-field decoded 'item 1 'id)
+          ⇒ "BCDEFG"
+
+
+File: elisp,  Node: Display,  Next: System Interface,  Prev: Processes,  Up: Top
+
+37 Emacs Display
+****************
+
+このチャプターでは、Emacsによるユーザーへのプレゼンテー
+ションである、表示に関連する機能のいくつかを説明します。
+
+* Menu:
+
+* Refresh Screen::           スクリーン上にあるすべてのもののクリアーと再描画。
+* Forcing Redisplay::        再描画の強制。
+* Truncation::               長いテキストの折り畳みと折り返し。
+* The Echo Area::            スクリーン最下部へのメッセージ表示。
+* Warnings::                 ユーザーへの警告メッセージの表示。
+* Invisible Text::           バッファーのテキストの一部を隠す。
+* Selective Display::        バッファーのテキストの一部を隠す(旧来の方式)。
+* Temporary Displays::       自動的に消える表示。
+* Overlays::                 オーバーレイを使用したバッファーの一部のハイライト。
+* Size of Displayed Text::   表示されたテキストの大きさ。
+* Line Height::              行の高さの制御。
+* Faces::                    テキスト文字のグラフィカルスタイル(フォント、カラー等)を定義するフェイス。
+* Fringes::                  ウィンドウフリンジの制御。
+* Scroll Bars::              垂直スクロールバーの制御。
+* Window Dividers::          ウィンドウを視覚的に区別する。
+* Display Property::         特別な表示機能の有効化。
+* Images::                   Emacsバッファー内でのイメージ表示。
+* Buttons::                  Emacsバッファー内へのイメージ表示クリック可能ボタン追加。
+* Abstract Display::         オブジェクトコレクション用のEmacsウィジェット。
+* Blinking::                 Emacsがマッチする開カッコを表示する方法。
+* Character Display::        Emacsがマッチする個々の文字を表示する方法。
+* Beeping::                  ユーザーへの可聴シグナル。
+* Window Systems::           どのウィンドウシステムが使用されているか。
+* Bidirectional Display::    アラビア語やペルシア語のような、双方向スクリプトの表示。
+
+
+File: elisp,  Node: Refresh Screen,  Next: Forcing Redisplay,  Up: Display
+
+37.1 Refreshing the Screen
+==========================
+
+関数‘redraw-frame’は、与えられたフレーム(*note Frames::を
+参照)のコンテンツ全体にたいして、クリアーおよび再描画を
+行います。これはスクリーンが壊れている(corrupted)場合に
+有用です。
+
+ -- Function: redraw-frame frame
+     この関数は、フレームFRAMEのクリアーと再描画を行う。
+
+   更に強力なのが‘redraw-display’です:
+
+ -- Command: redraw-display
+     この関数は、すべての可視なフレームのクリアーと再描
+     画を行う。
+
+   Emacsでは、ユーザー入力は再描画より優先されます。入力
+が可能なときにこれらの関数を呼び出すと、これらはすぐに再
+描画はしませんが、要求された再描画はやがて、すべての入力
+処理後に行われます。
+
+   テキスト端末では、Emacsのサスペントと再開により、通常
+はスクリーンのリフレッシュも行われます。Emacsのようなデ
+ィスプレイ指向のプログラムと、通常のシーケンシャル表示の
+プログラムで、コンテンツを区別して記録する端末エミュレー
+ターがいくつかあります。そのような端末を使用する場合は、
+おそらく再開時の再表示を抑制したいでしょう。
+
+ -- User Option: no-redraw-on-reenter
+     この変数は、Emacsがサスペンドおよび再開された後に、
+     スクリーン全体を再描画するかどうかを制御する。非
+     ‘nil’なら再描画は不要、‘nil’なら再描画が必要である
+     ことを意味する。デフォルトは‘nil’。
+
+
+File: elisp,  Node: Forcing Redisplay,  Next: Truncation,  Prev: Refresh Screen,  Up: Display
+
+37.2 Forcing Redisplay
+======================
+
+Emacsは入力の待機時は常に、再表示を試みます。以下の関数
+により、実際に入力を待機することなく、Lispコードの中から
+、即座に再表示を試みることを要求できます。
+
+ -- Function: redisplay &optional force
+     この関数は、即座に再表示を試みる。オプション引数
+     FORCEが非‘nil’なら、入力が保留中に横取りされるかわ
+     りに、強制的に再表示が行われる。
+
+     この関数は実際に再表示が試行されたなら‘t’、それ以外
+     は‘nil’をリターンする。‘t’という値は、再表示の試行
+     が完了したことを意味しない。新たに到着した入力に横
+     取りされた可能性がある。
+
+ -- Variable: pre-redisplay-function
+     再表示の直前に実行される関数。これは、再表示される
+     ウィンドウセットを単一の引数として呼び出される。
+
+   ‘redisplay’が即座に再表示を試みたとしても、Emacsがフ
+レーム(複数可)のどの部分を再表示するか決定する方法を変更
+するわけではありません。それとは対照的に、以下の関数は特
+定のウィンドウを(あたかもコンテンツが完全に変更されたか
+のように)、保留中の再表示処理に追加します。しかし再描画
+を即座には試みません。
+
+ -- Function: force-window-update &optional object
+     この関数は、Emacsが次に再表示を行う際にいくつか、あ
+     るいはすべてのウィンドウが更新されるよう強制する。
+     OBJECTがウィンドウならそのウィンドウ、バッファーま
+     たはバッファー名ならそのバッファーを表示するすべて
+     のウィンドウ、‘nil’(または省略)の場合はすべてのウィ
+     ンドウが更新される。
+
+     この関数は、即座に再表示を行わない。再表示はEmacsが
+     入力を待機時、または関数‘redisplay’呼び出し時に行わ
+     れる。
+
+
+File: elisp,  Node: Truncation,  Next: The Echo Area,  Prev: Forcing Redisplay,  Up: Display
+
+37.3 Truncation
+===============
+
+テキスト行がウィンドウ右端を超過する際、Emacsはその行を
+“継続(continue)”させる(次のスクリーン行へ“wrap”、すなわ
+ち折り返す)か、あるいはその行を“切り詰める(truncate)”て
+表示(その行をスクリーン行の1行に制限)することができます
+。長いテキスト行を表示するために使用される追加のスクリー
+ン行は、“継続(continuation)”行と呼ばれます。継続はフィル
+とは異なります。継続はバッファーのコンテンツ内ではなくス
+クリーン上でのみ発生し、単語境界ではなく正確に右マージン
+で行をブレークします。*note Filling::を参照してください
+。
+
+   グラフィカルなディスプレイでは、切り詰めと継続はウィ
+ンドウフリンジ内の小さな矢印イメージで示されます(*note
+Fringes::を参照)。テキスト端末では、切り詰めはそのウィン
+ドウの最右列の‘$’、“折り返し”は最右列の‘\’で示されます
+(ディスプレイテーブルにより、これを行うための代替え文字
+を指定できる。*note Display Tables::を参照されたい)。
+
+ -- User Option: truncate-lines
+     このバッファーローカル変数が非‘nil’なら、ウィンドウ
+     右端を超過する行は切り詰められ、それ以外なら継続さ
+     れる。特別な例外として、“部分幅(partial-width)”ウィ
+     ンドウ(フレーム全体の幅を占有しないウィンドウ)では
+     、変数‘truncate-partial-width-windows’が優先される
+     。
+
+ -- User Option: truncate-partial-width-windows
+     この変数は、“部分幅(partial-width)”ウィンドウ内の、
+     行の切り詰めを制御する。部分幅ウィンドウとは、フレ
+     ーム全体の幅を占有しないウィンドウである(*note
+     Splitting Windows::を参照)。値が‘nil’なら、行の切り
+     詰めは変数‘truncate-lines’(上記参照)により決定され
+     る。値が整数Nの場合は、部分幅ウィンドウの列数がNよ
+     り小さければ、‘truncate-lines’の値とは無関係に行は
+     切り詰められ、部分幅ウィンドウの列数がN以上なら、行
+     の切り詰めは‘truncate-lines’により決定される。それ
+     以外の非‘nil’値では、‘truncate-lines’の値とは無関係
+     にすべての部分幅ウィンドウで行は切り詰められる。
+
+   ウィンドウ内で水平スクロール(*note Horizontal
+Scrolling::を参照)を使用中は、切り詰めが強制されます。
+
+ -- Variable: wrap-prefix
+     このバッファーローカル変数が非‘nil’なら、それは
+     Emacsが各継続行の先頭に表示する、“折り返しプレフィ
+     ックス(wrap prefix)”を定義する(行を切り詰めている場
+     合、‘wrap-prefix’は使用されない)。この値は文字列、
+     イメージ(*note Other Display Specs::を参照)、または
+     ディスプレイプロパティ‘:width’や‘:align-to’で指定さ
+     れるような、伸長された空白文字を指定できる(*note
+     Specified Space::を参照)。値はテキストプロパティ
+     ‘display’と同じ方法で解釈される。*note Display
+     Property::を参照のこと。
+
+     折り返しプレフィックスは、テキストプロパティまたは
+     オーバーレイプロパティ‘wrap-prefix’を使用することに
+     より、テキストのリージョンにたいして指定することも
+     できる。これは‘wrap-prefix’変数より優先される。
+     *note Special Properties::を参照のこと。
+
+ -- Variable: line-prefix
+     このバッファーローカル変数が非‘nil’なら、それは
+     Emacsがすべての非継続行の先頭に表示する、“行プレフ
+     ィックス(line prefix)”を定義する。この値は文字列、
+     イメージ(*note Other Display Specs::を参照)、または
+     ディスプレイプロパティ‘:width’や‘:align-to’で指定さ
+     れるような、伸長された空白文字を指定できる(*note
+     Specified Space::を参照)。値はテキストプロパティ
+     ‘display’と同じ方法で解釈される。*note Display
+     Property::を参照のこと。
+
+     行プレフィックスは、テキストプロパティまたはオーバ
+     ーレイプロパティ‘line-prefix’を使用することにより、
+     テキストのリージョンにたいして指定することもできる
+     。これは‘line-prefix’変数より優先される。*note
+     Special Properties::を参照のこと。
+
+
+File: elisp,  Node: The Echo Area,  Next: Warnings,  Prev: Truncation,  Up: Display
+
+37.4 The Echo Area
+==================
+
+“エコーエリア(echo area)”はエラーメッセージ(*note
+Errors::)や、‘message’プリミティブで作成されたメッセージ
+の表示、およびキーストロークをエコーするために使用されま
+す。(アクティブ時には)ミニバッファーがスクリーン上のエコ
+ーエリアと同じ場所に表示されるという事実にも関わらず、エ
+コーエリアはミニバッファーと同じではありません。*note
+The Minibuffer: (emacs)Minibuffer.を参照してください。
+
+   このセクションに記述された関数とは別に、出力ストリー
+ムとして‘t’を指定することにより、エコーエリアにLispオブ
+ジェクトをプリントできます。*note Output Streams::を参照
+してください。
+
+* Menu:
+
+* Displaying Messages::      エコーエリア内に明示的にテキストを表示する。
+* Progress::                 長時間の処理の進行状況をユーザーに知らせる。
+* Logging Messages::         ユーザー用にログされるエコーエリアメッセージ。
+* Echo Area Customization::  エコーエリアの制御。
+
+
+File: elisp,  Node: Displaying Messages,  Next: Progress,  Up: The Echo Area
+
+37.4.1 Displaying Messages in the Echo Area
+-------------------------------------------
+
+このセクションでは、エコーエリア内にメッセージを表示する
+、標準的な関数を説明します。
+
+ -- Function: message format-string &rest arguments
+     この関数は、エコーエリア内にメッセージを表示する。
+     ‘format’関数(*note Formatting Strings::を参照)の場
+     合と同様、FORMAT-STRINGはフォーマット文字列、
+     ARGUMENTSはそのフォーマット仕様にたいするオブジェク
+     トである。フォーマットされた結果文字列は、エコーエ
+     リア内に表示される。それに‘face’テキストプロパティ
+     が含まれる場合、指定されたフェイスにより表示される
+     (*note Faces::を参照)。この文字列は‘*Messages*’バッ
+     ファーにも追加されるが、テキストプロパティは含まれ
+     ない(*note Logging Messages::を参照)。
+
+     バッチモードでは、後に改行が付加されたメッセージが
+     、標準エラーストリームにプリントされる。
+
+     FORMAT-STRINGが‘nil’か空文字列なら、‘message’はエコ
+     ーエリアをクリアーする。エコーエリアが自動的に拡張
+     されていたら、これにより通常のサイズに復元される。
+     ミニバッファーがアクティブなら、これによりスクリー
+     ン上に即座にミニバッファーのコンテンツが復元される
+     。
+
+          (message "Minibuffer depth is %d."
+                   (minibuffer-depth))
+           ⊣ Minibuffer depth is 0.
+          ⇒ "Minibuffer depth is 0."
+
+          ---------- Echo Area ----------
+          Minibuffer depth is 0.
+          ---------- Echo Area ----------
+
+     エコーエリアやポップバッファー内に、自動的にメッセ
+     ージを表示するには、そのサイズに応じて
+     ‘display-message-or-buffer’(以下参照)を使用する。
+
+ -- Macro: with-temp-message message &rest body
+     この構成はBODY実行の間、エコーエリア内にメッセージ
+     を一時的に表示する。これはMESSAGEを表示してBODYを実
+     行し、それからエコーエリアの前のコンテンツをリスト
+     アするとともに、bodyの最後のフォームの値をリターン
+     する。
+
+ -- Function: message-or-box format-string &rest
+          arguments
+     この関数は‘message’と同様にメッセージを表示するが、
+     エコーエリアではなくダイアログボックスにメッセージ
+     を表示するかもしれない。この関数があるコマンド内か
+     らマウスを使用して呼び出された場合 — より正確には
+     ‘last-nonmenu-event’(*note Command Loop Info::を参
+     照)が‘nil’かリストなら、そのメッセージの表示にダイ
+     アログボックスまたはポップアップメニューを使用する
+     。それ以外の場合は、エコーエリアを使用する(これは
+     ‘y-or-n-p’が同様の決定を行う際に使用する条件と同じ
+     である。*note Yes-or-No Queries::を参照されたい)。
+
+     呼び出しの前後で‘last-nonmenu-event’を適切な値にバ
+     インドすることにより、エコーエリアでのマウスの使用
+     を強制できる。
+
+ -- Function: message-box format-string &rest arguments
+     この関数は‘message’と同様にメッセージを表示するが、
+     利用可能なら常にダイアログボックス(かポップアップメ
+     ニュー)を使用する。端末がサポートしないために、ダイ
+     アログボックスまたはポップアップメニューが使用でき
+     なければ、‘message-box’は‘message’と同様にエコーエ
+     リアを使用する。
+
+ -- Function: display-message-or-buffer message
+          &optional buffer-name not-this-window frame
+     この関数はメッセージMESSAGEを表示する。MESSAGEは文
+     字列かバッファーを指定できる。これが
+     ‘max-mini-window-height’で定義されるエコーエリアの
+     最大高さより小さければ、‘message’を使用してエコーエ
+     リアに表示される。それ以外なら、メッセージを表示す
+     るために‘display-buffer’はポップアップバッファーを
+     使用する。
+
+     エコーエリアに表示したメッセージ、またはポップアッ
+     プバッファー使用時はその表示に使用したウィンドウを
+     リターンする。
+
+     MESSAGEが文字列なら、オプション引数BUFFER-NAMEはポ
+     ップアップバッファー使用時にメッセージ表示に使用す
+     るバッファー名(デフォルトは‘*Message*’)である。
+     MESSAGEが文字列でエコーエリアに表示されてる場合は、
+     いずれにせよコンテンツをバッファーに挿入するかどう
+     かは指定されない。
+
+     オプション引数NOT-THIS-WINDOWとFRAMEは、
+     ‘display-buffer’の場合と同様に、バッファーが表示さ
+     れている場合のみ使用される。
+
+ -- Function: current-message
+     この関数は、エコーエリア内にカレントで表示されてい
+     るメッセージ、またはそれが存在しなければ‘nil’をリタ
+     ーンする。
+
+
+File: elisp,  Node: Progress,  Next: Logging Messages,  Prev: Displaying Messages,  Up: The Echo Area
+
+37.4.2 Reporting Operation Progress
+-----------------------------------
+
+処理の完了まで暫く時間を要するかもしれない際は、その進行
+状況についてユーザーに通知するべきです。これによりユーザ
+ーが残り時間を予測するとともに、Emacsがhungしているので
+はなく、処理中であえうことが明確に確認できます。“プログ
+レスリポーター(progress reporter: 進行状況リポーター)”を
+使用するのが、これを行う便利な方法です。
+
+   以下は、何も有用なことを行わない、実行可能な例です:
+
+     (let ((progress-reporter
+            (make-progress-reporter "Collecting mana for Emacs..."
+                                    0  500)))
+       (dotimes (k 500)
+         (sit-for 0.01)
+         (progress-reporter-update progress-reporter k))
+       (progress-reporter-done progress-reporter))
+
+ -- Function: make-progress-reporter message &optional
+          min-value max-value current-value min-change
+          min-time
+     この関数は、以下に挙げる他の関数として使用されるで
+     あろう、プログレスリポーターオブジェクトを作成して
+     、リターンする。これはプログレスリポーターを高速に
+     するように、可能なかぎり多くのデータを事前に計算す
+     るというアイデアが元である。
+
+     この後にこのプログレスリポーターを使用する際は、進
+     行状況のパーセンテージを後に付加してMESSAGEが表示さ
+     れるだろう。MESSAGEは、単なる文字列として扱われる。
+     たとえばファイル名に依存させる必要があるなら、この
+     関数の呼び出し前に、‘format’を使えばよい。
+
+     引数MIN-VALUEとMAX-VALUEは、その処理の開始と終了を
+     意味する数値であること。たとえばバッファーを“スキャ
+     ン”する処理なら、これらをそれぞれ‘point-min’と
+     ‘point-max’にセットするべきだろう。MAX-VALUEは
+     MIN-VALUEより大であること。
+
+     かわりに、MIN-VALUEとMAX-VALUEを‘nil’にセットするこ
+     とができる。この場合、プログレスリポーターは進行状
+     況のパーセンテージを報告しない。かわりにプログレス
+     リポーターを更新するたびに刻み(notch)を回転する“ス
+     ピナー(spinner)”を表示する。
+
+     MIN-VALUEとMAX-VALUEが数値なら、進行状況の初期の数
+     値を与える引数CURRENT-VALUEを与えることができる。省
+     略時のデフォルトはMIN-VALUE。
+
+     残りの引数は、エコーエリアの更新レートを制御する。
+     プログレスリポーターは次のメッセージを表示する前に
+     、その処理が少なくともMIN-CHANGEパーセントより多く
+     完了するまで待機する。デフォルトは1パーセント。
+     MIN-TIMEは連続するプリントの間に空ける最小時間をミ
+     リ秒単位で指定する(いくつかのオペレーティングシステ
+     ムでは、プログレスリポーターは秒の少数部をさまざま
+     な制度で処理するかもしれない)。
+
+     この関数は‘progress-reporter-update’を呼び出すた、
+     最初のメッセージは即座にプリントされる。
+
+ -- Function: progress-reporter-update reporter
+          &optional value
+     この関数は、操作の進行状況報告に関する、主要な機能
+     を担う。これはREPORTERのメッセージと、その後に
+     VALUEにより決定された進行状況のパーセンテージを表示
+     する。パーセンテージが0、または引数MIN-CHANGEと
+     MIN-TIMEに比べて十分0に近ければ、出力は省略される。
+
+     REPORTERは、‘make-progress-reporter’呼び出しがリタ
+     ーンした結果でなければならない。VALUEは処理のカレン
+     ト状況を指定し、‘make-progress-reporter’に渡された
+     MIN-VALUEとMAX-VALUEの間(両端を含む)でなければなら
+     ない。たとえばバッファーのスキャンにおいては、
+     VALUEは‘point’び呼び出し結果であるべきだろう。
+
+     この関数は‘make-progress-reporter’に渡された
+     MIN-CHANGEとMIN-TIMEにしたがい、毎回の呼び出しで新
+     たなメッセージを出力しない。したがってこれは非常に
+     高速であり、通常はこれを呼び出す回数を減らすことを
+     試みるべきではない。結果として生じるオーバーヘッド
+     は、あなたの努力をほぼ否定するだろう。
+
+ -- Function: progress-reporter-force-update reporter
+          &optional value new-message
+     この関数は‘progress-reporter-update’と同様だが、こ
+     れは無条件にメッセージをエコーエリアにプリントする
+     点が異なる。
+
+     最初の2つの引数は、‘progress-reporter-update’の場合
+     と同じ意味をもつ。オプションのNEW-MESSAGEで、
+     REPORTERのメッセージを変更できる。この関数は常にエ
+     コーエリアを更新するので、そのような変更は即座にユ
+     ーザーに示されるだろう。
+
+ -- Function: progress-reporter-done reporter
+     この関数は、処理の完了時に呼び出されるべきである。
+     これはエコーエリア内に、単語“done”が付加された
+     REPORTERのメッセージを表示する。
+
+     あなたは‘progress-reporter-update’に“100%”とプリン
+     トさせようとせず、常にこの関数を呼び出すべきである
+     。まず、この関数は決してそれをプリントしないだろう
+     し、これが発生しないために多くの正当な理由がある。
+     次に“done”はより自明である。
+
+ -- Macro: dotimes-with-progress-reporter (var count
+          [result]) message body...
+     これは‘dotimes’と同じ方法で機能するが、上述の関数を
+     使用してループ進行状況(loop progress)の報告も行う、
+     便利なマクロである。これにより、タイプ量を幾分節約
+     できる。
+
+     以下の方法でこのマクロを使用することにより、このセ
+     クション冒頭の例を書き換えることができる:
+
+          (dotimes-with-progress-reporter
+              (k 500)
+              "Collecting some mana for Emacs..."
+            (sit-for 0.01))
+
+
+File: elisp,  Node: Logging Messages,  Next: Echo Area Customization,  Prev: Progress,  Up: The Echo Area
+
+37.4.3 Logging Messages in ‘*Messages*’
+---------------------------------------
+
+エコーエリア内に表示されるほとんどすべてのメッセージは、
+ユーザーが後で参照できるように、‘*Messages*’バッファー内
+にも記録されます。これには‘message’により出力されたメッ
+セージも含まれます。デフォルトではこのバッファーは読み取
+り専用で、メジャーモード‘messages-buffer-mode’を使用しま
+す。ユーザーによる‘*Messages*’バッファーのkillを妨げるも
+のは何もありませんが、次回のメッセージ表示でバッファーは
+再作成されます。‘*Messages*’バッファーに直接アクセスする
+必要があり、それが確実に存在するようにしたいLispコードは
+すべて、関数‘messages-buffer’を使用するべきです。
+
+ -- Function: messages-buffer
+     この関数は、‘*Messages*’バッファーをリターンする。
+     バッファーが存在しなければ作成して、そのバッファー
+     を‘messages-buffer-mode’に切り替える。
+
+ -- User Option: message-log-max
+     この変数は、‘*Messages*’バッファー内に保持するべき
+     行数を指定する。値‘t’は保持すべき行数に制限がないこ
+     とを意味し、値‘nil’はメッセージのロギングを完全に無
+     効にする。以下は、メッセージを表示して、それがロギ
+     ングされることを防ぐ例である:
+
+          (let (message-log-max)
+            (message ...))
+
+   ‘*Messages*’にたいするユーザーの利便性を向上させるた
+めに、ロギング機能は連続する同じメッセージを結合します。
+さらに、2つのケースのために連続する関連メッセージの結合
+も行います。2つのケースとは、応答を後にともなう質問
+(question followed by answer)と、一連のプログレスメッセ
+ージ(series of progress messages)です。
+
+   “応答を後にともなう質問(question followed by an
+answer)”とは、‘y-or-n-p’により生成されるような、これは
+1つ目が‘QUESTION’、2つ目が‘QUESTION...ANSWER’のような、
+2つのメッセージです。1つ目のメッセージには、2つ目のメッ
+セージ以上の追加の情報は伝えないので、2つ目のメッセージ
+をロギングして、1つ目のメッセージは破棄します。
+
+   “一連のプログレスメッセージ(series of progress
+messages)”とは、‘make-progress-reporter’が生成するような
+、連続するメッセージを意味します。これらは
+‘BASE...HOW-FAR’のような形式をもち、HOW-FARは毎回異なり
+ますが、BASEは常に同じです。このシリーズ内の各メッセージ
+のロギングでは、そのメッセージが前のメッセージと連続して
+いれば、前のメッセージを破棄します。
+
+   関数‘make-progress-reporter’および‘y-or-n-p’は、メッ
+セージログ結合機能をアクティブにするために、何ら特別なこ
+とを行う必要はありません。これは‘...’で終わる共通のプレ
+フィックスを共有する、連続する2つのメッセージをログする
+際は、常にこの処理を行います。
+
+
+File: elisp,  Node: Echo Area Customization,  Prev: Logging Messages,  Up: The Echo Area
+
+37.4.4 Echo Area Customization
+------------------------------
+
+以下の変数は、エコーエリアが機能する方法の詳細を制御しま
+す。
+
+ -- Variable: cursor-in-echo-area
+     この変数は、エコーエリア内にメッセージ表示時に、カ
+     ーソルを表示する場所を制御する。これが非‘nil’なら、
+     カーソルはメッセージの終端に表示される。それ以外な
+     ら、カーソルはエコーエリア内ではなく、ポイント位置
+     に表示される。
+
+     この値は、通常は‘nil’である。Lispプログラムは短時間
+     の間、これを‘t’にバインドする。
+
+ -- Variable: echo-area-clear-hook
+     このノーマルフックは‘(message nil)’、または別の何ら
+     かの理由によりエコーエリアが作成されると、常に実行
+     される。
+
+ -- User Option: echo-keystrokes
+     この変数は、コマンド文字をエコーする前に、どれだけ
+     の時間を待機するかを決定する。この値は数字でなけれ
+     ばならず、エコー前に待機する秒数を指定する。ユーザ
+     ーが(‘C-x’のような)プレフィックスキーをタイプしてか
+     ら、継続してタイプを継続するのをこの秒数遅延した場
+     合、エコーエリア内にそのプレフィックスキーがエコー
+     される(あるキーシーケンスで一度エコーが開始されると
+     、同一のキーシーケンス内の後続するすべての文字は、
+     即座にエコーされる)。
+
+     値が0なら、コマンド入力はエコーされない。
+
+ -- Variable: message-truncate-lines
+     通常、長いメッセージの表示により、そのメッセージ全
+     体を表示するために、エコーエリアはリサイズされる。
+     しかし変数‘message-truncate-lines’が非‘nil’なら、エ
+     コーエリアをリサイズせず、エコーエリアに収まるよう
+     メッセージは切り詰められる。
+
+   ミニバッファーウィンドウのリサイズの最大高さを指定す
+る変数‘max-mini-window-height’は、エコーエリアにも適用さ
+れる(エコーエリアは真にミニバッファーウィンドウの特殊な
+使い方である。*note Minibuffer Misc::を参照されたい)。
+
+
+File: elisp,  Node: Warnings,  Next: Invisible Text,  Prev: The Echo Area,  Up: Display
+
+37.5 Reporting Warnings
+=======================
+
+“警告(warnings)”とは、プログラムがユーザーにたいして問題
+の可能性を知らせるが、実行は継続するための機能です。
+
+* Menu:
+
+* Warning Basics::           警告の概念と、それらを報告するための関数。
+* Warning Variables::        プログラムが警告をカスタマイズするためにバインドする変数。
+* Warning Options::          ユーザーが警告の表示を制御するためにセットする変数。
+* Delayed Warnings::         コマンド終了まで警告を延期する。
+
+
+File: elisp,  Node: Warning Basics,  Next: Warning Variables,  Up: Warnings
+
+37.5.1 Warning Basics
+---------------------
+
+すべての警告は、ユーザーに問題を説明するためのテキストの
+メッセージと、“重大レベル(severity level)”をもっています
+。重大レベルはシンボルです。以下は可能性のある重大レベル
+とその意味を、重大度の降順でリストしたものです:
+
+‘:emergency’
+     直ちに対処しなければ、Emacs処理が間もなく深刻に害さ
+     れる問題。
+‘:error’
+     本質的に悪いデータまたは状況のリポート。
+‘:warning’
+     本質的に悪くはないが、可能性のある問題を励起する恐
+     れのあるデータまたは状況のリポート。
+‘:debug’
+     デバッグ中なら有用かもしれない情報のリポート。
+
+   あなたのプログラムが無効な入力データに遭遇した際には
+、‘error’呼び出しによるLispエラーのシグナルするか、また
+は重大度‘:error’の警告をリポートすることができます。
+Lispエラーのシグナルはもっとも簡単に行えることですが、そ
+れはプログラムが処理を継続できないことを意味します。間違
+ったデータでも処理を継続するための方法を実装するために、
+そのトラブルを受け取めたい場合には、その問題をユーザーに
+知らせるために、重大度‘:error’の警告をリポートするのが正
+しい方法です。たとえばEmacs Lispバイトコンパイラーはこの
+方法によりエラーを報告して、他の関数のコンパイルを継続で
+きます(プログラムがLispエラーをシグナルして、それを
+‘condition-case’でhandleしたなら、ユーザーがそのエラーを
+確認することはないだろう。これは警告としてリポートするこ
+とにより、ユーザーにメッセージを示すことができる)。
+
+   クラス分けのために、それぞれの警告には“警告タイプ
+(warning type)”があります。このタイプはシンボルのリスト
+です。最初のシンボルは、そのプログラムのユーザーオプショ
+ンとして使用する、カスタムグループであるべきです。たとえ
+ばバイトコンパイラーの警告は、警告タイプ‘(bytecomp)’を使
+用します。もし望むなら、このリスト内で更にシンボルを使用
+することにより、警告をサブカテゴリー化することもできます
+。
+
+ -- Function: display-warning type message &optional
+          level buffer-name
+     この関数はメッセージとしてMESSAGE、警告タイプとして
+     TYPEを使用して、警告をリポートする。LEVELは重大レベ
+     ルであること。デフォルトは‘:warning’。
+
+     BUFFER-NAMEが非‘nil’なら、それは警告をロギングする
+     ためのバッファー名を指定する。デフォルトは
+     ‘*Warnings*’。
+
+ -- Function: lwarn type level message &rest args
+     この関数は、‘*Warnings*’バッファー内のメッセージと
+     して‘(format MESSAGE ARGS...)’の値を使用して、、警
+     告をリポートする。他の点では、これは
+     ‘display-warning’と同じである。
+
+ -- Function: warn message &rest args
+     この関数はメッセージとして‘(format MESSAGE
+     ARGS...)’の値、タイプとして‘(emacs)’、重大レベルと
+     して‘:warning’を使用して、警告をリポートする。これ
+     は互換性のためだけに存在する。固有な警告タイプを指
+     定するべきであり、この関数の使用は推奨しない。
+
+
+File: elisp,  Node: Warning Variables,  Next: Warning Options,  Prev: Warning Basics,  Up: Warnings
+
+37.5.2 Warning Variables
+------------------------
+
+プログラムは、このセクション内で説明する変数をバインドす
+ることにより、警告が表示される方法をカスタマイズできます
+。
+
+ -- Variable: warning-levels
+     このリストは、警告の重大レベルの意味と、重大度の順
+     序を定義する。それぞれの要素は1つの重大レベルを定義
+     し、それらは重大度の降順で配置される。
+
+     各要素は‘(LEVEL STRING FUNCTION)’という形式をもち、
+     LEVELはその要素が定義する重大レベルである。STRINGは
+     そのレベルのテキストによる説明である。STRINGは警告
+     タイプ情報の配置箇所の指定に‘%s’を使用するか、さも
+     なくばその情報を含まぬよう‘%s’を省略できる。
+
+     オプションのFUNCTIONが非‘nil’なら、これはユーザーの
+     注目を得るために引数なしで呼び出される関数であるこ
+     と。
+
+     通常は、この変数の値を変更するべきではない。
+
+ -- Variable: warning-prefix-function
+     値が非‘nil’なら、それは警告用にプレフィックスを生成
+     する関数であること。プログラムは、この変数を適切な
+     関数にバインドできる。‘display-warning’はwarningsバ
+     ッファーがカレントの状態でこの関数を呼び出し、関数
+     はそのバッファーにテキストを挿入できる。そのテキス
+     トが、警告メッセージの先頭になる。
+
+     この関数は重大レベル、および‘warning-levels’内での
+     その重大レベルのエントリーという、2つの引数で呼び出
+     される。これは、エントリーとして使用するためのリス
+     トをリターンするべきである(この値は
+     ‘warning-levels’の実際のメンバーである必要はない)。
+     この値を構築することにより、関数はその警告の重大レ
+     ベルを変更したり、与えられた重大レベルにたいして異
+     なる処理を指定することができる。
+
+     この変数の値が‘nil’なら、呼び出される関数は存在しな
+     い。
+
+ -- Variable: warning-series
+     プログラムは、次の警告がシリーズの開始であることを
+     告げるために、この変数を‘t’にバインドできる。複数の
+     警告がシリーズを形成するということは、それぞれの警
+     告にたいしてポイントが維持されるよう移動して、最後
+     の警告にポイントが表示されるのではなく、そのシリー
+     ズの最初の警告にポイントを残すことを意味する。この
+     シリーズは、そのローカルバインドが非バインドされて
+     、‘warning-series’が再び‘nil’になったときに終了する
+     。
+
+     この値は、関数定義をもつシンボルでもよい。これは、
+     次の警告によりwarningsバッファーがカレントの状態で
+     、引数なしでその関数が呼び出されることを除き、‘t’と
+     等価である。この関数は、その警告シリーズのヘッダー
+     の役目をもつであろうテキストを挿入できる。
+
+     あるシリーズが開始されると、その値はwarningsバッフ
+     ァー内でシリーズ開始となるバッファー位置を指すマー
+     カーとなる。
+
+     この変数の通常の値は‘nil’で、これはそれぞれの警告を
+     個別に処理することを意味する。
+
+ -- Variable: warning-fill-prefix
+     この変数が非‘nil’なら、それは各警告テキストのフィル
+     に使用する、フィルプレフィックスを指定する。
+
+ -- Variable: warning-type-format
+     この変数は、警告メッセージ内の警告タイプを表示する
+     ための、フォーマットを指定する。この方法でフォーマ
+     ットされたタイプは、‘warning-levels’内のエントリー
+     内の文字列制御下にあるメッセージに含まれることにな
+     る。デフォルト値は‘" (%s)"’。これを‘""’にバインドす
+     ると、警告タイプはまったく表示されなくなる。
+
+
+File: elisp,  Node: Warning Options,  Next: Delayed Warnings,  Prev: Warning Variables,  Up: Warnings
+
+37.5.3 Warning Options
+----------------------
+
+以下の変数は、何が発生したときにLispプログラムが警告をリ
+ポートするかを、ユーザーが制御するために使用されます。
+
+ -- User Option: warning-minimum-level
+     このユーザーオプションは、ユーザーにたいして即座に
+     表示されるべき、最小の重大レベルを指定する。デフォ
+     ルトは‘:warning’で、これは‘:debug’警告を除くすべて
+     の警告が即座に表示されることを意味する。
+
+ -- User Option: warning-minimum-log-level
+     このユーザーオプションは、warningsバッファー内にロ
+     グされるべき、最小の重大レベルを指定する。デフォル
+     トは‘:warning’で、これは‘:debug’警告を除くすべての
+     警告がログされることを意味する。
+
+ -- User Option: warning-suppress-types
+     このリストは、ユーザーにたいしてどの警告タイプを即
+     座に表示するべきではないかを指定する。このリスト内
+     の各要素は、シンボルのリストであること。それの要素
+     が警告タイプ内の最初の要素にマッチしたら、その警告
+     は即座に表示されない。
+
+ -- User Option: warning-suppress-log-types
+     このリストは、ユーザーにたいしてどの警告タイプが
+     warningsバッファーにログされるべきではないかを指定
+     する。このリスト内の各要素は、シンボルのリストであ
+     ること。それの要素が警告タイプ内の最初の数要素にマ
+     ッチしたら、その警告はログされない。
+
+
+File: elisp,  Node: Delayed Warnings,  Prev: Warning Options,  Up: Warnings
+
+37.5.4 Delayed Warnings
+-----------------------
+
+コマンド実行中には警告の表示を避けて、コマンドの終わりで
+のみ警告を表示したいことがあるかもしれません。これは、変
+数‘delayed-warnings-list’により行うことができます。
+
+ -- Variable: delayed-warnings-list
+     この変数の値は、カレントのコマンド完了後に表示され
+     る警告のリストである。各要素は以下のようなリストで
+     なければならない:
+
+          (TYPE MESSAGE [LEVEL [BUFFER-NAME]])
+
+     これらは、は‘display-warning’の引数リストと同じ形式
+     、同じ意味である(*note Warning Basics::を参照)。
+     ‘post-command-hook’(*note Command Overview::を参照
+     )の実行直後、Emacsのコマンドループはこの変数で指定
+     されたすべての警告を表示してから、変数を‘nil’にリセ
+     ットする。
+
+   遅延警告メカニズムをよりカスタマイズする必要があるプ
+ログラムは、変数‘delayed-warnings-hook’を変更することが
+できます:
+
+ -- Variable: delayed-warnings-hook
+     これは遅延警告を処理して表示するために、
+     ‘post-command-hook’の後にEmacsコマンドループが実行
+     する、ノーマルフックである。
+
+     デフォルト値は、2つの関数からなるリストである:
+
+          (collapse-delayed-warnings display-delayed-warnings)
+
+     関数‘collapse-delayed-warnings’は、
+     ‘delayed-warnings-list’から重複するエントリーを削除
+     する。関数‘display-delayed-warnings’は、
+     ‘delayed-warnings-list’内の各要素にたいして順次
+     ‘display-warning’を呼び出してから、
+     ‘delayed-warnings-list’を‘nil’にセットする。
+
+
+File: elisp,  Node: Invisible Text,  Next: Selective Display,  Prev: Warnings,  Up: Display
+
+37.6 Invisible Text
+===================
+
+‘invisible’プロパティにより、スクリーン上に表示されない
+ように、文字を“不可視(invisible)”にすることができます。
+これはテキストプロパティ(*note Text Properties::を参照
+)、またはオーバーレイプロパティ(*note Overlays::を参照
+)のいずれかで行うことができます。カーソル移動も、これら
+の文字を部分的に無視します。あるコマンドの後に、不可視テ
+キスト範囲内にポイントがあることをコマンドループが検知し
+た場合、コマンドループはポイントをそのテキストの別サイド
+へ再配置します。
+
+   もっともシンプルなケースでは、非‘nil’の‘invisible’プ
+ロパティにより、文字は不可視になります。これがデフォルト
+のケースであり、もし‘buffer-invisibility-spec’のデフォル
+ト値を変更したくない場合は、これが‘invisible’プロパティ
+を機能させる方法です。自身で‘buffer-invisibility-spec’を
+セットする予定がなければ、‘invisible’プロパティの値とし
+て、通常は‘t’を使用するべきです。
+
+   より一般的には、どの‘invisible’の値がテキストを不可視
+にするかを制御するために、変数
+‘buffer-invisibility-spec’を使用できます。テキストにたい
+して異なる‘invisible’の値を与えることにより、事前に別の
+サブセットへテキストをクラス分けした後に、
+‘buffer-invisibility-spec’の値を変更して、さまざまなサブ
+セットを可視または不可視にすることができます。
+
+   特にデータベース内のエントリーのリストを表示するプロ
+グラム内では、‘buffer-invisibility-spec’による可視性の制
+御は有用です。これにより、データベース内の一部だけを閲覧
+するフィルターコマンドを、簡便に実装することが可能になり
+ます。この変数をセットするのは非常に高速で、バッファー内
+のすべてのテキストにたいしてプロパティが変更されたかスキ
+ャンするより、はるかに高速です。
+
+ -- Variable: buffer-invisibility-spec
+     この変数は、どの種類の‘invisible’プロパティが、実際
+     に文字を不可視にするかを指定する。この変数はセット
+     することにより、バッファーローカルになる。
+
+     ‘t’
+          ‘invisible’プロパティが非‘nil’なら、その文字は
+          不可視になる。これがデフォルトである。
+
+     リスト
+          このリスト内の各要素は、不可視性の条件を指定す
+          る。ある文字の‘invisible’プロパティがこれらの
+          条件のいずれかに適合したら、その文字は不可視に
+          なる。このリストは2種類の要素をもつことができ
+          る:
+
+          ‘ATOM’
+               ‘invisible’プロパティの値がATOM、または
+               ATOMをメンバーにもつリストなら、その文字
+               は不可視になる。比較は‘eq’により行われる
+               。
+
+          ‘(ATOM . t)’
+               ‘invisible’プロパティの値がATOM、または
+               ATOMをメンバーにもつリストなら、その文字
+               は不可視になる。比較は‘eq’により行われる
+               。さらに、そのような文字シーケンスは省略
+               記号(ellipsis)として表示される。
+
+   特に‘buffer-invisibility-spec’への要素の追加と削除の
+ために、2つの関数が提供されています。
+
+ -- Function: add-to-invisibility-spec element
+     この関数は、‘buffer-invisibility-spec’に要素
+     ELEMENTを追加する。‘buffer-invisibility-spec’が
+     ‘t’なら、これはリスト‘(t)’に変更され、‘invisible’プ
+     ロパティが‘t’のテキストは不可視のまま留まる。
+
+ -- Function: remove-from-invisibility-spec element
+     この関数は、‘buffer-invisibility-spec’から要素
+     ELEMENTを削除する。リスト内にELEMENTがなければ、何
+     も行わない。
+
+   ‘buffer-invisibility-spec’を使用するための規約として
+、メジャーモードは‘buffer-invisibility-spec’の要素、およ
+び‘invisible’プロパティの値として、自身のモード名を使用
+することになっている。
+
+     ;; 省略記号を表示したければ:
+     (add-to-invisibility-spec '(my-symbol . t))
+     ;; 表示したくなければ:
+     (add-to-invisibility-spec 'my-symbol)
+
+     (overlay-put (make-overlay beginning end)
+                  'invisible 'my-symbol)
+
+     ;; 不可視状態が終わったら:
+     (remove-from-invisibility-spec '(my-symbol . t))
+     ;; または各々を:
+     (remove-from-invisibility-spec 'my-symbol)
+
+   以下の関数を使用することにより、不可視性をチェックで
+きます:
+
+ -- Function: invisible-p pos-or-prop
+     POS-OR-PROPがマーカーか数字の場合、その位置のテキス
+     トが不可視なら、この関数は非‘nil’をリターンする。
+
+     POS-OR-PROPが別の類のLispオブジェクトなら、テキスト
+     プロパティまたはオーバーレイプロパティとして可能な
+     値を意味すると解釈される。この場合、
+     ‘buffer-invisibility-spec’のカレント値にもとづき、
+     もしその値がテキストを不可視とするようなら、この関
+     数は非‘nil’をリターンする。
+
+   通常、テキストを操作したりポイントを移動する関数は、
+そのテキストが不可視かどうかに注意を払わず、可視および不
+可視のテキストを同様に処理します。‘next-line’や
+‘previous-line’のようなユーザーレベルの行移動関数は、
+‘line-move-ignore-invisible’が非‘nil’(デフォルト)なら、
+不可視な改行を無視します。これらの関数は不可視な改行がそ
+のバッファーに存在しないかのように振る舞いますが、これは
+そう振る舞うよう、明示的にプログラムされているからです。
+
+   あるコマンドが、不可視テキストの境界内側のポイントで
+終了した場合、メイン編集ループはその不可視テキストの両端
+のうちのいずれかにポイントを再配置します。そのコマンドの
+移動関数の全体的な方向と同じになるように、Emacsが再配置
+の方向は決定します。これに疑問がある場合には、挿入された
+文字が‘invisible’プロパティを継承しないような位置を優先
+してください。加えて、そのテキストが省略記号で置換されず
+、コマンドが不可視テキスト内への移動のみを行う場合、ポイ
+ントを1文字余計に移動して、目に見えるようカーソルを移動
+することにより、そのコマンドの移動を反映するよう試みます
+。
+
+   したがって,コマンドが(通常のstickinessをもつ)不可視範
+囲に、後方へとポイントを移動した場合、Emacsはポイントを
+その範囲の先頭へと、後方に移動します。コマンドが不可視範
+囲へ前方にポイントを移動した場合には、Emacsは不可視テキ
+ストの前にある最初の可視文字へと、前方にポイントを移動し
+て、その後さらに前方へ1文字余計に移動します。
+
+   これら不可視テキスト中間で終了するポイントにたいする
+これらの“調整(adjustments)”は、
+‘disable-point-adjustment’を非‘nil’にセットすることによ
+り無効にできます。*note Adjusting Point::を参照してくだ
+さい。
+
+   インクリメンタル検索はマッチが不可視テキストを含む場
+合は、一時的および/または永続的に不可視オーバーレイを可
+視にすることができます。これを有効にするためには、そのオ
+ーバーレイが非‘nil’の‘isearch-open-invisible’プロパティ
+をもつ必要があります。プロパティの値は、そのオーバーレイ
+を引数として呼び出される関数であるべきです。その関数は、
+オーバーレイを永続的に可視にする必要があります。これは検
+索からのexit時にマッチがそのオーバーレイに重なるときに使
+用されます。
+
+   検索の間、そのようなオーバーレイのinvisible、および
+intangibleプロパティを一時的に変更することにより、オーバ
+ーレイは一時的に可視にされます。特定のオーバーレイにたい
+して、異なる方法でこれを行いたいなら、それを
+‘isearch-open-invisible-temporary’プロパティ(関数)に与え
+てください。その関数は2つの引数により呼び出されます。1つ
+目はそのオーバーレイ、2つ目は‘nil’ならオーバーレイを可視
+に、‘t’なら再び不可視にします。
+
+
+File: elisp,  Node: Selective Display,  Next: Temporary Displays,  Prev: Invisible Text,  Up: Display
+
+37.7 Selective Display
+======================
+
+“選択的表示(selective display)”とは、スクリーン上で特定
+の行を隠蔽する、関連する機能ペアーを指します。
+
+   1つ目の変種は明示的な選択的表示で、これはLispプログラ
+ム内で使用するようにデザインされています。これはテキスト
+変更により、どの行を隠すかを制御します。この種の隠蔽は現
+在では時代遅れです。かわりに‘invisible’プロパティで同じ
+効果を得ることができます(*note Invisible Text::を参照)。
+
+   2つ目の変種は、インデントにもとづいて隠す行の選択を自
+動的に行います。この変種は、ユーザーレベルの機能としてデ
+ザインされています。
+
+   選択的表示を明示的に制御する方法では、改行
+(control-j)を復帰(control-m)に置換します。以前は行末に改
+行があった行は、これにより隠蔽されます。厳密に言うと、改
+行だけが行を分離できるので、これはもはや一時的には行では
+なく、前の行の一部です。
+
+   選択的表示は編集コマンドに直接影響を与えません。たと
+えば‘C-f’(‘forward-char’)は、隠蔽された行へ気軽にポイン
+トを移動します。しかし復帰文字による改行文字の置換は、い
+くつかの編集コマンドに影響を与えます。たとえば
+‘next-line’は改行だけを検索するため、隠蔽された行をスキ
+ップします。選択的表示を使用するモードは、改行を考慮する
+コマンドを定義したり、テキストのどの部分を隠すか制御する
+こともできます。
+
+   選択的表示されたバッファーをファイルに書き込む際には
+、control-mはすべて改行として出力されます。これはファイ
+ル内のテキストを読み取る際には、すべて問題なく隠蔽されず
+に表示されることを意味します。選択的表示は、Emacs内でだ
+け見られる効果です。
+
+ -- Variable: selective-display
+     このバッファーローカル変数は、選択的表示を有効にす
+     る。これは行、または行の一部を隠すことができること
+     を意味する。
+
+        • ‘selective-display’の値が‘t’なら、文字
+          control-mが隠蔽されたテキストの開始をマークす
+          る。control-mと、それに後続する行の残りは表示
+          されない。これは明示的な選択的表示である。
+
+        • ‘selective-display’の値が正の整数なら、それよ
+          り多くの列によるインデントで始まる行は表示され
+          ない。
+
+     バッファーの一部が隠蔽されている際は、垂直移動コマ
+     ンドはあたかもその部分を存在しないかのように処理し
+     て、1回の‘next-line’コマンドで任意の行数の隠蔽され
+     た行をスキップできる。しかし(‘forward-char’のような
+     )文字移動コマンドは隠蔽された部分をスキップせず、
+     (注意すれば)隠蔽された部分にたいしてテキストの挿入
+     と削除が可能である。
+
+     以下の例では、‘selective-display’の値の変更による、
+     バッファー‘foo’の_外観表示_を示す。このバッファーの
+     _コンテンツ_は変更されない。
+
+          (setq selective-display nil)
+               ⇒ nil
+
+          ---------- Buffer: foo ----------
+          1 on this column
+           2on this column
+            3n this column
+            3n this column
+           2on this column
+          1 on this column
+          ---------- Buffer: foo ----------
+
+          (setq selective-display 2)
+               ⇒ 2
+
+          ---------- Buffer: foo ----------
+          1 on this column
+           2on this column
+           2on this column
+          1 on this column
+          ---------- Buffer: foo ----------
+
+ -- User Option: selective-display-ellipses
+     このバッファーローカル変数が非‘nil’なら、Emacsは隠
+     蔽されたテキストを後にともなう行の終端に、‘...’を表
+     示する。この例は、前の例からの継続である。
+
+          (setq selective-display-ellipses t)
+               ⇒ t
+
+          ---------- Buffer: foo ----------
+          1 on this column
+           2on this column ...
+           2on this column
+          1 on this column
+          ---------- Buffer: foo ----------
+
+     省略記号(‘...’)にたいして他のテキストを代替えするた
+     めに、ディスプレイテーブルを使用できる。*note
+     Display Tables::を参照のこと。
+
+
+File: elisp,  Node: Temporary Displays,  Next: Overlays,  Prev: Selective Display,  Up: Display
+
+37.8 Temporary Displays
+=======================
+
+一時的表示(temporary display)は、出力をバッファーに配し
+て、それを編集用ではなく閲覧用としてユーザーに示すために
+、Lispプログラムにより使用されます。多くのヘルプコマンド
+は、この機能を使用します。
+
+ -- Macro: with-output-to-temp-buffer buffer-name
+          body...
+     この関数は、BUFFER-NAMEという名前のバッファー(必要
+     なら最初に作成される)にプリントされた任意の出力が挿
+     入されるようアレンジ、さらにバッファーをHelpモード
+     にして、BODY内のフォームを実行する(類似する以下のフ
+     ォーム‘with-temp-buffer-window’を参照されたい)。最
+     後に、そのバッファーはいずれかのウィンドウに表示さ
+     れるが、そのウィンドウは選択されない。
+
+     BODY内のフォームが出力バッファーのメジャーモードを
+     変更しないため、実行の最後においても依然として
+     Helpモードにあるなら、
+     ‘with-output-to-temp-buffer’は最後にそのバッファー
+     を読み取り専用するとともに、クリック可能なクロスリ
+     ファレンスとなるよう、関数名と変数名のスキャンも行
+     う。特にドキュメント文字列内のハイパーリンク上アイ
+     テムに関する詳細は、*note Tips for Documentation
+     Strings: Docstring hyperlinks.を参照のこと。
+
+     文字列BUFFER-NAMEは一時的なバッファーを指定し、これ
+     はあらかじめ存在する必要はない。引数はバッファーで
+     はなく文字列でなければならない。そのバッファーは最
+     初に消去され(確認なし)、
+     ‘with-output-to-temp-buffer’のexit後は未変更
+     (unmodified)とマークされる。
+
+     ‘with-output-to-temp-buffer’は‘standard-output’を一
+     時的バッファーにバインドして、BODY内のフォームを評
+     価する。BODY内のLisp出力関数を使用した出力のデフォ
+     ルト出力先は、そのバッファーになる(しかしスクリーン
+     表示、エコーエリア内のメッセージは、一般的な世界の
+     感覚では“出力”であるものの、影響は受けない)。*note
+     Output Functions::を参照のこと。
+
+     この構成の振る舞いをカスタマイズするために利用でき
+     るフックがいくつかあり、それらは以下にリストしてあ
+     る。
+
+     リターン値は、BODY内の最後のフォームの値である。
+
+          ---------- Buffer: foo ----------
+           This is the contents of foo.
+          ---------- Buffer: foo ----------
+
+          (with-output-to-temp-buffer "foo"
+              (print 20)
+              (print standard-output))
+          ⇒ #<buffer foo>
+
+          ---------- Buffer: foo ----------
+
+          20
+
+          #<buffer foo>
+
+          ---------- Buffer: foo ----------
+
+ -- User Option: temp-buffer-show-function
+     この変数が非‘nil’なら、
+     ‘with-output-to-temp-buffer’はヘルプバッファーを表
+     示する処理を行うために、その関数を呼び出す。この関
+     数は、表示すべきバッファーという、1つの引数を受け取
+     る。
+
+     ‘with-output-to-temp-buffer’が通常行うように、
+     ‘save-selected-window’内部や選択されたウィンドウ内
+     で、バッファーか選択された状態で、
+     ‘temp-buffer-show-hook’を実行するのは、この関数にと
+     ってよいアイデアである。
+
+ -- Variable: temp-buffer-setup-hook
+     このノーマルフックは、BODYを評価する前に、
+     ‘with-output-to-temp-buffer’により実行される。フッ
+     ク実行時は、一時的バッファーがカレントになる。この
+     フックは通常、そのバッファーをHelpモードにするため
+     の関数にセットアップされる。
+
+ -- Variable: temp-buffer-show-hook
+     このノーマルフックは、一時的バッファー表示後に、
+     ‘with-output-to-temp-buffer’により実行される。フッ
+     ク実行時は一時的バッファーがカレントになり、それが
+     表示されているウィンドウが選択される。
+
+ -- Macro: with-temp-buffer-window buffer-or-name action
+          quit-function body...
+     このマクロは‘with-output-to-temp-buffer’と類似して
+     いる。‘with-output-to-temp-buffer’構成同様、これは
+     プリントされる任意の出力がBUFFER-OR-NAMEという名前
+     のバッファーに挿入されるようにアレンジしてBODYを実
+     行し、そのバッファーをいぜれかのウィンドウに表示す
+     る。しかし‘with-output-to-temp-buffer’とは異なり、
+     このマクロはそのバッファーを自動的にHelpモードに切
+     り替えない。
+
+     ‘with-output-to-temp-buffer’と同様、これは
+     BUFFER-OR-NAMEで指定されるバッファーを、BODY実行時
+     カレントにしない。 BODYを実行するために、そのバッフ
+     ァーをカレントにする点以外は等価なマクロ
+     ‘with-current-buffer-window’を使用できる。
+
+     引数BUFFER-OR-NAMEは、一時的バッファーを指定する。
+     これはバッファー(既存でなければならない)、または文
+     字列を指定でき、文字列の場合は必要ならその名前のバ
+     ッファーが作成される。そのバッファーは
+     ‘with-temp-buffer-window’のexit時、未変更かる読み取
+     り専用とマークされる。
+
+     このマクロは‘temp-buffer-show-function’を呼び出さな
+     い。かわりにそのバッファーを表示するために、
+     ACTION引数を‘display-buffer’に渡す。
+
+     引数QUIT-FUNCTIONが指定されていなければ、BODY内の最
+     後のフォームの値がリターンされる。指定されている場
+     合、それはそのバッファーを表示するウィンドウと、
+     BODYの結果という、2つの引数で呼び出される。その場合
+     、最終的なリターン値は何であれQUIT-FUNCTIONがリター
+     ンした値となる。
+
+     このマクロは、‘with-output-to-temp-buffer’により実
+     行される類似フックのかわりに、ノーマルフック
+     ‘temp-buffer-window-setup-hook’と
+     ‘temp-buffer-window-show-hook’使用する。
+
+ -- Function: momentary-string-display string position
+          &optional char message
+     この関数は、カレントバッファー内のPOSITIONに、
+     STRINGを瞬間表示(momentarily display)する。これは
+     undoリストや、そのバッファーの変更状態(modification
+     status)に影響を与えない。
+
+     瞬間表示は、次の入力イベントまで留まる。次の入力イ
+     ベントがCHARなら、‘momentary-string-display’はそれ
+     を無視してリターンする。それ以外なら、そのイベント
+     は後続の入力として使用するためにバッファーされる。
+     つまりCHARとタイプすると、表示からその文字列を単に
+     削除して、CHARではない(たとえば)‘C-f’とタイプすると
+     表示からその文字列を削除して、後で(おそらく)ポイン
+     トを前方へ移動するだろう。引数CHARのデフォルトはス
+     ペース。
+
+     ‘momentary-string-display’のリターン値に意味はない
+     。
+
+     文字列STRINGがコントロール文字を含まなければ、
+     ‘before-string’プロパティでオーバーレイを作成(して
+     その後削除)することで、より一般的に同じことを行うこ
+     とができる。*note Overlay Properties::を参照のこと
+     。
+
+     MESSAGEgが非‘nil’なら、バッファー内にSTRINGが表示さ
+     れている間は、エコーエリアにそれが表示される。
+     ‘nil’ならデフォルトは、継続するためにはCHARをタイプ
+     するよう告げるメッセージである。
+
+     以下の例ではポイントは最初、2行目の先頭に置かれてい
+     る:
+
+          ---------- Buffer: foo ----------
+          This is the contents of foo.
+          ★Second line.
+          ---------- Buffer: foo ----------
+
+          (momentary-string-display
+            "**** Important Message! ****"
+            (point) ?\r
+            "Type RET when done reading")
+          ⇒ t
+
+          ---------- Buffer: foo ----------
+          This is the contents of foo.
+          **** Important Message! ****Second line.
+          ---------- Buffer: foo ----------
+
+          ---------- Echo Area ----------
+          Type RET when done reading
+          ---------- Echo Area ----------
+
+
+File: elisp,  Node: Overlays,  Next: Size of Displayed Text,  Prev: Temporary Displays,  Up: Display
+
+37.9 Overlays
+=============
+
+プレゼンテーション機能として、バッファーのテキストのスク
+リーン上の見栄えを変更するために、“オーバーレイ
+(overlay)”を使用できます。オーバーレイとは、個々のバッフ
+ァーに属するオブジェクトであり、指定された開始と終了をも
+っています。確認したりセットすることができるプロパティも
+もっています。それらはオーバーレイをもつテキストの表示に
+影響を与えます。
+
+   オーバーレイの視覚的効果は、対応するテキストプロパテ
+ィと同様です(*note Text Properties::を参照)。しかし実装
+が異なるため、オーバーレイは一般的にスケーラブルではあり
+ません(処理数に応じて、バッファー内のオーバーレイ数に比
+例した時間を要する)。バッファー内の多数の部分の視覚的外
+観に効果を及ぼす必要がある場合は、テキストプロパティの使
+用を推奨します。
+
+   オーバーレイは、その開始と終了を記録するために、マー
+カーを使用します。したがってバッファーのテキスト編集では
+、すべてのオーバーレイがそのテキストに留まるように、開始
+と終了が調整されます。オーバーレイ作成時には、オーバーレ
+イ先頭、同様に終端にテキストが挿入された場合に、それがオ
+ーバーレイの内側あるいは外側であるべきかを指定できます。
+
+* Menu:
+
+* Managing Overlays::        オーバーレイの作成と変更。
+* Overlay Properties::       プロパティ読み取りおよびセットの方法。どのプロパティがスクリーン表示に何を行うか。
+* Finding Overlays::         オーバーレイにたいする検索。
+
+
+File: elisp,  Node: Managing Overlays,  Next: Overlay Properties,  Up: Overlays
+
+37.9.1 Managing Overlays
+------------------------
+
+このセクションでは、オーバーレイの作成、削除、移動、およ
+びそれらのコンテンツを調べる関数を説明します。オーバーレ
+イはバッファーのコンテンツの一部ではないので、その変更は
+バッファーのundoリストに記録されません。
+
+ -- Function: overlayp object
+     この関数は、OBJECTがオーバーレイなら‘t’をリターンす
+     る。
+
+ -- Function: make-overlay start end &optional buffer
+          front-advance rear-advance
+     この関数はBUFFERに属し、STARTからENDの範囲のオーバ
+     ーレイを作成してリターンする。STARTとENDはいずれも
+     バッファーの位置を指定しなければならず、整数または
+     マーカーを指定できる。BUFFERが省略された場合、その
+     オーバーレイはカレントバッファーに作成される。
+
+     引数FRONT-ADVANCEとREAR-ADVANCEはそれぞれ、オーバー
+     レイの開始と終了にたいするマーカーの挿入タイプを指
+     定する。*note Marker Insertion Types::を参照のこと
+     。どちらも‘nil’(デフォルト)なら、そのオーバーレイは
+     先頭に挿入された任意のテキストを含むように拡張され
+     るが、終端に挿入されたテキストにたいしては拡張され
+     ない。FRONT-ADVANCEが非‘nil’なら、オーバーレイの先
+     頭に挿入されたテキストは、オーバーレイから除外され
+     る。REAR-ADVANCEが非‘nil’なら、オーバーレイの終端に
+     挿入されたテキストは、オーバーレイに含まれる。
+
+ -- Function: overlay-start overlay
+     この関数は、OVERLAYが開始する位置を整数でリターンす
+     る。
+
+ -- Function: overlay-end overlay
+     この関数は、OVERLAYが終了する位置を整数でリターンす
+     る。
+
+ -- Function: overlay-buffer overlay
+     この関数は、OVERLAYが所属するバッファーをリターンす
+     る。OVERLAYが削除されていれば‘nil’をリターンする。
+
+ -- Function: delete-overlay overlay
+     この関数はOVERLAYを削除する。そのオーバーレイは
+     Lispオブジェクトとして存在し続け、そのプロパティリ
+     ストは変更されないが、バッファーへの所属と表示にた
+     いするすべての効果は失う。
+
+     削除済みオーバーレイが、永続的に非接続という訳では
+     ない。‘move-overlay’を呼び出すことにより、バッファ
+     ー内の位置を与えることができる。
+
+ -- Function: move-overlay overlay start end &optional
+          buffer
+     この関数はOVERLAYをBUFFERに移動して、その境界を
+     STARTとENDに配する。STARTとENDの引数はいずれもバッ
+     ファーの位置を指定しなければならず、整数またはマー
+     カーを指定できる。
+
+     BUFFERが省略された場合、OVERLAYはすでに関連付けられ
+     ている同じバッファーに留まる。さらにOVERLAYが削除さ
+     れていたら、それをカレントバッファーに所属させる。
+
+     リターン値はOVERLAY。
+
+     これはオーバーレイの両端位置を変更する、唯一有効な
+     方法である。手作業でオーバーレイ内のマーカーの変更
+     を試みてはならない。それにより他の重要なデータ構造
+     の更新が失敗して、いくつかのオーバーレイが“失われる
+     ”可能性がある。
+
+ -- Function: remove-overlays &optional start end name
+          value
+     この関数は、プロパティNAMEが値VALUEをもつ、STARTと
+     ENDの間のすべてのオーバーレイを削除する。これにより
+     オーバーレイの両端位置が変更されたり、分割される可
+     能がある。
+
+     NAMEが省略または‘nil’なら、それは指定されたリージョ
+     ン内のすべてのオーバーレイを削除することを意味する
+     。STARTおよび/またはENDが省略または‘nil’なら、それ
+     ぞれバッファーの先頭と終端を意味する。したがって
+     ‘(remove-overlays)’は、カレントバッファー内のすべて
+     のオーバーレイを削除する。
+
+ -- Function: copy-overlay overlay
+     この関数はOVERLAYのコピーをリターンする。このコピー
+     はOVERLAYと同じ両端位置とプロパティをもつ。しかしオ
+     ーバーレイの開始と終了にたいするマーカー挿入タイプ
+     は、デフォルト値にセットされる(*note Marker
+     Insertion Types::を参照)。
+
+   以下にいくつか例を示します:
+
+     ;; オーバーレイの作成
+     (setq foo (make-overlay 1 10))
+          ⇒ #<overlay from 1 to 10 in display.texi>
+     (overlay-start foo)
+          ⇒ 1
+     (overlay-end foo)
+          ⇒ 10
+     (overlay-buffer foo)
+          ⇒ #<buffer display.texi>
+     ;; 後でチェックできるようプロパティ付与
+     (overlay-put foo 'happy t)
+          ⇒ t
+     ;; プロパティが付与されたか検証
+     (overlay-get foo 'happy)
+          ⇒ t
+     ;; オーバーレイを移動
+     (move-overlay foo 5 20)
+          ⇒ #<overlay from 5 to 20 in display.texi>
+     (overlay-start foo)
+          ⇒ 5
+     (overlay-end foo)
+          ⇒ 20
+     ;; オーバーレイを削除
+     (delete-overlay foo)
+          ⇒ nil
+     ;; 削除されたか検証
+     foo
+          ⇒ #<overlay in no buffer>
+     ;; 削除済みオーバーレイは位置をもたない
+     (overlay-start foo)
+          ⇒ nil
+     (overlay-end foo)
+          ⇒ nil
+     (overlay-buffer foo)
+          ⇒ nil
+     ;; オーバーレイの削除取り消し
+     (move-overlay foo 1 20)
+          ⇒ #<overlay from 1 to 20 in display.texi>
+     ;; 結果の検証
+     (overlay-start foo)
+          ⇒ 1
+     (overlay-end foo)
+          ⇒ 20
+     (overlay-buffer foo)
+          ⇒ #<buffer display.texi>
+     ;; オーバーレイの移動と削除では、オーバーレイのプロパティは変更されない
+     (overlay-get foo 'happy)
+          ⇒ t
+
+   Emacsはそれぞれのバッファーのオーバーレイを、任意の
+“中心位置(center position)”で分割される、2つのリストに格
+納します。一方のリストはバッファーの中心位置から後方へ拡
+張され、もう一方は中心位置から前方へと拡張されます。中心
+位置は、バッファーの任意の位置をとることができます。
+
+ -- Function: overlay-recenter pos
+     この関数は、カレントバッファーのオーバーレイを、位
+     置POSの周辺に再センタリングする。これにより位置
+     POS近傍のオーバーレイの照合は高速になるが、POSから
+     離れた位置にたいしては低速になる。
+
+   バッファーを前方にスキャンしてオーバーレイを作成する
+ループは、最初に‘(overlay-recenter (point-max))’を行うこ
+とにより高速になる可能性があります。
+
+
+File: elisp,  Node: Overlay Properties,  Next: Finding Overlays,  Prev: Managing Overlays,  Up: Overlays
+
+37.9.2 Overlay Properties
+-------------------------
+
+オーバーレイプロパティは、文字が表示される方法をどちらの
+ソースからも取得できるという点において、テキストプロパテ
+ィと似ています。しかしほとんどの観点で、両者は異なります
+。これらの比較は*note Text Properties::を参照してくださ
+い。
+
+   テキストプロパティは、そのテキストの一部として考える
+ことができます。オーバーレイとそのプロパティは、特にテキ
+ストの一部としてはみなされません。したがって、さまざまな
+バッファーや文字列の間でテキストをコピーすると、テキスト
+プロパティは保持されますが、オーバーレイを保持しようとは
+試みません。バッファーのテキストプロパティの変更は、その
+バッファーを変更済みとマークしますが、オーバーレイの移動
+やプロパティの変更は違います。テキストプロパティの変更と
+は異なり、オーバーレイプロパティの変更は、バッファーの
+undoリストに記録されません。
+
+   複数のオーバーレイが同じ文字にたいしてプロパティ値を
+指定できるので、Emacsは各オーバーレイにたいして優先度の
+指定を促します。2つのオーバーレイが同じ値の優先度をもち
+、一方が他方にネストされている場合には、内側のオーバーレ
+イが外側のオーバーレイより高い優先度をもちます。いずれの
+オーバーレイも他方をネストしない場合には、どちらのオーバ
+ーレイが優先されるかについて予測するべきではありません。
+
+   以下の関数は、オーバーレイのプロパティの読み取りとセ
+ットを行います:
+
+ -- Function: overlay-get overlay prop
+     この関数は、OVERLAY内に記録されたプロパティPROPの値
+     をリターンする。そのプロパティにたいしてOVERLAYが何
+     も値を記録していないが、シンボルであるような
+     ‘category’プロパティをもつ場合は、そのシンボルの
+     PROPプロパティが使用される。それ以外なら値は‘nil’。
+
+ -- Function: overlay-put overlay prop value
+     この関数は、OVERLAY内に記録されたプロパティPROPの値
+     に、VALUEをセットする。リターン値はVALUE。
+
+ -- Function: overlay-properties overlay
+     これは、OVERLAYのプロパティリストのコピーをリターン
+     する。
+
+   与えられた文字にたいしてテキストプロパティとオーバー
+レイプロパティの両方をチェックする関数
+‘get-char-property’も参照してください。*note Examining
+Properties::を参照してください。
+
+   多くのオーバーレイプロパティには特別な意味があります
+。以下はそれらのテーブルです:
+
+‘priority’
+     このプロパティの値は、そのオーバーレイの優先度を決
+     定する。優先度にたいして値を指定したければ、
+     ‘nil’(か0)、または正の整数を使用すること。それ以外
+     のすべての値にたいして、動作は未定義である。
+
+     2つ以上のオーバーレイが同じ文字をカバーし、いずれも
+     が同じプロパティを指定する場合には、優先度が重要に
+     なる。他より‘priority’の値が大きいほうが他をオーバ
+     ーライドする。‘face’プロパティにたいしては、より高
+     い優先度のオーバーレイの値は、他の値を完全にはオー
+     バーライドしない。かわりにより低い優先度の‘face’プ
+     ロパティのface属性を、高い優先度のface属性がオーバ
+     ーライドする。
+
+     現在のところ、すべてのオーバーレイはテキストプロパ
+     ティより優先される。
+
+     Emacsは内部的なオーバーレイのいくつかにたいして、非
+     数値の優先度を使用することがあるので、(自分が作成し
+     たオーバーレイでない場合は)オーバーレイ優先度の算術
+     演算を試みないよう注意すること。オーバーレイを優先
+     度順に配す必要があるなら、‘overlays-at’のSORTED引数
+     を使用すること。*note Finding Overlays::を参照され
+     たい。
+
+‘window’
+     ‘window’プロパティが非‘nil’なら、そのオーバーレイは
+     そのウィンドウだけに適用される。
+
+‘category’
+     オーバーレイが‘category’プロパティをもつなら、それ
+     をそのオーバーレイの“カテゴリー(category)”と呼ぶ。
+     これはシンボルであること。そのシンボルのプロパティ
+     は、そのオーバーレイのプロパティにたいしてデフォル
+     トの役割を果たす。
+
+‘face’
+     このプロパティはテキストの外観を制御する(*note
+     Faces::を参照)。プロパティの値は以下のいずれか:
+
+        • フェイス名(シンボルか文字列)。
+
+        • anonymousフェイス: ‘(KEYWORD VALUE ...)’という
+          形式のプロパティリストで、KEYWORDはフェイス属
+          性名、VALUEはその属性の値。
+
+        • フェイスのリスト。リストの要素はそれぞれフェイ
+          ス名か、anonymousフェイスのいずれかであること
+          。これはリストされた各フェイスの属性を集約する
+          フェイスを指定する。このリスト内で先に出現する
+          フェイスが、より高い優先度をもつ。
+
+        • ‘(foreground-color . COLOR-NAME)’または
+          ‘(background-color . COLOR-NAME)’という形式の
+          コンスセル。これは‘(:foreground COLOR-NAME)’や
+          ‘(:background COLOR-NAME)’と同様、フォアグラウ
+          ンドとバックグラウンドのカラーを指定する。この
+          形式は後方互換性のためだけにサポートされており
+          、避けるべきである。
+
+‘mouse-face’
+     このプロパティは、マウスがオーバーレイ範囲内にある
+     とき、‘face’のかわりに使用される。しかしEmacsは、こ
+     のプロパティのテキストのサイズを変更する、すべての
+     フェイス属性(‘:height’、‘:weight’、‘:slant’)を無視
+     する。これらの属性は、ハイライトされていないテキス
+     トでは、常に同一である。
+
+‘display’
+     このプロパティは、テキストが表示される方法を変更す
+     る、さまざまな機能をアクティブにする。たとえばこれ
+     は、テキストの外観を縦長(taller)や横長(shorter)にし
+     たり、高く(higher)したり低く(lower)したり、イメージ
+     で置き換える。*note Display Property::を参照のこと
+     。
+
+‘help-echo’
+     あるオーバーレイが‘help-echo’プロパティをもつなら、
+     そのオーバーレイ内のテキスト上にマウスを移動した際
+     、Emacsはエコーエリアまたはツールチップウィンドウに
+     ヘルプ文字列を表示する。詳細は*note Text
+     help-echo::を参照のこと。
+
+‘field’
+     同じ‘field’プロパティをもつ連続する文字は、_フィー
+     ルド(field)_を形成する。‘forward-word’や
+     ‘beginning-of-line’を含むいくつかの移動関数は、フィ
+     ールド境界で移動を停止する。*note Fields::を参照の
+     こと。
+
+‘modification-hooks’
+     このプロパティの値は、オーバーレイ内の任意の文字の
+     変更、またはオーバーレイの厳密に内側にテキストが挿
+     入された場合に呼び出される、関数のリストである。
+
+     このフックの関数は、各変更の前後両方で呼び出される
+     。これらの関数が受け取った情報を保存し、呼び出し間
+     で記録を比較すれば、バッファー内のテキストでどのよ
+     うな変更が行われたかを、正確に判断できる。
+
+     変更前に呼び出された際、各関数はオーバーレイ、
+     ‘nil’、変更されたテキスト範囲の開始と終了という、
+     4つの引数を受け取る。
+
+     変更後に呼び出された際、各関数はオーバーレイ、‘t’、
+     変更されたテキスト範囲の開始と終了、およびその範囲
+     により置き換えられた変更前のテキスト長という、5つの
+     引数を受け取る(変更前の長さは、挿入では0、削除では
+     削除された文字数であり、変更後の先頭と終端が等しく
+     なる)。
+
+     これらの関数がバッファーを変更する場合は、これらの
+     フックを呼び出す内部的メカニズムの混乱を避けるため
+     に、それを行う前後で‘inhibit-modification-hooks’を
+     ‘t’にバインドすること。
+
+     テキストプロパティも‘modification-hooks’プロパティ
+     をサポートするが、詳細は幾分か異なる(*note Special
+     Properties::を参照)。
+
+‘insert-in-front-hooks’
+     このプロパティの値は、オーバーレイ先頭へのテキスト
+     挿入前後に呼び出される、関数のリストである。呼び出
+     し方は、‘modification-hooks’の関数と同様。
+
+‘insert-behind-hooks’
+     このプロパティの値は、オーバーレイ終端へのテキスト
+     挿入前後に呼び出される、関数のリストである。呼び出
+     し方は、‘modification-hooks’の関数と同様。
+
+‘invisible’
+     ‘invisible’プロパティにより、オーバーレイ内のテキス
+     トを不可視似出来る。これはそのテキストが、スクリー
+     ン上に表示されないことを意味する。詳細は、*Note
+     Invisible Text::を下さいのこと。
+
+‘intangible’
+     オーバーレイの‘intangible’プロパティは、正に
+     ‘intangible’テキストプロパティと同様に機能する。詳
+     細は*Note Special Properties::を参照のこと。
+
+‘isearch-open-invisible’
+     このプロパティは、インクリメンタル検索にたいして、
+     最後のマッチがそのオーバーレイに重なる場合に、不可
+     視なオーバーレイを永続的に可視にする方法を告げる。
+     *note Invisible Text::を参照のこと。
+
+‘isearch-open-invisible-temporary’
+     このプロパティは、インクリメンタル検索にたいして、
+     検索の間に、不可視なオーバーレイを一時的に可視にす
+     る方法を告げる。*note Invisible Text::を参照のこと
+     。
+
+‘before-string’
+     このプロパティの値は、オーバーレイ先頭に表示するた
+     めに追加する文字列である。この文字列は、いかなる意
+     味においてもバッファー内には表れず、スクリーン上に
+     のみ表れる。
+
+‘after-string’
+     このプロパティの値は、オーバーレイ終端に表示するた
+     めに追加する文字列である。この文字列は、いかなる意
+     味においてもバッファー内には表れず、スクリーン上に
+     のみ表れる。
+
+‘line-prefix’
+     このプロパティは、表示時にそれぞれの非継続行の後に
+     追加する、表示仕様(display spec)を指定する。*note
+     Truncation::を参照のこと。
+
+‘wrap-prefix’
+     このプロパティは、表示時にそれぞれの継続行の前に追
+     加する、表示仕様(display spec)を指定する。*note
+     Truncation::を参照のこと。
+
+‘evaporate’
+     このプロパティが非‘nil’の場合は、そのオーバーレイが
+     空(長さが0)になったら、自動的に削除される。空のオー
+     バーレイにたいして非‘nil’の‘evaporate’プロパティを
+     与えた場合は、即座に削除される。
+
+‘keymap’
+     このプロパティがから‘nil’なら、それはそのテキスト範
+     囲にたいしてキーマップを指定する。このキーマップは
+     、ポイントの後の文字がそのオーバーレイ内にあるとき
+     に使用され、他のほとんどのキーマップより優先される
+     。*note Active Keymaps::を参照のこと。
+
+‘local-map’
+     ‘local-map’プロパティは‘keymap’プロパティと同様だが
+     、既存のキーマップに付け加えるのではなく、バッファ
+     ーのローカルマップを置き換える点が異なる。これは、
+     そのキーマップがマイナーモードキーマップより低い優
+     先度をもつことも意味する。
+
+   ‘keymap’と‘local-map’プロパティは、‘before-string’、
+‘after-string’、‘display’プロパティにより表示された文字
+列には影響しません。これはポイントがその文字列上にない場
+合の、マウスクリックや、その文字列に関する他のマウスイベ
+ントにのみ関係があります。その文字列に特別なマウスイベン
+トをバインドするには、そのイベントを‘keymap’か
+‘local-map’プロパティに割り当てます。*note Special
+Properties::を参照してください。
+
+
+File: elisp,  Node: Finding Overlays,  Prev: Overlay Properties,  Up: Overlays
+
+37.9.3 Searching for Overlays
+-----------------------------
+
+ -- Function: overlays-at pos &optional sorted
+     この関数は、カレントバッファー内の位置POSにある文字
+     をカバーする、すべてオーバーレイのリストをリターン
+     する。SORTEDが非‘nil’ならリストは優先度降順、それ以
+     外なら特定の順にはソートされない。オーバーレイが
+     POS、またはそれより前から始まり、かつPOSの後で終わ
+     る場合、位置POSはオーバーレイに含まれる。
+
+     使い方を説明するために、ポイント位置の文字にたいし
+     て、プロパティPROPを指定するオーバーレイのリストを
+     リターンするLisp関数である:
+
+          (defun find-overlays-specifying (prop)
+            (let ((overlays (overlays-at (point)))
+                  found)
+              (while overlays
+                (let ((overlay (car overlays)))
+                  (if (overlay-get overlay prop)
+                      (setq found (cons overlay found))))
+                (setq overlays (cdr overlays)))
+              found))
+
+ -- Function: overlays-in beg end
+     この関数は、BEGからENDのリージョンと重複(overlap)す
+     る、オーバーレイのリストをリターンする。“重複”とは
+     、少なくとも1つの文字がそのオーバーレイに含まれ、か
+     つ指定されたリージョンにも含まれることを意味する。
+     しかし、空のオーバーレイがBEG、厳密に言うとBEGと
+     ENDにある場合、またはENDがバッファーの終端を示す場
+     合は、その空のオーバーレイも結果に含まれる。
+
+ -- Function: next-overlay-change pos
+     この関数はPOSの後にあるオーバーレイの、開始または終
+     了となるバッファー位置をリターンする。それが存在し
+     なければ‘(point-max)’をリターンする。
+
+ -- Function: previous-overlay-change pos
+     この関数はPOSの前にあるオーバーレイの、開始または終
+     了となるバッファー位置をリターンする。それが存在し
+     なければ‘(point-min)’をリターンする。
+
+   以下に例として、プリミティブ関数
+‘next-single-char-property-change’(*note Property
+Search::を参照)の、単純化(かつ非効率的な)したバージョン
+を示します。これは位置POSから前方へ、与えられたプロパテ
+ィ‘prop’にたいして、オーバーレイプロパティまたはテキスト
+プロパティのいずれかの値が変化した、次の位置を検索します
+。
+
+     (defun next-single-char-property-change (position prop)
+       (save-excursion
+         (goto-char position)
+         (let ((propval (get-char-property (point) prop)))
+           (while (and (not (eobp))
+                       (eq (get-char-property (point) prop) propval))
+             (goto-char (min (next-overlay-change (point))
+                             (next-single-property-change (point) prop)))))
+         (point)))
+
+
+File: elisp,  Node: Size of Displayed Text,  Next: Line Height,  Prev: Overlays,  Up: Display
+
+37.10 Size of Displayed Text
+============================
+
+すべての文字が同じ幅をもつ訳ではないので、以下の関数によ
+り文字の幅をチェックできます。関連する関数については、
+*note Primitive Indent::と*note Screen Lines::を参照して
+ください。
+
+ -- Function: char-width char
+     この関数は、文字CHARがカレントバッファーに表示され
+     た場合(つまりそのバッファーのディスプレイテーブルが
+     あれば、それを考慮に入れる。*note Display Tables::を
+     参照されたい)の幅を、列数でリターンする。タブ文字の
+     幅は、通常は‘tab-width’である(*note Usual
+     Display::を参照)。
+
+ -- Function: string-width string
+     この関数は、文字列STRINGがカレントバッファー、およ
+     び選択されたウィンドウに表示された場合の幅を、列数
+     でリターンする。
+
+ -- Function: truncate-string-to-width string width
+          &optional start-column padding ellipsis
+     この関数はSTRINGの一部を、列数WIDTHにフィット新たな
+     文字列としてリターンする。
+
+     STRINGがWIDTHに満たない場合、その文字列終端が結果の
+     終端となる。STRING内の1つの複数列文字が、列WIDTHを
+     超えて跨がる場合、その文字は結果に含まれない。つま
+     り結果はWIDTHより短くなるかもしれないが、それを超え
+     ることはできない。
+
+     オプション引数START-COLUMNは、開始列を指定する。こ
+     れが非‘nil’なら、その文字列の最初のSTART-COLUMN列は
+     、値から省かれる。STRING内の1つの複数列文字が、列
+     START-COLUMNを超えて跨がる場合、その文字は結果に含
+     まれない。
+
+     オプション引数PADDINGが非‘nil’なら、結果となる文字
+     列の幅を正確にWIDTH列に拡張するために、パディング文
+     字が追加される。結果文字列がWIDTHより短ければ、結果
+     文字列の終端にパディング文字が使用される。STRING内
+     の1つの複数列文字が列START-COLUMNを跨ぐ場合は、先頭
+     にもパディング文字が使用される。
+
+     ELLIPSISが非‘nil’なら、それはSTRINGの表示幅が
+     ELLIPSISの表示幅以下でなければ、WIDTHを超えてしまう
+     場合に、STRINGの終端(任意のパディングを含む)を置き
+     換える文字列であること。ELLIPSISが非‘nil’、かつ文字
+     列以外なら、それは‘"..."’を意味する。
+
+          (truncate-string-to-width "\tab\t" 12 4)
+               ⇒ "ab"
+          (truncate-string-to-width "\tab\t" 12 4 ?\s)
+               ⇒ "    ab  "
+
+   以下の関数は、あるテキストが与えられたウィンドウに表
+示されたときのサイズを、ピクセル単位でリターンします。こ
+の関数は、テキストを含むためにウィンドウを十分大きくする
+ために、‘fit-window-to-buffer’(*note Resizing Windows::を
+参照)と‘fit-frame-to-buffer’(*note Size and Position::を
+参照)により使用されます。
+
+ -- Function: window-text-pixel-size &optional window
+          from to x-limit y-limit mode-and-header-line
+     この関数は、WINDOWのバッファーのテキストサイズを、
+     ピクセル単位でリターンする。WINDOWは生きたウィンド
+     ウでなければならず、デフォルトは選択されたウィンド
+     ウ。リターン値は、任意のテキスト行の最大ピクセル幅
+     と、すべてのテキスト行の最大ピクセル高さのコンスで
+     ある。
+
+     オプション引数FROMが非‘nil’なら、それは考慮すべき最
+     初のテキスト位置を指定し、デフォルトはそのバッファ
+     ーのアクセス可能な最小の位置である。FROMが‘t’なら、
+     それは改行文字ではない、アクセス可能な最小位置を使
+     用する。オプション引数TOが非‘nil’なら、それは考慮す
+     べき最後のテキスト位置を指定し、デフォルトはそのバ
+     ッファーのアクセス可能な最大の位置である。TOが‘t’な
+     ら、それは改行文字ではない、アクセス可能な最大位置
+     を使用する。
+
+     オプション引数X-LIMITが非‘nil’なら、それはリターン
+     され得る、最大ピクセル幅を指定する。X-LIMITが
+     ‘nil’または省略された場合には、WINDOWのbody(*note
+     Window Sizes::を参照)のピクセル幅を使用する。これは
+     、呼び出し側がWINDOWの幅の変更を意図しない場合に有
+     用である。それ以外なら、呼び出し側はここで想定され
+     るWINDOWのbodyの、最大幅を指定するべきである。X座標
+     を超えるテキストのX-LIMITは無視される。長い行の幅の
+     計算には多くの時間を要する可能性があるので、特にい
+     ずれにせよ切り詰められるであろう長い行を含むバッフ
+     ァーの場合には、必要に応じて、この引数の値を小さく
+     することは、よいアイデアである。
+
+     オプション引数Y-LIMITが非‘nil’なら、それはリターン
+     され得る、最大ピクセル高さを指定する。Y座標を超える
+     テキストのY-LIMITは無視される。大きなバッファーのピ
+     クセル高さの計算には多くの時間を要する可能性がある
+     ので、特に呼び出し側がバッファーのサイズを知らない
+     場合、この変数の指定は合理的である。
+
+     オプション引数MODE-AND-HEADER-LINEが‘nil’または省略
+     された場合は、リターン値にWINDOWのモードラインとヘ
+     ッダーラインの高さを含めないことを意味する。これが
+     シンボル‘mode-line’または‘header-line’のいずれかな
+     ら、それらが存在する場合は、リターン値にそのライン
+     の高さだけを含める。これが‘t’なら、存在する場合は両
+     方の高さをリターン値に含める。
+
+
+File: elisp,  Node: Line Height,  Next: Faces,  Prev: Size of Displayed Text,  Up: Display
+
+37.11 Line Height
+=================
+
+各ディスプレイ行のトータル高さは、その行のコンテンツ高さ
+に、そのディスプレイ上部または下部にオプションで追加され
+る垂直行スペーシングを加えて構成されます。
+
+   行のコンテンツ高さは、もしあれば最後の改行を含む、そ
+のディスプレイ行の文字またはイメージの最大高さです(継続
+されるディスプレイ行には最後の改行が含まれない)。特にこ
+れより大きい高さを指定しなければ、これがデフォルトの行高
+さになります(一般的には、これはデフォルトのフレームフォ
+ント高さに等しい)。
+
+   より大きい行高さを明示的に指定するためにはディスプレ
+イ行の絶対高さ、または垂直スペースを指定することによる、
+複数の方法が存在します。しかし何を指定したかに関わらず、
+実際の行高さがデフォルトの高さより小さくなることはありま
+せん。
+
+   改行は、その改行で終わるディスプレイ行のトータル高さ
+を制御する、テキストプロパティまたはオーバーレイプロパテ
+ィ‘line-height’をもつことができます。
+
+   プロパティの値が‘t’なら、改行文字はその行の表示高さに
+たいして効果をもたず、可視なコンテンツだけが高さを決定し
+ます。これはイメージ間に追加のブランク領域をもたない、小
+さなイメージ(またはイメージスライス)にたいして有用です。
+
+   プロパティの値が‘(HEIGHT TOTAL)’という形式のリストな
+ら、これはディスプレイ行の_下部_に余分なスペースを追加し
+ます。最初にEmacsは、その行の_上部_の余分なスペースを制
+御するための高さspecとして、HEIGHTを使用します。それから
+行のトータル高さをTOTALにするために、行の_下部_に必要な
+スペースを追加します。この場合、行のスペーシングを指定す
+る他の方法は無視されます。
+
+   他の種類のプロパティ値は高さspec(height spec)です。こ
+れは行の高さを指定する数値に変換されます。高さspecを記述
+するためには複数の方法があります。以下はそれらが数値に変
+換される方法です:
+
+‘INTEGER’
+     高さspecが正の整数なら、高さの値はその整数。
+‘FLOAT’
+     高さspecが浮動小数点数FLOATなら、高さ数値はそのフレ
+     ームのデフォルト行高さのFLOAT倍。
+‘(FACE . RATIO)’
+     高さspecがこのフォーマットのコンスなら、高さ数値は
+     フェイスFACEの高さのRATIO倍。RATIOには任意の型の数
+     値を指定でき、‘nil’は1のratioを意味する。FACEが
+     ‘t’なら、カレントフェイスを参照する。
+‘(nil . RATIO)’
+     高さspecがこのフォーマットのコンスなら、高さ数値は
+     その行のコンテンツ高さのRATIO倍。
+
+   したがって、任意の有効な種々の高さspecにより、ピクセ
+ル単位で高さが決定されます。行のコンテンツ高さがこれより
+小さければ、Emacsは指定されたトータル高さになるよう、余
+分な垂直スペースを行の上部に追加します。
+
+   ‘line-height’プロパティを指定しない場合、その行の高さ
+は行のコンテンツ高さとに行スペーシングを追加して構成され
+ます。Emacsの異なるさまざまな部分のテキストにたいして、
+行スペーシングを指定する複数の方法が存在します。
+
+   グラフィカルなディスプレイでは、フレームパラメーター
+‘line-spacing’(*note Layout Parameters::を参照)を使用す
+ることにより、フレーム内のすべての行にたいして行スペーシ
+ングを指定できます。しかし‘line-spacing’のデフォルト値が
+非‘nil’なら、それはそのフレームのフレームパラメーター
+‘line-spacing’をオーバーライドします。整数は行の下部に配
+するピクセル数を指定します。浮動小数点数はフレームのデフ
+ォルト行高さに相対的にスペーシングを指定します。
+
+   バッファーローカル変数‘line-spacing’を通じて、バッフ
+ァー内のすべての行の行スペーシングを指定できます。整数は
+行の下部に配するピクセル数を指定します。浮動小数点数はデ
+フォルトフレーム行高さに相対的にスペーシングを指定します
+。これは、そのフレームにたいして指定された行スペーシング
+をオーバーライドします。
+
+   最後に改行は、改行で終わるディスプレイ行にたいして、
+デフォルトフレーム行スペーシングおよびバッファーローカル
+変数‘line-spacing’をオーバーライドする、テキストプロパテ
+ィまたはオーバーレイプロパティ‘line-spacing’をもつことが
+できます。
+
+   種々の方法により、これらのメカニズムは各行のスペーシ
+ングにたいするLisp値を指定します。値は高さspecで、これは
+上述したLisp値に変換されます。しかしこの場合高さ数値は行
+高さではなく行スペーシングを指定します。
+
+   テキスト端末では、行スペーシングは変更できません。
+
+
+File: elisp,  Node: Faces,  Next: Fringes,  Prev: Line Height,  Up: Display
+
+37.12 Faces
+===========
+
+“フェイス(face)”とはフォント、フォアグラウンドカラー、バ
+ックグラウンドカラー、オプションのアンダーライン等のテキ
+ストを表示するための、グラフィカルな属性のコレクションの
+ことです。フェイスはEmacsがバッファー内、同様にモードラ
+インのようなフレームの他の部分で、テキストを表示する方法
+を制御します。
+
+   フェイスを表現する1つの方法として、‘(:foreground
+"red" :weight bold)’のような属性のプロパティリストがあり
+ます。このようなリストは、“anonymousフェイス(anonymous
+face)”と呼ばれます。たとえば‘face’テキストプロパティとし
+てanonymousフェイスを割り当てることができ、Emacsは指定さ
+れた属性でテキストを表示するでしょう。*note Special
+Properties::を参照してください。
+
+   より一般的には、フェイスは“フェイス名(face name)”を通
+じて参照されます。これはフェイス属性のセットに関連付けら
+れたLispシンボル(1)。です。名前つきフェイスは‘defface’マ
+クロを使用して定義できます(*note Defining Faces::を参照
+)。Emacsにはいくつかの標準名前つきフェイスが同梱されてい
+ます(*note Basic Faces::を参照)。
+
+   Emacsの多くの箇所で名前つきフェイスが要求され、
+anonymousフェイスは受け入れられません。これらには*note
+Attribute Functions::に記述される関数、および変数
+‘font-lock-keywords’(*note Search-based Fontification::を
+参照)が含まれます。特に明記しないかぎり、名前つきフェイ
+スの参照だけに用語“フェイス”を使用することとします。
+
+ -- Function: facep object
+     この関数はOBJECTが名前つきフェイス(フェイス名の役目
+     をもつLispシンボルまたは文字列)なら、非‘nil’をリタ
+     ーンする。それ以外なら‘nil’をリターンする。
+
+* Menu:
+
+* Face Attributes::          フェイスとは?
+* Defining Faces::           フェイスを定義する方法。
+* Attribute Functions::      フェイス属性の確認およびセットを行う関数。
+* Displaying Faces::         ある文字にたいして指定されたフェイスをEmacsが組み合わせる方法。
+* Face Remapping::           フェイスを別の定義にリマップする。
+* Face Functions::           フェイスの定義、および確認する方法。
+* Auto Faces::               自動的にフェイスを割り当てるフック。
+* Basic Faces::              デフォルトで定義されるフェイス。
+* Font Selection::           あるフェイスに最適なフォントを見つける。
+* Font Lookup::              利用可能なフォント名とそれらの情報の照会。
+* Fontsets::                 フォントセット、それは文字セットの範囲を処理するフォントコレクションである。
+* Low-Level Font::           文字表示フォントのLisp表現。
+
+   ---------- Footnotes ----------
+
+   (1) 後方互換のため、フェイス名の指定に文字列も使用で
+きます。これは同名のLispシンボルと等価です。
+
+
+File: elisp,  Node: Face Attributes,  Next: Defining Faces,  Up: Faces
+
+37.12.1 Face Attributes
+-----------------------
+
+“フェイス属性(Face attributes)”は、フェイスの視覚的外観
+を決定します。以下はすべてのフェイス属性と、それらの可能
+な値と効果に関するテーブルです。
+
+   以下の値とは別に、各フェイス属性は値‘unspecified’をも
+つことができます。この特殊な値は、フェイスがその属性を直
+接指定しないことを意味します。‘unspecified’属性は、
+Emacsにかわりに親フェイス(以下の‘:inherit’属性の記述を参
+照)を参照すること、それに失敗した場合は基礎フェイス
+(*note Displaying Faces::を参照)を参照することを指示しま
+す。‘default’フェイスはすべての属性を指定しなければなり
+ません。
+
+   これらの属性のいくつかは、特定の種類のディスプレイに
+おいてのみ意味があります。ディスプレイが特定の属性を処理
+できなければ、その属性は無視されます。
+
+‘:family’
+     フォントファミリーまたはフォントセット(文字列)。フ
+     ォントファミリーに関する詳細は、*Note
+     (emacs)Fonts::を参照のこと。関数
+     ‘font-family-list’(以下参照)は、利用可能なファミリ
+     ー名のリストをリターンする。フォントセットに関する
+     情報は、*note Fontsets::を参照されたい。
+
+‘:foundry’
+     ‘:family’属性により指定されるフォントファミリーにた
+     いする“フォントfoundry(font foundry)”(文字列)。
+     *note (emacs)Fonts::を参照のこと。
+
+‘:width’
+     相対的な文字幅。これはシンボル‘ultra-condensed’、
+     ‘extra-condensed’、‘condensed’、‘semi-condensed’、
+     ‘normal’、‘semi-expanded’、‘expanded’、
+     ‘extra-expanded’、‘ultra-expanded’のいずれかである
+     こと。
+
+‘:height’
+     フォントの高さ。もっともシンプルなケースでは1/10ポ
+     イントを単位とする整数。
+
+     値には“基礎フェイス(underlying face)”にたいして相対
+     的に高さを指定する浮動小数点数、または関数も指定で
+     きる(*note Displaying Faces::を参照)。浮動小数点数
+     は基礎フェイスの高さをスケーリングする量を指定する
+     。関数値は基礎フェイスの高さを単一の引数として呼び
+     出され、新たなフェイスの高さをリターンする。関数が
+     整数を引数として渡された場合には、整数をリターンし
+     なければならない。
+
+     デフォルトフェイスの高さは、整数を使用して指定しな
+     ければならない。浮動小数点数および関数は受け入れら
+     れない。
+
+‘:weight’
+     フォントのweight。(太字から細字順に)シンボル
+     ‘ultra-bold’、‘extra-bold’、‘bold’、‘semi-bold’、
+     ‘normal’、‘semi-light’、‘light’、‘extra-light’、
+     ‘ultra-light’のいずれか。可変輝度テキストをサポート
+     するテキスト端末では、normalより大なweightはより高
+     輝度、小なweightはより低輝度で表示される。
+
+‘:slant’
+     フォントのslant。シンボル‘italic’、‘oblique’、
+     ‘normal’、‘reverse-italic’、‘reverse-oblique’のいず
+     れか。可変輝度テキストをサポートするテキスト端末で
+     は、slantされたテキストはhalf-brightで表示される。
+
+‘:foreground’
+     フォアグラウンドカラー(文字列)。値にはシステム定義
+     済みカラー、または16進カラー仕様を指定できる。*note
+     Color Names::を参照のこと。白黒ディスプレイでは、特
+     定のグレー色調が点描パターンで実装されている。
+
+‘:distant-foreground’
+     代替えのフォアグラウンドカラー(文字列)。これは
+     ‘:foreground’と似ているが、使用されるであろうフォア
+     グラウンドカラーが、バックグラウンドカラーに近いと
+     きのみフォアグラウンドカラーとして使用される点が異
+     なる。これはたとえばテキストをマーク時(リージョンフ
+     ェイス)に有用である。そのテキストが、リージョンフェ
+     イスとして可視なフォアグラウンドをもつ場合は、その
+     フォアグラウンドが使用される。フォアグラウンドがリ
+     ージョンフェイスのバックグラウンドに近ければ、テキ
+     ストを可読にするために‘:distant-foreground’が使用さ
+     れる。
+
+‘:background’
+     バックグラウンドカラー(文字列)。値にはシステム定義
+     済みカラー、または16進カラー仕様を指定できる。*note
+     Color Names::を参照のこと。
+
+‘:underline’
+     文字にアンダーラインを引くべきか否かと、その方法。
+     ‘:underline’属性として可能な値は以下のとおり:
+
+     ‘nil’
+          アンダーラインを引かない。
+
+     ‘t’
+          そのフェイスのフォアグラウンドカラーでアンダー
+          ラインを引く。
+
+     COLOR
+          文字列COLORで指定されたカラーでアンダーライン
+          を引く。
+
+     ‘(:color COLOR :style STYLE)’
+          COLORは文字列、またはそのフェイスのフォアグラ
+          ウンドカラーを意味するシンボル
+          ‘foreground-color’。属性‘:color’の省略は、その
+          フェイスのフォアグラウンドカラーの使用を意味す
+          る。STYLEには直線を意味する‘line’、または波線
+          を意味する‘wave’いずれかのシンボルであること。
+          属性‘:style’の省略は直線を意味する。
+
+‘:overline’
+     文字にオーバーラインを引くべきか否かと、そのカラー
+     。値が‘t’なら、そのフェイスのフォアグラウンドカラー
+     を使用してオーバーラインを引く。値が文字列なら、そ
+     のカラーを使用してオーバーラインを引く。値‘nil’はオ
+     ーバーラインを引かないことを意味する。
+
+‘:strike-through’
+     文字に取り消し線を引くべきか否かと、そのカラー。値
+     は‘:overline’で使用される値と同じ。
+
+‘:box’
+     文字周囲に枠(box)を描画するか否か、そのカラー、枠線
+     の幅、3D外観。以下は‘:box’の可能な値と意味である:
+
+     ‘nil’
+          枠を描画しない。
+
+     ‘t’
+          幅1の枠線、フォアグラウンドカラーで枠を描画す
+          る。
+
+     COLOR
+          幅1の枠線、カラーCOLORで枠を描画する。
+
+     ‘(:line-width WIDTH :color COLOR :style STYLE)’
+          この方法では、枠のすべての形相を明示的に指定で
+          きる。値WIDTHは描画する線の幅を指定し、デフォ
+          ルトは1。負の幅-Nは、基礎テキストのスペースを
+          占有する線幅Nを意味し、文字の高さまたは幅を避
+          けることができる。
+
+          値COLORは描画するカラーを指定する。シンプルな
+          枠線ではフェイスのフォアグラウンドカラー、3D枠
+          線ではフェイスのバックグラウンドカラーがデフォ
+          ルト。
+
+          値STYLEは3D枠線を描画するか否かを指定する。
+          ‘released-button’なら、枠は押下された3Dボタン
+          のような外観、‘pressed-button’なら押下されてい
+          ない3Dボタンのような外観、‘nil’または省略され
+          た場合は2D枠線が使用される。
+
+‘:inverse-video’
+     文字が反転表示されて表示されるべきか否か。値は
+     ‘t’(反転表示する)、または‘nil’(反転表示しない)であ
+     ること。
+
+‘:stipple’
+     バックグラウンドの点描(ビットマップ)。
+
+     値には文字列を指定でき、それは外部形式Xビットマップ
+     データを含むファイルの名前であること。ファイルは変
+     数‘x-bitmap-file-path’にリストされるディレクトリー
+     内で検索される。
+
+     かわりに‘(WIDTH HEIGHT DATA)’という形式のリストによ
+     り、ビットマップで直接値を指定できる。ここでWIDTHと
+     HEIGHTはピクセル単位によるサイズ、DATAは行単位でビ
+     ットマップのrawビットを含む文字列。各行は文字列内で
+     連続する(WIDTH + 7) / 8バイトを占める(最善の結果を
+     得るためにはユニバイト文字列であるべき)。これは各行
+     が常に少なくとも、1バイト全体を占めることを意味する
+     。
+
+     値が‘nil’なら、点描パターンを使用しないことを意味す
+     る。
+
+     これは特定のグレー色調を処理するために自動的に使用
+     されるので、通常はstipple属性のセットは必要ない。
+
+‘:font’
+     そのフェイスの表示に使用されるフォント。値はフォン
+     トオブジェクトであること。フォントオブジェクト、フ
+     ォントスペース、フォントエンティティーに関する情報
+     は、*note Low-Level Font::を参照のこと。
+
+     ‘set-face-attribute’(*note Attribute Functions::を
+     参照)を使用してこの属性を指定する際にはフォント
+     spec、フォントエンティティー、または文字列を与える
+     こともできる。Emacsはそのような値を適切なフォントオ
+     ブジェクトに変換して、実際の属性値としてそのフォン
+     トオブジェクトを格納する。文字列を指定する場合、そ
+     の文字列のコンテンツはフォント名であること(*note
+     (emacs)Fonts::を参照)。フォント名がワイルドカードを
+     含むXLFDなら、Emacsはそれらのワイルドカードに最初に
+     マッチするフォントを選択する。この属性の指定により
+     、‘:family’、‘:foundry’、‘:width’、‘:height’、
+     ‘:weight’、‘:slant’の属性値も変更される。
+
+‘:inherit’
+     属性を継承するフェイス名、またはフェイス名のリスト
+     。継承フェイス由来の属性は、基礎フェイスより高い優
+     先度で、基礎フェイスの場合と同じような方法でマージ
+     される(*note Displaying Faces::を参照)。フェイスの
+     リストが使用された場合、リスト内先頭側フェイスの属
+     性が末尾側フェイスの属性をオーバーライドする。
+
+ -- Function: font-family-list &optional frame
+     この関数は、利用可能なフォントファミリー名のリスト
+     をリターンする。オプション引数FRAMEはそのテキストが
+     表示されるフレームを指定する。これが‘nil’なら選択さ
+     れたフレームが使用される。
+
+ -- User Option: underline-minimum-offset
+     この変数は、アンダーラインが引かれたテキスト表示時
+     に、ベースラインとアンダーライン間の最小距離を、ピ
+     クセル単位で指定する。
+
+ -- User Option: x-bitmap-file-path
+     この変数は‘:stipple’属性のビットマップファイルを検
+     索する、ディレクトリーのリストを指定する。
+
+ -- Function: bitmap-spec-p object
+     これはOBJECTが、‘:stipple’(上記参照)での使用に適す
+     有効なビットマップ仕様なら‘t’、それ以外なら‘nil’を
+     リターンする。
+
+
+File: elisp,  Node: Defining Faces,  Next: Attribute Functions,  Prev: Face Attributes,  Up: Faces
+
+37.12.2 Defining Faces
+----------------------
+
+フェイスを定義する通常の方法は、‘defface’マクロを通じて
+定義する方法です。このマクロはフェイス名(シンボル)を、デ
+フォルトの“フェイスspec(face spec)”と関連付けます。フェ
+イスspecは、任意の与えられた端末上でフェイスがどの属性を
+もつべきかを指定する構成です。たとえばあるフェイスspecは
+、高カラー端末ではあるフォアグラウンドカラーを指定し、低
+カラー端末では異なるフォアグラウンドカラーを指定するかも
+しれません。
+
+   値がフェイス名であるような変数を作りたがる人がいます
+。ほとんどの場合、これは必要ありません。通常手順は、
+‘defface’でフェイスを定義して、その名前を直接使用するこ
+とです。
+
+ -- Macro: defface face spec doc [keyword value]...
+     このマクロは、SPECによりデフォルトフェイスspecが与
+     えられるような、名前つきフェイスとしてFACEを宣言す
+     る。シンボルFACEはクォートせず、‘-face’で終わらない
+     こと(冗長であろう)。引数DOCは、そのフェイスにたいす
+     るドキュメント文字列。追加のKEYWORD引数は、
+     ‘defgroup’および‘defcustom’の場合と同じ意味をもつ
+     (*note Common Keywords::を参照)。
+
+     If FACE already has a default face spec, this macro
+     does nothing.
+
+     デフォルトフェイスspecは、何もカスタマイゼーション
+     (*note Customization::を参照)の効果がないときに、
+     FACEの外観を決定する。FACEが、(Customテーマやinitフ
+     ァイルから読み込んだカスタマイズにより)すでにカスタ
+     マイズ済みなら、その外観はデフォルトフェイスspecの
+     SPECをオーバーライドする、カスタムフェイスspecによ
+     り決定される。しかしその後カスタマイゼーションが削
+     除されたなら、FACEの外観は再びそのデフォルトフェイ
+     スspecにより決定されるだろう。
+
+     例外として、Emacs Lispモードで
+     ‘C-M-x’(‘eval-defun’)から‘defface’を評価した場合は
+     、‘eval-defun’の特別な機能により、‘defface’が何を指
+     示するかをフェイスが正確に反映するように、そのフェ
+     イス上の任意のカスタムフェイスをオーバーライドする
+     。
+
+     SPEC引数は、異なる種別の端末上でそのフェイスがどの
+     ような外観で表示されるべきかを示す、“フェイス
+     spec”である。これは各要素が以下の形式であるような
+     alistであること
+
+          (DISPLAY . PLIST)
+
+     DISPLAYは端末のクラス(以下参照)を指定する。PLISTは
+     、そのような端末上でフェイスがどのような外観かを指
+     定する、フェイス属性とその値からなるプロパティリス
+     トであること。後方互換性のために、‘(DISPLAY
+     PLIST)’のように要素を記述することもできる。
+
+     SPECの要素のDISPLAYの部分は、その要素がマッチする端
+     末を決定する。与えられた端末にたいして複数の要素が
+     マッチした場合は、最初にマッチした要素がその端末に
+     たいして使用される。DISPLAYには以下の3つが可能:
+
+     ‘default’
+          SPECのこの要素は、どの端末にもマッチしない。か
+          わりにすべての端末に適用されるデフォルトを指定
+          する。この要素が仕様された場合は、SPECの最初の
+          要素でなければならない。この後の要素はこれらの
+          デフォルトの一部、またはすべてをオーバーライド
+          できる。
+
+     ‘t’
+          SPECのこの要素は、すべての端末にマッチする。し
+          たがってSPECの後続要素が使用されることはない。
+          通常‘t’は、SPECの最後(または唯一)の要素として
+          使用される。
+
+     リスト
+          DISPLAYがリストなら、各要素は‘(CHARACTERISTIC
+          VALUE...)’という形式をもつこと。ここで
+          CHARACTERISTICは端末をクラス分けする方法、
+          VALUEはDISPLAYに適用されるべき可能なクラス分類
+          である。CHARACTERISTICで利用可能な値は:
+
+          ‘type’
+               その端末が使用するウィンドウシステムの種
+               類で‘graphic’(任意のグラフィック対応ディ
+               スプレイ)、‘x’、‘pc’(MS-DOSコンソール)、
+               ‘w32’ (MS Windows 9X/NT/2K/XP)、または
+               ‘tty’(グラフィック非対応ディスプレイ)のい
+               ずれか。*note window-system: Window
+               Systems.を参照のこと。
+
+          ‘class’
+               その端末がサポートするカラーの種類で、
+               ‘color’、‘grayscale’、または‘mono’のいず
+               れか。
+
+          ‘background’
+               バックグラウンドの種類で‘light’か‘dark’の
+               いずれか。
+
+          ‘min-colors’
+               その端末がサポートするべき最小カラー数を
+               表す整数。端末の‘display-color-cells’の値
+               が少なくとも指定された整数なら、その端末
+               にマッチする。
+
+          ‘supports’
+               その端末がVALUE...で与えられたフェイス属
+               性を表示可能か否か(*note Face
+               Attributes::を参照)。このテストがどのよう
+               に行われるかについてのより正確な情報は、
+               *note Display Face Attribute Testing::を
+               参照のこと。
+
+          与えられたCHARACTERISTICにたいして、DISPLAYの
+          要素が複数のVALUEを指定する場合は、いずれの値
+          も許容され得る。DISPLAYが複数の要素をもつ場合
+          、各要素は異なるCHARACTERISTICを指定すること。
+          その端末の_それぞれ_のcharacteristicは、
+          DISPLAY内で指定された値のいずれか1つとマッチし
+          なければならない。
+
+   たとえば以下は、標準フェイス‘highlight’の定義です:
+
+     (defface highlight
+       '((((class color) (min-colors 88) (background light))
+          :background "darkseagreen2")
+         (((class color) (min-colors 88) (background dark))
+          :background "darkolivegreen")
+         (((class color) (min-colors 16) (background light))
+          :background "darkseagreen2")
+         (((class color) (min-colors 16) (background dark))
+          :background "darkolivegreen")
+         (((class color) (min-colors 8))
+          :background "green" :foreground "black")
+         (t :inverse-video t))
+       "Basic face for highlighting."
+       :group 'basic-faces)
+
+   内部的には、Emacsはフェイスのシンボルプロパティ
+‘face-defface-spec’内にそれぞれのフェイスのデフォルト
+specを格納します(*note Symbol Properties::を参照)。
+‘saved-face’プロパティは、カスタマイゼーションバッファー
+を使用してユーザーが保存した、任意のフェイスspecを格納し
+ます。‘customized-face’プロパティは、カレントセッション
+にたいしてカスタマイズされた保存されていないフェイス
+specを格納します。そして‘theme-face’プロパティは、そのフ
+ェイスにたいするアクティブなカスタマイゼーションセッティ
+ングと、フェイスspecをもつCustomテーマを関連付ける
+alistです。そのフェイスのドキュメント文字列は、
+‘face-documentation’プロパティ内に格納されます。
+
+   通常フェイスは‘defface’を使用して1回だけ宣言され、そ
+の外観にたいするそれ以上の変更はCustomizeフレームワーク
+(Customizeユーザーインターフェース、または
+‘custom-set-faces’関数を通じて。*note Applying
+Customizations::を参照されたい)、またはフェイスリマッピ
+ング(*note Face Remapping::を参照)により行われます。
+Lispから触接フェイスspec変更を要する稀な機会では、
+‘face-spec-set’関数を使用できます。
+
+ -- Function: face-spec-set face spec &optional
+          spec-type
+     この関数は、‘face’にたいするフェイスspecとして、
+     SPECを適用する。SPECは、上述した‘defface’にたいする
+     フェイスspecであること。
+
+     この関数は、もしそれが既存のものでなければ、有効な
+     フェイス名としてFACEを定義して、既存フレームのその
+     属性を(再)計算することも行う。
+
+     引数SPEC-TYPEは、どのspecをセットするべきかを決定す
+     る。これが‘nil’または‘face-override-spec’なら、この
+     関数は“オーバーライドspec(override spec)”をセットす
+     る。これはFACE上の他のすべてのフェイスspecをオーバ
+     ーライドする。‘customized-face’または‘saved-face’な
+     ら、この関数はカスタマイズされたspec、または保存さ
+     れたカスタムspecをセットする。‘face-defface-spec’な
+     ら、この関数はデフォルトフェイスspec(‘defface’によ
+     りセットされるものと同一)をセットする。‘reset’なら
+     、この関数はFACEからすべてのカスタマイゼーション
+     specとオーバーライドspecをクリアーする(この場合、
+     SPECの値は無視される)。SPEC-TYPEにたいする他のすべ
+     ての値は、内部的な使用のために予約済みである。
+
+
+File: elisp,  Node: Attribute Functions,  Next: Displaying Faces,  Prev: Defining Faces,  Up: Faces
+
+37.12.3 Face Attribute Functions
+--------------------------------
+
+このセクションでは、名前つきフェイスの属性に直接アクセス
+したり、変更する関数を説明します。
+
+ -- Function: face-attribute face attribute &optional
+          frame inherit
+     この関数は、FRAME上のFACEにたいする、属性
+     ATTRIBUTEの値をリターンする。
+
+     FRAMEが‘nil’なら、それは選択されたフレームを意味す
+     る(*note Input Focus::を参照)。FRAMEが‘t’なら、この
+     関数は新たに作成されるフレームにたいする、指定され
+     た属性の値をリターンする(これは下記の
+     ‘set-face-attribute’を使用して何らかの値を指定して
+     いなければ、通常は‘unspecified’である)。
+
+     INHERITが‘nil’なら、FACEにより定義される属性だけが
+     考慮されるので、リターンされる値は‘unspecified’、ま
+     たは相対的な値かもしれない。INHERITが非‘nil’なら、
+     FACEのATTRIBUTEの定義が、‘:inherit’属性で指定された
+     フェイスとマージされる。しかしリターンされる値は依
+     然として‘unspecified’、または相対的な値かもしれない
+     。INHERITがフェイス、またはフェイスのリストなら、指
+     定された絶対的な値になるまで、結果はそのフェイス
+     (1つ以上)と更にマージされる。
+
+     リターン値が指定されていて、かつ絶対的であることを
+     保証するためには、INHERITにたいして‘default’の値を
+     使用すること。(常に完全に指定される)‘default’フェイ
+     スとマージすることにより、すべての未指定または相対
+     的な値は解決されるだろう。
+
+     たとえば
+
+          (face-attribute 'bold :weight)
+               ⇒ bold
+
+ -- Function: face-attribute-relative-p attribute value
+     この関数はVALUEがフェイス属性ATTRIBUTEの値として使
+     用された際に相対的なら、非‘nil’をリターンする。This
+     function returns non- if , when used as the value
+     of the face attribute , is relative.これはフェイス
+     リスト内の後続のフェイス、または継承した他のフェイ
+     スが由来となる、任意の値で完全にオーバーライドする
+     のではなく、変更されるであろうことを意味する。
+
+     すべての属性にたいして、‘unspecified’は相対的な値で
+     ある。‘:height’にたいしては、浮動小数点数と関数値も
+     相対的である。
+
+     たとえば:
+
+          (face-attribute-relative-p :height 2.0)
+               ⇒ t
+
+ -- Function: face-all-attributes face &optional frame
+     この関数は、FACEの属性のalistをリターンする。結果の
+     要素は、‘(ATTR-NAME . ATTR-VALUE)’という形式の、名
+     前/値ペアーである。オプション引数FRAMEは、リターン
+     するべきFACEの定義をもつフレームを指定する。省略ま
+     たは‘nil’なら、リターン値には新たに作成されるフレー
+     ムにたいする、FACEのデフォルト属性が記述される。
+
+ -- Function: merge-face-attribute attribute value1
+          value2
+     VALUE1がフェイス属性ATTRIBUTEにたいして相対的な値な
+     ら、基礎的な値VALUE2とマージしてリターンする。それ
+     以外の場合、VALUE1がフェイス属性ATTRIBUTEにたいして
+     絶対的な値なら、VALUE1を変更せずにリターンする。
+
+   通常、Emacsは各フレームのフェイス属性を自動的に計算す
+るために、各フェイスのフェイスspecを使用します(*note
+Defining Faces::を参照)。関数‘set-face-attribute’は、特
+定またはすべてのフレームのフェイスに直接属性を割り当てる
+ことにより、この計算をオーバーライドできます。この関数は
+主として、内部的な使用を意図したものです。
+
+ -- Function: set-face-attribute face frame &rest
+          arguments
+     この関数は、FRAMEにたいするFACEの1つ以上の属性をセ
+     ットする。この方法で指定された属性は、FACEに属する
+     フェイスspec(1つ以上)をオーバーライドする。
+
+     余分の引数ARGUMENTSは、セットするべき属性と、それら
+     の値を指定する。これらは、(‘:family’や
+     ‘:underline’のような)属性名と、値が交互になるよう構
+     成されていること。すなわち、
+
+          (set-face-attribute 'foo nil :weight 'bold :slant 'italic)
+
+     これは属性‘:weight’を‘bold’、.属性‘:slant’を
+     ‘italic’にセットする。
+
+     FRAMEが‘t’なら、この関数は新たに作成されるフレーム
+     にたいする、デフォルト属性をセットする。FRAMEが
+     ‘nil’なら、この関数はすべての既存フレーム、同様に新
+     たに作成されるフレームにたいして、その属性をセット
+     する。
+
+   以下のコマンドと関数は主として、古いバージョンの
+Emacsにたいする互換性のために提供されます。これらは
+‘set-face-attribute’を呼び出すことにより機能します。これ
+らのFRAME引数にたいする値‘t’と‘nil’は、
+‘set-face-attribute’および‘face-attribute’の場合と同様に
+処理されます。コマンドがインタラクティブに呼び出された場
+合は、ミニバッファーを使用して引数を読み取ります。
+
+ -- Command: set-face-foreground face color &optional
+          frame
+ -- Command: set-face-background face color &optional
+          frame
+     これらはそれぞれFACEの‘:foreground’属性、または
+     ‘:background’属性にCOLORをセットする。
+
+ -- Command: set-face-stipple face pattern &optional
+          frame
+     これはFACEの‘:stipple’属性に、PATTERNをセットする。
+
+ -- Command: set-face-font face font &optional frame
+     これはFACEの‘:font’属性に、FONTをセットする。
+
+ -- Function: set-face-bold face bold-p &optional frame
+     これはFACEの‘:weight’属性にたいして、BOLD-Pが
+     ‘nil’ならNORMAL、それ以外ならBOLDをセットする。
+
+ -- Function: set-face-italic face italic-p &optional
+          frame
+     これはFACEの‘:slant’属性にたいして、ITALIC-Pが
+     ‘nil’ならNORMAL、それ以外ならITALICをセットする。
+
+ -- Function: set-face-underline face underline
+          &optional frame
+     これはFACEの‘:underline’属性に、UNDERLINEをセットす
+     る。
+
+ -- Function: set-face-inverse-video face
+          inverse-video-p &optional frame
+     これはFACEの‘:inverse-video’属性に、
+     INVERSE-VIDEO-Pをセットする。
+
+ -- Command: invert-face face &optional frame
+     これはフェイスFACEのフォアグラウンドカラーとバック
+     グラウンドカラーを交換する。
+
+   以下は、フェイスの属性を調べる関数です。これらは主と
+して、古いバージョンのEmacsとの互換性のために提供されま
+す。これらにたいしてFRAMEを指定しなければ選択されたフレ
+ームを、‘t’なら新たなフレームにたいするデフォルトデータ
+を参照します。フェイスがその属性にたいして何の値も定義し
+ていなければ、‘unspecified’がリターンされます。INHERITが
+‘nil’なら、そのフェイスにより直接定義された属性だけがリ
+ターンされます。INHERITが非‘nil’なら、そのフェイスの
+‘:inherit’属性により指定される任意のフェイスを、
+INHERITがフェイスまたはフェイスのリストなら、指定された
+属性が見つかるまで、それらも考慮されます。リターンされる
+値が常に指定された値であることを保証するためには、
+INHERITにたいして値‘default’を使用してください。
+
+ -- Function: face-font face &optional frame
+     この関数は、フェイスFACEのフォント名をリターンする
+     。
+
+ -- Function: face-foreground face &optional frame
+          inherit
+ -- Function: face-background face &optional frame
+          inherit
+     これらの関数はそれぞれ、フェイスFACEのフォアグラウ
+     ンドカラーまたはバックグラウンドカラーを、文字列と
+     してリターンする。
+
+ -- Function: face-stipple face &optional frame inherit
+     この関数は、フェイスFACEのバックグラウンド点描パタ
+     ーンの名前、もしなければ‘nil’をリターンする。
+
+ -- Function: face-bold-p face &optional frame inherit
+     この関数はFACEの‘:weight’属性がnormalよりbold寄り
+     (‘semi-bold’、‘bold’、 ‘extra-bold’、‘ultra-bold’の
+     いずれか)なら、非‘nil’、それ以外なら‘nil’をリターン
+     する。
+
+ -- Function: face-italic-p face &optional frame inherit
+     この関数は、FACEの‘:slant’属性が‘italic’か
+     ‘oblique’なら非‘nil’、それ以外なら‘nil’をリターンす
+     る。
+
+ -- Function: face-underline-p face &optional frame
+          inherit
+     この関数は、フェイスFACEが非‘nil’の‘:underline’属性
+     を指定する場合は、非‘nil’をリターンする。
+
+ -- Function: face-inverse-video-p face &optional frame
+          inherit
+     この関数は、フェイスFACEが非‘nil’の
+     ‘:inverse-video’属性を指定する場合は、非‘nil’をリタ
+     ーンする。
+
+
+File: elisp,  Node: Displaying Faces,  Next: Face Remapping,  Prev: Attribute Functions,  Up: Faces
+
+37.12.4 Displaying Faces
+------------------------
+
+Emacsが与えられたテキスト断片を表示する際、そのテキスト
+の視覚的外観は異なるソースから描画されるフェイスにより決
+定されるかもしれません。これら種々のソースが、特定の文字
+にいたいして複数のフェイスを指定する場合、Emacsはそれら
+のさまざまなフェイスの属性をマージします。以下に、
+Emacsがフェイスをマージする順序を優先度順に記します:
+
+   • そのテキストが特別なグリフで構成される場合、そのグ
+     リフは特定のフェイスを指定できる。*note Glyphs::を
+     参照のこと。
+
+   • アクティブなリージョンにテキストがある場合、Emacsは
+     ‘region’フェイスを使用してそれをハイライトする。
+     *note (emacs)Standard Faces::を参照のこと。
+
+   • 非‘nil’の‘face’属性をもつオーバーレイにテキストがあ
+     る場合、Emacsはそのプロパティにより指定されるフェイ
+     ス(1つ以上)を適用する。そのオーバーレイが
+     ‘mouse-face’プロパティをもち、マウスがそのオーバー
+     レイに“十分に近い”場合、Emacsはかわりに
+     ‘mouse-face’で指定されるフェイスまたはフェイス属性
+     を適用する。*note Overlay Properties::を参照のこと
+     。
+
+     1つの文字を複数のオーバーレイがカバーする場合は、高
+     優先度のオーバーレイが低優先度のオーバーレイをオー
+     バーライドする。*note Overlays::を参照のこと。
+
+   • そのテキストが‘face’または‘mouse-face’プロパティを
+     含む場合、Emacsは指定されたフェイスおよびフェイス属
+     性を適用する。*note Special Properties::を参照のこ
+     と(これはFont Lockモードのフェイス適用方法である。
+     *note Font Lock Mode::を参照されたい)。
+
+   • そのテキストが選択されたウィンドウのモードラインに
+     ある場合、Emacsは‘mode-line’フェイスを適用する。選
+     択されていないウィンドウのモードラインでは、Emacsは
+     ‘mode-line-inactive’フェイスを使用する。ヘッダーラ
+     インにたいしては、Emacsは‘header-line’フェイスを適
+     用する。
+
+   • 先行ステップの間に、与えられた属性が指定されなけれ
+     ば、Emacsは‘default’フェイスの属性を適用する。
+
+   各ステージにおいて、フェイスが有効な‘:inherit’属性を
+もつ場合、Emacsは値‘unspecified’をもつすべての属性が、親
+フェイス(1つ以上)由来で描画される、対応する値をもつもの
+として扱います。*note Face Attributes::を参照してくださ
+い。親フェイスでも、属性がunspecifiedのままかもしれない
+ことに注意してください。その場合には、フェイスマージの次
+レベルでも、その属性はunspecifiedのままです。
+
+
+File: elisp,  Node: Face Remapping,  Next: Face Functions,  Prev: Displaying Faces,  Up: Faces
+
+37.12.5 Face Remapping
+----------------------
+
+変数‘face-remapping-alist’は、あるフェイスの外観のバッフ
+ァーローカル、またはグローバルな変更にたいして使用されま
+す。たとえばこれは、‘text-scale-adjust’コマンド(*note
+(emacs)Text Scale::を参照)の実装に使用されています。
+
+ -- Variable: face-remapping-alist
+     この変数の値は、要素が‘(FACE . REMAPPING)’という形
+     式をもつalistである。これによりEmacsは、フェイス
+     FACEをもつ任意のテキストを、通常のFACEの定義ではな
+     く、REMAPPINGで表示する。
+
+     REMAPPINGには、テキストプロパティ‘face’にたいして適
+     切な任意のフェイスspec、すなわちフェイス(フェイス名
+     または属性/値ペアーのプロパティリスト)、またはフェ
+     イスのリストのいずれかを指定できる。詳細は、*note
+     Special Properties::の‘face’テキストプロパティの記
+     述を参照のこと。REMAPPINGはリマップされるフェイスに
+     たいる、完全な仕様としての役目をもつ。これは通常の
+     FACEを変更せずに置き換える。
+
+     ‘face-remapping-alist’がバッファーローカルなら、そ
+     のローカル値はそのバッファーでのみ効果をもつ。
+
+     注意: フェイスのリマッピングは再帰的ではない。
+     REMAPPINGが同じフェイス名FACEを参照する場合、直接ま
+     たはREMAPPING内の他の何らかのフェイスの‘:inherit’属
+     性を通じて、その参照はFACEの通常の定義を使用する。
+     たとえば‘mode-line’フェイスが、
+     ‘face-remapping-alist’内の以下のエントリーでリマッ
+     プされる場合:
+
+          (mode-line italic mode-line)
+
+     ‘mode-line’フェイスの新たな定義は‘italic’フェイス、
+     および(リマップされていない)_通常_の‘mode-line’フェ
+     イスの定義から継承される。
+
+   以下の関数は、‘face-remapping-alist’にたいする高レベ
+ルなインターフェースを実装します。ほとんどのLispコードは
+、リマッピングが他の場所に適用されてしまうのを避けるため
+に、‘face-remapping-alist’を直接セットするのではなく、こ
+れらの関数を使用するべきです。これらの関数はバッファーロ
+ーカルなリマッピングを意図しており、すべてが副作用として
+‘face-remapping-alist’をバッファーローカルにします。これ
+らは、以下の形式の‘face-remapping-alist’エントリーを管理
+します
+
+       (FACE RELATIVE-SPEC-1 RELATIVE-SPEC-2 ... BASE-SPEC)
+
+上述したように、RELATIVE-SPEC-NとBASE-SPECはそれぞれ、フ
+ェイス名または属性/値ペアーのプロパティリストです。“相対
+的リマッピング(relative remapping)”エントリー
+RELATIVE-SPEC-Nはそれぞれ、‘face-remap-add-relative’およ
+び‘face-remap-remove-relative’関数により管理されます。こ
+れらはテキストサイズ変更のような、単純な変更を意図してい
+ます。“ベースリマッピング(base remapping)”エントリー
+BASE-SPECは最低の優先度をもち、‘face-remap-set-base’およ
+び‘face-remap-reset-base’関数により管理されます。これは
+、メジャーモードが制御下のバッファーでフェイスをリマップ
+するために用いることを意図しています。
+
+ -- Function: face-remap-add-relative face &rest specs
+     この関数は、カレントバッファー内のフェイスFACEにた
+     いして、相対的リマッピングとして、SPECS内にフェイス
+     specを追加する。残りの引数SPECSはフェイス名のリスト
+     、または属性/値ペアーのプロパティリストという、いず
+     れかの形式であること。
+
+     リターン値は、“cookie”としての役目をもつLispオブジ
+     ェクトである。後でそのリマッピングの削除を要する場
+     合は、引数として‘face-remap-remove-relative’にこの
+     オブジェクトを渡すことができる。
+
+          ;; `escape-glyph'フェイスを`highlight'と`italic'
+          ;; の組み合わせにリマップ:
+          (face-remap-add-relative 'escape-glyph 'highlight 'italic)
+
+          ;; `default'フェイスのサイズを50%増加:
+          (face-remap-add-relative 'default :height 1.5)
+
+ -- Function: face-remap-remove-relative cookie
+     この関数は、以前‘face-remap-add-relative’で追加され
+     た相対的リマッピングを削除する。COOKIEは、そのリマ
+     ッピングが追加されたときに、
+     ‘face-remap-add-relative’がリターンしたLispオブジェ
+     クトであること。
+
+ -- Function: face-remap-set-base face &rest specs
+     この関数は、カレントバッファー内のFACEのベースリマ
+     ッピングを、SPECSにセットする。SPECSが空なら、
+     ‘face-remap-reset-base’(以下参照)を呼び出したように
+     、デフォルトベースリマッピングがリストアされる。こ
+     れは単一の値‘nil’を含むSPECSとは異なることに注意。
+     これは逆の結果をもたらす(FACEのグローバル定義は無視
+     される)。
+
+     これは、グローバルなフェイス定義を継承した、デフォ
+     ルトのBASE-SPECを上書きするので、必要ならそのような
+     継承を追加するのは呼び出し側の責任である。
+
+ -- Function: face-remap-reset-base face
+     この関数は、FACEのベースリマッピングに、FACEのグロ
+     ーバル定義から継承した、デフォルト値にセットする。
+
+
+File: elisp,  Node: Face Functions,  Next: Auto Faces,  Prev: Face Remapping,  Up: Faces
+
+37.12.6 Functions for Working with Faces
+----------------------------------------
+
+以下はフェイスを作成および処理するための、追加の関数です
+。
+
+ -- Function: face-list
+     この関数は、すべての定義済みフェイス名のリストをリ
+     ターンする。
+
+ -- Function: face-id face
+     この関数は、フェイスFACEの“フェイス番号(face
+     number)”をリターンする。これはEmacs内の低レベルで、
+     フェイスを一意に識別する番号である。フェイス番号に
+     よるフェイス参照を要するのは稀である。
+
+ -- Function: face-documentation face
+     この関数は、フェイスFACEのドキュメント文字列、それ
+     が指定されていなければ‘nil’をリターンする。
+
+ -- Function: face-equal face1 face2 &optional frame
+     これは、フェイスFACE1とフェイスFACE2が、表示にたい
+     して同じ属性をもつなら‘t’をリターンする。
+
+ -- Function: face-differs-from-default-p face &optional
+          frame
+     これはフェイスFACEの表示がデフォルトフェイスと異な
+     るなら、非‘nil’をリターンする。
+
+   “フェイスエイリアス(face alias)”は、あるフェイスにた
+いして等価な名前を提供します。エイリアスシンボルの
+‘face-alias’プロパティに対象となるフェイス名を与えること
+により、フェイスエイリアスを定義できます。以下の例では、
+‘mode-line’フェイスにたいするエイリアスとして、
+‘modeline’を作成します。
+
+     (put 'modeline 'face-alias 'mode-line)
+
+ -- Macro: define-obsolete-face-alias obsolete-face
+          current-face when
+     このマクロは、CURRENT-FACEのエイリアスとして
+     ‘obsolete-face’を定義するとともに、将来に削除される
+     かもしれないことを示すためにobsolete(時代遅れ)とマ
+     ークする。WHENは、‘obsolete-face’がobsoleteになる時
+     期を示す文字列(通常はバージョン番号文字列)であるこ
+     と。
+
+
+File: elisp,  Node: Auto Faces,  Next: Basic Faces,  Prev: Face Functions,  Up: Faces
+
+37.12.7 Automatic Face Assignment
+---------------------------------
+
+以下のフックは、バッファー内のテキストに自動的にフェイス
+を割り当てるために使用されます。これはJit-Lockモードの実
+装の一部であり、Font-Lockにより使用されます。
+
+ -- Variable: fontification-functions
+     この変数は、再表示を行う直前に、Emacsの再表示により
+     呼び出される関数のリストを保持する。これらはFont
+     Lockが有効でないときでも呼び出される。Font Lockモー
+     ドが有効なら、この変数は通常は単一の関数
+     ‘jit-lock-function’だけを保持する。
+
+     関数は、バッファー位置POSを単一の引数として、リスト
+     された順に呼び出される。これらは、カレントバッファ
+     ー内のPOSで開始されるテキストにたいして、集合的にフ
+     ェイスの割り当てを試みるべきである。
+
+     関数は‘face’プロパティをセットするおとにより、割り
+     当てるフェイスを記録すること。またフェイスを割り当
+     てたすべてのテキストに、非‘nil’の‘fontified’プロパ
+     ティも追加するべきである。このプロパティは再表示に
+     、そのテキストにたいしてそのフェイスがすでに割り当
+     て済みであることを告げる。
+
+     POSの後の文字がすでに非‘nil’の‘fontified’プロパティ
+     をもつが、フォント表示化を要さない場合に、何も行わ
+     ない関数を追加するのは、おそらくよいアイデアである
+     。ある関数が、前の関数による割り当てをオーバーライ
+     ドする場合には、実際に問題となるのは最後の関数終了
+     後のプロパティである。
+
+     効率化のために、通常は各呼び出しにおいて400から
+     600前後の文字にフェイスを割り当てるように、これらの
+     関数を記述することを推奨する。
+
+
+File: elisp,  Node: Basic Faces,  Next: Font Selection,  Prev: Auto Faces,  Up: Faces
+
+37.12.8 Basic Faces
+-------------------
+
+テキストにたいしてEmacs Lispプログラムが何らかのフェイス
+割り当てを要する場合は、完全に新たなフェイスを定義するよ
+り、特定の既存フェイス、またはそれらを継承したフェイスを
+使用するほうが、よいアイデアである場合がしばしばあります
+。Emacsに特定の外観を与えるために別のユーザーが基本フェ
+イス(basic face)をカスタマイズしていても、この方法なら追
+加のカスタマイズなしでプログラムは“適合”することでしょう
+。
+
+   以下にEmacsが定義する基本フェイスのいくつかをリストし
+ました。これらに加えて、ハイライトがFont Lockモードによ
+りまだ処理されていなかったり、いくつかのFont Lockフェイ
+スが使用されていなければ、構文的ハイライトのために、Font
+Lockフェイスを使うようにしたいと思うかもしれません。
+*note Faces for Font Lock::を参照してください。
+
+‘default’
+     属性がすべて指定されたデフォルトフェイス。他のすべ
+     てのフェイスは、暗にこのフェイスを継承する。未指定
+     (unspecified)な任意の属性は、このフェイスの属性をデ
+     フォルトとする(*note Face Attributes::を参照)。
+
+‘bold’
+‘italic’
+‘bold-italic’
+‘underline’
+‘fixed-pitch’
+‘variable-pitch’
+     これらは、名前に示されるような属性をもち(‘bold’は
+     boldの‘:weight’属性をもつ)、それ以外のすべての属性
+     は未指定である(そのため‘default’により与えられる)。
+
+‘shadow’
+     テキストの“淡色表示(dimmed out)”用。たとえばこれは
+     、ミニバッファー内で無視されるファイル名部分に使用
+     される(*note Minibuffers for File Names:
+     (emacs)Minibuffer File.を参照)。
+
+‘link’
+‘link-visited’
+     ユーザーを別のバッファーや“位置”へと送る、クリック
+     可能テキストボタン用。
+
+‘highlight’
+     一時的に強調するべきテキスト範囲用。たとえば一般的
+     に、カーソルのハイライトには‘mouse-face’プロパティ
+     が割り当てられる(*note Special Properties::を参照
+     )。
+
+‘match’
+     検索コマンドによりマッチしたテキスト用。
+
+‘error’
+‘warning’
+‘success’
+     エラー、警告、成功に関するテキスト用。たとえば
+     ‘*Compilation*’内のメッセージにたいして使用される。
+
+
+File: elisp,  Node: Font Selection,  Next: Font Lookup,  Prev: Basic Faces,  Up: Faces
+
+37.12.9 Font Selection
+----------------------
+
+Emacsがグラフィカルなディスプレイ上で文字を描画可能にな
+る前に、まずその文字にたいする“フォント(font)”を選択しな
+ければなりません(1)。*note (emacs)Fonts::を参照してくだ
+さい。通常、Emacsはその文字に割り当てられたフェイス、特
+にフェイス属性‘:family’、‘:weight’、‘:slant’、
+‘:width’(*note Face Attributes::を参照)にもとづいて、自
+動的にフォントを選択します。フォントの選択は、表示される
+文字にも依存します。表示できるのは文字セットが限定されて
+いるフォントもいくつかあります。利用可能なフォントがこの
+要件を完全に満たさない場合、Emacsは“もっとも近いフォント
+(closest matching font)”を探します。このセクション内の変
+数は、Emacsがこの選択を行う方法を制御します。
+
+ -- User Option: face-font-family-alternatives
+     あるfamilyが指定されたが存在しない場合、この変数は
+     試みるべき代替えのフォントファミリーを指定する。各
+     要素は以下の形式をもつ:
+
+          (FAMILY ALTERNATE-FAMILIES...)
+
+     FAMILYが指定されたが利用できなければ、Emacsは
+     ALTERNATE-FAMILIESで与えられるファミリーで存在する
+     ものが見つかるまで、1つずつファミリーを試みる。
+
+ -- User Option: face-font-selection-order
+     希望するすべてのフェイス属性(‘:width’、‘:height’、
+     ‘:weight’、‘:slant’)に完全にマッチするフォントが存
+     在しない場合、この変数はもっとも近いフォントの選択
+     時に考慮すべき、これらの属性の順序を指定する。値は
+     これらの属性シンボルを重要度降順で含むリストである
+     こと。デフォルトは‘(:width :height :weight
+     :slant)’。
+
+     フォント選択はまず、このリスト内の最初の属性にたい
+     して利用可能な最適マッチを探す。その後、この方法で
+     最適なフォントの中から、2つ目の属性にたいして最適な
+     マッチを検索、...のように選択を行う。
+
+     属性‘:weight’および‘:width’は、‘normal’を中心とする
+     範囲のような、シンボリック値をもつ。より極端
+     (‘normal’から離れた)なマッチは、より極端ではない
+     (‘normal’に近い)マッチより、幾分優先される。これは
+     、可能なかぎり非normalなフェイスが、normalなフェイ
+     スとは対照的になることを保証するようにデザインされ
+     ている。
+
+     この変数が違いを生むケースの例は、デフォルトフォン
+     トに等価なイタリックがない場合である。デフォルトの
+     順では、‘italic’フェイスは、デフォルトのフォントに
+     類似した非イタリックのフォントを使用するだろう。し
+     かし‘:height’の前に‘:slant’を置くと、‘italic’フェイ
+     スはたとえheightが同じでなくとも、イタリックフォン
+     トを使用するだろう。
+
+ -- User Option: face-font-registry-alternatives
+     この変数は、registryが指定されたがそれが存在しない
+     場合に試みるべき、代替えのフォントレジストリーを指
+     定する。各要素は以下の形式をもつ:
+
+          (REGISTRY ALTERNATE-REGISTRIES...)
+
+     REGISTRYが指定されたが利用できなければ、Emacsは
+     ALTERNATE-REGISTRIES内で存在するレジストリーが見つ
+     かるまで、他のレジストリーを1つずつ試みる。
+
+   Emacsがスケーラブルフォントを使用するようにできますが
+、デフォルトではそれらを使用しないようになっています。
+
+ -- User Option: scalable-fonts-allowed
+     この変数は、どのスケーラブルフォントを使用するかを
+     制御する。値‘nil’(デフォルト)は、スケーラブルフォン
+     トを使用しないことを意味する。‘t’はそのテキストにた
+     いして適切と思われる、任意のスケーラブルフォントを
+     使用することを意味する。
+
+     それ以外なら、値は正規表現のリストであること。その
+     場合、名前がこのリスト内の正規表現にマッチする、任
+     意のスケーラブルフォントの使用が有効になる。たとえ
+     ば、
+
+          (setq scalable-fonts-allowed '("iso10646-1$"))
+
+     これは、レジストリーが‘iso10646-1’のようなスケーラ
+     ブルフォントの使用を可能にする。
+
+ -- Variable: face-font-rescale-alist
+     この変数は、特定のフォントにたいするスケーリングを
+     指定する。値は、以下の形式の要素をもつリストである
+     こと
+
+          (FONTNAME-REGEXP . SCALE-FACTOR)
+
+     使用しようとするフォントの名前がFONTNAME-REGEXPにマ
+     ッチする場合、これはファクターSCALE-FACTORに対応し
+     た、同様な大きさのフォントの選択を指示する。特定の
+     フォントが提示する通常のheightやwidthが大きい、また
+     は小さい場合に、フォントサイズを正規化するためにこ
+     の機能を使用できるだろう。
+
+   ---------- Footnotes ----------
+
+   (1) このコンテキストでは、用語“font”はFont Lock(*note
+Font Lock Mode::を参照)にたいして何も行いません。
+
+
+File: elisp,  Node: Font Lookup,  Next: Fontsets,  Prev: Font Selection,  Up: Faces
+
+37.12.10 Looking Up Fonts
+-------------------------
+
+ -- Function: x-list-fonts name &optional reference-face
+          frame maximum width
+     この関数は、NAMEにマッチする利用可能なフォント名の
+     リストをリターンする。NAMEはFontconfig、GTK、または
+     XLFDのいずれかのフォーマットによるフォント名を含む
+     文字列であること(*note (emacs)Fonts::を参照)。
+     XLFD文字列では、ワイルドカード文字が使用できる。
+     ‘*’文字は任意の部分文字列、‘?’は任意の単一文字にマ
+     ッチする。フォント名のマッチングでは、大文字小文字
+     の違いは無視される。
+
+     オプション引数REFERENCE-FACEおよびFRAMEが指定された
+     場合は、リターンされるリストにはその時点でフレーム
+     FRAME上でのREFERENCE-FACE(フェイス名)と同じサイズの
+     フォントだけが含まれる。
+
+     オプション引数MAXIMUMは、リターンされるフォント数の
+     制限をセットする。これが非‘nil’なら、リターン値は最
+     初にマッチしたMAXIMUM個のフォントの後が切り捨てられ
+     る。MAXIMUMに小さい値を指定すれば、そのパターンに多
+     くのフォントがマッチするような場合に、この関数をよ
+     り高速にできる。
+
+     オプション引数WIDTHは、希望するフォントの幅を指定す
+     る。これが非‘nil’なら、この関数は文字の幅(平均)が、
+     REFERENCE-FACEのWIDTH倍の幅であるようなフォントだけ
+     をリターンする。
+
+ -- Function: x-family-fonts &optional family frame
+     この関数は、FRAME上のファミリーFAMILYにたいして利用
+     可能なフォントを記述するリストをリターンする。
+     FAMILYが省略または‘nil’なら、このリストはすべてのフ
+     ァミリーに適用され、すなわち利用可能なすべてのフォ
+     ントを含む。それ以外なら、FAMILYは文字列であること
+     。これにはワイルドカード‘?’と‘*’を含めることができ
+     る。
+
+     このリストは、FRAMEのあるディスプレイを記述する。
+     FRAMEが省略または‘nil’なら、これは選択されたフレー
+     ムのディスプレイに適用される(*note Input Focus::を
+     参照)。
+
+     このリスト内の各要素は、以下の形式のベクターである
+     こと:
+
+          [FAMILY WIDTH POINT-SIZE WEIGHT SLANT
+           FIXED-P FULL REGISTRY-AND-ENCODING]
+
+     最初の5つの要素はフェイス属性に対応する。あるフェイ
+     スにたいしてこれらの属性を指定した場合は、このフォ
+     ントが使用されるだろう。
+
+     最後の3つの要素は、そのフォントに関する追加の情報を
+     与える。そのフォントが固定ピッチ(fixed-pitch)でなけ
+     れば、FIXED-Pは非‘nil’である。FULLはそのフォントの
+     フルネーム、REGISTRY-AND-ENCODINGはそのフォントのレ
+     ジストリーとエンコーディングを与える。
+
+
+File: elisp,  Node: Fontsets,  Next: Low-Level Font,  Prev: Font Lookup,  Up: Faces
+
+37.12.11 Fontsets
+-----------------
+
+“フォントセット(fontset)”とは、それぞれが文字コードの範
+囲に割り当てられる、フォントのリストのことです。個々のフ
+ォントでは、Emacsがサポートする文字の全範囲を表示できま
+せんが、フォントセットであれば表示することができます。フ
+ォントのようにフォントセットは名前をもつことができ、フレ
+ームやフェイスにたいして“フォント”を指定する際、フォント
+名としてフォントセット名を使用できます。以下は、Lispプロ
+グラム制御下でのフォントセット定義に関する情報です。
+
+ -- Function: create-fontset-from-fontset-spec
+          fontset-spec &optional style-variant-p noerror
+     この関数は、仕様文字列FONTSET-SPECに応じて、新たな
+     フォントセットを定義する。この文字列は以下のような
+     形式であること:
+
+          FONTPATTERN, [CHARSET:FONT]...
+
+     カンマの前後の空白文字は無視される。
+
+     この文字列の最初の部分FONTPATTERNは、最後の2つのフ
+     ィールドが‘fontset-ALIAS’であることを除外して、標準
+     Xフォント名形式をもつこと。
+
+     新たなフォントセットはlong名とshort名という、2つの
+     名前をもつ。long名は、それ全体がFONTPATTERNであり、
+     short名は‘fontset-ALIAS’である。いずれの名前でもこ
+     のフォントセットを参照できる。同じ名前がすでに存在
+     するフォントセットでは、NOERRORが‘nil’ならエラーが
+     シグナルされ、NOERRORが非‘nil’ならこの関数は何も行
+     わない。
+
+     オプション引数STYLE-VARIANT-Pが非‘nil’なら、そのフ
+     ォントセットのbold、italic、およびbold-italicも同様
+     に作成するよう指示する。これらの変種フォントセット
+     はshort名をもたず、bold、および/またはitalicを示す
+     ようにFONTPATTERNを変更して作成したlong名だけをもつ
+     。
+
+     仕様文字列は、そのフォントセット内でどのフォントを
+     使用するかも宣言する。詳細は以下を参照。
+
+   構成‘CHARSET:FONT’は、ある特定の文字セットにたいして
+、(このフォントセット内の)どのフォントを使用するかを指定
+します。ここでCHARSETは文字セットの名前、FONTはその文字
+セットにたいして使用するフォントです。仕様文字列内で、こ
+の構成を任意の回数使用できます。
+
+   明示的に指定しなかった残りの文字セットにたいして、
+EmacsはFONTPATTERNにもとづきフォントを選択します。これは
+‘fontset-ALIAS’を、その文字セットを命名する値に置き換え
+ます。文字セットASCIIにたいしては、‘fontset-ALIAS’は
+‘ISO8859-1’に置き換えられます。
+
+   加えて、後続の複数フィールドがワイルドカードなら、
+Emacsはそれらを1つのワイルドカードにまとめます。これは自
+動スケールフォント(auto-scaled fonts)の使用を防ぐためで
+す。フォントを大きくスケーリングすることにより作成された
+フォントは編集に使用できず、小さくスケーリングされたフォ
+ントは、それ自身のサイズがより小さいフォントを使用する
+(Emacsが行う方法)ほうがよいので、有用ではありません。
+
+   つまり、以下のようなFONTPATTERNなら
+
+     -*-fixed-medium-r-normal-*-24-*-*-*-*-*-fontset-24
+
+ASCIIにたいするフォントspecは、以下のようになるでしょう:
+
+     -*-fixed-medium-r-normal-*-24-*-ISO8859-1
+
+また、Chinese GB2312文字にたいするフォントspecは、以下の
+ようになるでしょう:
+
+     -*-fixed-medium-r-normal-*-24-*-gb2312*-*
+
+   上記のフォントspecにマッチするChineseフォントをもって
+いないかもしれません。ほとんどのXディストリビューション
+には、FAMILYフィールドに‘song ti’か‘fangsong ti’をもつ
+Chineseフォントだけが含まれます。そのような場合には、以
+下のように‘Fontset-N’を指定できます:
+
+     Emacs.Fontset-0: -*-fixed-medium-r-normal-*-24-*-*-*-*-*-fontset-24,\
+             chinese-gb2312:-*-*-medium-r-normal-*-24-*-gb2312*-*
+
+この場合、Chinese GB2312以外のすべての文にたいするフォン
+トspecはFAMILYフィールドに‘fixed’をもち、Chinese GB2312に
+たいするフォントspecはFAMILYフィールドにワイルドカード
+‘*’をもちます。
+
+ -- Function: set-fontset-font name character font-spec
+          &optional frame add
+     この関数は、文字CHARACTERにたいして、FONT-SPECのフ
+     ォントマッチングを使用するよう、既存のフォントセッ
+     トNAMEを変更する。
+
+     NAMEが‘nil’なら、この関数はFRAMEのフォントセット、
+     FRAMEが‘nil’なら選択されたフレームのフォントセット
+     を変更する。
+
+     NAMEが‘t’なら、この関数はshort名が
+     ‘fontset-default’であるような、デフォルトフォントセ
+     ットを変更する。
+
+     CHARACTERには‘(FROM . TO)’のようなコンスを指定でき
+     る。ここでFROMとTOは文字コードポイントである。この
+     場合、範囲FROMからTO(両端を含む)までのすべての文字
+     にたいして、FONT-SPECを使用する。
+
+     CHARACTERには文字セットも指定できる。この場合は、そ
+     の文字セット内のすべての文字にたいして、FONT-SPECを
+     使用する。
+
+     CHARACTERにはスクリプト名も指定できる。この場合は、
+     その文字セット内のすべての文字にたいして、
+     FONT-SPECを使用する。
+
+     FONT-SPECにはコンス‘(FAMILY . REGISTRY)’を指定でき
+     る。ここでFAMILYはフォントのファミリー名(先頭に
+     foundry名が含まれるかもしれない)、REGISTRYはフォン
+     トのレジストリー名(末尾にエンコーディング名が含まれ
+     るかもしれない)である。
+
+     FONT-SPECには、フォント名文字列も指定できる。
+
+     オプション引数ADDが非‘nil’なら、以前セットされたフ
+     ォントspecにFONT-SPECを追加する方法を指定する。
+     ‘prepend’ならFONT-SPECは先頭に、‘append’なら
+     FONT-SPECは末尾に追加される。デフォルトでは、
+     FONT-SPECは以前のセッティングをオーバーライドする。
+
+     たとえば、以下は文字セット‘japanese-jisx0208’に属す
+     るすえての文字にたいして、ファミリー名が‘Kochi
+     Gothic’であるようなフォントを使用するように、デフォ
+     ルトフォントセットを変更する。
+
+          (set-fontset-font t 'japanese-jisx0208
+                            (font-spec :family "Kochi Gothic"))
+
+ -- Function: char-displayable-p char
+     この関数は、EmacsがCHARを表示できるべきなら、‘t’を
+     リターンする。より正確には、選択されたフレームのフ
+     ォントセットが、CHARが属する文字セットを表示するた
+     めのフォントをもつ場合は、‘t’をリターンする。
+
+     フォントセットは、文字単位でフォントを指定できる。
+     フォントセットがこれを行う場合、この関数の値は正確
+     ではないかもしれない。
+
+
+File: elisp,  Node: Low-Level Font,  Prev: Fontsets,  Up: Faces
+
+37.12.12 Low-Level Font Representation
+--------------------------------------
+
+通常は、フォントを直接扱う必要はありません。これを行う必
+要がある場合には、このセクションでその方法を説明します。
+
+   Emacs Lispでは、フォントは“フォントオブジェクト(font
+objects)”、“フォントspec(font specs)”、“フォントエンティ
+ティー(font entities)”という、3つの異なるLispオブジェク
+トを使用して表現されます。
+
+ -- Function: fontp object &optional type
+     OBJECTがフォントオブジェクト、フォントspec、フォン
+     トエンティティーなら‘t’、それ以外なら‘nil’をリター
+     ンする。
+
+     オプション引数TYPEが非‘nil’なら、チェックするLispオ
+     ブジェクトの正確なタイプを決定する。この場合、
+     TYPEは‘font-object’、‘font-spec’、‘font-entity’のい
+     ずれかであること。
+
+   フォントオブジェクトは、Emacsが“オープンした”フォント
+を表します。Lispでフォントオブジェクトは変更できませんが
+、調べることはできます。
+
+ -- Function: font-at position &optional window string
+     ウィンドウWINDOW内の位置POSITIONにある文字を表示す
+     るために使用されている、フォントオブジェクトをリタ
+     ーンする。WINDOWが‘nil’の場合のデフォルトは、選択さ
+     れたウィンドウである。STRINGが‘nil’なら、POSITIONは
+     カレントバッファー内の位置を指定する。それ以外なら
+     、STRINGは文字列で、POSITIONはその文字列内での位置
+     を指定すること。
+
+   フォントspecは、フォントを探すために使用できる仕様セ
+ットを含むLispオブジェクトです。フォントspec内の仕様にた
+いして、1つ以上のフォントがマッチすることができます。
+
+ -- Function: font-spec &rest arguments
+     ARGUMENTS内の仕様を使用して、新たなフォントspecをリ
+     ターンする。これは‘property’-‘value’のペアーである
+     こと。可能な仕様は以下のとおり:
+
+     ‘:name’
+          XLFD、Fontconfig、GTKいずれかのフォーマットに
+          よるフォント名(文字列)。*note (emacs)Fonts::を
+          参照のこと。
+
+     ‘:family’
+     ‘:foundry’
+     ‘:weight’
+     ‘:slant’
+     ‘:width’
+          これらは、同名のフェイス属性と同じ意味をもつ。
+          *note Face Attributes::を参照のこと。
+
+     ‘:size’
+          フォントサイズ。非負の整数はピクセル単位、浮動
+          小数点数ならポイントサイズを指定する。
+
+     ‘:adstyle’
+          ‘sans’のように、そのフォントにたいするタイポグ
+          ラフィックスタイル(typographic style)の追加情
+          報。値は文字列またはシンボルであること。
+
+     ‘:registry’
+          ‘iso8859-1’のような、フォントの文字セットレジ
+          ストリーとエンコーディング。値は文字列またはシ
+          ンボルであること。
+
+     ‘:script’
+          そのフォントがサポートしなければならないスクリ
+          プト(シンボル)。
+
+     ‘:otf’
+          Emacsが‘libotf’サポートつきでコンパイルされて
+          いる場合、そのフォントはそれらのOpenType機能を
+          サポートする、OpenTypeフォントでなければならな
+          い。値は以下の形式のリストでなければならない
+
+               (SCRIPT-TAG LANGSYS-TAG GSUB GPOS)
+
+          ここでSCRIPT-TAGはOpenTypeスクリプトタグシンボ
+          ル、LANGSYS-TAGはOpenType言語システムタグシン
+          ボル(‘nil’ならデフォルト言語システムを使用)、
+          ‘gsub’はOpenType GSUB機能タグシンボル(何も要求
+          されない場合は‘nil’)、‘gpos’はOpenType GPOS機
+          能タグシンボルのリスト(何も要求されない場合は
+          ‘nil’)である。‘gsub’または‘gpos’がリストなら、
+          そのリスト内の‘nil’要素は、そのフォントが残り
+          すべてのタグシンボルにマッチしてはならないこと
+          を意味する。‘gpos’は省略することができる。
+
+ -- Function: font-put font-spec property value
+     フォントspec FONT-SPEC内のプロパティPROPERTYに、
+     VALUEをセットする。
+
+   フォントエンティティーは、オープンする必要がないフォ
+ントへの参照です。フォントオブジェクトとフォントspecの中
+間的な性質をもち、フォントspecとは異なり、フォントオブジ
+ェクトと同様、単一かつ特定のフォントを参照します。フォン
+トオブジェクトとは異なり、フォントエンティティーの作成で
+は、そのフォントのコンテンツはコンピューターへのメモリー
+にロードされません。Emacsは、スケーラブルフォントを参照
+するために単一のフォントエンティティーから、複数の異なる
+サイズのフォントオブジェクトをオープンするかもしれません
+。
+
+ -- Function: find-font font-spec &optional frame
+     この関数は、フレームFRAME上のフォントspec
+     FONT-SPECにもっともマッチするフォントエンティティー
+     をリターンする。FRAMEが‘nil’の場合のデフォルトは、
+     選択されたフレームである。
+
+ -- Function: list-fonts font-spec &optional frame num
+          prefer
+     この関数は、フォントspec FONT-SPECにマッチする、す
+     べてのフォントエンティティーのリストをリターンする
+     。
+
+     オプション引数FRAMEが非‘nil’なら、そのフォントが表
+     示されるフレームを指定する。オプション引数NUMが非
+     ‘nil’なら、それはリターンされるリストの最大長を指定
+     する整数だること。オプション引数PREFERが非‘nil’なら
+     、それはリターンされるリスト順を制御するために使用
+     する、別のフォントspecであること。リターンされるフ
+     ォントspecはそのフォントspecに“もっとも近い”降順に
+     ソートされて格納される。
+
+   ‘:font’属性の値としてフォントspec、フォントエンティテ
+ィー、フォント名文字列を渡して‘set-face-attribute’を呼び
+出すと、Emacsは表示に利用できるもっとも“マッチする”フォ
+ントをオープンします。そして。そのフェイスにたいする
+‘:font’属性の実際の値として、対応するフォントオブジェク
+トを格納します。
+
+   以下の関数は、フォントに関する情報を取得するために使
+用できます。これらの関数のFONT引数にはフォントオブジェク
+ト、フォントエンティティー、またはフォントspecを指定でき
+ます。
+
+ -- Function: font-get font property
+     この関数は、FONTにたいするフォントプロパティ
+     PROPERTYの値をリターンする。
+
+     FONTがフォントspecで、そのフォントspecがPROPERTYを
+     指定しなければ、リターン値は‘nil’である。FONTがフォ
+     ントオブジェクト、またはフォントエンティティーなら
+     、:SCRIPTプロパティにたいする値は、そのフォントがサ
+     ポートするスクリプトのリストかもしれない。
+
+ -- Function: font-face-attributes font &optional frame
+     この関数は、FONTに対応するフェイス属性のリストをリ
+     ターンする。オプション引数FRAMEは、そのフォントが表
+     示されるフレームを指定する。これが‘nil’なら、選択さ
+     れたフレームが使用される。リターン値は以下の形式で
+     ある
+
+          (:family FAMILY :height HEIGHT :weight WEIGHT
+             :slant SLANT :width WIDTH)
+
+     ここでFAMILY、HEIGHT、WEIGHT、SLANT、WIDTHの値は、
+     フェイス属性の値である。FONTにより指定されない場合
+     いくつかのキー/属性ペアーは、このリストから省略され
+     るかもしれない。
+
+ -- Function: font-xlfd-name font &optional
+          fold-wildcards
+     この関数は、FONTにマッチするXLFD((X Logical Font
+     Descriptor))を文字列としてリターンする。XLFDに関す
+     る情報は、*note (emacs)Fonts::を参照のこと。その名
+     前がXLFD(最大255文字を含むことが可能)にたいして長す
+     ぎる場合、この関数は‘nil’をリターンする。
+
+     オプション引数FOLD-WILDCARDSが非‘nil’なら、連続する
+     ワイルドカードは1つにまとめられる。
+
+
+File: elisp,  Node: Fringes,  Next: Scroll Bars,  Prev: Faces,  Up: Display
+
+37.13 Fringes
+=============
+
+グラフィカルなディスプレイでは、Emacsは各ウィンドウの隣
+に“フリンジ(fringes)”を描画します。これは切り詰め
+(truncation)、継続(continuation)、水平スクロールを示すビ
+ットマップを表示できる、側面の細い垂直ストリップです。
+
+* Menu:
+
+* Fringe Size/Pos::          ウィンドウフリンジを置く場所を指定する。
+* Fringe Indicators::        ウィンドウフリンジ内にインジケーターアイコンを表示する。
+* Fringe Cursors::           右フリンジ内にカーソルを表示する。
+* Fringe Bitmaps::           フリンジインジケーターにたいしてビットマップを指定する。
+* Customizing Bitmaps::      フリンジ内で使用する独自ビットマップの指定。
+* Overlay Arrow::            位置を示す矢印の表示。
+
+
+File: elisp,  Node: Fringe Size/Pos,  Next: Fringe Indicators,  Up: Fringes
+
+37.13.1 Fringe Size and Position
+--------------------------------
+
+以下のバッファーローカル変数は、そのバッファーを表示する
+ウィンドウのフリンジの位置と幅を制御します。
+
+ -- Variable: fringes-outside-margins
+     フリンジは通常、ディスプレイマージンとウィンドウテ
+     キストの間に表示される。この値が非‘nil’なら、フリン
+     ジはディスプレイマージンの外側に表示される。*note
+     Display Margins::を参照のこと。
+
+ -- Variable: left-fringe-width
+     この変数が非‘nil’なら、それは左フリンジの幅をピクセ
+     ル単位で指定する。値‘nil’は、そのウィンドウのフレー
+     ムの左フリンジ幅を使用することを意味する。
+
+ -- Variable: right-fringe-width
+     この変数が非‘nil’なら、それは右フリンジの幅をピクセ
+     ル単位で指定する。値‘nil’は、そのウィンドウのフレー
+     ムの右フリンジ幅を使用することを意味する。
+
+   これらの変数にたいして値を指定しないすべてのバッファ
+ーは、フレームパラメーター‘left-fringe’および
+‘right-fringe’で指定された値を使用します(*note Layout
+Parameters::を参照)。
+
+   上記の変数は、サブルーチンとして
+‘set-window-fringes’を呼び出す、関数
+‘set-window-buffer’(*note Buffers and Windows::を参照)を
+通じて実際に効果をもちます。これらの変数のいずれかを変更
+しても、影響を受ける各ウィンドウで‘set-window-buffer’を
+呼び出さなければ、そのバッファーを表示する既存のウィンド
+ウのフリンジ表示は更新されません。個別のウィンドウでのフ
+リンジ表示を制御するために、‘set-window-fringes’を使用す
+ることもできます。
+
+ -- Function: set-window-fringes window left &optional
+          right outside-margins
+     この関数は、ウィンドウWINDOWのフリンジ幅をセットす
+     る。WINDOWが‘nil’なら、選択されたウィンドウが使用さ
+     れる。
+
+     引数LEFTは左フリンジ、同様にRIGHTは右フリンジにたい
+     して、ピクセル単位で幅を指定する。いずれかにたいす
+     る値‘nil’は、デフォルトの幅を意味する。
+     OUTSIDE-MARGINSが非‘nil’なら、フリンジをディスプレ
+     イマージンの外側に表示することを指定する。
+
+ -- Function: window-fringes &optional window
+     この関数は、ウィンドウWINDOWのフリンジに関する情報
+     をリターンする。WINDOWが省略または‘nil’なら、選択さ
+     れたウィンドウが使用される。値は‘(LEFT-WIDTH
+     RIGHT-WIDTH OUTSIDE-MARGINS)’の形式をもつ。
+
+
+File: elisp,  Node: Fringe Indicators,  Next: Fringe Cursors,  Prev: Fringe Size/Pos,  Up: Fringes
+
+37.13.2 Fringe Indicators
+-------------------------
+
+“フリンジインジケーター(Fringe indicators)”は、行の切り
+詰めや継続、バッファー境界などを示す、ウィンドウフリンジ
+内に表示される小さいアイコンのことです。
+
+ -- User Option: indicate-empty-lines
+     これが非‘nil’なら、Emacsはグラフィカルなディスプレ
+     イ上で、バッファー終端にある空行それぞれにたいして
+     、フリンジ内に特別なグリフを表示する。*note
+     Fringes::を参照のこと。この変数はすべてのバッファー
+     において、自動的にバッファーローカルになる。
+
+ -- User Option: indicate-buffer-boundaries
+     このバッファーローカル変数は、ウィンドウフリンジ内
+     でバッファー境界とウィンドウのスクロールを示す方法
+     を制御する。
+
+     Emacsはバッファー境界(そのバッファーの最初の行と最
+     後の行)がスクリーン上に表示された際、それを三角アイ
+     コン(angle icon)で示すことができる。加えて、スクリ
+     ーンより上にテキストが存在する場合は上矢印
+     (up-arrow)、スクリーンの下にテキストが存在する場合
+     は下矢印(down-arrow)をフリンジ内に表示して、それを
+     示すことができる。
+
+     基本的な値として3つの値がある:
+
+     ‘nil’
+          これらのフリンジアイコンを何も表示しない。
+     ‘left’
+          左フリンジに三角アイコンと矢印を表示する。
+     ‘right’
+          右フリンジに三角アイコンと矢印を表示する。
+     その他の非alist
+          左フリンジに三角アイコンを表示して、矢印を表示
+          しない。
+
+     値がそれ以外なら、どのフリンジインジケーターをどこ
+     に表示するかを指定する、alistであること。alistの各
+     要素は、‘(INDICATOR . POSITION)’のような形式をもつ
+     。ここでINDICATORは‘top’、‘bottom’、‘up’、‘down’、
+     または‘t’(指定されていないすべてのアイコンをカバー
+     する)のいずれかであり、POSITIONは‘left’、‘right’、
+     または‘nil’のいずれかである。
+
+     たとえば‘((top . left) (t . right))’は左フリンジに
+     top angleビットマップを、右フリンジにbottom angleビ
+     ットマップと両arrowビットマップを配置する。左フリン
+     ジにangleビットマップを表示してarrowビットマップを
+     表示しないようにするには、‘((top . left) (bottom .
+     left))’を使用する。
+
+ -- Variable: fringe-indicator-alist
+     このバッファーローカル変数は、論理的ロジカルフリン
+     ジインジケーターから、ウィンドウフリンジ内に実際に
+     表示されるビットマップへのマッピングを指定する。値
+     は‘(INDICATOR . BITMAPS)’のような要素をもつalistで
+     ある。ここでINDICATORは論理的インジケータータイプ、
+     BITMAPSはそのインジケーターに使用するフリンジビット
+     マップを指定する。
+
+     INDICATORはそれぞれ、以下のシンボルのいずれかである
+     こと:
+
+     ‘truncation’, ‘continuation’.
+          行の切り詰めと継続に使用される。
+
+     ‘up’, ‘down’, ‘top’, ‘bottom’, ‘top-bottom’
+          ‘indicate-buffer-boundaries’が非‘nil’の際に使
+          用される。‘up’および‘down’は、そのウィンドウ端
+          より上または下にあるバッファー境界を示す。
+          ‘top’および‘bottom’はバッファーの最上端または
+          最下端のテキスト行を示す。‘top-bottom’はバッフ
+          ァー内にテキスト行1行だけが存在することを示す
+          。
+
+     ‘empty-line’
+          ‘indicate-empty-lines’が非‘nil’の際に、空行を
+          示すために使用される。
+
+     ‘overlay-arrow’
+          オーバーレイ矢印に使用される(*note Overlay
+          Arrow::を参照)。
+
+     各BITMAPSの値には、シンボルのリスト‘(LEFT RIGHT
+     [LEFT1 RIGHT1])’を指定できる。シンボルLEFTとRIGHTは
+     、特定のインジケーターにたいして左、および/または右
+     フリンジに表示するビットマップを指定する。LEFT1と
+     RIGHT1は、インジケーター‘bottom’と‘top-bottom’に固
+     有であり、最後の改行をもたない最後のテキスト行を示
+     すために使用される。かわりに、BITMAPSに左フリンジと
+     右フリンジの両方で使用される、単一のシンボルを指定
+     することもできる。
+
+     標準のビットマップシンボルのリストと、自身で定義す
+     る方法については、*note Fringe Bitmaps::を参照のこ
+     と。加えて、‘nil’は空ビットマップ(表示されないイン
+     ジケーター)を表す。
+
+     ‘fringe-indicator-alist’がバッファーローカルな値を
+     もち、論理的インジケーターにたいしてビットマップが
+     定義されていない、またはビットマップが‘t’ならば、
+     ‘fringe-indicator-alist’のデフォルト値から、対応す
+     る値が使用される。
+
+
+File: elisp,  Node: Fringe Cursors,  Next: Fringe Bitmaps,  Prev: Fringe Indicators,  Up: Fringes
+
+37.13.3 Fringe Cursors
+----------------------
+
+ある行がウィンドウと正確に同じ幅なとき、2行を使用するか
+わりにEmacsは右フリンジ内にカーソルを表示します。フリン
+ジ内のカーソルを表すために使用されるビットマップの違いは
+、カレントバッファーのカーソルタイプに依存します。
+
+ -- User Option: overflow-newline-into-fringe
+     これが非‘nil’なら、ウィンドウと正確に同じ幅の(最後
+     の改行文字に継続されない)行は、継続されない。ポイン
+     トが行端に達した際は、かわりにカーソルは右フリンジ
+     に表示される。
+
+ -- Variable: fringe-cursor-alist
+     この変数は、論理的カーソルタイプから、右フリンジ内
+     に実際に表示されるフリンジビットマップへのマッピン
+     グを指定する。値は、各要素が‘(CURSOR-TYPE .
+     BITMAP)’のような形式をもつようなalistである。ここで
+     BITMAPは使用するフリンジビットマップ、CURSOR-TYPEは
+     表示するカーソルタイプである。
+
+     CURSOR-TYPEはそれぞれ‘box’、‘hollow’、‘bar’、
+     ‘hbar’、‘hollow-small’のいずれかであること。最初の
+     4つはフレームパラメーター‘cursor-type’の場合と同じ
+     意味をもつ(*note Cursor Parameters::を参照)。
+     ‘hollow-small’タイプは、特定のディスプレイ行にたい
+     して通常の‘hollow-rectangle’が高すぎる際に、
+     ‘hollow’のかわりに使用される。
+
+     BITMAPはそれぞれ、その論理的カーソルタイプにたいし
+     て表示される、フリンジビットマップを指定するシンボ
+     ルであること。 詳細は、*note Fringe Bitmaps::を参照
+     のこと。
+
+     ‘fringe-cursor-alist’がバッファーローカルな値をもち
+     、カーソルタイプにたいして定義されたビットマップが
+     存在しなければ、‘fringes-indicator-alist’のデフォル
+     ト値の、対応する値が使用される。
+
+
+File: elisp,  Node: Fringe Bitmaps,  Next: Customizing Bitmaps,  Prev: Fringe Cursors,  Up: Fringes
+
+37.13.4 Fringe Bitmaps
+----------------------
+
+“フリンジビットマップ(fringe bitmaps)”は、行の切り詰めや
+継続、バッファー境界、オーバーレイ矢印等にたいする論理的
+フリンジインジケーターを表現する、実際のビットマップです
+。それぞれのビットマップはシンボルにより表されます。 こ
+れらのシンボルは、フリンジインジケーターからビットマップ
+へのマッピングを行う変数‘fringe-indicator-alist’(*note
+Fringe Indicators::を参照)、およびフリンジカーソルからビ
+ットマップへのマッピングを行う変数
+‘fringe-cursor-alist’(*note Fringe Cursors::を参照)によ
+り参照されます。
+
+   Lispプログラムも、その行内に出現する文字の1つに
+‘display’プロパティを使用することにより、左フリンジまた
+は右フリンジ内に、ビットマップを直接表示することができま
+す。そのような表示指定は、以下の形式をもちます
+
+     (FRINGE BITMAP [FACE])
+
+FRINGEは、‘left-fringe’か‘right-fringe’いずれかのシンボ
+ルです。BITMAPは表示するビットマップを識別するシンボルで
+す。オプションのFACEは、そのフォアグラウンドカラーをビッ
+トマップの表示に使用するフェイスの名前です。このフェイス
+は、自動的に‘fringe’フェイスにマージされます。
+
+   以下はEmacsが定義する、標準的なフリンジビットマップと
+、(‘fringe-indicator-alist’および‘fringe-cursor-alist’を
+通じて)Emacs内で現在それらが使用される方法のリストです。
+
+‘left-arrow’, ‘right-arrow’
+     切り詰められた行を示すために使用される。
+
+‘left-curly-arrow’, ‘right-curly-arrow’
+     継続された行を示すために使用される。
+
+‘right-triangle’, ‘left-triangle’
+     前者はオーバーレイ矢印により使用され、後者は使用さ
+     れない。
+
+‘up-arrow’, ‘down-arrow’, ‘top-left-angle’ ‘top-right-angle’
+‘bottom-left-angle’, ‘bottom-right-angle’
+‘top-right-angle’, ‘top-left-angle’
+‘left-bracket’, ‘right-bracket’, ‘top-right-angle’, ‘top-left-angle’
+     バッファー境界を示すために使用される。
+
+‘filled-rectangle’, ‘hollow-rectangle’
+‘filled-square’, ‘hollow-square’
+‘vertical-bar’, ‘horizontal-bar’
+     フリンジカーソルの異なるタイプにたいして使用される
+     。
+
+‘empty-line’, ‘exclamation-mark’, ‘question-mark’, ‘exclamation-mark’
+     Emacsの中核機能では使用されない。
+
+次のサブセクションでは、フリンジビットマップを独自に定義
+する方法を説明します。
+
+ -- Function: fringe-bitmaps-at-pos &optional pos window
+     この関数は、、ウィンドウWINDOW内の位置POSを含むディ
+     スプレイ行の、フリンジビットマップをリターンする。
+     リターン値は‘(LEFT RIGHT OV)’という形式をもつ。ここ
+     でLEFTは左フリンジ内のフリンジビットマップにたいす
+     るシンボル(ビットマップなしなら‘nil’)、RIGHTは同様
+     に右フリンジにたいして、OVが非‘nil’なら左ふりんじ に
+     オーバーレイ矢印が存在することを意味する。
+
+     WINDOW内でPOSが可視でなければ、値は‘nil’となる。
+     WINDOWが‘nil’なら、それは選択されたウィンドウを意味
+     する。POSが‘nil’なら、それはWINDOW内のポイントの値
+     を意味する。
+
+
+File: elisp,  Node: Customizing Bitmaps,  Next: Overlay Arrow,  Prev: Fringe Bitmaps,  Up: Fringes
+
+37.13.5 Customizing Fringe Bitmaps
+----------------------------------
+
+ -- Function: define-fringe-bitmap bitmap bits &optional
+          height width align
+     この関数は、シンボルBITMAPを新たなフリンジビットマ
+     ップとして定義、またはその名前の既存のビットマップ
+     を置き換える。
+
+     引数BITSは、使用するイメージを指定する。これは、各
+     要素(整数)が対応するビットマップの1行を指定する、文
+     字列または整数ベクターであること。整数の各ビットは
+     そのビットマップの1ピクセルに対応し、低位ビットはそ
+     のビットマップの最右ピクセルに対応する。
+
+     高さは通常、BITSの長さである。しかし非‘nil’の
+     HEIGHTにより、異なる高さを指定できる。幅は通常は8だ
+     が、非‘nil’のWIDTHにより、異なる幅を指定できる。
+     widthは、1から16の整数でなければならない。
+
+     引数ALIGNは、そのビットマップが使用される行範囲に相
+     対的な、ビットマップの位置を指定する。デフォルトは
+     、そのビットマップの中央である。指定できる値は
+     ‘top’、‘center’、‘bottom’。
+
+     ALIGN引数にはリスト‘(ALIGN PERIODIC)’も指定でき、
+     ALIGNは上述のように解釈される。PERIODICが非‘nil’な
+     ら、それは‘bits’内の行が指定される高さに達するのに
+     十分な回数繰り返されるべきであることを指定する。
+
+ -- Function: destroy-fringe-bitmap bitmap
+     この関数は、BITMAPにより識別されるフリンジビットマ
+     ップを破棄する。BITMAPが標準フリンジビットマップを
+     識別する場合は、それを完全に消去するかわりに、実際
+     はそのビットマップの標準定義をリストアする。
+
+ -- Function: set-fringe-bitmap-face bitmap &optional
+          face
+     これはフリンジビットマップBITMAPにたいするフェイス
+     に、FACEをセットする。FACEが‘nil’なら、‘fringe’フェ
+     イスを選択する。ビットマップのフェイスは、それを描
+     画するカラーを制御する。
+
+     FACEは‘fringe’にマージされるため、通常FACEはフォア
+     グラウンドカラーだけを指定すること。
+
+
+File: elisp,  Node: Overlay Arrow,  Prev: Customizing Bitmaps,  Up: Fringes
+
+37.13.6 The Overlay Arrow
+-------------------------
+
+“オーバーレイ矢印(overlay arrow)”は、バッファー内の特定
+の行にたいして、ユーザーに注意を促すために有用です。たと
+えば、デバッガーでのインターフェースに使用されるモードで
+は、オーバーレイ矢印は実行されているコード行を示します。
+この機能は“オーバーレイ(overlays)”にたいして、何も行いま
+せん(*note Overlays::を参照)。
+
+ -- Variable: overlay-arrow-string
+     この変数は、特定の行にたいして注意を喚起するために
+     表示する文字列、または矢印機能が使用されていなけれ
+     ば‘nil’を保持する。グラフィカルなディスプレイでは、
+     この文字列のコンテンツは無視され、かわりにフリンジ
+     領域からディスプレイ領域左側にグリフが表示される。
+
+ -- Variable: overlay-arrow-position
+     この変数は、オーバーレイ矢印を表示する箇所を示すマ
+     ーカーを保持する。これは行の先頭となるポイントであ
+     ること。非グラフィカルなディスプレイでは、その行の
+     先頭に矢印テキストが表示され、矢印テキストが表示さ
+     れないときに表示されるべきテキストがオーバーレイさ
+     れる。その矢印は通常は短く、行は普通はインデントで
+     開始されるので、通常は上書きが問題となることはない
+     。
+
+     オーバーレイ矢印の文字列は、そのバッファーの
+     ‘overlay-arrow-position’の値が、そのバッファー内を
+     指す場合は、与えられた任意のバッファーで表示される
+     。したがって、‘overlay-arrow-position’のバッファー
+     ローカルなバインディングを作成することにより、複数
+     のオーバーレイ矢印の表示が可能である。しかしこれを
+     達成するためには、‘overlay-arrow-variable-list’を使
+     用するほうが、通常はより明快である。
+
+   ‘before-string’プロパティをもつオーバーレイを作成する
+ことにより、同様のことを行うことができます。*note
+Overlay Properties::を参照してください。
+
+   変数‘overlay-arrow-variable-list’を通じて、複数のオー
+バーレイ矢印を定義できます。
+
+ -- Variable: overlay-arrow-variable-list
+     この変数の値は、それぞれがオーバーレイ矢印の位置を
+     指定する、変数のリストである。変数
+     ‘overlay-arrow-position’はこのリスト上にあるため、
+     通常の意味をもつ。
+
+   このリスト上の各変数は、対応するオーバーレイ矢印位置
+に表示するための、オーバーレイ矢印文字列を指定する
+‘overlay-arrow-string’プロパティ(テキスト端末用)、および
+フリンジビットマップを指定する‘overlay-arrow-bitmap’プロ
+パティ(グラフィカル端末用)をもつことができます。これらの
+プロパティがセットされていなければ、デフォルトのフリンジ
+インジケーター‘overlay-arrow-string’と‘overlay-arrow’が
+使用されます。
+
+
+File: elisp,  Node: Scroll Bars,  Next: Window Dividers,  Prev: Fringes,  Up: Display
+
+37.14 Scroll Bars
+=================
+
+通常、フレームパラメーター‘vertical-scroll-bars’はそのフ
+レーム内のウィンドウが垂直スクロールバーをもつべきかと、
+それらが左か右のいずれかに配置されるべきかを制御します。
+フレームパラメーター‘scroll-bar-width’は、それらの幅を指
+定します(‘nil’はデフォルトを意味する)。*note Layout
+Parameters::を参照してください。
+
+ -- Function: frame-current-scroll-bars &optional frame
+     この関数は、フレームFRAMEのスクロールバータイプのセ
+     ッティングを報告する。値はコンスセル‘(VERTICAL-TYPE
+     . HORIZONTAL-TYPE)’である。ここでVERTICAL-TYPEは
+     ‘left’、‘right’、または‘nil’(スクロールバーなしを意
+     味する)のいずれかである。HORIZONTAL-TYPEは水平スク
+     ロールバータイプの指定を意図しているが、これはまだ
+     実装されていないので常に‘nil’である。
+
+   変数‘vertical-scroll-bar’をセットすることにより、特定
+のバッファーにたいして、スクロールバーを有効または無効に
+できます。この変数はセット時に、自動的にバッファーローカ
+ルになります。可能な値は‘left’、‘right’、そのフレームの
+デフォルトの使用を意味する‘t’、スクロールバーなしの
+‘nil’のいずれかです。
+
+   個々のウィンドウにたいして、これを制御することもでき
+ます。特定のウィンドウにたいして何を行うか指定するために
+は、関数‘set-window-scroll-bars’を呼び出します:
+
+ -- Function: set-window-scroll-bars window width
+          &optional vertical-type horizontal-type
+     この関数は、ウィンドウWINDOWにたいして、スクロール
+     バーの幅とタイプをセットする。
+
+     WIDTHはピクセル単位でスクロールバーの幅を指定する
+     (‘nil’はそのフレームにたいして指定された幅の使用を
+     意味する)。VERTICAL-TYPEは、垂直スクロールバーをも
+     つかどうか、もつ場合はその位置を指定する。可能な値
+     は‘left’、‘right’、および‘nil’で、これはフレームパ
+     ラメーター‘vertical-scroll-bars’の値と同様である。
+
+     引数HORIZONTAL-TYPEは水平スクロールバーをもつべきか
+     と、その位置を指定するが、まだ実装されていないため
+     効果はない。WINDOWが‘nil’なら、選択されたウィンドウ
+     が使用される。
+
+ -- Function: window-scroll-bars &optional window
+     WINDOWに指定されたスクロールバーの幅とタイプを報告
+     する。WINDOWが省略または‘nil’なら、選択されたウィン
+     ドウが使用される。値は、‘(WIDTH COLS VERTICAL-TYPE
+     HORIZONTAL-TYPE)’という形式のリストである。値
+     WIDTHは、幅にたいして指定された値である(‘nil’かもし
+     れない)。COLSは、スクロールバーが実際に占有する列数
+     である。
+
+     HORIZONTAL-TYPEは実際には無意味である。
+
+ -- Function: window-scroll-bar-width &optional window
+     この関数は、WINDOWの垂直スクロールバーの幅をピクセ
+     ル単位でリターンする。WINDOWは生きたウィンドウでな
+     ければならず、デフォルトは選択されたウィンドウであ
+     る。
+
+   あるウィンドウにたいして‘set-window-scroll-bars’によ
+りこれらの値を指定しない場合は、表示されるバッファーのバ
+ッファーローカル変数‘scroll-bar-mode’と
+‘scroll-bar-width’が、そのウィンドウの垂直スクロールバー
+を制御します。‘set-window-buffer’は、これらの変数を調べ
+る関数です。あるウィンドウですでに可視なバッファーでこれ
+らを変更した場合は、すでに表示されているのと同じバッファ
+ーを指定して‘set-window-buffer’を呼び出すことにより、そ
+のウィンドウに新たな値を記録させることができます。
+
+ -- User Option: scroll-bar-mode
+     この変数はすべてのバッファーにおいて常にバッファー
+     ローカルであり、そのバッファーを表示するウィンドウ
+     にスクロールバーを配すべきかと、その場所を制御する
+     。可能な値は、スクロールバーなしの‘nil’、左にスクロ
+     ールバーを配置する‘left’、右にスクロールバーを配置
+     する‘right’のいずれかである。
+
+ -- Function: window-current-scroll-bars &optional
+          window
+     この関数は、ウィンドウWINDOWにたいするスクロールバ
+     ータイプを報告する。WINDOWが省略または‘nil’なら、選
+     択されたウィンドウが使用される。値はコンスセル
+     ‘(VERTICAL-TYPE . HORIZONTAL-TYPE)’である。
+     ‘window-scroll-bars’とは異なり、フレームのデフォル
+     トと‘scroll-bar-mode’を考慮して、実際に使用されてい
+     るスクロールバータイプを報告する。
+
+ -- Variable: scroll-bar-width
+     この変数はすべてのバッファーにおいて常にローカルで
+     あり、そのバッファーのスクロールバーをピクセル単位
+     で量った幅を指定する。値‘nil’は、そのフレームにより
+     指定された値の使用を意味する。
+
+
+File: elisp,  Node: Window Dividers,  Next: Display Property,  Prev: Scroll Bars,  Up: Display
+
+37.15 Window Dividers
+=====================
+
+ウィンドウディバイダーとは、フレームのウィンドウ間に描画
+されるバーのことです。“右(right)”ディバイダーは、あるウ
+ィンドウと、その右に隣接する任意のウィンドウの間に描画さ
+れます。その幅(厚さ)は、フレームパラメーター
+‘right-divider-width’で指定されます。“下(bottom)”ディバ
+イダーは、あるウィンドウと、その下に隣接するウィンドウ、
+またはエコーエリアとの間に描画されます。その幅は、フレー
+ムパラメーター‘bottom-divider-width’で指定されます。いず
+れの場合も、幅に0を指定すると、そのようなディバイダーを
+描画しないことを意味します。*note Layout Parameters::を
+参照してください。
+
+   技術的には、右ディバイダーはそれの左にあるウィンドウ
+に“所属”し、その幅がそのウィンドウのトータル幅に寄与する
+ことを意味します。下ディバイダーは上にあるウィンドウに
+“所属”し、その幅がそのウィンドウのトータル高さに寄与する
+ことを意味します。*note Window Sizes::を参照してください
+。あるウィンドウが右ディバイダーと左ディバイダーの両方を
+もつ場合、下ディバイダーが“優勢”になります。これは、右デ
+ィバイダーが下ディバイダーの上で終端されるのに比べて、下
+ディバイダーはそのウィンドウの完全なトータル幅で描画され
+ることを意味します。
+
+   ディバイダーはマウスでドラッグでき、それゆえマウスで
+隣接するウィンドウのサイズを調整するために有用です。これ
+らはスクロールバーやモードラインが表示されていないときに
+、隣接するウィンドウを視覚的に分離する役目もあります。以
+下の3つのフェイスにより、ディバイダーの外観をカスタマイ
+ズできます:
+
+‘window-divider’
+     ディバイダーの幅が3ピクセル未満のときは、このフェイ
+     スのフォアグラウンドカラーで塗りつぶしで描画される
+     。これより広いディバイダーでは、最初と最後のピクセ
+     ルを除く、内部にたいしてのみこのフェイスが使用され
+     る。
+
+‘window-divider-first-pixel’
+     これは少なくとも幅が3ピクセルあるディバイダーの、最
+     初のピクセルを描画するために使用される。塗りつぶし
+     (solid)の外観を得るためには、‘window-divider’フェイ
+     スに使用されるのと同じ値をセットすること。
+
+‘window-divider-last-pixel’
+     これは少なくとも幅が3ピクセルあるディバイダーの、最
+     後のピクセルを描画するために使用される。塗りつぶし
+     (solid)の外観を得るためには、‘window-divider’フェイ
+     スに使用されるのと同じ値をセットすること。
+
+   以下の2つの関数により、特定のウィンドウのディバイダー
+のサイズを取得できます。
+
+ -- Function: window-right-divider-width &optional
+          window
+     WINDOWの右ディバイダーの幅(厚さ)を、ピクセル単位で
+     リターンする。WINDOWは生きたウィンドウでなければな
+     らず、デフォルトは選択されたウィンドウである。最右
+     ウィンドウにたいするリターン値は、常に0である。
+
+ -- Function: window-bottom-divider-width &optional
+          window
+     WINDOWの下ディバイダーの幅(厚さ)を、ピクセル単位で
+     リターンする。WINDOWは生きたウィンドウでなければな
+     らず、デフォルトは選択されたウィンドウである。ミニ
+     バッファーウィンドウ、またはミニバッファーがないフ
+     レームの最下ウィンドウにたいするリターン値は、常に
+     0である。
+
+
+File: elisp,  Node: Display Property,  Next: Images,  Prev: Window Dividers,  Up: Display
+
+37.16 The ‘display’ Property
+============================
+
+テキストプロパティ(またはオーバーレイプロパティ
+)‘display’は、テキストへのイメージ挿入、およびテキスト表
+示のその他の事相を制御します。‘display’プロパティの値は
+、ディスプレイ仕様、または複数のディスプレイ仕様を含むリ
+ストかベクターであるべきです。同じ‘display’プロパティ値
+内のディスプレイ仕様は、一般的にはそれらがカバーするテキ
+ストにたいして並行して適用されます。
+
+   複数のソース(オーバーレイ、および/またはテキストプロ
+パティ)が‘display’プロパティにたいして値を指定しますが、
+1つの値だけが効果をもち、これは‘get-char-property’のルー
+ルにしたがいます。*note Examining Properties::を参照して
+ください。
+
+   このセクションの残りの部分では、複数の種類のディスプ
+レイ仕様と、それらの意味を説明します。
+
+* Menu:
+
+* Replacing Specs::          テキストを置換するディスプレイspec。
+* Specified Space::          指定された幅に1つのスペースを表示する。
+* Pixel Specification::      ピクセル単位でスペースの幅または高さを指定する。
+* Other Display Specs::      イメージの表示。高さ、スペーシング、その他のテキストプロパティの調整。
+* Display Margins::          メインテキスト側面へのテキストまたはイメージの表示。
+
+
+File: elisp,  Node: Replacing Specs,  Next: Specified Space,  Up: Display Property
+
+37.16.1 Display Specs That Replace The Text
+-------------------------------------------
+
+ある種のディスプレイ仕様は、そのプロパティをもつテキスト
+のかわりに表示する何かを指定します。これらは“置換
+(replacing)”ディスプレイ仕様と呼ばれます。Emacsはユーザ
+ーにたいして、この方法で置換されたバッファーテキストの中
+間への対話的なポイント移動を許していません。
+
+   ディスプレイ仕様のリストに1つ以上の置換ディスプレイ仕
+様が含まれる場合は、最初の置換ディスプレイ仕様が残りをオ
+ーバーライドします。置換ディスプレイ仕様は、他のほとんど
+のディスプレイ仕様は置換を許容しないので、それらとは無関
+係です。
+
+   置換ディスプレイ仕様では、“そのプロパティをもつテキス
+ト”とは、‘display’プロパティとして同一のLispオブジェクト
+をもつ、連続したすべての文字を意味します。これらの文字は
+単一の単位として置換されます。‘display’プロパティに異な
+るLispオブジェクト(‘eq’ではないオブジェクト)をもつ2つの
+文字は、個別に処理されます。
+
+   以下は、この要点を示すための例です。文字列が置換ディ
+スプレイ仕様としての役割をもち、指定された文字列のプロパ
+ティをもつテキストを置換します(*note Other Display
+Specs::を参照)。以下の関数を考えてみてください:
+
+     (defun foo ()
+       (dotimes (i 5)
+         (let ((string (concat "A"))
+               (start (+ i i (point-min))))
+           (put-text-property start (1+ start) 'display string)
+           (put-text-property start (+ 2 start) 'display string))))
+
+この関数は、バッファー内の最初の10文字それぞれにたいして
+、文字列‘"A"’であるような‘display’プロパティを与えますが
+、これらはすべて同じ文字列オブジェクトを取得しません。最
+初の2文字は同じ文字列オブジェクトなので、1つの‘A’に置換
+されます。2つの別々の‘put-text-property’呼び出しでそのデ
+ィスプレイプロパティが割り当てられたという事実は、無関係
+です。同様に次の2文字は2つ目の文字列(‘concat’により新た
+に作成された文字列オブジェクト)を取得するので、1つの
+‘A’で置換され、...となります。したがって、10文字は5つの
+Aで表示されます。
+
+
+File: elisp,  Node: Specified Space,  Next: Pixel Specification,  Prev: Replacing Specs,  Up: Display Property
+
+37.16.2 Specified Spaces
+------------------------
+
+指定された幅、および/または高さのスペースを表示するため
+には、‘(space . PROPS)’という形式のディスプレイ仕様を使
+用します。このプロパティを、1つ以上の連続する文字にputす
+ることができます。これら_すべて_の文字のかわりに、指定さ
+れた高さと幅のスペースが表示されます。以下は、スペースの
+ウェイトを指定するために、PROPS内で使用できるプロパティ
+です:
+
+‘:width WIDTH’
+     WIDTHが数字なら、それはスペースの幅が通常の文字幅の
+     WIDTH倍であるべきかを指定する。WIDTHは“ピクセル幅
+     (pixel width)”仕様でも可(*note Pixel
+     Specification::を参照)。
+
+‘:relative-width FACTOR’
+     同じ‘display’プロパティをもつ連続する文字グループ内
+     の最初の文字から計算される、範囲の幅を指定する。ス
+     ペースの幅は、FACTORを乗じたその文字の幅。
+
+‘:align-to HPOS’
+     スペースがHPOSに達するほど、十分に広くあるべきこと
+     を指定する。HPOSが数字なら、それは通常の文字幅の単
+     位で量られる。HPOSは“ピクセル幅(pixel width)”仕様で
+     も可(*note Pixel Specification::を参照)。
+
+   上記プロパティのいずれか1つのみを使用するべきです。以
+下のプロパティで、スペースの高さも指定できます:
+
+‘:height HEIGHT’
+     スペースの高さを指定する。HEIGHTが数字なら、それは
+     スペースの高さが通常の文字高さのHEIGHT倍であるべき
+     ことを指定する。HEIGHTは“ピクセル高さ仕様(pixel
+     height)”でも可(*note Pixel Specification::を参照)。
+
+‘:relative-height FACTOR’
+     このディスプレイ仕様をもつテキストの通常の高さに
+     FACTORを乗じることにより、スペースの高さを指定する
+     。
+
+‘:ascent ASCENT’
+     ASCENTの値が非負の100以下の数字なら、スペースの高さ
+     のASCENTパーセントをスペースのアセント(ascent: 上方
+     )、すなわちベースラインより上の部分とみなす。“ピク
+     セルアセント(pixel ascent)”仕様により、アセントをピ
+     クセル単位で指定することも可(*note Pixel
+     Specification::を参照)。
+
+   ‘:height’と‘:relative-height’を両方一緒に使用しないで
+ください。
+
+   ‘:width’と‘:align-to’プロパティは非グラフィック端末で
+サポートされますが、このセクションのその他のスペースプロ
+パティはサポートされません。
+
+   スペースプロパティは、双方向テキスト表示の並べ替えの
+ために、パラグラフ区切りとして扱われます。詳細は、*note
+Bidirectional Display::を参照してください。
+
+
+File: elisp,  Node: Pixel Specification,  Next: Other Display Specs,  Prev: Specified Space,  Up: Display Property
+
+37.16.3 Pixel Specification for Spaces
+--------------------------------------
+
+プロパティ‘:width’、‘:align-to’、‘:height’、‘:ascent’の
+値は再表示の間に評価される、特別な種類の式です。その評価
+の結果は、ピクセルの絶対数として使用されます。
+
+   以下の式がサポートされています:
+
+       EXPR ::= NUM | (NUM) | UNIT | ELEM | POS | IMAGE | FORM
+       NUM  ::= INTEGER | FLOAT | SYMBOL
+       UNIT ::= in | mm | cm | width | height
+       ELEM ::= left-fringe | right-fringe | left-margin | right-margin
+             |  scroll-bar | text
+       POS  ::= left | center | right
+       FORM ::= (NUM . EXPR) | (OP EXPR ...)
+       OP   ::= + | -
+
+   フォームNUMは、デフォルトフレームフォントの高さか幅を
+、フォーム‘(NUM)’は絶対ピクセル数を指定します。NUMがシン
+ボルSYMBOLなら、それのバッファーローカルな変数バインディ
+ングが使用されます。
+
+   単位‘in’、‘mm’、‘cm’はそれぞれインチ、ミリメートル、
+センチメートルごとのピクセル数を指定します。単位
+‘width’と‘height’はそれぞれ、カレントフェイスのデフォル
+トの幅と高さに対応します。イメージ仕様‘image’は、そのイ
+メージの幅、または高さに対応します。
+
+   要素‘left-fringe’、‘right-fringe’、‘left-margin’、
+‘right-margin’、‘scroll-bar’、‘text’は、そのウィンドウの
+対応する領域の幅を指定します。
+
+   位置‘left’、‘center’、‘right’はテキストエリアの左端、
+中央、右端から相対的に位置を指定するために、
+‘:align-to’とともに使用できます。
+
+   (‘text’を除く)上記ウィンドウ要素は、与えられたエリア
+の左端から相対的に位置を指定するために、‘:align-to’とと
+もに使用することもできます。 Any of the above window
+elements (except ) can also be used with to specify that
+the position is relative to the left edge of the given
+area.  (最初に出現するこれらシンボルのいずれかにより)相
+対的位置にたいするベースオフセットが一度セットがされると
+、残りのシンボルは指定されたエリアの幅として解釈されます
+。たとえば左マージンの中央に位置揃えするには、以下のよう
+にします
+
+     :align-to (+ left-margin (0.5 . left-margin))
+
+   位置揃えにたいしてベースオフセットが何も指定されなけ
+れば、テキストエリア左端にたいして常に相対的になります。
+たとえばヘッダーライン内の‘:align-to 0’は、テキストエリ
+アの最初のテキスト行に位置揃えします。
+
+   ‘(NUM . EXPR)’という形式の値は、NUMとEXPRにより生成さ
+れる値を意味します。たとえば‘(2 . in)’は2インチの幅、
+‘(0.5 . IMAGE)’は指定されたイメージの幅(または高さ)の半
+分を指定します。
+
+   フォーム‘(+ EXPR ...)’は、式の値を合計します。フォー
+ム‘(- EXPR ...)’は式の値を否定または減算します。
+
+
+File: elisp,  Node: Other Display Specs,  Next: Display Margins,  Prev: Pixel Specification,  Up: Display Property
+
+37.16.4 Other Display Specifications
+------------------------------------
+
+以下は、‘display’テキストプロパティ内で使用できる、その
+他のディスプレイ仕様です。
+
+‘STRING’
+     このプロパティをもつテキストのかわりに、STRINGを表
+     示する。
+
+     再帰的なディスプレイ仕様はサポートされない。つまり
+     STRINGの‘display’プロパティがあっても、それは使用さ
+     れない。
+
+‘(image . IMAGE-PROPS)’
+     この種のディスプレイ仕様は、イメージディスクリプタ
+     である(*note Images::を参照)。ディスプレイ仕様とし
+     て使用時は、そのディスプレイ仕様をもつテキストのか
+     わりに表示するイメージを意味する。
+
+‘(slice X Y WIDTH HEIGHT)’
+     この仕様は‘image’とともに、表示するイメージの“スラ
+     イス(slice: イメージの特定の領域)”を指定する。要素
+     YとXは、そのイメージ内での左上隅を指定し、WIDTHと
+     HEIGHTはそのスライスの幅と高さを指定する。整数はピ
+     クセル数、0.0から1.0までの浮動小数点数はイメージ全
+     体の幅または高さの割合を意味する。A floating-point
+     number in the range 0.0–1.0 stands for that
+     fraction of the width or height of the entire
+     image.
+
+‘((margin nil) STRING)’
+     この形式のディスプレイ仕様は、このディスプレイ仕様
+     をもつテキストのかわりに、そのテキストと同じ位置に
+     表示するSTRINGを意味する。これは単にSTRINGを使用す
+     るのと同じだが、マージン表示(*note Display
+     Margins::を参照)の特殊なケースとして行われる点が異
+     なる。
+
+‘(left-fringe BITMAP [FACE])’
+‘(right-fringe BITMAP [FACE])’
+     テキスト行の任意の文字がこのディスプレイ仕様をもつ
+     場合は、その文字のかわりにその行の左または右フリン
+     ジに表示するBITMAPを指定する。オプションのFACEは、
+     そのビットマップにたいして使用するカラーを指定する
+     。詳細は*note Fringe Bitmaps::を参照のこと。
+
+‘(space-width FACTOR)’
+     このディスプレイ仕様は、この仕様をもつテキスト内の
+     すべてのスペース文字に効果を及ぼす。これらすべての
+     スペースは、通常の幅のFACTOR倍の幅で表示される。要
+     素FACTORは整数か浮動小数点数であること。スペース以
+     外の文字は影響を受けない。特に、これはタブ文字に影
+     響を与えない。
+
+‘(height HEIGHT)’
+     このディスプレイ仕様は、テキストを高く(taller)、ま
+     たは低く(shorter)する。HEIGHTには以下を指定できる:
+
+     ‘(+ N)’
+          これは、Nステップ大きいフォントの使用を意味す
+          る。“ステップ”は利用可能なフォントのセットから
+          定義される。具体的に“ステップ”は、このテキスト
+          に指定されたheight以外のすべての属性にマッチす
+          る。適切なフォントの各サイズは、別のステップと
+          して利用可能とみなされる。Nは整数であること。
+
+     ‘(- N)’
+          これはNステップ小さいフォントの使用を意味する
+          。
+
+     FACTOR(数値)
+          数値FACTORは、デフォルトフォントのFACTOR倍高い
+          フォントの使用を意味する。
+
+     FUNCTION(シンボル)
+          高さを計算する関数。この関数はカレントの高さを
+          引数として呼び出され、使用する新たな高さをリタ
+          ーンすること。
+
+     FORM(上記以外)
+          HEIGHTの値が上記のいずれにもマッチしなければ、
+          それはフォームである。Emacsは‘height’をカレン
+          トで指定されたフォントの高さにバインドして、新
+          たな高さを取得するために、そのフォームを評価す
+          る。
+
+‘(raise FACTOR)’
+     この種のディスプレイ仕様は、その行のベースラインに
+     相対的に、テキストを上(raise)、または下(lower)に指
+     定する。
+
+     FACTORは、影響を受けるテキストの高さにたいする乗数
+     として解釈される数値でなければならない。これが正な
+     ら、その文字を上に、負なら下に表示することを意味す
+     る。
+
+     そのテキストが‘height’ディスプレイ仕様ももつ場合、
+     それは上または下に表示する量には影響を与えない。上
+     または下に表示する量は、そのテキストにたいして使用
+     されるフェイスにもとづく。
+
+   任意のディスプレイ仕様にたいして、条件を作成できます
+。これを行うには、‘(when CONDITION . SPEC)’という形式の
+別リスト内にパッケージします。この場合、仕様SPECは
+CONDITIONが非‘nil’値に評価されたときだけ適用されます。こ
+の評価の間、‘object’は条件つき‘display’プロパティをもつ
+文字列、またはバッファーにバインドされます。‘position’と
+‘buffer-position’はそれぞれ‘object’内の位置、および
+‘display’プロパティが見つかったバッファー位置にバインド
+されます。‘object’が文字列の際は、両者の位置は異なるかも
+しれません。
+
+
+File: elisp,  Node: Display Margins,  Prev: Other Display Specs,  Up: Display Property
+
+37.16.5 Displaying in the Margins
+---------------------------------
+
+バッファーはその左側と右側に、“ディスプレイマージン
+(display margins)”と呼ばれる、ブランクエリアをもつことが
+できます。それらのエリア内には、通常はテキストが出現する
+ことはありませんが、‘display’プロパティを使用して、ディ
+スプレイマージン内に何かを配置することができます。現在の
+ところ、マージン内のテキストやイメージをマウスセンシティ
+ブにする方法はありません。
+
+   マージン内に何かを表示するには、テキストの‘display’プ
+ロパティのマージン表示仕様(margin display
+specification)で、それを指定します。これは、配置したテキ
+ストが表示されないことを意味する、置換表示仕様です。マー
+ジン表示は表示されますが、そのテキストは表示されません。
+
+   マージン表示仕様とは‘((margin right-margin) SPEC)’や
+‘((margin left-margin) SPEC)’のようなものです。ここで
+SPECは、マージン内に何を表示するかを告げる、別の表示仕様
+です。典型的にはこれは表示するテキスト文字列、またはイメ
+ージディスクリプタです。
+
+   特定のバッファーテキストに_関連する_マージンに何かを
+表示するためには、そのテキストに‘before-string’プロパテ
+ィを付して、そのコンテンツとしてマージン表示仕様をputし
+ます。
+
+   ディスプレイマージンが何かを表示可能になる前に、それ
+らに非0の幅を与えなければなりません。これを行う通常の方
+法は、以下の変数をセットする方法です:
+
+ -- Variable: left-margin-width
+     この変数は左マージンの幅を、文字セル(別名は“列”)単
+     位で指定する。これは、すべてのバッファーでバッファ
+     ーローカルである。値‘nil’は、左マージンエリアなしを
+     意味する。
+
+ -- Variable: right-margin-width
+     この変数は右マージンの幅を、文字セル単位で指定する
+     。これは、すべてのバッファーでバッファーローカルで
+     ある。値‘nil’は、右マージンエリアなしを意味する。
+
+   これらの変数をセットしても、そのウィンドウには即座に
+は反映されません。これらの変数は、そのウィンドウ内に新た
+なバッファーを表示する際にチェックされます。したがって、
+‘set-window-buffer’を呼び出すことにより、変更を反映する
+ことができます。
+
+   マージン幅を即座にセットすることもできます。
+
+ -- Function: set-window-margins window left &optional
+          right
+     この関数は、ウィンドウWINDOWのマージン幅を、文字セ
+     ル単位で指定する。引数LEFTは左マージン、RIGHTは右マ
+     ージン(デフォルトは‘0’)を制御する。
+
+ -- Function: window-margins &optional window
+     この関数は、WINDOWの左マージンと右マージンの幅を、
+     ‘(LEFT . RIGHT)’という形式のコンスセルでリターンす
+     る。2つのマージンエリアのいずれか一方が存在しなけれ
+     ば、その幅は‘nil’としてリターンされる。2つのマージ
+     ンがどちらも存在しない場合、この関数は‘(nil)’をリタ
+     ーンする。WINDOWが‘nil’なら、選択されたウィンドウが
+     使用される。
+
+
+File: elisp,  Node: Images,  Next: Buttons,  Prev: Display Property,  Up: Display
+
+37.17 Images
+============
+
+Emacsバッファー内にイメージを表示するためには、最初にイ
+メージディスクリプタを作成して、それを表示されるテキスト
+の‘display’プロパティ(*note Display Property::を参照)内
+のディスプレイ指定子として使用しなければなりません。
+
+   Emacsはグラフィカルな端末で実行時は、通常はイメージの
+表示が可能です。テキスト端末、イメージサポートを欠く特定
+のグラフ^ィカル端末、またはイメージサポートなしでコンパ
+イルされたEmacsでは、イメージは表示できません。原則イメ
+ージが表示可能か判断するためには、関数
+‘display-images-p’を使用できます(*note Display Feature
+Testing::を参照)。
+
+* Menu:
+
+* Image Formats::            サポートされるイメージフォーマット。
+* Image Descriptors::        ‘:display’内で使用されるイメージの指定方法。
+* XBM Images::               XBMフォーマット用の特別な機能。
+* XPM Images::               XPMフォーマット用の特別な機能。
+* PostScript Images::        PostScriptフォーマット用の特別な機能。
+* ImageMagick Images::       ImageMagickを通じて利用できる特別な機能。
+* Other Image Types::        サポートされるその他さまざまなフォーマット。
+* Defining Images::          後で使用するためにイメージを定義する便利な方法。
+* Showing Images::           一度定義されたイメージを表示するための便利な方法。
+* Multi-Frame Images::       1つ以上のフレームを含むイメージ。
+* Image Cache::              イメージ表示の内部的メカニズム。
+
+
+File: elisp,  Node: Image Formats,  Next: Image Descriptors,  Up: Images
+
+37.17.1 Image Formats
+---------------------
+
+Emacsは、いくつかの異なるフォーマットのイメージを表示で
+きます。これらのイメージフォーマットのいくつかは、特定の
+サポートライブラリーがインストールされている場合のみサポ
+ートされます。いくつかのプラットフォームでは、Emacsはオ
+ンデマンドでサポートライブラリーをロードできます。そのよ
+うな場合には、それらの動的ライブラリーにたいする既知の名
+前セットを変更するために、変数‘dynamic-library-alist’を
+使用できます。*note Dynamic Libraries::を参照してくださ
+い。
+
+   サポートされるイメージフォーマット(と要求されるサポー
+トライブラリー)にはPBMとXBM(サポートライブラリーに依存せ
+ず常に利用可能)、XPM(‘libXpm’)、GIF (‘libgif’または
+‘libungif’)、PostScript(‘gs’)、JPEG(‘libjpeg’)、
+TIFF(‘libtiff’)、PNG(‘libpng’)、SVG (‘librsvg’)が含まれ
+ます。
+
+   これらのイメージフォーマットはそれぞれ、“イメージタイ
+プシンボル(image type symbol)”に関連付けられます。上記の
+フォーマットにたいするシンボルは順に‘pbm’、‘xbm’、
+‘xpm’、‘gif’、‘postscript’、‘jpeg’、‘tiff’、‘png’、
+‘svg’になります。
+
+   さらにImageMagick(‘libMagickWand’)のサポートつきで
+Emacsをビルドした場合には、EmacsはImageMagickが表示可能
+なイメージフォーマットを表示できます。*note ImageMagick
+Images::を参照してください。ImageMagickを通じて表示され
+るすべてのイメージは、タイプシンボル‘imagemagick’をもち
+ます。
+
+ -- Variable: image-types
+     この変数はカレント構成で潜在的にサポートされるイメ
+     ージフォーマットにたいする、タイプシンボルのリスト
+     を含む。
+
+     “潜在的”とは、Emacsがそのイメージタイプを知っている
+     ことを意味しており、実際に使用可能である必要はない
+     (たとえば動的ライブラリーが利用できないせいかもしれ
+     ない)。どのイメージタイプが実際に利用できるか知るた
+     めには、‘image-type-available-p’を使用すること。
+
+ -- Function: image-type-available-p type
+     この関数は、タイプTYPEのイメージのロードおよび表示
+     が可能なら非‘nil’をリターンする。TYPEはイメージタイ
+     プシンボルであること。
+
+     サポートライブラリーが静的にリンクされたイメージタ
+     イプにたいして、この関数は常に‘t’をリターンする。サ
+     ポートライブラリーが動的にロードされるイメージタイ
+     プにたいしては、そのライブラリーがロード可能なら
+     ‘t’、それ以外なら‘nil’をリターンする。
+
+
+File: elisp,  Node: Image Descriptors,  Next: XBM Images,  Prev: Image Formats,  Up: Images
+
+37.17.2 Image Descriptors
+-------------------------
+
+“イメージディスクリプタ(image descriptor)”とは、イメージ
+にたいする基礎的なデータと、それを表示する方法を指定する
+リストです。これは通常、オーバーレイプロパティまたはテキ
+ストプロパティ‘display’(*note Other Display Specs::を参
+照)の値を通じて使用されますが、バッファーにイメージを挿
+入する便利なヘルパー関数については、*note Showing
+Images::を参照してください。
+
+   イメージディスクリプタはそれぞれ‘(image . PROPS)’とい
+う形式をもちます。ここでPROPSはキーワードシンボルと値の
+ペアーからなるプロパティリストで、少なくともそのイメージ
+タイプを指定するペアー‘:type TYPE’を含みます。
+
+   以下は、すべてのイメージタイプにたいして意味のあるプ
+ロパティのリストです(以降のサブセクションで説明するよう
+に、特定のイメージタイプにたいしてのみ意味があるプロパテ
+ィも存在する):
+
+‘:type TYPE’
+     イメージタイプ。 *note Image Formats::を参照のこと
+     。 すべてのイメージディスクリプタは。このプロパティ
+     を含まなければならない。
+
+‘:file FILE’
+     これは、ファイルFILEからイメージをロードすることを
+     意味する。FILEが絶対ファイル名でなければ、それは
+     ‘data-directory’内で展開される。
+
+‘:data DATA’
+     これは、rawイメージデータを指定する。すべてのイメー
+     ジディスクリプタは、‘:data’か‘:file’のいずれかをも
+     たなければならないが、両方もつことはできない。
+
+     ほとんどのイメージタイプにたいして、‘:data’プロパテ
+     ィの値はイメージデータを含む、文字列であること。い
+     くつかのイメージタイプは、‘:data’をサポートしない。
+     それ以外のイメージタイプにたいしては、‘:data’単独で
+     は不十分であり、‘:data’とともに他のイメージプロパテ
+     ィを使用する必要がある。詳細は、以下のサブセクショ
+     ンを参照のこと。
+
+‘:margin MARGIN’
+     これは、そのイメージ周囲に余分なマージンとして、何
+     ピクセル追加するかを指定する。値MARGINは非負の数値
+     、またはそのような数値のペアー‘(X . Y)’でなければな
+     らない。ペアーの場合、Xは水平方向に追加するピクセル
+     数、Yは垂直方向に追加するピクセル数を指定する。
+     ‘:margin’が指定されない場合のデフォルトは0。
+
+‘:ascent ASCENT’
+     これは、イメージのアセント(ベースラインの上の部分
+     )に使用する、そのイメージの高さの分量を指定する。値
+     ASCENTは、から100の数値、またはシンボル‘center’でな
+     ければならない。
+
+     ASCENTが数値なら、アセントに使用するイメージの高さ
+     のパーセンテージであること。
+
+     ASCENTが‘center’なら、そのイメージにたいしてテキス
+     トプロパティおよびオーバーレイプロパティにより指定
+     される方法で、センターライン(そのイメージ位置にテキ
+     ストを描画する際の垂直方向のセンターライン)の垂直方
+     向中心にイメージが配置される。
+
+     このプロパティが省略された場合のデフォルトは500。
+
+‘:relief RELIEF’
+     これは、イメージ注意にシャドー矩形を追加する。値
+     RELIEFは、シャドーライン幅をピクセルで指定する。
+     RELIEFが負ならボタンを押下した状態、それ以外はボタ
+     ンを押下していない状態のイメージでシャドーを描画す
+     る。
+
+‘:conversion ALGORITHM’
+     これは、イメージを表示する前に適用するべき、変換ア
+     ルゴリズムを指定する。値ALGORITHMは、どのアルゴリズ
+     ムかを指定する。
+
+     ‘laplace’
+     ‘emboss’
+          カラーの大きい差異を強調して小さな差異を不鮮明
+          にする、ラプラスエッジ検出アルゴリズム(Laplace
+          edge detection algorithm)を指定する。“無効”な
+          ボタンのイメージ表示に、これが役立つと考える人
+          もいます。
+
+     ‘(edge-detection :matrix MATRIX :color-adjust ADJUST)’
+          一般的なエッジ検出アルゴリズムを指定する。
+          MATRIXは数値からなる9要素のリスト、またはベク
+          ターでなければならない。変換されたイメージ内の
+          位置x/yにあるピクセルは、その位置周辺にある元
+          のピクセルから計算される。MATRIXは、x/yに近接
+          する各ピクセルにたいして、そのピクセルが変換先
+          ピクセルに影響するファクター(factor: 要因)を指
+          定する。以下のように、要素0はx-1/y-1にあるピク
+          セルのファクター、要素1はx/y-1にあるピクセルに
+          たいするファクター、...を指定する。
+                 (x-1/y-1  x/y-1  x+1/y-1
+                  x-1/y    x/y    x+1/y
+                  x-1/y+1  x/y+1  x+1/y+1)
+
+          結果のピクセルは、周辺ピクセルのRGB値を合計し
+          たカラーを指定されたファクターで乗じ、その合計
+          をファクター絶対値の合計で除した色強度から計算
+          される。
+
+          ラプラスエッジ検出は、現在のところは以下のマト
+          リクス
+                 (1  0  0
+                  0  0  0
+                  0  0 -1)
+
+          エンボスエッジ検出(Emboss edge-detection)は以
+          下のマトリクスを使用する
+                 ( 2 -1  0
+                  -1  0  1
+                   0  1 -2)
+
+     ‘disabled’
+          イメージが“無効(disabled)”に見えるよう変換する
+          ことを指定する。
+
+‘:mask MASK’
+     MASKが‘heuristic’か‘(heuristic BG)’なら、フレームの
+     バックグラウンドがイメージ背後に見えるよう、そのイ
+     メージのクリッピングマスクを構築する。BGが未指定ま
+     たは‘t’なら、イメージ4隅に最頻するカラーをそのイメ
+     ージのバックグラウンドカラーとみなしてバックグラウ
+     ンドカラーを決定する。それ以外ならBGは、そのイメー
+     ジのバックグラウンドとみなすべきカラーを指定するリ
+     スト‘(RED GREEN BLUE)’でなければならない。
+
+     MASKが‘nil’なら、イメージがマスクをもつ場合はマスク
+     を削除する。マスクを含むフォーマットのイメージは、
+     ‘:mask nil’を指定することにより削除される可能性があ
+     る。
+
+‘:pointer SHAPE’
+     これはマウスポインターがそのイメージ上にある際の、
+     ポインターシェイプを指定する。利用可能なポインター
+     シェイプについては、*note Pointer Shape::を参照のこ
+     と。
+
+‘:map MAP’
+     これは、そのイメージに“ホットスポット(hot spots)”の
+     イメージマップを関連付ける。
+
+     イメージマップは、各要素が‘(AREA ID PLIST)’という形
+     式をもつalistである。AREAはにはrectangle(矩形)、
+     circle(円)、またはpolygon(ポリゴン、多角形)のいずれ
+     かを指定する。
+
+     rectangleは、矩形エリアの左上隅と右下隅のピクセル座
+     標を指定するコンス‘(rect . ((X0 . Y0) . (X1 .
+     Y1)))’である。
+
+     circleは、円の中心と半径を指定するコンス‘(circle .
+     ((X0 . Y0) . R))’である。Rは整数または浮動小数点数
+     。
+
+     polygonは、各ペアーが多角形の1つの頂点を記述するコ
+     ンス‘(poly . [X0 Y0 X1 Y1 ...])’である。
+
+     マウスポインターがホットスポット上にある際は、その
+     ホットスポットのPLISTが参照される。これが
+     ‘help-echo’プロパティを含むならそのホットスポットの
+     ツールチップを指定し、‘pointer’プロパティを含む場合
+     はマウスカーソルがホットスポット上にあるときのマウ
+     スカーソルのシェイプを指定する。利用可能なポインタ
+     ーシェイプについては、*note Pointer Shape::を参照の
+     こと。
+
+     マウスポインターがホットスポット上にあるときにマウ
+     スをクリックしたときのイベントは、ホットスポットの
+     IDとマウスイベントを組み合わせて構成される。たとえ
+     ば、ホットスポットのIDが‘area4’なら、‘[area4
+     mouse-1]’となる。
+
+ -- Function: image-mask-p spec &optional frame
+     この関数は、イメージSPECがマスクビットマップをもつ
+     なら、‘t’をリターンする。FRAMEはそのイメージが表示
+     されるフレームである。FRAMEが‘nil’または省略された
+     場合は、選択されたフレームが使用される(*note Input
+     Focus::を参照)。
+
+
+File: elisp,  Node: XBM Images,  Next: XPM Images,  Prev: Image Descriptors,  Up: Images
+
+37.17.3 XBM Images
+------------------
+
+XBMフォーマットを使用するには、イメージタイプとして
+‘xbm’を指定します。このイメージフォーマットは外部ライブ
+ラリーを要求せず、このタイプのイメージは常にサポートされ
+ます。
+
+   ‘xbm’イメージタイプにたいして、追加のイメージプロパテ
+ィがサポートされます:
+
+‘:foreground FOREGROUND’
+     値FOREGROUNDはそのイメージのフォアグラウンドカラー
+     を指定する文字列、またはデフォルトカラーを指定する
+     ‘nil’であること。このカラーはXBM内の1の各ピクセルに
+     使用される。デフォルトは、そのフレームのフォアグラ
+     ウンドカラーである。
+
+‘:background BACKGROUND’
+     値BACKGROUNDはそのイメージのバックグラウンドカラー
+     を指定する文字列、またはデフォルトカラーを指定する
+     ‘nil’であること。このカラーはXBM内の0の各ピクセルに
+     使用される。デフォルトは、そのフレームのバックグラ
+     ウンドカラーである。
+
+   外部ファイルのかわりに、Emacs内のデータを指定して
+XBMイメージを指定するには、以下の3つのプロパティを使用す
+る:
+
+‘:data DATA’
+     値DATAは、そのイメージのコンテンツを指定する。
+     DATAとして使用できる、3つのフォーマットが存在する:
+
+        • それぞれがイメージの1ラインを指定するような、
+          文字列ベクターまたはboolベクター。‘:height’と
+          ‘:width’を指定する。
+
+        • 文字列なら、XBMファイルが含むのと同じバイトシ
+          ーケンスを含む。この場合は‘:height’と
+          ‘:width’を指定してはならない。これらを省略する
+          ことが、そのデータがXBMファイルのフォーマット
+          をもつことを示すからである。イメージの高さと幅
+          は、ファイルのコンテンツにより指定される。
+
+        • イメージのビット(もしかしたら終端の使用されな
+          い余分なビットを含む)を含む文字列、または
+          boolベクター。少なくともWIDTH * ‘height’ビット
+          を含むこと。この場合は、その文字列がXBMファイ
+          ル全体ではなく、単にビットだけを含むことを示す
+          とともに、そのイメージのサイズを指定するために
+          、‘:height’と‘:width’を指定しなければならない
+          。
+
+‘:width WIDTH’
+     値WIDTHは、ピクセル単位でイメージの幅を指定する。
+
+‘:height HEIGHT’
+     値HEIGHTは、ピクセル単位でイメージの高さを指定する
+     。
+
+
+File: elisp,  Node: XPM Images,  Next: PostScript Images,  Prev: XBM Images,  Up: Images
+
+37.17.4 XPM Images
+------------------
+
+XPMフォーマットを使用するには、イメージタイプに‘xpm’を指
+定します。‘xpm’イメージタイプでは、追加のプロパティ
+‘:color-symbols’にも意味があります。
+
+‘:color-symbols SYMBOLS’
+     値SYMBOLSは、要素が‘(NAME . COLOR)’という形式をもつ
+     ようなalistであること。各要素において、NAMEはイメー
+     ジファイル内に出現するカラー名、COLORはそのカラー名
+     の実際の表示に使用するカラーを指定する。
+
+
+File: elisp,  Node: PostScript Images,  Next: ImageMagick Images,  Prev: XPM Images,  Up: Images
+
+37.17.5 PostScript Images
+-------------------------
+
+あるイメージにたいしてPostScriptを使用するには、イメージ
+タイプ‘postscript’を指定します。これは、Ghostscriptがイ
+ンストールされている場合のみ機能します。常に以下の3つの
+プロパティを使用しなければなりません:
+
+‘:pt-width WIDTH’
+     値WIDTHはポイント(1/72インチ)単位で測ったイメージの
+     幅を指定する。WIDTHは整数でなければならない。
+
+‘:pt-height HEIGHT’
+     値HEIGHTはポイント(1/72インチ)単位で測ったイメージ
+     の高さを指定する。HEIGHTは整数でなければならない。
+
+‘:bounding-box BOX’
+     値BOXは、4つの整数からなるリストかベクターでなけれ
+     ばならない。これらの整数は、PostScriptファイルの
+     ‘BoundingBox’に類似した、PostScriptイメージのバウン
+     ディングボックスを指定する。
+
+          %%BoundingBox: 22 171 567 738
+
+
+File: elisp,  Node: ImageMagick Images,  Next: Other Image Types,  Prev: PostScript Images,  Up: Images
+
+37.17.6 ImageMagick Images
+--------------------------
+
+ImageMagickのサポートつきでEmacsをビルドした場合には、多
+くくのイメージフォーマットをロードするために、
+ImageMagickライブラリーを使用できます(*note (emacs)File
+Conveniences::を参照)。ImageMagickを通じてロードしたイメ
+ージのイメージタイプシンボルは、基礎となる実際のイメージ
+フォーマットとは無関係に、‘imagemagick’になります。
+
+ -- Function: imagemagick-types
+     この関数は、カレントのImageMagickインストールにより
+     サポートされる、イメージファイル拡張子のリストをリ
+     ターンする。リストの各要素は、‘.bmp’イメージは
+     ‘BMP’のように、イメージタイプにたいして内部的な
+     ImageMagick名を表すシンボルである。
+
+ -- User Option: imagemagick-enabled-types
+     この変数の値は、EmacsがImageMagickを使用してレンダ
+     リングを試みるかもしれない、ImageMagickイメージタイ
+     プのリストである。リストの各要素は、
+     ‘imagemagick-types’がリターンするリスト内のシンボル
+     のいずれか、または等価な文字列である。もしくは値
+     ‘t’はImageMagickにたいして利用できるすべてのイメー
+     ジタイプを有効にする。この変数の値とは関係なく、
+     ‘imagemagick-types-inhibit’(以下参照)が優先される。
+
+ -- User Option: imagemagick-types-inhibit
+     この変数の値は、‘imagemagick-enabled-types’の値とは
+     無関係に、ImageMagickを使用して決してレンダリングさ
+     れることのない、ImageMagickイメージタイプのリストで
+     ある。値‘t’は、ImageMagickを完全に無効にする。
+
+ -- Variable: image-format-suffixes
+     この変数は、イメージタイプをファイル名拡張子にマッ
+     ピングするalistである。Emacsは、ImageMagickライブラ
+     リーにイメージのタイプに関するヒントを与えるために
+     、この変数と‘:format’イメージプロパティ(以下参照)を
+     組み合わせて使用する。各要素は‘(TYPE EXTENSION)’と
+     いう形式をもち、TYPEはイメージのcontent-typeを指定
+     するシンボル、EXTENSIONは関連付けられるファイル名拡
+     張子を指定する文字列である。
+
+   ImageMagickによりロードされたイメージは、追加で以下の
+イメージディスクリプタプロパティをサポートします:
+
+‘:background BACKGROUND’
+     BACKGROUNDが非‘nil’なら、カラーを指定する文字列であ
+     ること。これはイメージが透明度をサポートする場合に
+     、そのイメージのバックグラウンドカラーとして使用さ
+     れる。値が‘nil’の場合のデフォルトは、そのフレームの
+     バックグラウンドカラー。
+
+‘:width WIDTH, :height HEIGHT’
+     キーワード‘:width’と‘:height’は、イメージのスケーリ
+     ングに使用される。いずれか一方のみが指定された場合
+     には、アスペクト比を保つために、もう一方は算出され
+     る。両方が指定された場合には、アスペクト比は保たれ
+     ないかもしれない。
+
+‘:max-width MAX-WIDTH, :max-height MAX-HEIGHT’
+     キーワード‘:max-width’と‘:max-height’は、イメージの
+     サイズがこれらの値を超過した場合のスケーリングに使
+     用される。‘:width’がセットされた場合には
+     ‘max-width’より優先され、‘:height’がセットされた場
+     合には‘max-height’より優先されるだろうが、それ以外
+     ではこれらのキーワードを望むように混交できる。
+     ‘:max-width’と‘:max-height’は常に、アスペクト比を保
+     つであろう。
+
+‘:format TYPE’
+     値TYPEは、‘image-format-suffixes’で見られるような、
+     イメージのタイプを指定するシンボルであること。これ
+     はイメージが関連付けられたファイル名をもたない際に
+     、そのイメージタイプを検出する助けとなるヒントを
+     ImageMagickに提供する。
+
+‘:rotation ANGLE’
+     回転角度を度数で指定する。
+
+‘:index FRAME’
+     *note Multi-Frame Images::を参照のこと。
+
+
+File: elisp,  Node: Other Image Types,  Next: Defining Images,  Prev: ImageMagick Images,  Up: Images
+
+37.17.7 Other Image Types
+-------------------------
+
+PBMイメージには、イメージタイプ‘pbm’を指定します。カラー
+、グレースケール、およびモノクロのイメージがサポートされ
+ます。モノクロのPBMイメージにたいしては、2つの追加イメー
+ジプロパティがサポートされます。
+
+‘:foreground FOREGROUND’
+     値FOREGROUNDは、そのイメージのフォアグラウンドカラ
+     ーを指定する文字列、またはデフォルトカラーなら
+     ‘nil’であること。このカラーは、そのPBM内の1であるよ
+     うなピクセルすべてに使用される。デフォルトは、フレ
+     ームのフォアグラウンドカラー。
+
+‘:background BACKGROUND’
+     値BACKGROUNDは、そのイメージのバックグラウンドカラ
+     ーを指定する文字列、またはデフォルトカラーなら
+     ‘nil’であること。このカラーは、そのPBM内の0であるよ
+     うなピクセルすべてに使用される。デフォルトは、フレ
+     ームのバックグラウンドカラー。
+
+Emacsがサポート可能な、残りのイメージタイプは以下のとお
+り:
+
+GIF
+     イメージタイプ‘gif’。‘:index’プロパティをサポートす
+     る。*note Multi-Frame Images::を参照のこと。
+
+JPEG
+     イメージタイプ‘jpeg’。
+
+PNG
+     イメージタイプ‘png’。
+
+SVG
+     イメージタイプ‘svg’。
+
+TIFF
+     イメージタイプ‘tiff’。‘:index’プロパティをサポート
+     する。*note Multi-Frame Images::を参照のこと。
+
+
+File: elisp,  Node: Defining Images,  Next: Showing Images,  Prev: Other Image Types,  Up: Images
+
+37.17.8 Defining Images
+-----------------------
+
+関数‘create-image’、‘defimage’、‘find-image’はイメージデ
+ィスクリプタを作成するための便利な手段を提供します。
+
+ -- Function: create-image file-or-data &optional type
+          data-p &rest props
+     この関数は、FILE-OR-DATA内のデータを使用するイメー
+     ジディスクリプタを作成してリターンする。
+     FILE-OR-DATAはファイル名、またはイメージデータを含
+     む文字列を指定できる。前者の場合DATA-Pは‘nil’、後者
+     なら非‘nil’であること。
+
+     オプション引数TYPEは、イメージタイプを指定するシン
+     ボルである。TYPEが省略または‘nil’なら、
+     ‘create-image’はファイル先頭の数バイト、またはファ
+     イル名からイメージタイプの判断を試みる。
+
+     残りの引数PROPSは追加のイメージプロパティを指定する
+     。たとえば、
+
+          (create-image "foo.xpm" 'xpm nil :heuristic-mask t)
+
+     このタイプのイメージがサポートされていなければ、こ
+     の関数は‘nil’、それ以外ならイメージディスクリプタを
+     リターンする。
+
+ -- Macro: defimage symbol specs &optional doc
+     このマクロは、イメージマクロとしてSYMBOLを定義する
+     。引数SPECSは、そのイメージの表示方法を指定するリス
+     トである。3つ目の引数DOCは、オプションのドキュメン
+     ト文字列である。
+
+     SPECS内の各要素はプロパティリストの形式をもち、それ
+     ぞれが少なくとも‘:type’プロパティと、‘:file’か
+     ‘:data’いずれかのプロパティをもつべきである。
+     ‘:type’の値はイメージタイプを指定するシンボル、
+     ‘:file’の値はイメージをロードするファイル、
+     ‘:data’の値は実際のイメージデータを含む文字列である
+     こと。以下は例である:
+
+          (defimage test-image
+            ((:type xpm :file "~/test1.xpm")
+             (:type xbm :file "~/test1.xbm")))
+
+     ‘defimage’はそれが使用可能か、つまりそのタイプがサ
+     ポートされているかとファイルが存在するかを確認する
+     ために、各要素を1つずつテストする。最初に使用可能な
+     引数が、SYMBOL内に格納するイメージディスクリプタを
+     作成するために使用される。
+
+     機能する候補がなければ、SYMBOLは‘nil’として定義され
+     る。
+
+ -- Function: find-image specs
+     この関数は、イメージ仕様SPECSのリストの1つを満足す
+     るイメージを探す、便利な手段を提供する。
+
+     SPECS内の各仕様は、イメージタイプに応じた内容のプロ
+     パティリストである。すべての仕様は少なくとも‘:type
+     TYPE’、および‘:file FILE’か‘:data DATA’いずれかのプ
+     ロパティを含まなければならない。ここでTYPEは‘xbm’の
+     ようにイメージタイプを指定するシンボル、FILEはイメ
+     ージをロードするファイル、DATAは実際のイメージデー
+     タを含む文字列である。このリスト内でTYPEがサポート
+     されていて、かつFILEが存在する最初の仕様は、リター
+     ンされるイメージ仕様の構築に使用される。満足する仕
+     様がなければ、‘nil’がリターンされる。
+
+     イメージは、‘image-load-path’内で検索される。
+
+ -- Variable: image-load-path
+     この変数の値は、イメージファイルを検索する場所のリ
+     ストである。要素が文字列、または値が文字列であるよ
+     うな変数シンボルなら、その文字列は検索を行うディレ
+     クトリーとされる。値がリストであるような変数シンボ
+     ルの場合、それは検索を行うディレクトリーのリストと
+     される。
+
+     デフォルトでは‘data-directory’で指定されたディレク
+     トリーのサブディレクトリー‘images’、次に
+     ‘data-directory’で指定されたディレクトリー、最後に
+     ‘load-path’で指定されたディレクトリー内を検索する。
+     サブディレクトリーは自動的には検索に含まれないので
+     、イメージファイルをサブディレクトリー内に配置した
+     場合は、サブディレクトリー名を明示的に与える必要が
+     ある。たとえば‘data-directory’内でイメージ
+     ‘images/foo/bar.xpm’を見つけるには、以下のようにそ
+     のイメージを指定すること:
+
+          (defimage foo-image '((:type xpm :file "foo/bar.xpm")))
+
+ -- Function: image-load-path-for-library library image
+          &optional path no-error
+     この関数は、LispパッケージLIBRARYにより使用されるイ
+     メージにたいして、適切な検索パスをリターンする。
+
+     この関数はまず
+     ‘image-load-path’(‘data-directory/images’を除外)を
+     使用し、次に‘load-path’の後にLIBRARYにとって適切な
+     パス(ライブラリーファイル自身にたいする相対パス
+     ‘../../etc/images’と‘../etc/images’を含む)を補い、
+     最後に‘data-directory/images’からIMAGEを検索する。
+
+     その後にこの関数は、先頭にIMAGEが見つかったディレク
+     トリー、その後に‘load-path’の値が続く、ディレクトリ
+     ーのリストをリターンする。PATHが与えられた場合は、
+     それを‘load-path’のかわりに使用する。
+
+     NO-ERRORが非‘nil’で、かつ適切なパスが見つからない場
+     合に、エラーをシグナルしない。かわりに前記のディレ
+     クトリーリストをリターンするが、イメージのディレク
+     トリーの箇所に‘nil’が出現する点が異なる。
+
+     以下は‘image-load-path-for-library’の使用例である:
+
+          (defvar image-load-path) ; shush compiler
+          (let* ((load-path (image-load-path-for-library
+                              "mh-e" "mh-logo.xpm"))
+                 (image-load-path (cons (car load-path)
+                                        image-load-path)))
+            (mh-tool-bar-folder-buttons-init))
+
+
+File: elisp,  Node: Showing Images,  Next: Multi-Frame Images,  Prev: Defining Images,  Up: Images
+
+37.17.9 Showing Images
+----------------------
+
+自分で‘display’プロパティをセットアップすることでイメー
+ジディスクリプタを使用できますが、このセクションの関数を
+使用するほうがより簡単です。
+
+ -- Function: insert-image image &optional string area
+          slice
+     この関数は、カレントバッファーのポイント位置に
+     IMAGEを挿入する。IMAGEは、イメージディスクリプタで
+     あること。これは‘create-image’によりリターンされた
+     値、または‘defimage’で定義されたシンボルの値かもし
+     れない。引数STRINGは、イメージを保持するためにバッ
+     ファー内に配すテキストを指定する。これが省略または
+     ‘nil’なら、‘insert-image’はデフォルトで‘" "’を使用
+     する。
+
+     引数AREAは、マージン内にイメージを置くかどうかを指
+     定する。これが‘left-margin’なら左マージンにイメージ
+     が表示され、‘right-margin’なら右マージンを指定する
+     。AREAが‘nil’または省略された場合、イメージはバッフ
+     ァーのテキスト内のポイント位置に表示される。
+
+     引数SLICEは、挿入するイメージのスライスを指定する。
+     SLICEが‘nil’または省略された場合は、そのイメージ全
+     体が挿入される。それ以外では、SLICEがリスト‘(X Y
+     WIDTH HEIGHT)’ならXとYは位置、WIDTHとHEIGHTは挿入す
+     るイメージの領域を指定する。整数値はピクセル単位。
+     0.0から1.0までの浮動小数点数は、イメージ全体の幅ま
+     たは高さにたいする割合を指定する。
+
+     内部的には、この関数はバッファー内にSTRINGを挿入し
+     て、IMAGEを指定する‘display’プロパティにそれを渡す
+     。*note Display Property::を参照のこと。
+
+ -- Function: insert-sliced-image image &optional string
+          area rows cols
+     この関数は‘insert-image’と同様、カレントバッファー
+     内にIMAGEを挿入するが、イメージをROWS✕COLSの同一サ
+     イズのスライスに分割する。
+
+     イメージが“スライス”されて挿入されると、Emacsは各ス
+     ライスを個別のイメージとして表示して、(巨大な)イメ
+     ージを表示するバッファーのページングの際、イメージ
+     全体を上下にジャンプするのではなく、より直感的な上
+     下スクロールが可能になる。
+
+ -- Function: put-image image pos &optional string area
+     この関数は、カレントバッファー内のPOSの前に、イメー
+     ジIMAGEを配置する。引数POSは整数、またはマーカーで
+     あること。これは、イメージが表示されるべきバッファ
+     ー位置を指定する。引数STRINGは、代替として表示され
+     るべきデフォルトのイメージを保持するテキストである
+     こと。
+
+     引数IMAGEはイメージディスクリプタでなければならず、
+     それは‘create-image’がリターンされたか、あるいは
+     ‘defimage’により格納されたイメージディスクリプタか
+     もしれない。
+
+     引数AREAは、マージン内にイメージを置くかどうかを指
+     定する。これが‘left-margin’なら左マージンにイメージ
+     が表示され、‘right-margin’なら右マージンを指定する
+     。AREAが‘nil’または省略された場合、イメージはバッフ
+     ァーのテキスト内のポイント位置に表示される。
+
+     内部的には、この関数はオーバーレイを作成して、値が
+     そのイメージであるような‘display’プロパティをもつテ
+     キストを含む、‘before-string’プロパティをそのオーバ
+     ーレイに与えている(なんと!)。
+
+ -- Function: remove-images start end &optional buffer
+     この関数は、BUFFERの位置STARTとENDの間のイメージを
+     削除する。BUFFERが省略または‘nil’なら、カレントバッ
+     ファーからイメージを削除する。
+
+     これは‘put-image’が行う方法でBUFFERに配置されたイメ
+     ージだけを削除し、‘insert-image’や他の方法で挿入さ
+     れたイメージは削除しない。
+
+ -- Function: image-size spec &optional pixels frame
+     この関数は、ペアー‘(WIDTH . HEIGHT)’として、イメー
+     ジのサイズをリターンする。SPECはイメージ仕様である
+     。PIXELSが非‘nil’ならピクセル単位、それ以外なら
+     canonicalな文字単位(そのフレームのデフォルトフォン
+     トの幅/高さの割合)で量ったサイズをリターンする。
+     FRAMEは、イメージが表示されるフレームである。
+     FRAMEが‘nil’または省略された場合は、選択されたフレ
+     ームを使用する(*note Input Focus::を参照)。
+
+ -- Variable: max-image-size
+     この変数は、Emacsがロードするイメージの最大サイズを
+     定義するために使用される。Emacsはこの制限より大きい
+     イメージのロード(と表示)を拒絶するだろう。
+
+     値が整数なら、それはピクセル単位で量ったイメージの
+     最大の高さと幅を、直接指定する。浮動小数点数なら、
+     そのフレームの高さおよび幅にたいする比率として、イ
+     メージの最大の高さと幅を指定する。値が数値でなけれ
+     ば、イメージサイズにたいする明示的な制限は存在しな
+     い。
+
+     この変数の目的は、意図せずEmacsに不当に大きなイメー
+     ジがロードされるとを防ぐことである。これは、イメー
+     ジの初回ロード時だけ効果がある。イメージが一度イメ
+     ージキャッシュに置かれると、その後
+     ‘max-image-size’の値が変更されても、そのイメージは
+     常に表示可能である(*note Image Cache::を参照)。
+
+
+File: elisp,  Node: Multi-Frame Images,  Next: Image Cache,  Prev: Showing Images,  Up: Images
+
+37.17.10 Multi-Frame Images
+---------------------------
+
+複数のイメージを含むことができるイメージファイルがいくつ
+かあります。わたしたちはこのような場合、イメージ内に複数
+の“フレーム”があると表現しています。現在のところ、
+EmacsはGIF、TIFF、およびDJVMのような特定のImageMagickフ
+ォーマットにたいして、複数フレームをサポートします。
+
+   フレームは、複数の“ページ”を表現するため(通常は、たと
+えばマルチフレームTIFFの場合)、あるいはアニメーションを
+作成するため(通常はマルチフレームGIFファイルの場合)に使
+用できます。
+
+   マルチフレームイメージは、表示されるフレームを指定す
+る整数値(0から数える)が値であるような、プロパティ
+‘:index’をもっています。
+
+ -- Function: image-multi-frame-p image
+     この関数は、IMAGEが2つ以上のフレームを含む場合は、
+     非‘nil’をリターンする。実際のリターン値はコンス
+     ‘(NIMAGES . DELAY)’で、NIMAGESはフレーム数、DELAYは
+     フレーム間の遅延秒数、イメージが遅延を指定しない場
+     合は‘nil’である。通常、アニメーションを意図されたイ
+     メージはフレームの遅延を指定し、複数ページとして扱
+     われることを意図したイメージは指定しない。
+
+ -- Function: image-current-frame image
+     この関数はIMAGEにたいして、0から数えたカレントフレ
+     ーム番号のインデックスをリターンする。
+
+ -- Function: image-show-frame image n &optional nocheck
+     この関数は、IMAGEをフレーム番号Nとスイッチする。
+     NOCHECKが‘nil’なら、有効範囲外のフレーム番号を範囲
+     終端に置き換える。IMAGEが指定された番号のフレームを
+     含まなければ、イメージは中貫きの四角(hollow box)で
+     表示される。
+
+ -- Function: image-animate image &optional index limit
+     この関数は、IMAGEをアニメーション表示する。オプショ
+     ンの整数INDEXは、開始するフレームを指定する(デフォ
+     ルトは0)。オプション引数LIMITは、アニメーションの長
+     さを制御する。これが省略または‘nil’なら、アニメーシ
+     ョン回数は1回、‘t’なら永久にループ表示する。数値な
+     ら、その秒数後にアニメーションは停止する。
+
+アニメーションはタイマーにより処理されます。Emacsは最小
+のフレーム遅延を0.01秒(‘image-minimum-frame-delay’)とす
+ることに注意してください。そのイメージ自身が遅延を指定し
+なければ、Emacsは‘image-default-frame-delay’を使用します
+。
+
+ -- Function: image-animate-timer image
+     この関数は、もし存在すればIMAGEのアニメーションに責
+     任をもつタイマーをリターンする。
+
+
+File: elisp,  Node: Image Cache,  Prev: Multi-Frame Images,  Up: Images
+
+37.17.11 Image Cache
+--------------------
+
+Emacsはイメージをより効果的に再表示できるように、イメー
+ジをキャッシュします。Emacsがイメージを表示する際、既存
+のイメージ仕様が望む仕様と‘equal’なイメージキャッシュを
+検索します。マッチが見つかったら、そのイメージはキャッシ
+ュから表示され、それ以外ではイメージは通常のようにロード
+されます。
+
+ -- Function: image-flush spec &optional frame
+     この関数は、フレームFRAMEのイメージキャッシュから、
+     仕様SPECのイメージを削除する。イメージ仕様の比較に
+     は、‘equal’を使用する。FRAMEが‘nil’の場合のデフォル
+     トは選択されたフレーム。FRAMEが‘t’なら、そのイメー
+     ジはすべての既存フレームでフラッシュされる。
+
+     Emacsのカレント実装では、各グラフィカル端末はイメー
+     ジキャッシュを処理して、それはその端末上のすべての
+     フレームにより共有される(*note Multiple
+     Terminals::を参照)。つまりあるフレームでイメージを
+     リフレッシュすると、同一端末上の他のすべてのフレー
+     ムでもリフレッシュされる。
+
+   ‘image-flush’の1つの用途は、Emacsにイメージファイルの
+変更を伝えることです。イメージ仕様が‘:file’プロパティを
+含む場合、そのイメージの初回表示時にそのファイルコンテン
+ツにもとづいて、イメージがキャッシュされます。たとえその
+後にファイルが変更されても、Emacsはそのイメージの古いバ
+ージョンを表示し続けます。‘image-flush’を呼び出すことに
+よりそのイメージはキャッシュからフラッシュされ、そのイメ
+ージの表示が次回必要になった際に、Emacsにファイルの再読
+み込みを強制します。
+
+   ‘image-flush’の他の用途は、メモリー節約です。Lispプロ
+グラムで‘image-cache-eviction-delay’(以下参照)より遥かに
+短い期間に多数の一時イメージを作成する場合には、Emacsが
+自動的に行うことを待たずに、自身で使用されていないイメー
+ジのフラッシュを選択できます。
+
+ -- Function: clear-image-cache &optional filter
+     この関数は、イメージキャッシュ内に格納されたすべて
+     のイメージを削除して、イメージキャッシュをクリアー
+     する。FILTERが省略または‘nil’なら、選択されたフレー
+     ムにたいしてキャッシュをクリアーする。FILTERがフレ
+     ームなら、そのフレームにたいしてキャッシュをクリア
+     ーする。FILTERが‘t’なら、すべてのイメージキャッシュ
+     をクリアーする。それ以外なら、FILTERはファイル名と
+     して解釈され、すべてのイメージキャッシュからそのフ
+     ァイル名に関連付けられたすべてのイメージを削除する
+     。
+
+   イメージキャッシュ内のイメージが指定された期間内に表
+示されなければ、Emacsはそれをキャッシュから削除して、割
+り当てられたメモリーを解放します。
+
+ -- Variable: image-cache-eviction-delay
+     この変数は、表示されることなくイメージがキャッシュ
+     内に残留できる秒数を指定する。あるイメージがこの秒
+     数の間に表示されなければ、Emacsはそれをイメージキャ
+     ッシュから削除する。
+
+     ある状況下では、もしキャッシュ内のイメージ数が大き
+     くなり過ぎた場合には、実際の立ち退き遅延(eviction
+     delay)はこれより短くなり得る。
+
+     値が‘nil’なら、明示的にキャッシュをクリアーした場合
+     を除き、Emacsはキャッシュからイメージを削除しない。
+     このモードはデバッグ時に有用かもしれない。
+
+
+File: elisp,  Node: Buttons,  Next: Abstract Display,  Prev: Images,  Up: Display
+
+37.18 Buttons
+=============
+
+Buttonパッケージは、マウスまたはキーボードコマンドにより
+アクティブ化することができる、“ボタン(buttons)”の挿入と
+操作に関する関数を定義します。これらのボタンは典型的には
+、種々のハイパーリンクに使用されます。
+
+   本質的にボタンとは、バッファー内のテキスト範囲にアタ
+ッチされた、テキストプロパティまたはオーバーレイプロパテ
+ィのセットです。これらのプロパティは、“ボタンプロパティ
+(button properties)”と呼ばれます。これらのプロパティのう
+ちの1つは“アクションプロパティ(action property)”で、これ
+はユーザーがキーボードかマウスを使用してボタンを呼び出し
+た際に呼び出される関数を指定します。アクション関数はボタ
+ンを調べて、必要に応じて他のプロパティを使用できます。
+
+   いくつかの点において、ButtonパッケージとWidgetパッケ
+ージは機能的に重複しています。*note Introduction:
+(widget)Top.を参照してください。Buttonパッケージの利点は
+、より高速で小さく、プログラムにたいしてよりシンプルであ
+ることです。ユーザーの観点からは、2つのパッケージが提供
+するインターフェイスは非常に類似しています。
+
+* Menu:
+
+* Button Properties::        特別な意味をもつボタンプロパティ。
+* Button Types::             ボタンのクラスにたいして一般的なプロパティを定義する。
+* Making Buttons::           Emacsバッファーへのボタンの追加。
+* Manipulating Buttons::     ボタンプロパティの取得とセット。
+* Button Buffer Commands::   ボタンにたいするバッファー規模のコマンドとバインディング。
+
+
+File: elisp,  Node: Button Properties,  Next: Button Types,  Up: Buttons
+
+37.18.1 Button Properties
+-------------------------
+
+ボタンはその外観と振る舞いを定義するプロパティの連想リス
+ト(associated list)をもち、アプリケーションの特別な目的
+のために、他の任意のプロパティを使用できます。以下のプロ
+パティは、Buttonパッケージにたいして特別な意味をもちます
+:
+
+‘action’
+     ユーザーがボタンを呼び出した際に呼び出す関数で、単
+     一の引数BUTTONを渡して呼び出される。デフォルトでは
+     これは、何も行わない‘ignore’である。
+
+‘mouse-action’
+     これは‘action’と似ているが、もし与えられた際には、
+     (<RET>押下のかわりに)マウスクリックによりボタンが呼
+     び出された場合は、‘action’のかわりに使用される。与
+     えられない場合、マウスクリックはかわりに‘action’を
+     使用する。
+
+‘face’
+     これは、このタイプのボタンが表示される方法を制御す
+     るEmacsフェイスである。デフォルトでは‘button’フェイ
+     ス。
+
+‘mouse-face’
+     これはボタン上にマウスがある際の外観を制御する、追
+     加のフェイスである(通常のbuttonフェイスとマージされ
+     る)。デフォルトでは、これはEmacsの通常の
+     ‘highlight’フェイスである。
+
+‘keymap’
+     そのボタンリージョン(button region)でアクティブなバ
+     インディングを定義する、ボタンのキーマップである。
+     デフォルトでは、変数‘button-map’に格納された、通常
+     のボタンリージョンキーマップで、これはボタン呼び出
+     しにたいして<RET>と<mouse-2>を定義している。
+
+‘type’
+     ボタンのタイプ。*note Button Types::を参照のこと。
+
+‘help-echo’
+     Emacsのツールチップヘルプシステムにより表示あれる文
+     字列。デフォルトでは‘"mouse-2, RET: Push this
+     button"’。
+
+‘follow-link’
+     このボタンにたいして<Mouse-1>クリックが振る舞う方法
+     を定義するfollow-linkプロパティ。*note Clickable
+     Text::を参照のこと。
+
+‘button’
+     すべてのボタンは非‘nil’の‘button’プロパティをもち、
+     これはボタンを含むテキストリージョンを探すのに有用
+     かもしれない()標準的なボタン関数はこれを行う。
+
+   ボタン内のテキストリージョンにたいして定義された他の
+プロパティも存在しますが、それらは典型的な用途にたいして
+は一般的に関係ないでしょう。
+

@@ -1,0 +1,6130 @@
+This is elisp, produced by makeinfo version 6.6 from elisp.texi.
+
+This is the ‘GNU Emacs Lisp Reference Manual’
+corresponding to Emacs version 24.5.
+
+   Copyright © 1990–1996, 1998–2015 Free Software
+Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or
+     modify this document under the terms of the GNU
+     Free Documentation License, Version 1.3 or any
+     later version published by the Free Software
+     Foundation; with the Invariant Sections being “GNU
+     General Public License,” with the Front-Cover Texts
+     being “A GNU Manual,” and with the Back-Cover Texts
+     as in (a) below.  A copy of the license is included
+     in the section entitled “GNU Free Documentation
+     License.”
+
+     (a) The FSF’s Back-Cover Text is: “You have the
+     freedom to copy and modify this GNU manual.  Buying
+     copies from the FSF supports it in developing GNU
+     and promoting software freedom.”
+INFO-DIR-SECTION Emacs lisp
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).               The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+
+File: elisp,  Node: Building Lists,  Next: List Variables,  Prev: List Elements,  Up: Lists
+
+5.4 Building Cons Cells and Lists
+=================================
+
+リストはLispの核にあるので、リストを構築する多くの関数が
+あります。‘cons’はリストを構築する基本的な関数です。しか
+しEmacsのソースコードでは、‘cons’より‘list’のほうが多く
+使用されているのは興味深いことです。
+
+ -- Function: cons object1 object2
+     この関数は、新しいリスト構造を構築するための、もっ
+     とも基本的な関数です。この関数は、OBJECT1をCAR、
+     OBJECT2をCDRとする、新しいコンスセルを作成して、そ
+     れから新しいコンスセルをreturnします。引数OBJECT1と
+     OBJECT2は、任意のLispオブジェクトを指定できますが、
+     ほとんどの場合、OBJECT2はリストです。
+
+          (cons 1 '(2))
+               ⇒ (1 2)
+          (cons 1 '())
+               ⇒ (1)
+          (cons 1 2)
+               ⇒ (1 . 2)
+
+     リストの先頭に1つの要素を追加するために、‘cons’がよ
+     く使用されます。これは、“リストに要素をコンスする
+     ”と言います。(1)たとえば:
+
+          (setq list (cons newelt list))
+
+     この例で使用されている‘list’という名前の変数と、以
+     下で説明する‘list’という名前の関数は、競合しないこ
+     とに注意してください。任意のシンボルは、両方の役割
+     を果たすことができます。
+
+ -- Function: list &rest objects
+     この関数は、OBJECTSを要素とするリストを作成します。
+     結果となるリストは、常に‘nil’終端されます。
+     OBJECTSを指定しない場合、空リストがreturnされます。
+
+          (list 1 2 3 4 5)
+               ⇒ (1 2 3 4 5)
+          (list 1 2 '(3 4 5) 'foo)
+               ⇒ (1 2 (3 4 5) foo)
+          (list)
+               ⇒ nil
+
+ -- Function: make-list length object
+     この関数は、各要素がOBJECTの、LENGTH個の要素からな
+     るリストを作成します。‘make-list’と
+     ‘make-string’(*note Creating Strings::を参照してく
+     ださい)を比較してみてください。
+
+          (make-list 3 'pigs)
+               ⇒ (pigs pigs pigs)
+          (make-list 0 'pigs)
+               ⇒ nil
+          (setq l (make-list 3 '(a b)))
+               ⇒ ((a b) (a b) (a b))
+          (eq (car l) (cadr l))
+               ⇒ t
+
+ -- Function: append &rest sequences
+     この関数は、SEQUENCESのすべての要素を服務リストを
+     returnします。SEQUENCESには、リスト、ベクター、ブー
+     ルベクター、文字列も指定できますが、通常は最後にリ
+     ストを指定するべきです。最後の引数を除くすべての引
+     数はコピーされるので、変更される引数はありません(コ
+     ピーを行なわずにリストを結合する方法については、
+     *note Rearrangement::の‘nconc’を参照してください)。
+
+     より一般的には、‘append’にたいする最後の引数は、任
+     意のLispオブジェクトかもしれません。最後の引数は、
+     コピーまたは変換されません。最後の引数は、新しいリ
+     ストの最後のコンスセルのCDRになります。最後の引数も
+     リストならば、このリストの要素は、実質的には結果リ
+     ストの要素になります。最後の要素がリストでない場合
+     、最後のCDRが(真リストで要求される)‘nil’ではないの
+     で、結果はドットリストになります。
+
+   以下は‘append’を使用した例です:
+
+     (setq trees '(pine oak))
+          ⇒ (pine oak)
+     (setq more-trees (append '(maple birch) trees))
+          ⇒ (maple birch pine oak)
+
+     trees
+          ⇒ (pine oak)
+     more-trees
+          ⇒ (maple birch pine oak)
+     (eq trees (cdr (cdr more-trees)))
+          ⇒ t
+
+   ‘append’がどのように機能するか、ボックスダイアグラム
+で見ることができます。変数‘trees’はリスト‘(pine oak)’に
+セットされ、それから変数‘more-trees’にリスト‘(maple
+birch pine oak)’がセットされます。しかし変数‘trees’は継
+続して元のリストを参照します:
+
+     more-trees                trees
+     |                           |
+     |     --- ---      --- ---   -> --- ---      --- ---
+      --> |   |   |--> |   |   |--> |   |   |--> |   |   |--> nil
+           --- ---      --- ---      --- ---      --- ---
+            |            |            |            |
+            |            |            |            |
+             --> maple    -->birch     --> pine     --> oak
+
+   空のシーケンスは、‘append’によりreturnされる値に寄与
+しません。この結果、最後の引数に‘nil’を指定すると、それ
+より前の引数のコピーを強制することになります。
+
+     trees
+          ⇒ (pine oak)
+     (setq wood (append trees nil))
+          ⇒ (pine oak)
+     wood
+          ⇒ (pine oak)
+     (eq wood trees)
+          ⇒ nil
+
+これは関数‘copy-sequence’が導入される以前は、リストをコ
+ピーする通常の方法でした。*note Sequences Arrays
+Vectors::を参照してください。
+
+   以下は、‘append’の引数としてベクターと文字列を使用す
+る例です:
+
+     (append [a b] "cd" nil)
+          ⇒ (a b 99 100)
+
+   ‘apply’ (*note Calling Functions::を参照してください
+)の助けを借りることにより、リストのリストの中の、すべて
+のリストをappendできます。
+
+     (apply 'append '((a b c) nil (x y z) nil))
+          ⇒ (a b c x y z)
+
+   SEQUENCESが与えられない場合、‘nil’がreturnされます:
+
+     (append)
+          ⇒ nil
+
+   以下は、最後の引数がリストでない場合の例です:
+
+     (append '(x y) 'z)
+          ⇒ (x y . z)
+     (append '(x y) [z])
+          ⇒ (x y . [z])
+
+2番目の例は、最後の引数はシーケンスですがリスとではない
+場合で、このシーケンスの要素は、結果リストの要素にはなり
+ません。かわりに、最後の引数がリストでないときと同様、シ
+ーケンスが最後のCDRになります。
+
+ -- Function: reverse list
+     この関数は、要素はLISTの要素ですが、順序が逆の新し
+     いリストを作成します。元の引数LISTは、変更_されませ
+     ん_。
+
+          (setq x '(1 2 3 4))
+               ⇒ (1 2 3 4)
+          (reverse x)
+               ⇒ (4 3 2 1)
+          x
+               ⇒ (1 2 3 4)
+
+ -- Function: copy-tree tree &optional vecp
+     この関数はツリー‘tree’のコピーをreturnします。
+     TREEがコンスセルの場合、同じCARとCDRをもつ新しいコ
+     ンスセルを作成してから、同じ方法によりCARとCDRを再
+     帰的にコピーします。
+
+     通常、TREEがコンスセル以外の場合、‘copy-tree’は単に
+     TREEをreturnします。しかし、VECPが非‘nil’の場合、こ
+     の関数はベクターでもコピーします(そしてベクターの要
+     素を再帰的に処理します)。
+
+ -- Function: number-sequence from &optional to
+          separation
+     これは、FROMからSEPARATIONづつインクリメントして、
+     TOの直前で終わる、数字のリストをreturnします。
+     SEPARATIONには正または負の数を指定でき、デフォルト
+     は1です。TOが‘nil’、または数的にFROMと等しい場合、
+     値は1要素のリスト‘(FROM)’になります。SEPARATIONが正
+     でTOがFROMより小さい場合、またはSEPARATIONが負で
+     TOがFROMより大きい場合、これらの引数は空のシーケン
+     スを指示することになるので、値は‘nil’になります。
+
+     SEPARATIONが0で、TOが‘nil’でもなく、数的にFROMとも
+     等しくない場合、これらの引数は無限シーケンスを指示
+     することになるので、エラーがシグナルされます。
+
+     引数はすべて数字です。浮動少数の計算は正確ではない
+     ので、浮動少数の引数には用心する必要があります。た
+     とえばマシンに依存して、‘(number-sequence 0.4 0.8
+     0.2)’が3要素のリストをreturnするのに、
+     ‘(number-sequence 0.4 0.6 0.2)’が1要素のリスト
+     ‘(0.4)’をreturnすることがよく起こります。リストの
+     N番目の要素は、厳密に‘(+ FROM (* N SEPARATION))’と
+     いう式により計算されます。したがって、リストに確実
+     にTOが含まれるようにするには、この式に適切な型の
+     TOを渡すことができます。別の方法として、TOを少しだ
+     け大きな値(SEPARATIONが負の場合は、少しだけ小さな値
+     )に置き換えることもできます。
+
+     いくつか例を示します:
+
+          (number-sequence 4 9)
+               ⇒ (4 5 6 7 8 9)
+          (number-sequence 9 4 -1)
+               ⇒ (9 8 7 6 5 4)
+          (number-sequence 9 4 -2)
+               ⇒ (9 7 5)
+          (number-sequence 8)
+               ⇒ (8)
+          (number-sequence 8 5)
+               ⇒ nil
+          (number-sequence 5 8 -1)
+               ⇒ nil
+          (number-sequence 1.5 6 2)
+               ⇒ (1.5 3.5 5.5)
+
+   ---------- Footnotes ----------
+
+   (1) リストの最後に要素を追加するための、これと完全に
+同等な方法はありません。LISTNAMEをコピーすることにより、
+新しいリストを作成してから、NEWELTをそのリストの最後に追
+加する、‘(append LISTNAME (list NEWELT))’を使用すること
+ができます。すべてのCDRを辿って、終端の‘nil’を置き換える
+、‘(nconc LISTNAME (list NEWELT))’を使用することもできま
+す。コピーも変更も行なわずに、リストの先頭に要素を追加す
+る‘cons’と比較してみてください。
+
+
+File: elisp,  Node: List Variables,  Next: Modifying Lists,  Prev: Building Lists,  Up: Lists
+
+5.5 Modifying List Variables
+============================
+
+これらの関数、および1つのマクロは、変数に格納されたリス
+トを変更する便利な方法を提供します。
+
+ -- Macro: push element listname
+     このマクロは、CARがELEMENTで、CDRがLISTNAMEで指定さ
+     れたリストであるような新しいリストを作成して、その
+     リストをLISTNAMEに保存します。単純なのは、
+     LISTNAMEはリストに名前をつけるクォートされていない
+     シンボルのときで、この場合マクロは
+     ‘(setq LISTNAME (cons ELEMENT LISTNAME))’と等価です
+     。
+
+          (setq l '(a b))
+               ⇒ (a b)
+          (push 'c l)
+               ⇒ (c a b)
+          l
+               ⇒ (c a b)
+
+     より一般的なのは、‘listname’が汎変数の場合です。こ
+     の場合、このマクロは
+     ‘(setf LISTNAME (cons ELEMENT LISTNAME))’と等価です
+     。*note Generalized Variables::を参照してください。
+
+     リストから1番目の要素を取り出す‘pop’マクロについて
+     は、*note List Elements::を参照してください。
+
+   以下の2つの関数は、変数の値であるリストを変更します。
+
+ -- Function: add-to-list symbol element &optional
+          append compare-fn
+     この関数は、ELEMENTがSYMBOLの値のメンバーでない場合
+     は、SYMBOLにELEMENTをコンスすることにより、変数
+     SYMBOLをセットします。この関数は、リストが更新され
+     ているかに関わらず、結果のリストをreturnします
+     SYMBOLの値は、呼び出し前にすでにリストであることが
+     望ましいです。ELEMENTがリストの既存メンバーか比較す
+     るために、‘add-to-list’はCOMPARE-FNを使用します。
+     COMPARE-FNが‘nil’の場合は、‘equal’を使用します。
+
+     ELEMENTが追加される場合は通常、SYMBOLの前に追加され
+     ますが、オプションの引数APPENDが非‘nil’の場合は、最
+     後に追加されます。
+
+     引数SYMBOLは、暗黙にクォートされません。‘setq’とは
+     異なり、‘add-to-list’は‘set’のような通常の関数です
+     。クォートしたい場合は自分で引数をクォートします。
+
+   以下は‘add-to-list’を使用する方法をシナリオで示します
+:
+
+     (setq foo '(a b))
+          ⇒ (a b)
+
+     (add-to-list 'foo 'c)     ;; ‘c’を追加。
+          ⇒ (c a b)
+
+     (add-to-list 'foo 'b)     ;; 効果なし。
+          ⇒ (c a b)
+
+     foo                       ;; ‘foo’が変更された。
+          ⇒ (c a b)
+
+   以下は‘(add-to-list 'VAR VALUE)’と等価な式です:
+
+     (or (member VALUE VAR)
+         (setq VAR (cons VALUE VAR)))
+
+ -- Function: add-to-ordered-list symbol element
+          &optional order
+     この関数は、古い値(リストでなければなりません)の
+     ORDERで指定された位置に、ELEMENTを挿入することによ
+     り、変数SYMBOLをセットします。ELEMENTがすでにこのリ
+     ストのメンバーである場合、リスト内の要素の位置は
+     ORDERにしたがって調整されます。メンバーかどうかは、
+     ‘eq’を使用してテストされます。この関数は、更新され
+     ているかどうかに関わらず、結果のリストをreturnしま
+     す。
+
+     ORDERは通常、数字(正数か浮動小数)で、リストの要素は
+     、その数字の昇順で並べられます。
+
+     ORDERを省略または‘nil’にすることもできます。これに
+     より、リストにELEMENTがすでに存在する場合、
+     ELEMENTの数字順序は変更されません。それ以外では、
+     ELEMENTは数字順序をもちません。リストの数字順序をも
+     たない要素は、リストの最後に配され、特別な順序はつ
+     きません。
+
+     ORDERに他の値を指定した場合、ELEMENTがすでに数字順
+     序をもつときは数字順序が削除されます。それ以外は、
+     ‘nil’と同じです。
+
+     引数SYMBOLは、暗黙にクォートされません。
+     ‘add-to-ordered-list’は、‘setq’などとは異なり、
+     ‘set’のような通常の関数です。必要な場合は引数を自分
+     でクォートしてください。
+
+     順序の情報は、SYMBOLの‘list-order’プロパティーのハ
+     ッシュテーブルに保存されます。
+
+   以下に‘add-to-ordered-list’を使用する方法をシナリオで
+示します:
+
+     (setq foo '())
+          ⇒ nil
+
+     (add-to-ordered-list 'foo 'a 1)     ;; ‘a’を追加。
+          ⇒ (a)
+
+     (add-to-ordered-list 'foo 'c 3)     ;; ‘c’を追加。
+          ⇒ (a c)
+
+     (add-to-ordered-list 'foo 'b 2)     ;; ‘b’を追加。
+          ⇒ (a b c)
+
+     (add-to-ordered-list 'foo 'b 4)     ;; ‘b’を移動。
+          ⇒ (a c b)
+
+     (add-to-ordered-list 'foo 'd)       ;; ‘d’を後に追加。
+          ⇒ (a c b d)
+
+     (add-to-ordered-list 'foo 'e)       ;; ‘e’を追加。
+          ⇒ (a c b e d)
+
+     foo                       ;; ‘foo’が変更された。
+          ⇒ (a c b e d)
+
+
+File: elisp,  Node: Modifying Lists,  Next: Sets And Lists,  Prev: List Variables,  Up: Lists
+
+5.6 Modifying Existing List Structure
+=====================================
+
+基本関数‘setcar’および‘setcdr’により、コンスセルのCARお
+よびCDRの内容を変更できます。わたしたちは、これらが既存
+のリスト構造を変更することから、これらを“破壊的”処理と呼
+びます。
+
+     Common Lispに関する注意: Common Lispはリスト構造の
+     変更に‘rplaca’および‘rplacd’を使用します。これらは
+     ‘setcar’や‘setcdr’と同じ方法でリスト構造を変更しま
+     すが、‘setcar’と‘setcdr’は新しいCARまたはCDRを
+     returnするのにたいし、Common Lispの関数はコンスセル
+     をreturnします。
+
+* Menu:
+
+* Setcar::                   リスト内の要素の置き換え。
+* Setcdr::                   リストの根幹部分の置き換え。これは要素の追加や削除に使用されます。
+* Rearrangement::            リスト内の要素の再配置、リストの合成。
+
+
+File: elisp,  Node: Setcar,  Next: Setcdr,  Up: Modifying Lists
+
+5.6.1 Altering List Elements with ‘setcar’
+------------------------------------------
+
+コンスセルのCARの変更は、‘setcar’により行なわれます。リ
+ストにたいして使用された場合、‘setcar’はリストの1つの要
+素を、他の要素に置き換えます。
+
+ -- Function: setcar cons object
+     この関数は、以前のCARを置き換えて、CONSの新しい
+     CARにOBJECTを格納します。他の言い方をすると、この関
+     数はCONSのCARスロットを、OBJECTを参照するように変更
+     します。この関数は値OBJECTをreturnします。たとえば:
+
+          (setq x '(1 2))
+               ⇒ (1 2)
+          (setcar x 4)
+               ⇒ 4
+          x
+               ⇒ (4 2)
+
+   コンスセルが、複数のリストが共有された構造の一部の場
+合、コンスに新しいCARを格納することにより、これら共有さ
+れたリストの各1つの要素を変更します。以下は例です:
+
+     ;; 部分的に共有された2つのリストを作成。
+     (setq x1 '(a b c))
+          ⇒ (a b c)
+     (setq x2 (cons 'z (cdr x1)))
+          ⇒ (z b c)
+
+     ;; 共有されたリンクのCARを置き換え。
+     (setcar (cdr x1) 'foo)
+          ⇒ foo
+     x1                           ; 両方のリストが変更された。
+          ⇒ (a foo c)
+     x2
+          ⇒ (z foo c)
+
+     ;; 共有されていないリンクのCARを置き換え。
+     (setcar x1 'baz)
+          ⇒ baz
+     x1                           ; 1つのリストだけが変更された。
+          ⇒ (baz foo c)
+     x2
+          ⇒ (z foo c)
+
+   なぜ‘b’を置き換えると両方が変更されるのかを説明するた
+めに、変数‘x1’と‘x2’の2つのリストによる共有構造を視覚化
+してみましょう:
+
+             --- ---        --- ---      --- ---
+     x1---> |   |   |----> |   |   |--> |   |   |--> nil
+             --- ---        --- ---      --- ---
+              |        -->   |            |
+              |       |      |            |
+               --> a  |       --> b        --> c
+                      |
+            --- ---   |
+     x2--> |   |   |--
+            --- ---
+             |
+             |
+              --> z
+
+   同じ関係を別のボックス図で示すと、以下のようになりま
+す:
+
+     x1:
+      --------------       --------------       --------------
+     | car   | cdr  |     | car   | cdr  |     | car   | cdr  |
+     |   a   |   o------->|   b   |   o------->|   c   |  nil |
+     |       |      |  -->|       |      |     |       |      |
+      --------------  |    --------------       --------------
+                      |
+     x2:              |
+      --------------  |
+     | car   | cdr  | |
+     |   z   |   o----
+     |       |      |
+      --------------
+
+
+File: elisp,  Node: Setcdr,  Next: Rearrangement,  Prev: Setcar,  Up: Modifying Lists
+
+5.6.2 Altering the CDR of a List
+--------------------------------
+
+CDRを変更するもっとも低レベルの基本関数は、‘setcdr’です:
+
+ -- Function: setcdr cons object
+     この関数は前のCDRを置き換えて、CONSの新しいCDRに
+     OBJECTを格納します。他の言い方をすると、この関数は
+     CONSのCDRを、OBJECTを参照するように変更します。この
+     関数は値OBJECTをreturnします。
+
+   以下はリストのCDRを、他のリストに置き換える例です。
+1番目の要素以外のすべての要素は、別のシーケンスまたは要
+素のために取り除かれます。1番目の要素はリストのCARなので
+変更されず、CDRを通じて到達することもできないからです。
+
+     (setq x '(1 2 3))
+          ⇒ (1 2 3)
+     (setcdr x '(4))
+          ⇒ (4)
+     x
+          ⇒ (1 4)
+
+   リスト内のコンスセルのCDRを変更することにより、リスト
+の途中から要素を削除できます。たとえば以下では、1番目の
+コンスセルのCDRを変更することにより、2番目の要素‘b’を、
+リスト‘(a b c)’から削除します。
+
+     (setq x1 '(a b c))
+          ⇒ (a b c)
+     (setcdr x1 (cdr (cdr x1)))
+          ⇒ (c)
+     x1
+          ⇒ (a c)
+
+   以下に結果をボックス表記で示します:
+
+                        --------------------
+                       |                    |
+      --------------   |   --------------   |    --------------
+     | car   | cdr  |  |  | car   | cdr  |   -->| car   | cdr  |
+     |   a   |   o-----   |   b   |   o-------->|   c   |  nil |
+     |       |      |     |       |      |      |       |      |
+      --------------       --------------        --------------
+
+以前は要素‘b’を保持していた2番目のコンスセルは、依然とし
+て存在して、そのCARも‘b’のままですが、すでにこのリストの
+一部を形成していません。
+
+   CDRを変更して、新しい要素を挿入するのも、同じくらい簡
+単です:
+
+     (setq x1 '(a b c))
+          ⇒ (a b c)
+     (setcdr x1 (cons 'd (cdr x1)))
+          ⇒ (d b c)
+     x1
+          ⇒ (a d b c)
+
+   以下に結果をボックス表記で示します:
+
+      --------------        -------------       -------------
+     | car  | cdr   |      | car  | cdr  |     | car  | cdr  |
+     |   a  |   o   |   -->|   b  |   o------->|   c  |  nil |
+     |      |   |   |  |   |      |      |     |      |      |
+      --------- | --   |    -------------       -------------
+                |      |
+          -----         --------
+         |                      |
+         |    ---------------   |
+         |   | car   | cdr   |  |
+          -->|   d   |   o------
+             |       |       |
+              ---------------
+
+
+File: elisp,  Node: Rearrangement,  Prev: Setcdr,  Up: Modifying Lists
+
+5.6.3 Functions that Rearrange Lists
+------------------------------------
+
+以下では、リストの構成要素であるコンスセルのCDRを変更す
+ることにより、リストを“破壊的”に再配置する関数をいくつか
+示します。これらの関数が“破壊的”だという理由は、これらの
+関数が引数として渡された元のリストを処理して、return値と
+なる新しいリストを形成するために、リストのコンスセルを再
+リンクするからです。
+
+   コンスセルを変更する他の関数については、*note Sets
+And Lists::の‘delq’を参照してください。
+
+ -- Function: nconc &rest lists
+     この関数は、LISTSの要素すべてを含むリストをreturnし
+     ます。‘append’ (*note Building Lists::を参照してく
+     ださい)とは異なり、LISTSはコピー_されません_。かわ
+     りにLISTSの各リストの最後のCDRが、次のリストを参照
+     するように変更されます。LISTSの最後のリストは、変更
+     されません。たとえば:
+
+          (setq x '(1 2 3))
+               ⇒ (1 2 3)
+          (nconc x '(4 5))
+               ⇒ (1 2 3 4 5)
+          x
+               ⇒ (1 2 3 4 5)
+
+     ‘nconc’の最後の引数は変更されないので、上記の例のよ
+     うに、‘'(4 5)’のような定数リストを使用するのが理に
+     適っています。また、同じ理由により、最後の引数がリ
+     スとである必要はありません。
+
+          (setq x '(1 2 3))
+               ⇒ (1 2 3)
+          (nconc x 'z)
+               ⇒ (1 2 3 . z)
+          x
+               ⇒ (1 2 3 . z)
+
+     しかし、(最後を除くすべての)他の引数はリストでなけ
+     ればなりません。
+
+     一般的な落とし穴としては、‘nconc’にたいしてクォート
+     されたリスト定数を、最後以外の引数として使用したと
+     きです。これを行なう場合、実行するごとにプログラム
+     はリスト定数を変更するでしょう! 何が起こるのかを以
+     下に示します:
+
+          (defun add-foo (x)            ; この関数では‘foo’
+            (nconc '(foo) x))           ;   を引数の前に追加させたい。
+
+          (symbol-function 'add-foo)
+               ⇒ (lambda (x) (nconc (quote (foo)) x))
+
+          (setq xx (add-foo '(1 2)))    ; 動いているように見える。
+               ⇒ (foo 1 2)
+          (setq xy (add-foo '(3 4)))    ; 何が起きているのか?
+               ⇒ (foo 1 2 3 4)
+          (eq xx xy)
+               ⇒ t
+
+          (symbol-function 'add-foo)
+               ⇒ (lambda (x) (nconc (quote (foo 1 2 3 4) x)))
+
+ -- Function: nreverse list
+     この関数は、LISTの要素の順番を逆転します。
+     ‘reverse’とは異なり、‘nreverse’はリストを形成する
+     CDR内のコンスセルを逆転することにより、引数を変更し
+     ます。LISTの最後に使用されているコンスセルは、最初
+     のコンスセルになります。
+
+     たとえば:
+
+          (setq x '(a b c))
+               ⇒ (a b c)
+          x
+               ⇒ (a b c)
+          (nreverse x)
+               ⇒ (c b a)
+          ;; 最初のコンスセルが最後になった。
+          x
+               ⇒ (a)
+
+     わたしたちは通常、混乱を避けるために、‘nreverse’の
+     結果を、元のリストを保持していたのと同じ変数に格納
+     します:
+
+          (setq x (nreverse x))
+
+     以下は、‘(a b c)’を視覚的に表した、‘nreverse’の例で
+     す:
+
+          元のリストの先頭:                         逆転されたリスト:
+           -------------        -------------        ------------
+          | car  | cdr  |      | car  | cdr  |      | car | cdr  |
+          |   a  |  nil |<--   |   b  |   o  |<--   |   c |   o  |
+          |      |      |   |  |      |   |  |   |  |     |   |  |
+           -------------    |   --------- | -    |   -------- | -
+                            |             |      |            |
+                             -------------        ------------
+
+ -- Function: sort list predicate
+     この関数は、LISTを安定的(しかし破壊的)にソートして
+     、ソートされたリストをreturnします。この関数は
+     PREDICATEを使用して要素を比較します。安定ソート
+     (stable sort)では、同じソートキーをもつ要素が、ソー
+     トの前後で相対的に同じ順序が維持されます。安定性は
+     、異なる条件によりソートするために要素を並び替える
+     ために、連続したソートが使用されるときに重要です。
+
+     引数PREDICATEは、2つの引数をとる関数でなければなり
+     ません。この関数はLISTの2つの要素を引数として呼び出
+     されます。昇順のソートを得るためのPREDICATEは、1番
+     目の引数が、2番目の引数より“小さい”ときは非‘nil’、
+     それ以外は‘nil’をreturnするようにします。
+
+     比較関数PREDICATEは、少なくとも単独の‘sort’呼び出し
+     において、任意の与えられた引数にたいして信頼できる
+     結果を与えなければありません。比較関数は“非対称的
+     (antisymmetric)” — つまりAがBより小さいとき、BはAよ
+     り小さくない — でなければなりません。比較関数は“推
+     移的(transitive)” — つまりAがBより小さく、BがCより
+     小さい場合、CはAより小さい — でなければなりません。
+     これらの要求を満たさない比較関数を使用した場合、
+     ‘sort’の結果は予測できません。
+
+     ‘sort’の破壊的な側面は、CDRを変更することにより、
+     LISTを形成するコンスセルを再配置することです。非破
+     壊的なソート関数の場合は、ソートされた要素を格納す
+     るために、あたらしいコンスセルを作成します。元のリ
+     ストを破壊せずにソートされたコピーを作成したい場合
+     は、‘copy-sequence’で最初にコピーしてから、それをソ
+     ートします。
+
+     ソートはLIST内のコンスセルのCARは変更しません。
+     LIST内でCARに要素‘a’を保持していたコンスセル、ソー
+     ト後にも‘a’を保持しますが、CDRは変更されるので、ソ
+     ート後の位置は異なります。たとえば:
+
+          (setq nums '(1 3 2 6 5 4 0))
+               ⇒ (1 3 2 6 5 4 0)
+          (sort nums '<)
+               ⇒ (0 1 2 3 4 5 6)
+          nums
+               ⇒ (1 2 3 4 5 6)
+
+     *警告*: ‘nums’のリストには0が含まれていないことに注
+     意してください。これは前と同じコンスセルですが、リ
+     ストの1番目ではなくなります。引数を保持するように形
+     成された変数が、ソートされたリストでも保持されると
+     仮定しないでください! かわりに‘sort’の結果を保存し
+     て、それを使用してください。元のリストを保持してい
+     た変数に、結果を書き戻すことはよく行なわれます。
+
+          (setq nums (sort nums '<))
+
+     ソート処理を行なう他の関数については、*note
+     Sorting::を参照してください。‘sort’の有用な例は、
+     *note Accessing Documentation::の‘documentation’を
+     参照してください。
+
+
+File: elisp,  Node: Sets And Lists,  Next: Association Lists,  Prev: Modifying Lists,  Up: Lists
+
+5.7 Using Lists as Sets
+=======================
+
+リストは順序なしの数学的集合 — リスト内に要素があれば集
+合の要素の値とされ、リスト内の順序は無視される — を表す
+ことができます。2つの集合を結合(union)するには、(重複す
+る要素を気にしない場合は)‘append’を使用します。‘equal’で
+ある重複を取り除くには、‘delete-dups’を使用します。集合
+にたいする他の有用な関数には、‘memq’や‘delq’、およびこれ
+らの‘equal’バージョンである‘member’と‘delete’が含まれま
+す。
+
+     Common Lispに関する注意: 集合を処理するために、
+     Common Lispには(要素の重複がない)関数‘union’があり
+     ます。これらの関数は標準のGNU Emacs Lispにはありま
+     せんが、‘cl-lib’はこれらを提供します。*note
+     (cl)Lists as Sets::を参照してください。
+
+ -- Function: memq object list
+     この関数は、OBJECTがLISTのメンバーかどうかをテスト
+     します。メンバーの場合、‘memq’はOBJECTで最初に見つ
+     かった要素から開始されるリストをreturnします。メン
+     バーでない場合は、‘nil’をreturnします。‘memq’の文字
+     ‘q’は、この関数がOBJECTとリスト内の要素の比較に、
+     ‘eq’を使用することを示します。たとえば:
+
+          (memq 'b '(a b c b a))
+               ⇒ (b c b a)
+          (memq '(2) '((1) (2)))    ; ‘(2)’と‘(2)’は‘eq’ではない。
+               ⇒ nil
+
+ -- Function: delq object list
+     この関数LISTからはOBJECTと‘eq’なすべての要素を破壊
+     的に取り除いて、結果のリストをreturnします。
+     ‘delq’の文字‘q’は、この関数がOBJECTとリスト内の要素
+     の比較に、‘eq’を使用することを示します(‘memq’や
+     ‘remq’と同様)。
+
+     ‘delq’を呼び出すときは通常、元のリストを保持してい
+     た変数にreturn値を割り当てて使用する必要があります
+     (理由は以下参照)。
+
+   ‘delq’関数がリストの銭湯にある要素を削除する場合は、
+単にリストを読み進めて、この要素の後から開始される部分リ
+ストをreturnします。つまり:
+
+     (delq 'a '(a b c)) ≡ (cdr '(a b c))
+
+リストの途中にある要素を削除するときは、必要なCDR(*note
+Setcdr::を参照してください)を変更することにより削除しま
+す。
+
+     (setq sample-list '(a b c (4)))
+          ⇒ (a b c (4))
+     (delq 'a sample-list)
+          ⇒ (b c (4))
+     sample-list
+          ⇒ (a b c (4))
+     (delq 'c sample-list)
+          ⇒ (a b (4))
+     sample-list
+          ⇒ (a b (4))
+
+   ‘(delq 'a sample-list)’は何も取り除きませんが(これは
+単に短いリストをreturnします)、‘(delq 'c sample-list)’は
+3番目の要素を取り除いて、‘sample-list’を変更することに注
+意してください。引数LISTを保持するように形成された変数が
+、実行後にもっと少ない要素になる、または元のリストを保持
+すると仮定しないでください! かわりに‘delq’の結果を保存し
+て、それを使用してください。元のリストを保持していた変数
+に、結果を書き戻すことはよく行なわれます。
+
+     (setq flowers (delq 'rose flowers))
+
+   以下の例では、‘delq’が比較しようとしている‘(4)’と、
+‘sample-list’内の‘(4)’は、‘eq’ではありません:
+
+     (delq '(4) sample-list)
+          ⇒ (a c (4))
+
+   与えられた値と‘equal’な要素を削除したい場合は、
+‘delete’(以下参照)を使用してください。
+
+ -- Function: remq object list
+     この関数は、OBJECTと‘eq’なすべての要素が除かれた、
+     LISTのコピーをreturnします。‘remq’の文字‘q’は、この
+     関数がOBJECTとリスト内の要素の比較に、‘eq’を使用す
+     ることを示します。
+
+          (setq sample-list '(a b c a b c))
+               ⇒ (a b c a b c)
+          (remq 'a sample-list)
+               ⇒ (b c b c)
+          sample-list
+               ⇒ (a b c a b c)
+
+ -- Function: memql object list
+     関数‘memql’は、‘eql’(浮動少数の要素は値で比較される
+     )を使用してメンバーと‘eql’を比較することにより、
+     OBJECTがLISTのメンバーかどうかをテストします。
+     OBJECTがメンバーの場合、‘memql’はLIST内で最初に見つ
+     かった要素から開始されるリストをreturnします。それ
+     以外は‘nil’をreturnします。
+
+     これを‘memq’と比較してみましょう:
+
+          (memql 1.2 '(1.1 1.2 1.3))  ; ‘1.2’と‘1.2’は‘eql’。
+               ⇒ (1.2 1.3)
+          (memq 1.2 '(1.1 1.2 1.3))  ; ‘1.2’と‘1.2’は‘eq’ではない。
+               ⇒ nil
+
+   以下の3つの関数は‘memq’、‘delq’、‘remq’と似ていますが
+、要素の比較に‘eq’ではなく、‘equal’を使用します。*note
+Equality Predicates::を参照してください。
+
+ -- Function: member object list
+     関数‘member’は、メンバーとOBJECTを‘equal’を使用して
+     比較して、OBJECTがLISTのメンバーかどうかをテストし
+     ます。OBJECTがメンバーの場合、‘member’はLISTで最初
+     に見つかったところから開始されるリストをreturnしま
+     す。それ以外は‘nil’を参照してください。
+
+     これを‘memq’と比較してみましょう:
+
+          (member '(2) '((1) (2)))  ; ‘(2)’ and ‘(2)’ are ‘equal’.
+               ⇒ ((2))
+          (memq '(2) '((1) (2)))    ; ‘(2)’と‘(2)’は‘eq’ではない。
+               ⇒ nil
+          ;; 同じ内容の2つの文字列は‘equal’。
+          (member "foo" '("foo" "bar"))
+               ⇒ ("foo" "bar")
+
+ -- Function: delete object sequence
+     この関数は、SEQUENCEからOBJECTと‘equal’な要素を取り
+     除いて、結果のシーケンスをreturnします。
+
+     SEQUENCEがリストの場合、‘delete’が‘delq’に対応する
+     ように、‘member’は‘memq’に対応します。つまり、この
+     関数は‘member’と同様、要素とOBJECTの比較に‘equal’を
+     使用します。マッチする要素が見つかったら、‘delq’が
+     行なうように、その要素を取り除きます。‘delq’と同様
+     、通常は元のリストを保持していた変数にreturn値を割
+     り当てて使用します。
+
+     ‘sequence’がベクターまたは文字列の場合、‘delete’は
+     ‘object’と‘equal’なすべての要素を取り除いた、
+     ‘sequence’のコピーをreturnします。
+
+     たとえば:
+
+          (setq l '((2) (1) (2)))
+          (delete '(2) l)
+               ⇒ ((1))
+          l
+               ⇒ ((2) (1))
+          ;; ‘l’の変更に信頼性を要するときは
+          ;; ‘(setq l (delete '(2) l))’と記述する。
+          (setq l '((2) (1) (2)))
+          (delete '(1) l)
+               ⇒ ((2) (2))
+          l
+               ⇒ ((2) (2))
+          ;; このケースでは‘l’のセットの有無に違いはない
+          ;; しかし他のケースに倣ってセットするべき。
+          (delete '(2) [(2) (1) (2)])
+               ⇒ [(1)]
+
+ -- Function: remove object sequence
+     この関数は、‘delete’に対応する非破壊的な関数です。
+     この関数は、‘object’と‘equal’な要素を取り除いた、
+     ‘sequence’(リスト、ベクター、文字列)のコピーを
+     returnします。たとえば:
+
+          (remove '(2) '((2) (1) (2)))
+               ⇒ ((1))
+          (remove '(2) [(2) (1) (2)])
+               ⇒ [(1)]
+
+     Common Lispに関する注意: GNU Emacs Lispの関数
+     ‘member’、‘delete’、‘remove’は、Common Lispではなく
+     、Maclispを継承しています。Common Lispでは、比較に
+     ‘equal’を使用しません。
+
+ -- Function: member-ignore-case object list
+     この関数は、‘member’と同様ですが、OBJECTが文字列で
+     、大文字小文字とテキスト表現の違いを無視します。文
+     字の大文字と小文字は等しいものとして扱われ、比較に
+     先立ちユニバイト文字列はマルチバイト文字列に変換さ
+     れます。
+
+ -- Function: delete-dups list
+     この関数は、LISTからすべての‘equal’な重複を、破壊的
+     に取り除いて。、結果をLISTに保管して、それを
+     returnします。LIST内の要素に‘equal’な要素がいくつか
+     ある場合、‘delete-dups’は最初の要素を残します。
+
+   変数に格納されたリストに要素を追加したり、それを集合
+として使用する方法については、*note List Variables::の関
+数‘add-to-list’も参照してください。
+
+
+File: elisp,  Node: Association Lists,  Next: Property Lists,  Prev: Sets And Lists,  Up: Lists
+
+5.8 Association Lists
+=====================
+
+“連想配列(association list。短くはalist)”は、キーと値の
+マッピングを記録します。これは“連想(associations)”と呼ば
+れるコンスセルのリストです。各コンスセルにおいて、CARは
+“キー(key)”で、CDRは“連想値(associated value)”になります
+。(1)
+
+   以下はalistの例です。キー‘pine’は、値‘cones’に関連付
+けられます。キー‘oak’は、‘acorns’に関連付けられます。キ
+ー‘maple’は、‘seeds’に関連付けられます。
+
+     ((pine . cones)
+      (oak . acorns)
+      (maple . seeds))
+
+   alist内の値とキーには、任意のLispオブジェクトを指定で
+きます。たとえば以下のalist0では、シンボル‘a’は数字‘1’に
+、文字列‘"b"’は_リスト_‘(2 3)’(alist要素のCDR)に関連付け
+られます。
+
+     ((a . 1) ("b" 2 3))
+
+   要素のCDRのCARに連想値を格納するようにalistデザインす
+るほうがよい場合があります。以下は、そのようなalistです
+。
+
+     ((rose red) (lily white) (buttercup yellow))
+
+この例では、‘red’が‘rose’に関連付けられる値だと考えます
+。この種のalistの利点は、CDRのCDRの中に、他の関連する情
+報 — 他のアイテムのリストでさえ — を格納することができる
+ことです。不利な点は、与えられた値を含む要素を見つけるた
+めに‘rassq’(以下参照)を使用できないことです。これらを検
+討することが重要でない場合には、任意の与えられたalistに
+たいして一貫している限り、選択は好みの問題といえます。
+
+   上記で示したのと同じalistは、要素のCDRに連想値をもつ
+と考えることができます。この場合、‘rose’に関連付けられる
+値は、リスト‘(red)’になるでしょう。
+
+   連想リストは、新しい連想を簡単にリストの先頭に追加で
+きるので、スタックに保持したいような情報を記録するのによ
+く使用されます。連想リストから与えられたキーにたいする連
+想を検索する場合、それが複数ある場合は、最初に見つかった
+ものがreturnされます。
+
+   Emacs Lispでは、連想リストがコンスセルではない場合、
+それはエラーでは_ありません_。alist検索関数は、単にその
+ような要素を無視します。多くの他のバージョンのLいspでは
+、このような場合はエラーをシグナルします。
+
+   いくつかの観点において、プロパティーリストは連想リス
+トと似ていることに注意してください。それぞれのキーが1度
+だけ出現するような場合、プロパティーリストは連想リストと
+同様に振る舞います。プロパティーリストと連想リストの比較
+については、*note Property Lists::を参照してください。
+
+ -- Function: assoc key alist
+     この関数は、alist要素にたいしてKEYを比較するのに
+     ‘equal’を使用して、ALIST内からKEYをもつ最初の連想を
+     returnします。CARがKEYと‘equal’の連想がALISTにない
+     場合、この関数は‘nil’をreturnします。たとえば:
+
+          (setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
+               ⇒ ((pine . cones) (oak . acorns) (maple . seeds))
+          (assoc 'oak trees)
+               ⇒ (oak . acorns)
+          (cdr (assoc 'oak trees))
+               ⇒ acorns
+          (assoc 'birch trees)
+               ⇒ nil
+
+     以下はキーと値がシンボルでない場合の例です:
+
+          (setq needles-per-cluster
+                '((2 "Austrian Pine" "Red Pine")
+                  (3 "Pitch Pine")
+                  (5 "White Pine")))
+
+          (cdr (assoc 3 needles-per-cluster))
+               ⇒ ("Pitch Pine")
+          (cdr (assoc 2 needles-per-cluster))
+               ⇒ ("Austrian Pine" "Red Pine")
+
+   関数‘assoc-string’は‘assoc’と似ていますが、文字列間の
+特定の違いを無視する点が異なります。*note Text
+Comparison::を参照してください。
+
+ -- Function: rassoc value alist
+     この関数は、ALISTの中から、値VALUEをもつ最初の連想
+     をreturnします。CDRがVALUEと‘equal’の連想がALISTに
+     ない場合、この関数は‘nil’をreturnします。
+
+     ‘rassoc’は‘assoc’と似ていますが、CARではなく、
+     ALISTの連想のCDRを比較します。この関数を、与えられ
+     た値に対応するキーを探す、“reverse ‘assoc’”と考える
+     ことができます。
+
+ -- Function: assq key alist
+     この関数は、ALISTからKEYをもつ最初の連想をreturnす
+     る点は‘assoc’と同様ですが、比較に‘equal’ではなく
+     ‘eq’を使用します。CARがKEYと‘eq’な連想がALIST内に存
+     在しない場合、‘assq’は‘nil’をreturnします。‘eq’は
+     ‘equal’より早く、ほとんどのalistはキーにシンボルを
+     使用するので、この関数は‘assoc’より多用されます。
+     *note Equality Predicates::を参照してください。
+
+          (setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
+               ⇒ ((pine . cones) (oak . acorns) (maple . seeds))
+          (assq 'pine trees)
+               ⇒ (pine . cones)
+
+     反対に、キーがシンボルではないalistでは通常、
+     ‘assq’は有用ではありません:
+
+          (setq leaves
+                '(("simple leaves" . oak)
+                  ("compound leaves" . horsechestnut)))
+
+          (assq "simple leaves" leaves)
+               ⇒ nil
+          (assoc "simple leaves" leaves)
+               ⇒ ("simple leaves" . oak)
+
+ -- Function: rassq value alist
+     この関数は、ALIST内から値VALUEをもつ最初の連想を
+     returnします。ALIST内にCDRがVALUEと‘eq’な連想が存在
+     しない場合は、‘nil’をreturnします。
+
+     ‘rassq’は‘assq’と似ていますが、CARではなく、ALISTの
+     各連想のCDRを比較します。この関数を、与えられた値に
+     対応するキーを探す、“reverse ‘assq’”と考えることが
+     できます。
+
+     たとえば:
+
+          (setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
+
+          (rassq 'acorns trees)
+               ⇒ (oak . acorns)
+          (rassq 'spores trees)
+               ⇒ nil
+
+     ‘rassq’は、要素のCDRのCARに保管された値の検索はでき
+     ません:
+
+          (setq colors '((rose red) (lily white) (buttercup yellow)))
+
+          (rassq 'white colors)
+               ⇒ nil
+
+     この場合、連想‘(lily white)’のCDRは‘white’ではなく
+     、リスト‘(white)’です。これは連想をドットペア表記で
+     記述すると明確になります:
+
+          (lily white) ≡ (lily . (white))
+
+ -- Function: assoc-default key alist &optional test
+          default
+     この関数は、KEYにたいするマッチをALISTから検索しま
+     す。ALISTの各要素にたいして、この関数は、KEYと要素
+     (アトムの場合)、または要素のCAR(コンスの場合)を比較
+     します。比較はTESTに2つの引数 — 要素(または要素の
+     CAR)とKEY — を与えて呼び出すことにより行なわれます
+     。引数はこの順番で渡されるので、正規表現(*note
+     Regexp Search::を参照してください)を含むalistでは、
+     ‘string-match’を使用することにより有益な結果を得る
+     ことができます。TESTが省略されているか‘nil’の場合は
+     、比較に‘equal’が使用されます。
+
+     alistの要素がこの条件によりKEYとマッチした場合、
+     ‘assoc-default’はこの要素の値をreturnします。要素が
+     コンスの場合、値は要素のCDRです。それ以外の場合、
+     return値はDEFAULTです。
+
+     KEYにマッチする要素がalistに存在しない場合、
+     ‘assoc-default’は‘nil’をreturnします。
+
+ -- Function: copy-alist alist
+     この関数は、深さ2がレベルのALISTのコピーをreturnし
+     ます。この関数は各連想の新しいコピーを作成するので
+     、元のalistを変更せずに、新しいalistを変更できます
+     。
+
+          (setq needles-per-cluster
+                '((2 . ("Austrian Pine" "Red Pine"))
+                  (3 . ("Pitch Pine"))
+                  (5 . ("White Pine"))))
+          ⇒
+          ((2 "Austrian Pine" "Red Pine")
+           (3 "Pitch Pine")
+           (5 "White Pine"))
+
+          (setq copy (copy-alist needles-per-cluster))
+          ⇒
+          ((2 "Austrian Pine" "Red Pine")
+           (3 "Pitch Pine")
+           (5 "White Pine"))
+
+          (eq needles-per-cluster copy)
+               ⇒ nil
+          (equal needles-per-cluster copy)
+               ⇒ t
+          (eq (car needles-per-cluster) (car copy))
+               ⇒ nil
+          (cdr (car (cdr needles-per-cluster)))
+               ⇒ ("Pitch Pine")
+          (eq (cdr (car (cdr needles-per-cluster)))
+              (cdr (car (cdr copy))))
+               ⇒ t
+
+     以下の例は、どのようにして‘copy-alist’が他に影響を
+     与えずにコピーの連想を変更可能なのかを示します:
+
+          (setcdr (assq 3 copy) '("Martian Vacuum Pine"))
+          (cdr (assq 3 needles-per-cluster))
+               ⇒ ("Pitch Pine")
+
+ -- Function: assq-delete-all key alist
+     この関数は、ALISTから、(‘delq’を使用した場合は、そ
+     のような要素を1つずつ削除するのにたいして)CARが
+     KEYと‘eq’な要素すべてを削除します。この関数は短くな
+     ったalistをreturnし、ALISTの元のリスト構造を変更す
+     ることもよくあります。正しい結果を得るために、
+     ALISTに保存された値ではなく、‘assq-delete-all’の
+     return値を使用してください。
+
+          (setq alist '((foo 1) (bar 2) (foo 3) (lose 4)))
+               ⇒ ((foo 1) (bar 2) (foo 3) (lose 4))
+          (assq-delete-all 'foo alist)
+               ⇒ ((bar 2) (lose 4))
+          alist
+               ⇒ ((foo 1) (bar 2) (lose 4))
+
+ -- Function: rassq-delete-all value alist
+     この関数は、ALISTからCDRがVALUEと‘eq’なすべての要素
+     を削除します。この関数は短くなったリストをreturnし
+     、ALISTの元のリスト構造を変更することもよくあります
+     。‘rassq-delete-all’は‘assq-delete-all’と似ています
+     が、CARではなくALISTの各連想のCDRを比較します。
+
+   ---------- Footnotes ----------
+
+   (1) ここでの“キー(key)”の使い方は、用語“キーシーケン
+ス(key sequence)”とは関係ありません。キーはテーブルにあ
+るアイテムを探すために使用される値という意味です。この場
+合、テーブルはalistでありalistはアイテムに関連付けられま
+す。
+
+
+File: elisp,  Node: Property Lists,  Prev: Association Lists,  Up: Lists
+
+5.9 Property Lists
+==================
+
+“プロパティーリスト(property list。短くはplist)”は、ペア
+になった要素のリストです。各ペアはプロパティー名(通常は
+シンボル)とプロパティー値を対応づけます。以下はプロパテ
+ィーリストの例です:
+
+     (pine cones numbers (1 2 3) color "blue")
+
+このプロパティーリストは、‘pine’を‘cones’、‘numbers’を
+‘(1 2 3)’、‘color’を‘"blue"’に関連づけます。プロパティー
+名とプロパティー値には任意のLispオブジェクトを指定できま
+すが、通常プロパティー名は(この例のように)シンボルです。
+
+   いくつかのコンテキストでプロパティーリストが使用され
+ます。たとえば、関数‘put-text-property’はプロパティーリ
+ストを引数にとり、文字列またはバッファー内のテキストにた
+いして、テキストプロパティーと、テキストに適用するプロパ
+ティー値を指定します。*note Text Properties::を参照して
+ください。
+
+   プロパティーリストが頻繁に使用される他の例は、シンボ
+ルプロパティーの保管です。すべてのシンボルは、シンボルに
+関する様々な情報を記録するために、プロパティーのリストを
+処理します。これらのプロパティーはプロパティーリストの形
+式で保管されます。*note Symbol Properties::を参照してく
+ださい。
+
+* Menu:
+
+* Plists and Alists::        プロパティーリストと連想リストの利点の比較。
+* Plist Access::             他の場所に保管されたプロパティーリストへのアクセス。
+
+
+File: elisp,  Node: Plists and Alists,  Next: Plist Access,  Up: Property Lists
+
+5.9.1 Property Lists and Association Lists
+------------------------------------------
+
+連想リスト(*note Association Lists::を参照してください
+)は、プロパティーリストとよく似ています。連想リストとは
+対照的に、プロパティー名は一意でなければならないので、プ
+ロパティーリスト内でペアの順序に意味はありません。
+
+   様々なLisp関数や変数に情報を付加するためには、連想リ
+ストよりプロパティーリストの方が適しています。プログラム
+でこのような情報すべてを1つの連想リストに保持する場合、
+特定のLisp関数や変数にたいする連想をチェックする度に、リ
+スト全体を検索する必要が生じ、それにより遅くなる可能性が
+あります。対照的に、関数名や変数自体のプロパティーリスト
+に同じ情報を保持すれば、検索ごとにそのプロパティーリスト
+の長さだけを検索するようになり、通常はこちらの方が短い時
+間で済みます。変数のドキュメントが
+‘variable-documentation’という名前のプロパティーに記録さ
+れているのは、これが理由です。同様にバイトコンパイラーも
+、特別に扱う必要がある関数を記録するためにプロパティーを
+使用します。
+
+   連想リストにも独自の利点があります。アプリケーション
+に依存しますが、プロパティーを更新するより、連想リストの
+先頭に連想を追加する方が速いでしょう。シンボルにたいする
+すべてのプロパティーは同じプロパティーリストに保管される
+ので、プロパティー名を異なる用途のために使用すると衝突の
+可能性があります(この理由により、そのプログラムで通常の
+変数や関数の名前につけるプレフィクスをプロパティー名の先
+頭につけることにより、一意と思われるプロパティー名を選ぶ
+のはよいアイデアです)。連想リストは、連想をリストの先頭
+にpushし、後にある連想は無視されるので、スタックと同様に
+使用できます。これはプロパティーリストでは不可能です。
+
+
+File: elisp,  Node: Plist Access,  Prev: Plists and Alists,  Up: Property Lists
+
+5.9.2 Property Lists Outside Symbols
+------------------------------------
+
+以下の関数はプロパティーリストを操作するために使用されま
+す。これらの関数はすべて、プロパティー名の比較に‘eq’を使
+用します。
+
+ -- Function: plist-get plist property
+     この関数は、プロパティーリストPLISTに保管された、プ
+     ロパティーPROPERTYの値をreturnします。この関数には
+     、変形された(malformed)PLIST引数を指定できます。
+     PLISTでPROPERTYが見つからなかった場合、この関数は
+     ‘nil’をreturnします。たとえば、
+
+          (plist-get '(foo 4) 'foo)
+               ⇒ 4
+          (plist-get '(foo 4 bad) 'foo)
+               ⇒ 4
+          (plist-get '(foo 4 bad) 'bad)
+               ⇒ nil
+          (plist-get '(foo 4 bad) 'bar)
+               ⇒ nil
+
+ -- Function: plist-put plist property value
+     この関数は、プロパティーリストPLISTに、プロパティー
+     PROPERTYの値として、VALUEを保管します。この関数は
+     PLISTを破壊的に変更するかもしれず、元のリスト構造を
+     変更せずに新しいリストを構築することもあります。こ
+     の関数は変更されたプロパティーリストをreturnするの
+     で、PLISTを取得した場所に書き戻すことができます。た
+     とえば、
+
+          (setq my-plist '(bar t foo 4))
+               ⇒ (bar t foo 4)
+          (setq my-plist (plist-put my-plist 'foo 69))
+               ⇒ (bar t foo 69)
+          (setq my-plist (plist-put my-plist 'quux '(a)))
+               ⇒ (bar t foo 69 quux (a))
+
+ -- Function: lax-plist-get plist property
+     ‘plist-get’と同様ですが、プロパティーの比較に‘eq’で
+     はなく‘equal’を使用します。
+
+ -- Function: lax-plist-put plist property value
+     ‘plist-put’と同様ですが、プロパティーの比較に‘eq’で
+     はなく‘equal’を使用します。
+
+ -- Function: plist-member plist property
+     この関数は与えられたPROPERTYがPLISTに含まれる場合は
+     、非‘nil’をreturnします。‘plist-get’とは異なり、こ
+     の関数は存在しないプロパティーと、値が‘nil’のプロパ
+     ティーを区別できます。実際にreturnされる値は、
+     ‘car’がPROPERTYで始まる、PLISTの後尾部分です。
+
+
+File: elisp,  Node: Sequences Arrays Vectors,  Next: Hash Tables,  Prev: Lists,  Up: Top
+
+6 Sequences, Arrays, and Vectors
+********************************
+
+“シーケンス(sequence)”型は、2つの異なるLisp型 — リストと
+配列 — を結合した型です。他の言い方をすると、任意のリス
+トはシーケンスであり、任意の配列はシーケンスです。すべて
+のシーケンスがもつ共通な属性は、それぞれが順序づけされた
+要素のコレクションであることです。
+
+   “配列(array)”は各スロットが要素である、固定長のオブジ
+ェクトです。すべての要素に一定時間でアクセスできます。配
+列の4つの型として、文字列、ベクター、文字テーブル、ブー
+ルベクターがあります。
+
+   リストは要素のシーケンスですが、要素は単一の基本オブ
+ジェクトではありません。リストはコンスセルにより作られ、
+要素ごとに1つのセルをもちます。N番目の要素を探すには、
+N個のコンスセルを走査する必要があるので、先頭から離れた
+要素ほどアクセスに時間を要します。しかしリストは要素の追
+加や削除が可能です。
+
+   以下の図は、これらの型の関連を表します:
+
+               _____________________________________________
+              |                                             |
+              |          Sequence                           |
+              |  ______   ________________________________  |
+              | |      | |                                | |
+              | | List | |             Array              | |
+              | |      | |    ________       ________     | |
+              | |______| |   |        |     |        |    | |
+              |          |   | Vector |     | String |    | |
+              |          |   |________|     |________|    | |
+              |          |  ____________   _____________  | |
+              |          | |            | |             | | |
+              |          | | Char-table | | Bool-vector | | |
+              |          | |____________| |_____________| | |
+              |          |________________________________| |
+              |_____________________________________________|
+
+* Menu:
+
+* Sequence Functions::       任意の種類のシーケンスを許す関数。
+* Arrays::                   Emacs Lispの配列の特徴。
+* Array Functions::          配列に特化した関数。
+* Vectors::                  Emacs Lispベクターの特質。
+* Vector Functions::         ベクターのための特別な関数。
+* Char-Tables::              文字テーブルを扱う方法。
+* Bool-Vectors::             ブールベクターを扱う方法。
+* Rings::                    オブジェクトの固定サイズのリングを管理する。
+
+
+File: elisp,  Node: Sequence Functions,  Next: Arrays,  Up: Sequences Arrays Vectors
+
+6.1 Sequences
+=============
+
+このセクションでは、任意の種類のシーケンスを許す関数を説
+明します。
+
+ -- Function: sequencep object
+     この関数は、OBJECTがリスト、ベクター、文字列、ブー
+     ルベクター、文字テーブルの場合は‘t’、それ以外は
+     ‘nil’をreturnします。
+
+ -- Function: length sequence
+     この関数は、SEQUENCE内の要素の数をreturnします。
+     SEQUENCEがドットリストの場合、
+     ‘wrong-type-argument’エラーがシグナルされます。循環
+     リストは無限ループを引き起こします。文字テーブルで
+     は、Emacsの最大文字コードより、常に1大きい値が
+     returnされます。
+
+     関連する関数‘safe-length’については、*note
+     Definition of safe-length::を参照してください。
+
+          (length '(1 2 3))
+              ⇒ 3
+          (length ())
+              ⇒ 0
+          (length "foobar")
+              ⇒ 6
+          (length [1 2 3])
+              ⇒ 3
+          (length (make-bool-vector 5 nil))
+              ⇒ 5
+
+*note Text Representations::の‘string-bytes’も参照してく
+ださい。
+
+   ディスプレー上での文字列の幅を計算する必要がある場合
+、文字数だけを数えて各文字のディスプレー幅を計算しない
+‘length’ではなく、‘string-width’ (*note Size of
+Displayed Text::を参照してください)を使用するべきです。
+
+ -- Function: elt sequence index
+     この関数は、INDEXによりインデックスづけされた、
+     SEQUENCEの要素をreturnします。INDEXの値として妥当な
+     のは、0からSEQUENCEの長さより1小さい数までの範囲の
+     整数です。SEQUENCEがリストの場合、範囲外の値は
+     ‘nth’と同じように振る舞います。*note Definition of
+     nth::を参照してください。それ以外の場合、範囲外の値
+     は‘args-out-of-range’エラーを引き起こします。
+
+          (elt [1 2 3 4] 2)
+               ⇒ 3
+          (elt '(1 2 3 4) 2)
+               ⇒ 3
+          ;; ‘elt’がどの文字をreturnするか明確にするために‘string’を使用。
+          (string (elt "1234" 2))
+               ⇒ "3"
+          (elt [1 2 3 4] 4)
+               error→ Args out of range: [1 2 3 4], 4
+          (elt [1 2 3 4] -1)
+               error→ Args out of range: [1 2 3 4], -1
+
+     この関数は、‘aref’ (*note Array Functions::い)と
+     ‘nth’ (*note Definition of nth::を参照してください
+     )を一般化したものです。
+
+ -- Function: copy-sequence sequence
+     この関数は、SEQUENCEのコピーをreturnします。コピー
+     は元のシーケンスと同じ型で、同じ要素が同じ順番でも
+     ちます。
+
+     コピーに新しい要素を格納するのは、元のSEQUENCEに影
+     響を与えず、その逆も真です。しかし新しいシーケンス
+     内の要素がコピーされたものでない場合は、元のシーケ
+     ンスの要素と同一(‘eq’)になります。したがって、コピ
+     ーされたシーケンスを通じて見つかった要素を変更する
+     と、この変更は元のシーケンスでも見ることができます
+     。
+
+     シーケンスがテキストプロパティーをともなう文字列の
+     場合、コピー内のプロパティーリスト自身もコピーとな
+     り、元のシーケンスのプロパティーリストと共有はされ
+     ません。しかし、プロパティーリストの実際の値は共有
+     されます。*note Text Properties::を参照してください
+     。
+
+     この関数は、ドットリストでは機能しません。循環リス
+     トのコピーは、無限ループを起こすでしょう。
+
+     シーケンスをコピーする別の方法は、*note Building
+     Lists::の‘append’、*note Creating Strings::の
+     ‘concat’、*note Vector Functions::の‘vconcat’も参照
+     してください。
+
+          (setq bar '(1 2))
+               ⇒ (1 2)
+          (setq x (vector 'foo bar))
+               ⇒ [foo (1 2)]
+          (setq y (copy-sequence x))
+               ⇒ [foo (1 2)]
+
+          (eq x y)
+               ⇒ nil
+          (equal x y)
+               ⇒ t
+          (eq (elt x 1) (elt y 1))
+               ⇒ t
+
+          ;; 一方のシーケンスの要素を置き換え。
+          (aset x 0 'quux)
+          x ⇒ [quux (1 2)]
+          y ⇒ [foo (1 2)]
+
+          ;; 共有された要素の内部を変更。
+          (setcar (aref x 1) 69)
+          x ⇒ [quux (69 2)]
+          y ⇒ [foo (69 2)]
+
+
+File: elisp,  Node: Arrays,  Next: Array Functions,  Prev: Sequence Functions,  Up: Sequences Arrays Vectors
+
+6.2 Arrays
+==========
+
+“配列(array)”オブジェクトは、いくつかのLispオブジェクト
+を保持するスロットをもち、これらのオブジェクトは配列の要
+素と呼ばれます。配列内の任意の要素は、一定時間でアクセス
+されます。対照的に、リスト内の要素のアクセスに要する時間
+は、その要素がリスト内のどの位置にあるかに比例します。
+
+   Emacsは4つの配列型 —“文字列(strings。*note String
+Type::を参照してください)”、“ベクター(vectors。*note
+Vector Type::を参照してください)”、“ブールベクター
+(bool-vectors。*note Bool-Vector Type::を参照してくださ
+い)”、“文字テーブル(char-tables。*note Char-Table
+Type::を参照してください)” — を定義し、これらはすべて1次
+元です。ベクターと文字テーブルは任意の型の要素を保持でき
+ますが、文字列は文字だけ、ブールベクターは‘t’か‘nil’しか
+保持できません。
+
+   4種のすべての配列は、これらの特性を共有します:
+
+   • 配列の1番目の要素はインデックス0、2番目はインデック
+     ス1、...となります。これは“0基準(zero-origin)”のイ
+     ンデックスづけと呼ばれます。たとえば、4つの要素の配
+     列のインデックスは0、1、2、3です。
+
+   • 配列の長さは、1度配列が作成されたら固定されるので、
+     既存の配列の長さは変更できません。
+
+   • 評価において、配列は定数 — つまりそれ自身に評価され
+     ます。
+
+   • 配列の要素は、関数‘aref’により参照されたり、関数
+     ‘aset’により変更されるかもしれません(*note Array
+     Functions::を参照してください)。
+
+   配列を作成したとき、文字テーブル以外では、長さを指定
+しなければなりません。文字テーブルの長さは、文字コードの
+範囲により決定されるので、長さを指定できません。
+
+   原則として、テキスト文字の配列が欲しい場合は、文字列
+とベクターのどちらかを使用できます。実際のところ、そのよ
+うな用途にたいしては、4つの理由により、わたしたちは常に
+文字列を選択します:
+
+   • 文字列は、同じ要素をもつベクターと比較して、占める
+     スペースが1/4です。
+
+   • 文字列の内容は、テキストとしてより明解な方法により
+     プリントされます。
+
+   • 文字列はテキストプロパティーを保持できます。*note
+     Text Properties::を参照してください。
+
+   • Emacsがもつ特化された編集機能およびI/O機能の多くが
+     、文字列だけに適用されます。たとえば、文字列をバッ
+     ファーに挿入する方法では、文字のベクターをバッファ
+     ーに挿入できません。*note Strings and Characters::を
+     参照してください
+
+   対照的に、(キーシーケンスのような)キーボード入力文字
+の配列では、多くのキーボード入力文字は、文字列に収まる範
+囲の外にあるので、ベクターが必要になるでしょう。*note
+Key Sequence Input::を参照してください。
+
+
+File: elisp,  Node: Array Functions,  Next: Vectors,  Prev: Arrays,  Up: Sequences Arrays Vectors
+
+6.3 Functions that Operate on Arrays
+====================================
+
+このセクションでは、すべての型の配列に適用される関数を説
+明します。
+
+ -- Function: arrayp object
+     この関数は、OBJECTが配列(ベクター、文字列、ブールベ
+     クター、文字テーブル)の場合は、‘t’をreturnします。
+
+          (arrayp [a])
+               ⇒ t
+          (arrayp "asdf")
+               ⇒ t
+          (arrayp (syntax-table))    ;; 文字テーブル。
+               ⇒ t
+
+ -- Function: aref array index
+     この関数は、ARRAYのINDEX番目の要素をreturnします。
+     1番目の要素のインデクスは0です。
+
+          (setq primes [2 3 5 7 11 13])
+               ⇒ [2 3 5 7 11 13]
+          (aref primes 4)
+               ⇒ 11
+          (aref "abcdefg" 1)
+               ⇒ 98           ; ‘b’のASCIIコードは98。
+
+     *note Sequence Functions::の関数‘elt’も参照してくだ
+     さい。
+
+ -- Function: aset array index object
+     この関数は、ARRAYのINDEX番目の要素を、OBJECTにセッ
+     トします。この関数はOBJECTをeturnします。
+
+          (setq w [foo bar baz])
+               ⇒ [foo bar baz]
+          (aset w 0 'fu)
+               ⇒ fu
+          w
+               ⇒ [fu bar baz]
+
+          (setq x "asdfasfd")
+               ⇒ "asdfasfd"
+          (aset x 3 ?Z)
+               ⇒ 90
+          x
+               ⇒ "asdZasfd"
+
+     ARRAYが文字列でOBJECTが文字でない場合、結果は
+     ‘wrong-type-argument’エラーになります。この関数は、
+     文字列の挿入で必要な場合は、ユニバイト文字列をマル
+     チバイト文字列に変換します。
+
+ -- Function: fillarray array object
+     この関数は配列ARRAYをOBJECTで充填するので、ARRAYの
+     すべての要素はOBJECTになります。この関数はARRAYを
+     returnします。
+
+          (setq a [a b c d e f g])
+               ⇒ [a b c d e f g]
+          (fillarray a 0)
+               ⇒ [0 0 0 0 0 0 0]
+          a
+               ⇒ [0 0 0 0 0 0 0]
+          (setq s "When in the course")
+               ⇒ "When in the course"
+          (fillarray s ?-)
+               ⇒ "------------------"
+
+     ARRAYが文字列でOBJECTが文字でない場合、結果は
+     ‘wrong-type-argument’エラーになります。
+
+   配列と判っているオブジェクトにたいしては、一般的なシ
+ーケンス関数‘copy-sequence’および‘length’が有用なときが
+多くあります。*note Sequence Functions::を参照してくださ
+い。
+
+
+File: elisp,  Node: Vectors,  Next: Vector Functions,  Prev: Array Functions,  Up: Sequences Arrays Vectors
+
+6.4 Vectors
+===========
+
+“ベクター(vector)”とは、任意のLispオブジェクトを要素にも
+つことができる、一般用途のための配列です(対照的に、文字
+列の要素は文字だけです*note Strings and Characters::を参
+照してください)。Emacsではベクターは、キーシーケンス
+(*note Key Sequences::を参照してください)、シンボル検索
+用のテーブル(*note Creating Symbols::を参照してください
+)、バイトコンパイルされた関数表現の一部(*note Byte
+Compilation::を参照してください)など、多くの目的で使用さ
+れます。
+
+   他の配列と同様、ベクターは０基準のインデックスづけを
+使用し、1番目の要素はインデックス0になります。
+
+   ベクターは、角カッコ(square brackets)で囲まれた要素と
+してプリントされます。したがって、シンボル‘a’、‘b’、
+‘a’を要素にもつベクターは、‘[a b a]’とプリントされます。
+Lisp入力として、同じ方法でベクターを記述できます。
+
+   文字列や数値と同様に、ベクターは定数として評価され、
+評価された結果は同じベクターになります。ベクターの要素は
+評価も確認もされません。*note Self-Evaluating Forms::を
+参照してください。
+
+   以下はこれらの原理を表す例です:
+
+     (setq avector [1 two '(three) "four" [five]])
+          ⇒ [1 two (quote (three)) "four" [five]]
+     (eval avector)
+          ⇒ [1 two (quote (three)) "four" [five]]
+     (eq avector (eval avector))
+          ⇒ t
+
+
+File: elisp,  Node: Vector Functions,  Next: Char-Tables,  Prev: Vectors,  Up: Sequences Arrays Vectors
+
+6.5 Functions for Vectors
+=========================
+
+ベクターに関連した関数をいくつか示します:
+
+ -- Function: vectorp object
+     この関数は、OBJECTがベクターの場合は、‘t’をreturnし
+     ます。
+
+          (vectorp [a])
+               ⇒ t
+          (vectorp "asdf")
+               ⇒ nil
+
+ -- Function: vector &rest objects
+     この関数は、引数OBJECTSを要素にもつベクターを作成し
+     てreturnします。
+
+          (vector 'foo 23 [bar baz] "rats")
+               ⇒ [foo 23 [bar baz] "rats"]
+          (vector)
+               ⇒ []
+
+ -- Function: make-vector length object
+     この関数は、OBJECTに初期化されたLENGTH個の要素から
+     なる、新しいベクターをreturnします。
+
+          (setq sleepy (make-vector 9 'Z))
+               ⇒ [Z Z Z Z Z Z Z Z Z]
+
+ -- Function: vconcat &rest sequences
+     この関数は、SEQUENCESのすべての要素を含む、新しいベ
+     クターをreturnします。引数SEQUENCESは真リスト、ベク
+     ター、文字列、ブールベクターです。SEQUENCESが与えら
+     れない場合、空のベクターがreturnされます。
+
+     値は空のベクター、または任意の既存のベクターと
+     ‘eq’ではない、新しい空ではないベクターのどちらかで
+     す。
+
+          (setq a (vconcat '(A B C) '(D E F)))
+               ⇒ [A B C D E F]
+          (eq a (vconcat a))
+               ⇒ nil
+          (vconcat)
+               ⇒ []
+          (vconcat [A B C] "aa" '(foo (6 7)))
+               ⇒ [A B C 97 97 foo (6 7)]
+
+     ‘vconcat’関数は、引数としてバイトコード関数オブジェ
+     クトもとることができます。これは、バイトコード関数
+     オブジェクトの内容全体にアクセスするのを容易にする
+     ための、特別な機能です。*note Byte-Code Objects::を
+     参照してください。
+
+     結合を行なう他の関数については、*note Mapping
+     Functions::の‘mapconcat’、*note Creating Strings::の
+     ‘concat’、*note Building Lists::の‘append’を参照し
+     てください。
+
+   ‘append’関数は、ベクターを同じ要素をもつリストに変換
+する方法も提供します:
+
+     (setq avector [1 two (quote (three)) "four" [five]])
+          ⇒ [1 two (quote (three)) "four" [five]]
+     (append avector nil)
+          ⇒ (1 two (quote (three)) "four" [five])
+
+
+File: elisp,  Node: Char-Tables,  Next: Bool-Vectors,  Prev: Vector Functions,  Up: Sequences Arrays Vectors
+
+6.6 Char-Tables
+===============
+
+文字テーブル(char-table)はベクターとよく似ていますが、文
+字テーブルは文字コードによりインデックスづけされます。文
+字テーブルのインデックスには、修飾キーをともなわない任意
+の有効な文字コードを使用できます。他の配列と同様に、
+‘aref’と‘aset’で、文字テーブルの要素にアクセスできます。
+加えて、文字テーブルは、追加のデータを保持するために、特
+定の文字コードに関連づけられていない、“エキストラスロッ
+ト(extra slots)”をもつことができます。ベクターと同様、文
+字テーブルは、定数として評価され、任意の型の要素を保持で
+きます。
+
+   文字テーブルはそれぞれ“サブタイプ(subtype)”をもち、こ
+れは2つの目的を担うシンボルです:
+
+   • サブタイプは、それがなんのための文字テーブルなのか
+     、簡単に表す方法を提供します。たとえば、ディスプレ
+     ーテーブル(display tables)はサブタイプが
+     ‘display-table’の文字テーブルであり、構文テーブル
+     (syntax tables)は、サブタイプが‘syntax-table’の文字
+     テーブルです。以下で説明するように、関数
+     ‘char-table-subtype’を使用して、サブタイプを問い合
+     わせることができます。
+
+   • サブタイプは文字テーブル内のいくつかの“エキストラス
+     ロット(extra slots)”を制御します。エキストラスロッ
+     トの数は、そのサブタイプの
+     ‘char-table-extra-slots’シンボルプロパティー(*note
+     Symbol Properties::を参照してください)により指定さ
+     れ、値は0から10の整数です。サブタイプにそのようなシ
+     ンボルプロパティーがない場合、その文字テーブルはエ
+     キストラスロットをもちません。
+
+   文字テーブルは“親(parent)”をもつことができ、これは他
+の文字テーブルです。文字テーブルが親をもつ場合、その文字
+テーブルで特定の文字Cにたいして‘nil’が指定されているとき
+は、親として指定された文字テーブルで指定された値を継承し
+ます。言い方を変えると、文字テーブルCHAR-TABLEでCに
+‘nil’が指定されている場合、‘(aref CHAR-TABLE C)’は
+CHAR-TABLEの親の値をreturnします。
+
+   文字テーブルは“デフォルト値(default value)”をもつこと
+もできます。デフォルト値をもつとき、文字テーブル
+CHAR-TABLEがCにたいして‘nil’値を指定すると、‘(aref
+CHAR-TABLE C)’はデフォルト値をreturnします。
+
+ -- Function: make-char-table subtype &optional init
+     サブタイプSUBTYPE(シンボル)をもつ、新たに作成された
+     文字テーブルをreturnします。各要素はINITに初期化さ
+     れ、デフォルトは‘nil’です。文字テーブルが作成された
+     後で、文字テーブルのサブタイプを変更することはでき
+     ません。
+
+     すべての文字テーブルは、インデックスとなる任意の有
+     効な文字テーブルのための空間をもつので、文字テーブ
+     ルの長さを指定する引数はありません。
+
+     SUBTYPEが‘char-table-extra-slots’シンボルプロパティ
+     ーをもつ場合、それはその文字列テーブル内のエキスト
+     ラスロットの数を指定します。値には0から10の整数を指
+     定し、これ以外の場合‘make-char-table’はエラーとなり
+     ます。SUBTYPEが‘char-table-extra-slots’シンボルプロ
+     パティー(*note Property Lists::を参照してください
+     )をもたない場合、その文字テーブルはエキストラスロッ
+     トをもちません。
+
+ -- Function: char-table-p object
+     この関数は、OBJECTが文字テーブルの場合は‘t’、それ以
+     外は‘nil’をreturnします。
+
+ -- Function: char-table-subtype char-table
+     この関数は、CHAR-TABLEのサブタイプのシンボルを
+     returnします。
+
+   文字テーブルのデフォルト値にアクセスするための、特別
+な関数は存在しません。これを行なうには、
+‘char-table-range’を使用します(以下参照)。
+
+ -- Function: char-table-parent char-table
+     この関数は、CHAR-TABLEの親をreturnします。親は常に
+     、‘nil’、または他の文字テーブルです。
+
+ -- Function: set-char-table-parent char-table
+          new-parent
+     この関数は、CHAR-TABLEの親を、NEW-PARENTにセットし
+     ます。
+
+ -- Function: char-table-extra-slot char-table n
+     このガン数は、CHAR-TABLEのエキストラスロットNの内容
+     をreturnします。文字テーブルのエキストラスロットの
+     数は、文字テーブルのサブタイプにより決定されます。
+
+ -- Function: set-char-table-extra-slot char-table n
+          value
+     この関数は、CHAR-TABLEのエキストラスロットNに、
+     VALUEを格納します。
+
+   文字テーブルは、1つの文字コードにたいして、1つの要素
+値(element value)を指定できます。文字テーブルは文字セッ
+ト全体にたいして値を指定することもできます。
+
+ -- Function: char-table-range char-table range
+     この関数は、文字範囲RANGEにたいして、CHAR-TABLEで指
+     定された値をreturnします。可能なRANGEは以下のとおり
+     です:
+
+     ‘nil’
+          デフォルト値への参照。
+
+     CHAR
+          文字CHARにたいする要素への参照(CHARは有効な文
+          字コードであると仮定)。
+
+     ‘(FROM . TO)’
+          包括的な範囲‘[FROM..TO]’内のすべての文字を参照
+          するコンスセル。
+
+ -- Function: set-char-table-range char-table range
+          value
+     この関数は、CHAR-TABLE内の文字範囲RANGEにたいして値
+     をセットします。可能なRANGEは、以下のとおりです:
+
+     ‘nil’
+          デフォルト値への参照。
+
+     ‘t’
+          文字コード範囲の全体を参照。
+
+     CHAR
+          文字CHARにたいする要素への参照(CHARは有効な文
+          字コードであると仮定)。
+
+     ‘(FROM . TO)’
+          包括的な範囲‘[FROM..TO]’内のすべての文字を参照
+          するコンスセル。
+
+ -- Function: map-char-table function char-table
+     この関数は、CHAR-TABLEの非‘nil’値ではない各要素にた
+     いして、引数FUNCTIONを呼び出します。FUNCTIONの呼び
+     出しでは、2つの引数(keyとvalue)が指定されます。
+     keyは‘char-table-range’にたいする可能なRANGE — 有効
+     な文字か、同じ値を共有する文字範囲を指定するコンス
+     セル‘(FROM . TO)’です。valueは、‘(char-table-range
+     CHAR-TABLE KEY)’がreturnする値です。
+
+     全体的に見て、FUNCTIONに渡されるkey-valueのペアは、
+     CHAR-TABLEに格納されたすべての値を表します。
+
+     return値はm常に‘nil’です。‘map-char-table’呼び出し
+     を有用にするために、FUNCTIONは副作用をもつべきです
+     。たとえば、以下は構文テーブルを調べる方法です:
+
+          (let (accumulator)
+             (map-char-table
+              #'(lambda (key value)
+                  (setq accumulator
+                        (cons (list
+                               (if (consp key)
+                                   (list (car key) (cdr key))
+                                 key)
+                               value)
+                              accumulator)))
+              (syntax-table))
+             accumulator)
+          ⇒
+          (((2597602 4194303) (2)) ((2597523 2597601) (3))
+           ... (65379 (5 . 65378)) (65378 (4 . 65379)) (65377 (1))
+           ... (12 (0)) (11 (3)) (10 (12)) (9 (0)) ((0 8) (3)))
+
+
+File: elisp,  Node: Bool-Vectors,  Next: Rings,  Prev: Char-Tables,  Up: Sequences Arrays Vectors
+
+6.7 Bool-vectors
+================
+
+ブールベクター(bool-vector)はベクターとよく似ていますが
+、値に‘t’と‘nil’しか格納できません。ブールベクターの要素
+に非‘nil’値の格納を試みた場合、そこに‘t’が格納されます。
+すべての配列と同様、ブールベクターのインデックスは0から
+開始され、1度ブールベクターが作成されたら、長さを変更す
+ることはできません。ブールベクターは定数として評価されま
+す。
+
+   ブールベクターを処理する、特別な関数が2つあります。そ
+の関数意外にも、他の種類の配列に使用されるのと同じ関数で
+、ブールベクターを操作できます。
+
+ -- Function: make-bool-vector length initial
+     INITIALに初期化された、LENGTH要素の新しいブールベク
+     ターをreturnします。
+
+ -- Function: bool-vector-p object
+     この関数は、OBJECTがブールベクターであれば‘t’、それ
+     以外は‘nil’をreturnします。
+
+   以下で説明するように、ブールベクターのセット処理を行
+なう関数がいくつかあります:
+
+ -- Function: bool-vector-exclusive-or a b &optional c
+     ブールベクターAとBの、“ビットごとの排他的論理和
+     (bitwise exclusive or)”をreturnします。オプション引
+     数Cが与えられた場合、この処理の結果はCに格納されま
+     す。引数はすべて、同じ長さのブールベクターを指定し
+     ます。
+
+ -- Function: bool-vector-union a b &optional c
+     ブールベクターAとBの、“ビットごとの論理和(bitwise
+     or)”をreturnします。オプション引数Cが与えられた場合
+     、この処理の結果はCに格納されます。引数はすべて、同
+     じ長さのブールベクターを指定します。
+
+ -- Function: bool-vector-intersection a b &optional c
+     ブールベクターAとBの、“ビットごとの論理積(bitwise
+     and)”をreturnします。オプション引数Cが与えられた場
+     合、この処理の結果はCに格納されます。引数はすべて、
+     同じ長さのブールベクターを指定します。
+
+ -- Function: bool-vector-set-difference a b &optional c
+     ブールベクターAとBの、“差集合(set difference)”を
+     returnします。オプション引数Cが与えられた場合、この
+     処理の結果はCに格納されます。引数はすべて、同じ長さ
+     のブールベクターを指定します。
+
+ -- Function: bool-vector-not a &optional b
+     ブールベクターAの、“補集合(set complement)”を
+     returnします。オプション引数Bが与えられた場合、この
+     処理の結果はBに格納されます。引数はすべて、同じ長さ
+     のブールベクターを指定します。
+
+ -- Function: bool-vector-subsetp a b
+     A内のすべての‘t’値が、Bでも‘t’値の場合は‘t’、それ以
+     外は‘nil’をreturnします。引数はすべて、同じ長さのブ
+     ールベクターを指定します。
+
+ -- Function: bool-vector-count-consecutive a b i
+     Iから始まるAの、Bと等しい連続する要素の数をreturnし
+     ます。‘a’はブールベクターで、Bは‘t’か‘nil’、Iは
+     ‘a’のインデックスです。
+
+ -- Function: bool-vector-count-population a
+     ブールベクターAの、‘t’の要素の数をreturnします。
+
+   以下はブールベクターを作成、確認、更新する例です。長
+さ8以下のブール値のプリント表記は、1つの文字で表されるこ
+とに注意してください。
+
+     (setq bv (make-bool-vector 5 t))
+          ⇒ #&5"^_"
+     (aref bv 1)
+          ⇒ t
+     (aset bv 3 nil)
+          ⇒ nil
+     bv
+          ⇒ #&5"^W"
+
+control-_の2進コードは11111、control-Wは10111なので、こ
+の結果は理解できるでしょう。
+
+
+File: elisp,  Node: Rings,  Prev: Bool-Vectors,  Up: Sequences Arrays Vectors
+
+6.8 Managing a Fixed-Size Ring of Objects
+=========================================
+
+“リング(ring)”は、挿入、削除、ローテーション、剰余
+(modulo)でインデックスづけされた参照と走査(traversal)を
+サポートする、固定長のデータ構造です。‘ring’パッケージに
+より、効率的なリングデータ構造が実装されています。このパ
+ッケージは、このセクションにリストされた関数を提供します
+。
+
+   killリングやマークリングのような、Emacsにあるいくつか
+の“リング”は、実際には単なるリストとして実装されているこ
+とに注意してください。したがって、これらのリングにたいし
+ては、以下の関数は機能しないでしょう。
+
+ -- Function: make-ring size
+     この関数は、SIZEオブジェクトを保持できる、新しいリ
+     ングをreturnします。SIZEは整数です。
+
+ -- Function: ring-p object
+     この関数は、OBJECTがリングの場合は‘t’、それ以外は
+     ‘nil’をreturnします。
+
+ -- Function: ring-size ring
+     この関数は、RINGの最大の要素数をreturnします。
+
+ -- Function: ring-length ring
+     この関数は、RINGに現在含まれている、オブジェクトの
+     数をreturnします。値は、‘ring-size’でreturnされる値
+     を超えることはありません。
+
+ -- Function: ring-elements ring
+     この関数は、RING内のオブジェクトのリストをreturnし
+     ます。リストの順序は、新しいオブジェクトが先頭にな
+     ります。
+
+ -- Function: ring-copy ring
+     個の関数は、RINGのコピーを新しいリングとして
+     returnします。新しいリングは、RINGと同じ(‘eq’な)オ
+     ブジェクトを含みます。
+
+ -- Function: ring-empty-p ring
+     この関数は、RINGが空の場合は‘t’、それ以外は‘nil’を
+     returnします。
+
+   リング内の1番新しい要素は、常にインデックス0をもちま
+す。より大きいインデックスは、より古い要素に対応します。
+インデックスは、リング長のmoduloにより計算されます。イン
+デックス−1は1番古い要素、−2は次に古い要素、...となります
+。
+
+ -- Function: ring-ref ring index
+     この関数はインデックスINDEXにあるRING内のオブジェク
+     トをreturnします。INDEXには負、またはリング長より大
+     きい数を指定できます。RINGがからの場合、
+     ‘ring-ref’はエラーをシグナルします。
+
+ -- Function: ring-insert ring object
+     この関数は、1番新しい要素としてOBJECTをRINGに挿入し
+     、OBJECTをreturnします。
+
+     リングが一杯の場合、新しい要素のための空きを作るた
+     め、挿入により1番古い要素が削除されます。
+
+ -- Function: ring-remove ring &optional index
+     RINGからオブジェクトを削除して、そのオブジェクトを
+     returnします。引数INDEXは、どのアイテムを削除するか
+     を指定します。これが‘nil’の場合、それは1番古いアイ
+     テムを削除することを意味します。RINGが空の場合、
+     ‘ring-remove’はエラーをシグナルします。
+
+ -- Function: ring-insert-at-beginning ring object
+     この関数は、1番古い要素として、OBJECTをRINGに挿入し
+     ます。return値は、意味をもちません。
+
+     リングが一杯の場合、この関数は挿入される要素のため
+     の空きを作るために、1番新しい要素を削除します。
+
+   リングサイズを超えることを気にしない場合、そのリング
+をFIFO(first-in-first-out: 先入れ先出し)のキューとして使
+用することができます。たとえば:
+
+     (let ((fifo (make-ring 5)))
+       (mapc (lambda (obj) (ring-insert fifo obj))
+             '(0 one "two"))
+       (list (ring-remove fifo) t
+             (ring-remove fifo) t
+             (ring-remove fifo)))
+          ⇒ (0 t one t "two")
+
+
+File: elisp,  Node: Hash Tables,  Next: Symbols,  Prev: Sequences Arrays Vectors,  Up: Top
+
+7 Hash Tables
+*************
+
+ハッシュテーブル(hash table)は、非常に高速なルックアップ
+テーブルの一種で、キーを対応する値にマップするという点で
+は、alist(*note Association Lists::を参照してください)に
+似ています。ハッシュテーブルは、以下の点でalistと異なり
+ます:
+
+   • ハッシュテーブルでのルックアップ(lookup: 照合)は、
+     巨大なテーブルにたいして非常に高速です — 実際のとこ
+     ろ、ルックアップに必要な時間は、そのテーブルにいく
+     つの要素が格納されているかとは、基本的に_無関係_で
+     す。ハッシュテーブルには多少の一定なオーバーヘッド
+     があるので、小さいテーブル(数十の要素)では、alistの
+     ほうが高速でしょう。
+
+   • ハッシュテーブル内の対応には、特定の順序はありませ
+     ん。
+
+   • 2つのalistが共通の末尾(tail)を共有する方法のように
+     、2つのハッシュテーブル間で構造を共有する方法はあり
+     ません。
+
+   Emacs Lispは、それらを処理する一連の関数とともに、一
+般的な用途のハッシュテーブルデータ型を提供します。ハッシ
+ュテーブルは特別なプリント表現をもち、それは‘#s’と、その
+後にハッシュテーブルのプロパティーと内容お指定するリスト
+が続きます。*note Creating Hash::を参照してください。(用
+語“ハッシュ表記(hash notation)”は、プリント表現の最初に
+‘#’を使用する、入力構文をもたないオブジェクトのことを指
+し、これは用語“ハッシュテーブル(hash table)”にたいしては
+使用されません。*note Printed Representation::を参照して
+ください。)
+
+   obarray(オブジェクト配列)もハッシュテーブルの一種です
+が、これらは異なる型のオブジェクトで、intern(インターン
+)されたシンボルを記録するためだけに使用されます(*note
+Creating Symbols::を参照してください)。
+
+* Menu:
+
+* Creating Hash::            ハッシュテーブルを作成する関数。
+* Hash Access::              ハッシュテーブルの内容の読み書き。
+* Defining Hash::            新たな比較方法の定義。
+* Other Hash::               その他。
+
+
+File: elisp,  Node: Creating Hash,  Next: Hash Access,  Up: Hash Tables
+
+7.1 Creating Hash Tables
+========================
+
+ハッシュテーブルを作成する基本的な関数は、
+‘make-hash-table’です。
+
+ -- Function: make-hash-table &rest keyword-args
+     この関数は、指定された引数に対応する、新しいハッシ
+     ュテーブルを作成します。引数は、キーワード(特別に認
+     識される独自のシンボル)と、それに対応する値を交互に
+     指定することにより構成されます。
+
+     ‘make-hash-table’では、いくつかのキーワードが意味を
+     もちますが、実際に知る必要があるのは、‘:test’と
+     ‘:weakness’の2つだけです。
+
+     ‘:test TEST’
+          これは、このハッシュテーブルにたいしてキーを照
+          合する方法を指定します。デフォルトは‘eql’であ
+          り、他の代替としては‘eq’や‘equal’があります:
+
+          ‘eql’
+               キーが数字の場合、それらが‘equal’であれば
+               、つまり、それらの値が等しく、どちらも整
+               数、あるいはどちらも浮動少数の場合は“同一
+               ”です。それ以外では、2つの別々のオブジェ
+               クトは、決して“同一”になりません。
+
+          ‘eq’
+               2つの個別のLispオブジェクトはすべて、“別
+               ”のキーです。
+
+          ‘equal’
+               2つの個別のLispオブジェクトにたいして、そ
+               れらが‘equal’の場合、“同一”のキーです。
+
+          TESTにたいして追加の選択肢を定義するために、
+          ‘define-hash-table-test’ (*note Defining
+          Hash::を参照してください)を使用することができ
+          ます。
+
+     ‘:weakness WEAK’
+          ハッシュテーブルのweakness(強度)は、ハッシュテ
+          ーブル内に存在するキーと値を、ガーベージコレク
+          ションから保護するかどうかを指定します。
+
+          値WEAKは、‘nil’、‘key’、‘value’、
+          ‘key-or-value’、‘key-and-value’、または
+          ‘t’(‘key-and-value’のエイリアス)のうちの1つを
+          指定しなければなりません。WEAKが‘key’の場合、
+          そのハッシュテーブルは、(キーが他の場所で参照
+          されていなければ)ハッシュテーブルのキーがガー
+          ベージコレクトされるのを妨げません。ある特定の
+          キーがガーベージコレクトされた場合、それに対応
+          する連想は、ハッシュテーブルから削除されます。
+
+          WEAKが‘value’の場合、そのハッシュテーブルは、
+          (値が他の場所で参照されていなければ)ハッシュテ
+          ーブルの値がガベージコレクトされるのを妨げませ
+          ん。あるP特定の値がガーベージコレクトされた場
+          合、それに対応する連想は、ハッシュテーブルから
+          削除されます。
+
+          WEAKが‘key-and-value’(または‘t’)の場合、その連
+          想を保護するために、キーと値の両方が生きていな
+          ければなりません。したがって、そのハッシュテー
+          ブルは、キーと値のどちらかをガーベージコレクト
+          から守ることはしません。キーか値のどちらか一方
+          がガーベージコレクトされたら、その連想は削除さ
+          れます。
+
+          WEAKが‘key-or-value’の場合、キーか値のどちらか
+          一方で、その連想を保護することができます。した
+          がって、キーと値の両方がガベージコレクトされた
+          ときだけ(それがハッシュテーブル自体にたいする
+          参照でなければ)、ハッシュテーブルからその連想
+          が削除されます。
+
+          WEAKにたいするデフォルトは‘nil’なので、ハッシ
+          ュテーブルから参照されているキーと値のすべては
+          、ガーベージコレクションから保護されます。
+
+     ‘:size SIZE’
+          これは、そのハッシュテーブルに連想を保管しよう
+          と計画している、連想の数にたいするヒントを指定
+          します。数が概算で判っている場合、この方法でそ
+          れを指定することにより、処理を少し効率的にする
+          ことができます。小さすぎるサイズを指定した場合
+          、そのハッシュテーブルは必要に応じて自動的に拡
+          張子マスが、これを行なうには時間が余計にかかり
+          ます。
+
+          デフォルトのサイズは65です。
+
+     ‘:rehash-size REHASH-SIZE’
+          ハッシュテーブルに連想を追加するとき、そのテー
+          ブルが“一杯(full)”の場合、テーブルは自動的に拡
+          張します。この値は、そのときどれだけハッシュテ
+          ーブルを拡張するかを指定します。
+
+          REHASH-SIZEが整数の場合(それは正であるべきです
+          )、通常のサイズにREHASH-SIZEを加えることにより
+          、ハッシュテーブルが拡張されます。
+          REHASH-SIZEが浮動小数の場合(1より大きい方がよ
+          い)は、古いサイズにその数を乗じることにより、
+          ガッシュテーブルが拡張されます。
+
+          デフォルト値は1.5です。
+
+     ‘:rehash-threshold THRESHOLD’
+          これは、ハッシュテーブルが“一杯(full)”(なので
+          もっと大きく拡張する必要がある)だと判断される
+          基準を指定します。THRESHOLDの値は、1以下の、正
+          の浮動小数点数であるべきです。実際のエントリー
+          数が、通常のサイズにたいする指定した割合を超え
+          た場合、そのハッシュテーブルは“一杯”になります
+          。THRESHOLDのデフォルトは、0.8です。
+
+ -- Function: makehash &optional test
+     この関数は‘make-hash-table’と同じですが、異なるスタ
+     イルの引数リストを指定します。引数TESTは、キーを照
+     合する方法を指定します。
+
+     この関数は時代遅れです。かわりに‘make-hash-table’を
+     使用してください。
+
+   ハッシュテーブルのプリント表現を使用して、新しいハッ
+シュテーブルを作成することもできます。指定されたハッシュ
+テーブル内の各要素が、有効な入力構文(*note Printed
+Representation::を参照してください)をもっていれば、
+Lispリーダーをこのプリント表現を読み取ることができます。
+たとえば以下は、値‘val1’(シンボル)と‘300’(数字)に関連づ
+けられた、キー‘key1’と‘key2’(両方ともシンボル)を、新しい
+ハッシュテーブルを指定します。
+
+     #s(hash-table size 30 data (key1 val1 key2 300))
+
+ハッシュテーブルのプリント表現は、‘#s’と、その後の
+‘hash-table’で始まるリストにより構成されます。このリスト
+の残りの部分は、そのハッシュテーブルのプロパティーと初期
+内容を指定する、0個以上のプロパティーと値のペアで構成さ
+れるべきです。プロパティーと値は、そのまま読み取られます
+。有効なプロパティー名は、‘size’、‘test’、‘weakness’、
+‘rehash-size’、‘rehash-threshold’、および‘data’です。
+‘data’プロパティーは、初期ないようにたいするキーと値のペ
+アのリストであるべきです。他のプロパティーは、上記で説明
+した‘make-hash-table’のキーワード(‘:size’、‘:test’など
+)と同じ意味をもちます。
+
+   バッファーやフレームのような、入力構文をもたないオブ
+ジェクトを含む初期内容をもつハッシュテーブルを指定できな
+いことに注意してください。そのようなオブジェクトは、ハッ
+シュテーブルが作成された後に追加します。
+
+
+File: elisp,  Node: Hash Access,  Next: Defining Hash,  Prev: Creating Hash,  Up: Hash Tables
+
+7.2 Hash Table Access
+=====================
+
+このセクションでは、ハッシュテーブルにアクセスしたり、連
+想を保管する関数を説明します。一般的に、比較方法による制
+限がない限り、任意のLispオブジェクトをハッシュキーとして
+使用できます。
+
+ -- Function: gethash key table &optional default
+     この関数はTABLEのKEYを照合して、それに関連づけられ
+     たVALUE — TABLE内にKEYをもつ連想が存在しない場合は
+     DEFAULT — をreturnします。
+
+ -- Function: puthash key value table
+     この関数は、TABLE内に、値VALUEをもつKEYの連想を挿入
+     します。TABLEがすでにKEYの連想をもつ場合、VALUEによ
+     り古い連想値が置き換えられます。
+
+ -- Function: remhash key table
+     この関数は、TABLEにKEYの連想がある場合は、それを削
+     除します。KEYが連想をもたない場合、‘remhash’は何も
+     行ないません。
+
+     Common Lispに関する注意: Common Lispでは、
+     ‘remhash’が実際に連想を削除したときは非‘nil’、それ
+     以外は‘nil’をreturnします。Emacs Lispでは、
+     ‘remhash’は常に‘nil’をreturnします。
+
+ -- Function: clrhash table
+     この関数は、ハッシュテーブルTABLEからすべての連想を
+     削除するので、そのハッシュテーブルは空になります。
+     これはハッシュテーブルの“クリーニング(clearing)”と
+     も呼ばれます。
+
+     Common Lispに関する注意: Common Lispでは、
+     ‘clrhash’は空のTABLEをreturnします。Emacs Lispでは
+     ‘nil’をreturnします。
+
+ -- Function: maphash function table
+     この関数は、TABLE内の各連想にたいして、1度ずつ
+     FUNCTIONを呼び出します。関数FUNCTIONは2つの引数 —
+     TABLEにリストされたKEYと、それに関連づけられたVALUE
+     — をとるべきです。‘maphash’は‘nil’をreturnします。
+
+
+File: elisp,  Node: Defining Hash,  Next: Other Hash,  Prev: Hash Access,  Up: Hash Tables
+
+7.3 Defining Hash Comparisons
+=============================
+
+‘define-hash-table-test’により、キーを照合する新しい方法
+を定義できます。この機能を使用するには、ハッシュテーブル
+の動作方法と、“ハッシュコード(hash code)”の意味を理解す
+る必要があります。
+
+   概念的にはハッシュテーブルを、1つの連想を保持できるス
+ロットがたくさんある巨大な配列として考えることができます
+。キーを照合するには、まず‘gethash’が、キーから整数のハ
+ッシュコード(hash code)を計算します。配列内のインデック
+スを生成するために、‘gethash’は、配列の長さにより、この
+整数のmoduloを得ます。それからキーが見つかったかどうか確
+認するために、そのスロット、もし必要なら近くのスロットを
+探します。
+
+   したがってキー照合の新しい方法を定義するためには、キ
+ーからハッシュコードを計算する関数と、2つのキーを直接比
+較する関数の両方が必要です。
+
+ -- Function: define-hash-table-test name test-fn
+          hash-fn
+     この関数は、NAMEという名前の、新たなハッシュテーブ
+     ルテストを定義します。
+
+     この方法でNAMEを定義した後では、‘make-hash-table’の
+     引数TESTにこれを使用することができます。それを行な
+     う場合、そのハッシュテーブルはキー値の比較に
+     TEST-FN、キー値から“ハッシュコード”を計算するために
+     HASH-FNを使用することになります。
+
+     関数TEST-FNは2つの引数(2つのキー)をとり、それらが
+     “同一”と判断されたときは非‘nil’をreturnします。
+
+     関数HASH-FNは1つの引数(キー)をとり、そのキーの“ハッ
+     シュコード”(整数)をreturnします。よい結果を得るため
+     に、この関数は負の整数を含む整数の全範囲を、ハッシ
+     ュコードに使用するべきです。
+
+     指定された関数は、プロパティー‘hash-table-test’の配
+     下の、NAMEというプロパティーリストに格納されます。
+     そのプロパティーの値形式は、‘(TEST-FN HASH-FN)’です
+     。
+
+ -- Function: sxhash obj
+     この関数は、LispオブジェクトOBJにたいするハッシュコ
+     ードをreturnします。return値は、OBJと、それが指す別
+     のLispオブジェクトの内容を表す整数です。
+
+     2つのオブジェクトOBJ1とOBJ2がequalの場合、‘(sxhash
+     OBJ1)’と‘(sxhash OBJ2)’は同じ整数になります。
+
+     2つのオブジェクトがequalでない場合、通常は
+     ‘sxhash’がreturnする値は異なりますが、常に異なると
+     は限りません。稀にですが(運次第)、‘sxhash’が同じ結
+     果を与える、2つの異なって見えるオブジェクトに遭遇す
+     るかもしれません。
+
+   以下は、大の字小文字を区別しない、文字列のキーをもつ
+ハッシュテーブルを作成する例です。
+
+     (defun case-fold-string= (a b)
+       (eq t (compare-strings a nil nil b nil nil t)))
+     (defun case-fold-string-hash (a)
+       (sxhash (upcase a)))
+
+     (define-hash-table-test 'case-fold
+       'case-fold-string= 'case-fold-string-hash)
+
+     (make-hash-table :test 'case-fold)
+
+   以下は、事前に定義されたテスト値‘equal’と等価なテスト
+を行なうハッシュテーブルを定義できるという例です。キーは
+任意のLispオブジェクトで、equalに見えるオブジェクトは、
+同じキーと判断されます。
+
+     (define-hash-table-test 'contents-hash 'equal 'sxhash)
+
+     (make-hash-table :test 'contents-hash)
+
+
+File: elisp,  Node: Other Hash,  Prev: Defining Hash,  Up: Hash Tables
+
+7.4 Other Hash Table Functions
+==============================
+
+以下は、ハッシュテーブルに機能する他の関数です。
+
+ -- Function: hash-table-p table
+     この関数は、TABLEがハッシュテーブルオブジェクトの場
+     合は、非‘nil’をreturnします。
+
+ -- Function: copy-hash-table table
+     この関数は、TABLEのコピーを作成してreturnします。そ
+     のテーブル自体がコピーされたものである場合だけ、キ
+     ーと値が共有されます。
+
+ -- Function: hash-table-count table
+     この関数はTABLE内の実際のエントリー数をreturnします
+     。
+
+ -- Function: hash-table-test table
+     この関数は、ハッシュを行なう方法と、キーを比較する
+     方法を指定するために、TABLEが作成されたときに与えら
+     れたTESTの値をreturnします。*note Creating Hash::の
+     ‘make-hash-table’を参照してください。
+
+ -- Function: hash-table-weakness table
+     この関数は、ハッシュテーブルTABLEに指定されたWEAKの
+     値をreturnします。
+
+ -- Function: hash-table-rehash-size table
+     この関数は、TABLEのrehash-sizeをreturnします。
+
+ -- Function: hash-table-rehash-threshold table
+     この関数は、TABLEのrehash-thresholdをreturnします。
+
+ -- Function: hash-table-size table
+     この関数は、TABLEの現在の定義されたサイズをreturnし
+     ます。
+
+
+File: elisp,  Node: Symbols,  Next: Evaluation,  Prev: Hash Tables,  Up: Top
+
+8 Symbols
+*********
+
+“シンボル(symbol)”は、一意な名前をもつオブジェクトです。
+このチャプターでは、シンボル、シンボルの構成要素やプロパ
+ティーリスト、およびシンボルを作成、インターンする方法を
+説明します。別のチャプターでは、シンボルを変数として使用
+したり、関数名として使用する方法が説明されています。
+*note Variables::と*note Functions::を参照してください。
+シンボルの正確な入力構文については、*note Symbol Type::を
+参照してください。
+
+   任意のLispオブジェクトがシンボルかどうかを、
+‘symbolp’でテストできます:
+
+ -- Function: symbolp object
+     この関数は、OBJECTがシンボルの場合は‘t’、それ以外は
+     ‘nil’をreturnします。
+
+* Menu:
+
+* Symbol Components::        シンボルは名前、値、関数定義、プロパティーリストをもつ。
+* Definitions::              定義は、シンボルが使用される方法を示す。
+* Creating Symbols::         シンボルが一意に保たれる方法。
+* Symbol Properties::        さまざまな情報を記録するために、各シンボルはプロパティーリストをもつ。
+
+
+File: elisp,  Node: Symbol Components,  Next: Definitions,  Up: Symbols
+
+8.1 Symbol Components
+=====================
+
+各シンボルは4つの構成要素(もしくは“セル”)をもち、各構成
+要素はそれぞれ別のオブジェクトを参照します:
+
+プリント名(print name)
+     そのシンボルの名前。
+
+値(value)
+     そのシンボルの、変数としての現在の値。
+
+関数(function)
+     そのシンボルの関数定義。これはシンボル、キーマップ
+     、キーボードマクロも保持できる。
+
+プロパティーリスト(property list)
+     そのシンボルのプロパティーリスト。
+
+プリント名のセルは常に文字列を保持し、それを変更すること
+はできません。他の3つのセルには、任意のLispオブジェクト
+をセットすることができます。
+
+   プリントメイのセルは、シンボルの名前となる文字列を保
+持します。シンボルは、シンボル名によりテキストとして表さ
+れるので、2つのシンボルが同じな前をもたないことが重要で
+す。Lispリーダーは、シンボルを読み取るごとに、新たにそれ
+を作成する前に、指定されたシンボルがすでに存在するか調べ
+ます。シンボルの名前を得るには、関数‘symbol-name’(*note
+Creating Symbols::を参照してください)を使用します。
+
+   値のセルは、シンボルの変数としての値(そのシンボル自身
+がLisp式として評価されたときに得る値)を保持します。“ロー
+カルバインディング(local binding)”や“スコーピングルール
+(scoping rules)”などのような複雑なものを含め、変数がセッ
+トされたり、取得される方法については、*Note Variables::を
+参照してください。ほとんどのシンボルは、値として任意の
+Lispオブジェクトをもつことができますが、一部の特別なシン
+ボルは変更できない値をもちます。これらには、‘nil’、‘t’、
+および名前が‘:’で始まる任意のシンボル(“キーワード
+(keyword)”と呼ばれます)が含まれます。*note Constant
+Variables::を参照してください。
+
+   関数のセルは、シンボルの関数定義を保持します。実際は
+、‘foo’の関数セルの中に保管されている関数を意味するとき
+、“関数‘foo’”といってそれを参照することがよくあります。
+わたしたちは、必要な土岐だけ、これを明確に区別することに
+します。関数セルは通常、関数(*note Functions::を参照して
+ください)か、マクロ(*note Macros::を参照してください)を
+保持するために使用されます。しかし、関数セルはシンボル
+(*note Function Indirection::を参照してください)、キーボ
+ードマクロ(*note Keyboard Macros::)、キーマップ(*note
+Keymaps::)、またはオートロードオブジェクト(*note
+Autoloading::を参照してください)を保持するためにも使用で
+きます。シンボルの関数セルの内容を得るには、関数
+‘symbol-function’ (*note Function Cells::を参照してくだ
+さい)を使用します。
+
+   プロパティーリストのセルは通常、正しくフォーマットさ
+れたプロパティーリストを保持するべきです。シンボルのプロ
+パティーリストを得るには、関数‘symbol-plist’を使用します
+。*note Symbol Properties::を参照してください。
+
+   巻子失せると値セルが、“void(空)”のときもあります。
+voidとは、そのセルがどのオブジェクトも参照していないこと
+を意味します(これは、シンボル‘void’を保持することとは異
+なり、シンボル‘nil’を保持することとも異なります)。voidの
+関数セルまたは値セルを調べようとすると、結果は‘Symbol's
+value as variable is void’のようなエラーとなります。
+
+   それぞれのシンボルは値セルと関数セルを別個にもつので
+、変数名と関数名が衝突することはありません。たとえば、シ
+ンボル‘buffer-file-name’が、値(カレントバッファーで
+visitされているファイルの名前)をもち、同様に関数定義(フ
+ァイルの名前をreturnする基本関数)をもつことができます:
+
+     buffer-file-name
+          ⇒ "/gnu/elisp/symbols.texi"
+     (symbol-function 'buffer-file-name)
+          ⇒ #<subr buffer-file-name>
+
+
+File: elisp,  Node: Definitions,  Next: Creating Symbols,  Prev: Symbol Components,  Up: Symbols
+
+8.2 Defining Symbols
+====================
+
+“定義(definition)”とは、特別な方法で使用を意図することを
+宣言する、特別な種類のLisp式です。定義とは通常、シンボル
+にたいする値を指定するか、シンボルにたいする1つの種類の
+使用についての意味と、この方法で使用するときのシンボルの
+意味にたいするドキュメントを指定します。したがって、シン
+ボルを変数として定義した場合、その変数の初期値と、加えて
+その変数のドキュメントを提供できます。
+
+   ‘defvar’および‘defconst’は、“グローバル変数(global
+variable)” — Lispプログラムの任意の箇所からアクセスでき
+る変数 — として定義するスペシャルフォームです。変数につ
+いての詳細は、*note Variables::を参照してください。カス
+タマイズ可能な変数を定義するには、‘defcustom’(これはサブ
+ルーチンとして‘defvar’も呼び出します)を使用します(*note
+Customization::を参照してください)。
+
+   原則として、最初にシンボルが変数として定義されていな
+くても、‘setq’で任意のシンボルに値を割り当てることができ
+ます。しかし、使用したいそれぞれのグローバル変数にたいし
+て、変数定義を記述するべきです。さもないと、レキシカルス
+コープ(*note Variable Scoping::を参照してください)が有効
+なときに変数が評価された場合、あなたのLispプログラムは正
+しく動作しないでしょう。
+
+   ‘defun’は、ラムダ式(lambda expression)を生成して、そ
+のシンボルの関数セルにそれを格納することにより、シンボル
+を関数として定義します。したがって、このシンボルの関数定
+義は、このラムダ式になります(関数セルの内容を意味する用
+語“関数定義(function definition)”は、‘defun’がシンボルに
+関数としての定義を与えるというアイデアに由来します)。
+*note Functions::を参照してください。
+
+   ‘defmacro’は、シンボルをマクロとして定義します。これ
+はマクロオブジェクトを作成して、そのシンボルの関数セルに
+それを格納します。シンボルにはマクロと関数を与えることが
+できますが、マクロと関数定義はどちらも関数セルに保持され
+るのにたいし、関数セルに保持できるのは常にただ1つの
+Lispオブジェクトなので、両方1度にそれを行なうことはでき
+ないことに注意してください。*note Macros::を参照してくだ
+さい。
+
+   前に注記したように、Emacs Lispではシンボルを(たとえば
+‘defvar’で)変数として定義して、同じシンボルを(たとえば
+‘defun’で)関数やマクロとして、両方定義することができます
+。このような定義は衝突しません。
+
+   これらの定義は、プログラミングツールのガイドを果たす
+こともできます。たとえば、‘C-h f’および‘C-h v’コマンドは
+、関係ある変数、関数、マクロ定義へのリンクを含むヘルプバ
+ッファーを作成します。*note (emacs)Name Help::を参照して
+ください。
+
+
+File: elisp,  Node: Creating Symbols,  Next: Symbol Properties,  Prev: Definitions,  Up: Symbols
+
+8.3 Creating and Interning Symbols
+==================================
+
+GNU Emacs Lispでシンボルが作成される方法を理解するには、
+Lispがシンボルを読み取る方法を理解しなければなりません。
+Lispは、同じ文字綴りを読み取ったら、毎回同じシンボルを見
+つけることを保証しなければなりません。これに失敗すると、
+完全な混乱を招くでしょう。
+
+   Lispリーダーがシンボルに出会うと、Lispリーダーは名前
+のすべての文字を読み取ります。その後Lispリーダーは、
+“obarray(オブジェクト配列)”と呼ばれるテーブル内のインデ
+ックスを決めるために、これらの文字を“ハッシュ(hash)”しま
+す。ハッシュ化(hashing)は何かを照合するのに効果的な方法
+です。たとえば、Jan Jonesを見つけるときは、電話帳を表紙
+から1頁ずつ探すのではなく、Jから探し始めます。これは簡単
+なバージョンのハッシュ化です。obarrayの各要素は、与えら
+れたハッシュコードとともにすべてのシンボルを保持する、
+“バケット(bucket)”です。与えられた名前を探すためには、バ
+ケットの中からその名前のハッシュコードのすべてのシンボル
+を探すのが効果的です(同じアイデアは一般的なEmacsのハッシ
+ュテーブルでも使用されていますが、これらは異なるデータ型
+です。*note Hash Tables::を参照してください)。
+
+   探している名前のシンボルが見つかったら、リーダーはそ
+のシンボルを使用します。obarrayにその名前のシンボルが含
+まれない場合、リーダーは新しいシンボルを作成して、それを
+obarrayに追加します。特定の名前のシンボルを探して追加す
+ることを、“インターン(intern)”すると言い、これが行なわれ
+た後、そのシンボルは“インターンされたシンボル(interned
+symbol)”と呼ばれます。
+
+   インターンすることにより、ある特定の名前のシンボルは
+、それぞれのobarrayに1つだけであることが保証されます。同
+じ名前のシンボルは他に存在するかもしれませんが、同じ
+obarrayではありません。したがってリーダーは、(同じ
+obarrayを読みつづける限り)同じ名前にたいして、同じシンボ
+ルを取得します。
+
+   インターンは通常、リーダー内で自動的に発生しますが、
+他のプログラムがこれを行なう必要がある場合もあります。た
+とえば、‘M-x’コマンドは、その後ミニバッファーを使用して
+コマンド名を文字列として取得し、その文字列をインターンし
+て、インターンされたその名前のシンボルを得ます。
+
+   すべてのシンボルを含むobarrayはありません。実際、どの
+obarrayにも含まれないシンボルがいくつかあります。これら
+は、“インターンされていないシンボル(uninterned
+symbols)”と呼ばれます。インターンされていないシンボルも
+、他のシンボルと同じく4つのセルをもちます。しかし、イン
+ターンされていないシンボルへのアクセスを得る唯一の方法は
+、他の何らかのオブジェクトとして探すか、変数の値として探
+す方法だけです。
+
+   インターンされていないシンボルの作成は、Lispコードを
+生成するとき有用です。なぜなら、作成されたコード内で変数
+として使用されているインターンされていないシンボルは、他
+のLispプログラムで使用されている任意の変数と競合すること
+はありえないからです。
+
+   Emacs Lispでは、obarrayはベクターです。ベクター内の各
+要素がバケットになります。要素の値は、名前がそのバケット
+にハッシュされるインターンされたシンボル、またはバケット
+が空のときは0です。インターンされたシンボルは、そのバケ
+ット内の次のシンボルへの、内部リンク(ユーザーからは見え
+ない)をもちます。これらのリンクは不可視なので、
+‘mapatoms’を使用する方法をのぞき(以下参照)、obarray内の
+すべてのシンボルを探す方法はありません。バケット内のシン
+ボルの順番に、意味はありません。
+
+   空のobarrayでは、すべての要素が0なので、‘(make-vector
+LENGTH 0)’でobarrayを作成することができます。*obarrayを
+作成する有効な方法は、これだけです。*長さに素数を指定す
+ると、よいハッシュ化がされる傾向があります。2の累乗から
+1減じた長さも、よい結果を生む傾向があります。
+
+   *自分でobarrayにシンボルを置かないでください。*これは
+うまくいきません — obarrayに正しくシンボルを入力できるの
+は、‘intern’だけです。
+
+     Common Lispに関する注意: Common Lispとは異なり、
+     Emacs Lispは1つのシンボルを複数のobarrayにインター
+     ンする方法を提供しません。
+
+   以下の関数のほとんどは、引数に名前とobarrayをとります
+。名前が文字列ではない、またはobarrayがベクターでない場
+合は、‘wrong-type-argument’エラーがシグナルされます。
+
+ -- Function: symbol-name symbol
+     この関数は、SYMBOLの名前を文字列としてreturnします
+     。たとえば:
+
+          (symbol-name 'foo)
+               ⇒ "foo"
+
+     *警告: *文字の置き換えにより文字列を変更すると、そ
+     れはシンボルの名前を変更しますが、obarrayの更新には
+     失敗するので、行なわないでください!
+
+ -- Function: make-symbol name
+     この関数は、新たに割り当てられた、名前がNAME(文字列
+     でなかればならない)のインターンされていないシンボル
+     をreturnします。このシンボルの値と関数はvoidで、プ
+     ロパティーリストは‘nil’です。以下の例では、‘sym’の
+     値は‘foo’と‘eq’ではありません。なぜなら、これは名前
+     が‘foo’のインターンされていないシンボルだからです。
+
+          (setq sym (make-symbol "foo"))
+               ⇒ foo
+          (eq sym 'foo)
+               ⇒ nil
+
+ -- Function: intern name &optional obarray
+     この関数は、名前がNAMEの、インターンされたシンボル
+     をreturnします。オブジェクト配列OBARRAYの中にそのよ
+     うなシンボルが存在しない場合、‘intern’はあたらしい
+     シンボルを作成してobarrayに追加し、それをreturnしま
+     す。OBARRAYが省略された場合、グローバル変数
+     ‘obarray’の値が使用されます。
+
+          (setq sym (intern "foo"))
+               ⇒ foo
+          (eq sym 'foo)
+               ⇒ t
+
+          (setq sym1 (intern "foo" other-obarray))
+               ⇒ foo
+          (eq sym1 'foo)
+               ⇒ nil
+
+     Common Lispに関する注意: Common Lispでは、既存のシ
+     ンボルをobarrayにインターンできます。Emacs Lispでは
+     、‘intern’の引数はシンボルではなく文字列なので、こ
+     れを行なうことはできません。
+
+ -- Function: intern-soft name &optional obarray
+     この関数は、OBARRAY内の名前がNAMEのシンボル、
+     OBARRAYにその名前のシンボルが存在しない場合は
+     ‘nil’をreturnします。したがって、与えられた名前のシ
+     ンボルがすでにインターンされているかテストするため
+     に、‘intern-soft’を使用することができます。
+     OBARRAYが省略された場合は、グローバル変数
+     ‘obarray’の値が使用されます。
+
+     引数NAMEにはシンボルも使用できます。この場合、指定
+     されたobarrayにNAMEがインターンされていればNAME、そ
+     れ以外は‘nil’をreturnします。
+
+          (intern-soft "frazzle")        ; そのようなシンボルは存在しない。
+               ⇒ nil
+          (make-symbol "frazzle")        ; インターンされていないシンボルを作成する。
+               ⇒ frazzle
+          (intern-soft "frazzle")        ; そのようなシンボルは見つからない。
+               ⇒ nil
+          (setq sym (intern "frazzle"))  ; インターンされたシンボルを作成する。
+               ⇒ frazzle
+          (intern-soft "frazzle")        ; シンボルが見つかった!
+               ⇒ frazzle
+          (eq sym 'frazzle)              ; そして、それは同じシンボル。
+               ⇒ t
+
+ -- Variable: obarray
+     この変数は、‘intern’および‘read’で使用される、標準
+     のobarrayです。
+
+ -- Function: mapatoms function &optional obarray
+     この関数は、オブジェクト配列OBARRAYの中のシンボルに
+     1つにたいして、1度ずつFUNCTIONを呼び出し、その後
+     ‘nil’をreturnします。OBARRAYが省略された場合は、通
+     常のシンボルにたいする標準のオブジェクト配列
+     ‘obarray’の値がデフォルトになります。
+
+          (setq count 0)
+               ⇒ 0
+          (defun count-syms (s)
+            (setq count (1+ count)))
+               ⇒ count-syms
+          (mapatoms 'count-syms)
+               ⇒ nil
+          count
+               ⇒ 1871
+
+     ‘mapatoms’を使用する他の例については、*note
+     Accessing Documentation::の‘documentation’を参照し
+     てください。
+
+ -- Function: unintern symbol obarray
+     この関数は、オブジェクト配列OBARRAYから、SYMBOLを削
+     除します。obarrayの中に‘symbol’が存在しない場合、
+     ‘unintern’は何も行ないません。OBARRAYが‘nil’の場合
+     は、現在のobarrayが使用されます。
+
+     SYMBOLにシンボルではなく文字列を与えた場合、それは
+     シンボルの名前を意味します。この場合、‘unintern’は
+     、(もしあれば)obarrayからその名前のシンボルを削除し
+     ます。そのようなシンボルが存在する場合、
+     ‘unintern’は何も行ないません。
+
+     ‘unintern’がシンボルを削除した場合は‘t’、それ以外は
+     ‘nil’をreturnします。
+
+
+File: elisp,  Node: Symbol Properties,  Prev: Creating Symbols,  Up: Symbols
+
+8.4 Symbol Properties
+=====================
+
+シンボルは、そのシンボルについての様々な情報を記録するた
+めに使用される、任意の数の“シンボルプロパティー(symbol
+properties)”をもつことができます。たとえば、シンボルの
+‘risky-local-variable’プロパティーが‘nil’の場合は、その
+変数の名前が、危険なファイルローカル変数(*note File
+Local Variables::を参照してください)であることを意味しま
+す。
+
+   シンボルのプロパティーとプロパティー値はそれぞれ、、
+シンボルのプロパティーリストセル(*note Symbol
+Components::を参照してください)に、プロパティーリスト形
+式(*note Property Lists::を参照してください)で格納されま
+す。
+
+* Menu:
+
+* Symbol Plists::            シンボルプロパティーへのアクセス。
+* Standard Properties::      シンボルプロパティーの標準的な意味。
+
+
+File: elisp,  Node: Symbol Plists,  Next: Standard Properties,  Up: Symbol Properties
+
+8.4.1 Accessing Symbol Properties
+---------------------------------
+
+以下の関数は、シンボルプロパティーへのアクセスに使用でき
+ます。
+
+ -- Function: get symbol property
+     この関数は、SYMBOLのプロパティーリスト内の、
+     PROPERTYという名前のプロパティーの値をreturnします
+     。そのようなプロパティーが存在しない場合は、‘nil’を
+     returnします。したがって、値が‘nil’のときと、プロパ
+     ティーが存在しない場合の違いはありません。
+
+     名前PROPERTYは、‘eq’を使用して既存のプロパティーと
+     比較されるので、任意のオブジェクトはプロパティーと
+     して適正です。
+
+     例は‘put’を参照してください。
+
+ -- Function: put symbol property value
+     この関数は、SYMBOLのプロパティーリストの、プロパテ
+     ィー名PROPERTYにVALUEを配して、以前のプロパティー値
+     を置き換えます。‘put’関数は、VALUEをreturnします。
+
+          (put 'fly 'verb 'transitive)
+               ⇒'transitive
+          (put 'fly 'noun '(a buzzing little bug))
+               ⇒ (a buzzing little bug)
+          (get 'fly 'verb)
+               ⇒ transitive
+          (symbol-plist 'fly)
+               ⇒ (verb transitive noun (a buzzing little bug))
+
+ -- Function: symbol-plist symbol
+     この関数は、SYMBOLののののプロパティーリストを
+     returnします。
+
+ -- Function: setplist symbol plist
+     この関数は、SYMBOLのプロパティーリストを、PLISTにセ
+     ットします。PLISTは通常、適正なプロパティーリストで
+     あるべきですが、これは強制ではありません。return値
+     はPLISTです。
+
+          (setplist 'foo '(a 1 b (2 3) c nil))
+               ⇒ (a 1 b (2 3) c nil)
+          (symbol-plist 'foo)
+               ⇒ (a 1 b (2 3) c nil)
+
+     通常の用途には使用されない、特別なobarray内のシンボ
+     ルでは、非標準的で方法でプロパティーリストセルを使
+     用することに意味があるかもしれません。実際に、
+     abbrev(*note Abbrevs::を参照してください)のメカニズ
+     ムは、これを行なっています。
+
+     以下のように、‘setplist’と‘plist-put’により、
+     ‘put’を定義できます:
+
+          (defun put (symbol prop value)
+            (setplist symbol
+                      (plist-put (symbol-plist symbol) prop value)))
+
+ -- Function: function-get symbol property
+     この関数は、‘get’と同じですが、SYMBOLが関数エイリア
+     ス(function alias)の場合は、実際の関数の名づけるシ
+     ンボルのプロパティーリストを参照します。*note
+     Defining Functions::を参照してください。
+
+
+File: elisp,  Node: Standard Properties,  Prev: Symbol Plists,  Up: Symbol Properties
+
+8.4.2 Standard Symbol Properties
+--------------------------------
+
+以下に、Emacsで特別な目的のために使用されるシンボルプロ
+パティーをリストします。以下の表で、“名づけられた関数
+(the named function)”と言うときは、関数名がそのシンボル
+である関数を意味します。“名づけられた変数(the named
+variable)”などの場合も、同様です。
+
+‘:advertised-binding’
+     このプロパティーリストは、名づけられた関数のドキュ
+     メントを表示するときの、優先されるキーバインディン
+     グを指定します。*note Keys in Documentation::を参照
+     してください。
+
+‘char-table-extra-slots’
+     値が非‘nil’の場合は、名づけられた文字テーブル型の追
+     加スロットの数を指定します。*note Char-Tables::を参
+     照してください。
+
+‘customized-face’
+‘face-defface-spec’
+‘saved-face’
+‘theme-face’
+     これらのプロパティーは、フェイスの標準のフェイスス
+     ペック(face specs)、およびフォントスペック
+     saved-fase、customized-face、themed-faceを記録する
+     ために使用されます。これらのプロパティーを直接セッ
+     トしないでください。これらのプロパティーは
+     ‘defface’、および関連する関数により管理されます。
+     *note Defining Faces::を参照してください。
+
+‘customized-value’
+‘saved-value’
+‘standard-value’
+‘theme-value’
+     これらのプロパティーは、カスタマイズ可能な変数の
+     standard-value、saved-value、customized-value(しか
+     し保存はされない)、themed-valueを記録するために使用
+     されます。これらのプロパティーを直接セットしないで
+     ください。これらは‘defcustom’、および関連する関数に
+     より管理されます。*note Variable Definitions::を参
+     照してください。
+
+‘disabled’
+     値が非‘nil’の場合、名づけられた関数はコマンドとして
+     無効になります。*note Disabling Commands::を参照し
+     てください。
+
+‘face-documentation’
+     値には、名づけられたフェイスのドキュメント文字列が
+     格納されます。これは、‘defface’により自動的にセット
+     されます。*note Defining Faces::を参照してください
+     。
+
+‘history-length’
+     値が非‘nil’の場合、名づけられたヒストリーリスト変数
+     の、ミニバッファーヒストリーの最大長を指定します。
+     *note Minibuffer History::を参照してください。
+
+‘interactive-form’
+     この値は、名づけられた関数の、インタラクティブ形式
+     です。通常、これを直接セットするべきではありません
+     。かわりに、スペシャルフォーム‘interactive’を使用し
+     てください。*note Interactive Call::を参照してくだ
+     さい。
+
+‘menu-enable’
+     この値は、名づけられたメニューアイテムが、メニュー
+     内で有効であるべきかを決定するための式です。*note
+     Simple Menu Items::を参照してください。
+
+‘mode-class’
+     値が‘special’の場合、名づけられたメジャーモードは
+     “special(特別)”です。*note Major Mode
+     Conventions::を参照してください。
+
+‘permanent-local’
+     値が非‘nil’の場合、名づけられた変数はバッファーロー
+     カル変数となり、変数の値はメジャーモードの変更によ
+     りリセットされません。*note Creating
+     Buffer-Local::を参照してください。
+
+‘permanent-local-hook’
+     値が非‘nil’の場合、名づけられた変数はメジャーモード
+     を変更したとき、フック変数のローカル値から削除され
+     ません。*note Setting Hooks::を参照してください。
+
+‘pure’
+     値が非‘nil’の場合、名づけられた関数は、副作用の影響
+     を受けないとみなされます。定数の引数で呼び出された
+     場合、コンパイル時に評価することができます。これは
+     、実行時のエラーをコンパイル時へとシフトします。
+
+‘risky-local-variable’
+     値が非‘nil’の場合、名づけられた変数は、ファイルロー
+     カル変数としては危険だとみなされます。*note File
+     Local Variables::を参照してください。
+
+‘safe-function’
+     値が非‘nil’の場合、名づけられた関数は、評価において
+     一般的に安全だとみなされます。*note Function
+     Safety::を参照してください。
+
+‘safe-local-eval-function’
+     値が非‘nil’の場合、名づけられた関数は、ファイルロー
+     カルの評価フォーム内で、安全に呼び出すことができま
+     す。*note File Local Variables::を参照してください
+     。
+
+‘safe-local-variable’
+     値は、名付けられた変数の、安全なファイルローカル値
+     を決定する関数を指定します。*note File Local
+     Variables::を参照してください。
+
+‘side-effect-free’
+     非‘nil’値は、関数の安全性(*note Function Safety::を
+     参照してください)、およびバイトコンパイラーの最適化
+     を決定するために、名づけられた関数が副作用から自由
+     であることを示します。これをセットしないでください
+     。
+
+‘variable-documentation’
+     非‘nil’の場合、それは名づけられた変数のドキュメント
+     文字列を指定します。ドキュメント文字列は、
+     ‘defvar’および関連する関数により、自動的にセットさ
+     れます。*note Defining Faces::を参照してください。
+
+
+File: elisp,  Node: Evaluation,  Next: Control Structures,  Prev: Symbols,  Up: Top
+
+9 Evaluation
+************
+
+Emacs Lispでの式の“評価(evaluation)”は、“Lispインタープ
+リター” — 入力としてLispオブジェクトを受け取り、それの
+“式としての値(value as an expression)”を計算します — に
+より処理されます。評価を行なう方法は、そのオブジェクトの
+データ型に依存し、それはこのチャプターで説明するルールに
+より行なわれます。インタープリターは、プログラムの一部を
+評価するために自動的に実行されますが、Lisp基本関数の
+‘eval’を通じて、明示的に呼び出すこともできます。
+
+* Menu:
+
+* Intro Eval::               事の在り方における評価。
+* Forms::                    さまざまなオブジェクト類が評価される方法。
+* Quoting::                  (プログラム内に定数を配すための)評価の回避。
+* Backquote::                リスト構造の、より簡単な構築。
+* Eval::                     Lispインタープリターを明示的に呼び出す方法。
+
+
+File: elisp,  Node: Intro Eval,  Next: Forms,  Up: Evaluation
+
+9.1 Introduction to Evaluation
+==============================
+
+Lispインタープリター(またはLispエバリュエーター)は、
+Emacsの一部で、与えられた式の値を計算します。Lispで記述
+された関数が呼び出されるとき、エバリュエーターはその関数
+のbody(本文)の中の式を評価することにより、その関数の値を
+計算します。したがって、Lispプログラムを実行するとは、実
+際にはLispインタープリターを実行することを意味します。
+
+   評価されることを意図したLispオブジェクトは、“フォーム
+(form)”、または“式(expression)”と呼ばれます(1)。フォーム
+はデータオブジェクトであり、単なるテキストではないという
+のは、Lisp風の言語と、通常のプログラミング言語との間にあ
+る、基本的な相違の1つです。任意のオブジェクトを評価でき
+ますが、実際に評価される事が非常に多いのは数字、シンボル
+、リスト、文字列です。
+
+   以降のセクションでは、各種フォームにたいして、それを
+評価することが何を意味するかの詳細を説明します。
+
+   Lispフォームを読み取り、それからそのフォームを評価す
+るのは、非常に一般的なアクティビティーですが、読み取りと
+評価は別のアクティビティーであり、どちらか一方を単独で処
+理することができます。読み取りだけでは、何も評価されませ
+ん。読み取りはLispオブジェクトのプリント表現を、そのオブ
+ジェクト自体に変換します。このオブジェクトは評価されるべ
+きフォームなのか、そのれともまったく違う目的をもつかを指
+定するのは、‘read’の呼び出し元の役目です*note Input
+Functions::を参照してください。
+
+   評価とは再帰的な処理であり、あるフォームを評価するこ
+とにより、そのフォームの一部が評価されるといったことがよ
+くあります。たとえば、‘(car x)’のような“関数呼び出し
+(function call)”のフォームを評価する場合、Emacsは最初に
+その引数(サブフォーム‘x’)を評価します。引数を評価した後
+、Emacsはその関数(‘car’)を“実行(executes)”します。その関
+数がLispで記述されている場合は、関数の“body(本文)”を評価
+することにより、実行が行なわれます(しかし、この例で使用
+している‘car’はLisp関数ではなく、Cで実装された基本関数で
+す)。関数と関数呼び出しについての情報は、*note
+Functions::を参照してください。
+
+   評価は、“環境(environment)”と呼ばれるコンテキストの内
+部で行なわれます。環境は、すべてのLisp変数(*note
+Variables::を参照してください)のカレント値とバインディン
+グにより構成されます。(2)フォームが新たなバインディング
+を作成することなく、変数を参照するとき、その変数はカレン
+トの環境により与えられる値に評価されます。フォームの評価
+は、変数のバインディングにより、一時的にその環境を変更す
+ることもあります(*note Local Variables::を参照してくださ
+い)。
+
+   フォームの評価が、永続する変更を行なうこともあります
+。これらの変更は、“副作用(side effects)”と呼ばれます。副
+作用を生成するフォームの例は、‘(setq foo 1)’です。
+
+   コマンドキー解釈にたいする評価と混同しないでください
+。エディターのコマンドループは、アクティブなキーマップを
+使用して、キーボード入力をコマンド(インタラクティブに呼
+び出すことができる関数)に変換してから、そのコマンドを実
+行するために‘call-interactively’を使用します。そのコマン
+ドはLispで記述されている場合、コマンドの実行は通常、評価
+を伴います。しかし、このステップはコマンドキー解釈の一部
+とは考えません。*note Command Loop::を参照してください。
+
+   ---------- Footnotes ----------
+
+   (1) “S式(S-expression)”、短くは“sexp”という言葉でも呼
+ばれることがありますが、わたしたちは通常、このマニュアル
+内ではこの用語は使用しません。
+
+   (2) “環境”にたいするこの定義は、プログラムの結果に影
+響し得るすべてのデータを特に意図するものではありません。
+
+
+File: elisp,  Node: Forms,  Next: Quoting,  Prev: Intro Eval,  Up: Evaluation
+
+9.2 Kinds of Forms
+==================
+
+評価される事を意図したLispオブジェクトは、“フォーム
+(form)”または“式(expression)”)と呼ばれます。Emacsがフォ
+ームを評価する方法は、フォームのデータ型に依存します。
+Emacsは、3種の異なるフォーム — シンボル、リスト、および
+“その他すべての型” — を持ち、それらは評価される方法は異
+なります。このセクションでは、まず最初は自己評価フォーム
+の“その他すべての型”から開始して、3つの種類をすべて1つず
+つ説明します。
+
+* Menu:
+
+* Self-Evaluating Forms::    自分自身を評価するフォーム。
+* Symbol Forms::             変数として評価されるシンボル。
+* Classifying Lists::        さまざまな種類のリストフォームを区別する方法。
+* Function Indirection::     シンボルがリストのcarにある場合、そのシンボルを通じて実際の関数を見つけます。
+* Function Forms::           関数を呼び出すフォーム。
+* Macro Forms::              マクロを呼び出すフォーム。
+* Special Forms::            "スペシャルフォーム"は特有な基本のフォームで、それらのほとんどがとても重要です。
+* Autoloading::              実際の定義を含むファイルのロードをセットアップする関数。
+
+
+File: elisp,  Node: Self-Evaluating Forms,  Next: Symbol Forms,  Up: Forms
+
+9.2.1 Self-Evaluating Forms
+---------------------------
+
+“自己評価フォーム(self-evaluating form)”は、リストやシン
+ボルではない、任意のフォームです。自己評価フォームは、フ
+ォーム自身を評価します。評価の結果は、評価されたのと同じ
+オブジェクトです。したがって、数字の25は25に評価され、文
+字列‘"foo"’は文字列‘"foo"’に評価されます。同様に、ベクタ
+ーの評価では、ベクターの要素の評価は起こりません — 内容
+が変更されずに同じベクターがreturnされます。
+
+     '123               ; 評価されずに表示される数字。
+          ⇒ 123
+     123                ; 通常どおり評価され、同じものがreturnされる。
+          ⇒ 123
+     (eval '123)        ; “手動”による評価 — 同じものがreturnされる。
+          ⇒ 123
+     (eval (eval '123)) ; 2度評価しても何も変わらない。
+          ⇒ 123
+
+   事項評価されるという事実による利点から、数字、文字、
+文字列、そしてベクターでさえ、Lispコード内で記述されるの
+は一般的です。しかし、入力構文がない型にたいしてこれを行
+なうのは極めて異例です。なぜなら、これらをテキスト的に記
+述する方法がないからです。Lispプログラムを使用して、これ
+らの型を含むLisp式を構築するのは、可能です。以下は例です
+:
+
+     ;; バッファーオブジェクトを含む式を構築する。
+     (setq print-exp (list 'print (current-buffer)))
+          ⇒ (print #<buffer eval.texi>)
+     ;; それを評価する。
+     (eval print-exp)
+          ⊣ #<buffer eval.texi>
+          ⇒ #<buffer eval.texi>
+
+
+File: elisp,  Node: Symbol Forms,  Next: Classifying Lists,  Prev: Self-Evaluating Forms,  Up: Forms
+
+9.2.2 Symbol Forms
+------------------
+
+シンボルが評価されるときは、変数として扱われます。それが
+値をもつ場合、結果はその変数の値になります。そのシンボル
+が変数としての値をもたない場合、Lispインタープリターはエ
+ラーをシグナルします。変数の使用法についての情報は、
+*note Variables::を参照してください。
+
+   以降の例では、‘setq’でシンボルに値をセットしています
+。その後シンボルを評価してから、その値を‘setq’に戻します
+。
+
+     (setq a 123)
+          ⇒ 123
+     (eval 'a)
+          ⇒ 123
+     a
+          ⇒ 123
+
+   シンボル‘nil’と‘t’は特別に扱われるので、‘nil’の値は常
+に‘nil’になり、‘t’の値は常に‘t’になります。これらに他の
+値をセットしたり、他の値にバインドすることはできません。
+したがって、この2つのシンボルは、(たとえ‘eval’がそれらを
+他の任意のシンボルと同じように扱うとはいえ)自己評価フォ
+ームと同じように振る舞います。名前が‘:’で始まるシンボル
+も、同じ方法で自己評価されます。そして、(通常は)値を変更
+できない点も同じです。*note Constant Variables::を参照し
+てください。
+
+
+File: elisp,  Node: Classifying Lists,  Next: Function Indirection,  Prev: Symbol Forms,  Up: Forms
+
+9.2.3 Classification of List Forms
+----------------------------------
+
+空ではないリストフォームは、関数呼び出し、マクロ呼び出し
+、スペシャルフォームのいずれかで、それは1番目の引数にし
+たがいます。これら3種のフォームは、以下で説明するように
+、異なる方法で評価されます。残りの要素は関数、マクロ、ま
+たはスペシャルフォームにたいする“引数(arguments)”を構成
+します。
+
+   空ではないリストを評価する最初のステップは、1番目の要
+素の確認です。この要素は単独で、そのリストがどの種類のフ
+ォームか、そして残りの引数をどのように処理するがを決定し
+ます。SchemeのようなLisp方言とは異なり、1番目の要素は評
+価されません。
+
+
+File: elisp,  Node: Function Indirection,  Next: Function Forms,  Prev: Classifying Lists,  Up: Forms
+
+9.2.4 Symbol Function Indirection
+---------------------------------
+
+リストの最初の要素がシンボルの場合、評価はそのシンボルの
+関数セルを調べて、元のシンボルの代わりに、関数セルの内容
+を使用します。その内容が他のシンボルの場合、シンボルでは
+ないものが得られるまで、このプロセスが繰り返されます。こ
+のプロセスを“シンボル関数インダイレクション(symbol
+function indirection: indirectionは間接の意)”と呼びます
+。シンボル関数インダイレクションについての情報は、*note
+Function Names::を参照してください。
+
+   このプロセスの結果、シンボルの関数競るが同じシンボル
+を参照する場合、無限ループを起こす可能性があります。それ
+以外は、最終的には非シンボルにたどりつき、これは関数か、
+他の適切なオブジェクトであるはずです。
+
+   より正確に言うと、それはLisp関数(ラムダ式)、バイトコ
+ード関数、基本関数、Lispマクロ、スペシャルフォーム、また
+はオートロードオブジェクトであるべきです。これらの型のそ
+れぞれについては、以降のセクションで説明します。これらの
+型以外のオブジェクトの場合、emacsは‘invalid-function’エ
+ラーをシグナルします。
+
+   以下の例は、シンボルインダイレクションのプロセスを説
+明するものです。わたしたちは、シンボルの関数セルに関数を
+セットするのに‘fset’、関数セルの内容(*note Function
+Cells::を参照してください)を得るために
+‘symbol-function’を使用します。具体的に言うと、‘first’の
+関数セルにシンボル‘car’を格納し、シンボル‘first’を
+‘erste’の関数セルに格納します。
+
+     ;; この関数セルのリンクを構築する:
+     ;;   -------------       -----        -------        -------
+     ;;  | #<subr car> | <-- | car |  <-- | first |  <-- | erste |
+     ;;   -------------       -----        -------        -------
+     (symbol-function 'car)
+          ⇒ #<subr car>
+     (fset 'first 'car)
+          ⇒ car
+     (fset 'erste 'first)
+          ⇒ first
+     (erste '(1 2 3))   ; ‘erste’により参照される関数を呼び出す。
+          ⇒ 1
+
+   対照的に、以下の例はシンボル関数インダイレクションを
+使用せずに関数を呼び出します。なぜなら、1番目の要素はシ
+ンボルではなく、無名Lisp関数(anonymous Lisp function)だ
+からです。
+
+     ((lambda (arg) (erste arg))
+      '(1 2 3))
+          ⇒ 1
+
+関数自身を実行すると、その関数のbodyを評価します。これは
+、‘erste’を呼び出すとき、シンボル関数インダイレクション
+が行なわれます。
+
+   このフォームが使用されるのは稀で、今では推奨されませ
+ん。かわりに以下のように記述するべきです:
+
+     (funcall (lambda (arg) (erste arg))
+              '(1 2 3))
+   または単に
+     (let ((arg '(1 2 3))) (erste arg))
+
+   ビルトイン関数の‘indirect-function’は、明示的にシンボ
+ル関数インダイレクションを処理するための、簡単な方法を提
+供します。
+
+ -- Function: indirect-function function &optional
+          noerror
+     この関数は、FUNCTIONが意味するものを、関数として
+     returnします。FUNCTIONがシンボルの場合は、
+     FUNCTIONの関数定義を探して、その値で最初からやり直
+     します。FUNCTIONがシンボルでない場合は、FUNCTION自
+     身をreturnします。
+
+     この関数は、最後のシンボルがバインドされておらず、
+     オプション引数NOERRORが省略されているか‘nil’の場合
+     は、‘void-function’エラーをシグナルします。それ以外
+     は、NOERRORが非‘nil’の場合は、最後のシンボルがバイ
+     ンドされていなければ‘nil’をreturnします。
+
+     特定のシンボル内にループがある場合、この関数は
+     ‘cyclic-function-indirection’エラーをシグナルします
+     。
+
+     以下は、Lispで‘indirect-function’を定義できるという
+     例です:
+
+          (defun indirect-function (function)
+            (if (symbolp function)
+                (indirect-function (symbol-function function))
+              function))
+
+
+File: elisp,  Node: Function Forms,  Next: Macro Forms,  Prev: Function Indirection,  Up: Forms
+
+9.2.5 Evaluation of Function Forms
+----------------------------------
+
+リストの1番目の要素がLispの関数オブジェクト。バイトコー
+ドオブジェクト、基本関数オブジェクトと評価された場合、そ
+のリストは“関数呼び出し(function call)”になります。たと
+えば、以下は関数‘+’を呼び出します:
+
+     (+ 1 x)
+
+   関数呼び出しを評価する最初のステップは、そのリストの
+残りの要素を左から右に評価します。結果は引数の実際の値で
+、リストの各要素にたいして1つの値となります。次のステッ
+プは、関数‘apply’(*note Calling Functions::を参照してく
+ださい)を使用して、引数のリストでその関数を呼び出します
+。関数がLispで記述されている場合、引数はその関数の引数変
+数にバインドするために使用されます。その後、関数body内の
+フォームが順番に評価され、listのbodyフォームの値は、関数
+呼び出しの値になります。
+
+
+File: elisp,  Node: Macro Forms,  Next: Special Forms,  Prev: Function Forms,  Up: Forms
+
+9.2.6 Lisp Macro Evaluation
+---------------------------
+
+リストの最初の要素がマクロオブジェクトと評価された場合、
+そのリストは“マクロ呼び出し(macro call)”になります。マク
+ロ呼び出しが評価されるとき、リストの残りの要素は、最初は
+評価され_ません_。そのかわり、これらの要素自体が、マクロ
+の引数に使用されます。そのマクロ定義は、これは元のフォー
+ムの場所で評価される、置き換えのフォームを計算します。こ
+れは、マクロの“展開(expansion)”と呼ばれます。展開した結
+果は、任意の種類のフォーム — 自己評価定数、シンボル、リ
+ストになります。展開した結果自体がマクロ呼び出しの場合、
+結果が他の種類のフォームになるまで、繰り返し展開処理が行
+なわれます。
+
+   通常のマクロ展開は、その展開形を評価することにより終
+了します。しかし、他のプログラムもマクロ呼び出しを展開し
+、それらが展開形を評価するかもしれないし、評価しないかも
+しれないので、そのマクロ展開がすぐに、または最終的に評価
+される必要がない場合があります。
+
+   引き数式は通常、マクロ展開の計算の一部としては評価さ
+れませんが、展開の部分として現れるので、展開形が評価され
+るとき計算されます。
+
+   たとえば、以下のようなマクロ定義が与えられたとします:
+
+     (defmacro cadr (x)
+       (list 'car (list 'cdr x)))
+
+‘(cadr (assq 'handler list))’のような式はマクロ呼び出し
+であり、展開形は以下のようになります:
+
+     (car (cdr (assq 'handler list)))
+
+引数‘(assq 'handler list)’が、展開形に含まれることに注意
+してください。
+
+   Emacs Lispマクロの完全な説明は、*note Macros::を参照
+してください。
+
+
+File: elisp,  Node: Special Forms,  Next: Autoloading,  Prev: Macro Forms,  Up: Forms
+
+9.2.7 Special Forms
+-------------------
+
+“スペシャルフォーム(special form)”は特別だとマークされた
+基本関数で、その引数のすべては評価されません。もっともス
+ペシャルなフォームは、制御構造の定義や、変数バインディン
+グの処理など、関数ではできないことを行ないます。
+
+   スペシャルフォームはそれぞれ、どの引数が評価されて、
+どの引数が評価されないかについて、独自のルールをもちます
+。特定の引数が評価されるかどうかは、他の引数を評価した結
+果に依存します。
+
+   式の最初のシンボルがスペシャルフォームの場合、その式
+はそのスペシャルフォームのルールにしたがう必要があります
+。それ以外では、Emacsの挙動は(たとえクラッシュしなくても
+)定義されていません。たとえば‘((lambda (x) x . 3) 4)’は
+、‘lambda’で始まるサブ式を含みますが、これは適正な
+‘lambda’式ではないので、Emacsはエラーをシグナルするか、
+3、または4、または‘nil’、もしかしたら他の挙動を示すかも
+しれません。
+
+ -- Function: special-form-p object
+     この述語は、引数がスペシャルフォームかをテストし、
+     スペシャルフォームなら‘t’、それ以外は‘nil’を
+     returnします。
+
+   以下に、Emacs Lispのスペシャルフォームすべてと、それ
+らがどこで説明されているかのリファレンスとともに、アルフ
+ァベット順でリストします。
+
+‘and’
+     *note Combining Conditions::
+
+‘catch’
+     *note Catch and Throw::
+
+‘cond’
+     *note Conditionals::
+
+‘condition-case’
+     *note Handling Errors::
+
+‘defconst’
+     *note Defining Variables::
+
+‘defvar’
+     *note Defining Variables::
+
+‘function’
+     *note Anonymous Functions::
+
+‘if’
+     *note Conditionals::
+
+‘interactive’
+     *note Interactive Call::
+
+‘lambda’
+     *note Lambda Expressions::
+
+‘let’
+‘let*’
+     *note Local Variables::
+
+‘or’
+     *note Combining Conditions::
+
+‘prog1’
+‘prog2’
+‘progn’
+     *note Sequencing::
+
+‘quote’
+     *note Quoting::
+
+‘save-current-buffer’
+     *note Current Buffer::
+
+‘save-excursion’
+     *note Excursions::
+
+‘save-restriction’
+     *note Narrowing::
+
+‘setq’
+     *note Setting Variables::
+
+‘setq-default’
+     *note Creating Buffer-Local::
+
+‘track-mouse’
+     *note Mouse Tracking::
+
+‘unwind-protect’
+     *note Nonlocal Exits::
+
+‘while’
+     *note Iteration::
+
+     Common Lispに関する注意: ここで、GNU Emacsのスペシ
+     ャルフォームと、Common Lispのスペシャルフォームを比
+     較してみます。‘setq’、‘if’、‘catch’は、Emacs Lispと
+     Common Lispの両方でスペシャルフォームです。
+     ‘save-excursion’はEmacs Lispではスペシャルフォーム
+     ですが、Common Lispには存在しません。‘throw’は
+     Common Lispではスペシャルフォーム(なぜなら複数の値
+     をthrowできなければならない)ですが、Emacs Lispでは
+     (複数の値をもたない)関数です。
+
+
+File: elisp,  Node: Autoloading,  Prev: Special Forms,  Up: Forms
+
+9.2.8 Autoloading
+-----------------
+
+“オートロード(autoload)”機能により、関数定義がだEmacsに
+ロードされていない関数(またはマクロ)を呼び出すことができ
+ます。オートロードは、定義がどのファイルに含まれるかを指
+定します。オートロードオブジェクトがシンボルの関数定義に
+ある場合、関数としてそのシンボルを呼び出すことにより、自
+動的に指定されたファイルがロードされます。その後、ファイ
+ルからロードされた実際の定義を呼び出します。シンボル内の
+関数定義としてオートロードオブジェクトをアレンジする方法
+は、*note Autoload::で説明します。
+
+
+File: elisp,  Node: Quoting,  Next: Backquote,  Prev: Forms,  Up: Evaluation
+
+9.3 Quoting
+===========
+
+スペシャルフォーム‘quote’は、単一の引数を、記述されたと
+おり、評価せずにreturnします。これはプログラムに、自己評
+価オブジェクトではない、定数シンボルや定数リストを含める
+方法を提供します(数字、文字列、ベクターのような自己評価
+オブジェクトをクォートする必要はありません)。
+
+ -- Special Form: quote object
+     このスペシャルフォームは、評価せずにOBJECTを
+     returnします。
+
+   プログラム中で‘quote’はよく使用されるので、Lispはそれ
+にたいする便利な入力構文を提供します。アポストロフィー文
+字(‘'’)に続けてLispオブジェクト(の入力構文)を記述すると
+、それは1番目の要素が‘quote’で、2番目の要素がそのオブジ
+ェクトであるリストに展開されます。したがって、入力構文
+‘'x’は、‘(quote x)’の略記になります。
+
+   以下に、‘quote’を使用した式の例をいくつか示します:
+
+     (quote (+ 1 2))
+          ⇒ (+ 1 2)
+     (quote foo)
+          ⇒ foo
+     'foo
+          ⇒ foo
+     ''foo
+          ⇒ (quote foo)
+     '(quote foo)
+          ⇒ (quote foo)
+     ['foo]
+          ⇒ [(quote foo)]
+
+   他のクォート構成には、コンパイル用にLispで記述された
+無名のラムダ式の元になる‘function’(*note Anonymous
+Functions::を参照してください)、および、リストを計算して
+置き換える際に、リストの一部だけをクォートするのに使用さ
+れる‘`’(*note Backquote::を参照してください)があります。
+
+
+File: elisp,  Node: Backquote,  Next: Eval,  Prev: Quoting,  Up: Evaluation
+
+9.4 Backquote
+=============
+
+“バッククォート構成(backquote constructs)”を使用すること
+により、リストをクォートして、そのリストのある要素を選択
+的に評価することができます。もっとも簡単な使い方では、ス
+ペシャルフォーム‘quote’と同じです (前のセクションで説明
+しています。*note Quoting::を参照してください)。 たとえ
+ば、以下の2つのフォームは同じ結果を生みます:
+
+     `(a list of (+ 2 3) elements)
+          ⇒ (a list of (+ 2 3) elements)
+     '(a list of (+ 2 3) elements)
+          ⇒ (a list of (+ 2 3) elements)
+
+   バッククォートする引数の内側でスペシャルマーカー‘,’を
+使用すると、それは値が定数でないことを示します。Emacs
+Lispエバリュエーターは‘,’がついた引数を放火して、リスト
+構造内にその値を配します:
+
+     `(a list of ,(+ 2 3) elements)
+          ⇒ (a list of 5 elements)
+
+‘,’による置き換え、リスト構造のより深いレベルでも使用で
+きます。たとえば:
+
+     `(1 2 (3 ,(+ 4 5)))
+          ⇒ (1 2 (3 9))
+
+   スペシャルマーカー‘,@’を使用すれば、評価された値を結
+果リストに“継ぎ足す(splice)”こともできます。継ぎ足された
+リストの要素は、結果リスト内の他の要素を同じレベルになり
+ます。‘`’を使用しない等価なコードは、しばしば読むのが困
+難です。以下にいくつかの例を示します:
+
+     (setq some-list '(2 3))
+          ⇒ (2 3)
+     (cons 1 (append some-list '(4) some-list))
+          ⇒ (1 2 3 4 2 3)
+     `(1 ,@some-list 4 ,@some-list)
+          ⇒ (1 2 3 4 2 3)
+
+     (setq list '(hack foo bar))
+          ⇒ (hack foo bar)
+     (cons 'use
+       (cons 'the
+         (cons 'words (append (cdr list) '(as elements)))))
+          ⇒ (use the words foo bar as elements)
+     `(use the words ,@(cdr list) as elements)
+          ⇒ (use the words foo bar as elements)
+
+
+File: elisp,  Node: Eval,  Prev: Backquote,  Up: Evaluation
+
+9.5 Eval
+========
+
+ほとんどの場合、実行されるプログラム内に出現することによ
+り、フォームは自動的に評価されます。稀に、実行時 — たと
+えば編集されているテキストや、プロパティーリストから取得
+したフォームを読み取った後 — に計算されるように、フォー
+ムを評価するコードを記述する必要があるかもしれません。こ
+のようなときは、‘eval’関数を使用します。‘eval’が不必要だ
+ったり、かわりに他の何かを使用すべきときが、しばしばあり
+ます。たとえば、変数から値を取得するには、‘eval’も機能し
+ますが、‘symbol-value’のほうが適しています。‘eval’で評価
+するためにプロパティーリストに式を格納するより、かわりに
+‘funcall’に渡すように関数を格納した方がよいでしょう。
+
+   このセクションで説明する関数と変数は、フォームの評価
+、評価処理の制限の指定、最後にreturnされた値の記録を行な
+うものです。ファイルのロードでも評価が行なわれます(*note
+Loading::を参照してください)。
+
+   データ構造に式を格納してそれを評価するより、データ構
+造に関数を格納して、それを‘funcall’や‘apply’で呼び出すほ
+うが、より明解かつ柔軟です。関数を使用することにより、引
+数に情報を渡す能力が提供されます。
+
+ -- Function: eval form &optional lexical
+     これは、式を評価する、基本的な関数です。この関数は
+     、カレント環境内でFORMを評価して、その結果を
+     returnします。FORMオブジェクトの型は、それが評価さ
+     れる方法を決定します。*note Forms::を参照してくださ
+     い。
+
+     引数LEXICALは、ローカル変数にたいするスコープ規則
+     (*note Variable Scoping::を参照してください)を指定
+     します。これが省略されるか‘nil’の場合、デフォルトの
+     ダイナミックスコープ規則を使用してFORMを評価するこ
+     とを意味します。‘t’の場合は、レキシカルスコープ規則
+     が使用されることを意味します。LEXICALの値には、レキ
+     シカルバインディングにたいする特定の“レキシカル環境
+     (lexical environment)”を指定する、空ではないalistも
+     指定できます。しかし、この機能はEmacs Lispデバッガ
+     ーのような、特別な目的にたいしてのみ有用です。*note
+     Lexical Binding::を参照してください。
+
+     ‘eval’は関数なので、‘eval’呼び出しに現れる引数式は
+     2回 — 1度は‘eval’が呼び出される前の準備、そして
+     ‘eval’関数自身によりもう1度 — 評価されます。以下は
+     例です:
+
+          (setq foo 'bar)
+               ⇒ bar
+          (setq bar 'baz)
+               ⇒ baz
+          ;; ‘eval’が引数‘foo’を受け取る。
+          (eval 'foo)
+               ⇒ bar
+          ;; ‘eval’が、‘foo’の値である、引数‘bar’を受け取る。
+          (eval foo)
+               ⇒ baz
+
+     ‘eval’により現在アクティブな呼び出しの数は、
+     ‘max-lisp-eval-depth’に制限されます(以下参照)。
+
+ -- Command: eval-region start end &optional stream
+          read-function
+     この関数は、カレントバッファー内の、位置STARTと
+     ENDで定義されるリージョン内のフォームを評価します。
+     この関数はそのリージョンからフォームを読み取り、そ
+     れらにたいし‘eval’を呼び出します。これは、リージョ
+     ンの最後に達するまで、または処理されないエラーがシ
+     グナルされるまで行なわれます。
+
+     デフォルトでは、‘eval-region’は何の出力も生成しませ
+     ん。しかし、STREAMが非‘nil’の場合、出力関数(*note
+     Output Functions::を参照してください)で生成された任
+     意の出力、同様にリージョン内の式を評価した結果の値
+     は、STREAMを使用してプリントされます。*note Output
+     Streams::を参照してください。
+
+     READ-FUNCTIONが非‘nil’の場合、‘read’のかわりに1つず
+     つ式を読み取るために使用する関数を指定します。これ
+     は、入力を読み取るストリームを指定する、1つの引数で
+     呼び出される関数です。この関数を指定するために変数
+     ‘load-read-function’(*note How Programs Do Loading:
+     Definition of load-read-function.を参照してください
+     )も使用できますが、引数READ-FUNCTIONを使用するほう
+     が確実です。
+
+     ‘eval-region’はポイントを移動しません。つねに
+     ‘nil’をreturnします。
+
+ -- Command: eval-buffer &optional buffer-or-name stream
+          filename unibyte print
+     この関数は‘eval-region’と似ていますが、引数は異なる
+     オプション機能を提供します。‘eval-buffer’は、バッフ
+     ァーBUFFER-OR-NAMEのアクセス可能な部分全体を処理し
+     ます。BUFFER-OR-NAMEにはバッファー名(文字列)を指定
+     でき、‘nil’(または省略)のときはカレントバッファーを
+     意味します。STREAMが‘nil’かつPRINTが非‘nil’でない場
+     合、‘eval-region’のようにSTREAMが使用されます。この
+     場合、式の評価による結果の値は依然として破棄されま
+     すが、出力関数による出力はエコーエリアにプリントさ
+     れます。FILENAMEは、‘load-history’(*note
+     Unloading::を参照してください)に使用されるファイル
+     名で、デフォルトは‘buffer-file-name’(*note Buffer
+     File Name::を参照してください)です。UNIBYTEが非
+     ‘nil’の場合、可能な限り‘read’は文字列をユニコードに
+     変換します。
+
+     ‘eval-current-buffer’は、このコマンドのエイリアスで
+     す。
+
+ -- User Option: max-lisp-eval-depth
+     この変数は、エラー(エラーメッセージは‘"Lisp nesting
+     exceeds max-lisp-eval-depth"’)がシグナルされる前に
+     、‘eval’、‘apply’、‘funcall’の呼び出しで許される最
+     大の深さを定義します。
+
+     制限を超えたときのエラーをもつこの制限は、Emacs
+     Lispで誤って定義された関数による無限再帰を避ける方
+     法の1つです。‘max-lisp-eval-depth’の値を過大に増加
+     させた場合、そのようなコードはかわりにスタックオー
+     バーフローを起こすでしょう。
+
+     たとえば、Lisp式に記述された関数の呼び出し、関数呼
+     び出しの引数と、関数bodyフォームにたいする再帰評価
+     、Lispコード内での明示的な呼び出しなどにたいして、
+     深さ制限を数えるために、内部的に‘eval’、‘apply’、
+     ‘funcall’を使用します。
+
+     この変数のデフォルト値は400です。この値を100未満に
+     セットした場合、値が与えられた値に達すると、Lispは
+     それを100にリセットします。空きが少ない場合、デバッ
+     ガー自身を実行するために空きが必要になるので、
+     Lispデバッガーに入ったときは、この値が増加されます
+     。
+
+     ‘max-specpdl-size’はネストの他の制限を提供します。
+     *note Local Variables: Definition of
+     max-specpdl-size.を参照してください。
+
+ -- Variable: values
+     この変数の値は、読み取り、評価、プリントを行なった
+     標準的なEmacsコマンドにより、バッファー(ミニバッフ
+     ァーを含む)からreturnされる値のリストです(これには
+     ‘*ielm*’バッファーでの評価や、
+     ‘lisp-interaction-mode’での‘C-j’を使用した評価は含
+     まれ_ない_ことに注意してください)。要素の順番は、も
+     っとも最近のものが最初になります。
+
+          (setq x 1)
+               ⇒ 1
+          (list 'A (1+ 2) auto-save-default)
+               ⇒ (A 3 t)
+          values
+               ⇒ ((A 3 t) 1 ...)
+
+     この変数は、最近評価されたフォームの値を後で参照す
+     るのに便利です。‘values’自体の値をプリントするのは
+     、それがおそらく非常に長くなるので、通常は悪いアイ
+     デアです。かわりに、以下のように特定の要素を調べま
+     す:
+
+          ;; もっとも最近評価された結果を参照する。
+          (nth 0 values)
+               ⇒ (A 3 t)
+          ;; これは新たな要素をputするので、
+          ;;   すべての要素が1つ後に移動する。
+          (nth 1 values)
+               ⇒ (A 3 t)
+          ;; これは次に新しい、この例の前の次に新しい要素を取得する。
+          (nth 3 values)
+               ⇒ 1
+
+
+File: elisp,  Node: Control Structures,  Next: Variables,  Prev: Evaluation,  Up: Top
+
+10 Control Structures
+*********************
+
+Lispプログラムは、一連の“式(expressions)”、あるいは“フォ
+ーム(forms)”(*note Forms::を参照してください)により形成
+されます。これらのフォームの実行順は、それらを“制御構造
+(control structures)”で囲むことにより制御します。制御構
+造とは、その制御構造が含むフォームをいつ、どのような条件
+で、何回実行するかを制御する、スペシャルフォームです。
+
+   もっとも単純な実行順は、1番目はA、2番目はB、...という
+、シーケンシャル実行(sequential execution: 順番に実行)で
+す。これは、関数のbody内の連続する複数のフォームや、
+Lispコードのファイル内のトップレベルを記述したときに発生
+します — つまり、フォームは記述した順に実行されます。わ
+たしたちはこれを“テキスト順(textual order)”と呼びます。
+たとえば、関数のbodyが2つのフォームAとBから構成される場
+合、関数の評価は、最初にAを評価し、次にBを評価します。
+Bを評価した結果が、その関数の値となります。
+
+   明示的に制御構造を使用することにより、シーケンシャル
+ではない順番での実行が可能になります。
+
+   Emacs Lispは、他の様々な順序づけ、条件、繰り返し、(制
+御された)ジャンプを含む、複数の種類の制御構造を提供し、
+以下ではそれらすべてを記述します。ビルトインの制御構造は
+、制御構造のサブフォームが評価される必要がなかったり、順
+番に評価される必要がないので、スペシャルフォームです。独
+自の制御構造を構築するためにマクロを使用することができま
+す(*note Macros::を参照してください)。
+
+* Menu:
+
+* Sequencing::               テキスト順の評価。
+* Conditionals::             ‘if’、‘cond’、‘when’、‘unless’。
+* Combining Conditions::     ‘and’、‘or’、‘not’。
+* Iteration::                ‘while’ループ。
+* Nonlocal Exits::           シーケンスの外へジャンプ。
+
+
+File: elisp,  Node: Sequencing,  Next: Conditionals,  Up: Control Structures
+
+10.1 Sequencing
+===============
+
+フォームが出現する順番に評価するのは、あるフォームから別
+のフォームに制御を渡す、もっとも一般的な制御です。関数の
+bodyのような、あるコンテキストにおいては、自動的にこれが
+行なわれます。他の場所では、これを行なうために制御構造を
+使用しなければなりません。Lispで一単純な制御構造は、
+‘progn’です。
+
+   スペシャルフォーム‘progn’は、以下のようなものです:
+
+     (progn A B C ...)
+
+これは、順番にA、B、C、...を実行するよう指定します。これ
+らは‘progn’フォームの“body”と呼ばれます。body内の最後の
+フォームの値が、‘progn’全体の値になります。‘(progn)’は
+‘nil’をreturnします。
+
+   初期のLispでは、‘progn’は、連続で複数のフォームを実行
+して最後のフォームの値を使用する、唯一の方法でした。しか
+しプログラマーは、関数のbodyの、(その時点では)1つのフォ
+ームだけが許される場所で、‘progn’を使用する必要が多いこ
+とに気づきました。そのため、関数のbodyを“暗黙の
+‘progn’”にして、‘progn’のbodyのように複数のフォームを記
+述出きるようにしました。他の多くの制御構造も、同様に暗黙
+の‘progn’を含みます。結果として、昔ほど‘progn’は多用され
+なくなりました。現在では、‘progn’が必要になるのは、
+‘unwind-protect’、‘and’、‘or’、‘if’のTHENパートの中がほ
+とんどです。
+
+ -- Special Form: progn forms...
+     このスペシャルフォームは、FORMSのすべてをテキスト順
+     に評価して、のフォームの結果をreturnします。
+
+          (progn (print "The first form")
+                 (print "The second form")
+                 (print "The third form"))
+               ⊣ "The first form"
+               ⊣ "The second form"
+               ⊣ "The third form"
+          ⇒ "The third form"
+
+   他の2つの構成は、一連のフォームを同様に評価しますが、
+異なる値をreturnします:
+
+ -- Special Form: prog1 form1 forms...
+     このスペシャルフォームは、FORM1とFORMSのすべてをテ
+     キスト順に評価して、FORM1の結果をreturnします。
+
+          (prog1 (print "The first form")
+                 (print "The second form")
+                 (print "The third form"))
+               ⊣ "The first form"
+               ⊣ "The second form"
+               ⊣ "The third form"
+          ⇒ "The first form"
+
+     以下の例は、変数‘x’のリストから1番目の要素を削除し
+     て、削除した1番目の要素の値をreturnします:
+
+          (prog1 (car x) (setq x (cdr x)))
+
+ -- Special Form: prog2 form1 form2 forms...
+     このスペシャルフォームは、FORM1、FORM2、その後の
+     FORMSのすべてをテキスト順で評価して、FORM2の結果を
+     returnします。
+
+          (prog2 (print "The first form")
+                 (print "The second form")
+                 (print "The third form"))
+               ⊣ "The first form"
+               ⊣ "The second form"
+               ⊣ "The third form"
+          ⇒ "The second form"
+
+
+File: elisp,  Node: Conditionals,  Next: Combining Conditions,  Prev: Sequencing,  Up: Control Structures
+
+10.2 Conditionals
+=================
+
+条件による制御構造は、候補の中から選択を行ないます。
+Emacs Lispは4つの条件フォームをもちます。‘if’は他の言語
+のものとほとんど同じです。‘when’と‘unless’は、‘if’の変種
+です。‘cond’は一般化されたcase命令です。
+
+ -- Special Form: if condition then-form else-forms...
+     ‘if’は、CONDITIONの値にもとづいて、THEN-FORMと
+     ELSE-FORMSを選択します。評価されたCONDITIONが非
+     ‘nil’の場合は、THEN-FORMが評価されて、その結果が
+     returnされます。それ以外は、ELSE-FORMSがテキスト順
+     に評価されて、最後のフォームの値がreturnされます
+     (‘if’のELSEパートは、暗黙の‘progn’の例です。*note
+     Sequencing::を参照してください)。
+
+     CONDITIONの値が‘nil’で、ELSE-FORMSが与えられない場
+     合、‘if’は‘nil’をreturnします。
+
+     選択されなかったブランチは決して評価されない — 無視
+     される — ので、‘if’はスペシャルフォームです。したが
+     って、以下の例では‘print’は呼び出されることはないの
+     で、‘true’はプリントされません。
+
+          (if nil
+              (print 'true)
+            'very-false)
+          ⇒ very-false
+
+ -- Macro: when condition then-forms...
+     これは、ELSE-FORMSがなく、複数のTHEN-FORMSがあるか
+     もしれない、‘if’の変種です。特に、
+
+          (when CONDITION A B C)
+
+     は以下と完全に等価です
+
+          (if CONDITION (progn A B C) nil)
+
+ -- Macro: unless condition forms...
+     これはTHEN-FORMがない、‘if’の変種です:
+
+          (unless CONDITION A B C)
+
+     は以下と完全に等価です
+
+          (if CONDITION nil
+             A B C)
+
+ -- Special Form: cond clause...
+     ‘cond’は、任意の数の候補から選択を行ないます。
+     ‘cond’内の各CLAUSEは、リストでなければなりません。
+     このリストのCARはCONDITIONで、(もしあれば)残りの要
+     素はBODY-FORMSです。したがって、条項は以下のように
+     なります:
+
+          (CONDITION BODY-FORMS...)
+
+     ‘cond’は、各条項のCONDITIONを評価することにより、テ
+     キスト順で条項を試験します。CONDITIONの値が非
+     ‘nil’の場合、その条項は“成り立ち”ます。その後、
+     ‘cond’は、その条項のBODY-FORMSを評価して、
+     BODY-FORMSの最後の値をreturnします。残りの条項は無
+     視されます。
+
+     CONDITIONの値が‘nil’の場合、その条項は“成り立たず
+     ”、‘cond’は次の条項に移動して、その条項の
+     CONDITIONを試験します。
+
+     以下のようなものも、条項になります:
+
+          (CONDITION)
+
+     CONDITIONがテストされたときに非‘nil’なら、‘cond’フ
+     ォームはCONDITIONの値をreturnします。
+
+     すべてのCONDITIONが‘nil’に評価された場合 — つまりす
+     べての条項が不成立の場合、‘cond’は‘nil’をreturnしま
+     す。
+
+     以下の例は4つの条項をもち、‘x’の値が数字か、文字列
+     化、バッファーか、シンボルかをテストします:
+
+          (cond ((numberp x) x)
+                ((stringp x) x)
+                ((bufferp x)
+                 (setq temporary-hack x) ; 1つの条項に
+                 (buffer-name x))        ; 複数bodyフォーム。
+                ((symbolp x) (symbol-value x)))
+
+     前の条項が不成立のとき、最後の条項を実行したいとき
+     がよくあります。これを行なうには、‘(t BODY-FORMS)’の
+     ように、CONDITIONの最後の条項に‘t’を使用します。フ
+     ォーム‘t’は‘t’に評価され、決して‘nil’にならないので
+     、この条項が不成立になることはなく、最終的に
+     ‘cond’はこの条項に到達します。たとえば:
+
+          (setq a 5)
+          (cond ((eq a 'hack) 'foo)
+                (t "default"))
+          ⇒ "default"
+
+     この‘cond’式は、‘a’の値が‘hack’の場合は‘foo’、それ
+     以外は文字列‘"default"’をreturnします。
+
+   任意の条件構成は、‘cond’か‘if’で表すことができます。
+したがって、どちらを選択するかは、スタイルの問題です、た
+とえば:
+
+     (if A B C)
+     ≡
+     (cond (A B) (t C))
+
+* Menu:
+
+* Pattern matching case statement::
+
+
+File: elisp,  Node: Pattern matching case statement,  Up: Conditionals
+
+10.2.1 Pattern matching case statement
+--------------------------------------
+
+特定の値を、可能なさまざまの場合にたいして比較するには、
+マクロ‘pcase’が便利です。これは以下のフォームをとります:
+
+     (pcase EXP BRANCH1 BRANCH2 BRANCH3 ...)
+
+   各BRANCHは、‘(UPATTERN BODY-FORMS...)’というフォーム
+です。
+
+   これは最初にEXPを評価してから、どのBRANCHを使用するか
+、その値を各UPATTERNと比較して、その後で対応する
+BODY-FORMS実行します。一般的なのは、少数の異なる定数値を
+区別するために使用される場合です:
+
+     (pcase (get-return-code x)
+       (`success       (message "Done!"))
+       (`would-block   (message "Sorry, can't do it now"))
+       (`read-only     (message "The shmliblick is read-only"))
+       (`access-denied (message "You do not have the needed rights"))
+       (code           (message "Unknown return code %S" code)))
+
+   最後の条項の‘code’は、‘(get-return-code x)’から
+returnされた値にバインドされる変数です。
+
+   もっと複雑な例として、以下のような小さな式言語のため
+の単純なインタープリターを示します(この例ではレキシカル
+バインディングが必要なことに注意してください):
+
+     (defun evaluate (exp env)
+       (pcase exp
+         (`(add ,x ,y)       (+ (evaluate x env) (evaluate y env)))
+         (`(call ,fun ,arg)  (funcall (evaluate fun env) (evaluate arg env)))
+         (`(fn ,arg ,body)   (lambda (val)
+                               (evaluate body (cons (cons arg val) env))))
+         ((pred numberp)     exp)
+         ((pred symbolp)     (cdr (assq exp env)))
+         (_                  (error "Unknown expression %S" exp))))
+
+   ‘`(add ,x ,y)’は、‘exp’がシンボル‘add’で始まる3要素の
+リストかチェックして、その後2番目と3番目の要素を抽出し、
+それらを変数‘x’と‘y’にバインドするパターンです。‘(pred
+numberp)’は‘exp’が数字かを単にチェックし、‘_’はすべての
+ものにマッチするcatch-allパターンです。
+
+   以下に、いくつかの例を評価した結果とともに示します:
+
+     (evaluate '(add 1 2) nil)                 ;=> 3
+     (evaluate '(add x y) '((x . 1) (y . 2)))  ;=> 3
+     (evaluate '(call (fn x (add 1 x)) 2) nil) ;=> 3
+     (evaluate '(sub 1 2) nil)                 ;=> error
+
+   ‘pcase’に関係する2種類のパターンがあり、それらは
+_U-patterns_、_Q-patterns_と呼ばれます。上述のUPATTERNは
+U-patternsで、以下の形式をもつことができます:
+
+‘`QPATTERN’
+     これは、もっとも一般的なパターンの1つです。このパタ
+     ーンの意図は、バッククォートマクロの模倣です。この
+     パターンは、バッククォート式により構築されるような
+     値にマッチします。わたしたちが行なうのは値の構築で
+     はなくパターンマッチングなので、非クォートは式をど
+     こに挿入するか示すのではなく、かわりにその位置で値
+     にマッチすべき1つのU-patternを指定します。
+
+     より具体的には、Q-patternは以下のフォームをもつこと
+     ができます:
+     ‘(QPATTERN1 . QPATTERN2)’
+          このパターンは、‘car’がQPATTERN1、‘cdr’が
+          PATTERN2にマッチする、任意のコンスセルにマッチ
+          します。
+     ‘ATOM’
+          このパターンは、ATOMに‘equal’な任意のアトムに
+          マッチします。
+     ‘,UPATTERN’
+          このパターンは、UPATTERNにマッチする任意のオブ
+          ジェクトにマッチします。
+
+‘SYMBOL’
+     U-pattern内の単なるシンボルはすべてにマッチし、さら
+     にマッチした値にそのシンボルをバインドするので、
+     BODY-FORMSや皇族のパターンから、それを参照すること
+     ができます。
+‘_’
+     このパターン — いわゆる_don’t care_パターン — はシ
+     ンボルパターンと同様、すべてのものにマッチしますが
+     、シンボルパターンとは異なり、変数へのバインドを行
+     ないません。
+‘(pred PRED)’
+     このパターンは、マッチされるオブジェクトで関数
+     PREDが呼び出したとき、非‘nil’をreturnするものにマッ
+     チします。
+‘(or UPATTERN1 UPATTERN2...)’
+     このパターンは、引数のパターンから最初に成立したパ
+     ターンにマッチします。すべての引数パターンは、同じ
+     変数にバインドされるべきです。
+‘(and UPATTERN1 UPATTERN2...)’
+     このパターンは、すべての引数パターンが成立したとき
+     だけマッチします。
+‘(guard EXP)’
+     このパターンは調べられるオブジェクトを無視して、
+     EXPが非‘nil’に評価されたときは成立、それ以外は不成
+     立となります。これは通常、‘and’パターンの内部で使用
+     されます。たとえば、‘(and x (guard (< x 10)))’は
+     10より小さい任意の数字にマッチして、それを変数‘x’に
+     バインドします。
+
+
+File: elisp,  Node: Combining Conditions,  Next: Iteration,  Prev: Conditionals,  Up: Control Structures
+
+10.3 Constructs for Combining Conditions
+========================================
+
+このセクションは、複雑な条件を表現するために、‘if’や
+‘cond’とともによく使用される3つの構成を記述します。
+‘and’と‘or’の構成は、ある種の複数条件の構成として、個別
+に使用することもできます。
+
+ -- Function: not condition
+     この関数は、CONDITIONが偽であることをテストします。
+     この関数はCONDITIONが‘nil’の場合は‘t’、それ以外は
+     ‘nil’をreturnします。関数‘not’は‘null’と等価で、わ
+     たしたちは空のリストをテストする場合は、‘null’の使
+     用を推奨します。
+
+ -- Special Form: and conditions...
+     スペシャルフォーム‘and’は、すべてのCONDITIONSが真か
+     どうかをテストします。この関数は、CONDITIONSを記述
+     された順に1つずつ評価することにより機能します。
+
+     あるCONDITIONSが‘nil’に評価された場合、残りの
+     CONDITIONSに関係なく、‘and’は‘nil’をreturnしなけれ
+     ばなりません。この場合、‘and’は即座に‘nil’を
+     returnし、残りのCONDITIONSは無視されます。
+
+     すべてのCONDITIONSが非‘nil’の場合、それらの最後の値
+     が‘and’フォームの値になります。CONDITIONSのない単独
+     の‘(and)’は、‘t’をreturnします。なぜなら、すべての
+     CONDITIONSが非‘nil’となるので(考えてみてください。
+     そうでないのはどれですか?)、これは適切です。
+
+     以下に例を示します。1番目の条件は整数1をretuenし、
+     これは‘nil’ではありません。同様に2番目の条件は整数
+     2をreturnし、これも‘nil’ではありません。3番目の条件
+     は‘nil’なので、のこりの条件が評価されることは決して
+     ありません。
+
+          (and (print 1) (print 2) nil (print 3))
+               ⊣ 1
+               ⊣ 2
+          ⇒ nil
+
+     以下は、‘and’を使用した、より現実的な例です:
+
+          (if (and (consp foo) (eq (car foo) 'x))
+              (message "foo is a list starting with x"))
+
+     ‘(consp foo)’が‘nil’をreturnした場合、‘(car foo)’は
+     実行されないので、エラーにならないことに注意してく
+     ださい。
+
+     ‘if’か‘cond’のどちらかを使用して、‘and’式を記述する
+     こともできます。以下はその方法です:
+
+          (and ARG1 ARG2 ARG3)
+          ≡
+          (if ARG1 (if ARG2 ARG3))
+          ≡
+          (cond (ARG1 (cond (ARG2 ARG3))))
+
+ -- Special Form: or conditions...
+     スペシャルフォーム‘or’は、少なくとも1つの
+     CONDITIONSが真かどうかをテストします。この関数は、
+     すべてのCONDITIONSを1つずつ、記述された順に評価する
+     ことにより機能します。
+
+     あるCONDITIONSが非‘nil’値に評価された場合、‘or’の結
+     果は非‘nil’でなければなりません。この場合、‘or’は即
+     座にreturnし、残りのCONDITIONSは無視されます。この
+     関数がreturnする値は、非‘nil’値に評価された条件の値
+     そのものです。
+
+     すべてのCONDITIONSが‘nil’になった場合、‘or’式は
+     ‘nil’をreturnします。CONDITIONSのない単独の‘(or)’は
+     、‘nil’をreturnします。なぜなら、すべての
+     CONDITIONSが‘nil’になるので(考えてみてください。そ
+     うでないのはどれですか?)、これは適切です。
+
+     たとえば、この式は‘x’が‘nil’または整数0かどうかをテ
+     ストします:
+
+          (or (eq x nil) (eq x 0))
+
+     ‘and’構成と同様に、‘or’を‘cond’に置き換えて記述する
+     ことができます。たとえば:
+
+          (or ARG1 ARG2 ARG3)
+          ≡
+          (cond (ARG1)
+                (ARG2)
+                (ARG3))
+
+     ほとんどの場合、‘or’を‘if’に置き換えて記述できます
+     が、完全ではありません:
+
+          (if ARG1 ARG1
+            (if ARG2 ARG2
+              ARG3))
+
+     これは完全に同一ではありません。なぜならARG1または
+     ARG2を2回評価するかもしれないからです。対照的に、
+     ‘(or ARG1 ARG2 ARG3)’は2回以上引数を評価することは
+     、決してありません。
+
+
+File: elisp,  Node: Iteration,  Next: Nonlocal Exits,  Prev: Combining Conditions,  Up: Control Structures
+
+10.4 Iteration
+==============
+
+繰り返し(iteration)とは、プログラムの一部を繰り返し実行
+することを意味します。たとえば、リストの各要素、または
+0からNの整数にたいして、1度ずつ繰り返し何らかの計算をお
+こないたいとしましょうEmacs Lispでは、スペシャルフォーム
+‘while’でこれを行なうことができます:
+
+ -- Special Form: while condition forms...
+     ‘while’は、最初にCONDITIONを評価します。結果が非
+     ‘nil’の場合は、FORMSをテキスト順に評価します。その
+     後CONDITIONを再評価して、結果が非‘nil’の場合、再度
+     FORMSを評価します。この処理は、CONDITIONが‘nil’に評
+     価されるまで繰り返されます。
+
+     繰り返し回数に制限はありません。このループは、
+     CONDITIONが‘nil’に評価されるか、エラーとなるか、
+     ‘throw’で抜け出す(*note Nonlocal Exits::を参照して
+     ください)まで計測されるでしょう
+
+     ‘while’フォームの値は、常に‘nil’です。
+
+          (setq num 0)
+               ⇒ 0
+          (while (< num 4)
+            (princ (format "Iteration %d." num))
+            (setq num (1+ num)))
+               ⊣ Iteration 0.
+               ⊣ Iteration 1.
+               ⊣ Iteration 2.
+               ⊣ Iteration 3.
+               ⇒ nil
+
+     各繰り返しごとに何かを実行して、その後も終了テスト
+     を行なう“repeat...until”ループを記述するには、以下
+     のように‘while’の1番目の引数として、bodyの後に終了
+     テストを記述して、それを‘progn’の中に配します:
+
+          (while (progn
+                   (forward-line 1)
+                   (not (looking-at "^$"))))
+
+     これは1行前方に移動して、空行に達するまで行単位の移
+     動を継続します。独特なのは、‘while’がbodyをもたず、
+     終了テスト(これはポイント移動の実処理も行ないます
+     )だけという点です。
+
+   マクロ‘dolist’および‘dotimes’は、2つの一般的な種類の
+ループを記述する、便利な方法を提供します。
+
+ -- Macro: dolist (var list [result]) body...
+     この構成は、LISTの各要素にたいして1度BODYを実行し、
+     カレント要素をローカルに保持するように、変数VARにバ
+     インドします。その後、RESULTを評価した値、または
+     RESULTが省略された場合は‘nil’をreturnします。たとえ
+     ば、以下は‘reverse’関数を定義するために、‘dolist’を
+     使用する方法の例です:
+
+          (defun reverse (list)
+            (let (value)
+              (dolist (elt list value)
+                (setq value (cons elt value)))))
+
+ -- Macro: dotimes (var count [result]) body...
+     この構成は、0以上COUNT未満の各整数にたいして1度
+     BODYを実行し、その繰り返しでの整数を、変数VARにバイ
+     ンドします。その後、RESULTの値、またはRESULTが省略
+     された場合は‘nil’をreturnします。以下は、
+     ‘dotimes’を使用して、何らかの処理を100回行なう例で
+     す:
+
+          (dotimes (i 100)
+            (insert "I will not obey absurd orders\n"))
+
+
+File: elisp,  Node: Nonlocal Exits,  Prev: Iteration,  Up: Control Structures
+
+10.5 Nonlocal Exits
+===================
+
+“非ローカル脱出(nonlocal exit)”とは、プログラム内のある
+位置から、別の離れた位置へ、制御を移します。Emacs Lispで
+は、エラーの結果として非ローカル脱出が発生することがあり
+ます。明示的な制御の下で非ローカル脱出を使用することもで
+きます。非ローカル脱出は、脱出しようとしている構成により
+作成された、すべての変数バインディングのバインドを外しま
+す。
+
+* Menu:
+
+* Catch and Throw::          プログラム自身の目的による非ローカル脱出。
+* Examples of Catch::        このような非ローカル脱出が記述される方法を示します。
+* Errors::                   エラーがシグナル・処理される方法。
+* Cleanups::                 エラーが発生した場合のクリーンアップフォーム実行のアレンジ。
+
+
+File: elisp,  Node: Catch and Throw,  Next: Examples of Catch,  Up: Nonlocal Exits
+
+10.5.1 Explicit Nonlocal Exits: ‘catch’ and ‘throw’
+---------------------------------------------------
+
+ほとんどの制御構造は、そのコンストラクト自身内部の制御フ
+ローだけに影響します。関数‘throw’は、通常のプログラム実
+行でのこのルールの例外です。これは、リクエストにより非ロ
+ーカル脱出を行ないます(他にも例外はありますが、それらは
+エラー処理だけのものです)。‘throw’は‘catch’の内部で試用
+され、‘catch’に制御を戻します。たとえば:
+
+     (defun foo-outer ()
+       (catch 'foo
+         (foo-inner)))
+
+     (defun foo-inner ()
+       ...
+       (if x
+           (throw 'foo t))
+       ...)
+
+‘throw’フォームが実行された場合は、対応する‘catch’に制御
+を移し、‘catch’は即座にreturnします。‘throw’の後のコード
+は実行されません。‘throw’の2番目の引数は、‘catch’の
+return値として使用されます。
+
+   関数‘throw’は、1番目の引数にもとづいて、それにマッチ
+する‘catch’を探します。‘throw’は、1番目の引数が、
+‘throw’で指定されたものと‘eq’な‘catch’を検索します。複数
+の該当する‘catch’がある場合、最内のものが優先されます。
+したがって、上記の例では‘throw’が‘foo’を指定し、
+‘foo-outer’内の‘catch’が同じシンボルを指定しているので、
+(この間に他のマッチする‘catch’は存在しないと仮定すると
+)‘catch’が該当します。
+
+   ‘throw’の実行により、マッチする‘catch’までのすべての
+リスプ構成(関数呼び出しを含む)を脱出します。この方法によ
+り‘let’や関数呼び出しのようなバインディング構成を脱出す
+る場合、これらの構成を正常にexitしたときのように、そのバ
+インディングは解かれます(*note Local Variables::を参照し
+てください)。同様に‘throw’は、‘save-excursion’(*note
+Excursions::を参照してください)により保存されたバッファ
+ーと位置を復元します。‘throw’が、スペシャルフォーム
+‘unwind-protect’を脱出した場合、‘unwind-protect’により設
+定されたいくつかのクリーンアップも実行します。
+
+   ジャンプ先となる‘catch’内にレキシカル(局所的)である必
+要はありません。‘throw’は、‘catch’内で呼び出された別の関
+数から、同じようにに呼び出すことができます。‘throw’が行
+なわれたのが、順序的に、‘catch’に入った後でexitする前で
+ある限り、その‘throw’は‘catch’にアクセスできます。エディ
+ターのコマンドループから戻る‘exit-recursive-edit’のよう
+なコマンドで、‘throw’が使用されるのは、これが理由です。
+
+     Common Lispに関する注意: Common Lispを含む、他のほ
+     とんどのバージョンのLispは、非シーケンシャルに制御
+     を移す、いくつかの方法 — たとえば‘return’、
+     ‘return-from’、‘go’ — をもちます。Emacs Lispの場合
+     は、‘throw’だけです。‘cl-lib’ライブラリーは、これら
+     のうちいくつかを提供します。*note (cl)Blocks and
+     Exits::を参照してください。
+
+ -- Special Form: catch tag body...
+     ‘catch’は、‘throw’関数にたいするreturn位置を確立し
+     ます。return位置はTAGにより、そのような他のreturn位
+     置と区別されます。TAGは、‘nil’以外の任意のLispオブ
+     ジェクトです。引数TAGはreturn位置が確立される前に、
+     通常どおり評価されます。
+
+     return位置が効果をもつことにより、‘catch’はBODYのフ
+     ォームをテキスト順に評価します。フォームが(エラーは
+     非ローカル脱出なしで)通常に実行された場合、bodyの最
+     後のフォームの値が、‘catch’からreturnされます。
+
+     BODYの実効の間に‘throw’が実行された場合、TAGと同じ
+     値を指定すると、‘catch’フォームは即座にexitします。
+     returnされる値は、それが何であれ、‘throw’の2番目の
+     引数に指定された値です。
+
+ -- Function: throw tag value
+     ‘throw’の目的は、以前に‘catch’により確立された
+     return位置に戻ることです。引数TAGは、既存のさまざま
+     なreturn位置からrturn位置を選択するために使用されま
+     す。複数のreturn位置がTAGにマッチする場合、最内のも
+     のが使用されます。
+
+     引数VALUEは、‘catch’からreturnされる値として使用さ
+     れます。
+
+     タグTAGのreturn位置が存在しない場合、データ‘(TAG
+     VALUE)’とともに、‘no-catch’エラーがシグナルされます
+     。
+
+
+File: elisp,  Node: Examples of Catch,  Next: Errors,  Prev: Catch and Throw,  Up: Nonlocal Exits
+
+10.5.2 Examples of ‘catch’ and ‘throw’
+--------------------------------------
+
+2重にネストされたループから脱出する1つの方法は、
+‘catch’と‘throw’を使うことです(ほとんどの言語では、これ
+は“goto”により行なわれるでしょう)。ここでは、IとJを、0か
+ら9に変化させて‘(foo I J)’を計算します:
+
+     (defun search-foo ()
+       (catch 'loop
+         (let ((i 0))
+           (while (< i 10)
+             (let ((j 0))
+               (while (< j 10)
+                 (if (foo i j)
+                     (throw 'loop (list i j)))
+                 (setq j (1+ j))))
+             (setq i (1+ i))))))
+
+‘foo’が非‘nil’をreturnした場合、即座に処理を止めて、Iと
+Jのリストをreturnしています。‘foo’が常に‘nil’をreturnす
+る場合、‘catch’は通常どおりreturnし、その値は‘while’の結
+果である‘nil’となります。
+
+   以下では、2つのreturn位置を1度に表す、微妙に異なるト
+リッキーな例を2つ示します。最初に、同じタグ‘hack’にたい
+する2つのreturn位置があります:
+
+     (defun catch2 (tag)
+       (catch tag
+         (throw 'hack 'yes)))
+     ⇒ catch2
+
+     (catch 'hack
+       (print (catch2 'hack))
+       'no)
+     ⊣ yes
+     ⇒ no
+
+どちらのreturn位置も‘throw’にマッチするタグをもつので、
+内側のもの、つまり‘catch2’で確立されたものにgotoします。
+したがって‘catch2’は通常どおり値‘yes’をreturnするので、
+その値がプリントされます。最後に外側の‘catch’の2番目の
+body、つまり‘'no’が評価されて、外側の‘catch’からそれが
+returnされます。
+
+   ここで、‘catch2’に与える引数を変更してみます:
+
+     (catch 'hack
+       (print (catch2 'quux))
+       'no)
+     ⇒ yes
+
+この場合も2つのreturn位置がありますが、今回は外側だけが
+タグ‘hack’をもち、内側のものは、かわりにタグ‘quux’をもち
+ます。したがって、‘throw’により、外側の‘catch’が値
+‘yes’をreturnします。関数‘print’が呼び出されることはなく
+、bodyのフォーム‘'no’も決して評価されません。
+
+
+File: elisp,  Node: Errors,  Next: Cleanups,  Prev: Examples of Catch,  Up: Nonlocal Exits
+
+10.5.3 Errors
+-------------
+
+Emacs Lispが、何らかの理由により評価できないようなフォー
+ムの評価を試みた場合には、“エラー(error)”が“シグナル
+(signal)”されます。
+
+   エラーがシグナルされた場合、エラーメッセージの表示と
+カレントこまんどの実行の終了が、Emacsデフォルトの反応で
+す。たとえばバッファーの最後で‘C-f’とタイプしたときのよ
+うに、ほとんどの場合、これは正しい反応です。
+
+   複雑なプログラムでは、単なる終了が望ましくない場合も
+あるでしょう。たとえば、そのプログラムはデータ構造に一時
+的に変更を行なっていたり、プログラム終了前に削除すべき一
+時バッファーを作成しているかもしれません。このような場合
+、エラー時に評価される“クリーンアップ式(cleanup
+expressions)”を設定するために、‘unwind-protect’を使用す
+るでしょう(*note Cleanups::を参照してください)。サブルー
+チン内のエラーにもかかわらずに、プログラムの実行を継続し
+たいときがあるかもしれません。この場合、エラー時のリカバ
+リーを制御するための“エラーハンドラー(error handlers)”を
+設定するために、‘condition-case’を使用するでしょう。
+
+   エラーハンドリングを使用せずに、プログラムの一部から
+別の部分へ制御を移すためには、‘catch’と‘throw’を使用しま
+す。*note Catch and Throw::を参照してください。
+
+* Menu:
+
+* Signaling Errors::         エラーを報告する方法。
+* Processing of Errors::     エラーを報告するときEmacsが何を行なうか。
+* Handling Errors::          エラーをトラップして実行を継続する方法。
+* Error Symbols::            エラートラッピングのために、エラーをクラス分けする方法。
+
+
+File: elisp,  Node: Signaling Errors,  Next: Processing of Errors,  Up: Errors
+
+10.5.3.1 How to Signal an Error
+...............................
+
+エラーの“シグナリング(signaling)”とは、エラーの処理を開
+始することを意味します。エラー処理は通常、実行中のプログ
+ラムのすべて、または一部をアボート(abort)して、エラーを
+ハンドルするためにセットアップされた位置にreturnします。
+ここでは、エラーをシグナルする方法を記述します。
+
+   ほとんどのエラーは、たとえば、整数にたいしてCARを求め
+たり、バッファーの最後で1文字前方に移動したときなどのよ
+うに、他の目的のために呼び出したLisp基本関数の中で、“自
+動的”にシグナルされます。関数‘error’と‘signal’で、明示的
+にエラーをシグナルすることもできます。
+
+   ユーザーが‘C-g’をタイプしたときに発生するquitは、エラ
+ーとは判断されませんが、ほとんどはエラーと同様に扱われま
+す。*note Quitting::を参照してください。
+
+   すべてのエラーメッセージはそれぞれ、何らかのエラーメ
+ッセージを指定します。そのメッセージは、何が悪いのか
+(“File does not exist”)、物事がどうしてそうあるべきでは
+ない(“File must exist”)かを示すべきです。Emacs Lispの監
+修では、エラーメッセージは大文字で開始され、句読点で終わ
+るべきではありません。
+
+ -- Function: error format-string &rest args
+     この関数は、FORMAT-STRINGとARGSにたいして、
+     ‘format’(*note Formatting Strings::を参照してくださ
+     い)を適用することにより構築されたエラーメッセージと
+     ともに、エラーをシグナルします。
+
+     以下は、‘error’を使用する典型的な例です:
+
+          (error "That is an error -- try something else")
+               error→ That is an error -- try something else
+
+          (error "You have committed %d errors" 10)
+               error→ You have committed 10 errors
+
+     2つの引数 — エラーシンボル‘error’と、‘format’により
+     returnされる文字列を含むリスト — で‘signal’を呼び出
+     すことにより、‘error’は機能します。
+
+     *警告: *エラーメッセージとして固定の文字列を使用し
+     たい場合、単に‘(error STRING)’とは記述しないでくだ
+     さい。もしSTRINGが‘%’を含む場合、それはフォーマット
+     指定子(format specifier)として解釈されてしまうので
+     、望む結果は得られません。かわりに、‘(error "%s"
+     STRING)’を使用してください。
+
+ -- Function: signal error-symbol data
+     この関数は、ERROR-SYMBOLにより命名されるエラーをシ
+     グナルします。引数DATAは、エラーの状況に関連する追
+     加のLispオブジェクトのリストです。
+
+     引数ERROR-SYMBOLは、“エラーシンボル(error symbol)”
+     — ‘define-error’により定義されYたシンボル — でなけ
+     ればなりません。これはEmacs Lispが異なる種類のエラ
+     ーをクラス分けする方法です。エラーシンボル(error
+     symbol)、エラーコンディション(error condition)、コ
+     ンディション名(condition name)の説明については、
+     *note Error Symbols::を参照してください。
+
+     エラーが処理されない場合、エラーメッセージをプリン
+     トするために2つの引数が使用されます。このエラーメッ
+     セージは通常、ERROR-SYMBOLの‘error-message’プロパテ
+     ィーにより提供されます。DATAが非‘nil’の場合、その後
+     にコロンと、DATAの評価されていない要素を、カンマで
+     区切ったリストが続きます。‘error’が発生した場合、エ
+     ラーメッセージは、DATAのCAR(文字列でなければなりま
+     せん)です。‘file-error’のサブカテゴリーは、特別に処
+     理されます。
+
+     DATA内のオブジェクトの数と重要性は、ERROR-SYMBOLに
+     依存します。たとえば、‘wrong-type-argument’エラーで
+     は、リスト内には2つのオブジェクト — 期待する型を記
+     述する述語と、その型への適合に失敗したオブジェクト
+     — であるべきです。
+
+     エラーを処理する任意のエラーハンドラーにたいして、
+     ERROR-SYMBOLとDATAの両方を利用できます。
+     ‘condition-case’は、ローカル変数を‘(ERROR-SYMBOL .
+     DATA)’というフォームでバインドします(*note Handling
+     Errors::を参照してください)。
+
+     関数‘signal’は、決してreturnしません。
+
+          (signal 'wrong-number-of-arguments '(x y))
+               error→ Wrong number of arguments: x, y
+
+          (signal 'no-such-error '("My unknown error condition"))
+               error→ peculiar error: "My unknown error condition"
+
+ -- Function: user-error format-string &rest args
+     この関数は、‘error’とまったく同じように振る舞います
+     が、‘error’ではなく、‘user-error’というエラーシンボ
+     ルを使用します。名前が示唆するように、このエラーは
+     コード自身のエラーではなく、ユーザーパートのエラー
+     の報告を意図しています。たとえば、Infoの閲覧履歴の
+     開始を超えて履歴を遡るためにコマンド
+     ‘Info-history-back’ (‘l’)を使用した場合、Emacsは
+     ‘user-error’をシグナルします。このようなエラーでは
+     、たとえ‘debug-on-error’が非‘nil’であっても、デバッ
+     ガーへのエントリーは発生しません。*note Error
+     Debugging::を参照してください。
+
+     Common Lispに関する注意: Emacs Lispには、Common
+     Lispのような継続可能なエラーのような概念は存在しま
+     せん。
+
+
+File: elisp,  Node: Processing of Errors,  Next: Handling Errors,  Prev: Signaling Errors,  Up: Errors
+
+10.5.3.2 How Emacs Processes Errors
+...................................
+
+エラーがシグナルされたとき、‘signal’は、そのエラーにたい
+するアクティブな“ハンドラー(handler)”を検索します。ハン
+ドラーとは、Lispプログラムの一部でエラーが発生したときに
+実行するよう意図された、Lisp式のシーケンスです。そのエラ
+ーが適切なハンドラーをもつ場合、そのハンドラーが実行され
+、そのハンドラーの後から実行が再開されます。ハンドラーは
+、そのハンドラーが設定された‘condition-case’の環境内で実
+行されます。‘condition-case’内のすべての関数呼び出しはす
+でに終了しているので、ハンドラーがそれらにreturnすること
+はありません。
+
+   そのエラーにたいする適切なハンドラーが存在しない場合
+は、カレントコマンドを終了して、エディターのコマンドルー
+プに制御をreturnします(コマンドループは、すべての種類の
+エラーにたいする暗黙のハンドラーをもちます)。コマンドル
+ープのハンドラーは、エラーメッセージをプリントするために
+、エラーシンボルと、関連付けられたデータを使用します。変
+数‘command-error-function’を使用して、これが行なわれる方
+法を制御できます:
+
+ -- Variable: command-error-function
+     この変数は、もし非‘nil’の場合はEmacsのコマンドルー
+     プに制御をreturnしたエラーの処理に使用する関数を指
+     定します。この関数は3つの引数をとります。1つ目は
+     DATAで、‘condition-case’が自身の変数にバインドする
+     のと同じフォームです。2つ目はCONTEXTで、これはエラ
+     ーが発生した状況を記述する文字列、または‘nil’（よく
+     ある）です。3つ目はCALLERで、これはエラーをシグナル
+     した基本関数を呼び出したLisp関数です。
+
+   明示的なハンドラーのないエラーは、Lispデバッガーを呼
+び出すかもしれません。変数‘debug-on-error’ (*note Error
+Debugging::を参照してください)が非‘nil’の場合、デバッガ
+ーが有効です。エラーハンドラーとは異なり、デバッガーはそ
+のエラーの環境内で実行されるので、エラー時の変数の値を正
+確に調べることができます。
+
+
+File: elisp,  Node: Handling Errors,  Next: Error Symbols,  Prev: Processing of Errors,  Up: Errors
+
+10.5.3.3 Writing Code to Handle Errors
+......................................
+
+エラーをシグナルすることによる通常の効果は、実行されてい
+たコマンドを終了して、Emacsエディターのコマンドループに
+即座にreturnすることです。スペシャルフォーム
+‘condition-case’を使用して、エラーハンドラーを設定するこ
+とにより、プログラム内の一部で発生するエラーのをトラップ
+を調整することができます。以下は単純な例です:
+
+     (condition-case nil
+         (delete-file filename)
+       (error nil))
+
+これは、FILENAMEという名前のファイルを削除して、任意のエ
+ラーをcatchして、エラーが発生した場合は‘nil’を参照してく
+ださい(このような単純なケースでは、マクロ
+‘ignore-errors’を使用することもできます。以下を参照して
+ください)。
+
+   ‘condition-case’構成は、‘insert-file-contents’呼び出
+しでのファイルオープンの失敗のような、予想できるエラーを
+トラップするために多用されます。‘condition-case’構成は、
+ユーザーからの読み取った式を評価するプログラムのような、
+完全に予測できないエラーのトラップにも使用されます。
+
+   ‘condition-case’の2番目の引数は、“保護されたフォーム
+(protected form)”と呼ばれます(上記の例では、保護されたフ
+ォームは、‘delete-file’の呼び出しです)。このフォームの実
+行が開始されると、エラーハンドラーは効果をもち、このフォ
+ームがreturnすると不活性になります。その間のすべてにおい
+て、エラーハンドラーは効果をもちます。特に、このフォーム
+で呼び出された関数、およびそのサブルーチンなどを実行する
+間、エラーハンドラーは効果をもちます。厳密にいうと、保護
+されたフォーム自身ではなく、保護されたフォームにより呼び
+出されたLisp基本関数(‘signal’と‘error’を含む)だけがシグ
+ナルされるというのは、よいことです。
+
+   保護されたフォームの後の引数はハンドラーです。各ハン
+ドラーは、どのエラーを処理するかを指定する、1つ以上の“コ
+ンディション名(condition names)”(シンボル)をリストします
+。エラーがシグナルされたとき、エラーシンボルはコンディシ
+ョン名のリストも定義します。エラーが共通の条件名をもつ場
+合、そのハンドラーはそのエラーに適用されます。上記の例で
+は、1つのハンドラーがあり、それはすべてのエラーをカバー
+する条件名‘error’を指定しています。
+
+   適切なハンドラーの検索は、もっとも最近に設定されたハ
+ンドラーから開始して、設定されたすべてのハンドラーをチェ
+ックします。したがって、ネストされた‘condition-case’フォ
+ームに同じエラー処理がある場合、内側のハンドラーがそれを
+処理します。
+
+   何らかの‘condition-case’によりエラーが処理された場合
+、‘debug-on-error’でエラーによりデバッガーが呼び出される
+ようにしていても、通常はデバッガーの実行が抑制されます。
+
+   ‘condition-case’により補足されるようなエラーをデバッ
+グできるようにしたい場合は、変数‘debug-on-signal’に非
+‘nil’値をセットします。以下のようにコンディションの中に
+‘debug’を記述することにより、最初にデバッガーを実行する
+ような、特定のハンドラーを指定することもできます:
+
+     (condition-case nil
+         (delete-file filename)
+       ((debug error) nil))
+
+ここでの‘debug’の効果は、デバッガー呼び出しを抑制する
+‘condition-case’を防ぐことだけです。‘debug-on-error’およ
+びその他のフィルタリングメカニズムがデバッガーを呼び出す
+ように指定されているときだけ、エラーによりデバッガーが呼
+び出されます。*note Error Debugging::を参照してください
+。
+
+ -- Macro: condition-case-unless-debug var
+          protected-form handlers...
+     マクロ‘condition-case-unless-debug’は、そのようなフ
+     ォームのデバッギングを処理する、別の方法を提供しま
+     す。このマクロは、変数‘debug-on-error’が‘nil’の場合
+     、つまり任意のエラーを処理しないようなケース以外は
+     、‘condition-case’とまったく同様に振る舞います。
+
+   特定のハンドラーがそのエラーを処理するとEmacsが判断す
+ると、Emacsは制御をそのハンドラーにreturnします。これを
+行うために、Emacsはそのとき脱出しつつあるバインディング
+構成により作成されたすべての変数のバインドを解き、そのと
+き脱出しつつあるすべての‘unwind-protect’フォームを実行し
+ます。制御がそのハンドラーに達すると、そのハンドラーの
+bodyが通常どおり実行されます。
+
+   そのハンドラーのbodyを実行した後、‘condition-case’フ
+ォームから実行がreturnされます。保護されたフォームは、そ
+のハンドラーの実行の前に完全にexitしているので、そのハン
+ドラーはそのエラーの位置から実行を再開することはできず、
+その保護されたフォーム内で作られた変数のバインディングを
+調べることもできません。ハンドラーが行なえることは、クリ
+ーンアップと、処理を進行させることだけです。
+
+   エラーのシグナルとハンドルには、‘throw’と
+‘catch’(*note Catch and Throw::)に類似する点がいくつかあ
+りますが、これらは完全に別の機能です。エラーは‘catch’で
+キャッチできず、‘throw’をエラーハンドラーで処理すること
+はできません(しかし対応する‘catch’が存在しないときに
+‘throw’を仕様することによりシグナルされるエラーは、処理
+できます)。
+
+ -- Special Form: condition-case var protected-form
+          handlers...
+     このスペシャルフォームは、PROTECTED-FORMの実行を囲
+     い込むエラーハンドラーHANDLERSを確立します。エラー
+     なしでPROTECTED-FORMが実行された場合、returnされる
+     値は‘condition-case’フォームの値になります。この場
+     合、‘condition-case’は効果をもちません。
+     PROTECTED-FORMの間にエラーが発生した場合、
+     ‘condition-case’は違いをもちます。
+
+     それぞれのHANDLERSは、‘(CONDITIONS BODY...)’という
+     フォームのリストです。ここでCONDITIONSは、ハンドル
+     されるエラーコンディション名、またはそのハンドラー
+     の前にデバッガーを実行するためのコンディション名
+     (‘debug’を含みます)です。BODYは、このハンドラーがエ
+     ラーを処理するときに実行される、1つ以上のLisp式です
+     。
+
+          (error nil)
+
+          (arith-error (message "Division by zero"))
+
+          ((arith-error file-error)
+           (message
+            "Either division by zero or failure to open a file"))
+
+     発生するエラーはそれぞれ、それが何の種類のエラーか
+     を記述する“エラーシンボル(error symbol)”をもち、こ
+     れはコンディション名のリストも記述します(*note
+     Error Symbols::を参照してください)。Emacsは、1つ以
+     上のコンディション名を指定するハンドラーにたいして
+     、すべてのアクティブな‘condition-case’フォームを検
+     索します。‘condition-case’の最内のマッチは、そのエ
+     ラーを処理します。この‘condition-case’では、最初に
+     適合したハンドラーが、そのエラーを処理します。
+
+     ハンドラーのbodyを実行した後、‘condition-case’は通
+     常どおりreturnし、ハンドラーのbodyの最後の値を、ハ
+     ンドラー全体の値として使用します。
+
+     引数VARは変数です。PROTECTED-FORMを実行するとき、
+     ‘condition-case’はこの変数をバインドせず、エラーを
+     処理するときだけバインドします。その場合は、VARを
+     “エラー記述(error description)”にバインドします。こ
+     れはエラーの詳細を与えるリストです。このエラー記述
+     は、‘(ERROR-SYMBOL . DATA)’というフォームをもちます
+     。ハンドラーは、何を行なうか決定するために、このリ
+     ストを参照することができます。たとえば、ファイルオ
+     ープンの失敗にたいするエラーの場合、ファイル名が
+     DATA(エラー記述の3番目の要素)の2番目の要素になりま
+     す。
+
+     VARが‘nil’の場合、それはバインドされた変数がないこ
+     とを意味します。この場合、エラーシンボルおよび関連
+     するデータは、そのハンドラーでは利用できません。
+
+     より外側のレベルのハンドラーにcatchさせるために、
+     ‘condition-case’によりcatchされたシグナルを再度
+     throwする必要がある場合もあります。以下はこれを行な
+     う方法です:
+
+            (signal (car err) (cdr err))
+
+     ここで‘err’はエラー記述変数(error description
+     variable)で、‘condition-case’の1番目の引数は、再
+     throwしたいエラーコンディションです。*note
+     Definition of signal::を参照してください。
+
+ -- Function: error-message-string error-descriptor
+     この関数は、与えられたエラー記述子(error
+     descriptor)にたいするエラーメッセージ文字列を
+     returnします。これは、そのエラーにたいする通常のエ
+     ラーメッセージをプリントすることにより、エラーを処
+     理したい場合に有用です。*note Definition of
+     signal::を参照してください。
+
+   以下は、0除算の結果によるエラーを処理するために、
+‘condition-case’を使用する例です。このハンドラーは、
+(beepなしで)エラーメッセージを表示して、非常に大きい数を
+returnします。
+
+     (defun safe-divide (dividend divisor)
+       (condition-case err
+           ;; 保護されたフォーム。
+           (/ dividend divisor)
+         ;; ハンドラー。
+         (arith-error                        ; Condition.
+          ;; このエラーにたいする、通常のメッセージを表示する。
+          (message "%s" (error-message-string err))
+          1000000)))
+     ⇒ safe-divide
+
+     (safe-divide 5 0)
+          ⊣ Arithmetic error: (arith-error)
+     ⇒ 1000000
+
+このハンドラーはコンディション名‘arith-error’を指定する
+ので、division-by-zero(0除算)エラーだけを処理します。他
+の種類のエラーは(この‘condition-case’によっては)、処理さ
+れません。したがって:
+
+     (safe-divide nil 3)
+          error→ Wrong type argument: number-or-marker-p, nil
+
+   以下は、‘error’によるエラーを含む、すべての種類のエラ
+ーをcatchする‘condition-case’です:
+
+     (setq baz 34)
+          ⇒ 34
+
+     (condition-case err
+         (if (eq baz 35)
+             t
+           ;; 関数‘error’の呼び出し
+           (error "Rats!  The variable %s was %s, not 35" 'baz baz))
+       ;; フォームではないハンドラー。
+       (error (princ (format "The error was: %s" err))
+              2))
+     ⊣ The error was: (error "Rats!  The variable baz was 34, not 35")
+     ⇒ 2
+
+ -- Macro: ignore-errors body...
+     これは、その実行中に発生する任意のエラーを無視して
+     、BODYの実行を構築します。その実行にエラーがなかっ
+     た場合、‘ignore-errors’はBODY内の最後のフォームの値
+     をreturnし、それ以外は‘nil’をreturnします。
+
+     以下は、このセクションの最初の例を、
+     ‘ignore-errors’を使用して記述する例です:
+
+            (ignore-errors
+             (delete-file filename))
+
+ -- Macro: with-demoted-errors format body...
+     このマクロは、いわば‘ignore-errors’の穏やかなバージ
+     ョンです。これはエラーを完全に抑止するのではなく、
+     エラーをメッセージに変換します。これはメッセージの
+     フォーマットに、文字列FORMATを使用します。FORMATは
+     、‘"Error: %S"’のように、単一の‘%’シーケンスを含む
+     べきです。エラーをシグナルすると予測されないが、も
+     し発生した場合は堅牢であるべきようなコードの周囲に
+     、‘with-demoted-errors’を使用します。このマクロは、
+     ‘condition-case’ではなく、
+     ‘condition-case-unless-debug’を使用することに注意し
+     てください。
+
+
+File: elisp,  Node: Error Symbols,  Prev: Handling Errors,  Up: Errors
+
+10.5.3.4 Error Symbols and Condition Names
+..........................................
+
+エラーをシグナルするとき、想定するエラーの種類を指定する
+ために、“エラーシンボル(error symbol)”を指定します。エラ
+ーはそれぞれ、それをカテゴリー分けするために、ただ1つの
+エラーシンボルをもちます。これはEmacs Lisp言語で定義され
+るエラーの、もっとも良い分類方法です。
+
+   これら狭義の分類は、“エラー条件(error conditions)”と
+呼ばれる、より広義のクラス階層にグループ化され、それらは
+“コンディション名(condition names)”により識別されます。
+そのようなもっとも狭義なクラスは、エラーシンボル自体に属
+します。つまり各エラーシンボルは、コンディション名でもあ
+るのです。すべての種類のエラー(‘quit’を除く)を引き受ける
+コンディション名‘error’に至る、より広義のクラスにたいす
+るコンディション名も存在します。したがって、各エラーは
+1つ以上のコンディション名をもちます。つまり、‘error’、
+‘error’とは区別されるエラーシンボル、もしかしたらその中
+間に分類されるものかもしれません。
+
+ -- Function: define-error name message &optional parent
+     シンボルをエラーシンボルとするために、シンボルは親
+     コンディションをとる‘define-error’で定義されなけれ
+     ばなりません。この親は、この種のエラーが属するコン
+     ディションを定義します。親の推移的な集合は、常にそ
+     のエラーシンボルと、シンボル‘error’を含みます。
+     quitはエラーと判断されないので、‘quit’の親の集合は
+     、単なる‘(quit)’です。
+
+   親のコンディションに加えて、エラーシンボルはメッセー
+ジ(MESSAGE)をもち、これは処理されないエラーがシグナルさ
+れたときプリントされる文字列です。そのメッセージが有効で
+ない場合、エラーメッセージ‘peculiar error’が使用されます
+。*note Definition of signal::を参照してください。
+
+   内部的には、親の集合はエラーシンボルの
+‘error-conditions’プロパティーに格納され、メッセージはエ
+ラーシンボルの‘error-message’プロパティーに格納されます
+。
+
+   以下は、新しいエラーシンボル‘new-error’を定義する例で
+す:
+
+     (define-error 'new-error "A new error" 'my-own-errors)
+
+このエラーは複数のコンディション名 — もっとも狭義の分類
+‘new-error’、より広義の分類を想定する‘my-own-errors’、お
+よび‘my-own-errors’のコンディションすべてを含む‘error’で
+、これはすべての中でもっとも広義なものです。
+
+   エラー文字列は大文字で開始されるべきですが、ピリオド
+で終了すべきではありません。これはEmacsの他の部分との整
+合性のためです。
+
+   もちろんEmacs自身が‘new-error’をシグナルすることはあ
+りません。あなたのコード内で明示的に‘signal’(*note
+Definition of signal::を参照してください)を呼び出すこと
+により、これを行なうことができるのです。
+
+     (signal 'new-error '(x y))
+          error→ A new error: x, y
+
+   このエラーは、エラーの任意のコンディション名により処
+理することができます。以下の例は、‘new-error’とクラス
+‘my-own-errors’内の他の任意のエラーを処理します:
+
+     (condition-case foo
+         (bar nil t)
+       (my-own-errors nil))
+
+   エラーが分類される有効な方法は、コンディション名によ
+る方法で、その名前はハンドラーのエラーのマッチに使用され
+ます。エラーシンボルは、意図されたエラーメッセージと、コ
+ンディション名のリストを指定する便利な方法であるという役
+割だけです。1つのエラーシンボルではなく、コンディション
+名のリストを‘signal’に与えるのは、面倒でしょう。
+
+   対照的に、コンディション名を伴わずにエラーシンボルだ
+けを使用した場合、それは‘condition-case’の効果を著しく減
+少させるでしょう。コンディション名は、エラーハンドラーを
+記述するとき、一般性のさまざまなレベルにおいて、エラーを
+カテゴリー分けすることを可能にします。エラーシンボルを単
+独で使用することは、もっとも狭義なレベルの分類を除くすべ
+てを捨てることです。
+
+   主要なエラーシンボルと、それらのコンディションについ
+ては、*note Standard Errors::を参照してください。
+
+
+File: elisp,  Node: Cleanups,  Prev: Errors,  Up: Nonlocal Exits
+
+10.5.4 Cleaning Up from Nonlocal Exits
+--------------------------------------
+
+‘unwind-protect’構成は、データ構造を一時的に不整合な状態
+に置くときは、重要です。これはエラーやthrouのイベントに
+より、再びデータを整合された状態にすることができます(バ
+ッファー内容の変更だけに使用される、他のクリーンアップ構
+成は、アトミックな変更グループです。*note Atomic
+Changes::を参照してください)。
+
+ -- Special Form: unwind-protect body-form
+          cleanup-forms...
+     ‘unwind-protect’は、制御がBODY-FORMを離れる場合に、
+     CLEANUP-FORMSが評価されるという保証の下、なにが起こ
+     った可に関わらず、BODY-FORMを実行します。
+     BODY-FORMは通常どおり完了するかもしれず、
+     ‘unwind-protect’の外で‘throw’が実行されたり、エラー
+     が発生するかもしれませんが、CLEANUP-FORMSは評価され
+     ます。
+
+     BODY-FORMが正常に終了した場合、‘unwind-protect’は
+     CLEANUP-FORMSを評価した後で、BODY-FORMの値を
+     returnします。BODY-FORMが終了しなかった場合、
+     ‘unwind-protect’は通常の意味における値は、returnし
+     ません。
+
+     ‘unwind-protect’により保護されるのは、BODY-FORMだけ
+     です。CLEANUP-FORMS自体の任意のフォームが、
+     (‘throw’またはエラーにより)非ローカルにexitした場合
+     、‘unwind-protect’は残りのフォームが評価されること
+     を保証_しません_。CLEANUP-FORMSの中の1つが失敗する
+     ことが問題となる場合は、そのフォームの周囲に他の
+     ‘unwind-protect’を配して保護します。
+
+     現在アクティブな‘unwind-protect’フォーム数と、ロー
+     カルの変数バインディング数の和は、
+     ‘max-specpdl-size’(*note Local Variables:
+     Definition of max-specpdl-size.を参照してください
+     )により制限されます。
+
+   たとえば、以下は一時的な使用のために不可視のバッファ
+ーを作成して、終了する前に確実にそのバッファーをkillする
+例です:
+
+     (let ((buffer (get-buffer-create " *temp*")))
+       (with-current-buffer buffer
+         (unwind-protect
+             BODY-FORM
+           (kill-buffer buffer))))
+
+‘(kill-buffer (current-buffer))’のように記述して、変数
+‘buffer’を使用せずに、同様のことを行えると思うかもしれま
+せん。しかし上の例は、別のバッファーにスイッチしたときに
+BODY-FORMでエラーが発生した場合、より安全なのです(一時的
+なバッファーをkillするとき、そのバッファーがカレントとな
+ることを確実にするために、かわりにBODY-FORMの周囲に
+‘save-current-buffer’を記述することもできます)。
+
+   Emacsには、上のコードとおおよそ等しいコードに展開され
+る、‘with-temp-buffer’という標準マクロが含まれます(*note
+Current Buffer: Definition of with-temp-buffer.を参照し
+てください)。このマニュアル中で定義されるいくつかのマク
+ロは、この方法で‘unwind-protect’を使用します。
+
+   以下は、FTPパッケージ由来の、実際の例です。これは、リ
+モートマシンへの接続の確立を試みるために、プロセス(*note
+Processes::を参照してください)を作成します。関数
+‘ftp-login’は、関数のライター(writer)が予想できないこと
+による多くの問題から非常に影響を受けるので、失敗イベント
+でプロセスの削除を保証するフォームで保護されています。そ
+うしないと、Emacsは無用なサブプロセスで一杯になってしま
+うでしょう。
+
+     (let ((win nil))
+       (unwind-protect
+           (progn
+             (setq process (ftp-setup-buffer host file))
+             (if (setq win (ftp-login process host user password))
+                 (message "Logged in")
+               (error "Ftp login failed")))
+         (or win (and process (delete-process process)))))
+
+   この例には小さなバグがあります。ユーザーがquitするた
+めに‘C-g’とタイプした場合、関数‘ftp-setup-buffer’が
+returnした後、即座にquitが発生しますが、それは変数
+‘process’がセットされる前なので、そのプロセスはkillされ
+ないでしょう。このバグを簡単に訂正する方法はありませんが
+、少なくともこれは非常に稀なことだと言えます。
+
+
+File: elisp,  Node: Variables,  Next: Functions,  Prev: Control Structures,  Up: Top
+
+11 Variables
+************
+
+“変数(variable)”とは、プログラム内で値を表すために使用さ
+れる名前です。Lispでは、変数はそれぞれLispシンボルとして
+表されます(*note Symbols::を参照してください)。変数名は
+単にそのシンボルの名前であり、変数の値はそのシンボルの値
+セル(value cell)に格納されます(1)。*note Symbol
+Components::を参照してください。Emacs Lispでは、シンボル
+を変数として使用することは、同じシンボルを関数名として使
+用することと関係ありません。
+
+   このマニュアル中で前に記したとおり、Lispプログラムは
+まず第1にLispオブジェクトとして表され、副次的にテキスト
+として表現されます。Lispプログラムのテキスト的な形式は、
+そのプログラムを構成するLispオブジェクトの入力構文により
+与えられます。したがって、Lispプログラム内の変数のテキス
+ト的な形式は、その変数を表すシンボルの入力構文を使用して
+記述されます。
+
+* Menu:
+
+* Global Variables::         どの場所でも永続的に存在する変数の値。
+* Constant Variables::       変更されることのない値を持つ、ある種の"変数"。
+* Local Variables::          一時的にのみ存在する存在する変数の値。
+* Void Variables::           値を持たないシンボル。
+* Defining Variables::       シンボルが変数として使用されていることを宣言する定義。
+* Tips for Defining::        変数を定義するときに考慮すべき事項。
+* Accessing Variables::      実行時に判明する名前をもつ変数の値を確認する。
+* Setting Variables::        変数に新しい値を格納する。
+* Variable Scoping::         Lispがローカル値とグローバル値を選択する方法。
+* Buffer-Local Variables::   1つのバッファーないだけで効果をもつ変数の値。
+* File Local Variables::     ファイル内にリストされたローカル変数の処理。
+* Directory Local Variables::  ディレクトリー内のすべてのファイルで共通のローカル変数。
+* Variable Aliases::         他の変数のエイリアスとなる変数。
+* Variables with Restricted Values::  任意のLispオブジェクトを値とすることが_できない_、定数ではない変数。
+* Generalized Variables::    変数の概念の拡張。
+
+   ---------- Footnotes ----------
+
+   (1) 正確に言うと、デフォルトの“ダイナミックスコープ
+(dynamic scoping)”のルールでは、値セルは常にその変数のカ
+レント値を保持しますが、“レキシカルスコープ(lexical
+scoping)”では異なります。詳細は、*note Variable
+Scoping::を参照してください。
+
+
+File: elisp,  Node: Global Variables,  Next: Constant Variables,  Up: Variables
+
+11.1 Global Variables
+=====================
+
+変数を使用するための一番シンプルな方法は、“グローバル
+(globally)”に使用する方法です。これは、ある時点でその変
+数はただ1つの値をもち、その値が(少なくともその時点では
+)Lispシステム全体で効果をもつことを意味します。あらたな
+値を指定するまで、その値が効果をもちます。新しい値で古い
+値を置き換えるとき、古い値を追跡する情報は変数内に残りま
+せん。
+
+   シンボルの値は‘setq’で指定します。たとえば、
+
+     (setq x '(a b))
+
+これは、変数‘x’に値‘(a b)’を与えます。‘setq’はスペシャル
+フォームであることに注意してください。これは1番目の引数
+(変数の名前)は評価しませんが、2番目の引数(新しい値)は評
+価します。
+
+   変数が1度値をもつと、そのシンボル自身を式として使用す
+ることにより、参照することができます。したがって、
+
+     x ⇒ (a b)
+
+これは上記の‘setq’フォームが実行された場合です。
+
+   同じ変数を再びセットした場合、新しい値は古い値を置き
+換えます:
+
+     x
+          ⇒ (a b)
+     (setq x 4)
+          ⇒ 4
+     x
+          ⇒ 4
+
+
+File: elisp,  Node: Constant Variables,  Next: Local Variables,  Prev: Global Variables,  Up: Variables
+
+11.2 Variables that Never Change
+================================
+
+Emacs Lispでは、特定のシンボルは、通常は自分自身に評価さ
+れます。これらのシンボルには‘nil’と‘t’、同様に名前が
+‘:’で始まる任意のシンボル(これらは“キーワード”と呼ばれま
+す)が含まれます。これらのシンボルは、リバインドや、値の
+変更はできません。‘nil’や‘t’へのセットやリバインドは、
+‘setting-constant’エラーをシグナルします。これはキーワー
+ド(名前が‘:’で始まるシンボル)についても当てはまります。
+ただしキーワードが標準のobarrayにinternされている場合、
+そのようなシンボルを自分自身にセットしてもエラーになりま
+せん。
+
+     nil ≡ 'nil
+          ⇒ nil
+     (setq nil 500)
+     error→ Attempt to set constant symbol: nil
+
+ -- Function: keywordp object
+     この関数は、OBJECTが‘:’で始まる名前のシンボルで、標
+     準のobarrayにinternされているの場合は‘t’、それ以外
+     は‘nil’をreturnします。
+
+   これらの定数はスペシャルフォーム‘defconst’(*note
+Defining Variables::を参照してください)を使用して定義さ
+れた“定数(constant)”とは、根本的に異なります。
+‘defconst’フォームは、人間の読み手に値の変更を意図しない
+変数であることを知らせる役目は果たしますが、実際にそれを
+変更しても、Emacsはエラーを起こしません。
+
+
+File: elisp,  Node: Local Variables,  Next: Void Variables,  Prev: Constant Variables,  Up: Variables
+
+11.3 Local Variables
+====================
+
+グローバル変数は、新しい値で明示的に置き換えるまで値が持
+続します。変数に“ローカル値(local value)” — Lispプログラ
+ム内の特定の部分で効果をもつを与えると便利なときがありま
+す。変数がローカル値をもつとき、わたしたちは変数がその値
+に“ローカルにバインド(locally bound)”と言い、その変数を
+“ローカル変数(local variable)”と呼びます。
+
+   たとえば、関数が呼び出されるとき、関数の引数となる変
+数はローカル値(その関数の呼び出しにおいて実際の引数に与
+えられた値)を受け取ります。これらのローカルバインディン
+グは、その関数のbody内で効果をもちます。他にも、たとえば
+スペシャルフォーム‘let’は特定の変数にたいして明示的にロ
+ーカルなバインディングを確立し、これは‘let’フォームの
+body内で効果を持ちます。
+
+   これにたいして“グローバルなバインディング(global
+binding)”とは、(概念的には)グローバルな値が保持される場
+所です。
+
+   ローカルバインディングを確立すると、その変数の以前の
+値は他の場所に保存されます(または失われます)。わたしたち
+はこれを、以前の値が“シャドーされた(shadowed)”と言います
+。シャドーはグローバル変数とローカル変数の両方で発生し得
+ます。ローカルバインディングが効果を持つとき、ローカル変
+数に‘setq’を使用することにより、ローカルバインディングに
+指定された値を格納します。ローカルバインディングが効果を
+持たなくなったとき、以前にシャドーされた値が復元されます
+(または失われます)。
+
+   変数は同時に複数のローカルバインディングを持つことが
+できます(たとえばその変数をバインドするネストされた
+‘let’)。“カレントバインディング(current binding)”とは、
+実際に効果を持つローカルバインディングのことです。カレン
+トバインディングは、その変数の評価によりreturnされる値を
+決定し、‘setq’により影響を受けるバインディングです。
+
+   ほとんどの用途において、“最内(innermost)”のローカルバ
+インディング、ローカルバインディングがないときはグローバ
+ルバインディングを、カレントバインディングと考えることが
+できます。より正確に言うと、“スコープルール(scoping
+rule)”と呼ばれるルールは、プログラム内でローカルバインデ
+ィングが効果を持つ任意の与えられた場所を決定します。
+Emacs Lispのスコープルールは“ダイナミックスコープ
+(dynamic scoping)”と呼ばれ、これは単に実行中のプログラム
+内の与えられた位置でのカレントバインディングを示し、その
+変数がまだ存在する場合は、その変数にたいしてもっとも最近
+作成されたバインディングです。ダイナミックスコープについ
+ての詳細と、その代替である“レキシカルスコープ(lexical
+scoping)”と呼ばれるスコープルールについては、*note
+Variable Scoping::を参照してください。
+
+   スペシャルフォーム‘let’および‘let*’は、ローカルバイン
+ディングを作成するために存在します:
+
+ -- Special Form: let (bindings...) forms...
+     このスペシャルフォームは、BINDINGSにより指定される
+     特定の変数セットにたいするローカルバインディングを
+     セットアップしてから、FORMSのすべてをテキスト順に評
+     価します。これはFORMS内の最後のフォームの値を
+     returnします。
+
+     BINDINGSの各バインディングは2つの形式のどちらかです
+     。(i) シンボルの場合。この場合、そのシンボルは
+     ‘nil’にローカルにバインドされます。(ii) フォーム
+     ‘(SYMBOL VALUE-FORM)’のリストの場合。この場合
+     SYMBOLはVALUE-FORMを評価した結果にローカルにバイン
+     ドされます。VALUE-FORMが省略された場合は、‘nil’が使
+     用されます。
+
+     BINDINGS内のすべてのVALUE-FORMは、シンボルがそれら
+     にバインドされる_前_に、記述された順番に評価されま
+     す。以下は例では、‘z’は‘y’の新しい場合(つまり1)にで
+     はなく、古い値(つまり2)にバインドされます。
+
+          (setq y 2)
+               ⇒ 2
+
+          (let ((y 1)
+                (z y))
+            (list y z))
+               ⇒ (1 2)
+
+ -- Special Form: let* (bindings...) forms...
+     このスペシャルフォームは‘let’と似ていますが、次の変
+     数値にたいするローカル値を計算する前に、ローカル値
+     を計算してそれを変数にバインドします。したがて、
+     BINDINGS内の式は、この‘let*’フォーム内の前のシンボ
+     ルのバインドを参照できます。以下の例を、上記‘let’の
+     例と比較してください。
+
+          (setq y 2)
+               ⇒ 2
+
+          (let* ((y 1)
+                 (z y))    ; ‘y’の値に今計算されたばかりの値を使用する。
+            (list y z))
+               ⇒ (1 1)
+
+   以下は、ローカルバインディングを作成する、他の機能の
+リストです:
+
+   • 関数呼び出し(*note Functions::を参照してください)。
+
+   • マクロ呼び出し(*note Macros::を参照してください)。
+
+   • ‘condition-case’ (*note Errors::を参照してください
+     )。
+
+   変数はバッファーローカルなバインディングを持つことも
+できます(*note Buffer-Local Variables::を参照してくださ
+い)。数は多くありませんが、端末ローカル
+(terminal-local)なバインディングをもつ変数もあります
+(*note Multiple Terminals::を参照してください)これらの種
+類のバインディングは、通常のローカルバインディングのよう
+に機能することもありますが、これらはEmacs内の“どこ”であ
+るかに依存してローカライズされます。
+
+ -- User Option: max-specpdl-size
+     この変数は、ローカルな変数バインディングと、
+     ‘unwind-protect’にゆるクリーンアップ(*note Cleaning
+     Up from Nonlocal Exits: Cleanups.の総数にたいする制
+     限を定義し、この変数を越えるとEmacsはエラー(データ
+     に関するエラー‘"Variable binding depth exceeds
+     max-specpdl-size"’)をシグナルします。
+
+     このリミットは、もし超過したときにエラーが関連付け
+     られている場合には、誤って定義された関数による無限
+     再起を避けるための1つの方法になります。ネストの深さ
+     にたいする他の制限としては、‘max-lisp-eval-depth’が
+     あります。*note Eval: Definition of
+     max-lisp-eval-depth.を参照してください。
+
+     デフォルト値は1300です。Lispデバッガーのエントリー
+     したとき、もし残りが少ないときは、デバッガーを実行
+     するための空きを作るために、値は増加されます。
+
+
+File: elisp,  Node: Void Variables,  Next: Defining Variables,  Prev: Local Variables,  Up: Variables
+
+11.4 When a Variable is “Void”
+==============================
+
+シンボルの値セル(*note Symbol Components::を参照してくだ
+さい)に値が割り当てられていない場合、その変数はvoid(空
+)であると言います。
+
+   Emacs Lispのデフォルトであるダイナミックスコープルー
+ル(*note Variable Scoping::)の下では、値セルはその変数の
+カレント値(ローカルまたはグローバル)を保持します。値が割
+り当てられていない値セルは、値セルに‘nil’をもつのとは_異
+なる_ことに注意してください。シンボル‘nil’はLispオブジェ
+クトであり、他のオブジェクトと同様に変数の値となることが
+できます。‘nil’は値なのです。変数がvoidの場合、その変数
+の評価を試みると、値をreturnするかわりに、
+‘void-variable’エラーがシグナルされます。
+
+   オプションであるレキシカルスコープルール(lexical
+scoping rule)の下では、値セル保持できるのは、その変数の
+グローバル値 — 任意のレキシカルバインディング構造の外側
+の値だけです。変数がレキシカルにバインドされている場合、
+ローカル値はそのレキシカル環境により決定されます。したが
+って、これらのシンボルの値セルに値が割り当てられていなく
+ても、変数はローカル値を持つことができます。
+
+ -- Function: makunbound symbol
+     この関数は、SYMBOLの値セルを空にして、その変数を
+     voidにします。この関数はSYMBOLをreturnします。
+
+     SYMBOLがダイナミックなローカルバインディングを持つ
+     場合、‘makunbound’はカレントのバインディングを
+     voidにし、そのローカルバインディングが効果を持つ限
+     りvoidにします。その後、前にシャドーされたローカル
+     値(またはグローバル値)が再び有効になり、再び有効に
+     なった値がvoidでなければ、その変数はvoidでなくなり
+     ます。
+
+     いくつか例を示します(ダイナミックバインディングが有
+     効だとします):
+
+          (setq x 1)               ; グローバルバインディングに値をセットする。
+               ⇒ 1
+          (let ((x 2))             ; それをローカルにバインドする。
+            (makunbound 'x)        ; ローカルバインディングをvoidにする。
+            x)
+          error→ Symbol's value as variable is void: x
+          x                        ; グローバルバインディングは変更されない。
+               ⇒ 1
+
+          (let ((x 2))             ; ローカルにバインドする。
+            (let ((x 3))           ; もう1度。
+              (makunbound 'x)      ; 最内のローカルバインディングをvoidにする。
+              x))                  ; それを参照すると、void。
+          error→ Symbol's value as variable is void: x
+
+          (let ((x 2))
+            (let ((x 3))
+              (makunbound 'x))     ; 内側のバインディングをvoidにしてから取り除く。
+            x)                     ; 外側の‘let’バインディングが有効になる。
+               ⇒ 2
+
+ -- Function: boundp variable
+     この関数はVARIABLE(シンボル)がvoidでなければ‘t’を
+     returnし、voidのときは‘nil’をreturnします。
+
+     いくつか例を示します(ダイナミックバインディングが有
+     効だとします):
+
+          (boundp 'abracadabra)          ; 最初はvoid。
+               ⇒ nil
+          (let ((abracadabra 5))         ; ローカルにバインドする。
+            (boundp 'abracadabra))
+               ⇒ t
+          (boundp 'abracadabra)          ; グローバルではまだvoid。
+               ⇒ nil
+          (setq abracadabra 5)           ; グローバルで非voidにする。
+               ⇒ 5
+          (boundp 'abracadabra)
+               ⇒ t
+
+
+File: elisp,  Node: Defining Variables,  Next: Tips for Defining,  Prev: Void Variables,  Up: Variables
+
+11.5 Defining Global Variables
+==============================
+
+“変数定義(variable definition)”とは、そのシンボルをグロ
+ーバル変数として使用する意図を表明する構成です。これには
+以下で説明するスペシャルフォーム‘defvar’や‘defconst’が使
+用されます。
+
+   変数宣言は3つの目的をもちます。1番目は、コードを読む
+人にたいして、そのシンボルが特定の方法(変数として)使用さ
+れることを_意図_したものだと知らせることです。2番目は、
+Lispシステムにたいして、オプションで初期値とドキュメント
+文字列を与えて、これを知らせることです。3番目は、
+‘etags’のようなプログラミングツールにたいして、その変数
+が定義されている場所を見つけられるように、情報を提供する
+ことです。
+
+   ‘defconst’と‘defvar’の違いは主に、人間の読み手に、値
+が変更されるかどうかを知らせることにあります。Emacs
+Lispは実際、‘defconst’で定義された変数の値の変更を妨げま
+せん。この2つのフォームの特筆すべき違いは、‘defconst’は
+無条件で変数を初期化し、‘defvar’は変数が元々voidのときだ
+け初期化することです。
+
+   マスタマイズ可能な変数を定義する場合は、‘defcustom’を
+使用するべきです(これはサブルーチンとして‘defvar’を呼び
+出します)。*note Variable Definitions::を参照してくださ
+い。
+
+ -- Special Form: defvar symbol [value [doc-string]]
+     このスペシャルフォームは、変数としてSYMBOLを定義し
+     ます。SYMBOLは評価されないことに注意してください。
+     シンボルは‘defvar’フォーム内に明示的に表記して定義
+     される必要があります。この変数は“特別”だとマークさ
+     れ、これは常にそれがダイナミックにバインドされるこ
+     とを意味します(*note Variable Scoping::を参照してく
+     ださい)。
+
+     VALUEが指定されていてSYMBOLがvoid(たとえばこのシン
+     ボルがダイナミックにバインドされた値を持たないとき
+     。*note Void Variables::を参照してください)、
+     VALUEが評価されて、その結果がSYMBOLにセットされます
+     。しかしSYMBOLがvoidでな場合、VALUEは評価されず、
+     SYMBOLの値は変更されません。VALUEが省略された場合、
+     いかなる場合もSYMBOLの値は変更されません。
+
+     SYMBOLがカレントバッファー内でバッファーローカルな
+     バインディングをもつ場合、‘defvar’はデフォルト値に
+     作用します。デフォルト値はバッファーローカルなバイ
+     ンディングではなく、バッファーにたいして独立してい
+     ます。デフォルト値がvoidのときはデフォルト値をセッ
+     トします。*note Buffer-Local Variables::を参照して
+     ください。
+
+     すでにSYMBOLがレキシカルにバインドされている場合(た
+     とえばレキシカルバインドが有効な状態で‘let’フォーム
+     内に‘defvar’があるような場合)、‘defvar’はダイナミッ
+     クな値をセットします。バインディング構造を抜けるま
+     で、レキシカルバインディングは効果をもちます。*note
+     Variable Scoping::を参照してください。
+
+     Emacs Lispモード(‘eval-defun’)でトップレベルの
+     ‘defvar’を評価するとき、‘eval-defun’の特別な機能は
+     、その値がvoidであるかテストすることなく、その変数
+     を無条件にセットします。
+
+     引数DOC-STRINGが与えられた場合、それは変数にたいす
+     るドキュメント文字列を指定します(そのシンボルの
+     ‘variable-documentation’プロパティーに格納されます
+     )。*note Documentation::を参照してください。
+
+     以下にいくつか例を示します。これは‘foo’を定義します
+     が、初期化は行いません:
+
+          (defvar foo)
+               ⇒ foo
+
+     この例は‘bar’の値を‘23’に初期化して、ドキュメント文
+     字列を与えます:
+
+          (defvar bar 23
+            "The normal weight of a bar.")
+               ⇒ bar
+
+     ‘defvar’フォームはSYMBOLをreturnしますが、通常これ
+     は値が問題にならないファイル内のトップレベルで使用
+     されます。
+
+ -- Special Form: defconst symbol value [doc-string]
+     このスペシャルフォームは、ある値としてSYMBOLを定義
+     して、それを初期化します。これはコードを読む人に、
+     SYMBOLがここで設定される標準的なグローバル値をもち
+     、ユーザーや他のプログラムがそれを変更すべきではな
+     いことを知らせます。SYMBOLは評価されないことに注意
+     してください。このシンボルは、‘defconst’内に明示的
+     に記されなければなりません。
+
+     ‘defvar’と同様、‘defconst’は、変数を“特別” — この変
+     数が常にダイナミックにバインドされているという意味
+     — だとマークします(*note Variable Scoping::を参照し
+     てください)。加えて、これはその変数を危険であるとマ
+     ークします(*note File Local Variables::を参照してく
+     ださい)。
+
+     ‘defconst’は常にVALUEを評価して、その結果をSYMBOLの
+     値にセットします。カレントバッファー内でSYMBOLがバ
+     ッファーローカルなバインディングをもつ場合、
+     ‘defconst’はデフォルト値ではなく、バッファーローカ
+     ルな値をセットします(しかし、‘defconst’で定義された
+     シンボルにたいしてバッファーローカルなバインディン
+     グを作るべきではありません)。
+
+     ‘defconst’の使い方の例は、Emacsの‘float-pi’ — (たと
+     えIndiana State Legislatureが何を試みようと)何者か
+     により変更されるべきではない、数学定数piにたいする
+     定義です。しかし2番目の‘defconst’の例のように、これ
+     は単にアドバイス的なものです。
+
+          (defconst float-pi 3.141592653589793 "The value of Pi.")
+               ⇒ float-pi
+          (setq float-pi 3)
+               ⇒ float-pi
+          float-pi
+               ⇒ 3
+
+   *警告:* 変数がローカルバインディングをもつとき
+(‘let’により作成された、または関数の引数の場合)に、スペ
+シャルフォーム‘defconst’または‘defvar’を使用すると、これ
+らのフォームはグローバルバインディングではなく、ローカル
+バインディングをセットします。これは通常、あなたが望むこ
+とではないはずです。これを防ぐには、これらのスペシャルフ
+ォームをファイル内のトップレベルで使用します。この場所は
+通常、何のローカルバインディングも効果をもたないので、そ
+の変数にたいするローカルバインディングが作成される前にフ
+ァイルがロードされることが確実だからです。
+
+
+File: elisp,  Node: Tips for Defining,  Next: Accessing Variables,  Prev: Defining Variables,  Up: Variables
+
+11.6 Tips for Defining Variables Robustly
+=========================================
+
+値が関数(または関数のリスト)であるような変数を定義すると
+き、変数の名前の最後に‘-function’(または‘-functions’)を
+使います。
+
+   他にも、変数名に関する慣習があります。以下はその完全
+なリストです:
+
+‘...-hook’
+     変数はノーマルフックです(*note Hooks::を参照してく
+     ださい)。
+
+‘...-function’
+     値は関数です。
+
+‘...-functions’
+     値は関数のリストです。
+
+‘...-form’
+     値はフォーム(式)です。
+
+‘...-forms’
+     値はフォーム(式)のリストです。
+
+‘...-predicate’
+     値は述語(predicate) — 1つの引数をとる関数 — で、引
+     数が“正しい(good)”"場合は非‘nil’、“正しくない
+     (bad)”場合は‘nil’をreturnします。
+
+‘...-flag’
+     ‘nil’か、そうでないかだけが意味をもつような値です。
+     そのような変数は結局、やがては多くの値をもつことが
+     多いので、この慣習を強く推奨はしません。
+
+‘...-program’
+     値はプログラム名です。
+
+‘...-command’
+     値は完全なシェルコマンドです。
+
+‘...-switches’
+     値はコマンドにたいして指定するオプションです。
+
+   変数を定義するときは、その変数を“安全(safe)”とマーク
+すべきか、それとも“危険(risky)”とマークすべきかを常に考
+慮してください。*note File Local Variables::を参照してく
+ださい。
+
+   複雑な値を保持する変数(バインディングをもつkeymapなど
+)を定義、または初期化するとき、以下のように値の計算をす
+べて‘defvar’の中に配置するのが最良です:
+
+     (defvar my-mode-map
+       (let ((map (make-sparse-keymap)))
+         (define-key map "\C-c\C-a" 'my-command)
+         ...
+         map)
+       DOCSTRING)
+
+この方法にはいくつかの利点があります。1つ目は、ファール
+をロード中にユーザーが中断した場合、変数はまだ初期化され
+ていないか、初期化されているかのどちらかで、その中間とい
+うことはありません。まだ初期化されていない場合、ファイル
+をリロードすれば正しく初期化されます。2つ目は、1度初期化
+された変数は、ファイルをリロードしても変更されないことで
+す。コンテンツの一部を変更(たとえばキーのリバインド)する
+フックをユーザーが実行した場合などに、これは重要です。
+3つ目は、‘C-M-x’で‘defvar’を評価すると、そのマップは完全
+に再初期化されることです。
+
+   ‘defvar’フォーム内に多すぎるコードを配置することには
+不利な点が1つあります。ドキュメント文字列が変数の名前か
+ら離れた場所に配置されることです。これを避ける安全な方法
+は以下の方法です:
+
+     (defvar my-mode-map nil
+       DOCSTRING)
+     (unless my-mode-map
+       (let ((map (make-sparse-keymap)))
+         (define-key map "\C-c\C-a" 'my-command)
+         ...
+         (setq my-mode-map map)))
+
+これは初期化を‘defvar’の内側に配置した場合とまったく同じ
+利点をもちますが、変数を再度初期化したい場合は、各フォー
+ムにたいして1回ずつ、2度‘C-M-x’をタイプしなければならな
+い点が異なります。
+
+
+File: elisp,  Node: Accessing Variables,  Next: Setting Variables,  Prev: Tips for Defining,  Up: Variables
+
+11.7 Accessing Variable Values
+==============================
+
+変数を参照する通常の方法は、それに名前をつけるシンボルを
+記述する方法です。The usual way to reference a variable
+is to write the symbol which names it.  *note Symbol
+Forms::を参照してください。
+
+   時には、実行時にのみ決定される変数を参照したいときが
+あるかもしれません。そのような場合、プログラム中のテキス
+トで、変数名を指定することはできません。その値を抽出する
+ために、‘symbol-value’を使うことができます。
+
+ -- Function: symbol-value symbol
+     この関数は、SYMBOLの値セルに格納された値をreturnし
+     ます。これには、その変数の(ダイナミックな)カレント
+     値が格納された場所です。その変数がローカルバインデ
+     ィングをもたない場合は、単にその変数のグローバル値
+     になります。変数がvoidの場合、‘void-variable’はエラ
+     ーをシグナルします。
+
+     その変数がレキシカルにバインドされている場合、
+     ‘symbol-value’により報告される値は、その変数のレキ
+     シカル値と同じである必要はありません。レキシカル値
+     はそのシンボルの値セルではなく、レキシカル環境によ
+     り決定されます。*note Variable Scoping::を参照して
+     ください。
+
+          (setq abracadabra 5)
+               ⇒ 5
+          (setq foo 9)
+               ⇒ 9
+
+          ;; ここでシンボル‘abracadabra’は
+          ;;   値がテストされるシンボル。
+          (let ((abracadabra 'foo))
+            (symbol-value 'abracadabra))
+               ⇒ foo
+
+          ;; ここでは、‘abracadabra’の値、
+          ;;   つまり‘foo’が、
+          ;;   値をテストされるシンボル。
+          (let ((abracadabra 'foo))
+            (symbol-value abracadabra))
+               ⇒ 9
+
+          (symbol-value 'abracadabra)
+               ⇒ 5
+
+
+File: elisp,  Node: Setting Variables,  Next: Variable Scoping,  Prev: Accessing Variables,  Up: Variables
+
+11.8 Setting Variable Values
+============================
+
+ある変数の値を変更する通常の方法は、スペシャルフォーム
+‘setq’を使用する方法です。実行時に変数選択を計算する必要
+がある場合は、関数‘set’を使用します。
+
+ -- Special Form: setq [symbol form]...
+     このスペシャルフォームは、変数の値を変更するための
+     、もっとも一般的な方法です。SYMBOLにはそれぞれ、新
+     しい値(対応するFORMが評価された結果)を与えられます
+     。そのシンボルのカレントバインディングは変更されま
+     す。
+
+     ‘setq’はSYMBOLを評価せず、記述されたシンボルをセッ
+     トします。この引数のことを、“自動的にクォートされた
+     (automatically quoted)”と呼びます。‘setq’の‘q’は、
+     “quoted(クォートされた)”が由来です。
+
+     ‘setq’フォームの値は、最後のFORMの値となります。
+
+          (setq x (1+ 2))
+               ⇒ 3
+          x                   ; ここで‘x’はグローバル値をもつ。
+               ⇒ 3
+          (let ((x 5))
+            (setq x 6)        ; ‘x’のローカルバインディングをセット。
+            x)
+               ⇒ 6
+          x                   ; グローバル値は変更されない。
+               ⇒ 3
+
+     1番目のFORMが評価されてから1番目のSYMBOLがセットさ
+     れ、次に2番目のFORMが評価されてからSYMBOLが評価され
+     て、...となることに注意してください:
+
+          (setq x 10          ; ここで、‘x’がセットされるのは
+                y (1+ x))     ;   ‘y’の計算前であることに注目。
+               ⇒ 11
+
+ -- Function: set symbol value
+     この関数は、SYMBOLの値セルにVALUEを配置します。これ
+     はスペシャルフォームではなく関数なので、シンボルに
+     セットするために、SYMBOLに記述された式は評価されま
+     す。return値はVALUEです。
+
+     ダイナミックな変数バインドが有効な場合(デフォルト
+     )、‘set’は自身の引数SYMBOLを評価しますが、‘setq’は
+     評価しないという点を除き、‘set’は‘setq’と同じ効果を
+     もちます。しかし、変数がレキシカルバインドの場合、
+     ‘set’は変数の_ダイナミック_な値に影響し、‘setq’は変
+     数のカレント値(レキシカル値)に影響します。*note
+     Variable Scoping::を参照してください。
+
+          (set one 1)
+          error→ Symbol's value as variable is void: one
+          (set 'one 1)
+               ⇒ 1
+          (set 'two 'one)
+               ⇒ one
+          (set two 2)         ; ‘two’は、シンボル‘one’に評価される。
+               ⇒ 2
+          one                 ; したがって‘one’がセットされる。
+               ⇒ 2
+          (let ((one 1))      ; ‘one’のこのバインディングがセットされるのであって
+            (set 'one 3)      ;   グローバル値はセットされない。
+            one)
+               ⇒ 3
+          one
+               ⇒ 2
+
+     SYMBOLが実際のシンボルでない場合、
+     ‘wrong-type-argument’エラーがシグナルされます。
+
+          (set '(x y) 'z)
+          error→ Wrong type argument: symbolp, (x y)
+
+
+File: elisp,  Node: Variable Scoping,  Next: Buffer-Local Variables,  Prev: Setting Variables,  Up: Variables
+
+11.9 Scoping Rules for Variable Bindings
+========================================
+
+ある変数にたいするローカルバインディングを作成するとき、
+そのバインディングはプログラムの限られた一部だけに効果を
+もちます(*note Local Variables::)。このセクションでは、
+これが正確には何を意味するかについて説明します。
+
+   ローカルバインディングはそれぞれ、個別に“スコープ
+(scope: 範囲という意味)”と“エクステント(extent: これも範
+囲を意味する)”をもちます。“スコープ”は、そのバインディン
+グにアクセスできるのが、テキストのソースコードの_どこ
+(where)_であるかを示します。“エクステント”は、プログラム
+の実行中に、そのバインディングが存在するのが_いつ
+(when)_であるかを示します。
+
+   デフォルトでは、Emacsが作成したローカルバインディング
+は、“ダイナミックバインディング(dynamic binding)”です。
+このようなバインディングは、“ダイナミックスコープ
+(dynamic scope)”をもち、それはプログラムの任意の範囲が、
+その変数バインディングにアクセスするかもしれないことを意
+味します。これは“ダイナミックエクステント(dynamic
+extent)”ももちます。これはそのバインディング構造(‘let’フ
+ォームのbodyなど)が実行される間だけ、そのバインディング
+が存続することを意味します。
+
+   Emacsはオプションで“レキシカルバインディング(lexical
+binding)”を作成することができます。レキシカルバインディ
+ングは“レキシカルスコープ(lexical scope)”をもち、これは
+その変数にたいする任意の参照が、バインディング構造内にテ
+キスト的に配置されなければならないことを意味します(1)。
+レキシカルバインディングは“不定エクステント(indefinite
+extent)”ももちます。これは、ある状況下において、“クロー
+ジャー(closures)”と呼ばれるスペシャルオブジェクトにより
+、バインディング構造が実行を終えた後でさえも、存続を続け
+ることを意味します。
+
+   以降のサブセクションでは、ダイナミックバインディング
+とレキシカルバインディング、およびEmacs Lispプログラムで
+レキシカルバインディングを有効にする方法について、より詳
+細に説明します。
+
+* Menu:
+
+* Dynamic Binding::          Emacs内でのローカル変数にたいするデフォルトのバインディング。
+* Dynamic Binding Tips::     ダイナミックバインディングによる問題を回避する。
+* Lexical Binding::          ローカル変数にたいする他の種類のバインディング。
+* Using Lexical Binding::    レキシカルバインディングを有効にする方法。
+
+   ---------- Footnotes ----------
+
+   (1) これには、いくつか例外があります。たとえば、レキ
+シカルバインディングは、Lispデバッガーからもアクセスでき
+ます。
+
+
+File: elisp,  Node: Dynamic Binding,  Next: Dynamic Binding Tips,  Up: Variable Scoping
+
+11.9.1 Dynamic Binding
+----------------------
+
+デフォルトでは、Emacsにより作成されるローカル変数のバイ
+ンディングは、ダイナミックバインディングです。ある変数が
+ダイナミックにバインドされていると、Lispプログラムの実行
+における任意のポイントでのカレントバインディングは、単に
+そのシンボルにたいしてもっとも最近作成されたダイナミック
+なローカルバインディングか、そのようなローカルバインディ
+ングが存在しない場合はグローバルバインディングになります
+。
+
+   以下の例のように、ダイナミックバインディングはダイナ
+ミックスコープとダイナミック<エクステントをもちます:
+
+     (defvar x -99)  ; ‘x’は初期値として−99を受け取る。
+
+     (defun getx ()
+       x)            ; この関数内では、‘x’は“自由”に使用される。
+
+     (let ((x 1))    ; ‘x’はダイナミックにバインドされている。
+       (getx))
+          ⇒ 1
+
+     ;; ‘let’フォームが終了した後、
+     ;; ‘x’は前の値−99にリバートされる。
+
+     (getx)
+          ⇒ -99
+
+関数‘getx’は‘x’を参照します。‘defun’構造自体の中に‘x’に
+たいするバインディングが存在しないと意味において、これは
+“自由”な参照です。‘x’が(ダイナミックに)バインドされてい
+る‘let’フォーム内から‘getx’を呼び出すと、ローカル値(つま
+り1)が取得されます。しかし、その後‘let’フォームの外側か
+ら‘getx’を呼び出すと、グローバル値(つまり−99)が取得され
+ます。
+
+   以下は、‘setq’を使用してダイナミックに変数をバインド
+する、例をです:
+
+     (defvar x -99)      ; ‘x’は初期値として−99を受け取る。
+
+     (defun addx ()
+       (setq x (1+ x)))  ; ‘x’に1追加して、新しい値をreturnする。
+
+     (let ((x 1))
+       (addx)
+       (addx))
+          ⇒ 3           ; ‘addx’を2回呼び出すと、‘x’に2回追加される。
+
+     ;; ‘let’フォームが終了した後、
+     ;; ‘x’は前の値−99にリバートされる。
+
+     (addx)
+          ⇒ -98
+
+   Emacs Lispでは、ダイナミックバインディングは、シンプ
+ルな方法で実装されています。それぞれのシンボルは、シンボ
+ルのカレントのダイナミック値(または値の不在)を指定する値
+セルをもちます。*note Symbol Components::を参照してくだ
+さい。あるシンボルがダイナミックなローカル値を与えられた
+とき、Emacsは値セルの内容(または値の不在)をスタックに記
+録し、新しいローカル値を値セルに格納します。バインディン
+グ構造が実行を終えたとき、Emacsはスタックから古い値を
+popして、値セルにそれを置きます。
+
+
+File: elisp,  Node: Dynamic Binding Tips,  Next: Lexical Binding,  Prev: Dynamic Binding,  Up: Variable Scoping
+
+11.9.2 Proper Use of Dynamic Binding
+------------------------------------
+
+ダイナミックバインディングは、プログラムにたいしてテキス
+ト的なローカルスコープ内で定義されていない変数を参照する
+ことを許す、強力な機能です。しかし、無制限に使用した場合
+は、プログラムの理解しにくくしてしまうこともあります。こ
+のテクニックを使用するために、2つの明解な方法があります:
+
+   • ある変数がグローバルな定義をもたない場合は、ローカ
+     ル変数としてバインディング構造内だけ(その変数がバイ
+     ンドされる‘let’フォームのbodyなどの場所)でそれを使
+     用します。プログラムでこの慣習に一貫してしたがえば
+     、プログラム内の他の場所の同じ変数シンボルの任意の
+     使用が、その変数の値に影響を与えたり、影響を受ける
+     ことがなくなります。
+
+   • それ以外では、‘defvar’、‘defconst’、‘defcustom’で変
+     数を定義します。*note Defining Variables::を参照し
+     てください。この定義は通常、Emacs Lispファイル内の
+     トップレベルにあるべきです。この定義には可能な限り
+     、変数の意味と目的を説明するドキュメント文字列を含
+     めるべきです。名前の衝突を避けるように、変数を命名
+     することも行うべきです(*note Coding Conventions::を
+     参照してください)。
+
+     その後は、プログラム内のどこか別の場所で、それが何
+     に影響するか確信をもって、変数をバインドすることが
+     できます。その変数にどこで出会っても、(たとえば、変
+     数の定義がEmacsにロードされていれば、‘C-h v’コマン
+     ドを通じて)定義を参照するのが簡単になります。*note
+     (emacs)Name Help::を参照してください。
+
+     たとえば、‘case-fold-search’のようなカスタマイズ可
+     能な変数にたいしてローカルバインディングを使用する
+     のは一般的です:
+
+          (defun search-for-abc ()
+            "Search for the string \"abc\", ignoring case differences."
+            (let ((case-fold-search nil))
+              (re-search-forward "abc")))
+

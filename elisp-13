@@ -1,0 +1,6263 @@
+This is elisp, produced by makeinfo version 6.6 from elisp.texi.
+
+This is the ‘GNU Emacs Lisp Reference Manual’
+corresponding to Emacs version 24.5.
+
+   Copyright © 1990–1996, 1998–2015 Free Software
+Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or
+     modify this document under the terms of the GNU
+     Free Documentation License, Version 1.3 or any
+     later version published by the Free Software
+     Foundation; with the Invariant Sections being “GNU
+     General Public License,” with the Front-Cover Texts
+     being “A GNU Manual,” and with the Back-Cover Texts
+     as in (a) below.  A copy of the license is included
+     in the section entitled “GNU Free Documentation
+     License.”
+
+     (a) The FSF’s Back-Cover Text is: “You have the
+     freedom to copy and modify this GNU manual.  Buying
+     copies from the FSF supports it in developing GNU
+     and promoting software freedom.”
+INFO-DIR-SECTION Emacs lisp
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).               The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+
+File: elisp,  Node: Button Types,  Next: Making Buttons,  Prev: Button Properties,  Up: Buttons
+
+37.18.2 Button Types
+--------------------
+
+すべてのボタンは、そのボタンのプロパティにたいするデフォ
+ルト値を定義する、“ボタンタイプ(button type)”をもってい
+ます。ボタンタイプは、より汎用的なタイプから特化したタイ
+プへと継承される階層構造で構成されており、特定のタスクに
+たいしては、特殊用途のボタンを簡単に定義できます。
+
+ -- Function: define-button-type name &rest properties
+     NAME(シンボル)と呼ばれるボタンタイプを定義する。残
+     りの引数はPROPERTY VALUEペアーのシーケンスを形成す
+     る。これは、そのタイプのボタンにたいする、デフォル
+     トのプロパティ値を指定する(ボタンのタイプはキーワー
+     ド引数‘:type’を使用して、ボタン作成時にそれを
+     ‘type’プロパティに与えることによりセット可能)。
+
+     加えて、NAMEがデフォルトプロパティ値を継承するボタ
+     ンタイプ指定するために、キーワード引数
+     ‘:supertype’を使用できる。この継承は、NAMEの定義時
+     のみ発生することに注意。その後にsupertypeに行われた
+     変更は、そのsubtypeには反映されない。
+
+   ‘define-button-type’を使用してボタンのデフォルトプロ
+パティを定義するのは必須ではありません — 特定のタイプを
+もたないボタンはビルトインのボタンタイプ‘button’を使用し
+ます — が推奨されません。これを行うことにより通常はコー
+ドがより明快かつ効果的になるからです。
+
+
+File: elisp,  Node: Making Buttons,  Next: Manipulating Buttons,  Prev: Button Types,  Up: Buttons
+
+37.18.3 Making Buttons
+----------------------
+
+ボタンは、ボタン固有の情報を保持するために、オーバーレイ
+プロパティかテキストプロパティを使用して、テキストのリー
+ジョンに関連付けられます。これらはすべて、そのボタンのタ
+イプ(デフォルトはビルトインのボタンタイプ‘button’)から初
+期化されます。すべてのEmacsテキストと同様、ボタンの外観
+は‘face’プロパティにより制御されます。(ボタンタイプ
+‘button’から継承された‘face’プロパティを通じることにより
+)デフォルトでは典型的なウェブページリンクのような、シン
+プルなアンダーラインです。
+
+   簡便さのために2種類のボタン作成関数があります。1つは
+バッファーの既存リージョンにボタンプロパティを追加する、
+‘make-...button’と呼ばれる関数と、ボタンテキストを挿入す
+る‘insert-...button’と呼ばれる関数です。
+
+   すべてのボタン作成関数は、‘&rest’引数のPROPERTIESを受
+け取ります。これはボタンに追加するプロパティを指定する、
+PROPERTY VALUEペアーのシーケンスである必要があります。
+*note Button Properties::を参照してください。これに加え
+て、他のプロパティの継承元となるボタンタイプの指定に、キ
+ーワード引数‘:type’を使用できます。*note Button Types::を
+参照してください。作成の間に明示的に指定されなかったプロ
+パティは、(そのタイプがそのようなプロパティを定義してい
+れば)そのボタンのタイプから継承されます。
+
+   以下の関数は、ボタンプロパティを保持するために、オー
+バーレイを使用してボタンを追加します(*note Overlays::を
+参照)。
+
+ -- Function: make-button beg end &rest properties
+     これはカレントバッファー内のBEGからENDにボタンを作
+     成して、それをリターンする。
+
+ -- Function: insert-button label &rest properties
+     これはポイント位置にラベルLABELのボタンを挿入して、
+     それをリターンする。
+
+   以下の関数も同様ですが、ボタンプロパティを保持するた
+めにテキストプロパティを使用します(*note Text
+Properties::を参照)。この種のボタンはバッファーにマーカ
+ーを追加せず、非常に多数のボタンが存在しても、バッファー
+での編集が低速になることはありません。しかしそのテキスト
+に既存のfaceテキストプロパティが存在する場合(たとえば
+Font Lockモードにより割り当てられたフェイス)、そのボタン
+のフェイスは可視にならないかもしれません。これらの関数は
+いずれも、新たなボタンの開始位置をリターンします。
+
+ -- Function: make-text-button beg end &rest properties
+     これはテキストプロパティを使用して、カレントバッフ
+     ァー内のBEGからENDにボタンを作成する。
+
+ -- Function: insert-text-button label &rest properties
+     これはテキストプロパティを使用して、ポイント位置に
+     ラベルLABELのボタンを挿入する。
+
+
+File: elisp,  Node: Manipulating Buttons,  Next: Button Buffer Commands,  Prev: Making Buttons,  Up: Buttons
+
+37.18.4 Manipulating Buttons
+----------------------------
+
+ボタンのプロパティの取得、およびセットを行う関数が存在し
+ます。これらは何を行うかを判断するために、ボタンが呼び出
+す価数によりよく使用される関数です。
+
+   BUTTONパラメーターが指定された場合は、オーバーレイ(オ
+ーバーレイボタンの場合)、またはバッファー位置やマーカー
+(テキストプロパティボタンの場合)いずれかの、特定のボタン
+を参照するオブジェクトを意味します。そのようなオブジェク
+トは、ボタンが関数を呼び出す際に1つ目の引数として渡され
+ます。
+
+ -- Function: button-start button
+     BUTTONが開始される位置をリターンする。
+
+ -- Function: button-end button
+     BUTTONが終了する位置をリターンする。
+
+ -- Function: button-get button prop
+     ボタンBUTTONのPROPという名前のプロパティを取得する
+     。
+
+ -- Function: button-put button prop val
+     BUTTONのPROPプロパティにVALをセットする。
+
+ -- Function: button-activate button &optional
+          use-mouse-action
+     BUTTONの‘action’プロパティを呼び出す(単一の引数
+     BUTTONを渡して、そのプロパティの値である関数を呼び
+     出す)。USE-MOUSE-ACTIONが非‘nil’なら、‘action’のか
+     わりにそのボタンの‘mouse-action’プロパティの呼び出
+     しを試みる。ボタンが‘mouse-action’プロパティをもた
+     なければ、通常どおり‘action’を使用する。
+
+ -- Function: button-label button
+     BUTTONのテキストラベルをリターンする。
+
+ -- Function: button-type button
+     BUTTONのボタンタイプをリターンする。
+
+ -- Function: button-has-type-p button type
+     BUTTONがボタンタイプTYPE、またはTYPEのsubtypeのいず
+     れかをもつなら‘t’をリターンする。
+
+ -- Function: button-at pos
+     カレントバッファー内の位置POSにあるボタン、または
+     ‘nil’をリターンする。POSにあるボタンがテキストプロ
+     パティボタンなら、リターン値はPOSを指すマーカーとな
+     る。
+
+ -- Function: button-type-put type prop val
+     ボタンタイプTYPEのPROPプロパティに、VALをセットする
+     。
+
+ -- Function: button-type-get type prop
+     ボタンタイプTYPEの、PROPという名前のプロパティを取
+     得する。
+
+ -- Function: button-type-subtype-p type supertype
+     ボタンタイプTYPEがSUPERTYPEのsubtypeなら、‘t’をリタ
+     ーンする。
+
+
+File: elisp,  Node: Button Buffer Commands,  Prev: Manipulating Buttons,  Up: Buttons
+
+37.18.5 Button Buffer Commands
+------------------------------
+
+Emacsバッファー内に、ボタンの配置や操作を行うコマンドや
+関数が存在します。
+
+   ‘push-button’はユーザーが実際にボタンを‘押下’するため
+に使用するコマンドであり、そのボタンのオーバーレイプロパ
+ティ、またはテキストプロパティを使用することにより、その
+ボタンの<RET>および<mouse-2>にデフォルトでバインドされま
+す。ボタン自身の外部で有用な‘forward-button’や
+‘backward-button’のようなコマンドは、
+‘button-buffer-map’に格納されたキーマップ内で追加で利用
+可能です。ボタンを使用するモードは、そのキーマップの親キ
+ーマップとして、‘button-buffer-map’の使用を望むかもしれ
+ません。
+
+   ボタンが非‘nil’の‘follow-link’プロパティをもち、かつ
+‘mouse-1-click-follows-link’がセットされている場合は、素
+早い<Mouse-1>クリックにより‘push-button’コマンドもアクテ
+ィブになるでしょう。*note Clickable Text::を参照してくだ
+さい。
+
+ -- Command: push-button &optional pos use-mouse-action
+     位置POSにあるボタンが指定するアクションを行う。
+     POSはバッファー位置、またはマウスイベントのいずれか
+     。USE-MOUSE-ACTIONが非‘nil’、またはPOSがマウスイベ
+     ントなら、‘action’のかわりにそのボタンの
+     ‘mouse-action’プロパティの呼び出しを試み、ボタンに
+     ‘mouse-action’プロパティがなければ、通常のように
+     ‘action’を使用する。‘push-button’がマウスイベントの
+     結果としてインタラクティブに呼び出されたときはその
+     マウスイベントの位置、それ以外ではポイントの位置が
+     、POSのデフォルトになる。POSにボタンがなければ何も
+     せずに‘nil’をリターンし、それ以外なら‘t’をリターン
+     する。
+
+ -- Command: forward-button n &optional wrap
+          display-message
+     次のN番目、Nが負なら前のN番目のボタンに移動する。
+     Nが0なら、ポイント位置にある任意のボタンの開始に移
+     動する。WRAPが非‘nil’なら、バッファーの先頭または終
+     端を超えて、もう一方の端へ移動を継続する。
+     DISPLAY-MESSAGEが非‘nil’なら、そのボタンの
+     help-echo文字列が表示される。非‘nil’の‘skip’プロパ
+     ティをもつボタンは、すべてスキップされる。見つかっ
+     たボタンをリターンする。
+
+ -- Command: backward-button n &optional wrap
+          display-message
+     前のN番目、Nが負なら次のN番目のボタンに移動する。
+     Nが0なら、ポイント位置にある任意のボタンの開始に移
+     動する。WRAPが非‘nil’なら、バッファーの先頭または終
+     端を超えて、もう一方の端へ移動を継続する。
+     DISPLAY-MESSAGEが非‘nil’なら、そのボタンの
+     help-echo文字列が表示される。非‘nil’の‘skip’プロパ
+     ティをもつボタンは、すべてスキップされる。見つかっ
+     たボタンをリターンする。
+
+ -- Function: next-button pos &optional count-current
+ -- Function: previous-button pos &optional
+          count-current
+     カレントバッファー内の位置POSの次(‘next-button’の場
+     合)、または前(‘previous-button’の場合)のボタンをリ
+     ターンする。COUNT-CURRENTが非‘nil’なら、次のボタン
+     から検索を開始するかわりに、POSにある任意のボタンを
+     考慮する。
+
+
+File: elisp,  Node: Abstract Display,  Next: Blinking,  Prev: Buttons,  Up: Display
+
+37.19 Abstract Display
+======================
+
+Ewocパッケージは、Lispオブジェクトの構造を表すバッファー
+テキストを構成し、その構造体の変更にしたがってテキストを
+更新します。これはデザインパラダイム
+“model/view/controller”内の、“view”コンポーネントと似て
+います。Ewocは、“Emacs’s Widget for Object Collections(オ
+ブジェクトコレクション用Emacsウィジェット)”を意味します
+。
+
+   “ewoc”は特定のLispデータを表現するバッファーテキスト
+の構築に要される情報を組織化します。ewocのバッファーテキ
+ストは順番に、まず固定された“header”テキスト、次に一連の
+データ要素のテキスト記述(あなたが指定するLispオブジェク
+ト)、最後に固定された“footer”テキストという、3つのパート
+をもっています。具体的には、ewocは以下の情報を含んでいま
+す:
+
+   • そのテキストが生成されたバッファー。
+
+   • バッファー内でのそのテキストの開始位置。
+
+   • ヘッダー文字列とフッター文字列。
+
+   • 2重リンクされた“ノード(nodes)”のチェーン。各ノード
+     は以下を含む:
+
+        • “データ要素(data element)”。単一のLispオブジェ
+          クトである。
+
+        • そのチェーン内で先行および後続するノードへのリ
+          ンク。
+
+   • カレントバッファー内にデータ要素値のテキスト表現を
+     挿入する責務をもつ、“pretty-printer”関数。
+
+   通常は‘ewoc-create’によりewocを定義して、その結果の
+ewoc構造体内にノードを構築するために、それをEwocパッケー
+ジ内の別の関数に渡してバッファー内に表示します。バッファ
+ー内でこれが一度表示されれば、他の関数はバッファー位置と
+ノードの対応を判断したり、あるノードのテキスト表現から別
+のノードのテキスト表現への移動等を行います。*note
+Abstract Display Functions::を参照してください。
+
+   ノードは、変数が値を保持するのと同じ方法で、データ要
+素を“カプセル化(encapsulate)”します。カプセル化は通常、
+ewocへのノード追加の一部として発生します。以下のように、
+データ要素値を取得して、その場所に新たな値を配置すること
+ができます:
+
+     (ewoc-data NODE)
+     ⇒ value
+
+     (ewoc-set-data NODE NEW-VALUE)
+     ⇒ NEW-VALUE
+
+データ要素値として、“実際”の値のコンテナーであるような
+Lispオブジェクト(リストまたはベクター)、または他の構造体
+へのインデックスも使用できます。例(*note Abstract
+Display Example::を参照)では、後者のアプローチを使用して
+います。
+
+   データが変更された際には、バッファー内のテキストを更
+新したいでしょう。‘ewoc-refresh’呼び出しにより全ノード、
+‘ewoc-invalidate’を使用して特定のノード、または
+‘ewoc-map’を使用して述語を満足するすべてのノードを更新で
+きます。あるいは、‘ewoc-delete’を使用して無効なノードを
+削除したり、その場所に新たなノードを追加できます。ewocか
+らのノード削除は、バッファーからそれに関連付けられたテキ
+スト記述も同様に削除します。
+
+* Menu:
+
+* Abstract Display Functions::  Ewocパッケージ内の関数。
+* Abstract Display Example::  Ewocの使用例。
+
+
+File: elisp,  Node: Abstract Display Functions,  Next: Abstract Display Example,  Up: Abstract Display
+
+37.19.1 Abstract Display Functions
+----------------------------------
+
+このセクションでは、EWOCとNODEは上述(*note Abstract
+Display::を参照)の構造体を、DATAはデータ要素として使用さ
+れる任意のLispオブジェクトを意味します。
+
+ -- Function: ewoc-create pretty-printer &optional
+          header footer nosep
+     これは、ノード(とデータ要素)をもたない新たなewocを
+     構築してリターンする。PRETTY-PRINTERは1つの引数をと
+     る関数であること。この引数は当該ewoc内で使用を計画
+     する類のデータ要素であり、‘insert’を使用してポイン
+     ト位置にそのテキスト記述を挿入する(Ewocパッケージの
+     内部的メカニズムと干渉するため
+     ‘insert-before-markers’は決して使用しない)。
+
+     通常ヘッダー、フッター、およびすべてのノードのテキ
+     スト記述の後には、自動的に改行が挿入される。NOSEPが
+     非‘nil’なら、改行は何も挿入されない。これはewoc全体
+     を単一行に表示したり、これらのノードにたいして何も
+     行わないようPRETTY-PRINTERをアレンジすることにより
+     ノードを“不可視”にするために有用かもしれない。
+
+     ewocは作成時にカレントだったバッファー内のテキスト
+     を保守するので、‘ewoc-create’呼び出し前に意図するバ
+     ッファーへ切り替えること。
+
+ -- Function: ewoc-buffer ewoc
+     これは、EWOCがそのテキストを保守するバッファーをリ
+     ターンする。
+
+ -- Function: ewoc-get-hf ewoc
+     これは、EWOCのヘッダーとフッターから作成された、コ
+     ンスセル‘(HEADER . FOOTER)’をリターンする。
+
+ -- Function: ewoc-set-hf ewoc header footer
+     これは、EWOCのヘッダーおよびフッターに、文字列
+     HEADERおよびFOOTERをセットする。
+
+ -- Function: ewoc-enter-first ewoc data
+ -- Function: ewoc-enter-last ewoc data
+     これらはそれぞれ、DATAを新たなノードにカプセル化し
+     て、それをEWOCのチェーンノードの先頭または終端に配
+     置する。
+
+ -- Function: ewoc-enter-before ewoc node data
+ -- Function: ewoc-enter-after ewoc node data
+     これらはそれぞれ、DATAを新たなノードにカプセル化し
+     て、それをEWOCのNODEの前または後に追加する。
+
+ -- Function: ewoc-prev ewoc node
+ -- Function: ewoc-next ewoc node
+     これらはそれぞれ、EWOC内のNODEの前、または次のノー
+     ドをリターンする。
+
+ -- Function: ewoc-nth ewoc n
+     これは、EWOC内で0基準のインデックスNで見つかったノ
+     ードをリターンする。負のNは、終端から数えることを意
+     味する。Nが範囲外なら、‘ewoc-nth’は‘nil’をリターン
+     する。
+
+ -- Function: ewoc-data node
+     これは、NODEにカプセル化されたデータを抽出して、そ
+     れをリターンする。
+
+ -- Function: ewoc-set-data node data
+     これは、NODEにカプセル化されるデータとして、DATAを
+     セットする。
+
+ -- Function: ewoc-locate ewoc &optional pos guess
+     これはポイント(指定された場合はPOS)を含むEWOC内のノ
+     ードを判断して、そのノードをリターンする。EWOCがノ
+     ードをもたなければ、‘nil’をリターンする。POSが最初
+     のノードの前なら最初のノード、最後のノードの後なら
+     最後のノードをリターンする。オプションの3つ目の引数
+     GUESSは、POS近傍にあると思われるノードであること。
+     これは結果を変更しないが、関数の実行を高速にする。
+
+ -- Function: ewoc-location node
+     これは、NODEの開始位置をリターンする。
+
+ -- Function: ewoc-goto-prev ewoc arg
+ -- Function: ewoc-goto-next ewoc arg
+     これらはそれぞれ、EWOC内の前、または次のARG番目のノ
+     ードにポイントを移動する。すでに最初のノードにポイ
+     ントがある場合、またはEWOCが空の場合、
+     ‘ewoc-goto-prev’は移動しない。また
+     ‘ewoc-goto-next’が最後のノードを超えて移動した場合
+     、結果は‘nil’となる。この特殊なケースを除き、これら
+     の関数は移動先のノードをリターンする。
+
+ -- Function: ewoc-goto-node ewoc node
+     これは、EWOC内のNODEの開始にポイントを移動する。
+
+ -- Function: ewoc-refresh ewoc
+     この関数は、EWOCのテキストを再生成する。これはヘッ
+     ダーとフッターの間のテキスト、すなわちすべてのデー
+     タ要素の表現を削除して、各ノードにたいして1つずつ順
+     にpretty-printer関数を呼び出すことによりすることに
+     より機能する。
+
+ -- Function: ewoc-invalidate ewoc &rest nodes
+     これは‘ewoc-refresh’と似ているが、EWOC内のノードセ
+     ット全体ではなく、NODESだけを対象とする点が異なる。
+
+ -- Function: ewoc-delete ewoc &rest nodes
+     これは、EWOCからNODES内の各要素を削除する。
+
+ -- Function: ewoc-filter ewoc predicate &rest args
+     これはEWOC内の各データ要素にたいしてPREDICATEを呼び
+     出し、PREDICATEが‘nil’をリターンしたノードを削除す
+     る。任意のARGSを、PREDICATEに渡すことができる。
+
+ -- Function: ewoc-collect ewoc predicate &rest args
+     これはEWOC内の各データ要素にたいしてPREDICATEを呼び
+     出し、PREDICATEが非‘nil’をリターンしたノードのリス
+     トをリターンする。リスト内の要素は、そのバッファー
+     内での順序になる。任意のARGSを、PREDICATEに渡すこと
+     ができる。
+
+ -- Function: ewoc-map map-function ewoc &rest args
+     これはEWOC内の各データ要素にたいしてMAP-FUNCTIONを
+     呼び出し、MAP-FUNCTIONが非‘nil’をリターンしたノード
+     を更新する。任意のARGSを、MAP-FUNCTIONに渡すことが
+     できる。
+
+
+File: elisp,  Node: Abstract Display Example,  Prev: Abstract Display Functions,  Up: Abstract Display
+
+37.19.2 Abstract Display Example
+--------------------------------
+
+以下は、3つの整数からなるベクターを表すバッファー内の領
+域である、“color components display”を、ewocパッケージ内
+の関数を使用して、さまざまな方法で実装するシンプルな例で
+す。
+
+     (setq colorcomp-ewoc nil
+           colorcomp-data nil
+           colorcomp-mode-map nil
+           colorcomp-labels ["Red" "Green" "Blue"])
+
+     (defun colorcomp-pp (data)
+       (if data
+           (let ((comp (aref colorcomp-data data)))
+             (insert (aref colorcomp-labels data) "\t: #x"
+                     (format "%02X" comp) " "
+                     (make-string (ash comp -2) ?#) "\n"))
+         (let ((cstr (format "#%02X%02X%02X"
+                             (aref colorcomp-data 0)
+                             (aref colorcomp-data 1)
+                             (aref colorcomp-data 2)))
+               (samp " (sample text) "))
+           (insert "Color\t: "
+                   (propertize samp 'face
+                               `(foreground-color . ,cstr))
+                   (propertize samp 'face
+                               `(background-color . ,cstr))
+                   "\n"))))
+
+     (defun colorcomp (color)
+       "新たなバッファー内でCOLORの編集を許可する。
+     そのバッファーはColor Componentsモードになる。"
+       (interactive "sColor (name or #RGB or #RRGGBB): ")
+       (when (string= "" color)
+         (setq color "green"))
+       (unless (color-values color)
+         (error "No such color: %S" color))
+       (switch-to-buffer
+        (generate-new-buffer (format "originally: %s" color)))
+       (kill-all-local-variables)
+       (setq major-mode 'colorcomp-mode
+             mode-name "Color Components")
+       (use-local-map colorcomp-mode-map)
+       (erase-buffer)
+       (buffer-disable-undo)
+       (let ((data (apply 'vector (mapcar (lambda (n) (ash n -8))
+                                          (color-values color))))
+             (ewoc (ewoc-create 'colorcomp-pp
+                                "\nColor Components\n\n"
+                                (substitute-command-keys
+                                 "\n\\{colorcomp-mode-map}"))))
+         (set (make-local-variable 'colorcomp-data) data)
+         (set (make-local-variable 'colorcomp-ewoc) ewoc)
+         (ewoc-enter-last ewoc 0)
+         (ewoc-enter-last ewoc 1)
+         (ewoc-enter-last ewoc 2)
+         (ewoc-enter-last ewoc nil)))
+
+   この例は、‘colorcomp-data’の変更して、選択プロセスを
+“完了”し、それらを互いに簡便に結ぶキーマップを定義するこ
+とにより(別の言い方をすると“model/view/controller”デザイ
+ンパラダイムのcontroller部分)、“color selection widget”へ
+の拡張が可能です。
+
+     (defun colorcomp-mod (index limit delta)
+       (let ((cur (aref colorcomp-data index)))
+         (unless (= limit cur)
+           (aset colorcomp-data index (+ cur delta)))
+         (ewoc-invalidate
+          colorcomp-ewoc
+          (ewoc-nth colorcomp-ewoc index)
+          (ewoc-nth colorcomp-ewoc -1))))
+
+     (defun colorcomp-R-more () (interactive) (colorcomp-mod 0 255 1))
+     (defun colorcomp-G-more () (interactive) (colorcomp-mod 1 255 1))
+     (defun colorcomp-B-more () (interactive) (colorcomp-mod 2 255 1))
+     (defun colorcomp-R-less () (interactive) (colorcomp-mod 0 0 -1))
+     (defun colorcomp-G-less () (interactive) (colorcomp-mod 1 0 -1))
+     (defun colorcomp-B-less () (interactive) (colorcomp-mod 2 0 -1))
+
+     (defun colorcomp-copy-as-kill-and-exit ()
+       "color componentsをkillリングにコピーしてバッファーをkill。
+     文字列は#RRGGBB(6桁16進が付加されたハッシュ)にフォーマットされる。"
+       (interactive)
+       (kill-new (format "#%02X%02X%02X"
+                         (aref colorcomp-data 0)
+                         (aref colorcomp-data 1)
+                         (aref colorcomp-data 2)))
+       (kill-buffer nil))
+
+     (setq colorcomp-mode-map
+           (let ((m (make-sparse-keymap)))
+             (suppress-keymap m)
+             (define-key m "i" 'colorcomp-R-less)
+             (define-key m "o" 'colorcomp-R-more)
+             (define-key m "k" 'colorcomp-G-less)
+             (define-key m "l" 'colorcomp-G-more)
+             (define-key m "," 'colorcomp-B-less)
+             (define-key m "." 'colorcomp-B-more)
+             (define-key m " " 'colorcomp-copy-as-kill-and-exit)
+             m))
+
+   わたしたちが決して各ノード内のデータを変更していない
+ことに注意してください。それらのデータはewoc作成時に
+‘nil’、または実際のカラーコンポーネントであるベクター
+‘colorcomp-data’にたいするインデックスに固定されています
+。
+
+
+File: elisp,  Node: Blinking,  Next: Character Display,  Prev: Abstract Display,  Up: Display
+
+37.20 Blinking Parentheses
+==========================
+
+このセクションでは、ユーザーが閉カッコを挿入した際に、マ
+ッチする開カッコをEmacsが示すメカニズムを説明します。
+
+ -- Variable: blink-paren-function
+     この変数の値は、閉カッコ構文(close parenthesis
+     syntax)の文字が挿入された際に、常に呼び出される関数
+     (引数なし)であること。‘blink-paren-function’の値は
+     ‘nil’も可能で、この場合は何も行わない。
+
+ -- User Option: blink-matching-paren
+     この変数が‘nil’なら、‘blink-matching-open’は何も行
+     わない。
+
+ -- User Option: blink-matching-paren-distance
+     この変数は、ギブアップする前にマッチするカッコをス
+     キャンする、最大の距離を指定する。
+
+ -- User Option: blink-matching-delay
+     この変数は、マッチするカッコを示し続ける秒数を指定
+     する。分数の秒もよい結果をもたらすことがあるが、デ
+     フォルトはすべてのシステムで機能する1である。
+
+ -- Command: blink-matching-open
+     この関数は、‘blink-paren-function’のデフォルト値で
+     ある。この関数は、閉カッコ構文の文字の後にポイント
+     があると仮定し、マッチする開カッコに瞬時適切な効果
+     を適用する。その文字がまだスクリーン上になければ、
+     エコーエリア内にその文字のコンテキストを表示する。
+     長い遅延を避けるために、この関数は文字数
+     ‘blink-matching-paren-distance’より遠くを検索しない
+     。
+
+     以下は、この関数を明示的に呼び出す例である。
+
+          (defun interactive-blink-matching-open ()
+            "ポイント前のカッコによるsexp開始を瞬時示す"
+            (interactive)
+            (let ((blink-matching-paren-distance
+                   (buffer-size))
+                  (blink-matching-paren t))
+              (blink-matching-open)))
+
+
+File: elisp,  Node: Character Display,  Next: Beeping,  Prev: Blinking,  Up: Display
+
+37.21 Character Display
+=======================
+
+このセクションでは、文字がEmacsにより実際に表示される方
+法について説明します。文字は通常“グリフ(glyph)”として表
+示されます。グリフとは、スクリーン上で1文字の位置を占め
+るグラフィカルなシンボルであり、その外観はその文字自身に
+対応します。たとえば文字‘a’(文字コード97)は、‘a’と表示さ
+れます。しかし、いくつかの文字は特別な方法で表示されます
+。たとえば、改頁文字(文字コード12)は、通常は2つのグリフ
+のシーケンス‘^L’で表示され、改行文字(文字コード10)は新た
+なスクリーン行を開始します。
+
+   “ディスプレイテーブル(display table)”を定義することに
+より、各文字が表示される方法を変更できます。これはそれぞ
+れの文字を、グリフのシーケンスにマップするテーブルです。
+*note Display Tables::を参照してください。
+
+* Menu:
+
+* Usual Display::            文字の表示にたいする通常の慣習。
+* Display Tables::           ディスプレイテーブルの構成要素。
+* Active Display Table::     使用するディスプレイテーブルをEmacsが選択する方法。
+* Glyphs::                   グリフの定義方法とグリフの意味。
+* Glyphless Chars::          グリフなしの文字の描画方法。
+
+
+File: elisp,  Node: Usual Display,  Next: Display Tables,  Up: Character Display
+
+37.21.1 Usual Display Conventions
+---------------------------------
+
+以下は、各文字コードの表示にたいする慣習です(ディスプレ
+イテーブルが存在しなければ、これらの慣習をオーバーライド
+できる 。*note Display Tables::)を参照されたい)。
+
+   • コード32から126の“プリント可能ASCII文字(printable
+     ASCII characters: 数字、英文字、および‘#’のようなシ
+     ンボル)”は、文字通りそのまま表示される。
+
+   • タブ文字(文字コード9)は、次のタブストップ列まで伸長
+     された空白文字として表示される。*note (emacs)Text
+     Display::を参照のこと。変数‘tab-width’は、タブスト
+     ップごとのスペース数を制御する(以下参照)。
+
+   • 改行文字(文字コード10)は特殊効果をもつ。これは先行
+     する行を終端して、新たな行を開始する。
+
+   • 非プリント可能“ASCII制御文字(ASCII control
+     characters)” — 文字コード0から31と<DEL>文字(文字コ
+     ード127) — は、変数‘ctl-arrow’に応じて2つの方法のい
+     ずれかで表示される。この変数が非‘nil’(デフォルト)な
+     ら、たとえば<DEL>にたいしては‘^?’のように、これらの
+     文字は1つ目のグリフが‘^’(‘^’のかわりに使用する文字
+     をディスプレイテーブルで指定できる)のような、2つの
+     グリフのシーケンスとして表示される。
+
+     ‘ctl-arrow’が‘nil’なら、これらの文字は8進エスケープ
+     として表示される(以下参照)。
+
+     このルールは、バッファー内に復帰文字(CR: carriage
+     return、文字コード13)があれば、それにも適用される。
+     しかし復帰文字は、通常はバッファーテキスト内には存
+     在しない。これらは、行末変換(end-of-line
+     conversion)の一部として除去される(*note Coding
+     System Basics::を参照)。
+
+   • “rawバイト(raw bytes)”とは、コード128から255の非
+     ASCII文字である。これらの文字は“8進エスケープ(octal
+     escapes)”として表示される。これは1つ目が‘\’にたいす
+     るASCIIコードのグリフで、残りがその文字のコードを
+     8進で表した数字である(ディスプレイテーブルで‘\’のか
+     わりに使用するグリフを指定できる)。
+
+   • 255を超える非ASCII文字は、端末がサポートしていれば
+     そのまま表示される。端末がサポートしない場合、その
+     文字は“グリフなし(glyphless)”と呼ばれ、通常はプレー
+     スホルダーグリフを使用して表示される。たとえば、あ
+     る文字にたいしてグラフィカル端末がフォントをもたな
+     ければ、Emacsは通常は16進文字コードを含むボックスを
+     表示する。*note Glyphless Chars::を参照のこと。
+
+   上記の表示慣習は、たとえディスプレイテーブルがあって
+も、アクティブディスプレイテーブル内のエントリーが
+‘nil’であるような、すべての文字にたいして適用されます。
+したがってディスプレイテーブルのセットアップ時に指定が必
+要なのは、特別な振る舞いを望む文字だけです。
+
+   以下の変数は、スクリーン上で特定の文字が表示される方
+法に影響します。これらはその文字が占める列数を変更するの
+で、インデント関数にも影響を与えます。また、モードライン
+が表示される方法にも影響があります。新たな値を使用してモ
+ードラインを強制的に再表示するには、関数
+‘force-mode-line-update’を呼び出してください(*note Mode
+Line Format::を参照)。
+
+ -- User Option: ctl-arrow
+     このバッファーローカル変数は、コントロール文字が表
+     示される方法を制御する。非‘nil’なら‘^A’のようにカレ
+     ットとその文字のように表示され、‘nil’なら‘\001’のよ
+     うにバックスラッシュと8進3桁のように8進エスケープと
+     して表示される。
+
+ -- User Option: tab-width
+     このバッファーローカル変数の値は、Emacsバッファー内
+     でのタブ文字表示で使用する、タブストップ間のスペー
+     ス数である。値は列単位で、デフォルトは8。この機能は
+     、コマンド‘tab-to-tab-stop’で使用される、ユーザー設
+     定可能なタブストップとは完全に無関係であることに注
+     意。*note Indent Tabs::を参照のこと。
+
+
+File: elisp,  Node: Display Tables,  Next: Active Display Table,  Prev: Usual Display,  Up: Character Display
+
+37.21.2 Display Tables
+----------------------
+
+ディスプレイテーブルとは、サブタイプとして
+‘display-table’をもつ特殊用途の文字テーブル(*note
+Char-Tables::)で、文字の通常の表示慣習をオーバーライドす
+るために使用されます。このセクションではディスプレイテー
+ブルオブジェクトの作成と調査、および要素を割り当てる方法
+について説明します。
+
+ -- Function: make-display-table
+     これは、ディスプレイテーブルを作成してリターンする
+     。テーブルは初期状態では、すべての要素に‘nil’をもつ
+     。
+
+   ディスプレイテーブルの通常の要素は、文字コードにより
+インデックス付けされる。インデックスCの要素は、コードCの
+表示方法を示す。値は‘nil’(これは通常の表示慣習に応じて文
+字Cを表示することを意味する。*note Usual Display::を参照
+のこと)、またはグリフコードのベクター(これらのグリフとし
+て文字Cを表示することを意味する。*note Glyphs::を参照の
+こと)のいずれかであること。
+
+   *警告:* 改行文字の表示を変更するためにディスプレイテ
+ーブルを使用すると、バッファー全体が1つの長い“行”として
+表示されるだろう。
+
+   ディスプレイテーブルは特殊用途向けに、6つの“エクスト
+ラスロット(extra slots)”をもつこともできます。以下は、そ
+れらの意味についてのテーブルです。‘nil’のスロットは、以
+下で示すそのスロットにたいするデフォルトの使用を意味しま
+す。
+
+0
+     切り詰められたスクリーン行終端のグリフ(デフォルトで
+     は‘$’)。*note Glyphs::を参照のこと。グラフィカルな
+     端末では、Emacsは切り詰められたことをフリンジ内の矢
+     印で示し、ディスプレイテーブルは使用しない。
+
+1
+     継続行終端のグリフ(デフォルトは‘\’)。グラフィカルな
+     端末では、Emacsは継続ををフリンジ内の曲矢印で示し、
+     ディスプレイテーブルは使用しない。
+
+2
+     8進文字コードとして表示される文字を示すグリフ(デフ
+     ォルトは‘\’)。
+
+3
+     コントロール文字を示す(デフォルトは‘^’)。
+
+4
+     不可視行があることを示すグリフのベクター(デフォルト
+     は‘...’)。*note Selective Display::を参照のこと。
+
+5
+     横並びのウィンドウ間のボーダー描画に使用されるグリ
+     フ(デフォルトは‘|’)。*note Splitting Windows::を参
+     照のこと。これは、スクロールバーが存在するときだけ
+     効果をもつ。スクロールバーがサポートされていて使用
+     中なら、スクロールバーが2つのウィンドウを分割する。
+
+   たとえば以下は、関数‘make-glyph-code’にたいして
+‘ctl-arrow’に非‘nil’をセットして得られる効果を模倣するデ
+ィスプレイテーブル(*note Glyphs::を参照のこと)を構築する
+例です:
+
+     (setq disptab (make-display-table))
+     (dotimes (i 32)
+       (or (= i ?\t)
+           (= i ?\n)
+           (aset disptab i
+                 (vector (make-glyph-code ?^ 'escape-glyph)
+                         (make-glyph-code (+ i 64) 'escape-glyph)))))
+     (aset disptab 127
+           (vector (make-glyph-code ?^ 'escape-glyph)
+                   (make-glyph-code ?? 'escape-glyph)))))
+
+ -- Function: display-table-slot display-table slot
+     この関数は、DISPLAY-TABLEのエクストラスロットSLOTの
+     値をリターンする。引数SLOTには0から5の数字(両端含む
+     )、またはスロット名(シンボル)を指定できる。有効なシ
+     ンボルは‘truncation’、‘wrap’、‘escape’、‘control’、
+     ‘selective-display’、‘vertical-border’。
+
+ -- Function: set-display-table-slot display-table slot
+          value
+     この関数は、DISPLAY-TABLEのエクストラスロットSLOTに
+     VALUEを格納する。引数SLOTには0から5の数字(両端含む
+     )、またはスロット名(シンボル)を指定できる。有効なシ
+     ンボルは‘truncation’、‘wrap’、‘escape’、‘control’、
+     ‘selective-display’、‘vertical-border’。
+
+ -- Function: describe-display-table display-table
+     この関数は、ヘルプバッファーにディスプレイテーブル
+     DISPLAY-TABLEの説明を表示する。
+
+ -- Command: describe-current-display-table
+     このコマンドは、ヘルプバッファーにカレントディスプ
+     レイテーブルの説明を表示する。
+
+
+File: elisp,  Node: Active Display Table,  Next: Glyphs,  Prev: Display Tables,  Up: Character Display
+
+37.21.3 Active Display Table
+----------------------------
+
+ウィンドウはそれぞれディスプレイテーブルを指定でき、各バ
+ッファーもディスプレイテーブルを指定できます。もしウィン
+ドウにディスプレイテーブルがあれば、それはバッファーのデ
+ィスプレイテーブルより優先されます。ウィンドウとバッファ
+ーのいずれもディスプレイテーブルをもたなければ、Emacsは
+標準的なディスプレイテーブルの使用を試みます。標準ディス
+プレイテーブルが‘nil’なら、Emacsは通常の文字表示慣習を使
+用します(*note Usual Display::を参照)。
+
+   ディスプレイテーブルはモードラインが表示される方法に
+影響を与えるので、新たなディスプレイテーブルを使用してモ
+ードラインを強制的に再表示するには、
+‘force-mode-line-update’を使用することに注意してください
+(*note Mode Line Format::を参照)。
+
+ -- Function: window-display-table &optional window
+     この関数はWINDOWのディスプレイテーブル、ディスプレ
+     イテーブルがなければ‘nil’をリターンする。WINDOWのデ
+     フォルトは、選択されたウィンドウ。
+
+ -- Function: set-window-display-table window table
+     この関数は、WINDOWのディスプレイテーブルにTABLEをセ
+     ットする。引数TABLEはディスプレイテーブル、または
+     ‘nil’のいずれかであること。
+
+ -- Variable: buffer-display-table
+     この変数は、すべてのバッファーにおいて自動的にバッ
+     ファーローカルになる。変数の値は、そのバッファーの
+     ディスプレイテーブルを指定する。これが‘nil’なら、バ
+     ッファーのディスプレイテーブルは存在しない。
+
+ -- Variable: standard-display-table
+     この変数の値は、ウィンドウ内にバッファーを表示する
+     際、ウィンドウディスプレイテーブルとバッファーディ
+     スプレイテーブルのいずれも定義されていないときに、
+     Emacsが使用する標準ディスプレイテーブル(standard
+     display table)である。デフォルトは‘nil’。
+
+   ‘disp-table’ライブラリーでは、標準ディスプレイテーブ
+ルを変更するために、いくつかの関数を定義されています。
+
+
+File: elisp,  Node: Glyphs,  Next: Glyphless Chars,  Prev: Active Display Table,  Up: Character Display
+
+37.21.4 Glyphs
+--------------
+
+“グリフ(glyph)”とは、スクリーン上で1文字を占めるグラフィ
+カルなシンボルです。各グリフはLisp内で“グリフコード
+(glyph code)”として表現されます。これは文字と、オプショ
+ンで表示するフェイスを指定します(*note Faces::を参照)。
+ディスプレイテーブル内のエントリーとしての使用が、グリフ
+コードの主な用途です(*note Display Tables::を参照)。以下
+の関数は、グリフコードを操作するために使用されます:
+
+ -- Function: make-glyph-code char &optional face
+     この関数は、文字CHARを表すグリフを、フェイスFACEで
+     リターンする。FACEが省略または‘nil’ならグリフはデフ
+     ォルトフェイスを使用し、その場合にはグリフコードは
+     整数である。FACEが非‘nil’なら、グリフコードが整数オ
+     ブジェクトである必要はない。
+
+ -- Function: glyph-char glyph
+     この関数は、グリフコードGLYPHの文字をリターンする。
+
+ -- Function: glyph-face glyph
+     この関数は、グリフコードGLYPHのフェイス、または
+     GLYPHがデフォルトフェイスを使用する場合は‘nil’をリ
+     ターンする。
+
+   テキスト端末上で実際にどのようにグリフコードを表示す
+るかを変更するために、“glyph table”をセットアップできる
+。この機能は半ば時代遅れであり、かわりに
+‘glyphless-char-display’を使用すること(*note Glyphless
+Chars::を参照)。
+
+ -- Variable: glyph-table
+     この変数の値が非‘nil’なら、それはカレントグリフテー
+     ブルである。これは文字端末上でのみ効果があり、グラ
+     フィカルディスプレイ上ではすべてのグリフはそのまま
+     literalに表示される。グリフテーブルは、G番目の要素
+     がグリフコードGの表示方法を指定するようなベクターで
+     あること。ここでGはフェイス未指定なグリフにたいする
+     グリフコードである。要素はそれぞれ、以下のいずれか
+     であること:
+
+     ‘nil’
+          そのグリフをそのままliteralに表示する。
+
+     文字列
+          指定された文字列を端末に送信することにより、そ
+          のグリフを表示する。
+
+     グリフコード
+          指定されたグリフコードをかわりに表示する。
+
+     グリフテーブルのテーブル長以上の整数グリフコードは
+     、そのままliteralに表示される。
+
+
+File: elisp,  Node: Glyphless Chars,  Prev: Glyphs,  Up: Character Display
+
+37.21.5 Glyphless Character Display
+-----------------------------------
+
+“グリフ無し文字(glyphless characters)”とは、literalに表
+示されるのではなく特別な方法、すなわち16進コードを中に含
+むボックスとして表示される文字です。これらの文字には、グ
+リフが無いと明示的に定義された文字や、利用可能なフォント
+がない文字(グラフィカルなディスプレイ)、その端末のコーデ
+ィングシステムではエンコードできない文字(テキスト端末)が
+同様に含まれます。
+
+ -- Variable: glyphless-char-display
+     この変数の値はグリフ無し文字と、それらの表示方法を
+     定義する文字テーブルである。エントリーはそれぞれ、
+     以下の表示メソッドのいずれかでなければならない:
+
+     ‘nil’
+          通常の方法でその文字を表示する。
+
+     ‘zero-width’
+          その文字を表示しない。
+
+     ‘thin-space’
+          グラフィカルな端末では幅が1ピクセル、テキスト
+          端末では幅が1文字の狭いスペース。
+
+     ‘empty-box’
+          空のボックスを表示する。
+
+     ‘hex-code’
+          その文字のUnicodeコードポイントの16進表記を含
+          むボックスを表示する。
+
+     ASCII文字列
+          その文字列を含むボックスを表示する。
+
+     コンスセル ‘(GRAPHICAL . TEXT)’
+          グラフィカルな端末ではGRAPHICAL、テキスト端末
+          ではTEXTで表示する。GRAPHICALとTEXTはいずれも
+          、上述した表示メソッドのいずれかでなければなら
+          ない。
+
+     ‘thin-space’、‘empty-box’、‘hex-code’、および
+     ASCII文字列は‘glyphless-char’フェイスで描画される。
+
+     文字テーブルには、利用可能なすべてのフォントでも表
+     示できない、またはその端末のコーディングシステムで
+     エンコードできないすべての文字の表示方法を定義する
+     、余分なスロットが1つある。その値は、上述した表示メ
+     ソッドのうち‘zero-width’とコンスセル以外のいずれか
+     でなければならない。
+
+     アクティブなディスプレイテーブル内に非‘nil’なエント
+     リーをもつ文字では、そのディスプレイテーブルが効果
+     をもつ。この場合、Emacsは‘glyphless-char-display’を
+     まったく参照しない。
+
+ -- User Option: glyphless-char-display-control
+     このユーザーオプションは、似かよった文字のグループ
+     にたいして‘glyphless-char-display’をセットする便利
+     な手段を提供する。Lispコードから、この値を直接セッ
+     トしてはならない。‘glyphless-char-display’更新する
+     、カスタム関数‘:set’を通じた場合のみ、その値は効果
+     をもつ。
+
+     この値は、要素が‘(GROUP . METHOD)’であるような
+     alistであること。ここでGROUPは文字びグループを指定
+     するシンボル、METHODはそれらを表示する方法を指定す
+     るシンボルである。
+
+     GROUPは以下のいずれかであること:
+
+     ‘c0-control’
+          改行文字とタブ文字を除く‘U+0000’から‘U+001F’ま
+          でのASCIIコントロール文字(通常は‘^A’のようなエ
+          スケープシーケンスとして表示される。*note How
+          Text Is Displayed: (emacs)Text Display.を参照
+          されたい)。
+
+     ‘c1-control’
+          ‘U+0080’から‘U+009F’までの非ASCII、非プリント
+          文字(通常は‘\230’のような8進エスケープシーケン
+          スとして表示される)。
+
+     ‘format-control’
+          ‘U+200E’のようなUnicode General Category ‘Cf’の
+          文字だが、‘U+00AD’(Soft Hyphen)のようにグラフ
+          ィックイメージをもつ文字を除く。
+
+     ‘no-font’
+          適切なフォントが存在しないか、その端末のコーデ
+          ィングシステムではエンコードできない文字。
+
+     METHODシンボルは‘zero-width’、‘thin-space’、
+     ‘empty-box’、‘hex-code’のいずれかであること。これら
+     は上述の‘glyphless-char-display’での場合と同様の意
+     味をもつ。
+
+
+File: elisp,  Node: Beeping,  Next: Window Systems,  Prev: Character Display,  Up: Display
+
+37.22 Beeping
+=============
+
+このセクションでは、ユーザーの注意を喚起するために、
+Emacsでベルを鳴らす方法を説明します。これを行う頻度は控
+え目にしてください。頻繁なベルは刺激過剰になる恐れがあり
+ます。。同様に、エラーのシグナル時に過度にビープ音を使用
+しないよう注意してください。
+
+ -- Function: ding &optional do-not-terminate
+     この関数はビープ音を鳴らす、またはスクリーンをフラ
+     ッシュする(後述の‘visible-bell’を参照)。
+     DO-NOT-TERMINATEが‘nil’なら、この関数はカレントで実
+     行中のキーボードマクロも終了する。
+
+ -- Function: beep &optional do-not-terminate
+     これは‘ding’のシノニムである。
+
+ -- User Option: visible-bell
+     この変数は、ベルを表すためにスクリーンをフラッシュ
+     すべきかどうかを決定する。非‘nil’ならフラッシュし、
+     ‘nil’ならフラッシュしない。これはグラフィカルなディ
+     スプレイで効果的であり、テキスト端末ではその端末の
+     Termcapエントリーが可視ベル(visible bell) ‘vb’の能
+     力を定義する。
+
+ -- Variable: ring-bell-function
+     これが非‘nil’なら、それはEmacsがどのように“ベルを鳴
+     らす”かを定義するべきである。値は引数なしの関数であ
+     ること。これが非‘nil’の場合、‘visible-bell’より優先
+     される。
+
+
+File: elisp,  Node: Window Systems,  Next: Bidirectional Display,  Prev: Beeping,  Up: Display
+
+37.23 Window Systems
+====================
+
+Emacsは複数のウィンドウシステムで機能しますが、特にXウィ
+ンドウシステムにおいてもっとも機能します。EmacsとXはどち
+らも“ウィンドウ”を使用しますが、異なる使い方をします。
+Emacsのフレームは、Xにおいては単一のウィンドウです。
+Emacsの個々のウィンドウについては、Xはまったく関知しませ
+ん。
+
+ -- Variable: window-system
+     この端末ローカルな変数は、Emacsがフレームを表示する
+     のに、何のウィンドウシステムを使用しているかを示す
+     。可能な値は、
+
+     ‘x’
+          EmacsはXを使用してフレームを表示している。
+     ‘w32’
+          EmacsはネイティブMS-Windows GUIを使用してフレ
+          ームを表示している。
+     ‘ns’
+          EmacsはNextstepインターフェイスを使用してフレ
+          ームを表示している(GNUstepとMac OS Xで使用され
+          ている)。
+     ‘pc’
+          EmacsはMS-DOSのスクリーン直接書き込みを使用し
+          てフレームを表示している。
+     ‘nil’
+          Emacsは文字ベース端末を使用してフレームを表示
+          している。
+
+ -- Variable: initial-window-system
+     この変数は、スタートアップの間にEmacsが作成する最初
+     のフレームにたいして使用される、‘window-system’の値
+     を保持する。(Emacsを‘--daemon’オプションで呼び出し
+     時には初期フレームを作成しないので、
+     ‘initial-window-system’は‘nil’である。*note daemon:
+     (emacs)Initial Options.を参照されたい。)
+
+ -- Function: window-system &optional frame
+     この関数は、FRAMEを表示するために使用されているウィ
+     ンドウシステムを示す名前のシンボルをリターンする。
+     この関数がリターンし得るシンボルのリストは、変数
+     ‘window-system’の記述と同様である。
+
+   テキスト端末とグラフィカルなディスプレイで異なる処理
+を行うコードを記述したいときは、‘window-system’と
+‘initial-window-system’を、述語やブーリーンフラグ変数と
+して_not__使用しないでください_。これは、与えられたディ
+スプレイタイプでのEmacsの能力指標として、
+‘window-system’が適していないからです。かわりに
+‘display-graphic-p’、または*note Display Feature
+Testing::で説明しているその他の述語‘display-*-p’を使用し
+てください。
+
+
+File: elisp,  Node: Bidirectional Display,  Prev: Window Systems,  Up: Display
+
+37.24 Bidirectional Display
+===========================
+
+Emacsはアラビア語、ペルシア語、ヘブライ語のような、水平
+方向テキストの自然な表示順がR2L(right-to-left: 右から左
+)に実行されるようなスクリプトで記述されたテキストを表示
+できます。さらにL2R(right-to-left: 左から右)のテキストに
+埋め込まれたR2Lスクリプト(例: プログラムソースファイル内
+のアラビア語やヘブライ語のコメント)は適宜右から左にR2Lに
+表示される一方、ラテンスクリプト部やR2Lテキストに埋め込
+まれた数字はL2Rで表示されます。わたしたちは、そのような
+L2RとR2Lが混交されたテキストを“双方向テキスト
+(bidirectional text)”と呼びます。このセクションでは、双
+方向テキストの編集と表示にたいする機能とオプションんつい
+て説明します。
+
+   テキストは“ロジカル”な順序(または“読込順”)、すなわち
+人間が各文字を読み込むであろう順序で、テキストをEmacsバ
+ッファーおよび文字列に格納します。R2Lおよび双方向テキス
+トでは、スクリーン上で文字が表示される順序(“ビジュアル順
+”と呼ばれる)はロジカル順と同一ではありません。それら各文
+字のスクリーン位置は、文字列またはバッファー位置により単
+調に増加しません。この“双方向の並べ替え(bidirectional
+reordering)”を処理を行うに際、EmacsはUnicode双方向アルゴ
+リズム(UBA： Unicode Bidirectional Algorithm)にしたがい
+ます(<http://www.unicode.org/reports/tr9/>)。現在のとこ
+ろEmacsは、UBAの“Non-isolate Bidirectionality(双方向非分
+離)”なクラスの実装を提供します。これはまだ、Unicode
+Standard v6.3.0で提唱された方向分離フォーマットをサポー
+トしていません。
+
+ -- Variable: bidi-display-reordering
+     このバッファーローカル変数の値が非‘nil’(デフォルト
+     )なら、Emacsは表示で双方向の並べ替えを行う。この並
+     べ替えはバッファーテキスト、同様に文字列表示やバッ
+     ファー内のテキストプロパティやオーバーレイプロパテ
+     ィ由来のオーバーレイ文字列に効果を及ぼす(*note
+     Overlay Properties::および*note Display Property::を
+     参照)。値が‘nil’なら、Emacsはバッファー内での双方向
+     の並べ替えを行わない。
+
+     ‘bidi-display-reordering’のデフォルト値は、モードラ
+     イン内に表示されるテキスト(*note Mode Line
+     Format::を参照)、およびヘッダー行(*note Header
+     Lines::を参照)を含む、バッファーにより直接提供され
+     ない文字列の並べ替えを制御する。
+
+   たとえバッファーの‘bidi-display-reordering’が非
+‘nil’でも、Emacsがユニバイトバッファーのテキストの並べ替
+えを行うことはありません。これはユニバイトバッファーに含
+まれるのが文字ではなくrawバイトであり、並べ替えに要する
+方向的なプロパティを欠くからです。したがって、あるバッフ
+ァーのテキストが並べ替えられるかどうかテストするには、
+‘bidi-display-reordering’のテスト単独では不十分です。正
+しいテストは以下のようになります:
+
+      (if (and enable-multibyte-characters
+               bidi-display-reordering)
+          ;; 表示時にバッファーは並べ替えられるだろう
+        )
+
+   とはいえ、親バッファーが並べ替えられた際には、ユニバ
+イト表示およびオーバーレイ文字列は_並べ替えられます_。こ
+れはEmacsにより、プレーンASCII文字列がユニバイト文字列に
+格納されるからです。ユニバイト表示またはオーバーレイ文字
+列が非ASCII文字列を含むなら、それらの文字はL2Rの方向をも
+つとみなされます。
+
+   テキストプロパティ‘display’、値が文字列であるような
+‘display’プロパティによるオーバーレイ、バッファーテキス
+トを置換するその他任意のプロパティにカバーされたテキスト
+は、表示時の並べ替え時に単一の単位として扱われます。つま
+り、これらのプロパティにカバーされたテキストのchunk全体
+が、一緒に並べ替えられます。さらに、そのようなテキスト
+chunk内の文字の双方向的なプロパティは無視され、Emacsはあ
+たかもそれらが“オブジェクト置換文字(Object Replacement
+Character)”として知られる単一文字で置換されたかのように
+、それらを並べ替えます。これは、テキスト範囲上に
+displayプロパティを配すことにより、表示時に周辺テキスト
+を並べ替える方法が変更され得ることを意味しています。この
+ような予期せぬ効果を防ぐには、常に周辺テキストと等しい方
+向のテキストにたいしてそのようなプロパティを配してくださ
+い。
+
+   双方向テキストのパラグラフはそれぞれ、R2LまたはL2Rい
+ずれかの“基本方向(base direction)”をもちます。L2Rパラグ
+ラフは、そのウィンドウの左マージンを先頭に表示され、その
+テキストが右マージンに達したら切り詰め、または継続されま
+す。R2Lパラグラフは、そのウィンドウの右マージンを先頭に
+表示され、そのテキストが左マージンに達したら切り詰め、ま
+たは継続されます。
+
+   デフォルトでは、Emacsはテキスト先頭を調べることにより
+、各パラグラフの基本方向を判断します。基本方向の精細な決
+定手法はUBAにより指定されており、簡潔に言うとその明示に
+な方向生をもつそのパラグラフ内の最初の文字が、そのパラグ
+ラフの基本方向を決定します。とはいえ、あるバッファーが自
+身のパラグラフにたいして、特定の基本方向の強制を要する場
+合もあります。たとえば、プログラムソースコードを含むバッ
+ファーは、すべてのパラグラフがL2Rで表示されるよう強制さ
+れるべきでしょう。これを行うために、以下の変数を使用でき
+ます:
+
+ -- Variable: bidi-paragraph-direction
+     このバッファーローカル変数の値が、‘right-to-left’ま
+     たは‘left-to-right’いずれかのシンボルなら、そのバッ
+     ファー内のすべてのパラグラフがその指定された方向を
+     もつとみなされる。その他すべての値は‘nil’(デフォル
+     ト)と等価であり、各パラグラフの基本方向はその内容に
+     より判断されることを意味する。
+
+     プログラムソースコードにたいするモードは、これを
+     ‘left-to-right’にセットすること。Progモードはデフォ
+     ルトでこれを行うので、Progモードから派生したモード
+     は、これを明示的にセットする必要はない(*note Basic
+     Major Modes::を参照)。
+
+ -- Function: current-bidi-paragraph-direction &optional
+          buffer
+     この関数は、BUFFERという名前のバッファーのポイント
+     位置のパラグラフ方向をリターンする。リターンされる
+     値は、‘left-to-right’か‘right-to-left’いずれかのシ
+     ンボルである。BUFFERが省略または‘nil’の場合のデフォ
+     ルトは、カレントバッファーである。変数
+     ‘bidi-paragraph-direction’のバッファーローカル値が
+     非‘nil’なら、リターンされる値はその値と等しくなるだ
+     ろう。それ以外なら、リターンされる値はEmacsにより動
+     的に決定されたそのパラグラフの方向を反映する。
+     ‘bidi-display-reordering’の値が‘nil’のバッファー、
+     同様にユニバイトバッファーにたいしては、この関数は
+     常に‘left-to-right’をリターンする。
+
+   バッファーのカレントのスクリーン位置にたいして、ビジ
+ュアル順に、L2RまたはR2Lいずれかの方向へ、厳密なポイント
+移動を要す場合があります。Emacsはこれを行うためのプリミ
+ティブを提供します。
+
+ -- Function: move-point-visually direction
+     この関数は、そのバッファーにたいしてカレントで選択
+     されたウィンドウのポイントを、スクリーン上ですぐ右
+     または左のポイントへ移動する。DIRECTIONが正ならスク
+     リーン位置は右へ、それ以外ならスクリーン位置は左へ
+     移動するだろう。周囲の双方向コンテキストに依存して
+     、これは潜在的に多くのバッファーのポイントを移動し
+     てしまい得ることに注意。スクリーン行終端で呼び出さ
+     れた場合、この関数はDIRECTIONに応じて適宜、次行また
+     は前行の、右端または左端のスクリーン位置にポイント
+     を移動する。
+
+     この関数はその値として、新たなバッファー位置をリタ
+     ーンする。
+
+   バッファー内で双方向の内容をもつ2つの文字列が並置され
+ているときや、プログラムで1つのテキスト文字列に結合した
+場合、双方向の並べ替えは以外かつ不快な効果を与える可能性
+があります。典型的な問題ケースはBuffer MenuモードやRmail
+Summaryモードのように、バッファーがスペースや区切り文字
+分割されたテキストの“フィールド”のシーケンスで構成されて
+いるときです。それはセパレーターとして使用されている区切
+り文字が、“弱い方向性”をもち、周囲のテキストの方向を採用
+するためです。結果として、双方向の内容のフィールドが後続
+する数値フィールドは、先行するフィールドヘ_左方向_に表示
+され、期待したレイアウトを破壊してしまいます。この問題を
+回避するための方法がいくつかあります：
+
+   − 双方向の内容をもち得る各フィールド終端に、スペシャ
+     ル文字LEFT-TO-RIGHT MARK(略してLRM)の‘U+200E’を付加
+     する。後述の関数‘bidi-string-mark-left-to-right’は
+     、この目的に手頃である。(R2Lパラグラフではかわりに
+     RIGHT-TO-LEFT MARK、略してRLMの‘U+200F’を使用する。
+     ) これはUBAにより推奨される解決策の1つである。
+
+   − フィールドセパレーターにタブ文字を含める。タブ文字
+     は双方向の並べ替えにおいて“セグメントセパレーター
+     (segment separator)”の役割を演じ、両側のテキストを
+     個別に並べ替えさせる。
+
+   − ‘display’プロパティ、または‘(space . PROPS)’という
+     形式の値をもつオーバーレイ(*note Specified Space::を
+     参照)でフィールドを区切る。Emacsはこのdisplay仕様を
+     “パラグラフセパレーター(paragraph separator)”として
+     扱い、両側のテキストを個別に並べ替える。
+
+ -- Function: bidi-string-mark-left-to-right string
+     この関数は、結果を安全に他の文字列に結合できるよう
+     、あるいはこの文字列とスクリーン上で次行となる行に
+     関連するレイアウトを乱すことなく、バッファー内の他
+     の文字列に並置できるよう、自身への引数STRINGを恐ら
+     く変更してリターンする。この関数がリターンする文字
+     列がR2Lパラグラフの一部として表示される文字列なら、
+     それは常に後続するテキストの左に出現するだろう。こ
+     の関数は自身の引数の文字を検証することにより機能し
+     、もしそれらの文字のいずれかがディスプレイ上の並べ
+     替えを発生し得るなら、この関数はその文字列にLRM文字
+     を付加する。付加されたLRM文字はテキストプロパティ
+     ‘invisible’に‘t’を与えることにより、不可視にできる
+     (*note Invisible Text::を参照)。
+
+   並べ替えアルゴリズムは、‘bidi-class’プロパティとして
+格納された、その文字の双方向プロパティを使用します(*note
+Character Properties::を参照)。Lispプログラムは
+‘put-char-code-property’関数を呼び出すことにより、これら
+のプロパティを変更できます。しかしこれを行うにはUBAの完
+全な理解が要求されるので、推奨しません。ある文字の双方向
+プロパティにたいする任意の変更は、グローバルな効果をもち
+ます。これらはEmacsのフレームのすべてのフレームとウィン
+ドウに影響します。
+
+   同様に、‘mirroring’プロパティは、並べ替えられたテキス
+ト内の、適切にミラーされた文字の表示に使用されます。
+Lispプログラムは、このプロパティを変更することにより、ミ
+ラーされた表示に影響を与えることができます。繰り返します
+が、そのような変更はEmacsのすべての表示に影響を与えます
+。
+
+
+File: elisp,  Node: System Interface,  Next: Packaging,  Prev: Display,  Up: Top
+
+38 Operating System Interface
+*****************************
+
+これはEmacsの開始と終了、オペレーティングシステム内の値
+へのアクセス、端末の入力と出力に関するチャプターです。
+
+   関連する情報は*note Building Emacs::を参照してくださ
+い。端末とスクリーンに関連するオペレーティングシステムの
+状態に関する追加情報は、*note Display::を参照してくださ
+い。
+
+* Menu:
+
+* Starting Up::              Emacsのスタートアッププロセスのカスタマイズ。
+* Getting Out::              (永久または一時的に)exitが機能する方法。
+* System Environment::       システム名と種類の区別。
+* User Identification::      そのユーザーの名前とユーザーIDを調べる。
+* Time of Day::              カレント時刻の取得。
+* Time Conversion::          時刻の数値形式からカレンダーデータへの変換と逆変換。
+* Time Parsing::             時刻の数値形式からテキストへの変換と逆変換。
+* Processor Run Time::       Emacsによる実行時間の取得。
+* Time Calculations::        時間の加減算、その他。
+* Timers::                   特定時刻に関数を呼び出すためにターマーをセットする。
+* Idle Timers::              Emacsが特定の時間の間アイドル時に関数を呼び出すためにタイマーをセットする。
+* Terminal Input::           端末入力へのアクセスと記録。
+* Terminal Output::          端末出力の制御と記録。
+* Sound Output::             コンピューターノスピーカーでのサウンド再生。
+* X11 Keysyms::              Xウィンドウにたいするキーシンボルの操作。
+* Batch Mode::               端末との対話なしでEmacsを実行する。
+* Session Management::       Xセッション管理の保存とリストア。
+* Desktop Notifications::    デスクトップ通知。
+* File Notifications::       ファイル通知。
+* Dynamic Libraries::        サポートライブラリーのオンデマンドロード。
+
+
+File: elisp,  Node: Starting Up,  Next: Getting Out,  Up: System Interface
+
+38.1 Starting Up Emacs
+======================
+
+このセクションでは、Emacsが開始時に何を行うかと、それら
+のアクションのカスタマイズ方法を説明します。
+
+* Menu:
+
+* Startup Summary::          スタートアップ時にEmacsが行うアクションの順序。
+* Init File::                initファイル読み込みの詳細。
+* Terminal-Specific::        端末固有のLispファイルの読み込み方法。
+* Command-Line Arguments::   コマンドライン引数の処理とカスタマイズの方法。
+
+
+File: elisp,  Node: Startup Summary,  Next: Init File,  Up: Starting Up
+
+38.1.1 Summary: Sequence of Actions at Startup
+----------------------------------------------
+
+Emacsは起動時に、以下の処理を行います(‘startup.el’内の
+‘normal-top-level’を参照):
+
+  1. このリストの各ディレクトリー内にある‘subdirs.el’と
+     いう名前のファイルを実行することにより、
+     ‘load-path’にサブディレクトリーを追加する。通常この
+     ファイルは、そのディレクトリー内にあるサブディレク
+     トリーをこのリストに追加して、順にそれらをスキャン
+     する。通常、ファイル‘subdirs.el’は、Emacsインストー
+     ル時に自動的に作成される。
+
+  2. ‘load-path’のディレクトリー内で見つかった、すべての
+     ‘leim-list.el’をロードする。このファイルは、入力メ
+     ソッドの登録を意図している。この検索は、ユーザーが
+     作成するかもしれない、個人的な‘leim-list.el’すべて
+     にたいしてのみ行われる。標準的なEmacsライブラリーを
+     含むディレクトリーはスキップされる(これらは単一の
+     ‘leim-list.el’だけに含まれるべきであり、Emacs実行形
+     式にコンパイル済である)。
+
+  3. 変数‘before-init-time’に、‘current-time’の値をセッ
+     トする(*note Time of Day::を参照)。これは
+     ‘after-init-time’に‘nil’をセットすることにより、
+     Emacs初期化時にLispプログラムへの合図も行う。
+
+  4. ‘LANG’のような環境変数がそれを要するなら、言語環境
+     と端末のコーディングシステムをセットする。
+
+  5. コマンドライン引数にたいして、いくつかの基本的なパ
+     ースを行う。
+
+  6. batchモードで実行されていなければ、変数
+     ‘initial-window-system’が指定するウィンドウシステム
+     を初期化する(*note initial-window-system: Window
+     Systems.を参照)。サポートされる各ウィンドウシステム
+     にたいする初期化関数は、
+     ‘window-system-initialization-alist’により指定され
+     る。‘initial-window-system’の値がWINDOWSYSTEMなら、
+     ファイル‘term/WINDOWSYSTEM-win.el’内で適切な初期化
+     関数が定義されている。このファイルはビルド時に、
+     Emacs実行可能形式にコンパイルされているべきである。
+
+  7. ノーマルフック‘before-init-hook’を実行する。
+
+  8. それが適切なら、グラフィカルなフレームを作成する。
+     これはオプション‘--batch’か‘--daemon’が指定されてい
+     たら行われない。
+
+  9. 初期フレームのフェイスを初期化して、必要ならメニュ
+     ーバーとツールバーをセットする。グフィカルなフレー
+     ムがサポートされていたら、たとえカレントフレームが
+     グラフィカルでなくても、後でグラフィカルなフレーム
+     が作成されるかもしれないので、ツールバーをセットア
+     ップする。
+
+  10. リスト‘custom-delayed-init-variables’内のメンバー
+     を再初期化するために、‘custom-reevaluate-setting’を
+     使用する。これらのメンバーはデフォルト値が、ビルド
+     時ではなく実行時のコンテキストに依存する、すべての
+     事前ロード済ユーザーオプションである。*note
+     custom-initialize-delay: Building Emacs.を参照のこ
+     と。
+
+  11. 存在する場合はライブラリー‘site-start’をロードする
+     。これはオプション‘-Q’か‘--no-site-file’が指定され
+     た場合は行われない。
+
+  12. ユーザーのinitファイルをロードする(*note Init
+     File::を参照)。これはオプション‘-q’、‘-Q’、または
+     ‘--batch’が指定されていたら行われない。‘-u’オプショ
+     ンが指定された場合、Emacsはかわりにそのユーザーのホ
+     ームディレクトリー内でinitファイルを探す。
+
+  13. 存在する場合はライブラリー‘default’をロードする。
+     これは‘inhibit-default-init’が非‘nil’、あるいはオプ
+     ション‘-q’、‘-Q’、または‘--batch’指定された場合は行
+     われない。
+
+  14. もしファイルが存在して、かつ読み込み可能なら、
+     ‘abbrev-file-name’で指定されるファイルから、ユーザ
+     ーのabbrevをロードする(*note abbrev-file-name:
+     Abbrev Files.を参照)。オプション‘--batch’が指定され
+     ていたら、これは行われない。
+
+  15. ‘package-enable-at-startup’が非‘nil’なら、インスト
+     ール済のオプションのEmacs Lispパッケージすべてをア
+     クティブにするために、関数‘package-initialize’を呼
+     び出す。*note Packaging Basics::を参照のこと。
+
+  16. 変数‘after-init-time’に、‘current-time’の値をセッ
+     トする。この変数は事前に‘nil’にセットされている。こ
+     れをカレント時刻にセットすることが、初期化フェーズ
+     が終わったことの合図となり、かつ
+     ‘before-init-time’と共に用いることにより、初期化に
+     要した時間の計測手段を提供する。
+
+  17. ノーマルフック‘after-init-hook’を実行する。
+
+  18. バッファー‘*scratch*’が存在し、それがまだ(デフォル
+     トであるべき)Fundamentalモードなら、
+     ‘initial-major-mode’に応じたメジャーモードをセット
+     する。
+
+  19. テキスト端末で開始された場合は、その端末固有の
+     Lispライブラリー(*note Terminal-Specific::を参照)を
+     ロードして、フック‘tty-setup-hook’を実行する。これ
+     は‘--batch’モード、または‘term-file-prefix’が
+     ‘nil’なら実行されない。
+
+  20. ‘inhibit-startup-echo-area-message’で抑制していな
+     ければ、エコーエリアに初期メッセージを表示する。
+
+  21. これ以前に処理されていない、すべてのコマンドライン
+     オプションを処理する。
+
+  22. オプション‘--batch’が指定されていたら、ここで
+     exitする。
+
+  23. ‘initial-buffer-choice’が文字列なら、その名前のフ
+     ァイル(またはディレクトリー)をvisitする。それが関数
+     なら引数なしでその関数を呼び出して、それがリターン
+     したバッファーを選択する。 ‘*scratch*’が存在し空な
+     らば、そのバッファーに‘initial-scratch-message’を挿
+     入する。
+
+  24. ‘emacs-startup-hook’を実行する。
+
+  25. initファイルの指定が何であれ、それに応じて選択され
+     たフレームのパラメーターを変更する
+     ‘frame-notice-user-settings’を呼び出す。
+
+  26. ‘window-setup-hook’を実行する。このフックと
+     ‘emacs-startup-hook’の違いは、前述したフレームパラ
+     メーターの変更後にこれが実行される点だけである。
+
+  27. copyleftとEmacsの基本的な使い方を含む特別なバッフ
+     ァーである、“スタートアップスクリーン(startup
+     screen)”ヲ表示する。これは
+     ‘inhibit-startup-screen’か‘initial-buffer-choice’が
+     非‘nil’、あるいはコマンドラインオプション
+     ‘--no-splash’か‘-Q’が指定されていたら行われない。
+
+  28. オプション‘--daemon’ガ指定されていたら、
+     ‘server-start’を呼び出して、制御端末からデタッチす
+     る。*note (emacs)Emacs Server::を参照のこと。
+
+  29. セッションマネージャーにより開始された場合には、以
+     前のセッションのIDを引数として、
+     ‘emacs-session-restore’を呼び出す。*note Session
+     Management::を参照のこと。
+
+以下のオプションは、スタートアップシーケンスの側面のいく
+つかに影響を与えます。
+
+ -- User Option: inhibit-startup-screen
+     この変数が非‘nil’なら、スタートアップスクリーンを抑
+     制する。この場合、通常Emacsは‘*scratch*’バッファー
+     を表示する。しかし、以下の‘initial-buffer-choice’を
+     参照されたい。
+
+     新しいユーザーがcopyleftやEmacsの基本的な使い方に関
+     する情報を入手するのを防げるので、新しいユーザーの
+     initファイル内や、複数のユーザーぶ影響するような方
+     法でこの変数をセットしてはならない
+
+     ‘inhibit-startup-message’と
+     ‘inhibit-splash-screen’は、この変数にたいするエイリ
+     アスである。
+
+ -- User Option: initial-buffer-choice
+     非‘nil’なら、この変数はスタートアップ後にスタートア
+     ップスクリーンのかわりにEmacsが表示するファイルを指
+     定する文字列であること。この変数が関数なら、Emacsは
+     その関数を呼び出し、その関数はその後に表示するバッ
+     ファーをリターンしなければならない。値が‘t’なら、
+     Emacsは‘*scratch*’バッファーを表示する。
+
+ -- User Option: inhibit-startup-echo-area-message
+     この変数はエコーエリアのスタートアップメッセージの
+     表示を制御する。ユーザーのinitファイル内に以下の形
+     式のテキストを追加することにより、エコーエリアのス
+     タートアップメッセージを抑制できる:
+
+          (setq inhibit-startup-echo-area-message
+                "YOUR-LOGIN-NAME")
+
+     Emacsはユーザーのinitファイル内の、上記のような式を
+     明示的にチェックする。ユーザーのロフイン名は、
+     Lispの文字列定数としてこの式内に記述されていなけれ
+     ばならない。Customizeインターフェイスを使用すること
+     もできる。他の方法で同じ値に
+     ‘inhibit-startup-echo-area-message’をセットしても、
+     スタートアップメッセージは抑制されない。この方法に
+     より、望むならユーザー自身で簡単にメッセージを抑制
+     できるが、単に自分用のiniファイルを別のユーザーにコ
+     ピーしても、メッセージは抑制されないだろう。
+
+ -- User Option: initial-scratch-message
+     この変数が非‘nil’なら、Emacsスタートアップ時に
+     ‘*scratch*’バッファーに挿入する文字列であること。
+     ‘nil’なら‘*scratch*’バッファーは空になる。
+
+以下のコマンドラインオプションは、スタートアップシーケン
+スのいくつかの側面に影響を与えます。*note (emacs)Initial
+Options::を参照してください。
+
+‘--no-splash’
+     スプラッシュスクリーンを表示しない。
+
+‘--batch’
+     対話的な端末なしで実行する。*note Batch Mode::を参
+     照のこと。
+
+‘--daemon’
+     表示の初期化を何も行わず、単にバックグラウンドでサ
+     ーバーを開始する。
+
+‘--no-init-file’
+‘-q’
+     initファイルと‘default’ライブラリーをいずれもロード
+     しない。
+
+‘--no-site-file’
+     ‘site-start’ライブラリーをロードしない。
+
+‘--quick’
+‘-Q’
+     ‘-q --no-site-file --no-splash’と等価。
+
+
+File: elisp,  Node: Init File,  Next: Terminal-Specific,  Prev: Startup Summary,  Up: Starting Up
+
+38.1.2 The Init File
+--------------------
+
+Emacsの開始時は通常、ユーザーの“initファイル(init
+file)”のロードを試みます。これはユーザーのホームディレク
+トリー内にある‘.emacs’または‘.emacs.el’という名前のファ
+イル、あるいはホームディレクトリーの‘.emacs.d’という名前
+のサブディレクトリー内にある‘init.el’という名前のファイ
+ルのいずれかのファイルです。
+
+   コマンドラインスイッチ‘-q’、‘-Q’、‘-u’はinitファイル
+を探すべきかと、どこで探すかを制御します。‘-u USER’はそ
+のユーザーではなくUSERのinitファイルのロードを指示します
+が、‘-q’(‘-Q’のほうが強力)はinitファイルをロードしないこ
+とを指示します。*note (emacs)Entering Emacs::を参照して
+ください。いずれのオプションも指定されていなければ、ユー
+ザーのホームディレクリーからinitファイルを探すために、
+Emacsは環境変数‘LOGNAME’、‘USER’(ほとんどのシステム)、ま
+たは‘USERNAME’(MSシステム)を使用します。この方法により、
+たとえsuしていたとしても、依然としてEmacsはそのユーザー
+自身のinitファイルをロードできるのです。これらの環境変数
+が存在していなくても、EmacsはユーザーIDからユーザーのホ
+ームディレクトリーを探します。
+
+   インストールしたEmacsによっては‘default.el’という
+Lispライブラリーの、“デフォルトinitファイル(default init
+file)”が存在するかもしれません。Emacsはライブラリーの標
+準検索パスからこのファイルを探します(*note How Programs
+Do Loading::を参照)。Emacsディストリビューションには、こ
+のファイルはローカルなカスタマイズを意図しています。デフ
+ォルトinitファイルが存在する場合は、常にこのファイルが
+Emacs開始時にロードされます。しかしユーザー自身のinitフ
+ァイルが存在する場合には、それが最初にロードされます。そ
+れにより‘inhibit-default-init’が非‘nil’値にセットされた
+場合、Emacsは後続する‘default.el’ファイルのロードを行い
+ません。batchモード、または‘-q’(または‘-Q’)を指定した場
+合、Emacsは個人的なinitファイルトでデフォルトinitファイ
+のいずれもロードしません。
+
+   サイトのカスタマイズのためのファイルは、
+‘site-start.el’です。Emacsはユーザーのinitファイルの_前
+_にこれをロードします。オプション‘--no-site-file’により
+、このファイルのロードを抑制できます。
+
+ -- User Option: site-run-file
+     この変数は、ユーザーのinitファイルの前にロードする
+     、サイト用カスタマイズファイルを指定する。通常の値
+     は‘"site-start"’。実際に効果があるようにこれを変更
+     するには、Emacsのdump前に変更するのが唯一の方法とな
+     る。
+
+   一般的に必要とされる‘.emacs’ファイルのカスタマイズ方
+法については、*note Init File Examples: (emacs)Init
+Examples.を参照のこと。
+
+ -- User Option: inhibit-default-init
+     この変数が非‘nil’なら、Emacsがデフォルトの初期化ラ
+     イブラリーファイルをロードするのを防ぐ。デフォルト
+     値は‘nil’。
+
+ -- Variable: before-init-hook
+     このノーマルフックは、すべてのinitファイル
+     (‘site-start.el’、ユーザーのinitファイル、および
+     ‘default.el’)のロード直前に1度実行される。(実際に効
+     果があるようにこれを変更するには、Emacsのdump前に変
+     更するのが唯一の方法となる。)
+
+ -- Variable: after-init-hook
+     このノーマルフックは、すべてのinitファイル
+     (‘site-start.el’、ユーザーのinitファイル、および
+     ‘default.el’)のロード直後、端末固有ライブラリーのロ
+     ードとコマンドラインアクション引数の処理の前に1度実
+     行される。
+
+ -- Variable: emacs-startup-hook
+     このノーマルフックは、コマンドライン引数の処理直後
+     に1度実行される。batchモードでは、Emacsはこのフック
+     を実行しない。
+
+ -- Variable: window-setup-hook
+     このノーマルフックは、‘emacs-startup-hook’と非常に
+     似ている。このフックが若干遅れて、フレームパラメー
+     ターのセット後に実行されるのが唯一の違いである。
+     *note window-setup-hook: Startup Summary.を参照のこ
+     と。
+
+ -- Variable: user-init-file
+     この変数は、ユーザーのinitファイルの絶対ファイル名
+     を保持する。実際にロードされたinitファイルが
+     ‘.emacs.elc’のようなコンパイル済なら、値はそれに対
+     応するソースファイルを参照する。
+
+ -- Variable: user-emacs-directory
+     この変数は、‘.emacs.d’ディレクトリーの名前を保持す
+     る。これは、MS-DOS以外のプラットフォームでは
+     ‘~/.emacs.d’である。
+
+
+File: elisp,  Node: Terminal-Specific,  Next: Command-Line Arguments,  Prev: Init File,  Up: Starting Up
+
+38.1.3 Terminal-Specific Initialization
+---------------------------------------
+
+端末タイプはそれぞれ、その端末のタイプでEmacsが実行時に
+ロードする、独自のLispライブラリーをもつことができます。
+そのライブラリーの名前は、変数‘term-file-prefix’の値と、
+端末タイプ(環境変数‘TERM’により指定される)を結合すること
+により構築されます。‘term-file-prefix’は通常は値
+‘"term/"’をもち、これの変更は推奨しません。Emacsは通常の
+方法、つまり‘load-path’のディレクトリーから‘.elc’と
+‘.el’の拡張子のファイルを検索することにより、このファイ
+ルを探します。
+
+   端末固有ライブラリーの通常の役割は、特殊キーにより
+Emacsが認識可能なシーケンスを送信可能にすることです。
+TermcapとTerminfoのエントリーがその端末のすべてのファン
+クションキーを指定していなければ、‘input-decode-map’への
+セットや追加も必要になるかもしれません。*note Terminal
+Input::を参照してください。
+
+   端末タイプにハイフンとアンダースコアーが含まれ、その
+端末名に等しい名前のライブラリーが見つからないときには、
+Emacsはその端末名から最後のハイフンまたはアンダースコア
+ー以降を取り除いて再試行します。このプロセスはEmacsがマ
+ッチするライブラリーを見つかるか、その名前にハイフンとア
+ンダースコアーが含まれなくなる(つまりその端末固有ファイ
+ルが存在しない)まで繰り返されます。たとえば端末名が
+‘xterm-256color’で‘term/xterm-256color.el’というライブラ
+リーが存在しない場合、Emacsは‘term/xterm.el’のロードを試
+みます。必要なら、その端末タイプの完全な名称を見つかるた
+めに、端末ライブラリーは‘(getenv "TERM")’を評価すること
+ができます。
+
+   initファイルで変数‘term-file-prefix’を‘nil’にセットす
+ることにより、端末固有ライブラリーのロードを防ぐことがで
+きます。
+
+   ‘tty-setup-hook’を使用することにより、端末固有ライブ
+ラリーのいくつかのアクションのアレンジやオーバーライドも
+できます。これは新たなテキスト端末の初期化語にEmacsが実
+行するノーマルフックです。自身のライブラリーをもたない端
+末にたいする初期化を定義するために、このフックを使用する
+ことのできるでしょう。*note Hooks::を参照してください。
+
+ -- Variable: term-file-prefix
+     この変数の値が非‘nil’なら、Emacsは以下のように端末
+     固有初期化ファイルをロードする:
+
+          (load (concat term-file-prefix (getenv "TERM")))
+
+     端末初期化ファイルのロードを望まない場合には、変数
+     ‘term-file-prefix’に‘nil’をセットできる。
+
+     MS-DOSでは、Emacsは環境変数‘TERM’に‘internal’をセッ
+     トする。
+
+ -- Variable: tty-setup-hook
+     この変数は、新たなテキスト端末の初期化後にEmacsが実
+     行するノーマルフックである。(これは非ウィンドウのモ
+     ードでのEmacs開始時と‘emacsclient’のTTY接続作成時に
+     適用される。) (適用可能なら)このフックはユーザーの
+     initファイル、および端末固有Lispファイルのロード後
+     に実行されるので、そのファイルにより行われた定義を
+     調整するために、このフックを使用できる。
+
+     関連する機能については、*note window-setup-hook:
+     Init File.を参照のこと。
+
+
+File: elisp,  Node: Command-Line Arguments,  Prev: Terminal-Specific,  Up: Starting Up
+
+38.1.4 Command-Line Arguments
+-----------------------------
+
+Emacs開始時に種々のアクションをリクエストするために、コ
+マンドライン引数を使用できます。Emacsを使う際は、ログイ
+ン後に1度だけ起動して、同一のEmacsセッション内ですべてを
+行うのが推奨される方法です(*note (emacs)Entering
+Emacs::を参照)。この理由により、コマンドライン引数を頻繁
+に使うことはないかもしれません。それでもセッションスクリ
+プトからEmacsを呼び出すときやEmacsのデバッグ時に、コマン
+ドライン引数が有用になるかもしれません。このセクションで
+は、Emacsがコマンドライン引数を処理する方法を説明します
+。
+
+ -- Function: command-line
+     この関数は、Emacsが呼び出された際のコマンドライン引
+     数を解析、処理、そして(とりわけ)ユーザーのinitファ
+     イルをロードして、スタートアップメッセージを表示す
+     る。
+
+ -- Variable: command-line-processed
+     この変数の値は、1度コマンドラインが処理されると
+     ‘t’になる。
+
+     ‘dump-emacs’(*note Building Emacs::を参照)を呼び出
+     すことによりEmacsを再dumpする場合は、新たにdumpされ
+     たEmacsに新たなコマンドライン引数を処理させるために
+     、最初にこの変数に‘nil’をセットしたいと思うかもしれ
+     ない。
+
+ -- Variable: command-switch-alist
+     この変数は、ユーザー定義のコマンドライン引数とそれ
+     に関連付けられたハンドラー関数のalistである。デフォ
+     ルトは空だが、望むなら要素を追加できる。
+
+     “コマンドラインオプション(command-line option)”ハ、
+     以下の形式をもつコマンドライン上の引数である:
+
+          -OPTION
+
+     ‘command-switch-alist’の要素は以下のようになる:
+
+          (OPTION . HANDLER-FUNCTION)
+
+     CARのOPTIONは文字列で、コマンドラインオプションの名
+     前である(先頭のハイフンは含まない)。
+     HANDLER-FUNCTIONはOPTIONを処理するために呼び出され
+     、単一の引数としてオプション名を受け取る。
+
+     このオプションは、コマンドライン内で引数を併う場合
+     がある。この場合、HANDLER-FUNCTIONは残りのコマンド
+     ライン引数すべてを、変数‘command-line-args-left’(以
+     下参照)で見い出すことができる(コマンドライン引数の
+     リスト全体は‘command-line-args’)。
+
+     コマンドライン引数は、‘startup.el’ファイル内の
+     ‘command-line-1’により解析される。*note Command
+     Line Arguments for Emacs Invocation: (emacs)Emacs
+     Invocation.も参照されたい。
+
+ -- Variable: command-line-args
+     この変数の値は、Emacsに渡されたコマンドライン引数の
+     リストである。
+
+ -- Variable: command-line-args-left
+     この変数の値は、まだ処理されていないコマンドライン
+     引数のリストである。
+
+ -- Variable: command-line-functions
+     この変数の値は、認識されなかったコマンドライン引数
+     を処理するための関数のリストである。次の引数が処理
+     されてそれに特別な意味がないときは毎回、このリスト
+     内の関数が非‘nil’をリターンするまでリスト内の出現順
+     に呼び出される。
+
+     これらの関数は引数なしで呼び出される。関数は、その
+     時点で一時的にバインドされている変数‘argi’を通じて
+     、検討中のコマンドラインにアクセスできる。残りの引
+     数(カレントの引数含まず)は、変数
+     ‘command-line-args-left’内にあえう。
+
+     関数が‘argi’内のその引数を認識して処理したときは、
+     その引数を処理したと告げるために非‘nil’をリターンす
+     ること。後続の引数のいくつかを処理したときは、
+     ‘command-line-args-left’からそれらを削除してそれを
+     示すことができる。
+
+     これらの関数すべてが‘nil’をリターンした場合、その引
+     数はvisitすべきファイル名として扱われる。
+
+
+File: elisp,  Node: Getting Out,  Next: System Environment,  Prev: Starting Up,  Up: System Interface
+
+38.2 Getting Out of Emacs
+=========================
+
+Emacsから抜け出すには2つの方法があります: 1つ目は永遠に
+exitするEmacsジョブのkillであり、2つ目はサスペンドする方
+法で、これは後からEmacsプロセスに再エンターすることがで
+きます。(もちろんグラフィカルな環境では、Emacsで特に何も
+せず単に他のアプリケーションにスイッチして、後で望むとき
+にEmacsに戻れる。)
+
+* Menu:
+
+* Killing Emacs::            Emacsからの不可逆的なexit。
+* Suspending Emacs::         Emacsからの可逆的なexit。
+
+
+File: elisp,  Node: Killing Emacs,  Next: Suspending Emacs,  Up: Getting Out
+
+38.2.1 Killing Emacs
+--------------------
+
+Emacsのkillとは、Emacsプロセスの終了を意味します。端末か
+らEmacsを開始した場合、通常は親プロセスの制御が再開され
+ます。Emacsをkillする低レベルなプリミティブはs
+‘kill-emacs’です。
+
+ -- Command: kill-emacs &optional exit-data
+     このコマンドはフック‘kill-emacs-hook’を呼び出してか
+     ら、Emacsプロセスをexitしてそれをkillする。
+
+     EXIT-DATAが整数なら、それはEmacsプロセスのexitステ
+     ータスとして使用される。(これは主にbatch処理で有用
+     。*note Batch Mode::を参照されたい。)
+
+     EXIT-DATAが文字列なら、その内容は端末の入力バッファ
+     ーに詰め込まれるので、shell(または何であれ次の入力
+     を読み込むプログラム)が読み込むことができる。
+
+   関数‘kill-emacs’は通常、より高位なレベルコマンド‘C-x
+C-c’ (‘save-buffers-kill-terminal’)を通じて呼び出される
+。*note (emacs)Exiting::を参照のこと。これはEmacsがオペ
+レーティングシステムのシグナル‘SIGTERM’が‘SIGHUP’を受け
+取った場合(たとえば制御端末が切断されたとき)や、batchモ
+ードで実行中に‘SIGINT’を受け取った場合(*note Batch
+Mode::を参照)にも、自動的にこれが呼び出される。
+
+ -- Variable: kill-emacs-hook
+     このノーマルフックは、Emacsのkillの前に
+     ‘kill-emacs’により実行される。
+
+     ‘kill-emacs’は、ユーザーとの対話が不可能な状況(たと
+     えば端末が切断されたとき)で呼び出されるかもしれない
+     ので、このフックの関数はユーザーとの対話を試みるべ
+     きではない。Emacsシャットダウン時にユーザーと対話し
+     たければ、下記の‘kill-emacs-query-functions’を使用
+     すること。
+
+   Emacsをkillしたときには保存されたファイルを除き、
+Emacsプロセス内のすべての情報が失われます。うっかり
+Emacsをkillすることで大量の作業が失われるので、
+‘save-buffers-kill-terminal’コマンドは保存を要するバッフ
+ァーがあったり実行中のサブプロセスがある場合には確認の問
+い合わせを行います。これはアブノーマルフック
+‘kill-emacs-query-functions’も実行します。
+
+ -- Variable: kill-emacs-query-functions
+     ‘save-buffers-kill-terminal’がEmacsをkillする際には
+     、標準の質問を尋ねた後、‘kill-emacs’を呼び出す前に
+     このフック内の関数を呼び出す。関数は出現順に引数な
+     しで呼び出される。関数はそれぞれ、追加ユーザーから
+     確認を求めることができる。それらのいずれかが‘nil’を
+     リターンすると、‘save-buffers-kill-emacs’はEmacsを
+     killせず、このフック内の残りの関数は実行されない。
+     直接‘kill-emacs’を呼び出すと、このフックは実行され
+     ない。
+
+
+File: elisp,  Node: Suspending Emacs,  Prev: Killing Emacs,  Up: Getting Out
+
+38.2.2 Suspending Emacs
+-----------------------
+
+テキスト端末では、“Emacsのサスペンド”ができます。これは
+Emacsを一時的にストップして上位のプロセスに制御を返しま
+す。これは通常はshellになります。これにより後で同じ
+Emacsプロセス内の、同じバッファー、同じkillリング、同じ
+アンドゥヒストリー、...で編集を再開できます。Emacsを再開
+するには、親shell内で適切なコマンド — 恐らくは‘fg’ — を
+使用します。
+
+   そのEmacsセッションが開始された端末デバイス上でのみサ
+スペンドは機能します。そのデバイスのことを、そのセッショ
+ンの“制御端末(controlling terminal)”と呼びます。制御端末
+がグラフィカルな端末の場合、サスペンドは許されません。グ
+ラフィカルな端末では、Emacsで特別なことをせずに単に別の
+アプリケーションにスイッチできるので、サスペンドは通常は
+関係ありません。
+
+   いくつかのオペレーティングシステム(‘SIGTSTP’のないシ
+ステムやMS-DOS)では、ジョブの停止はサポートされません。
+これらのシステムでの“停止”は、Emacsのサブプロセスとして
+新たなshellを一時的に作成します。Emacsに戻るためには、そ
+のshellをexitすればよいでしょう。
+
+ -- Command: suspend-emacs &optional string
+     この関数はEmacsを停止して、上位のプロセスに制御を返
+     す。上位プロセスがEmacsを再開するとその際には、
+     Lispでの‘suspend-emacs’の呼び出し元に‘nil’をリター
+     ンする。
+
+     この関数は、そのEmacsセッションの制御端末上でのみ機
+     能する。他のTTYデバイスの制御を放棄するには、
+     ‘suspend-tty’を使用する(下記参照)。そのEmacsセッシ
+     ョンが複数の端末を使用する場合には、Emacsのサスペン
+     ド前に他のすべての端末からフレームを削除しなければ
+     ならず、さもないとこの関数はエラーをシグナルする。
+     *note Multiple Terminals::を参照のこと。
+
+     STRINGが非‘nil’なら、その各文字はEmacsの上位shellに
+     端末入力として送信される。STRING内の文字は上位
+     shellによりエコーされずに、結果だけが表示される。
+
+     サスペンドする前に、‘suspend-emacs’はノーマルフック
+     ‘suspend-hook’を実行する。ユーザーがEmacs再開後に、
+     ‘suspend-emacs’はノーマルフック
+     ‘suspend-resume-hook’を実行する。*note Hooks::を参
+     照のこと。
+
+     再開後の次回再表示では、変数
+     ‘no-redraw-on-reenter’が‘nil’ならスクリーン全体が再
+     描画される。*note Refresh Screen::を参照のこと。
+
+     以下はこれらのフックの使用例である:
+
+          (add-hook 'suspend-hook
+                    (lambda () (or (y-or-n-p "Really suspend? ")
+                                   (error "Suspend canceled"))))
+          (add-hook 'suspend-resume-hook (lambda () (message "Resumed!")
+                                           (sit-for 2)))
+
+     ‘(suspend-emacs "pwd")’を評価すると以下を目にするだ
+     ろう:
+
+          ---------- Buffer: Minibuffer ----------
+          Really suspend? y
+          ---------- Buffer: Minibuffer ----------
+
+          ---------- Parent Shell ----------
+          bash$ /home/username
+          bash$ fg
+
+          ---------- Echo Area ----------
+          Resumed!
+
+     Emacsサスペンド後に‘pwd’がエコーされないことに注意
+     。エコーはされないが、shellにより読み取られ実行され
+     ている。
+
+ -- Variable: suspend-hook
+     この変数は、Emacsがサスペンド前に実行するノーマルフ
+     ックである。
+
+ -- Variable: suspend-resume-hook
+     この変数は、サスペンド後の再開時にEmacsが実行するノ
+     ーマルフックである。
+
+ -- Function: suspend-tty &optional tty
+     TTYにEmacsが使用する端末デバイスを指定すると、この
+     関数はそのデバイスを放棄して、それを以前の状態にリ
+     ストアする。そのデバイスを使用していたフレームは存
+     在を続けるが更新はされず、Emacsはそれらのフレームか
+     ら入力を読み取らない。TTYには端末オブジェクト、フレ
+     ーム(そのフレームの端末の意)、‘nil’(選択されたフレ
+     ームの端末の意)を指定できる。*note Multiple
+     Terminals::を参照のこと。
+
+     TTYがサスペンド済みなら、この関数は何も行わない。
+
+     この関数は、端末オブジェクトを各関数への引数として
+     、フック‘suspend-tty-functions’を実行する。
+
+ -- Function: resume-tty &optional tty
+     この関数は、以前にサスペンドされたデバイスTTYを再開
+     する。ここでTTYは、‘suspend-tty’に指定できるのと同
+     じである。
+
+     この関数は端末デバイスの再オープンと再初期化を行い
+     、その端末の選択されたフレームで端末を再描画する。
+     それから端末ブジェクトを各関数への引数として、フッ
+     ク‘resume-tty-functions’を実行する。
+
+     同じデバイスが別のEmacs端末で使用済みなら、この関数
+     はエラーをシグナルする。TTYがサスペンドされていなけ
+     れば、この関数は何もしない。
+
+ -- Function: controlling-tty-p &optional tty
+     この関数は、TTYがそのEmacsセッションの制御端末なら
+     、非‘nil’をリターンする。TTYには端末オブジェクト、
+     フレーム(そのフレームの端末の意)、‘nil’(選択された
+     フレームの端末の意)を指定できる。
+
+ -- Command: suspend-frame
+     このコマンドはフレームを“サスペンド”する。GUIフレー
+     ムでは‘iconify-frame’を呼び出す(*note Visibility of
+     Frames::を参照)。テキスト端末上のフレームでは、その
+     フレームが制御端末デバイス上で表示されていれば
+     ‘suspend-emacs’、されていなければ‘suspend-tty’のい
+     ずれかを呼び出す。
+
+
+File: elisp,  Node: System Environment,  Next: User Identification,  Prev: Getting Out,  Up: System Interface
+
+38.3 Operating System Environment
+=================================
+
+Emacsはさまざまな変数を通じて、オペレーティングシステム
+環境内の変数へのアクセスを提供します。これらの変数には、
+システムの名前、ユーザーのUIDなどが含まれます。
+
+ -- Variable: system-configuration
+     この変数は、ユーザーのシステムのハードウェアとソフ
+     トウェアにたいするGNUの標準コンフィグレーション名
+     (standard GNU configuration name)を保持する。たとえ
+     ば64ビットGNU/Linuxシステムにたいする典型的な値は
+     ‘"x86_64-unknown-linux-gnu"’である。
+
+ -- Variable: system-type
+     この変数の値は、Emacs実行中のオペレーティングシステ
+     ムのタイプを示すシンボルである。可能な値は：
+
+     ‘aix’
+          IBMのAIX。
+
+     ‘berkeley-unix’
+          Berkeley BSDとその変種。
+
+     ‘cygwin’
+          MS-Windows上のPosixレイヤーであるCygwin。
+
+     ‘darwin’
+          Darwin (Mac OS X)。
+
+     ‘gnu’
+          (HURDとMachから構成される)GNUシステム。
+
+     ‘gnu/linux’
+          GNU/Linuxシステム — すなわちLinuxカーネルを使
+          用するGNUシステムの変種。(これらのシステムは人
+          がしばしば“Linux”と呼ぶシステムだが、実際には
+          Linuxは単なるカーネルであり、システム全体では
+          ない。)
+
+     ‘gnu/kfreebsd’
+          FreeBSDカーネルによる(glibcベースの)GNUシステ
+          ム。
+
+     ‘hpux’
+          ヒューレット・パッカードのHPUXオペレーティング
+          システム。
+
+     ‘irix’
+          シリコングラフィックスのIrixシステム。
+
+     ‘ms-dos’
+          MicrosoftのDOS。MS-DOSにたいするDJGPPでコンパ
+          イルされたEmacsは、たとえMS-Windows上で実行さ
+          れていても‘system-type’が‘ms-dos’にバインドさ
+          れる。
+
+     ‘usg-unix-v’
+          AT&TのUnix System V。
+
+     ‘windows-nt’
+          MicrosoftのWindows NT、9X以降。たとえばWindows
+          7でも‘system-type’の値は常に‘windows-nt’である
+          。
+
+     わたしたちは絶対に必要になるまでは、より細分化する
+     ために新たなシンボルを追加したくありません。実際の
+     ところ、将来的にはこれらの候補のいくつかを取り除き
+     たいと思っています。‘system-type’で許されているより
+     細分化する必要がある場合には、たとえば正規表現にた
+     いして‘system-configuration’をテストできます。
+
+ -- Function: system-name
+     この関数は、実行中のマシン名を文字列としてリターン
+     する。
+
+   シンボル‘system-name’は変数であり、同時に関数である。
+実際のところ、その関数は変数‘system-name’がカレントで保
+持する値が何であれ、それをリターンする。したがって、
+Emacsがシステム名について混乱する場合には、変数
+‘system-name’をセットできる。この変数は、フレームタイト
+ルを構築するのにも有用である(*note Frame Titles::を参照
+)。
+
+ -- User Option: mail-host-address
+     この変数が非‘nil’の場合にはこの変数が、emailアドレ
+     スを生成するために‘system-name’のかわりに使用される
+     。たとえばこれは、‘user-mail-address’のデフォルト値
+     の構築時に使用される。*note User Identification::を
+     参照のこと。(これはEmacsスタートアップ時に行われる
+     ので、実際に使用されるのはEmacsのdump時に保存された
+     ものである。*note Building Emacs::を参照されたい。)
+
+ -- Command: getenv var &optional frame
+     この関数は、環境変数VARの値を文字列としてリターンす
+     る。VARは文字列であること。その環境内でVARが未定義
+     なら、‘getenv’は‘nil’をリターンする。VARがセットさ
+     れているがnull(訳注: 空文字列)なら、‘""’をリターン
+     する。Emacs内では、環境変数とそれらの値のリストは、
+     変数‘process-environment’内に保持されている。
+
+          (getenv "USER")
+               ⇒ "lewis"
+
+     shellコマンド‘printenv’は環境変数すべて、または一部
+     をプリントする:
+
+          bash$ printenv
+          PATH=/usr/local/bin:/usr/bin:/bin
+          USER=lewis
+          TERM=xterm
+          SHELL=/bin/bash
+          HOME=/home/lewis
+          ...
+
+ -- Command: setenv variable &optional value substitute
+     このコマンドは、VARIABLEという名前の環境変数の値に
+     、VALUEをセットする。VARIABLEは文字列であること。内
+     部的には、Emacs Lispは任意の文字列を扱える。しかし
+     通常VARIABLEはshell識別子として有効、すなわちアルフ
+     ァベットかアンダースコアで始まる、アルファベット、
+     数字またはアンダースコアのシーケンスであること。そ
+     れ以外の場合、EmacsのサブプロセスがVARIABLEの値にア
+     クセスを試みるとエラーが発生するかもしれない。
+     VALUEが省略または‘nil’の場合(またはプレフィクス引数
+     とともにインタラクティブに呼び出された場合)、
+     ‘setenv’はその環境からVARIABLEを削除する。それ以外
+     の場合、VARIABLEは文字列であること。
+
+     オプション引数SUBSTITUTEが非‘nil’なら、VALUE内のす
+     べての環境変数を展開するために、Emacsは関数
+     ‘substitute-env-vars’を呼び出す。
+
+     ‘setenv’は‘process-environment’を変更することにより
+     機能する。この変数を‘let’でバインドするのも、合理的
+     プラクティスである。
+
+     ‘setenv’はVARIABLEの新たな値、または環境から
+     VARIABLEが削除されていれば‘nil’をリターンする。
+
+ -- Variable: process-environment
+     この変数は、それぞれが1つの環境変数を記す文字列リス
+     トである。関数‘getenv’と‘setenv’は、この変数により
+     機能する。
+
+          process-environment
+          ⇒ ("PATH=/usr/local/bin:/usr/bin:/bin"
+              "USER=lewis"
+              "TERM=xterm"
+              "SHELL=/bin/bash"
+              "HOME=/home/lewis"
+              ...)
+
+     ‘process-environment’に同じ環境変数を指定する“重複
+     ”した要素が含まれる場合、それらの最初の要素が変数を
+     指定し、他の“重複”は無視される。
+
+ -- Variable: initial-environment
+     この変数は、Emacs開始時にその親プロセスからEmacsが
+     継承した環境変数のリストを保持する。
+
+ -- Variable: path-separator
+     この変数は、(環境変数で見つけた)検索パス内でディレ
+     クトリーを区切る文字を示す文字列を保持する。値は
+     UnixとGNUシステムでは‘":"’、MSシステムでは‘";"’であ
+     る。
+
+ -- Function: parse-colon-path path
+     この関数は環境変数‘PATH’の値のような検索パス文字列
+     を引数にとり、それをセパレーターで分割して、ディレ
+     クトリー名のリストをリターンする。このリスト内では
+     、‘nil’はカレントディレクトリーを意味する。この関数
+     の名前からはセパレーターは“コロン”だが、実際に使用
+     するのは‘path-separator’の値である。
+
+          (parse-colon-path ":/foo:/bar")
+               ⇒ (nil "/foo/" "/bar/")
+
+ -- Variable: invocation-name
+     この変数は、Emacsが呼び出された時のプログラム名を保
+     持する。値は文字列で、ディレクトリー名は含まれない
+     。
+
+ -- Variable: invocation-directory
+     この変数は、Emacs実行可能形式が呼び出されたディレク
+     トリー名、そのディレクトリーが判断できなければ
+     ‘nil’をリターンする。
+
+ -- Variable: installation-directory
+     非‘nil’なら、それはサブディレクトリー‘lib-src’と
+     ‘etc’を探すディレクトリーである。インストールされた
+     Emacsなら、通常は‘nil’。Emacsが標準のインストール位
+     置にそれらのディレクトリーを見つけられないものの、
+     Emacs実行可能形式を含むディレクトリー(たとえば
+     ‘invocation-directory’)に何らかの関連があるディレク
+     トリーで見つかることができたら非‘nil’ならとなる。
+
+ -- Function: load-average &optional use-float
+     この関数は現在、1分、5分、15分のロードアベレージ
+     (load averages: 平均負荷)をリストでリターンする。こ
+     のロードアベレージは、そのシステム上で実行を試みて
+     いるプロセス数を示す。
+
+     デフォルトでは、この値はシステムロードアベレージを
+     100倍にした整数だが、USE-FLOATが非‘nil’なら100を乗
+     ずることなくこれらの値は浮動小数点数としてリターン
+     される。
+
+     ロードアベレージ入手が不可能なら、この関数はエラー
+     をシグナルする。いくつかのプラットフォームでは、ロ
+     ードアベレージへのアクセスにカーネル情報を読み取れ
+     るよう、通常は推奨されないsetuidかsetgidしたEmacsの
+     インストールを要する。
+
+     1分のロードアベレージは利用できるが、5分と15分のア
+     レージは利用できない場合、この関数は利用可能なアベ
+     レージを含んだ短縮されたリストをリターンする。
+
+          (load-average)
+               ⇒ (169 48 36)
+          (load-average t)
+               ⇒ (1.69 0.48 0.36)
+
+     shellコマンドの‘uptime’は、これと類似した情報をリタ
+     ーンする。
+
+ -- Function: emacs-pid
+     この関数は、EmacsプロセスのプロセスIDを整数としてリ
+     ターンする。
+
+ -- Variable: tty-erase-char
+     この変数は、Emacs開始前にそのシステムの端末ドライバ
+     ーで選択されていた、erase文字を保持する。
+
+
+File: elisp,  Node: User Identification,  Next: Time of Day,  Prev: System Environment,  Up: System Interface
+
+38.4 User Identification
+========================
+
+ -- Variable: init-file-user
+     この変数は、Emacsによりどのユーザーのinitが使用され
+     るべきかを — なければ‘nil’をリターンする。‘""’は、
+     ログイン時のオリジナルのユーザーをリターンする。こ
+     の値は‘-q’や‘-u USER’のような、コマンドラインオプシ
+     ョンを反映する。
+
+     カスタマイズ関連のファイルや、他の類の短いユーザー
+     プロファイルをロードするLispパッケージは、それをど
+     こで探すか判断するために、この変数にしたがうべきで
+     ある。これらのLispパッケージは、この変数内で見つか
+     ったユーザー名のプロファイルをロードすること。
+     ‘init-file-user’が‘nil’なら‘-q’、‘-Q’、または
+     ‘-batch’オプションが使用されたことを意味し、その場
+     合Lispパッケージはカスタマイズファイルやユーザープ
+     ロファイルを何もロードするべきではない。
+
+ -- User Option: user-mail-address
+     これはEmacs実行中ユーザーの、公称emailアドレスを保
+     持する。Emacsは通常、init読み込み後にユーザーがこれ
+     をまだセットしていなれば、この変数にデフォルト値を
+     セットする。デフォルト値を使用したくなければ、
+     initファイル内でこの変数に他の何らかの値をセットす
+     ればよい。
+
+ -- Function: user-login-name &optional uid
+     この関数は、そのユーザーのログイン名をリターンする
+     。これはいずれかがセットされていれば、環境変数
+     ‘LOGNAME’か‘USER’を使用する。それ以外なら、この値は
+     実UIDではなく実効UIDにもとづく。
+
+     UID(数字)を指定した場合、UIDに対応するユーザー名、
+     そのようなユーザーが存在しなければ‘nil’が結果となる
+     。
+
+ -- Function: user-real-login-name
+     この関数は、Emacsの実UIDに対応するユーザー名をリタ
+     ーンする。これは実効UID、および環境変数‘LOGNAME’と
+     ‘USER’を無視する。
+
+ -- Function: user-full-name &optional uid
+     この関数はログインユーザーの完全名、環境変数
+     ‘NAME’がセットされていればその値をリターンする。
+
+     EmacsプロセスのユーザーIDが既知のユーザーに不一致
+     (かつ与えられた‘NAME’が未セット)なら、結果は
+     ‘"unknown"’となる。
+
+     UIDが非‘nil’なら、それは数字(ユーザーID)か文字列(ロ
+     グイン名)であること。その場合、‘user-full-name’はそ
+     のユーザー名かログイン名に対応する完全名をリターン
+     する。未定義のユーザー名かログイン名を指定すると、
+     ‘nil’をリターンする。
+
+   シンボル‘user-login-name’、‘user-real-login-name’、
+‘user-full-name’は変数であると同時に関数でもあります。関
+数の場合は、その名前の変数と同じ値をリターンします。これ
+らの変数を使えば、それに対応する関数が何をリターンすべき
+かを告げることにより、Emacsを“騙す”ことができます。また
+、フレームタイトルの構築においても、これらの関数は有用で
+す(*note Frame Titles::を参照)。
+
+ -- Function: user-real-uid
+     この関数は、そのユーザーの実UIDをリターンする。この
+     値は、(非現実的だが)そのUIDがLisp整数の範囲を超える
+     程大きいような場合には、浮動小数点数になるかもしれ
+     ない。
+
+ -- Function: user-uid
+     この関数は、そのユーザーの実効UIDをリターンする。値
+     は浮動小数点数かもしれない。
+
+ -- Function: group-gid
+     この関数は、そのユーザーの実効GIDをリターンする。値
+     は浮動小数点数かもしれない。
+
+ -- Function: group-real-gid
+     この関数は、そのユーザーの実GIDをリターンする。値は
+     浮動小数点数かもしれない。
+
+ -- Function: system-users
+     この関数は、そのシステム上のユーザー名をリストする
+     、文字列のリストをリターンする。この情報をEmacsが取
+     得できなければ、‘user-real-login-name’の値のみを含
+     むリストをリターンする。
+
+ -- Function: system-groups
+     この関数は、そのシステム上のグループ名をリストする
+     、文字列のリストをリターンする。この情報をEmacsが取
+     得できなければ、リターン値は‘nil’。
+
+
+File: elisp,  Node: Time of Day,  Next: Time Conversion,  Prev: User Identification,  Up: System Interface
+
+38.5 Time of Day
+================
+
+このセクションでは、カレント時刻とタイムゾーンを決定する
+方法を説明します。
+
+   これらの関数のほとんどは、整数4つのリスト‘(SEC-HIGH
+SEC-LOW MICROSEC PICOSEC)’、整数3つのリスト‘(SEC-HIGH
+SEC-LOW MICROSEC)’、または整数2つのリスト‘(SEC-HIGH
+SEC-LOW)’のいずれかで時刻を表します。整数SEC-HIGHと
+SEC-LOWは秒の整数値の高位ビットと低位ビットです。この整
+数 HIGH * 2**16 + LOW, は、“epoch”(0:00 January 1, 1970
+UTC)から指定された時刻までの秒数です。3番目のリスト要素
+MICROSECが与えられた場合、それはその秒数の開始から指定さ
+れた時刻までのマイクロ秒数を与えます(訳注: マイクロは百
+万分の一 )。同様に、4番目のリスト要素PICOSECが与えられた
+場合は、そのマイクロ秒数の開始から指定された時刻までのピ
+コ秒数を与えます(訳注: ピコは一兆分の一 )。
+
+   ‘current-time’のリターン値は、‘file-attributes’のリタ
+ーン値のタイムスタンプのように、4つの整数を使用して時刻
+を表します(*note Definition of file-attributes::を参照
+)。‘current-time-string’の引数TIME-VALUEのように、関数の
+引数では2整数、3整数、4整数のリストが指定できます。これ
+らののリスト表現から、‘current-time-string’を使用して標
+準的な可読形式の文字列へ、または以降のセクションで説明す
+る‘decode-time’と‘format-time-string’を使用して他形式へ
+変換できます。
+
+ -- Function: current-time-string &optional time-value
+     この関数は、カレントの時刻と日付を可読形式の文字列
+     でリターンする。この文字列の先頭部分には曜日、月、
+     日付、時刻がこの順に含まれ、それらが可変長となるこ
+     とはない。これらのフィールドにたいして使用される文
+     字数は常に同じなので、それらを切り出すために安心し
+     て‘substring’を使用できる。年の部分は正確に4桁とは
+     限らず、いつか追加情報が終端に不可されるかもしれな
+     いので、文字列終端からではなく先頭から文字を数える
+     こと。
+
+     引数TIME-VALUEが与えられた場合、それはカレント時刻
+     ではなく,フォーマットする(整数リスト表現の)時刻を指
+     定する。
+
+          (current-time-string)
+               ⇒ "Wed Oct 14 22:21:05 1987"
+
+ -- Function: current-time
+     この関数は4つの整数のリスト‘(SEC-HIGH SEC-LOW
+     MICROSEC PICOSEC)’で表されたカレント時刻をリターン
+     する。これらの整数うち後部は、低精度の時刻をリター
+     ンするシステムでは0になる。現在のすべてのマシンでは
+     、PICOSECは1000の倍数だが、より高精度のクロックが利
+     用可能になったら変更されるかもしれない。
+
+ -- Function: float-time &optional time-value
+     この関数はエポックからの経過秒数を、浮動小数点数と
+     してリターンする。オプション引数TIME-VALUEが与えら
+     れた場合には、カレント時刻ではなく(整数リスト表現の
+     )時刻を変換するよう指定する。
+
+     _警告_: 結果は浮動小数点数なので、正確ではないかも
+     しれない。正確なタイムスタンプが必要なら、この関数
+     を使用しないこと。
+
+ -- Function: current-time-zone &optional time-value
+     この関数は、そのユーザーが居るタイムゾーンを記すリ
+     ストをリターンする。
+
+     値は‘(OFFSET NAME)’という形式をもつ。ここでOFFSETは
+     、UTCより進んでいる秒数(グリニッジより東)を与える整
+     数である。負の値はグリニッジより西を意味する。2つ目
+     の要素NAMEは、そのタイムゾーンの名前を与える文字列
+     。夏時間の開始と終了時に、いずれの要素も変化する。
+     ユーザーが季節時間調整を用いていないタイムゾーンを
+     指定した場合には、値は時期を通して定数となる。
+
+     この値を計算するのに必要なすべての情報をオペレーテ
+     ィングシステムが提供しない場合、このリストの未知の
+     要素は‘nil’になる。
+
+     引数TIME-VALUEが与えられた場合、それはカレント時刻
+     ではなく、かわりに分析すべき時刻(整数リスト表現)を
+     指定する。
+
+   カレントのタイムゾーンは、環境変数‘TZ’により判断され
+ます。*note System Environment::を参照してください。たと
+えば‘(setenv "TZ" "UTC0")’とすれば、万国標準時の使用を
+Emacsに指示できます。その環境に‘TZ’がなければ、Emacsはプ
+ラットフォーム依存のデフォルトタイムゾーンを使用します。
+
+
+File: elisp,  Node: Time Conversion,  Next: Time Parsing,  Prev: Time of Day,  Up: System Interface
+
+38.6 Time Conversion
+====================
+
+以下の関数はtime値(前セクションで説明した2個から4個の整
+数リスト)を、暦情報に変換したり、逆変換を行います。
+
+   32ビットオペレーティングシステムの多くは、32ビット情
+報を含んだtime値に制限されます。これらのシステムは、通常
+は1901-12-13 20:45:52 UTCから2038-01-19 03:14:07 UTCまで
+の時刻だけを処理します。しかし64ビット、およびいくつかの
+32ビットオペレーティングシステムは、より大きなtime値をも
+ち、より遠い過去や未来の時刻を表現できます。
+
+   時刻変換関数は、たとえグレゴリオ暦導入前の日付にたい
+しても、常にグレゴリオ暦を使用します。年はB.C. 1年から年
+数を数え、伝統的なグレゴリオ年が行うように0年をスキップ
+しません。たとえば年数−37は、グレゴリオ年のB.C. 38年を表
+します。
+
+ -- Function: decode-time &optional time
+     この関数は、time値を暦情報に変換する。TIMEを指定し
+     なければ、カレント時刻をデコードする。リターン値は
+     、以下のような9要素のリストである:
+
+          (SECONDS MINUTES HOUR DAY MONTH YEAR DOW DST ZONE)
+
+     以下に各要素の意味を示す:
+
+     SECONDS
+          0から59までの整数で表した分を過ぎた時分秒の秒
+          。いくつかのオペレーティングシステムでは、閏秒
+          にたいして60となる。
+     MINUTES
+          0から59までの整数で表した、時を過ぎた時分秒の
+          分。
+     HOUR
+          0から23までの整数で表した時分秒の時。
+     DAY
+          1から31までの整数で表した、年月日の日。
+     MONTH
+          1から12までの整数で表した、年月日の月。
+     YEAR
+          通常は1900より大きい整数で表した、年月日の年。
+     DOW
+          0から6までの整数で表した曜日で、0は日曜日を意
+          味する。
+     DST
+          夏時間が有効なら‘t’、それ以外は‘nil’。
+     ZONE
+          グリニッジ以東の秒数による、タイムゾーンを示す
+          整数。
+
+     *Common Lispに関する注意:* Common LispではDOWと
+     ZONEの意味が異なる。
+
+ -- Function: encode-time seconds minutes hour day month
+          year &optional zone
+     この関数は‘decode-time’の逆版である。これは7アイテ
+     ムの暦データをtime値に変換する。引数の意味は、上述
+     ‘decode-time’のテーブルを参照のこと。
+
+     100未満の年が特別に扱われることはない。これを1900ま
+     たは2000を超える年を意味させたい場合は、
+     ‘encode-time’を呼び出す前に自身でこれらを修正しなけ
+     ればならない。
+
+     オプション引数ZONEのデフォルトは、カレントのタイム
+     ゾーンと夏時間ルールである。指定する場合は
+     (‘current-time-zone’で得られるような)リスト、環境変
+     数‘TZ’の値のような文字列、‘t’は万国標準時、
+     (‘decode-time’で得られるような)整数のいずれかを指定
+     できる。指定されたゾーンは夏時間による更なる変更を
+     受けずに使用される。
+
+     ‘encode-time’にたいして7個より多い引数を渡した、最
+     初の6つはSECONDSからYEAR、最後の引数がZONEとして使
+     用され、その間の引数は無視される。これにより、以下
+     のように‘decode-time’がリターンしたリストの要素を、
+     ‘encode-time’の引数として使用することが可能になる:
+
+          (apply 'encode-time (decode-time ...))
+
+     SECONDS、MINUTES、HOUR、DAY、MONTHの引数に範囲外の
+     値を使用することにより、単純な日付計算ができます。
+     たとえばDAYが0なら、それは与えられたMONTHの前月末に
+     なります。
+
+     オペレーティングシステムは、可能なtime値の範囲に制
+     限を設けます。範囲外の時刻のエンコードを試みると、
+     結果はエラーとなります。たとえばあるシステムでは
+     1970年以前では機能せず、別のシステムではより以前の
+     1901年以降から機能します。
+
+
+File: elisp,  Node: Time Parsing,  Next: Processor Run Time,  Prev: Time Conversion,  Up: System Interface
+
+38.7 Parsing and Formatting Times
+=================================
+
+以下の関数は、time値と文字列内のテキストの変換と逆変換を
+行います。time値は2つから4つの整数のリストです(*note
+Time of Day::を参照)。
+
+ -- Function: date-to-time string
+     この関数はtime文字列STRINGをパースして、それに対応
+     するtime値をリターンする。
+
+ -- Function: format-time-string format-string &optional
+          time universal
+     この関数はTIME(省略時はカレント時刻)を、
+     FORMAT-STRINGに応じて文字列に変換する。引数
+     FORMAT-STRINGには、時刻を置換する‘%’シーケンスを含
+     めることができる。以下は‘%’シーケンスは何を意味する
+     かのテーブルである:
+
+     ‘%a’
+          これは曜日の短縮名を意味する。
+     ‘%A’
+          これは曜日の完全名を意味する。
+     ‘%b’
+          これは月の短縮名を意味する。
+     ‘%B’
+          これは月の完全名を意味する。
+     ‘%c’
+          これは‘%x %X’のシノニムである。
+     ‘%C’
+          これはlocale固有の意味をもつ。デフォルト
+          locale(Cという名前のlocale)では、これは‘%A, %B
+          %e, %Y’と等価である。
+     ‘%d’
+          これは0パディングされた年月日の日である。
+     ‘%D’
+          これは‘%m/%d/%y’のシノニムである。
+     ‘%e’
+          これはブランクでパディングされた年月日の日であ
+          る。
+     ‘%h’
+          これは‘%b’のシノニムである。
+     ‘%H’
+          時分秒の時(00から23)を意味する。
+     ‘%I’
+          時分秒の時(01から12)を意味する。
+     ‘%j’
+          これは年内の経過日(001から366)を意味する。
+     ‘%k’
+          これはブランクでパディングされた時分秒の時(0か
+          ら23)を意味する。
+     ‘%l’
+          これはブランクでパディングされた時分秒の時(1か
+          ら12)を意味する。
+     ‘%m’
+          これは年月日の月(01から12)を意味する。
+     ‘%M’
+          これは時分秒の分(00から59)を意味する。
+     ‘%n’
+          これは改行を意味する。
+     ‘%N’
+          これはナノ秒(000000000–999999999)を意味する。
+          うり少ない桁数を求める場合、ミリ秒は‘%3N’、マ
+          イクロ秒は‘%6N’を使用する。余分な桁は丸めずに
+          切り捨てられる。
+     ‘%p’
+          これは必要に応じて‘AM’か‘PM’を意味する。
+     ‘%r’
+          これは‘%I:%M:%S %p’のシノニムである。
+     ‘%R’
+          これは‘%H:%M’のシノニムである。
+     ‘%S’
+          これは時分秒の秒(00から59)を意味する。
+     ‘%t’
+          これはタブ文字を意味する。
+     ‘%T’
+          これは‘%H:%M:%S’のシノニムである。
+     ‘%U’
+          これは週の開始を日曜日とみなした、年内の週
+          (01から52)である。
+     ‘%w’
+          これは数字で表した曜日(0から6)で、日曜日が0。
+     ‘%W’
+          これは週の開始を月曜日とみなした、年内の週
+          (01から52)である。
+     ‘%x’
+          これはlocale固有の意味をもつ。デフォルト
+          locale(Cという名前のlocale)では、これは‘%D’と
+          等価である。
+     ‘%X’
+          これはlocale固有の意味をもつ。デフォルト
+          locale(Cという名前のlocale)では、これは‘%T’と
+          等価である。
+     ‘%y’
+          これは世紀を含まない年(00から99)を意味する。
+     ‘%Y’
+          これは世紀を併なう年を意味する。
+     ‘%Z’
+          これはタイムゾーンの短縮形(たとえば‘EST’)を意
+          味する。
+     ‘%z’
+          これは数値的オフセットによるタイムゾーン(たと
+          えば‘-0500’)を意味する。
+
+     これら‘%’シーケンスのすべてにおいて、フィールド幅と
+     パディングのタイプを指定できる。これは‘printf’での
+     ように機能する。フィールド幅は桁数として‘%’シーケン
+     スの中間に記述する。このフィールド幅を‘0’で開始する
+     と、それは0によるパディングを意味する。フィールド幅
+     を‘_’で開始すれば、それはスペースによるパディングを
+     意味する。
+
+     たとえば‘%S’は、分内で経過した秒数を指定するが、
+     ‘%03S’は3箇所の0を、‘%_3S’は3箇所にスペースをパディ
+     ングすることを意味する。ただの‘%3S’は0でパディング
+     を行う。これは‘%S’が通常において2箇所にパディングす
+     る方法だからである。
+
+     文字‘E’と‘O’は、‘%’と上記テーブルのアルファベットの
+     いずれかの間に使用されたときは修飾子として作用する
+     。‘E’は日付と時刻に、カレントlocaleの“代替”バージョ
+     ンの使用を指定する。たとえば日本のlocaleでは、
+     ‘%Ex’では日本の元号にもとづく日付フォーマットを得ら
+     れるだろう。‘E’は‘%Ec’、‘%EC’、‘%Ex’、‘%EX’、
+     ‘%Ey’、‘%EY’の使用が許されている。
+
+     ‘O’は通常の10進の数字(訳注： アラビア数字)ではなく
+     、カレントlocaleの数字の“代替”表現を使用する。これ
+     は数字を出力する、ほとんどすべてのアルファベットで
+     使用が許されている。
+
+     UNIVERSALが非‘nil’なら、それは時刻を万国標準時で記
+     すことを意味する。‘nil’は、Emacsがローカルのタイム
+     ゾーンを信頼して使用することを意味する
+     (‘current-time-zone’を参照)。
+
+     この関数は、処理のほとんどを行うために、Cライブラリ
+     ー関数‘strftime’を使用している(*note
+     (libc)Formatting Calendar Time::を参照)。その関数と
+     やり取りするために、‘locale-coding-system’(*note
+     Locales::を参照)で指定されたコーディングシステムを
+     使用して、引数のエンコーディングを最初に行う。
+     ‘strftime’が結果文字列をリターンした後に、その同じ
+     コーディングシステムを使用して、
+     ‘format-time-string’はデコードを行う。
+
+ -- Function: seconds-to-time seconds
+     この関数は、エポック以降の秒数SECONDSをtime値に変換
+     して、それをリターンする。これを逆変換するには
+     ‘float-time’を使用する(*note Time of Day::を参照)。
+
+ -- Function: format-seconds format-string seconds
+     この関数は引数SECONDSを、FORMAT-STRINGに応じた年、
+     日、時、...の文字列に変換する。引数FORMAT-STRINGに
+     は、その変換を制御する‘%’シーケンスを指定することが
+     できる。以下は‘%’が何を意味するかのテーブルである:
+
+     ‘%y’
+     ‘%Y’
+          年間365日での年の整数。
+     ‘%d’
+     ‘%D’
+          年月日の日。
+     ‘%h’
+     ‘%H’
+          時分秒の時の整数。
+     ‘%m’
+     ‘%M’
+          時分秒の分の整数。
+     ‘%s’
+     ‘%S’
+          時分秒の秒の整数。
+     ‘%z’
+          非プリント制御フラグ。これを使用する際には、他
+          の指定はサイズ減少順、すなわち年、日、時刻、分
+          、...のように与えなければならない。最初の非0変
+          換に遭遇するまで、‘%z’の左側の結果文字列は生成
+          されない。たとえば‘emacs-uptime’(*note
+          emacs-uptime: Processor Run Time.を参照)で使用
+          されるデフォルトフォーマットでは、秒数は常に生
+          成されるが年、日、時、分はそれらが非0の場合の
+          み生成されるだろう。
+     ‘%%’
+          リテラルの‘%’を生成する。
+
+     大文字のフォーマットシーケンスは数字に加えて単位を
+     生成するが、小文字フォーマットは数字だけを生成する
+     。
+
+     ‘%’に続けてフィールド幅を指定できる。指定したフ幅よ
+     り短ければ、ブランクでパディングされる。この幅の前
+     にオプションでピリオドを指定すると、かわりに0パディ
+     ングを要求する。たとえば‘"%.3Y"’は、‘"004 years"’を
+     生成するだろう。
+
+     _警告:_ この関数は‘most-positive-fixnum’を超えない
+     SECONDSの値でのみ機能する(*note
+     most-positive-fixnum: Integer Basics.を参照)。
+
+
+File: elisp,  Node: Processor Run Time,  Next: Time Calculations,  Prev: Time Parsing,  Up: System Interface
+
+38.8 Processor Run time
+=======================
+
+Emacsは、Emacsプロセスにより使用された経過時間(elapsed
+time)、プロセッサー時間(processor time)の両方にたいして
+、それらをリターンする関数とプリミティブをいくつか提供し
+ます。
+
+ -- Command: emacs-uptime &optional format
+     この関数はEmacsの“uptime” — このEmacsインスタンスが
+     実行してから経過した、実世界における稼動時間。この
+     文字列はオプション引数FORMATに応じて、
+     ‘format-seconds’によりフォーマットされる。利用でき
+     るフォーマット記述子については、*note
+     format-seconds: Time Parsing.を参照のこと。FORMATが
+     ‘nil’または省略された場合のデフォルトは‘"%Y, %D,
+     %H, %M, %z%S"’。
+
+     インタラクティブに呼び出された場合には、エコーエリ
+     アにuptimeをプリントする。
+
+ -- Function: get-internal-run-time
+     この関数はEmacsにより使用されたプロセッサーの実行時
+     間を、‘current-time’の場合と同じフォーマット(*note
+     Time of Day::を参照)である4つの整数のリスト‘(HIGH
+     LOW MICROSEC PICOSEC)’でリターンする。
+
+     この関数がリターンする値にはEmacsがプロセッサーを使
+     用していない時間は含まれないこと、そしてEmacsプロセ
+     スが複数のスレッドをもつ場合には、すべてのEmacsスレ
+     ッドにより使用されたプロセッサー時間の合計値がリタ
+     ーンされることに注意。
+
+     システムがプロセッサー実行時間を判断する方法を提供
+     しない場合、‘get-internal-run-time’は
+     ‘current-time’と同じ値をリターンする。
+
+ -- Command: emacs-init-time
+     この関数は、Emacs初期化(*note Startup Summary::を参
+     照)にかかった秒数を、文字列としてリターンする。イン
+     タラクティブに呼び出された場合には、それをエコーエ
+     リアにプリントする。
+
+
+File: elisp,  Node: Time Calculations,  Next: Timers,  Prev: Processor Run Time,  Up: System Interface
+
+38.9 Time Calculations
+======================
+
+以下の関数は、time値(‘current-time’がリターンする類のリ
+スト)を使用して暦計算を行います。
+
+ -- Function: time-less-p t1 t2
+     これはtime値T1がtime値T2より小なら‘t’をリターンする
+     。
+
+ -- Function: time-subtract t1 t2
+     これは2つのtime値の間の差T1 − T2をtime値と同じフォ
+     ーマットでリターンする。
+
+ -- Function: time-add t1 t2
+     これは2つのtime値の和をリターンする。ここで引数のう
+     ち1つは時間差ではなく、ある時点での時刻を表すべきで
+     ある。以下に、あるtime値に秒数を加算する方法を示す:
+
+          (time-add TIME (seconds-to-time SECONDS))
+
+ -- Function: time-to-days time
+     この関数は、A.C. 1年元旦からTIMEまでの間の日数をリ
+     ターンする。
+
+ -- Function: time-to-day-in-year time
+     これは、TIMEに対応する年内の日数をリターンする。
+
+ -- Function: date-leap-year-p year
+     この関数は、YEARが閏年なら‘t’をリターンする。
+
+
+File: elisp,  Node: Timers,  Next: Idle Timers,  Prev: Time Calculations,  Up: System Interface
+
+38.10 Timers for Delayed Execution
+==================================
+
+将来の特定時刻や特定の長さのアイドル時間経過後に関数を呼
+び出すために、“タイマー(timer)”をセットアップできます。
+
+   Emacsは、Lispプログラム内の任意の時点では、タイマーを
+実行できません。サブプロセスからの出力が受け入れ可能なと
+きだけ、Emacsはタイマーを実行できます。つまり待機中や、
+待機することが_可能_な、‘sit-for’や‘read-event’のような
+特定のプリミティブ関数内部でのみ、タイマーを実行できます
+。したがってEmacsがbusyなら、タイマーの実行は遅延するか
+もしれません。しかしEmacsがidleなら、実行される時刻は非
+常に正確になります。
+
+   quitにより、多くのタイマー関数が物事を不整合な状態に
+放置し得るので、ターマー関数呼び出し前にEmacsは
+‘inhibit-quit’に‘t’をバインドします。ほとんどのタイマー
+関数は多くの作業を行わないので、これは通常は問題にはなり
+ません。しかし実際には、実行に長時間を要する関数を呼び出
+すタイマーは問題となる恐れがあります。タイマー関数が
+quitを許容する必要がある場合は、‘with-local-quit’を使用
+するべきです(*note Quitting::を参照)。たとえば、外部プロ
+セスから出力を受け取るためにタイマー関数が
+‘accept-process-output’を呼び出す場合、外部プロセスのハ
+ング時の‘C-g’を確実に機能させるために、その呼び出しを
+‘with-local-quit’内部にラップすべきです。 For exam；ple,
+if a timer function calls to receive output from an
+external process, that call should be wrapped inside ,
+to ensure that works if the external process hangs.
+
+   バッファー内容の変更のためにタイマー関数を呼び出すの
+は、通常は悪いアイデアです。これを行うときには、そのタイ
+マーによる変更とユーザーのコマンドによる変更を分離して、
+単一のアンドゥエントリーが巨大になるのを防ぐために、バッ
+ファーの変更前後で、通常は‘undo-boundary’を呼び出すべき
+です。
+
+   タイマー関数は‘sit-for’のようなEmacsに待機を発生させ
+るような関数(*note Waiting::を参照)の呼び出しも避けるべ
+きです。その待機中に別のタイマー(同じタイマーとう可能性
+さえある)が実行され得るので、これは予測不可能な効果を導
+く恐れがあります。特定時間の経過後に処理される必要がある
+タイマー関数は、新たなタイマーをスケジュールすることによ
+り、これを行うことができます。
+
+   マッチデータを変更するかもしれない関数を呼び出すタイ
+マー関数は、マッチデータの保存とリストアをするべきです。
+*note Saving Match Data::を参照してください。
+
+ -- Command: run-at-time time repeat function &rest args
+     これは時刻TIMEに、引数ARGSで関数FUNCTIONを呼び出す
+     タイマーをセットアップする。REPEATが数値(整数か浮動
+     小数点数)なら、そのタイマーはTIME後の各REPEAT秒ごと
+     に再実行されるようスケジュールされる。REPEATが
+     ‘nil’なら、そのタイマーは1回だけ実行される。
+
+     TIMEには、絶対時刻と相対時刻を指定できる。
+
+     絶対時刻は限定された種々フォーマットの文字列を使用
+     して指定でき、すでに経過後の時刻であっても_当日_の
+     時刻とみなされる。認識される形式は‘XXXX’、‘X:XX’、
+     or ‘XX:XX’ (military time)、and ‘XXam’、‘XXAM’、
+     ‘XXpm’、‘XXPM’、‘XX:XXam’、‘XX:XXAM’、‘XX:XXpm’、
+     ‘XX:XXPM’のいずれか。時と分をの部分を区切るのは、コ
+     ロンのかわりにピリオドも使用できる。
+
+     相対時刻は単位を付加した数字を、文字列として指定す
+     る。たとえば:
+
+     ‘1 min’
+          現在時刻から1分後を表す。
+     ‘1 min 5 sec’
+          現在時刻から65秒後を表す。
+     ‘1 min 2 sec 3 hour 4 day 5 week 6 fortnight 7 month 8 year’
+          現在時刻から丁度103ヵ月123日10862秒後を表す。
+
+     総体time値にたいして、Emacsは月を正確に30日、年を正
+     確に365.25とみなす。
+
+     有用なフォーマットのすべてが文字列という訳ではない
+     。TIMEが数字(整数か浮動小数点数)なら、それは秒で数
+     えた相対時刻を指定する。‘encode-time’の結果は、
+     TIMEにたいする絶対時刻の指定にも使用できる。
+
+     ほとんどの場合、_最初_に呼び出されている際は
+     REPEATの効果はなく、TIME単独で時刻を指定する。例外
+     が1つありTIMEが‘t’なら、エポックからREPEATの倍数秒
+     ごとに毎回そのタイマーが実行される。これは
+     ‘display-time’のような関数にとって有用である。
+
+     関数‘run-at-time’は、スケジュール済みの将来の特定ア
+     クションを識別するtime値をリターンする。
+     ‘cancel-timer’(以下参照)の呼び出しに、この値を使用
+     できる。
+
+   タイマーのリピートは名目上REPEAT秒ごとに毎回実行され
+ますが、すべてのタイマー呼び出しは遅延する可能性があるこ
+とを忘れないでください。1つの繰り返しの遅延が、次の繰り
+返しに影響を与えることはありません。たとえば3回分のスケ
+ジュール済みのタイマー繰り返しをカバーするほど計算等によ
+りEmacsがbusyでも、それらは待機を開始して、連続してその
+タイマー関数が3回呼び出されることになります(それらの間の
+別のタイマー呼び出しは想定していない)。最後の呼び出しか
+らN秒より短くならずにタイマーを再実行したい場合には、
+REPEAT引数を使用しないでください。タイマー関数は、かわり
+にそのタイマーを明示的に再スケジュールするべきです。
+
+ -- User Option: timer-max-repeats
+     この変数の値は、以前スケジュールされていた呼び出し
+     が止むを得ずに遅延された際に、タイマー関数がリピー
+     トによりまとめて呼び出される最大の回数を指定する
+
+ -- Macro: with-timeout (seconds timeout-forms...)
+          body...
+     BODYを実行するが、SECONDS秒後に実行を諦める。タイム
+     アップ前にBODYが終了したら、‘with-timeout’はBODY内
+     の最後のフォームの値をリターンする。ただし、タイム
+     アウトによりBODYの実行が打ち切られた場合には、
+     ‘with-timeout’はTIMEOUT-FORMSをすべて実行して、それ
+     の最後のフォームの値をリターンする。
+
+     このマクロは、SECONDS秒後に実行するタイマーをセット
+     することにより機能する。その時刻前にBODYが終了した
+     らそのタイマーを削除し、タイマーが実際に実行された
+     らBODYの実行を終了して、それからTIMEOUT-FORMSを実行
+     する。
+
+     Lispプログラムでは、待機を行えるプリミティブをプロ
+     グラムが呼び出している時のみタイマーを実行できるの
+     で、BODYが計算途中の間は‘with-timeout’は実行を停止
+     できない — そのプログラムがこれらのプリミティブのい
+     ずれかを呼び出したときのみ停止できる。そのため、
+     BODYで長時間の計算を行う場合ではなく、入力を待機す
+     る場合だけ‘with-timeout’を使用すること。
+
+   あまりに長時間応答を待機するのを避けるために、関数
+‘y-or-n-p-with-timeout’はタイマーを使用するシンプルな方
+法を提供します。*note Yes-or-No Queries::を参照してくだ
+さい。
+
+ -- Function: cancel-timer timer
+     これはTIMERにたいして要求されたアクションをキャンセ
+     ルする。ここでTIMERはタイマーであること。これは通常
+     は以前に‘run-at-time’か‘run-with-idle-timer’がリタ
+     ーンしたものである。この関数は、これらの関数の1つの
+     呼び出しの効果をキャンセルする。指定した時刻が到来
+     しても、特別ni何も起きないだろう。
+
+
+File: elisp,  Node: Idle Timers,  Next: Terminal Input,  Prev: Timers,  Up: System Interface
+
+38.11 Idle Timers
+=================
+
+以下は、Emacsの特定の期間アイドル時に実行するタイマーを
+セットアップする方法です。それらをセットアップする方法と
+は別とすると、アイドルタイマーは通常のタイマーと同様に機
+能します。
+
+ -- Command: run-with-idle-timer secs repeat function
+          &rest args
+     Emacsの次回SECS秒間アイドル時に実行するタイマーをセ
+     ットアップする。SECSの値には数値、または
+     ‘current-idle-time’がリターンするタイプの値を指定で
+     きる。
+
+     REPEATが‘nil’なら、充分長い間Emacsがアイドルになっ
+     た初回1会だけ、そのタイマーは実行される。大抵は
+     REPEATが非‘nil’の場合で、そのときはEmacsがSECS秒間
+     アイドルになったときに、_毎回_そのタイマーが実行さ
+     れる。
+
+     関数‘run-with-idle-timer’は、‘cancel-timer’呼び出し
+     時に使用できる、タイマー値をリターンする。
+
+   ユーザー入力の待機時にEmacsは“アイドル(idle)”となり、
+ユーザーが何らかの入力を与えるまでアイドルのままとなりま
+す。あるタイマーを5秒間のアイドルにセットすると、Emacsが
+最初に約5秒間アイドルになったとき、そのタイマーが実行さ
+れます。たとえREPEATが非‘nil’でも、Emacsがアイドルであり
+続けるかぎり、そのタイマーが再実行されることはありません
+。アイドル期間は増加を続け、再び5秒に現象することはない
+からです。
+
+   アイドル時に、Emacsはガーベージコレクションや自動保存
+、サブプロセスからのデータ処理など、さまざまなことを行う
+ことができます。しかし、これらの幕間劇がアイドルのクロッ
+クを0にリセットすることはないので、アイドルタイマーと干
+渉することはありません。600秒にセットされたアイドルタイ
+マーは、たとえその10分間にサブプロセスの出力が何回到達し
+ても、たとえガーベージコレクションや自動保存が行われても
+、ユーザーコマンドが最後に終了してから10分経過後に実行さ
+れるでしょう。
+
+   ユーザーが入力を与えると、その入力の実行の間、Emacsは
+非アイドルになります。それから再びアイドルとなり、繰り返
+すようにセットアップされたすべてのアイドルタイマーは、
+1つずつ異なる時刻に実行されるでしょう。
+
+   実行ごとに特定の量を処理するループを含んだり、
+‘(input-pending-p)’が非‘nil’のときにexitするアイドルタイ
+マー関数を記述しないでください。このアプローチはとても自
+然に見えますが、2つの問題があります:
+
+   • すべてのプロセスの出力をブロックする(Emacsは待機時
+     のみプロセス出力を受け入れるため)。
+
+   • その時刻の間に実行されるべきすべてのアイドルタイマ
+     ーをブロックする。
+
+同様に、SECS引数がカレントのアイドル期間以下となるような
+、別のアイドルタイマー(同じアイドルタイマーも含む)をセッ
+トアップするアイドルタイマー関数を記述しないでください。
+そのようなタイマーはほとんど即座に実行され、Emacsが次回
+アイドルになるのを待機するかわりに、再現なく継続して実行
+されるでしょう。以下で説明するように、カレントのアイドル
+期間を適切に増加させて再スケジュールするのが、正しいアプ
+ローチです。
+
+ -- Function: current-idle-time
+     Emacsがアイドルなら、この関数は‘current-time’で使用
+     するのと同じ4つの整数リストのフォーマット‘(SEC-HIGH
+     SEC-LOW MICROSEC PICOSEC)’で、Emacsがアイドルとなっ
+     た期間をリターンする(*note Time of Day::を参照)。
+
+     Emacsがアイドルでなければ、‘current-idle-time’は
+     ‘nil’をリターンする。これはEmacsがアイドルかどうか
+     テストする手軽な方法である。
+
+   ‘current-idle-time’の主な用途は、アイドルタイマー関数
+が少し“休憩”したいときです。そのアイドルタイマー関数は、
+さらに数秒アイドル後に、同じ関数を再呼び出しするために、
+別のタイマーをセットアップできます。以下はその例です:
+
+     (defvar my-resume-timer nil
+       "Timer for `my-timer-function' to reschedule itself, or nil.")
+
+     (defun my-timer-function ()
+       ;; ‘my-resume-timer’アクティブの間にユーザーがコマンドをタイプ
+       ;; したら、次回この関数はそれのメインアイドルタイマーから呼び出され
+       ;; ‘my-resume-timer’を非アクティブにする
+       (when my-resume-timer
+         (cancel-timer my-resume-timer))
+       ...DO THE WORK FOR A WHILE...
+       (when TAKING-A-BREAK
+         (setq my-resume-timer
+               (run-with-idle-timer
+                 ;; カレント値より大きいアイドル
+                 ;; 期間BREAK-LENGTHを計算
+                 (time-add (current-idle-time)
+                           (seconds-to-time BREAK-LENGTH))
+                 nil
+                 'my-timer-function))))
+
+
+File: elisp,  Node: Terminal Input,  Next: Terminal Output,  Prev: Idle Timers,  Up: System Interface
+
+38.12 Terminal Input
+====================
+
+このセクションでは、端末入力の記録や操作のための関数と変
+数を説明します。関連する関数につうては、*note Display::を
+参照してください。
+
+* Menu:
+
+* Input Modes::              入力の処理方法にたいするオプション。
+* Recording Input::          直近またはすべての入力イベントのヒストリーの保存。
+
+
+File: elisp,  Node: Input Modes,  Next: Recording Input,  Up: Terminal Input
+
+38.12.1 Input Modes
+-------------------
+
+ -- Function: set-input-mode interrupt flow meta
+          &optional quit-char
+     この関数は、キーボード入力の読み取りにたいして、モ
+     ードをセットする。INTERRUPTが非‘nil’なら、Emacsは入
+     力割り込み、‘nil’ならCBREAKモードを使用する。デフォ
+     ルトのセッティングはシステムに依存する。いくつかの
+     システムでは、指定に関わらずに常にCBREAKモードを使
+     用する。
+
+     EmacsがXと直接通信する際にはこの引数を無視して、そ
+     れがEmacsの知る通信手段であれば割り込みを使用する。
+
+     FLOWが非‘nil’なら、Emacsは端末への出力にたいして
+     XON/XOFFフロー制御(‘C-q’と‘C-s’)を使用する。これは
+     CBREAK以外では効果がない。
+
+     引数METAは、127より上の文字コード入力にたいするサポ
+     ートを制御する。METAが‘t’なら、Emacsは8番目のビット
+     がセットされた文字を、メタ文字に変換する。METAが
+     ‘nil’なら、Emacsは8番目のビットを無視する。これは端
+     末がそのビットをパリティビットとして使用する場合に
+     必要となる。METAが‘t’と‘nil’のいずれでもなければ、
+     Emacsは入力の8ビットすべてを変更せずに使用する。こ
+     れは8ビット文字セットを使用する端末にたいして適して
+     いる。
+
+     QUIT-CHARが非‘nil’なら、それはquitに使用する文字を
+     指定する。この文字は、通常は‘C-g’である。*note
+     Quitting::を参照のこと。
+
+   ‘current-input-mode’関数は、Emacsがカレントで使用する
+入力モードのセッティングをリターンします。
+
+ -- Function: current-input-mode
+     この関数は、キーボード入力読み取りにたいする、カレ
+     ントのモードをリターンする。これは、
+     ‘set-input-mode’の引数に対応する、‘(INTERRUPT FLOW
+     META QUIT)’という形式のリストをリターンする。
+     INTERRUPT
+          Emacsが割り込み駆動入力を使用時には非‘nil’。
+          ‘nil’ならEmacsはCBREAKモードを使用している。
+     FLOW
+          Emacsが端末出力にXON/XOFFフロー制御(‘C-q’と
+          ‘C-s’)を使用していれば非‘nil’。この値は
+          INTERRUPTが‘nil’のときのみ意味がある。
+     META
+          Emacsが入力文字の8番目のビットをメタ文字として
+          扱う場合には‘t’。‘nil’はEmacsがすべての入力文
+          字の8ビット目をクリアーすることを意味する。そ
+          の他の値は、Emacsが8ビットすべてを基本的な文字
+          コードとして使用することを意味する。
+     QUIT
+          カレントでEmacsがquitに使用する文字で、通常は
+          ‘C-g’。
+
+
+File: elisp,  Node: Recording Input,  Prev: Input Modes,  Up: Terminal Input
+
+38.12.2 Recording Input
+-----------------------
+
+ -- Function: recent-keys
+     この関数は、キーボードかマウスからの最後の入力イベ
+     ント300個を含んだベクターをリターンする。その入力イ
+     ベントがキーシーケンスに含まれるか否かに関わらず、
+     すべての入力イベントが含まれる。つまり、キーボード
+     マクロにより生成されたイベントを含まない、最後の入
+     力イベント300個を常に入手することになる。(キーボー
+     ドマクロは、デバッグにとってより興味深いとはいえな
+     いので除外されている。そのマクロを呼び出したイベン
+     トを確認するだけで充分であるべきだ。)
+
+     ‘clear-this-command-keys’(*note Command Loop
+     Info::を参照)の呼び出すと、その直後この関数は空のベ
+     クターをリターンする。
+
+ -- Command: open-dribble-file filename
+     この関数は、FILENAMEという名前の“dribbleファイル
+     (dribble file)”をオープンする。dribbleファイルがオ
+     ープンされたとき、キーボードとマウス(ただしキーボー
+     ドマクロ由来は除く)からのそれぞれの入力イベントは、
+     そのファイルに書き込まれる。非文字イベントは、
+     ‘<...>’で囲まれたプリント表現で表される。(パスワー
+     ドのような)機密情報は、dribbleファイルへの記録を終
+     了することに注意すること。
+
+     引数‘nil’でこの関数を呼び出すことにより、‘nil’ファ
+     イルはクローズされる。
+
+   *note Terminal Output::の‘open-termscript’を参照のこ
+と。
+
+
+File: elisp,  Node: Terminal Output,  Next: Sound Output,  Prev: Terminal Input,  Up: System Interface
+
+38.13 Terminal Output
+=====================
+
+端末出力関数は出力をテキスト端末に送信したり、その端末に
+送信した出力を追跡します。変数‘baud-rate’は、Emacsが端末
+の出力スピードをどのように考慮すべきかを指示します。
+
+ -- User Option: baud-rate
+     この変数は、その端末のEmacsの認識する、その端末の出
+     力スピードです。この変数をセットしても、実際のデー
+     タ転送スピードは変化しないが、この値はパディングの
+     ような計算に使用される。
+
+     これはテキスト端末でスクリーンの一部をスクロールし
+     たり再描画すべきかどうかについての判定にも影響する
+     。グラフィカルな端末での対応する機能については、
+     *note Forcing Redisplay::を参照のこと。
+
+     この値はボー(baud)で数えられる。
+
+   ネットワークを介して実行していて、そのネットワークの
+異なる部分が違うボーレートで機能している場合、Emacsがリ
+ターンする値はユーザーのローカル端末で使用される値と異な
+るかもしれません。いくつかのネットワークプロトコルは、ロ
+ーカル端末のスピードでリモートマシンと対話するので、
+Emacsや他のプログラムは正しい値を得ることができますが、
+相手側はそうではありません。Emacsが誤った値をもつ場合に
+は、最適よりも劣る判定をもたらします。この問題を訂正する
+ためには、‘baud-rate’をセットします。
+
+ -- Function: send-string-to-terminal string &optional
+          terminal
+     この関数は、STRINGを変更せずにTERMINALへ送信する。
+     STRING内のコントロール文字は、端末依存の効果をもつ
+     。この関数は、テキスト端末だけを操作する。
+     TERMINALには端末オブジェクト、フレーム、または
+     ‘nil’を指定でき、これは選択されたフレームの端末を意
+     味する。batchモードでは、TERMINALが‘nil’なら、
+     STRINGは‘stdout’に送信される。
+
+     この関数の1つの用途は、ダウンロード可能なファンクシ
+     ョンキー定義をもつ端末上で、ファンクションキーを定
+     義することである。たとえば、以下は(特定の端末で)フ
+     ァンクションキー4を、4文字前方へ移動(そのコンピュー
+     ターヘ文字‘C-u C-f’を送信)するよう定義するには:
+
+          (send-string-to-terminal "\eF4\^U\^F")
+               ⇒ nil
+
+ -- Command: open-termscript filename
+     この関数は、Emacsが端末へ送信したすべての文字を記録
+     する、“termscriptファイル(termscript file)”をオープ
+     ンする。リターン値は‘nil’。termscriptファイルは
+     Emacsのスクリーン文字化け問題、不正なTermcapエント
+     リーや、実際のEmacsバグより頻繁に発生する、望ましく
+     ない端末オプションのセッティングの調査に有用である
+     。どの文字が実際に出力されるか確信できれば、それら
+     の文字が使用中のTermcap仕様に対応するかどうか、確実
+     に判断できる。
+
+          (open-termscript "../junk/termscript")
+               ⇒ nil
+
+     引数‘nil’でこの関数を呼び出すことにより、
+     termscriptファイルはクローズされる。
+
+     *note Recording Input::の‘open-dribble-file’も参照
+     のこと。
+
+
+File: elisp,  Node: Sound Output,  Next: X11 Keysyms,  Prev: Terminal Output,  Up: System Interface
+
+38.14 Sound Output
+==================
+
+Emacsを使用してサウンドを再生するためには、関数
+‘play-sound’を使用します。特定のシステムだけがサポートさ
+れています。実際に処理を行うことができないシステムで
+‘play-sound’を呼び出すと、エラーが発生します。
+
+   サウンドはRIFF-WAVEフォーマット(‘.wav’)か、Sun Audioフ
+ォーマット(‘.au’)で格納されていなければなりません。
+
+ -- Function: play-sound sound
+     この関数は、指定されたサウンドを再生する。引数
+     SOUNDは、‘(sound PROPERTIES...)’という形式をもつ。
+     ここでPROPERTIESはキーワード(特定のシンボルが特別に
+     認識される)とそれに対応する値で交互に構成されている
+     。
+
+     以下に、現在のところSOUND内で意味をもつキーワードと
+     、それらの意味をテーブルに記した:
+
+     ‘:file FILE’
+          これは、再生するサウンドを含んだファイルを指定
+          する。絶対ファイル名でなければ、ディレクトリー
+          ‘data-directory’にたいして展開される。
+
+     ‘:data DATA’
+          これは、ファイルを参照する必要がないサウンドの
+          再生を指定する。値DATAは、サウンドファイルと同
+          じバイトを含む文字列であること。わたしたちはユ
+          ニバイト文字列の使用を推奨する。
+
+     ‘:volume VOLUME’
+          これはサウンド再生での音の大きさを指定する。こ
+          れは0から1までの数値であること。どんな値であれ
+          、以前に指定されたボリュームがデフォルトとして
+          使用される。
+
+     ‘:device DEVICE’
+          これはサウンドを再生するシステムデバイスを、文
+          字列で指定する。デフォルトのデバイスはシステム
+          依存である。
+
+     実際にサウンドを再生する前に、‘play-sound’はリスト
+     ‘play-sound-functions’内の関数を呼び出す。関数はそ
+     れぞれ1つの引数SOUNDで呼び出される。
+
+ -- Command: play-sound-file file &optional volume
+          device
+     この関数は、オプションでVOLUMEとDEVICEを指定し、サ
+     ウンドFILEを再生する、代替インターフェイスである。
+
+ -- Variable: play-sound-functions
+     リストの関数は、サウンド再生前に呼び出される。関数
+     はそれぞれ、そのサウンドを記述するプロパティリスト
+     を単一の引数として呼び出される。
+
+
+File: elisp,  Node: X11 Keysyms,  Next: Batch Mode,  Prev: Sound Output,  Up: System Interface
+
+38.15 Operating on X11 Keysyms
+==============================
+
+システム固有のX11 keysym(key symbol: キーシンボル)を定義
+するには、変数‘system-key-alist’をセットします。
+
+ -- Variable: system-key-alist
+     この変数の値は、システム固有のkeysymそれぞれにたい
+     して1つの要素をもつようなalistであること。要素はそ
+     れぞれ‘(CODE . SYMBOL)’という形式をもつ。ここで
+     CODEは数字のkeysymコード(“ベンダー固有”の −2**28),
+     のビットは含まない)、SYMBOLはそのファンクションキー
+     の名前である。
+
+     たとえば‘(168 . mute-acute)’は、数字コード −2**28 +
+     168のシステム固有キーを定義する(HP Xサーバーで使用
+     される)。
+
+     このalistから、他のXサーバーのkeysymを除外すること
+     は重要ではない。実際に使用中のXサーバーが使用する
+     keysymが、これらと競合しないかぎり無害である.
+
+     この変数は常にカレント端末にたいしてローカルであり
+     、バッファーローカルにできない。*note Multiple
+     Terminals::を参照のこと。
+
+   以下の変数をセットすれば、Emacsが修飾キーMeta、Alt、
+Hyper、Superにたいして何のkeysymを使用するべきか指定でき
+ます。
+
+ -- Variable: x-alt-keysym
+ -- Variable: x-meta-keysym
+ -- Variable: x-hyper-keysym
+ -- Variable: x-super-keysym
+     keysymの名前はそれぞれ修飾子Alt、Meta、Hyper、
+     Superを意味する名前であること。たとえば、以下は
+     Meta修飾キーとAlt修飾キーを交換する方法である:
+          (setq x-alt-keysym 'meta)
+          (setq x-meta-keysym 'alt)
+
+
+File: elisp,  Node: Batch Mode,  Next: Session Management,  Prev: X11 Keysyms,  Up: System Interface
+
+38.16 Batch Mode
+================
+
+コマンドラインオプション‘-batch’で、Emacsを非対話的に実
+行できます。このモードでは、Emacsは端末からコマンドを読
+み取りません。また終端モード(terminal modes)を変更せず、
+消去可能なスクリーンへの出力も待ち受けません。これは、
+Lispプログラムの実行を指示して、終了したらEmacsが終了す
+るというアイデアです。これを行うには‘-l FILE’により
+FILEという名前のライブラリーをロード、‘-f FUNCTION’によ
+り引数なしでFUNCTIONを呼び出す、または‘--eval FORM’で実
+行するプログラムを指定できます。
+
+   通常はエコーエリアに出力したり、ストリームとして‘t’を
+指定する‘message’や‘prin1’等を使用したLispプログラムの出
+力は、batchモードではEmacsの標準エラー出力へと送られます
+。同様に、通常はミニバッファーから読み取られる入力は、標
+準入力から読み取られます。つまり、Emacsは非インタラクテ
+ィブなアプリケーションプログラムのように振る舞います。
+(コマンドのエコーのように、通常Emacsが生成するエコーエリ
+アへの出力はすべて抑制される。)
+
+ -- Variable: noninteractive
+     Emacsがbatchモードで実行中なら、この変数は非‘nil’。
+
+
+File: elisp,  Node: Session Management,  Next: Desktop Notifications,  Prev: Batch Mode,  Up: System Interface
+
+38.17 Session Management
+========================
+
+Emacsはアプリケーションのサスペンドとリスタートに使用さ
+れる、Xセッション管理プロトコル(X Session Management
+Protocol)をサポートしています。Xウィンドウシステムでは、
+“セッションマネージャー(session manager)”と呼ばれるプロ
+グラムが、実行中アプリケーション追跡の責を負います。Xサ
+ーバーのシャットダウン時、セッションマネージャーはアプリ
+ケーションに状態を保存するか尋ね、それらが応答するまでシ
+ャットダウンを遅延します。アプリケーションがそのシャット
+ダウンをキャンセルすることもできます。
+
+   セッションマネージャーがサスペンドされたセッションを
+リスタートする際には、これらのアプリケーションにたいして
+保存された状態をリロードするよう、個別に指示します。これ
+はリストアする保存済みセッションが何かを指定する、特別な
+コマンドラインオプションを指定することにより行われます。
+これは、Emacsでは‘--smid SESSION’という引数です。
+
+ -- Variable: emacs-save-session-functions
+     Emacsは、‘emacs-save-session-functions’と呼ばれるフ
+     ックを介して、状態の保存をサポートする。セッション
+     マネージャーがウィンドウシステムのシャットダウンを
+     告げた際に、Emacsはこのフックを実行する。これらの関
+     数は、カレントバッファーを一時バッファーにセットさ
+     れて、引数なしで呼び出されるそれぞれの関数は、この
+     バッファーにLispコードを追加するために‘insert’を使
+     用できる。最後にEmacsは、“セッションファイル
+     (session file)”と呼ばれるファイル内にそのバッファー
+     を保存する。
+
+     その後セッションマネージャーがEmacsを再開する際、
+     Emacsはセッションファイルを自動的にロードする(*note
+     Loading::を参照)。これはスタートアップ中に呼び出さ
+     れる、‘emacs-session-restore’という名前の関数により
+     処理される。*note Startup Summary::を参照のこと。
+
+     ‘emacs-save-session-functions’内の関数が非‘nil’をリ
+     ターンすると、Emacsはセッションマネージャーにシャッ
+     トダウンのキャンセルを要求します。
+
+   以下は、セッションマネージャによりEmacsがリストアされ
+る際に、単に‘*scratch*’にテキストを挿入する例です。
+
+     (add-hook 'emacs-save-session-functions 'save-yourself-test)
+
+     (defun save-yourself-test ()
+       (insert "(save-current-buffer
+       (switch-to-buffer \"*scratch*\")
+       (insert \"I am restored\"))")
+       nil)
+
+
+File: elisp,  Node: Desktop Notifications,  Next: File Notifications,  Prev: Session Management,  Up: System Interface
+
+38.18 Desktop Notifications
+===========================
+
+Emacsはfreedesktop.orgのDesktop Notifications
+Specificationをサポートするシステムでは、“通知
+(notifications)”を送ることができます。この機能を使用する
+には、EmacsがD-Busサポート付きでコンパイルされていて、
+‘notifications’ライブラリーがロードされていなければなり
+ません。*note D-Bus: (dbus)Top.を参照してください。
+
+ -- Function: notifications-notify &rest params
+     この関数は、引数PARAMSで指定された構成したパラメー
+     ターにより、D-Busを通じてデスクトップに通知を送信す
+     る。これらの引数は、交互になったキーワードと値のペ
+     アーで構成されていること。以下はサポートされている
+     キーワードと値である:
+
+     ‘:bus BUS’
+          D-Busのバス。この引数は、‘:session’以外のバス
+          を使用する場合のみ必要となる。
+
+     ‘:title TITLE’
+          通知のタイトル。
+
+     ‘:body TEXT’
+          通知ボディのテキスト。通知サーバーの実装に依存
+          して‘"<b>bold text</b>"’のようなHTMLマークアッ
+          プ、ハイパーリンク、イメージをテキストに含むこ
+          とができる。HTML特殊文字は‘"Contact
+          &lt;postmaster@localhost&gt;!"’のように、エン
+          コードしなければならない。
+
+     ‘:app-name NAME’
+          その通知を送信するアプリケーション名。デフォル
+          トは‘notifications-application-name’。
+
+     ‘:replaces-id ID’
+          この通知が置換する通知のID。IDは、
+          ‘notifications-notify’の以前の呼び出し結果でな
+          ければならない。
+
+     ‘:app-icon ICON-FILE’
+          通知アイコンのファイル名。‘nil’ならアイコンは
+          表示されない。デフォルトは
+          ‘notifications-application-icon’。
+
+     ‘:actions (KEY TITLE KEY TITLE ...)’
+          適用されるアクションのリスト。KEYとTITLEはどち
+          らも文字列。(通常は通知クリックで呼び出される
+          )デフォルトのアクションは、‘"default"’という名
+          前であること。実装がそれを表示しないようにする
+          には自由だが、titleは何でもよい。
+
+     ‘:timeout TIMEOUT’
+          timeoutは、通知が表示されてからその通知が自動
+          的にクローズされるまでの、ミリ秒での時間。−1な
+          ら、その通知の有効期限は通知サーバーのセッティ
+          ングに依存し、通知のタイプにより異なるかもしれ
+          ない。0なら、その通知は失効しない。デフォルト
+          値は−1。
+
+     ‘:urgency URGENCY’
+          緊急レベル。‘low’、‘normal’、‘critical’のいず
+          れか。
+
+     ‘:action-items’
+          このキーワードが与えられると、そのアクションの
+          TITLE文字列はアイコン名として解釈される。
+
+     ‘:category CATEGORY’
+          通知の種類で、文字列。標準のカテゴリーのリスト
+          は、Desktop Notifications Specification
+          (http://developer.gnome.org/notification-spec/#categories)を
+          参照されたい。
+
+     ‘:desktop-entry FILENAME’
+          これは‘"emacs"’のように、そのプログラムを呼び
+          出すデスクトップファイル名の名前を指定する。
+
+     ‘:image-data (WIDTH HEIGHT ROWSTRIDE HAS-ALPHA BITS CHANNELS DATA)’
+          これはそれぞれwidth、height、rowstride、および
+          alpha channel、bits per sample、channels、
+          image dataの有無を記述するrawデータのイメージ
+          フォーマット。
+
+     ‘:image-path PATH’
+          これはURI(現在サポートされているのはURIスキー
+          マは‘file://’のみ)、または
+          ‘$XDG_DATA_DIRS/icons’にあるfreedesktop.org準
+          拠のアイコンテーマ名のいずれかを表される。
+
+     ‘:sound-file FILENAME’
+          通知ポップアップ時に再生するサウンドファイルの
+          パス。
+
+     ‘:sound-name NAME’
+          通知ポップアップ時に再生する、
+          ‘$XDG_DATA_DIRS/sounds’にあるfreedesktop.orgサ
+          ウンド命名仕様準拠の、テーマに対応した名前付き
+          サウンド。アイコン名と同様、サウンドにたいして
+          のみ。例としては‘"message-new-instant"’。
+
+     ‘:suppress-sound’
+          それが可能なら、サーバーにすべてのサウンドの再
+          生を抑制させる。
+
+     ‘:resident’
+          セットした場合、アクション呼び出し時にサーバー
+          はその通知を自動的に削除しない。ユーザーか送信
+          者により明示的に削除されるまで、その通知はサー
+          バー内に常駐し続ける。恐らくこのヒントは、その
+          サーバーが‘:persistence’能力をもつときのみ有用
+          。
+
+     ‘:transient’
+          セットした場合、サーバーはその通知を過渡的なも
+          のとして扱い、もしそれが永続的であるべきなら、
+          そのサーバーのpersistence能力をバイパスする。
+
+     ‘:x POSITION’
+     ‘:y POSITION’
+          その通知がポイントすべき、スクリーン上のXとYの
+          座標を指定する。これらの引数は併せて使用しなけ
+          ればならない。
+
+     ‘:on-action FUNCTION’
+          アクション呼び出し時に呼び出す関数。通知IDとア
+          クションのKEYは、引数としてその関数に渡される
+          。
+
+     ‘:on-close FUNCTION’
+          タイムアウトかユーザーにより通知がクローズされ
+          たときに呼び出す関数。通知IDとクローズ理由
+          REASONは、引数としてその関数に渡される。:
+
+             • 通知が失効した場合は‘expired’。
+             • ユーザーが通知を却下したら‘dismissed’。
+             • notifications-close-notification呼び出し
+               により、 ‘通知がクローズされたら
+               close-notification。’
+             • 通知サーバーが理由を提供しなかったら
+               ‘undefined’。
+
+     通知サーバーがどのパラメーターを受け入れるかのチェ
+     ックは、‘notifications-get-capabilities’を通じて行
+     うことができる。
+
+     この関数は、整数の通知idをリターンする。このidは
+     ‘notifications-close-notification’や、別の
+     ‘notifications-notify’呼び出しの‘:replaces-id’引数
+     で、通知アイテムの操作に使用できる。たとえば:
+
+          (defun my-on-action-function (id key)
+            (message "Message %d, key \"%s\" pressed" id key))
+               ⇒ my-on-action-function
+
+          (defun my-on-close-function (id reason)
+            (message "Message %d, closed due to \"%s\"" id reason))
+               ⇒ my-on-close-function
+
+          (notifications-notify
+           :title "Title"
+           :body "This is <b>important</b>."
+           :actions '("Confirm" "I agree" "Refuse" "I disagree")
+           :on-action 'my-on-action-function
+           :on-close 'my-on-close-function)
+               ⇒ 22
+
+          A message window opens on the desktop.  Press "I agree"
+               ⇒ Message 22, key "Confirm" pressed
+                  Message 22, closed due to "dismissed"
+
+ -- Function: notifications-close-notification id
+          &optional bus
+     この関数は、識別子IDの通知をクローズする。BUSは
+     D-Bus接続を表す文字列で、デフォルトは‘:session’。
+
+ -- Function: notifications-get-capabilities &optional
+          bus
+     通知サーバーの能力を、シンボルのリストでリターンす
+     る。BUSはD-Bus接続を表す文字列で、デフォルトは
+     ‘:session’。期待され得る能力は以下のとおり:
+
+     ‘:actions’
+          そのサーバーはユーザーにたいする指定されたアク
+          ションを提供する。
+
+     ‘:body’
+          bodyのテキストをサポートする。
+
+     ‘:body-hyperlinks’
+          サーバーは通知内のハイパーリンクをサポートする
+          。
+
+     ‘:body-images’
+          サーバーは通知内のイメージをサポートする。
+
+     ‘:body-markup’
+          サーバーは通知内のマークアップをサポートする。
+
+     ‘:icon-multi’
+          サーバーは与えられたイメージ配列内のすべてのフ
+          レームのアニメーションを描画できる。
+
+     ‘:icon-static’
+          与えられたイメージ配列内の、正確に1フレームの
+          表示をサポートする。この値は、‘:icon-multi’と
+          相互に排他である。
+
+     ‘:persistence’
+          サーバーは通知の永続性をサポートする。
+
+     ‘:sound’
+          サーバーは通知のサウンドをサポートする。
+
+     これらに加えて、ベンダー固有の能力は
+     ‘:x-gnome-foo-cap’のように、‘:x-vendor’で始まる。
+
+ -- Function: notifications-get-server-information
+          &optional bus
+     通知サーバーの情報を、文字列のリストでリターンする
+     。BUSはD-Bus接続を表す文字列で、デフォルトは
+     ‘:session’。リターンされるリストは‘(NAME VENDOR
+     VERSION SPEC-VERSION)’。
+
+     NAME
+          そのサーバーのプロダクト名。
+
+     VENDOR
+          ベンダー名。たとえば‘"KDE"’や‘"GNOME"’。
+
+     VERSION
+          サーバーのバージョン番号。
+
+     SPEC-VERSION
+          サーバーが準拠する仕様のバージョン。
+
+     SPEC_VERSIONが‘nil’なら、サーバーは‘"1.0"’以前の仕
+     様をサポートする。
+
+
+File: elisp,  Node: File Notifications,  Next: Dynamic Libraries,  Prev: Desktop Notifications,  Up: System Interface
+
+38.19 Notifications on File Changes
+===================================
+
+いくつかのオペレーティングシステムは、ファイル変更にたい
+する、ファイルシステムの監視をサポートします。正しく設定
+されている場合には、Emacsは‘gfilenotify’、‘inotify’、
+‘w32notify’のようなライブラリーを静的にリンクします。こ
+れらのライブラリーにより、ローカルマシン上でのファイルシ
+ステムの監視が有効になります。
+
+   リモートマシン上のファイルシステムの監視も可能です。
+*note Remote Files: (emacs)Remote Files.を参照してくださ
+い。これはEmacsにリンク済みのライブラリーの、いずれか1つ
+に依存する訳ではありません。
+
+   通知されたファイル変更によりこれらすべてのライブラリ
+ーは異なるイベントを発行するので、Emacsは一意な参照を提
+供するライブラリー‘filenotify’を提供しています。
+
+ -- Function: file-notify-add-watch file flags callback
+     FILEに関するファイルシステムイベントの監視を追加す
+     る。これは、FILEに関するファイルシステムイベントが
+     Emacsに報告されるように取り計らう。
+
+     リターン値は、追加された監視のディスクリプター
+     (descriptor)である。これのタイプは背景にあるライブ
+     ラリーに依存し、以下の例に示すとおり、整数とみなす
+     ことはできない。これの比較には、‘equal’を使用するこ
+     と。
+
+     何らかの理由により、FILEが監視不可能なら、この関数
+     はエラー‘file-notify-error’をシグナルする。
+
+     マウントされたファイルシステムでファイル変更を監視
+     できないことがある。これはこの関数により検出されず
+     、非‘nil’のリターン値がFILEの変更の通知を保証するも
+     のではない。
+
+     FLAGSは、何を監視するかセットするための、コンディシ
+     ョンのリストである。以下のシンボルを含めることがで
+     きる:
+
+     ‘change’
+          ファイル変更を監視。
+     ‘attribute-change’
+          パーミッションや変更時刻のような、ファイル属性
+          の変更を監視。
+
+     FILEがディレクトリーなら、そのディレクトリー内のす
+     べてのファイルの変更が通知される。これは再帰的には
+     機能しない。
+
+     何らかのイベント発生時には、以下の形式のEVENTを単一
+     の引数として、Emacsは関数CALLBACKを呼び出す:
+
+          (DESCRIPTOR ACTION FILE [FILE1])
+
+     DESCRIPTORは、この関数がリターンするオブジェクトと
+     同じである。ACTIONはイベントを示し、以下のシンボル
+     のいずれかである:
+
+     ‘created’
+          FILEが作成された。
+     ‘deleted’
+          FILEが削除された。
+     ‘changed’
+          FILEが変更された。
+     ‘renamed’
+          FILEがFILE1にリネームされた。
+     ‘attribute-changed’
+          FILEの属性が変更された。
+
+     FILEおよびFILE1は、イベントが報告されたファイルの名
+     前である。たとえば:
+
+          (require 'filenotify)
+               ⇒ filenotify
+
+          (defun my-notify-callback (event)
+            (message "Event %S" event))
+               ⇒ my-notify-callback
+
+          (file-notify-add-watch
+            "/tmp" '(change attribute-change) 'my-notify-callback)
+               ⇒ 35025468
+
+          (write-region "foo" nil "/tmp/foo")
+               ⇒ Event (35025468 created "/tmp/.#foo")
+                  Event (35025468 created "/tmp/foo")
+                  Event (35025468 changed "/tmp/foo")
+                  Event (35025468 deleted "/tmp/.#foo")
+
+          (write-region "bla" nil "/tmp/foo")
+               ⇒ Event (35025468 created "/tmp/.#foo")
+                  Event (35025468 changed "/tmp/foo") [2 times]
+                  Event (35025468 deleted "/tmp/.#foo")
+
+          (set-file-modes "/tmp/foo" (default-file-modes))
+               ⇒ Event (35025468 attribute-changed "/tmp/foo")
+
+     アクション‘renamed’がリターンされるかどうかは、使用
+     する監視ライブラリーに依存する。FILEとFILE1の両方が
+     同じディレクトリーに属し、そのディレクトリーが監視
+     されていればリターンを期待できる。それ以外ではアク
+     ション‘deleted’と‘created’がランダムな順にリターン
+     される。
+
+          (rename-file "/tmp/foo" "/tmp/bla")
+               ⇒ Event (35025468 renamed "/tmp/foo" "/tmp/bla")
+
+          (file-notify-add-watch
+            "/var/tmp" '(change attribute-change) 'my-notify-callback)
+               ⇒ 35025504
+
+          (rename-file "/tmp/bla" "/var/tmp/bla")
+               ⇒ ;; gfilenotify
+                  Event (35025468 renamed "/tmp/bla" "/var/tmp/bla")
+
+               ⇒ ;; inotify
+                  Event (35025504 created "/var/tmp/bla")
+                  Event (35025468 deleted "/tmp/bla")
+
+ -- Function: file-notify-rm-watch descriptor
+     DESCRIPTORに指定された、既存のファイル監視を削除す
+     る。DESCRIPTORは、‘file-notify-add-watch’がリターン
+     したオブジェクトであること。
+
+
+File: elisp,  Node: Dynamic Libraries,  Prev: File Notifications,  Up: System Interface
+
+38.20 Dynamically Loaded Libraries
+==================================
+
+“ダイナミックにロードされるライブラリー(dynamically
+loaded library)”とは、その機能が最初に必要になったときに
+、オンデマンドでロードされるライブラリーです。Emacsは自
+身の機能をサポートするライブラリーのオンデマンドロードの
+ように、それらをサポートします。
+
+ -- Variable: dynamic-library-alist
+     これはダイナミックライブラリーと、それらを実装する
+     外部ライブラリーファイルのalistである。
+
+     要素はそれぞれ、‘(LIBRARY FILES...)’という形式のリ
+     ストである。ここで‘car’はサポートされた外部ライブラ
+     リーを表すシンボルで、残りはそのライブラリーにたい
+     して候補となるファイル名を与える文字列である。
+
+     Emacsは、このリスト内のファイル出現順で、そのライブ
+     ラリーのロードを試みる。何も見つからない場合、その
+     Emacsセッションはライブラリーにアクセスできず、それ
+     が提供する機能は利用できない。
+
+     いくつかのプラットフォーム上におけるイメージのサポ
+     ートは、この機能を使用している。以下は、
+     MS-Windows上でイメージをサポートするために、この変
+     数をセットする例である:
+
+          (setq dynamic-library-alist
+                '((xpm "libxpm.dll" "xpm4.dll" "libXpm-nox4.dll")
+                  (png "libpng12d.dll" "libpng12.dll" "libpng.dll"
+                       "libpng13d.dll" "libpng13.dll")
+                  (jpeg "jpeg62.dll" "libjpeg.dll" "jpeg-62.dll"
+                        "jpeg.dll")
+                  (tiff "libtiff3.dll" "libtiff.dll")
+                  (gif "giflib4.dll" "libungif4.dll" "libungif.dll")
+                  (svg "librsvg-2-2.dll")
+                  (gdk-pixbuf "libgdk_pixbuf-2.0-0.dll")
+                  (glib "libglib-2.0-0.dll")
+          	(gobject "libgobject-2.0-0.dll")))
+
+     イメージタイプ‘pbm’と‘xbm’は外部ライブラリーに依存
+     せず、Emacsで常に利用可能なので、この変数内にエント
+     リーがないことに注意。
+
+     これは、外部ライブラリーへのアクセスにたいする、一
+     般的な機能を意図したものではないことにも注意された
+     い。Emacsにとって既知のライブラリーだけが、これを通
+     じてロードできる。
+
+     与えられたLIBRARYが、Emacsに静的にリンクされている
+     場合、この変数は無視される。
+
+
+File: elisp,  Node: Packaging,  Next: Antinews,  Prev: System Interface,  Up: Top
+
+39 Preparing Lisp code for distribution
+***************************************
+
+Emacsは、Emacs Lispコードをユーザーに配布するための、標
+準的な方法を提供します。“パッケージ(package)”は、ユーザ
+ーが簡単にダウンロード、インストール、アンインストール、
+および更新できるような方法でフォーマットおよび同梱された
+、1つ以上のファイルのコレクションです。
+
+   以降のセクションではパッケージを作成する方法、および
+それを他の人がダウンロードできるように、“パッケージアー
+カイブ(package archive)”に配置する方法を説明します。パッ
+ケージングシステムのユーザーレベル機能の説明は、*note
+(emacs)Packages::を参照してください。
+
+* Menu:
+
+* Packaging Basics::         Emacs Lispパッケージの基本的概念。
+* Simple Packages::          単一.elファイルをパッケージする方法。
+* Multi-file Packages::      ▼複数ファイルをパッケージする方法。
+* Package Archives::         パッケージアーカイブの保守。
+
+
+File: elisp,  Node: Packaging Basics,  Next: Simple Packages,  Up: Packaging
+
+39.1 Packaging Basics
+=====================
+
+パッケージは“シンプルパケージ(simple package)”か“複数フ
+ァイルパッケージ(multi-file package)”のいずれかです。シ
+ンプルパッケージは単一のEmacs Lispファイル内に格納される
+一方、複数ファイルパッケージはtarファイル(複数のLispファ
+イルとマニュアルのような非Lispファイルが含まれる可能性が
+ある)に格納されます。
+
+   通常の使い方では、シンプルパッケージと複数ファイルパ
+ッケージとの違いは、比較的重要ではありません。Package
+Menuインターフェースでは、それらの間に差異はありません。
+しかし以降のセクションで説明するように、それらを作成する
+手順は異なります。
+
+   パッケージ(シンプルか複数ファイル)はそれぞれ、特定の
+“属性(attributes)”をもっています:
+
+Name
+     短い単語(たとえば‘auctex’)。これは通常、そのプログ
+     ラム内でシンボルプレフィクスとしても仕様される
+     (*note Coding Conventions::を参照)。
+
+Version
+     関数‘version-to-list’が理解できる形式のバージョン番
+     号(たとえば‘11.86’)。パッケージの各リリースでは、バ
+     ージョン番号のアップも行うこと。
+
+Brief description
+     そのパッケージがPackage Menuにリストされる際に、こ
+     れが表示される。理想的には36文字以内で、単一行を占
+     めるべきである。
+
+Long description
+     これは‘C-h P’(‘describe-package’)により作成されたバ
+     ッファーに表示され、これの後にそのパッケージの簡単
+     な説明(brief description)とインストール状態
+     (installation status)が続く。通常これは複数行に渡り
+     、そのパッケージの能力と、インストール後に使用を開
+     始するための方法を完全に記述すること。
+
+Dependencies
+     そのパッケージが依存する、他のパッケージ(恐らく最低
+     のバージョン番号を含む)。このリストは空でもよく、そ
+     の場合パッケージには依存パッケージがないことを意味
+     する。それ以外なら、このパッケージをインストールす
+     ることにより、その依存パッケージも自動的にインスト
+     ールされる。依存パッケージのいずれかが見つからなけ
+     れば、そのパッケージをインストールすることはできな
+     い。
+
+   コマンド‘package-install-file’、またはPackage Menuの
+いずれかを介したパッケージのインストールでは、
+‘package-user-dir’に‘NAME-VERSION’という名前のサブディレ
+クトリーが作成される。ここでNAMEはパッケージ名、
+VERSIONはバージョン番号である(たとえば
+‘~/.emacs.d/elpa/auctex-11.86/’)。わたしたちはこれを、そ
+のパッケージの“コンテンツディレクトリー(content
+directory)”と呼んでいます。これは、Emacsがパッケージのコ
+ンテンツ(シンプルパッケージでは単一のLispファイル、また
+は複数ファイルパッケージから抽出されたファイル)を配置す
+る場所です。
+
+   その後Emacsは、autoloadマジックコメント(*note
+Autoload::を参照)にたいして、このコンテンツディレクトリ
+ー内のすべてのLispファイルを検索します。これらの
+autoload定義は、コンテンツディレクトリーの
+‘NAME-autoloads.el’という名前のファイルに保存されます。
+これらは通常、そのパッケージ内で定義された主要なユーザー
+コマンドのautoloadに使用されますが、‘auto-mode-alist’へ
+の要素の追加(*note Auto Major Mode::を参照)等、別のタス
+クを行うこともできます。パッケージは通常、その中で定義さ
+れた関数と変数のすべてをautoload_しない_ことに注意してく
+ださい — 通常はそのパッケージの使用を開始するために呼び
+出される一握りのコマンドだけがautoloadされます。それから
+、Emacsはそのパッケージ内のすべてのLispファイルをバイト
+コンパイルします。
+
+   インストール後、インストールされたパッケージは“ロード
+済み(loaded)”になります。Emacsは‘load-path’にコンテンツ
+ディレクトリーを追加して、‘NAME-autoloads.el’内の
+autoload定義を評価します。
+
+   Emacsのスタートアップ時は常に、インストール済みパッケ
+ージをロードするために、自動的に関数
+‘package-initialize’が呼び出されます。これはinitファイル
+と、(もしあれば)abbrevファイルのロード後、かつ
+‘after-init-hook’の実行前に行われます(*note Startup
+Summary::を参照)。ユーザーオプション
+‘package-enable-at-startup’が‘nil’なら、自動的なパッケー
+ジのロードは無効です。
+
+ -- Command: package-initialize &optional no-activate
+     この関数は、インストール済みパッケージとそれらがロ
+     ード済みかを記録する、Emacsの内部レコードを初期化す
+     る。ユーザーオプション‘package-load-list’は、どのパ
+     ッケージをロードするかを指定する。デフォルトでは、
+     すべてのインストール済みパッケージがロードされる。
+     *note (emacs)Package Installation::を参照のこと。
+
+     オプション引数NO-ACTIVATEが非‘nil’なら、インストー
+     ル済みパッケージを実際にロードせずに、このレコード
+     を更新する。これは内部でのみ使用される。
+
+
+File: elisp,  Node: Simple Packages,  Next: Multi-file Packages,  Prev: Packaging Basics,  Up: Packaging
+
+39.2 Simple Packages
+====================
+
+シンプルパッケージは単一のEmacs Lispソースファイルで構成
+されます。このファイルは、Emacs Lispライブラリーのヘッダ
+ー規約に準拠していなればなりません(*note Library
+Headers::を参照)。以下の例に示すように、そのパッケージの
+属性は種々のヘッダーから取得されます:
+
+     ;;; superfrobnicator.el --- Frobnicate and bifurcate flanges
+
+     ;; Copyright (C) 2011 Free Software Foundation, Inc.
+
+     ;; Author: J. R. Hacker <jrh@example.com>
+     ;; Version: 1.3
+     ;; Package-Requires: ((flange "1.0"))
+     ;; Keywords: multimedia, frobnicate
+     ;; URL: http://example.com/jrhacker/superfrobnicate
+
+     ...
+
+     ;;; Commentary:
+
+     ;; This package provides a minor mode to frobnicate and/or
+     ;; bifurcate any flanges you desire.  To activate it, just type
+     ...
+
+     ;;;###autoload
+     (define-minor-mode superfrobnicator-mode
+     ...
+
+   そのパッケージの名前は1行目のファイル名の拡張子を除い
+た部分と同じです。ここでは、それは‘superfrobnicator’です
+。
+
+   brief description(簡単な説明)も1行目から取得されます
+。ここでは、それは‘Frobnicate and bifurcate flanges’(訳
+注: ‘flangeをフロブニケートして二股化する’のフロブニケー
+トとは、ある技術にたいする無目的で非生産的な具体的行為を
+意味する)です。
+
+   バージョン番号は、もしあれば‘Package-Version’ヘッダー
+、それ以外は‘Version’ヘッダーから取得されます。これらの
+ヘッダーのいずれかが、_提供されていなればなりません_。こ
+このバージョン番号は1.3です。
+
+   そのファイルに‘;;; Commentary:’セクションがあれば、そ
+のセクションは長い説明(long description)として使用されま
+す。(その説明を表示する際、Emacsは‘;;; Commentary:’の行
+と、コメント内のコメント文字列を省力する。)
+
+   そのファイルに‘Package-Requires’ヘッダーがあれば、そ
+れはパッケージの依存関係(package dependencies)として使用
+されます。上の例では、パッケージはバージョン1.0以上の
+‘flange’パッケージに依存します。‘Package-Requires’ヘッダ
+ーの説明は、*note Library Headers::を参照してください。
+このヘッダーが省略された場合、そのパッケージに依存関係は
+ありません。
+
+   ヘッダー‘Keywords’と‘URL’はオプションですが、含めるこ
+とを推奨します。コマンド‘describe-package’は、出力にリン
+クを追加するためにこれらを使用します。‘Keywords’ヘッダー
+には、‘finder-known-keywords’リストからの標準的キーワー
+ドを少なくとも1つ含めるべきです。
+
+   ファイルには*note Packaging Basics::で説明したように
+、1つ以上のautoloadマジックコメントも含めるべきです。上
+の例では、マジックコメントにより
+‘superfrobnicator-mode’が自動ロードされます。
+
+   パッケージアーカイブに単一ファイルのパッケージを追加
+する方法は、*note Package Archives::を参照してください。
+
+
+File: elisp,  Node: Multi-file Packages,  Next: Package Archives,  Prev: Simple Packages,  Up: Packaging
+
+39.3 Multi-file Packages
+========================
+
+複数ファイルパッケージは、単一ファイルパッケージより作成
+の手軽さが少し劣りますが、より多くの機能を提供します。複
+数ファイルパッケージには複数のEmacs Lispファイル、Infoマ
+ニュアル、および(イメージのような)他のファイルタイプを含
+めることができます。
+
+   インストールに先立ち、複数パッケージはファイルとして
+パッケージアーカイブに含まれます。このtarファイルは
+‘NAME-VERSION.tar’という名前でなければなりません。ここで
+NAMEはパッケージ名、VERSIONはバージョン番号です。tarのコ
+ンテンツは一度解凍されたなら、“コンテンツディレクトリ
+content directory)”である‘NAME-VERSION’という名前のディ
+レクトリーにすべて解凍されなければなりません(*note
+Packaging Basics::を参照)。このコンテンツディレクトリー
+のサブディレクトリーにも、ファイルが抽出されるかもしれま
+せん。
+
+   このコンテンツディレクトリー内のファイルのうち1つは、
+‘NAME-pkg.el’という名前のファイルでなければなりません。
+このファイルには、以下で説明する関数‘define-package’の呼
+び出しから構成される、単一のLispフォームを含まなければな
+りません。これは、そのパッケージのバージョン、簡単な説明
+(brief description)、必要条件(requirements)を定義します
+。
+
+   たとえば、複数ファイルパッケージとして
+superfrobnicatorのバージョン1.3を配布する場合、tarファイ
+ルは‘superfrobnicator-1.3.tar’になります。これのコンテン
+ツは‘superfrobnicator-1.3’に解凍され、そのうちの1つはフ
+ァイル‘superfrobnicator-pkg.el’になるでしょう。
+
+ -- Function: define-package name version &optional
+          docstring requirements
+     この関数はパッケージを定義する。NAMEは、そのパッケ
+     ージの名前(文字列)、VERSIONは関数
+     ‘version-to-list’が理解できる形式のバージョン(文字
+     列)DOCSTRINGは簡単な説明(brief description)。
+
+     REQUIREMENTSは、必要となるパッケージとそれらのバー
+     ジョン番号。このリスト内の各要素は‘(DEP-NAME
+     DEP-VERSION)’という形式であること。ここでDEP-NAMEは
+     その依存するパッケージ名が名前であるようなシンボル
+     、DEP-VERSIONは依存するパッケージのバージョン番号
+     (文字列)である。
+
+   コンテンツディレクトリーに‘README’という名前のファイ
+ルがあれば、それは長い説明(long description)として使用さ
+れます。
+
+   コンテンツディレクトリーに‘dir’という名前のファイルが
+あれば、‘install-info’で作成されるInfoディレクトリーファ
+イル名と▽みなされます。*note Invoking install-info:
+(texinfo)Invoking install-info.を参照してください。関係
+のあるInfoファイルも、このコンテンツディレクトリー内に解
+凍される必要があります。この場合、そのパッケージがアクテ
+ィブ化されたとき、Emacsは自動的に‘Info-directory-list’に
+コンテンツディレクトリーを追加します。
+
+   パッケージ内に、‘.elc’ファイルを含めないでください。
+これらは、そのパッケージのインストール時に作成されます。
+ファイルがバイトコンパイルされる順序を制御する方法は存在
+しないことに注意してください。
+
+   ‘NAME-autoloads.el’という名前のファイルを含めてはなり
+ません。このファイルは、そのパッケージのautoload定義のた
+めに予約済みです(*note Packaging Basics::を参照)。これは
+パッケージのインストール時に、そのパッケージ内のすべての
+Lispファイルからautoloadマジックコメントを検索する際、自
+動的に作成されます。
+
+   複数パッケージファイルが、(イメージのような)補助的な
+データファイルを含む場合、パッケージ内のLispファイルは変
+数‘load-file-name’を通じて、それらのファイルを参照できま
+す(*note Loading::を参照)。以下は例です:
+
+     (defconst superfrobnicator-base (file-name-directory load-file-name))
+
+     (defun superfrobnicator-fetch-image (file)
+       (expand-file-name file superfrobnicator-base))
+
+
+File: elisp,  Node: Package Archives,  Prev: Multi-file Packages,  Up: Packaging
+
+39.4 Creating and Maintaining Package Archives
+==============================================
+
+Package Menuを通じて、“パッケージアーカイブ(package
+archives)”からユーザーはパッケージをダウンロードできます
+。そのようなアーカイブは、変数‘package-archives’で指定さ
+れます。この変数のデフォルト値のデフォルト値として単一の
+エントリー、<http://elpa.gnu.org>でGNUプロジェクトがホス
+トするアーカイブが含まれています。このセクションでは、パ
+ッケージアーカイブのセットアップと保守の方法について説明
+します。
+
+ -- User Option: package-archives
+     この変数の値は、Emacsパッケージマネージャーが認識す
+     る、パッケージアーカイブのリストである。
+
+     このalistの要素はそれぞれが1つのアーカイブに対応し
+     、‘(ID . LOCATION)’という形式であること。ここでIDは
+     パッケージ名(文字列)、LOCATIONは文字列であるような
+     “ベースロケーション(base location)”である。
+
+     ベースロケーションが‘http:’で始まる場合、それは
+     HTTPのURLとして扱われ、(デフォルトのGNUアーカイブの
+     ように)HTTPを介してこのアーカイブからパッケージがダ
+     ウンロードされる。
+
+     それ以外なら、ベースロケーションはディレクトリー名
+     であること。この場合、Emacsは通常のファイルアクセス
+     を通じて、そのアーカイブからパッケージを取得する。
+     “local”のようなアーカイブは主として、テスト用に有用
+     である。
+
+   パッケージアーカイブは、そのパッケージ、および関連す
+るファイルが格納された、単なるディレクトリーです。HTTPを
+介してそのアーカイブに到達できるようにしたければ、このデ
+ィレクトリーがウェブサーバーにアクセスできなければなりま
+せん。これを達成する方法は、このマニュアルの範囲を超えま
+す。
+
+   手軽なのは、‘package-x’を通じてパッケージアーカイブの
+セットアップと更新を行う方法です。これはEmacsに含まれて
+いますが、デフォルトではロードされません。ロードするには
+‘M-x load-library <RET> package-x <RET>’、または
+‘(require 'package-x)’をinitファイルに追加します。*note
+Lisp Libraries: (emacs)Lisp Libraries.を参照してください
+。一度ロードされれば、以下を使用できます:
+
+ -- User Option: package-archive-upload-base
+     この変数の値は、ディレクトリー名としてのパッケージ
+     アーカイブのベースロケーションである。‘package-x’ラ
+     イブラリー内のコマンドは、このベースロケーションを
+     使用することになる。
+
+     このディレクトリー名は絶対ファイル名であること。パ
+     ッケージアーカイブが別マシン上にある場合には、
+     ‘/ssh:foo@example.com:/var/www/packages/’のようなリ
+     モート名を指定できる。*note Remote Files:
+     (emacs)Remote Files.を参照のこと。
+
+ -- Command: package-upload-file filename
+     このコマンドはファイル名FILENAMEの入力を求め、その
+     ファイルを‘package-archive-upload-base’にアップロー
+     ドする。このファイルはシンプルパッケージ(‘.el’ファ
+     イル)、または複数ファイルパッケージ(‘.tar’ファイル
+     )のいずれかでなければならず、それ以外ならエラーが発
+     生する。そのパッケージの属性は自動的に解凍され、ア
+     ーカイブのコンテンツリストは、この情報でアップロー
+     ドされる。
+
+     ‘package-archive-upload-base’が有効なディレクトリー
+     を指定しない場合、この関数はインタラクティブにそれ
+     の入力を求める。そのディレクトリーが存在しなければ
+     作成する。このディレクトリーに、初期コンテンツをも
+     つ必要はない(最初に空のアーカイブを作成するために、
+     このコマンドを使用できる)。
+
+ -- Command: package-upload-buffer
+     このコマンドは‘package-upload-file’と似ているが、パ
+     ッケージファイルの入力を求めずに、カレントバッファ
+     ーのコンテンツをアップロードする。カレントバッファ
+     ーはシンプルパッケージ(‘.el’ファイル)か複数ファイル
+     パッケージ(‘.tar’ファイル)をvisitしていなればならず
+     、それ以外ならエラーが発生する。
+
+アーカイブ作成後、それが‘package-archives’内になければ、
+Package Menuインターフェースからアクセスできないことを忘
+れないでください。
+
+   公的なパッケージアーカイブの保守には責任が併ないます
+。アーカイブからEmacsユーザーがパッケージをインストール
+する際、それらのパッケージはそのユーザーの権限において、
+任意のコードを実行できるようになります(これはパッケージ
+にたいしてだけでなく、一般的なEmacsコードにたいしても真
+といえる)。そのため、アーカイブの保守を保つとともに、ホ
+スティングシステムが安全であるよう維持するべきです。
+
+   暗号化されたキーを使用してパッケージに“サイン
+(sign)”するのが、パッケージのセキュリティーを向上する1つ
+の方法です。gpgのprivateキーとpublicキーを生成してあれば
+、以下のようにそのパッケージにサインするためにgpgを使用
+できます:
+
+     gpg -ba -o FILE.sig FILE
+
+単一ファイルパッケージにたいしては、FILEはそのパッケージ
+のLispファイルです。複数ファイルパッケージではそのパッケ
+ージのtarファイルです。同じ方法により、アーカイブのコン
+テンツファイルにもサインできます。これを行うには、パッケ
+ージと同じディレクトリーで、‘.sig’ファイルを利用可能でき
+るようにしてください。ダウンロードする人にたいしても、
+<http://pgp.mit.edu/>のようなキーサーバーにアップロード
+することにより、publicキーを利用できるようにするべきです
+。その人がアーカイブからパッケージをインストールする際、
+には署名の検証にpublicキーを使用できます。
+
+   これらの方法についての完全な説明は、このマニュアルの
+範囲を超えます。暗号化キーとサインに関する詳細は*note
+GnuPG: (gnupg)Top.、Emacsに付属するGNU Privacy Guardへの
+インターフェースについては、*note EasyPG: (epa)Top.を参
+照してください。
+
+
+File: elisp,  Node: Antinews,  Next: GNU Free Documentation License,  Prev: Packaging,  Up: Top
+
+Appendix A Emacs 23 Antinews
+****************************
+
+時代に逆らって生きるユーザーのために、以下はEmacsバージ
+ョン23.4へのダウングレードに関する情報です。Emacs 24.5機
+能の不在による結果としての偉大なる単純さを、ぜひ堪能して
+ください。
+
+A.1 Old Lisp Features in Emacs 23
+=================================
+
+   • レキシカルスコープのサポートは削除されました。すべ
+     ての変数はダイナミックなスコープをもちます。
+     ‘lexical-binding’変数と、‘eval’のLEXICAL引数は削除
+     されました。フォーム‘defvar’と‘defconst’は、すべて
+     の変数がダイナミックになったので、もはや変数をダイ
+     ナミックとマークすることはありません。
+
+     ダイナミックバインディングだけをもつことが、Emacs拡
+     張の精神に適合しています。任意のEmacsコードによる定
+     義済み変数へのアクセスを許容する方が、混乱を最小に
+     するのです。とはいえ、あなたのプログラムが理解しに
+     くくなるのを避けるためのヒントは、*note Dynamic
+     Binding Tips::を参照してください。
+
+   • Lispから引数を‘nil’省略してマイナーモード関数を呼び
+     出しても、マイナーモードは無条件でに有効になりませ
+     ん。かわりにマイナーモードのオンとオフが切り替わり
+     ます。これはインタラクティブな呼び出し時の挙動なの
+     で、行うのは簡単です。これの1つの欠点は、フックから
+     マイナーモードを有効にするのが、より面倒になること
+     です。これを行うためには、以下のようなことをする必
+     要があります
+
+          (add-hook 'foo-hook (lambda () (bar-mode 1)))
+
+     または、‘turn-on-bar-mode’を定義して、それをフック
+     から呼び出してください。
+
+   • ダミーのメジャーモード‘prog-mode’は、削除されました
+     。プログラミング関連のモードの慣習に適合させるため
+     にこれを使うかわりに、あなたのモードがこれらの慣習
+     にしたがうよう、明示的に保証するべきです。*note
+     Major Mode Conventions::を参照してください。
+
+   • Emacsの双方向表示と、編集にたいするサポートはなくな
+     ります。R2Lテキスト挿入により、行やパラグラフの表示
+     方法が混乱することを心配する必要がなくなるので、関
+     数‘bidi-string-mark-left-to-right’は削除されました
+     。さらに、双方向表示に関連する、他の多くの関数と変
+     数が削除されました。‘U+200E’("left-to-right mark")の
+     ような、Unicodeの方向文字は表示で特別な効果をもたな
+     くなります。
+
+   • Emacsのウィンドウは、ほとんどがLispから隠蔽された内
+     部状態をもつようになりました。内部的なウィンドウは
+     、もはやLispから見えなくなります。‘window-parent’の
+     ような関数、windowの配置に関連するwindowパラメータ
+     ー、およびwindowローカルなバッファーリストはすべて
+     削除されました。ウィンドウのリサイズに関する関数は
+     、それらがあまりに小さければ、ウィンドウを削除でき
+     ます。
+
+     バッファー表示を制御する、“アクション関数”の機能は
+     、‘display-buffer-overriding-action’と関連する変数
+     、‘display-buffer’のACTION引数、および他の関数が削
+     除されました。Emacsがバッファーを表示するウィンドウ
+     を選択する方法をプログラム的に制御するためには、
+     ‘pop-up-frames’と他の変数を正しく組み合わせてバイン
+     ドする方法です。
+
+   • 標準的な補完インターフェースは、変数
+     ‘completion-extra-properties’、補完関数にたいする
+     ‘metadata’アクションフラグ、“補完カテゴリー
+     (completion categories)”の排除により簡略化されまし
+     た。Lispプログラマーは、補完のチューニング手法の選
+     択肢を見つけるために途方に暮れるようなことは少なく
+     なりましたが、あるパッケージが自身のニーズをこの合
+     理的なインターフェースが満たさないことを見い出した
+     ときには、特別な補完機能を自身で実装しなければなり
+     ません。
+
+   • ‘copy-directory’は、目標ディレクトリーが既存であろ
+     うとなかろうと、同じように振る舞います。目標ディレ
+     クトリーが存在すれば、1つ目のディレクトリーをサブデ
+     ィレクトリーとしてコピーするのではなく、1つ目のディ
+     レクトリーの_内容_を、目標ディレクトリーにコピーし
+     ます(サブディレクトリーは再帰的に処理される)
+
+   • ‘delete-file’と‘delete-directory’にたいするTRASH引
+     数は削除されました。変数
+     ‘delete-by-moving-to-trash’は、注意して使用しなけれ
+     ばならなくなりました。これが非‘nil’のときは常に、
+     ‘delete-file’と‘delete-directory’にたいするすべての
+     呼び出しで、trashが使用されます。
+
+   • EmacsはSELinuxファイルコンテキストをサポートしなく
+     なったので、‘copy-file’のPRESERVE-SELINUX-CONTEXT引
+     数は削除されました。‘backup-buffer’のリターン値は、
+     もはやSELinuxファイルコンテキストにたいするエントリ
+     ーをもちません。
+
+   • テキストエリア内でのマウスクリック入力イベントでの
+     、POSITIONリスト(*note Click Events::を参照)のY座標
+     は、テキストエリア上端ではなく、(もしあれば)ヘッダ
+     ー行上端から数えるようになりました。
+
+   • メニューkeymap内のバインディング(*note Format of
+     Keymaps::を参照)は、以下のように定義内に追加の
+     CACHEエントリーを必要とするかもしれなくなります:
+
+          (TYPE ITEM-NAME CACHE . BINDING)
+
+     CACHEエントリーは、同じコマンドを呼び出すキーボード
+     キーシーケンスを記録するために、Emacsにより内部的に
+     使用されます。Lispプログラマーは決してこれを使用す
+     るべきではありません。
+
+   • ‘gnutls’ライブラリーは削除され、それに併なって関数
+     ‘open-network-stream’が簡略化されました。暗号化され
+     たネットワークを望むLispプログラムは、‘starttls’や
+     ‘gnutls-cli’のような、外部プログラムを呼び出さなけ
+     ればならなくなります。
+
+   • ツールバーはセパレーターを表示できなくなり、これに
+     よりグラフィカルなフレームすべてで、数ピクセルのス
+     ペースが開放されました。
+
+   • 簡略化にたいする継続要求の一環として、他の多くの関
+     数と変数が排除されました。
+
+
+File: elisp,  Node: GNU Free Documentation License,  Next: GPL,  Prev: Antinews,  Up: Top
+
+Appendix B GNU Free Documentation License
+*****************************************
+
+             Version 1.3, 3 November 2008
+
+     Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
+     <http://fsf.org/>
+
+     Everyone is permitted to copy and distribute verbatim copies
+     of this license document, but changing it is not allowed.
+
+  0. PREAMBLE
+
+     The purpose of this License is to make a manual,
+     textbook, or other functional and useful document
+     “free” in the sense of freedom: to assure everyone
+     the effective freedom to copy and redistribute it,
+     with or without modifying it, either commercially
+     or noncommercially.  Secondarily, this License
+     preserves for the author and publisher a way to get
+     credit for their work, while not being considered
+     responsible for modifications made by others.
+
+     This License is a kind of “copyleft”, which means
+     that derivative works of the document must
+     themselves be free in the same sense.  It
+     complements the GNU General Public License, which
+     is a copyleft license designed for free software.
+
+     We have designed this License in order to use it
+     for manuals for free software, because free
+     software needs free documentation: a free program
+     should come with manuals providing the same
+     freedoms that the software does.  But this License
+     is not limited to software manuals; it can be used
+     for any textual work, regardless of subject matter
+     or whether it is published as a printed book.  We
+     recommend this License principally for works whose
+     purpose is instruction or reference.
+
+  1. APPLICABILITY AND DEFINITIONS
+
+     This License applies to any manual or other work,
+     in any medium, that contains a notice placed by the
+     copyright holder saying it can be distributed under
+     the terms of this License.  Such a notice grants a
+     world-wide, royalty-free license, unlimited in
+     duration, to use that work under the conditions
+     stated herein.  The “Document”, below, refers to
+     any such manual or work.  Any member of the public
+     is a licensee, and is addressed as “you”.  You
+     accept the license if you copy, modify or
+     distribute the work in a way requiring permission
+     under copyright law.
+
+     A “Modified Version” of the Document means any work
+     containing the Document or a portion of it, either
+     copied verbatim, or with modifications and/or
+     translated into another language.
+
+     A “Secondary Section” is a named appendix or a
+     front-matter section of the Document that deals
+     exclusively with the relationship of the publishers
+     or authors of the Document to the Document’s
+     overall subject (or to related matters) and
+     contains nothing that could fall directly within
+     that overall subject.  (Thus, if the Document is in
+     part a textbook of mathematics, a Secondary Section
+     may not explain any mathematics.)  The relationship
+     could be a matter of historical connection with the
+     subject or with related matters, or of legal,
+     commercial, philosophical, ethical or political
+     position regarding them.
+
+     The “Invariant Sections” are certain Secondary
+     Sections whose titles are designated, as being
+     those of Invariant Sections, in the notice that
+     says that the Document is released under this
+     License.  If a section does not fit the above
+     definition of Secondary then it is not allowed to
+     be designated as Invariant.  The Document may
+     contain zero Invariant Sections.  If the Document
+     does not identify any Invariant Sections then there
+     are none.
+
+     The “Cover Texts” are certain short passages of
+     text that are listed, as Front-Cover Texts or
+     Back-Cover Texts, in the notice that says that the
+     Document is released under this License.  A
+     Front-Cover Text may be at most 5 words, and a
+     Back-Cover Text may be at most 25 words.
+
+     A “Transparent” copy of the Document means a
+     machine-readable copy, represented in a format
+     whose specification is available to the general
+     public, that is suitable for revising the document
+     straightforwardly with generic text editors or (for
+     images composed of pixels) generic paint programs
+     or (for drawings) some widely available drawing
+     editor, and that is suitable for input to text
+     formatters or for automatic translation to a
+     variety of formats suitable for input to text
+     formatters.  A copy made in an otherwise
+     Transparent file format whose markup, or absence of
+     markup, has been arranged to thwart or discourage
+     subsequent modification by readers is not
+     Transparent.  An image format is not Transparent if
+     used for any substantial amount of text.  A copy
+     that is not “Transparent” is called “Opaque”.
+
+     Examples of suitable formats for Transparent copies
+     include plain ASCII without markup, Texinfo input
+     format, LaTeX input format, SGML or XML using a
+     publicly available DTD, and standard-conforming
+     simple HTML, PostScript or PDF designed for human
+     modification.  Examples of transparent image
+     formats include PNG, XCF and JPG.  Opaque formats
+     include proprietary formats that can be read and
+     edited only by proprietary word processors, SGML or
+     XML for which the DTD and/or processing tools are
+     not generally available, and the machine-generated
+     HTML, PostScript or PDF produced by some word
+     processors for output purposes only.
+
+     The “Title Page” means, for a printed book, the
+     title page itself, plus such following pages as are
+     needed to hold, legibly, the material this License
+     requires to appear in the title page.  For works in
+     formats which do not have any title page as such,
+     “Title Page” means the text near the most prominent
+     appearance of the work’s title, preceding the
+     beginning of the body of the text.
+
+     The “publisher” means any person or entity that
+     distributes copies of the Document to the public.
+
+     A section “Entitled XYZ” means a named subunit of
+     the Document whose title either is precisely XYZ or
+     contains XYZ in parentheses following text that
+     translates XYZ in another language.  (Here XYZ
+     stands for a specific section name mentioned below,
+     such as “Acknowledgements”, “Dedications”,
+     “Endorsements”, or “History”.)  To “Preserve the
+     Title” of such a section when you modify the
+     Document means that it remains a section “Entitled
+     XYZ” according to this definition.
+
+     The Document may include Warranty Disclaimers next
+     to the notice which states that this License
+     applies to the Document.  These Warranty
+     Disclaimers are considered to be included by
+     reference in this License, but only as regards
+     disclaiming warranties: any other implication that
+     these Warranty Disclaimers may have is void and has
+     no effect on the meaning of this License.
+
+  2. VERBATIM COPYING
+
+     You may copy and distribute the Document in any
+     medium, either commercially or noncommercially,
+     provided that this License, the copyright notices,
+     and the license notice saying this License applies
+     to the Document are reproduced in all copies, and
+     that you add no other conditions whatsoever to
+     those of this License.  You may not use technical
+     measures to obstruct or control the reading or
+     further copying of the copies you make or
+     distribute.  However, you may accept compensation
+     in exchange for copies.  If you distribute a large
+     enough number of copies you must also follow the
+     conditions in section 3.
+
+     You may also lend copies, under the same conditions
+     stated above, and you may publicly display copies.
+
+  3. COPYING IN QUANTITY
+
+     If you publish printed copies (or copies in media
+     that commonly have printed covers) of the Document,
+     numbering more than 100, and the Document’s license
+     notice requires Cover Texts, you must enclose the
+     copies in covers that carry, clearly and legibly,
+     all these Cover Texts: Front-Cover Texts on the
+     front cover, and Back-Cover Texts on the back
+     cover.  Both covers must also clearly and legibly
+     identify you as the publisher of these copies.  The
+     front cover must present the full title with all
+     words of the title equally prominent and visible.
+     You may add other material on the covers in
+     addition.  Copying with changes limited to the
+     covers, as long as they preserve the title of the
+     Document and satisfy these conditions, can be
+     treated as verbatim copying in other respects.
+
+     If the required texts for either cover are too
+     voluminous to fit legibly, you should put the first
+     ones listed (as many as fit reasonably) on the
+     actual cover, and continue the rest onto adjacent
+     pages.
+
+     If you publish or distribute Opaque copies of the
+     Document numbering more than 100, you must either
+     include a machine-readable Transparent copy along
+     with each Opaque copy, or state in or with each
+     Opaque copy a computer-network location from which
+     the general network-using public has access to
+     download using public-standard network protocols a
+     complete Transparent copy of the Document, free of
+     added material.  If you use the latter option, you
+     must take reasonably prudent steps, when you begin
+     distribution of Opaque copies in quantity, to
+     ensure that this Transparent copy will remain thus
+     accessible at the stated location until at least
+     one year after the last time you distribute an
+     Opaque copy (directly or through your agents or
+     retailers) of that edition to the public.
+
+     It is requested, but not required, that you contact
+     the authors of the Document well before
+     redistributing any large number of copies, to give
+     them a chance to provide you with an updated
+     version of the Document.
+
+  4. MODIFICATIONS
+
+     You may copy and distribute a Modified Version of
+     the Document under the conditions of sections 2 and
+     3 above, provided that you release the Modified
+     Version under precisely this License, with the
+     Modified Version filling the role of the Document,
+     thus licensing distribution and modification of the
+     Modified Version to whoever possesses a copy of it.
+     In addition, you must do these things in the
+     Modified Version:
+
+       A. Use in the Title Page (and on the covers, if
+          any) a title distinct from that of the
+          Document, and from those of previous versions
+          (which should, if there were any, be listed in
+          the History section of the Document).  You may
+          use the same title as a previous version if
+          the original publisher of that version gives
+          permission.
+
+       B. List on the Title Page, as authors, one or
+          more persons or entities responsible for
+          authorship of the modifications in the
+          Modified Version, together with at least five
+          of the principal authors of the Document (all
+          of its principal authors, if it has fewer than
+          five), unless they release you from this
+          requirement.
+
+       C. State on the Title page the name of the
+          publisher of the Modified Version, as the
+          publisher.
+
+       D. Preserve all the copyright notices of the
+          Document.
+
+       E. Add an appropriate copyright notice for your
+          modifications adjacent to the other copyright
+          notices.
+
+       F. Include, immediately after the copyright
+          notices, a license notice giving the public
+          permission to use the Modified Version under
+          the terms of this License, in the form shown
+          in the Addendum below.
+
+       G. Preserve in that license notice the full lists
+          of Invariant Sections and required Cover Texts
+          given in the Document’s license notice.
+
+       H. Include an unaltered copy of this License.
+
+       I. Preserve the section Entitled “History”,
+          Preserve its Title, and add to it an item
+          stating at least the title, year, new authors,
+          and publisher of the Modified Version as given
+          on the Title Page.  If there is no section
+          Entitled “History” in the Document, create one
+          stating the title, year, authors, and
+          publisher of the Document as given on its
+          Title Page, then add an item describing the
+          Modified Version as stated in the previous
+          sentence.
+
+       J. Preserve the network location, if any, given
+          in the Document for public access to a
+          Transparent copy of the Document, and likewise
+          the network locations given in the Document
+          for previous versions it was based on.  These
+          may be placed in the “History” section.  You
+          may omit a network location for a work that
+          was published at least four years before the
+          Document itself, or if the original publisher
+          of the version it refers to gives permission.
+
+       K. For any section Entitled “Acknowledgements” or
+          “Dedications”, Preserve the Title of the
+          section, and preserve in the section all the
+          substance and tone of each of the contributor
+          acknowledgements and/or dedications given
+          therein.
+
+       L. Preserve all the Invariant Sections of the
+          Document, unaltered in their text and in their
+          titles.  Section numbers or the equivalent are
+          not considered part of the section titles.
+
+       M. Delete any section Entitled “Endorsements”.
+          Such a section may not be included in the
+          Modified Version.
+
+       N. Do not retitle any existing section to be
+          Entitled “Endorsements” or to conflict in
+          title with any Invariant Section.
+
+       O. Preserve any Warranty Disclaimers.
+
+     If the Modified Version includes new front-matter
+     sections or appendices that qualify as Secondary
+     Sections and contain no material copied from the
+     Document, you may at your option designate some or
+     all of these sections as invariant.  To do this,
+     add their titles to the list of Invariant Sections
+     in the Modified Version’s license notice.  These
+     titles must be distinct from any other section
+     titles.
+
+     You may add a section Entitled “Endorsements”,
+     provided it contains nothing but endorsements of
+     your Modified Version by various parties—for
+     example, statements of peer review or that the text
+     has been approved by an organization as the
+     authoritative definition of a standard.
+
+     You may add a passage of up to five words as a
+     Front-Cover Text, and a passage of up to 25 words
+     as a Back-Cover Text, to the end of the list of
+     Cover Texts in the Modified Version.  Only one
+     passage of Front-Cover Text and one of Back-Cover
+     Text may be added by (or through arrangements made
+     by) any one entity.  If the Document already
+     includes a cover text for the same cover,
+     previously added by you or by arrangement made by
+     the same entity you are acting on behalf of, you
+     may not add another; but you may replace the old
+     one, on explicit permission from the previous
+     publisher that added the old one.
+
+     The author(s) and publisher(s) of the Document do
+     not by this License give permission to use their
+     names for publicity for or to assert or imply
+     endorsement of any Modified Version.
+
+  5. COMBINING DOCUMENTS
+
+     You may combine the Document with other documents
+     released under this License, under the terms
+     defined in section 4 above for modified versions,
+     provided that you include in the combination all of
+     the Invariant Sections of all of the original
+     documents, unmodified, and list them all as
+     Invariant Sections of your combined work in its
+     license notice, and that you preserve all their
+     Warranty Disclaimers.
+
+     The combined work need only contain one copy of
+     this License, and multiple identical Invariant
+     Sections may be replaced with a single copy.  If
+     there are multiple Invariant Sections with the same
+     name but different contents, make the title of each
+     such section unique by adding at the end of it, in
+     parentheses, the name of the original author or
+     publisher of that section if known, or else a
+     unique number.  Make the same adjustment to the
+     section titles in the list of Invariant Sections in
+     the license notice of the combined work.
+
+     In the combination, you must combine any sections
+     Entitled “History” in the various original
+     documents, forming one section Entitled “History”;
+     likewise combine any sections Entitled
+     “Acknowledgements”, and any sections Entitled
+     “Dedications”.  You must delete all sections
+     Entitled “Endorsements.”
+
+  6. COLLECTIONS OF DOCUMENTS
+
+     You may make a collection consisting of the
+     Document and other documents released under this
+     License, and replace the individual copies of this
+     License in the various documents with a single copy
+     that is included in the collection, provided that
+     you follow the rules of this License for verbatim
+     copying of each of the documents in all other
+     respects.
+
+     You may extract a single document from such a
+     collection, and distribute it individually under
+     this License, provided you insert a copy of this
+     License into the extracted document, and follow
+     this License in all other respects regarding
+     verbatim copying of that document.
+
+  7. AGGREGATION WITH INDEPENDENT WORKS
+
+     A compilation of the Document or its derivatives
+     with other separate and independent documents or
+     works, in or on a volume of a storage or
+     distribution medium, is called an “aggregate” if
+     the copyright resulting from the compilation is not
+     used to limit the legal rights of the compilation’s
+     users beyond what the individual works permit.
+     When the Document is included in an aggregate, this
+     License does not apply to the other works in the
+     aggregate which are not themselves derivative works
+     of the Document.
+
+     If the Cover Text requirement of section 3 is
+     applicable to these copies of the Document, then if
+     the Document is less than one half of the entire
+     aggregate, the Document’s Cover Texts may be placed
+     on covers that bracket the Document within the
+     aggregate, or the electronic equivalent of covers
+     if the Document is in electronic form.  Otherwise
+     they must appear on printed covers that bracket the
+     whole aggregate.
+
+  8. TRANSLATION
+
+     Translation is considered a kind of modification,
+     so you may distribute translations of the Document
+     under the terms of section 4.  Replacing Invariant
+     Sections with translations requires special
+     permission from their copyright holders, but you
+     may include translations of some or all Invariant
+     Sections in addition to the original versions of
+     these Invariant Sections.  You may include a
+     translation of this License, and all the license
+     notices in the Document, and any Warranty
+     Disclaimers, provided that you also include the
+     original English version of this License and the
+     original versions of those notices and disclaimers.
+     In case of a disagreement between the translation
+     and the original version of this License or a
+     notice or disclaimer, the original version will
+     prevail.
+
+     If a section in the Document is Entitled
+     “Acknowledgements”, “Dedications”, or “History”,
+     the requirement (section 4) to Preserve its Title
+     (section 1) will typically require changing the
+     actual title.
+
+  9. TERMINATION
+
+     You may not copy, modify, sublicense, or distribute
+     the Document except as expressly provided under
+     this License.  Any attempt otherwise to copy,
+     modify, sublicense, or distribute it is void, and
+     will automatically terminate your rights under this
+     License.
+
+     However, if you cease all violation of this
+     License, then your license from a particular
+     copyright holder is reinstated (a) provisionally,
+     unless and until the copyright holder explicitly
+     and finally terminates your license, and (b)
+     permanently, if the copyright holder fails to
+     notify you of the violation by some reasonable
+     means prior to 60 days after the cessation.
+
+     Moreover, your license from a particular copyright
+     holder is reinstated permanently if the copyright
+     holder notifies you of the violation by some
+     reasonable means, this is the first time you have
+     received notice of violation of this License (for
+     any work) from that copyright holder, and you cure
+     the violation prior to 30 days after your receipt
+     of the notice.
+
+     Termination of your rights under this section does
+     not terminate the licenses of parties who have
+     received copies or rights from you under this
+     License.  If your rights have been terminated and
+     not permanently reinstated, receipt of a copy of
+     some or all of the same material does not give you
+     any rights to use it.
+
+  10. FUTURE REVISIONS OF THIS LICENSE
+
+     The Free Software Foundation may publish new,
+     revised versions of the GNU Free Documentation
+     License from time to time.  Such new versions will
+     be similar in spirit to the present version, but
+     may differ in detail to address new problems or
+     concerns.  See <http://www.gnu.org/copyleft/>.
+
+     Each version of the License is given a
+     distinguishing version number.  If the Document
+     specifies that a particular numbered version of
+     this License “or any later version” applies to it,
+     you have the option of following the terms and
+     conditions either of that specified version or of
+     any later version that has been published (not as a
+     draft) by the Free Software Foundation.  If the
+     Document does not specify a version number of this
+     License, you may choose any version ever published
+     (not as a draft) by the Free Software Foundation.
+     If the Document specifies that a proxy can decide
+     which future versions of this License can be used,
+     that proxy’s public statement of acceptance of a
+     version permanently authorizes you to choose that
+     version for the Document.
+
+  11. RELICENSING
+
+     “Massive Multiauthor Collaboration Site” (or “MMC
+     Site”) means any World Wide Web server that
+     publishes copyrightable works and also provides
+     prominent facilities for anybody to edit those
+     works.  A public wiki that anybody can edit is an
+     example of such a server.  A “Massive Multiauthor
+     Collaboration” (or “MMC”) contained in the site
+     means any set of copyrightable works thus published
+     on the MMC site.
+
+     “CC-BY-SA” means the Creative Commons
+     Attribution-Share Alike 3.0 license published by
+     Creative Commons Corporation, a not-for-profit
+     corporation with a principal place of business in
+     San Francisco, California, as well as future
+     copyleft versions of that license published by that
+     same organization.
+
+     “Incorporate” means to publish or republish a
+     Document, in whole or in part, as part of another
+     Document.
+
+     An MMC is “eligible for relicensing” if it is
+     licensed under this License, and if all works that
+     were first published under this License somewhere
+     other than this MMC, and subsequently incorporated
+     in whole or in part into the MMC, (1) had no cover
+     texts or invariant sections, and (2) were thus
+     incorporated prior to November 1, 2008.
+
+     The operator of an MMC Site may republish an MMC
+     contained in the site under CC-BY-SA on the same
+     site at any time before August 1, 2009, provided
+     the MMC is eligible for relicensing.
+
+ADDENDUM: How to use this License for your documents
+====================================================
+
+To use this License in a document you have written,
+include a copy of the License in the document and put
+the following copyright and license notices just after
+the title page:
+
+       Copyright (C)  YEAR  YOUR NAME.
+       Permission is granted to copy, distribute and/or modify this document
+       under the terms of the GNU Free Documentation License, Version 1.3
+       or any later version published by the Free Software Foundation;
+       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+       Texts.  A copy of the license is included in the section entitled ``GNU
+       Free Documentation License''.
+
+   If you have Invariant Sections, Front-Cover Texts and
+Back-Cover Texts, replace the “with...Texts.” line with
+this:
+
+         with the Invariant Sections being LIST THEIR TITLES, with
+         the Front-Cover Texts being LIST, and with the Back-Cover Texts
+         being LIST.
+
+   If you have Invariant Sections without Cover Texts,
+or some other combination of the three, merge those two
+alternatives to suit the situation.
+
+   If your document contains nontrivial examples of
+program code, we recommend releasing these examples in
+parallel under your choice of free software license,
+such as the GNU General Public License, to permit their
+use in free software.
+
+
+File: elisp,  Node: GPL,  Next: Tips,  Prev: GNU Free Documentation License,  Up: Top
+
+Appendix C GNU General Public License
+*************************************
+
+                Version 3, 29 June 2007
+
+     Copyright © 2007 Free Software Foundation, Inc. <http://fsf.org/>
+
+     Everyone is permitted to copy and distribute verbatim copies of this
+     license document, but changing it is not allowed.
+
+Preamble
+========
+
+The GNU General Public License is a free, copyleft
+license for software and other kinds of works.
+
+   The licenses for most software and other practical
+works are designed to take away your freedom to share
+and change the works.  By contrast, the GNU General
+Public License is intended to guarantee your freedom to
+share and change all versions of a program—to make sure
+it remains free software for all its users.  We, the
+Free Software Foundation, use the GNU General Public
+License for most of our software; it applies also to any
+other work released this way by its authors.  You can
+apply it to your programs, too.
+
+   When we speak of free software, we are referring to
+freedom, not price.  Our General Public Licenses are
+designed to make sure that you have the freedom to
+distribute copies of free software (and charge for them
+if you wish), that you receive source code or can get it
+if you want it, that you can change the software or use
+pieces of it in new free programs, and that you know you
+can do these things.
+
+   To protect your rights, we need to prevent others
+from denying you these rights or asking you to surrender
+the rights.  Therefore, you have certain
+responsibilities if you distribute copies of the
+software, or if you modify it: responsibilities to
+respect the freedom of others.
+
+   For example, if you distribute copies of such a
+program, whether gratis or for a fee, you must pass on
+to the recipients the same freedoms that you received.
+You must make sure that they, too, receive or can get
+the source code.  And you must show them these terms so
+they know their rights.
+
+   Developers that use the GNU GPL protect your rights
+with two steps: (1) assert copyright on the software,
+and (2) offer you this License giving you legal
+permission to copy, distribute and/or modify it.
+
+   For the developers’ and authors’ protection, the GPL
+clearly explains that there is no warranty for this free
+software.  For both users’ and authors’ sake, the GPL
+requires that modified versions be marked as changed, so
+that their problems will not be attributed erroneously
+to authors of previous versions.
+
+   Some devices are designed to deny users access to
+install or run modified versions of the software inside
+them, although the manufacturer can do so.  This is
+fundamentally incompatible with the aim of protecting
+users’ freedom to change the software.  The systematic
+pattern of such abuse occurs in the area of products for
+individuals to use, which is precisely where it is most
+unacceptable.  Therefore, we have designed this version
+of the GPL to prohibit the practice for those products.
+If such problems arise substantially in other domains,
+we stand ready to extend this provision to those domains
+in future versions of the GPL, as needed to protect the
+freedom of users.
+
+   Finally, every program is threatened constantly by
+software patents.  States should not allow patents to
+restrict development and use of software on
+general-purpose computers, but in those that do, we wish
+to avoid the special danger that patents applied to a
+free program could make it effectively proprietary.  To
+prevent this, the GPL assures that patents cannot be
+used to render the program non-free.
+
+   The precise terms and conditions for copying,
+distribution and modification follow.
+
+TERMS AND CONDITIONS
+====================
+
+  0. Definitions.
+
+     “This License” refers to version 3 of the GNU
+     General Public License.
+
+     “Copyright” also means copyright-like laws that
+     apply to other kinds of works, such as
+     semiconductor masks.
+
+     “The Program” refers to any copyrightable work
+     licensed under this License.  Each licensee is
+     addressed as “you”.  “Licensees” and “recipients”
+     may be individuals or organizations.
+
+     To “modify” a work means to copy from or adapt all
+     or part of the work in a fashion requiring
+     copyright permission, other than the making of an
+     exact copy.  The resulting work is called a
+     “modified version” of the earlier work or a work
+     “based on” the earlier work.
+
+     A “covered work” means either the unmodified
+     Program or a work based on the Program.
+
+     To “propagate” a work means to do anything with it
+     that, without permission, would make you directly
+     or secondarily liable for infringement under
+     applicable copyright law, except executing it on a
+     computer or modifying a private copy.  Propagation
+     includes copying, distribution (with or without
+     modification), making available to the public, and
+     in some countries other activities as well.
+
+     To “convey” a work means any kind of propagation
+     that enables other parties to make or receive
+     copies.  Mere interaction with a user through a
+     computer network, with no transfer of a copy, is
+     not conveying.
+
+     An interactive user interface displays “Appropriate
+     Legal Notices” to the extent that it includes a
+     convenient and prominently visible feature that (1)
+     displays an appropriate copyright notice, and (2)
+     tells the user that there is no warranty for the
+     work (except to the extent that warranties are
+     provided), that licensees may convey the work under
+     this License, and how to view a copy of this
+     License.  If the interface presents a list of user
+     commands or options, such as a menu, a prominent
+     item in the list meets this criterion.
+
+  1. Source Code.
+
+     The “source code” for a work means the preferred
+     form of the work for making modifications to it.
+     “Object code” means any non-source form of a work.
+
+     A “Standard Interface” means an interface that
+     either is an official standard defined by a
+     recognized standards body, or, in the case of
+     interfaces specified for a particular programming
+     language, one that is widely used among developers
+     working in that language.
+
+     The “System Libraries” of an executable work
+     include anything, other than the work as a whole,
+     that (a) is included in the normal form of
+     packaging a Major Component, but which is not part
+     of that Major Component, and (b) serves only to
+     enable use of the work with that Major Component,
+     or to implement a Standard Interface for which an
+     implementation is available to the public in source
+     code form.  A “Major Component”, in this context,
+     means a major essential component (kernel, window
+     system, and so on) of the specific operating system
+     (if any) on which the executable work runs, or a
+     compiler used to produce the work, or an object
+     code interpreter used to run it.
+
+     The “Corresponding Source” for a work in object
+     code form means all the source code needed to
+     generate, install, and (for an executable work) run
+     the object code and to modify the work, including
+     scripts to control those activities.  However, it
+     does not include the work’s System Libraries, or
+     general-purpose tools or generally available free
+     programs which are used unmodified in performing
+     those activities but which are not part of the
+     work.  For example, Corresponding Source includes
+     interface definition files associated with source
+     files for the work, and the source code for shared
+     libraries and dynamically linked subprograms that
+     the work is specifically designed to require, such
+     as by intimate data communication or control flow
+     between those subprograms and other parts of the
+     work.
+
+     The Corresponding Source need not include anything
+     that users can regenerate automatically from other
+     parts of the Corresponding Source.
+
+     The Corresponding Source for a work in source code
+     form is that same work.
+
+  2. Basic Permissions.
+
+     All rights granted under this License are granted
+     for the term of copyright on the Program, and are
+     irrevocable provided the stated conditions are met.
+     This License explicitly affirms your unlimited
+     permission to run the unmodified Program.  The
+     output from running a covered work is covered by
+     this License only if the output, given its content,
+     constitutes a covered work.  This License
+     acknowledges your rights of fair use or other
+     equivalent, as provided by copyright law.
+
+     You may make, run and propagate covered works that
+     you do not convey, without conditions so long as
+     your license otherwise remains in force.  You may
+     convey covered works to others for the sole purpose
+     of having them make modifications exclusively for
+     you, or provide you with facilities for running
+     those works, provided that you comply with the
+     terms of this License in conveying all material for
+     which you do not control copyright.  Those thus
+     making or running the covered works for you must do
+     so exclusively on your behalf, under your direction
+     and control, on terms that prohibit them from
+     making any copies of your copyrighted material
+     outside their relationship with you.
+
+     Conveying under any other circumstances is
+     permitted solely under the conditions stated below.
+     Sublicensing is not allowed; section 10 makes it
+     unnecessary.
+
+  3. Protecting Users’ Legal Rights From
+     Anti-Circumvention Law.
+
+     No covered work shall be deemed part of an
+     effective technological measure under any
+     applicable law fulfilling obligations under article
+     11 of the WIPO copyright treaty adopted on 20
+     December 1996, or similar laws prohibiting or
+     restricting circumvention of such measures.
+
+     When you convey a covered work, you waive any legal
+     power to forbid circumvention of technological
+     measures to the extent such circumvention is
+     effected by exercising rights under this License
+     with respect to the covered work, and you disclaim
+     any intention to limit operation or modification of
+     the work as a means of enforcing, against the
+     work’s users, your or third parties’ legal rights
+     to forbid circumvention of technological measures.
+
+  4. Conveying Verbatim Copies.
+
+     You may convey verbatim copies of the Program’s
+     source code as you receive it, in any medium,
+     provided that you conspicuously and appropriately
+     publish on each copy an appropriate copyright
+     notice; keep intact all notices stating that this
+     License and any non-permissive terms added in
+     accord with section 7 apply to the code; keep
+     intact all notices of the absence of any warranty;
+     and give all recipients a copy of this License
+     along with the Program.
+
+     You may charge any price or no price for each copy
+     that you convey, and you may offer support or
+     warranty protection for a fee.
+
+  5. Conveying Modified Source Versions.
+
+     You may convey a work based on the Program, or the
+     modifications to produce it from the Program, in
+     the form of source code under the terms of section
+     4, provided that you also meet all of these
+     conditions:
+
+       a. The work must carry prominent notices stating
+          that you modified it, and giving a relevant
+          date.
+
+       b. The work must carry prominent notices stating
+          that it is released under this License and any
+          conditions added under section 7.  This
+          requirement modifies the requirement in
+          section 4 to “keep intact all notices”.
+
+       c. You must license the entire work, as a whole,
+          under this License to anyone who comes into
+          possession of a copy.  This License will
+          therefore apply, along with any applicable
+          section 7 additional terms, to the whole of
+          the work, and all its parts, regardless of how
+          they are packaged.  This License gives no
+          permission to license the work in any other
+          way, but it does not invalidate such
+          permission if you have separately received it.
+
+       d. If the work has interactive user interfaces,
+          each must display Appropriate Legal Notices;
+          however, if the Program has interactive
+          interfaces that do not display Appropriate
+          Legal Notices, your work need not make them do
+          so.
+
+     A compilation of a covered work with other separate
+     and independent works, which are not by their
+     nature extensions of the covered work, and which
+     are not combined with it such as to form a larger
+     program, in or on a volume of a storage or
+     distribution medium, is called an “aggregate” if
+     the compilation and its resulting copyright are not
+     used to limit the access or legal rights of the
+     compilation’s users beyond what the individual
+     works permit.  Inclusion of a covered work in an
+     aggregate does not cause this License to apply to
+     the other parts of the aggregate.
+
+  6. Conveying Non-Source Forms.
+
+     You may convey a covered work in object code form
+     under the terms of sections 4 and 5, provided that
+     you also convey the machine-readable Corresponding
+     Source under the terms of this License, in one of
+     these ways:
+
+       a. Convey the object code in, or embodied in, a
+          physical product (including a physical
+          distribution medium), accompanied by the
+          Corresponding Source fixed on a durable
+          physical medium customarily used for software
+          interchange.
+
+       b. Convey the object code in, or embodied in, a
+          physical product (including a physical
+          distribution medium), accompanied by a written
+          offer, valid for at least three years and
+          valid for as long as you offer spare parts or
+          customer support for that product model, to
+          give anyone who possesses the object code
+          either (1) a copy of the Corresponding Source
+          for all the software in the product that is
+          covered by this License, on a durable physical
+          medium customarily used for software
+          interchange, for a price no more than your
+          reasonable cost of physically performing this
+          conveying of source, or (2) access to copy the
+          Corresponding Source from a network server at
+          no charge.
+
+       c. Convey individual copies of the object code
+          with a copy of the written offer to provide
+          the Corresponding Source.  This alternative is
+          allowed only occasionally and noncommercially,
+          and only if you received the object code with
+          such an offer, in accord with subsection 6b.
+
+       d. Convey the object code by offering access from
+          a designated place (gratis or for a charge),
+          and offer equivalent access to the
+          Corresponding Source in the same way through
+          the same place at no further charge.  You need
+          not require recipients to copy the
+          Corresponding Source along with the object
+          code.  If the place to copy the object code is
+          a network server, the Corresponding Source may
+          be on a different server (operated by you or a
+          third party) that supports equivalent copying
+          facilities, provided you maintain clear
+          directions next to the object code saying
+          where to find the Corresponding Source.
+          Regardless of what server hosts the
+          Corresponding Source, you remain obligated to
+          ensure that it is available for as long as
+          needed to satisfy these requirements.
+
+       e. Convey the object code using peer-to-peer
+          transmission, provided you inform other peers
+          where the object code and Corresponding Source
+          of the work are being offered to the general
+          public at no charge under subsection 6d.
+
+     A separable portion of the object code, whose
+     source code is excluded from the Corresponding
+     Source as a System Library, need not be included in
+     conveying the object code work.
+
+     A “User Product” is either (1) a “consumer
+     product”, which means any tangible personal
+     property which is normally used for personal,
+     family, or household purposes, or (2) anything
+     designed or sold for incorporation into a dwelling.
+     In determining whether a product is a consumer
+     product, doubtful cases shall be resolved in favor
+     of coverage.  For a particular product received by
+     a particular user, “normally used” refers to a
+     typical or common use of that class of product,
+     regardless of the status of the particular user or
+     of the way in which the particular user actually
+     uses, or expects or is expected to use, the
+     product.  A product is a consumer product
+     regardless of whether the product has substantial
+     commercial, industrial or non-consumer uses, unless
+     such uses represent the only significant mode of
+     use of the product.
+
+     “Installation Information” for a User Product means
+     any methods, procedures, authorization keys, or
+     other information required to install and execute
+     modified versions of a covered work in that User
+     Product from a modified version of its
+     Corresponding Source.  The information must suffice
+     to ensure that the continued functioning of the
+     modified object code is in no case prevented or
+     interfered with solely because modification has
+     been made.
+
+     If you convey an object code work under this
+     section in, or with, or specifically for use in, a
+     User Product, and the conveying occurs as part of a
+     transaction in which the right of possession and
+     use of the User Product is transferred to the
+     recipient in perpetuity or for a fixed term
+     (regardless of how the transaction is
+     characterized), the Corresponding Source conveyed
+     under this section must be accompanied by the
+     Installation Information.  But this requirement
+     does not apply if neither you nor any third party
+     retains the ability to install modified object code
+     on the User Product (for example, the work has been
+     installed in ROM).
+
+     The requirement to provide Installation Information
+     does not include a requirement to continue to
+     provide support service, warranty, or updates for a
+     work that has been modified or installed by the
+     recipient, or for the User Product in which it has
+     been modified or installed.  Access to a network
+     may be denied when the modification itself
+     materially and adversely affects the operation of
+     the network or violates the rules and protocols for
+     communication across the network.
+
+     Corresponding Source conveyed, and Installation
+     Information provided, in accord with this section
+     must be in a format that is publicly documented
+     (and with an implementation available to the public
+     in source code form), and must require no special
+     password or key for unpacking, reading or copying.
+
+  7. Additional Terms.
+
+     “Additional permissions” are terms that supplement
+     the terms of this License by making exceptions from
+     one or more of its conditions.  Additional
+     permissions that are applicable to the entire
+     Program shall be treated as though they were
+     included in this License, to the extent that they
+     are valid under applicable law.  If additional
+     permissions apply only to part of the Program, that
+     part may be used separately under those
+     permissions, but the entire Program remains
+     governed by this License without regard to the
+     additional permissions.
+
+     When you convey a copy of a covered work, you may
+     at your option remove any additional permissions
+     from that copy, or from any part of it.
+     (Additional permissions may be written to require
+     their own removal in certain cases when you modify
+     the work.)  You may place additional permissions on
+     material, added by you to a covered work, for which
+     you have or can give appropriate copyright
+     permission.
+
+     Notwithstanding any other provision of this
+     License, for material you add to a covered work,
+     you may (if authorized by the copyright holders of
+     that material) supplement the terms of this License
+     with terms:
+
+       a. Disclaiming warranty or limiting liability
+          differently from the terms of sections 15 and
+          16 of this License; or
+
+       b. Requiring preservation of specified reasonable
+          legal notices or author attributions in that
+          material or in the Appropriate Legal Notices
+          displayed by works containing it; or
+
+       c. Prohibiting misrepresentation of the origin of
+          that material, or requiring that modified
+          versions of such material be marked in
+          reasonable ways as different from the original
+          version; or
+
+       d. Limiting the use for publicity purposes of
+          names of licensors or authors of the material;
+          or
+
+       e. Declining to grant rights under trademark law
+          for use of some trade names, trademarks, or
+          service marks; or
+
+       f. Requiring indemnification of licensors and
+          authors of that material by anyone who conveys
+          the material (or modified versions of it) with
+          contractual assumptions of liability to the
+          recipient, for any liability that these
+          contractual assumptions directly impose on
+          those licensors and authors.
+
+     All other non-permissive additional terms are
+     considered “further restrictions” within the
+     meaning of section 10.  If the Program as you
+     received it, or any part of it, contains a notice
+     stating that it is governed by this License along
+     with a term that is a further restriction, you may
+     remove that term.  If a license document contains a
+     further restriction but permits relicensing or
+     conveying under this License, you may add to a
+     covered work material governed by the terms of that
+     license document, provided that the further
+     restriction does not survive such relicensing or
+     conveying.
+
+     If you add terms to a covered work in accord with
+     this section, you must place, in the relevant
+     source files, a statement of the additional terms
+     that apply to those files, or a notice indicating
+     where to find the applicable terms.
+
+     Additional terms, permissive or non-permissive, may
+     be stated in the form of a separately written
+     license, or stated as exceptions; the above
+     requirements apply either way.
+
+  8. Termination.
+
+     You may not propagate or modify a covered work
+     except as expressly provided under this License.
+     Any attempt otherwise to propagate or modify it is
+     void, and will automatically terminate your rights
+     under this License (including any patent licenses
+     granted under the third paragraph of section 11).
+
+     However, if you cease all violation of this
+     License, then your license from a particular
+     copyright holder is reinstated (a) provisionally,
+     unless and until the copyright holder explicitly
+     and finally terminates your license, and (b)
+     permanently, if the copyright holder fails to
+     notify you of the violation by some reasonable
+     means prior to 60 days after the cessation.
+
+     Moreover, your license from a particular copyright
+     holder is reinstated permanently if the copyright
+     holder notifies you of the violation by some
+     reasonable means, this is the first time you have
+     received notice of violation of this License (for
+     any work) from that copyright holder, and you cure
+     the violation prior to 30 days after your receipt
+     of the notice.
+
+     Termination of your rights under this section does
+     not terminate the licenses of parties who have
+     received copies or rights from you under this
+     License.  If your rights have been terminated and
+     not permanently reinstated, you do not qualify to
+     receive new licenses for the same material under
+     section 10.
+
+  9. Acceptance Not Required for Having Copies.
+
+     You are not required to accept this License in
+     order to receive or run a copy of the Program.
+     Ancillary propagation of a covered work occurring
+     solely as a consequence of using peer-to-peer
+     transmission to receive a copy likewise does not
+     require acceptance.  However, nothing other than
+     this License grants you permission to propagate or
+     modify any covered work.  These actions infringe
+     copyright if you do not accept this License.
+     Therefore, by modifying or propagating a covered
+     work, you indicate your acceptance of this License
+     to do so.
+
+  10. Automatic Licensing of Downstream Recipients.
+
+     Each time you convey a covered work, the recipient
+     automatically receives a license from the original
+     licensors, to run, modify and propagate that work,
+     subject to this License.  You are not responsible
+     for enforcing compliance by third parties with this
+     License.
+
+     An “entity transaction” is a transaction
+     transferring control of an organization, or
+     substantially all assets of one, or subdividing an
+     organization, or merging organizations.  If
+     propagation of a covered work results from an
+     entity transaction, each party to that transaction
+     who receives a copy of the work also receives
+     whatever licenses to the work the party’s
+     predecessor in interest had or could give under the
+     previous paragraph, plus a right to possession of
+     the Corresponding Source of the work from the
+     predecessor in interest, if the predecessor has it
+     or can get it with reasonable efforts.
+
+     You may not impose any further restrictions on the
+     exercise of the rights granted or affirmed under
+     this License.  For example, you may not impose a
+     license fee, royalty, or other charge for exercise
+     of rights granted under this License, and you may
+     not initiate litigation (including a cross-claim or
+     counterclaim in a lawsuit) alleging that any patent
+     claim is infringed by making, using, selling,
+     offering for sale, or importing the Program or any
+     portion of it.
+
+  11. Patents.
+
+     A “contributor” is a copyright holder who
+     authorizes use under this License of the Program or
+     a work on which the Program is based.  The work
+     thus licensed is called the contributor’s
+     “contributor version”.
+
+     A contributor’s “essential patent claims” are all
+     patent claims owned or controlled by the
+     contributor, whether already acquired or hereafter
+     acquired, that would be infringed by some manner,
+     permitted by this License, of making, using, or
+     selling its contributor version, but do not include
+     claims that would be infringed only as a
+     consequence of further modification of the
+     contributor version.  For purposes of this
+     definition, “control” includes the right to grant
+     patent sublicenses in a manner consistent with the
+     requirements of this License.
+
+     Each contributor grants you a non-exclusive,
+     worldwide, royalty-free patent license under the
+     contributor’s essential patent claims, to make,
+     use, sell, offer for sale, import and otherwise
+     run, modify and propagate the contents of its
+     contributor version.
+
+     In the following three paragraphs, a “patent
+     license” is any express agreement or commitment,
+     however denominated, not to enforce a patent (such
+     as an express permission to practice a patent or
+     covenant not to sue for patent infringement).  To
+     “grant” such a patent license to a party means to
+     make such an agreement or commitment not to enforce
+     a patent against the party.
+
+     If you convey a covered work, knowingly relying on
+     a patent license, and the Corresponding Source of
+     the work is not available for anyone to copy, free
+     of charge and under the terms of this License,
+     through a publicly available network server or
+     other readily accessible means, then you must
+     either (1) cause the Corresponding Source to be so
+     available, or (2) arrange to deprive yourself of
+     the benefit of the patent license for this
+     particular work, or (3) arrange, in a manner
+     consistent with the requirements of this License,
+     to extend the patent license to downstream
+     recipients.  “Knowingly relying” means you have
+     actual knowledge that, but for the patent license,
+     your conveying the covered work in a country, or
+     your recipient’s use of the covered work in a
+     country, would infringe one or more identifiable
+     patents in that country that you have reason to
+     believe are valid.
+
+     If, pursuant to or in connection with a single
+     transaction or arrangement, you convey, or
+     propagate by procuring conveyance of, a covered
+     work, and grant a patent license to some of the
+     parties receiving the covered work authorizing them
+     to use, propagate, modify or convey a specific copy
+     of the covered work, then the patent license you
+     grant is automatically extended to all recipients
+     of the covered work and works based on it.
+
+     A patent license is “discriminatory” if it does not
+     include within the scope of its coverage, prohibits
+     the exercise of, or is conditioned on the
+     non-exercise of one or more of the rights that are
+     specifically granted under this License.  You may
+     not convey a covered work if you are a party to an
+     arrangement with a third party that is in the
+     business of distributing software, under which you
+     make payment to the third party based on the extent
+     of your activity of conveying the work, and under
+     which the third party grants, to any of the parties
+     who would receive the covered work from you, a
+     discriminatory patent license (a) in connection
+     with copies of the covered work conveyed by you (or
+     copies made from those copies), or (b) primarily
+     for and in connection with specific products or
+     compilations that contain the covered work, unless
+     you entered into that arrangement, or that patent
+     license was granted, prior to 28 March 2007.
+
+     Nothing in this License shall be construed as
+     excluding or limiting any implied license or other
+     defenses to infringement that may otherwise be
+     available to you under applicable patent law.
+
+  12. No Surrender of Others’ Freedom.
+
+     If conditions are imposed on you (whether by court
+     order, agreement or otherwise) that contradict the
+     conditions of this License, they do not excuse you
+     from the conditions of this License.  If you cannot
+     convey a covered work so as to satisfy
+     simultaneously your obligations under this License
+     and any other pertinent obligations, then as a
+     consequence you may not convey it at all.  For
+     example, if you agree to terms that obligate you to
+     collect a royalty for further conveying from those
+     to whom you convey the Program, the only way you
+     could satisfy both those terms and this License
+     would be to refrain entirely from conveying the
+     Program.
+
+  13. Use with the GNU Affero General Public License.
+
+     Notwithstanding any other provision of this
+     License, you have permission to link or combine any
+     covered work with a work licensed under version 3
+     of the GNU Affero General Public License into a
+     single combined work, and to convey the resulting
+     work.  The terms of this License will continue to
+     apply to the part which is the covered work, but
+     the special requirements of the GNU Affero General
+     Public License, section 13, concerning interaction
+     through a network will apply to the combination as
+     such.
+
+  14. Revised Versions of this License.
+
+     The Free Software Foundation may publish revised
+     and/or new versions of the GNU General Public
+     License from time to time.  Such new versions will
+     be similar in spirit to the present version, but
+     may differ in detail to address new problems or
+     concerns.
+
+     Each version is given a distinguishing version
+     number.  If the Program specifies that a certain
+     numbered version of the GNU General Public License
+     “or any later version” applies to it, you have the
+     option of following the terms and conditions either
+     of that numbered version or of any later version
+     published by the Free Software Foundation.  If the
+     Program does not specify a version number of the
+     GNU General Public License, you may choose any
+     version ever published by the Free Software
+     Foundation.
+
+     If the Program specifies that a proxy can decide
+     which future versions of the GNU General Public
+     License can be used, that proxy’s public statement
+     of acceptance of a version permanently authorizes
+     you to choose that version for the Program.
+
+     Later license versions may give you additional or
+     different permissions.  However, no additional
+     obligations are imposed on any author or copyright
+     holder as a result of your choosing to follow a
+     later version.
+
+  15. Disclaimer of Warranty.
+
+     THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT
+     PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN OTHERWISE
+     STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR
+     OTHER PARTIES PROVIDE THE PROGRAM “AS IS” WITHOUT
+     WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
+     INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+     PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE
+     QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.
+     SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE
+     COST OF ALL NECESSARY SERVICING, REPAIR OR
+     CORRECTION.
+
+  16. Limitation of Liability.
+
+     IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR
+     AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR
+     ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS THE
+     PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR
+     DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL
+     OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR
+     INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT
+     LIMITED TO LOSS OF DATA OR DATA BEING RENDERED
+     INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+     PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH
+     ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER
+     PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+     DAMAGES.
+
+  17. Interpretation of Sections 15 and 16.
+
+     If the disclaimer of warranty and limitation of
+     liability provided above cannot be given local
+     legal effect according to their terms, reviewing
+     courts shall apply local law that most closely
+     approximates an absolute waiver of all civil
+     liability in connection with the Program, unless a
+     warranty or assumption of liability accompanies a
+     copy of the Program in return for a fee.
+
+END OF TERMS AND CONDITIONS
+===========================
+
+How to Apply These Terms to Your New Programs
+=============================================
+
+If you develop a new program, and you want it to be of
+the greatest possible use to the public, the best way to
+achieve this is to make it free software which everyone
+can redistribute and change under these terms.
+
+   To do so, attach the following notices to the
+program.  It is safest to attach them to the start of
+each source file to most effectively state the exclusion
+of warranty; and each file should have at least the
+“copyright” line and a pointer to where the full notice
+is found.
+
+     ONE LINE TO GIVE THE PROGRAM'S NAME AND A BRIEF IDEA OF WHAT IT DOES.
+     Copyright (C) YEAR NAME OF AUTHOR
+
+     This program is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or (at
+     your option) any later version.
+
+     This program is distributed in the hope that it will be useful, but
+     WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     General Public License for more details.
+
+     You should have received a copy of the GNU General Public License
+     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+   Also add information on how to contact you by
+electronic and paper mail.
+
+   If the program does terminal interaction, make it
+output a short notice like this when it starts in an
+interactive mode:
+
+     PROGRAM Copyright (C) YEAR NAME OF AUTHOR
+     This program comes with ABSOLUTELY NO WARRANTY; for details type ‘show w’.
+     This is free software, and you are welcome to redistribute it
+     under certain conditions; type ‘show c’ for details.
+
+   The hypothetical commands ‘show w’ and ‘show c’
+should show the appropriate parts of the General Public
+License.  Of course, your program’s commands might be
+different; for a GUI interface, you would use an “about
+box”.
+
+   You should also get your employer (if you work as a
+programmer) or school, if any, to sign a “copyright
+disclaimer” for the program, if necessary.  For more
+information on this, and how to apply and follow the GNU
+GPL, see <http://www.gnu.org/licenses/>.
+
+   The GNU General Public License does not permit
+incorporating your program into proprietary programs.
+If your program is a subroutine library, you may
+consider it more useful to permit linking proprietary
+applications with the library.  If this is what you want
+to do, use the GNU Lesser General Public License instead
+of this License.  But first, please read
+<http://www.gnu.org/philosophy/why-not-lgpl.html>.
+
+
+File: elisp,  Node: Tips,  Next: GNU Emacs Internals,  Prev: GPL,  Up: Top
+
+Appendix D Tips and Conventions
+*******************************
+
+このチャプターででは、Emacs Lispの追加機能については説明
+しません。かわりに、以前のチャプターで説明した機能を効果
+的に使う方法と、Emacs Lispプログラマーがしたがうべき慣習
+を説明します。
+
+   以降で説明する慣習のいくつかは、Lispファイルのvisit時
+にコマンド‘M-x checkdoc RET’を実行することにより、自動的
+にチェックできます。これはすべての監修はチェックできませ
+んし、与えられた警告すべてが必ずしも問題に対応する訳では
+ありませんが、それらすべてを検証することには価値がありま
+す。
+
+* Menu:
+
+* Coding Conventions::       明快で堅牢なプログラムにたいする慣習。
+* Key Binding Conventions::  どのキーをどのプログラムにバインドすべきか。
+* Programming Tips::         Emacsコードを円滑にEmacsに適合させる。
+* Compilation Tips::         コンパイル済みコードの実行を高速にする。
+* Warning Tips::             コンパイラー警告をオフにする。
+* Documentation Tips::       読みやすいドキュメント文字列の記述。
+* Comment Tips::             コメント記述の慣習。
+* Library Headers::          ライブラリーパッケージにたいする標準的なヘッダー。
+
+
+File: elisp,  Node: Coding Conventions,  Next: Key Binding Conventions,  Up: Tips
+
+D.1 Emacs Lisp Coding Conventions
+=================================
+
+以下は、幅広いユーザーを意図したEmacs Lispコードを記述す
+る際にしたがうべき慣習です:
+
+   • 単なるパッケージのロードが、Emacsの編集の挙動を変更
+     すねきではない。コマンドと、その機能を有効または無
+     効にするコマンド、またはそれの呼び出しが含まれる。
+
+     この慣習は、カスタム定義を含むすべてのファイルに必
+     須である。そのようなファイルを、この慣習にしたがう
+     ために修正するのが、非互換の変更を要求するなら、構
+     うことはないから、非互換の修正を行うこと。先送りに
+     してはならない。
+
+   • 他のLispプログラムと区別するための、短い単語を選択
+     すること。あなたのプログラム内のグローバルなシンボ
+     ルすべて、すなわち変数、定数、関数の名前はその選択
+     したプレフィクスで始まること。そのプレフィクスと名
+     前の残りの部分は、ハイフン‘-’で区切る。Emacs Lisp内
+     のすべてのグローバル変数は同じネームスペース、関数
+     はすべて別のネームスペースを共有するので、これの実
+     践は名前の競合を回避する(1)。他のパッケージから使用
+     されることを意図しない場合には、プレフィクス名前を
+     2つのハイフンで区切ること。
+
+     ユーザーの使用を意図したコマンド名では、何らかの単
+     語がそのパッケージ名のプレフィクスの前にあると便利
+     なことがある。関数や変数等を定義する構成は、それら
+     が‘defun’や‘defvar’で始まればより良く機能するので、
+     名前内でそれらの後に名前プレフィクスを置くこと。
+
+     この勧告は、‘copy-list’のようなEmacs Lisp内のプリミ
+     ティブではなく、伝統的なLispプリミティブにさえ適用
+     される。信じようと信じまいと、‘copy-list’を定義する
+     尤もらしい方法は複数あるのだ。安全第一である。かわ
+     りに‘foo-copy-list’や‘mylib-copy-list’のような名前
+     を生成するために、あなたの名前プレフィクスを追加し
+     よう。
+
+     ‘twiddle-files’のような特定の名前でEmacsに追加され
+     るべきと考えている関数を記述する場合には、プログラ
+     ム内でそれを名前で呼び出さないこと。プログラム内で
+     はそれを‘mylib-twiddle-files’で呼び出して、わたした
+     ちがそれをEmacsに追加するため提案メールを、
+     ‘bug-gnu-emacs@gnu.org’に送信すること。もし追加する
+     ことになったそのとき、わたしたちは十分容易にその名
+     前を変更できるだろう。
+
+     1つのプレフィクスで十分でなければ、それらに意味があ
+     るかぎり、あなたんパッケージは2つまたは3つの一般的
+     なプレフィクス候補を使用できる。
+
+   • 個々のLispファイルすべての終端に、‘provide’呼出を配
+     置すること。*note Named Features::を参照されたい。
+
+   • 事前に他の特定のLispプログラムのロードを要するファ
+     イルは、そのファイル先頭のコメントでそのように告げ
+     るべきである。また、それらが確実にロードされるよう
+     、‘require’を使用すること。*note Named Features::を
+     参照されたい。
+
+   • ファイルFOOが、別のファイルBAR内で定義されたマクロ
+     を使用するが、BAR内の他の関数や変数を何も使用しない
+     場合には、FOOに以下の式を含めるべきである:
+
+          (eval-when-compile (require 'BAR))
+
+     これは、FOOのバイトコンパイル直前にBARをロードする
+     ようEmacsに告げるので、そのマクロはコンパイル中は利
+     用可能になる。‘eval-when-compile’の使用により、コン
+     パイル済みバージョンのFOOが_中古_なら、BARのロード
+     を避けられる。これはファイル内の、最初のマクロ呼び
+     出しの前に呼び出すこと。*note Compiling Macros::を
+     参照されたい。
+
+   • 実行時、それらが本当に必要でなければ、追加ライブラ
+     リーのロードを避けること。あなたのファイルが、単に
+     他のいくつかのライブラリーなしでは機能しないなら、
+     単にトップレベルでそのライブラリーを‘require’して、
+     それを使って行うこと。しかしあなたのファイルが、い
+     くつかの独立した機能を含み、それらの1つか2つだけが
+     余分なライブラリーを要するなら、トップレベルではな
+     く関連する関数内部に、‘require’を配置することを考慮
+     すること。または必要時に余分のライブラリーをロード
+     するために、‘autoload’ステートメントを使用すること
+     。この方法では、あなたのファイルの該当部分を使用し
+     ない人は、余分なライブラリーをロードする必要がなく
+     なる。
+
+   • Common Lisp拡張が必要なら、古い‘cl’ライブラリーでは
+     なく、‘cl-lib’ライブラリーを使うこと。‘cl’ライブラ
+     リーは、クリーンなネームスペースを使用しない(定義が
+     ‘cl-’で始まらない)。パッケージが実行時に‘cl’をロー
+     ドする場合、そのパッケージを使用しないユーザーにた
+     いして、名前の衝突を起こすかもしれない。
+
+     ‘(eval-when-compile (require 'cl))’で、_コンパイル
+     時_に‘cl’を使用するのは問題ない。コンパイラーはバイ
+     トコードを生成する前にマクロを展開するので、‘cl’内
+     のマクロを使用するには十分である。ただしこの場合で
+     も、現代的な‘cl-lib’を使用したほうが良い。
+
+   • メジャーモードを定義する際には、メジャーモードの慣
+     習にしたがってほしい。*note Major Mode
+     Conventions::を参照されたい。
+
+   • マイナーモードを定義する際には、マイナーモードの慣
+     習にしたがってほしい。*note Minor Mode
+     Conventions::を参照されたい。
+
+   • ある関数の目的が、特定の条件の真偽を告げることであ
+     るなら、(述語である“predicate”を意味する)‘p’で終わ
+     る名前を与えること。その名前が1単語なら単に‘p’を追
+     加し、複数単語なら‘-p’を追加する。例は‘framep’や
+     ‘frame-live-p’。
+
+   • ある変数の目的が、単一の関数の格納にあるなら、
+     ‘-function’で終わる名前を与えること。ある変数の目的
+     が、関数のリストの格納にあるなら(たとえばその変数が
+     フックなら)、フックの命名規約にしたがってほしい。
+     *note Hooks::を参照されたい。
+
+   • そのファイルをロードすることにより、フックに関数が
+     追加されるなら、‘FEATURE-unload-hook’という関数を定
+     義すること。ここでFEATUREは、そのパッケージが提供す
+     る機能の名前で、そのような変更をアンドゥするための
+     フックにする。そのファイルのアンロードに
+     ‘unload-feature’を使用することにより、この関数が実
+     行されるようになる。*note Unloading::を参照のこと。
+
+   • Emacsのプリミティブにエイリアスを定義するのは、悪い
+     アイデアである。通常は、かわりに標準の名前を使用す
+     ること。エイリアスが有用になるかもしれないケースは
+     、後方互換性や可搬性を向上させる場合である。
+
+   • パッケージで、別のバージョンのEmacsにたいする互換性
+     のためにエイリアスや新たな関数の定義が必要なら、別
+     のバージョンにあるそのままの名前ではなく、そのパッ
+     ケージのプレフィクスを名前に付加すること。以下は、
+     そのような互換性問題を多く提供するGnusでの例である
+     。
+
+          (defalias 'gnus-point-at-bol
+            (if (fboundp 'point-at-bol)
+                'point-at-bol
+              'line-beginning-position))
+
+   • Emacsのプリミティブの再定義やadviseは悪いアイデアで
+     ある。これは特定のプログラムには正しいことを行うが
+     、結果として他のプロラムが破壊されるかもしれない。
+
+   • 同様に、あるLispパッケージで別のLispパッケージ内の
+     関数にadviseするのも悪いアイデアである。
+
+   • ライブラリやパッケージでの‘eval-after-load’の使用を
+     避けること(*note Hooks for Loading::を参照)。この機
+     能は個人的なカスタマイズを意図している。Lispプログ
+     ラム内でこれを使用すると、別のLisp内ではそれが見え
+     ず、その挙動を変更するため不明瞭になる。これは、別
+     のパッケージ内の関数へのadviseに似て、デバッグの障
+     害になる。
+
+   • Emacsの標準的な関数やライブラリープログラムの何かを
+     ファイルが置換するなら、そのファイル冒頭の主要コメ
+     ントで、どの関数が置換されるか、および置換によりオ
+     リジナルと挙動がどのように異なるかを告げること。
+
+   • 関数や変数を定義するコンストラクターは、関数ではな
+     くマクロであるべきで、その名前は‘define-’で始まるこ
+     と。そのマクロは、定義される名前を1つ目の引数で受け
+     取ること。これは自動的に定義を探す、種々のツールを
+     助けることになる。マクロ自身の中でその名前を構築す
+     るのは、それらのツールを混乱させるので避けること。
+
+   • 別のいくつかのシステムでは、‘*’が先頭や終端にある変
+     数名を選択する慣習がある。Emacs Lispではその慣習を
+     使用しないので、あなたのプログラム内でそれを使用し
+     ないでほしい。(Emacsでは特別な目的をもつバッファー
+     だけに、そのような名前を使用する)。すべてのライブラ
+     リーが同じ慣習を使用するなら、人はEmacsがより整合性
+     があることを見い出すだろう。
+
+   • Emacs Lispソースファイルのデフォルトのファイルコー
+     ディングシステムはUTFである(*note Text
+     Representations::を参照)。あなたのプログラムが
+     UTF-8_以外_の文字を含むような稀なケースでは、ソース
+     ファイル内の‘-*-’行かローカル変数リスト内で、適切な
+     コーディングシステムを指定するべきである。*note
+     Local Variables in Files: (emacs)File Variables.を
+     参照されたい。
+
+   • デフォルトのインデントパラメーターで、ファイルをイ
+     ンデントすること。
+
+   • 自分で行に閉カッコを配置するのを習慣としてはならな
+     い。Lispプログラマーは、これに当惑させられる。
+
+   • コピーを配布する場合は著作権表示と複製許可表示を配
+     してほしい。*note Library Headers::を参照されたい。
+
+   ---------- Footnotes ----------
+
+   (1) Common Lispスタイルのパッケージシステムの恩恵は、
+そのコストを上回るとは考えられない。
+

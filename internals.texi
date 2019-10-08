@@ -1024,93 +1024,79 @@ Lispプログラムでは、実際にバッファーを表示するツリーの�
 @cindex internals, of process
 @cindex process internals
 
-  The fields of a process (for a complete list, see the definition of
-@code{struct Lisp_Process} in @file{process.h}) include:
+  プロセスのフィールドには以下が含まれます(完全なリストは、@file{process.h}の@code{struct
+Lisp_Process}の定義を参照されたい):
 
 @table @code
 @item name
-A string, the name of the process.
+プロセス名(文字列)。
 
 @item command
-A list containing the command arguments that were used to start this
-process.  For a network or serial process, it is @code{nil} if the process
-is running or @code{t} if the process is stopped.
+そのプロセスの開始に使用された、コマンド引数を含むリスト。ネットワークプロセスとシリアルプロセスでは、そのプロセスが実行中なら@code{nil}、停止していたら@code{t}。
 
 @item filter
-A function used to accept output from the process.
+そのプロセスから出力を受け取るために使用される関数。
 
 @item sentinel
-A function called whenever the state of the process changes.
+そのプロセスの状態が変化したら常に呼び出される関数。
 
 @item buffer
-The associated buffer of the process.
+そのプロセスに関連付けられたバッファー。
 
 @item pid
-An integer, the operating system's process @acronym{ID}.  Pseudo-processes
-such as network or serial connections use a value of 0.
+オペレーティングシステムのプロセス@acronym{ID}(整数)。ネットワークプロセスやシリアルプロセスのような疑似プロセスでは、値0を使用する。
 
 @item childp
-A flag, @code{t} if this is really a child process.  For a network or serial
-connection, it is a plist based on the arguments to
-@code{make-network-process} or @code{make-serial-process}.
+フラグで、もし実際に子プロセスなら@code{t}。ネットワークプロセスやシリアルプロセスでは、@code{make-network-process}または@code{make-serial-process}にもとづくplist。
 
 @item mark
-A marker indicating the position of the end of the last output from this
-process inserted into the buffer.  This is often but not always the end of
-the buffer.
+そのプロセスからの出力から、バッファーに挿入された終端位置を示すマーカー。常にではないが、これはしばしばバッファー終端である。
 
 @item kill_without_query
-If this is non-zero, killing Emacs while this process is still running does
-not ask for confirmation about killing the process.
+これが非0なら、そのプロセス実行中にEmacsをkillしても、そのプロセスをkillすることにたいして確認を求めない。
 
 @item raw_status
-The raw process status, as returned by the @code{wait} system call.
+システムコール@code{wait}がリターンする、rawプロセス状態。
 
 @item status
-The process status, as @code{process-status} should return it.
+@code{process-status}がリターンするようなプロセス状態。
 
 @item tick
 @itemx update_tick
-If these two fields are not equal, a change in the status of the process
-needs to be reported, either by running the sentinel or by inserting a
-message in the process buffer.
+これら2つのフィールドが等しくないなら、センチネル実行またはプロセスバッファーへのメッセージ挿入により、そのプロセスの状態変更は報告される必要がある。
 
 @item pty_flag
-Non-@code{nil} if communication with the subprocess uses a pty; @code{nil}
-if it uses a pipe.
+そのサブプロセスがptyを使用して対話する場合は非@code{nil}。パイプを使用する場合には@code{nil}。
 
 @item infd
-The file descriptor for input from the process.
+そのプロセスからの入力にたいする、ファイルデゥクリプター。
 
 @item outfd
-The file descriptor for output to the process.
+そのプロセスへの出力にたいする、ファイルデゥクリプター。
 
 @item tty_name
-The name of the terminal that the subprocess is using, or @code{nil} if it
-is using pipes.
+そのサブプロセスが使用する端末の名前、またはパイプを使用する場合は@code{nil}。
 
 @item decode_coding_system
-Coding-system for decoding the input from this process.
+そのプロセスからの入力のデコーディングにたいするコーディングシステム。
 
 @item decoding_buf
-A working buffer for decoding.
+デコーディング用の作業バッファー。
 
 @item decoding_carryover
-Size of carryover in decoding.
+デコーディングでのキャリーオーバーのサイズ。
 
 @item encode_coding_system
-Coding-system for encoding the output to this process.
+そのプロセスからの出力のエンコーディングにたいするコーディングシステム。
 
 @item encoding_buf
-A working buffer for encoding.
+エンコーディング用の作業バッファー。
 
 @item inherit_coding_system_flag
-Flag to set @code{coding-system} of the process buffer from the coding
-system used to decode process output.
+プロセス出力のデコードに使用されるコーディングシステムから、プロセスバッファーの@code{coding-system}をセットするフラグ。
 
 @item type
-Symbol indicating the type of process: @code{real}, @code{network},
-@code{serial}.
+プロセスのタイプを示す@code{real}、@code{network}、@code{serial}いずれかのシンボル。
 
 @end table
 

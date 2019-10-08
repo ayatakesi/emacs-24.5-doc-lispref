@@ -1,0 +1,5577 @@
+This is elisp, produced by makeinfo version 6.6 from elisp.texi.
+
+This is the ‘GNU Emacs Lisp Reference Manual’
+corresponding to Emacs version 24.5.
+
+   Copyright © 1990–1996, 1998–2015 Free Software
+Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or
+     modify this document under the terms of the GNU
+     Free Documentation License, Version 1.3 or any
+     later version published by the Free Software
+     Foundation; with the Invariant Sections being “GNU
+     General Public License,” with the Front-Cover Texts
+     being “A GNU Manual,” and with the Back-Cover Texts
+     as in (a) below.  A copy of the license is included
+     in the section entitled “GNU Free Documentation
+     License.”
+
+     (a) The FSF’s Back-Cover Text is: “You have the
+     freedom to copy and modify this GNU manual.  Buying
+     copies from the FSF supports it in developing GNU
+     and promoting software freedom.”
+INFO-DIR-SECTION Emacs lisp
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).               The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+
+File: elisp,  Node: Changing Key Bindings,  Next: Remapping Commands,  Prev: Functions for Key Lookup,  Up: Keymaps
+
+21.12 Changing Key Bindings
+===========================
+
+キーのリバインド(rebind: 再バインド、再束縛)は、キーマッ
+プ内でそのキーのバインディングエントリーを変更することに
+より行います。グローバルキーマップ内のバインディングを変
+更した場合、その変更は(たとえローカルバインディングによ
+りグローバルバインディングをshadowしているバッファーでは
+直接影響しないとしても)すべてのバッファーに影響します。
+カレントバッファーのローカルマップを変更した場合は、通常
+は同じメジャーモードを使用するすべてのバッファーに影響し
+ます。関数‘global-set-key’および‘local-set-key’は、これ
+らの操作のための使いやすいインターフェイスです(*note Key
+Binding Commands::を参照)。より汎用的な関数
+‘define-key’を使用することもできます。その場合は、変更す
+るマップを明示的に指定しなければなりません。
+
+   Lispプログラムでリバインドするキーシーケンスを選択す
+るときは、さまざまなキーの使用についてのEmacsの慣習にし
+たがうようお願いします(*note Key Binding Conventions::を
+参照)。
+
+   リバインドするキーシーケンスの記述では、コントロール
+文字とメタ文字にたいして、特別なエスケープシーケンスを使
+用すると良いでしょう(*note String Type::を参照)。構文
+‘\C-’は後続する文字がコントロール文字でることを意味し、
+‘\M-’は後続する文字がメタ文字であることを意味します。し
+たがって、文字列‘"\M-x"’は1つの‘M-x’、‘"\C-f"’は1つの
+‘C-f’、‘"\M-\C-x"’および‘"\C-\M-x"’は1つの‘C-M-x’として
+読み取られます。ベクター内でも、このエスケープシーケンス
+、および文字列では使用できない他のエスケープシーケンスを
+使用できます。1例は‘[?\C-\H-x home]’です。*note
+Character Type::を参照してください。
+
+   キー定義、およびルックアップ関数は、ベクターであるよ
+うなキーシーケンス内のイベント型にたいして、別の構文を受
+け入れます。修飾名に基本イベント(文字かファンクションキ
+ー名)を付加したものを含むリストを使用できます。たとえば
+、‘(control ?a)’は‘?\C-a’、‘(hyper control left)’は
+‘C-H-left’と等価です。このようなリストの利点の1つは、コ
+ンパイル済みファイル内に修飾ビットの正確な数値コードが出
+現しないことです。
+
+   以下の関数は、KEYMAPがキーマップでない場合、および
+KEYがキーシーケンスを表す文字列やベクターでない場合はエ
+ラーをシグナルします。リストであるようなイベントにたいす
+る略記として、イベント型(シンボル)を使用できます。
+‘kbd’関数(*note Key Sequences::を参照)は、キーシーケンス
+を指定するための便利な方法です。
+
+ -- Function: define-key keymap key binding
+     この関数は、KEYMAP内でKEYにたいするバインディングを
+     セットする(KEYが長さ2以上のイベントの場合、その変更
+     は実際はKEYMAPから辿られる他のキーマップで行なわれ
+     る)。引数BINDINGには任意のLispオブジェクトを指定で
+     きるが、意味があるのは特定のオブジェクトだけである
+     (意味のある型のリストは、*note Key Lookup::を参照の
+     こと)。‘define-key’のリターン値はBINDINGである。
+
+     KEYが‘[t]’の場合、これはKEYMAP内でデフォルトバイン
+     ディングをセットする。イベントが自身のバインディン
+     グをもたないとき、そのキーマップ内にデフォルトバイ
+     ンディングが存在するなら、Emacsコマンドループはそれ
+     を使用する。
+
+     KEYのすべてのプレフィクスは、プレフィクスキー(キー
+     マップにバインドされる)、または未定義でなけらばなら
+     ず、それ以外はエラーがシグナルされる。KEYのいくつか
+     のプレフィクスが未定義の場合は、‘define-key’はそれ
+     をプレフィクスキーとして定義するので、残りのKEYは指
+     定されたように定義できる。
+
+     前にKEYMAP内でKEYにたいするバインディングが存在しな
+     かった場合は、新たなバインディングがKEYMAPの先頭に
+     追加される。キーマップ内のバインディングの順序はキ
+     ーボード入力にたいし影響を与えないが、メニューキー
+     マップにたいしては問題となる(*note Menu Keymaps::を
+     参照)。
+
+   以下は、sparseキーマップを作成して、その中にバインデ
+ィングをいくつか作成する例である:
+
+     (setq map (make-sparse-keymap))
+         ⇒ (keymap)
+     (define-key map "\C-f" 'forward-char)
+         ⇒ forward-char
+     map
+         ⇒ (keymap (6 . forward-char))
+
+     ;; ‘C-x’にたいしsparseサブマップを作成し、
+     ;; その中で‘f’をバインドする
+     (define-key map (kbd "C-x f") 'forward-word)
+         ⇒ forward-word
+     map
+     ⇒ (keymap
+         (24 keymap                ; C-x
+             (102 . forward-word)) ;      f
+         (6 . forward-char))       ; C-f
+
+     ;; ‘C-p’を‘ctl-x-map’にバインド
+     (define-key map (kbd "C-p") ctl-x-map)
+     ;; ctl-x-map
+     ⇒ [nil ... find-file ... backward-kill-sentence]
+
+     ;; ‘ctl-x-map’内で‘C-f’を‘foo’にバインド
+     (define-key map (kbd "C-p C-f") 'foo)
+     ⇒ 'foo
+     map
+     ⇒ (keymap     ; ‘ctl-x-map’内の‘foo’に注目
+         (16 keymap [nil ... foo ... backward-kill-sentence])
+         (24 keymap
+             (102 . forward-word))
+         (6 . forward-char))
+
+‘C-p C-f’にたいする新たなバインディングの格納は、実際に
+は‘ctl-x-map’内のエントリーを変更することにより機能し、
+これはデフォルトグローバルマップ内の‘C-p C-f’と‘C-x
+C-f’の両方のバインディングを変更する効果をもつことに注意
+されたい。
+
+   関数‘substitute-key-definition’は、キーマップから特定
+のバインディングをもつキーをスキャンして、それらを異なる
+バインディングにリバインドする。より明快で、多くの場合は
+同じ結果を生成できる他の機能として、あるコマンドから別の
+コマンドへのリマップがあります(*note Remapping
+Commands::を参照)。
+
+ -- Function: substitute-key-definition olddef newdef
+          keymap &optional oldmap
+     この関数は、KEYMAP内でOLDDEFにバインドされるすべて
+     のキーについて、OLDDEFをNEWDEFに置き換える。別の言
+     い方をすると、OLDDEFが出現する箇所すべてをNEWDEFに
+     置き換える。この関数は‘nil’をリターンする。
+
+     たとえば、以下をEmacsの標準バインディングで行うと、
+     ‘C-x C-f’を再定義する:
+
+          (substitute-key-definition
+           'find-file 'find-file-read-only (current-global-map))
+
+     OLDMAPが非‘nil’の場合は、どのキーをリバインドするか
+     をOLDMAP内のバインディングが決定するよう、
+     ‘substitute-key-definition’の動作を変更する。リバイ
+     ンディングは依然としてOLDMAPではなく、KEYMAPで発生
+     する。したがって、他のマップ内のバインディングの制
+     御下で、マップを変更することができる。たとえば、
+
+          (substitute-key-definition
+            'delete-backward-char 'my-funny-delete
+            my-map global-map)
+
+     これは、標準的な削除コマンドにグローバルにバインド
+     されたキーにたいして、‘my-map’内の特別な削除コマン
+     ドを設定する。
+
+     以下は、キーマップの置き換え(substitution)の前後を
+     示す例である:
+
+          (setq map '(keymap
+                      (?1 . olddef-1)
+                      (?2 . olddef-2)
+                      (?3 . olddef-1)))
+          ⇒ (keymap (49 . olddef-1) (50 . olddef-2) (51 . olddef-1))
+
+          (substitute-key-definition 'olddef-1 'newdef map)
+          ⇒ nil
+          map
+          ⇒ (keymap (49 . newdef) (50 . olddef-2) (51 . newdef))
+
+ -- Function: suppress-keymap keymap &optional nodigits
+     この関数は、‘self-insert-command’をコマンド
+     ‘undefined’にリマップ(*note Remapping Commands::を
+     参照)することにより、fullキーマップのコンテンツを変
+     更する。これは、すべてのプリント文字を未定義にする
+     効果をもすので、通常のテキスト挿入は不可能になる。
+     ‘suppress-keymap’は‘nil’をリターンする。
+
+     NODIGITSが‘nil’の場合、‘suppress-keymap’は数字が
+     ‘digit-argument’、‘-’が‘negative-argument’を実行す
+     るように定義する。それ以外は、残りのプリント文字と
+     同じように、それらの文字も未定義にする。
+
+     ‘suppress-keymap’関数は、‘yank’や‘quoted-insert’の
+     ようなコマンドを抑制(suppress)しないので、バッファ
+     ーの変更は可能である。バッファーの変更を防ぐには、
+     バッファーを読み取り専用(read-only)にする(*note
+     Read Only Buffers::を参照)。
+
+     この関数はKEYMAPを変更するので、通常は新たに作成し
+     たキーマップにたいして使用するだろう。するだろう。
+     他の目的のために使用されている既存のキーマップに操
+     作を行うと、恐らくトラブルの原因となる。たとえば、
+     ‘global-map’の抑制は、Emacsの使用をほとんど不可能に
+
+     この関数は、テキストの挿入が望ましくないメジャーモ
+     ードの、ローカルキーマップ初期科に使用され得る。し
+     かし、そのようなモードは通常は‘special-mode’(*note
+     Basic Major Modes::を参照)から継承される。この場合
+     、そのモードのキーマップは既に抑制済みの
+     ‘special-mode-map’から自動的に受け継がれる。以下に
+     ‘special-mode-map’が定義される方法を示す:
+
+          (defvar special-mode-map
+            (let ((map (make-sparse-keymap)))
+              (suppress-keymap map)
+              (define-key map "q" 'quit-window)
+              ...
+              map))
+
+
+File: elisp,  Node: Remapping Commands,  Next: Translation Keymaps,  Prev: Changing Key Bindings,  Up: Keymaps
+
+21.13 Remapping Commands
+========================
+
+あるコマンドから他のコマンドへの“リマップ(remap)”には、
+特別な種類のキーバインディングが使用できます。この機能を
+使用するためには、ダミーイベント‘remap’で始まり、その後
+にリマップしたいコマンド名が続くようなキーシーケンスにた
+いするキーバインディングを作成します。そして、そのバイン
+ディングにたいしては、新たな定義(通常はコマンド名だが、
+キーバインディングにたいして有効な他の任意の定義を指定可
+能)を指定します。
+
+   たとえば、Myモードというモードが、‘kill-line’のかわり
+に呼び出される‘my-kill-line’という特別なコマンドを提供す
+るとします。これを設定するには、このモードのキーマップに
+以下のようなリマッピングが含まれるはずです:
+
+     (define-key my-mode-map [remap kill-line] 'my-kill-line)
+
+その後は、‘my-mode-map’がアクティブなときは常に、ユーザ
+ーが‘C-k’(‘kill-line’についてデフォルトのグローバルキー
+シーケンス)をタイプすると、Emacsはかわりに
+‘my-kill-line’を実行するでしょう。
+
+   リマップはアクティブなキーマップでのみ行なわれること
+に注意してください。たとえば、‘ctl-x-map’のようなプレフ
+ィクスキーマップ内にリマッピングを置いても、そのようなキ
+ーマップはそれ自体がアクティブでないので、通常は効果があ
+りません。それに加えて、リマップは1レベルを通じてのみ機
+能します。以下の例では、
+
+     (define-key my-mode-map [remap kill-line] 'my-kill-line)
+     (define-key my-mode-map [remap my-kill-line] 'my-other-kill-line)
+
+これは‘kill-line’を‘my-other-kill-line’にリマップ_しませ
+ん_。かわりに、通常のキーバインディングが‘kill-line’を指
+定する場合は、それが‘my-kill-line’にリマップされます。通
+常のバインディングが‘my-kill-line’を指定した場合は、
+‘my-other-kill-line’にリマップされます。
+
+   コマンドのリマップをアンドゥするには、以下のようにそ
+れを‘nil’にリマップします：
+
+     (define-key my-mode-map [remap kill-line] nil)
+
+ -- Function: command-remapping command &optional
+          position keymaps
+     この関数は、カレントアクティブキーマップにより与え
+     られる、COMMAND(シンボル)にたいするリマッピングをリ
+     ターンする。COMMANDがリマップされていない(これは普
+     通の状況である)、またはシンボル以外の場合、この関数
+     は‘nil’をリターンする。‘position’は、
+     ‘key-binding’の場合と同様、使用するキーマップを決定
+     するために、オプションバッファー位置、またはイベン
+     ト位置をオプションで指定できる。
+
+     オプション引数‘keymaps’が非‘nil’の場合、それは検索
+     するキーマップのリストを指定する。この引数は、
+     ‘position’が非‘nil’の場合は無視される。
+
+
+File: elisp,  Node: Translation Keymaps,  Next: Key Binding Commands,  Prev: Remapping Commands,  Up: Keymaps
+
+21.14 Keymaps for Translating Sequences of Events
+=================================================
+
+‘read-key-sequence’関数がキーシーケンス(*note Key
+Sequence Input::を参照)を読み取るときは、特定のイベント
+シーケンスを他のものに変換(translate)するために、“変換キ
+ーマップ(translation keymaps)”を使用します。
+‘input-decode-map’、‘local-function-key-map’、
+‘key-translation-map’(優先順)は変換キーマップです。
+
+   変換キーマップは、他のキーマップと同じ構造をもちます
+が、使われ方は異なります。変換キーマップは、キーシーケン
+スを読み取るときに、コンプリートキーシーケンスにたいする
+バインディングではなく、キーシーケンスに行う変換を指定し
+ます。キーシーケンスが読み取られると、それらのキーシーケ
+ンスは変換キーマップにたいしてチェックされます。ある変換
+キーマップがKをベクターVに“バインド”する場合、キーシーケ
+ンス内の_どこか_にサブシーケンスとしてKが出現すると、そ
+れはVないのでイベントに置き換えられます。
+
+   たとえば、キーパッドキー<PF1>が押下されたとき、
+VT100端末は‘<ESC> O P’を送信します。そのような端末では、
+Emacsはそのイベントシーケンスを単一イベント‘pf1’に変換し
+なければなりません。これは、‘input-decode-map’内で‘<ESC>
+O P’を‘[pf1]’に“バインド”することにより行われます。した
+がって、その端末上で‘C-c <PF1>’をタイプしたとき、端末は
+文字シーケンス‘C-c <ESC> O P’を発行し、
+‘read-key-sequence’がそれを‘C-c <PF1>’に変換してベクター
+‘[?\C-c pf1]’としてリターンします。
+
+   変換キーマップは、(‘keyboard-coding-system’で指定され
+た入力コーディングシステムを通じて)Emacsがキーボード入力
+をデコードした直後だけ効果をもちます。*note Terminal I/O
+Encoding::を参照してください。
+
+ -- Variable: input-decode-map
+     この変数は、通常の文字端末上のファンクションキーか
+     ら送信された文字シーケンスを記述するキーマップを保
+     持する。
+
+     ‘input-decode-map’の値は、通常はその端末の
+     TerminfoかTermcapのエントリーに応じて、自動的にセッ
+     トアップされるが、Lispの端末仕様ファイルの助けが必
+     要なときもある。Emacsには、多くの一般的な端末の端末
+     仕様ファイルが同梱されている。これらのファイルの主
+     な目的は、TermcapやTerminfoから推定できないエントリ
+     ーを‘input-decode-map’内に作成することである。*note
+     Terminal-Specific::を参照のこと。
+
+ -- Variable: local-function-key-map
+     この変数は、‘input-decode-map’と同じようにキーマッ
+     プを保持するが、通常優先される解釈候補(alternative
+     interpretation)に変換されるべきキーシーケンスを記述
+     するキーマップを保持する。このキーマップは
+     ‘input-decode-map’の後、‘key-translation-map’の前に
+     適用される。
+
+     ‘local-function-key-map’内のエントリーは、マイナー
+     モード、ローカルキーマップ、グローバルキーマップに
+     よるバインディングと衝突する場合は無視される。つま
+     り、元のキーシーケンスが他にバインディングをもたな
+     い場合だけ、リマッピングが適用される。
+
+     ‘local-function-key-map’が‘function-key-map’を継承
+     するが、‘function-key-map’を直接使用すべきではない
+     。
+
+ -- Variable: key-translation-map
+     この変数は、入力イベントを他のイベントに変換するた
+     めに、‘input-decode-map’と同じように使用される、別
+     のキーマップを保持する。‘input-decode-map’との違い
+     は、‘local-function-key-map’の前ではなく、後に機能
+     する点である。このキーマップは、
+     ‘local-function-key-map’による変換結果を受け取る。
+
+     ‘input-decode-map’と同様、ただし
+     ‘local-function-key-map’とは異なり、このキーマップ
+     は入力キーシーケンスが通常のバインディングをもつか
+     どうかかに関わらず適用される。しかし、このキーマッ
+     プによりキーバインディングがオーバーライドされても
+     、‘key-translation-map’では実際のキーバインディング
+     が効果をもち得ることに注意されたい。確かに、実際の
+     キーバインディングは‘local-function-key-map’をオー
+     バーライドし、したがって‘key-translation-map’が受け
+     取るキーシーケンスは変更されるだろう。明確にするた
+     めには、このような類の状況は避けたほうがよい。
+
+     ‘key-translation-map’は、通常は
+     ‘self-insert-command’にバインディングされるような通
+     常文字を含めて、ユーザーがある文字を他の文字にマッ
+     プすることを意図している。
+
+   キーシーケンスのかわりにキーの“変換”として関数を使用
+することにより、シンプルなエイリアスより多くのことに
+‘input-decode-map’、‘local-function-key-map’、
+‘key-translation-map’を使用できます。その場合、この関数
+はそのキーの変換を計算するために呼び出されます。
+
+   キー変換関数は、引数を1つ受け取ります。この引数は
+‘read-key-sequence’内で指定されるプロンプトです。キーシ
+ーケンスがエディターコマンドループに読み取られる場合は、
+‘nil’です。ほとんどの場合、プロンプト値は無視できます。
+
+   関数が自身で入力を読み取る場合、その関数は後続のイベ
+ントを変更する効果をもつことができます。たとえば、以下は
+‘C-c h’をハイパー文字に後続する文字とするために定義する
+方法の例です:
+
+     (defun hyperify (prompt)
+       (let ((e (read-event)))
+         (vector (if (numberp e)
+                     (logior (lsh 1 24) e)
+                   (if (memq 'hyper (event-modifiers e))
+                       e
+                     (add-event-modifier "H-" e))))))
+
+     (defun add-event-modifier (string e)
+       (let ((symbol (if (symbolp e) e (car e))))
+         (setq symbol (intern (concat string
+                                      (symbol-name symbol))))
+         (if (symbolp e)
+             symbol
+           (cons symbol (cdr e)))))
+
+     (define-key local-function-key-map "\C-ch" 'hyperify)
+
+21.14.1 Interaction with normal keymaps
+---------------------------------------
+
+そのキーシーケンスがコマンドにバインドされたとき、または
+さらにイベントを追加してもコマンドにバインドされるシーケ
+ンスにすることができないとEmacsが判断したときに、キーシ
+ーケンスの終わりが検出されます。
+
+   これは、元のキーシーケンスがバインディングをもつかど
+うかに関わらず、‘input-decode-map’および
+‘key-translation-map’を適用するとき、そのようなバインデ
+ィングが変換の開始を妨げることを意味します。たとえば、前
+述のVT100の例に戻って、グローバルマップに‘C-c <ESC>’を追
+加してみましょう。すると、ユーザーが‘C-c <PF1>’をタイプ
+したとき、Emacsは‘C-c <ESC> O P’を‘C-c <PF1>’に変換する
+のに失敗するでしょう。これは、Emacsが‘C-x <ESC>’の直後に
+読み取りを停止して、‘O P’は読み取られずに残るからです。
+この場合、ユーザーが実際に‘C-c <ESC>’をタイプした場合、
+ユーザーが実際に‘<ESC>’を押下したのか、あるいは‘<PF1>’を
+押下したのか判断するために、Emacsが待つべきではないので
+す。
+
+   この理由により、キーシーケンスの終わりがキー変換のプ
+レフィクスであるようなキーシーケンスをコマンドにバインド
+するのは、避けたほうがよいでしょう。そのような問題を起こ
+す主なサフィックス、およびプレフィクスは‘<ESC>’、
+‘M-O’(実際は‘<ESC> O’)、‘M-[’(実際は‘<ESC> [’)です。
+
+
+File: elisp,  Node: Key Binding Commands,  Next: Scanning Keymaps,  Prev: Translation Keymaps,  Up: Keymaps
+
+21.15 Commands for Binding Keys
+===============================
+
+このセクションでは、キーバインディングを変更するための便
+利な対話的インターフェイスを説明します。これらは
+‘define-key’を呼び出すことにより機能します。
+
+   ユーザーはinitファイルにたいしてシンプルなカスタマイ
+ズを行うとき、しばしば‘global-set-key’を使用します。たと
+えば、
+
+     (global-set-key (kbd "C-x C-\\") 'next-line)
+
+または
+
+     (global-set-key [?\C-x ?\C-\\] 'next-line)
+
+または
+
+     (global-set-key [(control ?x) (control ?\\)] 'next-line)
+
+は、次の行に移動するように‘C-x C-\’を再定義します。
+
+     (global-set-key [M-mouse-1] 'mouse-set-point)
+
+は、メタキーを押してマウスの第一ボタン(左ボタン)をクリッ
+クすると、クリックした箇所にポイントをセットするように再
+定義します。
+
+   バインドするキーのLisp指定に非ASCII文字のテキストを使
+用するときは、注意してください。マルチバイトとして読み取
+られたテキストがある場合には、Lispファイル内でマルチバイ
+トテキストが読み取られるときのように(*note Loading
+Non-ASCII::)、マルチバイトとしてキーをタイプしなければな
+りません。たとえば、
+
+     (global-set-key "ö" 'my-function) ; bind o-umlaut
+
+または
+
+     (global-set-key ?ö 'my-function) ; bind o-umlaut
+
+をLatin-1のマルチバイト環境で使用した場合、これらのコマ
+ンドはLatin-1端末より送信されたバイトコード246(‘M-v’)で
+はなく、コード246のマルチバイト文字に実際にバインドされ
+ます。このバインディングを使用するためには、適切な入力メ
+ソッド(*note Input Methods: (emacs)Input Methods.を参照
+)を使用して、キーボードをデコードする方法をEmacsに教える
+必要があります。
+
+ -- Command: global-set-key key binding
+     この関数は、カレントグローバルマップ内で、KEYのバイ
+     ンディングをBINDINGにセットする。
+
+          (global-set-key KEY BINDING)
+          ≡
+          (define-key (current-global-map) KEY BINDING)
+
+ -- Command: global-unset-key key
+     この関数は、カレントグローバルマップから、KEYのバイ
+     ンディングを削除する。
+
+     プレフィクスとしてKEYを使用する、長いキーの定義の準
+     備に使用するのも、この関数の1つの使い方である。
+     KEYが非プレフィクスのようなバインディングをもつ場合
+     、この使い方は許されないだろう。たとえば、
+
+          (global-unset-key "\C-l")
+              ⇒ nil
+          (global-set-key "\C-l\C-l" 'redraw-display)
+              ⇒ nil
+
+     この関数は、以下のように‘define-key’を使用するのと
+     等しい:
+
+          (global-unset-key KEY)
+          ≡
+          (define-key (current-global-map) KEY nil)
+
+ -- Command: local-set-key key binding
+     この関数は、カレントローカルキーマップ内のKEYのバイ
+     ンディングを、BINDINGにセットする。
+
+          (local-set-key KEY BINDING)
+          ≡
+          (define-key (current-local-map) KEY BINDING)
+
+ -- Command: local-unset-key key
+     この関数は、カレントローカルキーマップから、KEYのバ
+     インディングを削除する。
+
+          (local-unset-key KEY)
+          ≡
+          (define-key (current-local-map) KEY nil)
+
+
+File: elisp,  Node: Scanning Keymaps,  Next: Menu Keymaps,  Prev: Key Binding Commands,  Up: Keymaps
+
+21.16 Scanning Keymaps
+======================
+
+このセクションでは、すべてのカレントキーマップをスキャン
+して、ヘルプ情報をプリントするために使用される関数を説明
+します。
+
+ -- Function: accessible-keymaps keymap &optional prefix
+     この関数は、(0個以上のプレフィクスキーを通じて
+     )KEYMAPから到達可能な、すべてのキーマップのリストを
+     リターンする。リターン値は‘(KEY . MAP)’のような形式
+     の要素をもつ連想配列(alist)である。ここで、KEYは
+     KEYMAP内での定義がMAPであるようなプレフィクスキーで
+     ある。
+
+     alistの要素は、KEYの長さにたいして昇順にソートされ
+     ている。1つ目の要素は、常に‘([] . KEYMAP)’である。
+     これは、指定されたキーマップがイベントなしのプレフ
+     ィクスにより、自分自身からアクセス可能だからである
+     。
+
+     PREFIXが与えられた場合、それはプレフィクスキーシー
+     ケンスである。その場合には、PREFIXで始まるプレフィ
+     クスキーをもつサブマップだけが
+     ‘accessible-keymaps’に含まれる。これらの要素の意味
+     は、‘(accessible-keymaps)’の値の場合と同様であり、
+     いくつかの要素が省略されている点だけが異なる。
+
+     以下の例では、リターンされるalistにより、‘^[’と表示
+     されるキー<ESC>がプレフィクスキーであり、その定義が
+     sparseキーマップ‘(keymap (83 . center-paragraph)
+     (115 . foo))’であること示される。
+
+          (accessible-keymaps (current-local-map))
+          ⇒(([] keymap
+                (27 keymap   ; 以降<ESC>にたいするこのキーマップが繰り返されることに注意
+                    (83 . center-paragraph)
+                    (115 . center-line))
+                (9 . tab-to-tab-stop))
+
+             ("^[" keymap
+              (83 . center-paragraph)
+              (115 . foo)))
+
+     また以下の例では、‘C-h’は‘(keymap (118 .
+     describe-variable)...)’で始まるsparseキーマップを使
+     用するプレフィクスキーである。他のプレフィクス‘C-x
+     4’は、変数‘ctl-x-4-map’の値でもあるキーマップを使用
+     する。イベント‘mode-line’は、ウィンドウの特別な箇所
+     でのマウスイベントにたいするプレフィクスとして使用
+     される、いくつかのダミーイベントのうちの1つである。
+
+          (accessible-keymaps (current-global-map))
+          ⇒ (([] keymap [set-mark-command beginning-of-line ...
+                             delete-backward-char])
+              ("^H" keymap (118 . describe-variable) ...
+               (8 . help-for-help))
+              ("^X" keymap [x-flush-mouse-queue ...
+               backward-kill-sentence])
+              ("^[" keymap [mark-sexp backward-sexp ...
+               backward-kill-word])
+              ("^X4" keymap (15 . display-buffer) ...)
+              ([mode-line] keymap
+               (S-mouse-2 . mouse-split-window-horizontally) ...))
+
+     これらは実際に目にするであろうキーマップのすべてで
+     はない。
+
+ -- Function: map-keymap function keymap
+     関数‘map-keymap’は、KEYMAP内のバインディングそれぞ
+     れにたいして1回FUNCTIONを呼び出す。呼び出す際の引数
+     はイベント型と、そのバインディングの値の2つである。
+     KEYMAPに親キーマップがある場合は、その親キーマップ
+     のバインディングも含まれる。これは再帰的に機能する
+     。つまり、その親キーマップ自身が親キーマップをもつ
+     場合は、それのバインディングも含まれる、といった具
+     合である。
+
+     これは、キーマップ内のすべてのバインディングを検証
+     する、もっとも明快な方法である。
+
+ -- Function: where-is-internal command &optional keymap
+          firstonly noindirect no-remap
+     この関数は、‘where-is’コマンド(*note Help:
+     (emacs)Help.を参照)により使用されるサブルーチンであ
+     る。これは、キーマップのセット内でCOMMANDにバインド
+     される、(任意の長さの)キーシーケンスすべてのリスト
+     をリターンする。
+
+     引数COMMANDには、任意のオブジェクトを指定できる。こ
+     のオブジェクトは、すべてのキーマップエントリーにた
+     いし、‘eq’を使用して比較される。
+
+     KEYMAPが‘nil’の場合、‘overriding-local-map’の値とは
+     無関係に(‘overriding-local-map’の値が‘nil’であると
+     装い)、カレントアクティブキーマップをマップとして使
+     用する。KEYMAPがキーマップの場合は、KEYMAPとグロー
+     バルキーマップが検索されるマップとなる。KEYMAPがキ
+     ーマップのリストの場合は、それらのキーマップだけが
+     検索される。
+
+     KEYMAPにたいする式としては、通常は
+     ‘overriding-local-map’を使用するのが最善である。そ
+     の場合、‘where-is-internal’は正にアクティブなキーマ
+     ップを検索する。グローバルマップだけを検索するには
+     、KEYMAPの値に‘(keymap)’(空のキーマップ)を渡せばよ
+     い。
+
+     FIRSTONLYが‘non-ascii’の場合、値はすべての可能なキ
+     ーシーケンスのリストではなく、最初に見つかったキー
+     シーケンスを表す単一のベクターとなる。FIRSTONLYが
+     ‘t’の場合、値は最初のキーシーケンスだが、全体が
+     ASCII文字(またはメタ修飾されたASCII文字)で構成され
+     るキーシーケンスが、他のすべてのキーシーケンスに優
+     先され、リターン値がメニューバインディングになるこ
+     とは決してない。
+
+     NOINDIRECTが非‘nil’の場合、‘where-is-internal’はイ
+     ンダイレクトキーマップ(indirect keymap: 間接キーマ
+     ップ)のバインディングを追跡しない。これにより、イン
+     ダイレクト定義自体にたいして検索が可能になる。
+
+     5つ目の引数NO-REMAPは、この関数がコマンドリマッピン
+     グ(*note Remapping Commands::を参照)を扱う方法を決
+     定する。興味深いケースが2つある:
+
+     コマンドOTHER-COMMANDがCOMMANDにリマップされる場合:
+          NO-REMAPが‘nil’の場合は、OTHER-COMMANDにたいす
+          るバインディングを探して、COMMANDにたいするバ
+          インディングであるかのようにそれらを扱う。
+          NO-REMAPが非‘nil’の場合は、それらのバインディ
+          ングを探すかわりに、利用可能なキーシーケンスリ
+          ストに、ベクター‘[remap OTHER-COMMAND]’を含め
+          る。
+
+     If COMMAND is remapped to OTHER-COMMAND:
+          NO-REMAPが‘nil’の場合は、COMMANDではなく
+          OTHER-COMMANDにたいするバインディングをリター
+          ンする。NO-REMAPが非‘nil’の場合は、リマップさ
+          れていることを無視して、COMMANDにたいするバイ
+          ンディングをリターンする。
+
+ -- Command: describe-bindings &optional prefix
+          buffer-or-name
+     この関数は、すべてのカレントキーバインディングのリ
+     ストを作成して、‘*Help*’という名前のバッファーにそ
+     れを表示する。テキストはモードごとにグループ化され
+     、順番はマイナーモード、メジャーモード、グローバル
+     バインディングの順である。
+
+     PREFIXが非‘nil’の場合、それはプレフィクスキーである
+     。その場合、リストに含まれるのはPREFIXで始まるキー
+     だけになる。
+
+     複数の連続するASCIIコードが同じ定義をもつとき、それ
+     らは‘FIRSTCHAR..LASTCHAR’のようにまとめて表示される
+     。この場合、それがどの文字に該当するかを理解するた
+     めには、そのASCIIコードを知っている必要がある。たと
+     えば、デフォルトグローバルマップでは、文字‘<SPC> ..
+     ~’は1行で記述される。<SPC>はASCIIの32，‘~’はASCIIの
+     126で、その間のすべての文字には、通常のプリント文字
+     (アルファベット文字、数字、句読点など)が含まれる。
+     これらの文字はすべて、‘self-insert-command’にバイン
+     ドされる。
+
+     BUFFER-OR-NAMEが非‘nil’の場合、それはバッファー、ま
+     たはバッファー名である。その場合、
+     ‘describe-bindings’はカレントバッファーのかわりに、
+     そのバッファーのバインディングをリストする。
+
+
+File: elisp,  Node: Menu Keymaps,  Prev: Scanning Keymaps,  Up: Keymaps
+
+21.17 Menu Keymaps
+==================
+
+キーマップは、キーボードキーやマウスボタンにたいするバイ
+ンディング定義と同様に、メニューとして操作することができ
+ます。メニューは、通常はマウスにより操作されますが、キー
+ボードでも機能させことができます。次の入力イベントにたい
+してメニューキーマップがアクティブな場合は、キーボードメ
+ニュー機能がアクティブになります。
+
+* Menu:
+
+* Defining Menus::           メニューを定義するキーマップを作成する方法。
+* Mouse Menus::              ユーザーがマウスでメニューを操作する方法。
+* Keyboard Menus::           ユーザーがキーボードでメニューを操作する方法。
+* Menu Example::             シンプルなメニューの作成。
+* Menu Bar::                 メニューバーのカスタマイズ方法。
+* Tool Bar::                 イメージ行のツールバー。
+* Modifying Menus::          メニューへ新たなアイテムを追加する方法。
+* Easy Menu::                メニュー作成のための便利なマクロ。
+
+
+File: elisp,  Node: Defining Menus,  Next: Mouse Menus,  Up: Menu Keymaps
+
+21.17.1 Defining Menus
+----------------------
+
+キーマップが“overallプロンプト文字列(overall prompt
+string)”をもつ場合、そのキーマップはメニューとして動作し
+ます。overallプロンプト文字列とは、キーマップの要素とし
+て表される文字列です(*note Format of Keymaps::を参照)。
+この文字列には、メニューコマンドの目的を記述します。
+Emacsは、(もしあれば)メニュー表示に使用されるツールキッ
+トに応じ、メニュータイトルとしてoverallメニュー文字列を
+表示します(1)。キーボードメニューもoverallプロンプト文字
+列を表示します。
+
+   プロンプト文字列をもつキーマップを構築するもっとも簡
+単な方法は、‘make-keymap’、‘make-sparse-keymap’(*note
+Creating Keymaps::を参照)、‘define-prefix-command’(*note
+Definition of define-prefix-command::を参照)を呼び出すと
+きに引数で文字列を指定する方法です。キーマップをメニュー
+として操作したくない場合は、これらの関数にたいしてプロン
+プト文字列を指定しないでください。
+
+ -- Function: keymap-prompt keymap
+     この関数は、KEYMAPのoverallプロンプト文字列を、もし
+     なければ‘nil’をリターンする。
+
+   メニューのアイテムは、そのキーマップ内のバインディン
+グです。各バインディングはイベント型と定義を関連付けます
+が、イベント型はメニューの外見に何の意味ももちません(通
+常は、イベント型としてキーボードが生成できない擬似イベン
+トのシンボルをメニューアイテムのバインディングに使用する
+)。メニュー全体は、これらのイベントにたいするキーマップ
+内のバインディングから生成されます。
+
+   メニュー内のアイテムの順序は、キーマップ内のバインデ
+ィングの順序と同じです。‘define-key’は新たなバインディン
+グを先頭に置くので、メニューアイテムの順序が重要な場合は
+、メニューの最後から先頭へメニューアイテムを定義する必要
+があります。既存のメニューにアイテムを追加するときは、
+‘define-key-after’を使用してメニュー内の位置を指定できま
+す(*note Modifying Menus::を参照)。
+
+* Menu:
+
+* Simple Menu Items::        単純なメニューのキーバインディング。
+* Extended Menu Items::      複雑なメニューアイテムの定義。
+* Menu Separators::          メニューに水平ラインを描画する。
+* Alias Menu Items::         メニューアイテムにコマンドエイリアスを使用する。
+
+   ---------- Footnotes ----------
+
+   (1) これはテキスト端末ののような、ツールキットを使用
+しないメニューにたいして要求されます。
+
+
+File: elisp,  Node: Simple Menu Items,  Next: Extended Menu Items,  Up: Defining Menus
+
+21.17.1.1 Simple Menu Items
+...........................
+
+メニューアイテムを定義する単純(かつ初歩的)な方法は、何ら
+かのイベント型(何のイベント型かは問題にならない)を以下の
+ようにバインドすることです:
+
+     (ITEM-STRING . REAL-BINDING)
+
+CARのITEM-STRINGは、メニュー内で表示される文字列です。こ
+れは短いほうがよく、1から3の単語が望ましいでしょう。この
+文字列は、対応するコマンドの動作を説明します。すべてのグ
+ラフィカルツールキットが非ASCIIテキストを表示できる訳で
+はないことに注意してください(キーボードメニューとGTK+ツ
+ールキットの大部分では機能するだろう)。
+
+   以下のように、ヘルプ文字列と呼ばれる2つ目の文字列を与
+えることもできます:
+
+     (ITEM-STRING HELP . REAL-BINDING)
+
+HELPは、マウスがそのアイテム上にあるときに、
+‘help-echo’テキストプロパティ(*note Help display::を参照
+)と同じ方法で表示される“help-echo”文字列を指定します。
+
+   ‘define-key’に関する限り、ITEM-STRINGとHELP-STRINGは
+、そのイベントのバインディングの一部です。しかし、
+‘lookup-key’は単にREAL-BINDINGだけをリターンし、そのキー
+の実行にはREAL-BINDINGだけが使用されます。
+
+   REAL-BINDINGが‘nil’の場合、メニューにITEM-STRINGは表
+示されまづが、選択できなくなります。
+
+   REAL-BINDINGがシンボルで、‘menu-enable’プロパティが非
+‘nil’の場合、そのプロパティはメニューアイテムが有効か無
+効かを制御する式です。メニュー表示にキーマップが使用され
+るたびに、Emacsはその式を評価して、式の値が非‘nil’の場合
+だけ、そのメニューのメニューアイテムを有効にします。メニ
+ューアイテム無効なとき、そのアイテムは“fuzzy”形式で表示
+され、選択できなくなります。
+
+   メニューバーはメニューを調べる際に、どのアイテムが有
+効なのか再計算しません。これは、Xツールキットが事前にメ
+ニュー全体を要求するからです。メニューバーの再計算を強制
+するには、‘force-mode-line-update’を呼び出してください
+(*note Mode Line Format::を参照)。
+
+
+File: elisp,  Node: Extended Menu Items,  Next: Menu Separators,  Prev: Simple Menu Items,  Up: Defining Menus
+
+21.17.1.2 Extended Menu Items
+.............................
+
+メニューアイテムの拡張フォーマットは、単純なフォーマット
+に比べて、より柔軟かつ明快です。拡張フォーマットでは、メ
+ニューアイテムにバインドのイベント型に、シンボル
+‘menu-item’で始まるシンボルのリストを指定します。選択で
+きない文字列にたいしては、以下のようなバインディングにな
+ります:
+
+     (menu-item ITEM-NAME)
+
+2つ以上のダッシュで始まる文字列は、リストのセパレーター
+を指定します。*note Menu Separators::を参照してください
+。
+
+   選択可能な実際のメニューアイテムを定義するには、以下
+のような拡張フォーマットでバインドします:
+
+     (menu-item ITEM-NAME REAL-BINDING
+         . ITEM-PROPERTY-LIST)
+
+ここで、ITEM-NAMEはメニューアイテム文字列を評価する式で
+す。つまり、文字列は底数である必要はありません。3つ目の
+引数REAL-BINDINGは、実行するコマンドです。リストの最後の
+要素ITEM-PROPERTY-LISTは、プロパティリストの形式をもつ、
+その他の情報を含みます。
+
+   以下は、サポートされるプロパティのテーブルです:
+
+‘:enable FORM’
+     FORMの評価結果は、そのアイテムを有効にするかどうか
+     を決定する(非‘nil’の場合は有効)。アイテムが無効な場
+     合は、実際にクリックできない。
+
+‘:visible FORM’
+     FORMの評価結果は、そのアイテムを実際にメニューに表
+     示するかどうかを決定する(非‘nil’の場合は表示)。アイ
+     テムが非表示の場合は、そのアイテムが定義されていな
+     いかのようにメニューが表示される。
+
+‘:help HELP’
+     このプロパティHELPの値は、そのアイテム上にマウスが
+     ある間表示する“help-echo”文字列を指定する。この文字
+     列は、‘help-echo’テキストプロパティ(*note Help
+     display::を参照)と同じ方法で表示される。これは、テ
+     キストやoverlayにたいする‘help-echo’プロパティと異
+     なり、文字列定数でなければならないことに注意された
+     い。
+
+‘:button (TYPE . SELECTED)’
+     このプロパティは、ラジオボタンおよびトグルボタンを
+     定義する手段を提供する。CARのTYPEは、‘:toggle’か
+     ‘:radio’のいずれかを指定する。CDRのSELECTEDはフォー
+     ムで、評価結果によりそのボタンがカレントで選択され
+     ているかどうかを指定する。
+
+     “トグル(toggle)”は、SELECTEDの値に応じて“on”か
+     “off”のいずれかがラベルされるメニューアイテムである
+     。コマンド自身は、SELECTEDが‘nil’なら‘t’に、‘t’なら
+     ‘nil’にSELECTEDを切り替える(toggle)こと。以下は、
+     ‘debug-on-error’フラグが定義されているときに、メニ
+     ューアイテムをトグルする方法の例である:
+
+          (menu-item "Debug on Error" toggle-debug-on-error
+                     :button (:toggle
+                              . (and (boundp 'debug-on-error)
+                                     debug-on-error)))
+
+     これは、‘toggle-debug-on-error’が変数
+     ‘debug-on-error’をトグルするコマンドとして定義され
+     ていることにより機能する。
+
+     “ラジオボタン”とは、メニューアイテムのグループであ
+     り、常にただ1つのメニューアイテムだけが“選択される
+     (selected)”。そのためには、どのメニューアイテムが選
+     択されているかを示す変数が存在する必要がある。グル
+     ープ内の各ラジオボタンにたいするSELECTEDフォームは
+     、そのボタンを選択するために、その変数が正しい値を
+     もつかどうかをチェックする。そして、ボタンのクリッ
+     クにより変数をセットして、クリックされたボタンが選
+     択される。
+
+‘:key-sequence KEY-SEQUENCE’
+     このプロパティは、そのメニューアイテムにより呼び出
+     されるのと同じコマンドにバインドされるかもしれない
+     キーシーケンスを指定する。正しいキーシーケンスを指
+     定した場合は、メニュー表示の準備がより高速になる。
+
+     間違ったキーシーケンスを指定した場合は、何の効果も
+     ない。Emacsは、メニュー内のKEY-SEQUENCEを表示する前
+     に、実際にそのKEY-SEQUENCEがそのメニューアイテムと
+     等価なのか検証する。
+
+‘:key-sequence nil’
+     このプロパティは、そのメニューアイテムには等価なキ
+     ーバインディングが通常は存在しないことを示す。この
+     プロパティを使用することにより、Emacsはそのメニュー
+     アイテムにたいして等価なキーボード入力をキーマップ
+     から検索する必要がなくなるので、メニュー表示の準備
+     時間が短縮される。
+
+     しかし、ユーザーがそのアイテムの定義をキーシーケン
+     スにリバインドした場合、Emacsは‘:keys’プロパティを
+     無視して、結局は等価なキーボード入力を見つけ出す。
+
+‘:keys STRING’
+     このプロパティは、そのメニューにたいする等価なキー
+     ボード入力として表示される文字列STRINGを指定する。
+     STRING内では、ドキュメント構成‘\\[...]’を使用できる
+     。
+
+‘:filter FILTER-FN’
+     このプロパティは、メニューアイテムを直接計算する手
+     段を提供する。このプロパティの値FILTER-FNは、引数が
+     1つの関数で、呼び出し時の引数はREAL-BINDINGである。
+     この関数は、かわりに使用するバインディングをリター
+     ンするべきである。
+
+     Emacsは、メニューデータ構造を再表示、または操作する
+     任意のタイミングでこの関数を呼び出し得るので、いつ
+     呼び出されても安全なように関数を記述すべきである。
+
+
+File: elisp,  Node: Menu Separators,  Next: Alias Menu Items,  Prev: Extended Menu Items,  Up: Defining Menus
+
+21.17.1.3 Menu Separators
+.........................
+
+メニューセパレーターは、テキストを表示するかわりに、水平
+ラインでメニューをサブパーツに分割する、メニューアイテム
+の一種です。メニューキーマップ内で、セパレーターは以下の
+ように見えます:
+
+     (menu-item SEPARATOR-TYPE)
+
+ここで、SEPARATOR-TYPEは2つ以上のダッシュで始まる文字列
+です。
+
+   もっとも単純なケースでは、ダッシュだけで
+SEPARATOR-TYPEが構成されます。これはデフォルトのセパレー
+ターを指定します(互換性のため、‘""’と‘-’もセパレーターと
+みなされる)。
+
+   SEPARATOR-TYPEにたいする他の特定の値は、異なるスタイ
+ルのセパレーターを指定します。以下はそれらのテーブルです
+:
+
+‘"--no-line"’
+‘"--space"’
+     実際のラインではない、余分な垂直スペース。
+
+‘"--single-line"’
+     メニューのforegroundカラーの一重ライン。
+
+‘"--double-line"’
+     メニューのforegroundカラーの二重ライン。
+
+‘"--single-dashed-line"’
+     メニューのforegroundカラーの一重ダッシュライン。
+
+‘"--double-dashed-line"’
+     メニューのforegroundカラーの二重ダッシュライン。
+
+‘"--shadow-etched-in"’
+     3Dの窪んだ外観(3D sunken appearance)をもつ一重ライ
+     ン。これはダッシュだけで構成されるセパレーターに使
+     用されるデフォルトである。
+
+‘"--shadow-etched-out"’
+     3Dの浮き上がった外観(3D raised appearance)をもつ一
+     重ライン。
+
+‘"--shadow-etched-in-dash"’
+     3Dの窪んだ外観(3D sunken appearance)をもつ一重ダッ
+     シュライン。
+
+‘"--shadow-etched-out-dash"’
+     3Dの浮き上がった外観(3D raised appearance)をもつ一
+     重ダッシュライン。
+
+‘"--shadow-double-etched-in"’
+     3Dの窪んだ外観をもつ二重ライン。
+
+‘"--shadow-double-etched-out"’
+     3Dの浮き上がった外観をもつ二重ライン。
+
+‘"--shadow-double-etched-in-dash"’
+     3Dの窪んだ外観をもつ二重ダッシュライン。
+
+‘"--shadow-double-etched-out-dash"’
+     3Dの浮き上がった外観をもつ二重ダッシュライン。
+
+   2連ダッシュの後にコロンを追加して、1連ダッシュの後の
+単語の先頭の文字を大文字にすることにより、別のスタイルで
+名前を与えることもできます。つまり、‘"--:singleLine"’は
+‘"--single-line"’と等価です。
+
+   メニューセパレーターにたいして‘:enable’や‘:visible’の
+ようなキーワードを指定するために、長い形式を使用できます
+。
+
+   ‘(menu-item SEPARATOR-TYPE nil . ITEM-PROPERTY-LIST)’
+
+   たとえば:
+
+     (menu-item "--" nil :visible (boundp 'foo))
+
+   いくつかのシステムおよびディスプレイツールキットは、
+これらすべてのセパレータータイプを実際に処理しません。サ
+ポートされないタイプのセパレーターを使用した場合、メニュ
+ーはサポートされている似た種別のセパレーターを表示します
+。
+
+
+File: elisp,  Node: Alias Menu Items,  Prev: Menu Separators,  Up: Defining Menus
+
+21.17.1.4 Alias Menu Items
+..........................
+
+“同じ”コマンドを使用するが、有効条件が異なるメニューアイ
+テムを作成すると便利な場合が時折あります。Emacsでこれを
+行う最善の方法は、拡張メニューアイテム(extended menu
+item)です。この機能が存在する以前は、エイリアスコマンド
+を定義して、それらをメニューアイテムで使用することにより
+これを行っていました。以下は、‘read-only-mode’にたいする
+2つのエイリアスを作成して、それらに異なる有効条件を与え
+る例です:
+
+     (defalias 'make-read-only 'read-only-mode)
+     (put 'make-read-only 'menu-enable '(not buffer-read-only))
+     (defalias 'make-writable 'read-only-mode)
+     (put 'make-writable 'menu-enable 'buffer-read-only)
+
+   メニュー内でエイリアスを使用するときは、エイリアスで
+はなく“実際”のコマンド名にたいする等価なキーバインディン
+グを表示するのが便利な場合が多々あります(エイリアスはメ
+ニュー自身を除きキーバインディングを通常はもたない)。こ
+れを要求するには、エイリアスシンボルに‘menu-alias’プロパ
+ティに非‘nil’を与えます。したがって、
+
+     (put 'make-read-only 'menu-alias t)
+     (put 'make-writable 'menu-alias t)
+
+は、‘make-read-only’と‘make-writable’にたいするメニュー
+アイテムに、‘read-only-mode’のキーバインディングを表示し
+ます。
+
+
+File: elisp,  Node: Mouse Menus,  Next: Keyboard Menus,  Prev: Defining Menus,  Up: Menu Keymaps
+
+21.17.2 Menus and the Mouse
+---------------------------
+
+メニューキーマップがメニューを生成する通常の方法は、それ
+をプレフィクスキーの定義とすることです。(Lispプログラム
+は明示的にメニューをポップアップして、ユーザーの選択を受
+け取ることができる。*note Pop-Up Menus::を参照のこと。)
+
+   プレフィクスキーがマウスイベントで終わる場合、ユーザ
+ーがマウスで選択できるように、Emacsは可視なメニューをポ
+ップアップすることによりメニューキーマップを処理します。
+ユーザーがメニューアイテムをクリックしたときは、そのメニ
+ューアイテムによりもたらされるバインディングの文字、また
+はシンボルが何であれ、イベントが生成されます(メニューが
+複数レベルをもつ場合やメニューバー由来の場合、メニューア
+イテムは1連のイベントを生成するかもしれない)。
+
+   メニューのトリガーにbutton-downイベントを使用するのが
+最善な場合もしばしばあります。その場合、ユーザーはマウス
+ボタンをリリースすることにより、メニューアイテムを選択で
+きます。
+
+   メニューキーマップがネストされたキーマップにたいする
+バインディングを含む場合、そのネストされたキーマップは
+“サブメニュー(submenu)”を指定します。それにはネストされ
+たキーマップのアイテム文字列によりラベル付けされたメニュ
+ーアイテムがあり、そのアイテムをクリックすることにより、
+指定されたサブメニューが自動的にポップアップされます。特
+別な例外として、メニューキーマップが単一のネストされたキ
+ーマップを含み、それ以外のメニューアイテムを含まない場合
+、そのメニューはネストされたキーマップの内容を、サブメニ
+ューとしてではなく、直接メニューに表示します。
+
+   しかし、XツールキットのサポートなしでEmacsをコンパイ
+ルした場合、またはテキスト端末の場合、サブメニューはサポ
+ートされません。ネストされたキーマップはメニューアイテム
+として表示されますが、それをクリックしても、サブメニュー
+は自動的にポップアップされません。サブメニューの効果を模
+倣したい場合は、ネストされたキーマップに‘@’で始まるアイ
+テム文字列を与えることにより、これを行うことができます。
+これにより、Emacsは別個の“メニューペイン(menu pane)”を使
+用してネストされたキーマップを表示します。‘@’の後の残り
+のアイテム文字列は、そのペインのラベルです。Xツールキッ
+トのサポートなしでEmacsをコンパイルした場合、またはメニ
+ューがテキスト端末で表示されている場合、メニューペインは
+使用されません。この場合、アイテム文字列の先頭の‘@’は、
+メニューラベル表示時には省略され、他に効果はありません。
+
+
+File: elisp,  Node: Keyboard Menus,  Next: Menu Example,  Prev: Mouse Menus,  Up: Menu Keymaps
+
+21.17.3 Menus and the Keyboard
+------------------------------
+
+キーボードイベント(文字かファンクションキー)で終わるプレ
+フィクスキーがメニューキーマップであるような定義をもつと
+き、そのキーマップはキーボードメニューのように動作します
+。ユーザーは、キーボードでメニューアイテムを選択して、次
+のイベントを指定します。
+
+   Emacsは、エコーエリアにキーボードメニュー、そのマップ
+のoverallプロンプト文字列、その後に候補(そのマップのバイ
+ンディングのアイテム文字列)を表示します。そのバインディ
+ングを一度に全部表示できない場合、ユーザーは<SPC>をタイ
+プして、候補の次の行を確認できます。連続して<SPC>を使用
+するとメニューの最後に達し、その後は先頭へ巡回します。
+(変数‘menu-prompt-more-char’はこのために使用する文字を指
+定する。デフォルトは<SPC>。)
+
+   ユーザーがメニューから望ましい候補を見つけたら、バイ
+ンディングがその候補であるような、対応する文字をタイプす
+る必要があります。
+
+ -- Variable: menu-prompt-more-char
+     この変数は、メニューの次の行を確認するために使用す
+     る文字を指定する。初期値は32で、これは<SPC>のコード
+     である。
+
+
+File: elisp,  Node: Menu Example,  Next: Menu Bar,  Prev: Keyboard Menus,  Up: Menu Keymaps
+
+21.17.4 Menu Example
+--------------------
+
+以下は、メニューキーマップを定義する、完全な例です。これ
+は、メニューバー内の‘Edit’メニューにサブメニュー
+‘Replace’を定義して、その定義内で拡張メニューフォーマッ
+ト(*note Extended Menu Items::を参照)を使用します。例で
+はまずキーマップを作成して、それに名前をつけます:
+
+     (defvar menu-bar-replace-menu (make-sparse-keymap "Replace"))
+
+次にメニューアイテムを定義します:
+
+     (define-key menu-bar-replace-menu [tags-repl-continue]
+       '(menu-item "Continue Replace" tags-loop-continue
+                   :help "Continue last tags replace operation"))
+     (define-key menu-bar-replace-menu [tags-repl]
+       '(menu-item "Replace in tagged files" tags-query-replace
+                   :help "Interactively replace a regexp in all tagged files"))
+     (define-key menu-bar-replace-menu [separator-replace-tags]
+       '(menu-item "--"))
+     ;; ...
+
+バインディングがそのシンボルのために“作成された”ことに注
+意してください。これらのシンボルは、定義されるキーシーケ
+ンス内の角カッコ内に記述されます。このシンボルはコマンド
+名と同じときもあれば、異なることもあります。これらのシン
+ボルは“ファンクションキー”として扱われますが、これらはキ
+ーボード上の実際のファンクションキーではありません。これ
+らはメニュー自体の機能に影響しませんが、ユーザーがメニュ
+ーから選択したときにエコーエリアに“エコー”され、
+‘where-is’と‘apropos’の出力に現れます。
+
+   この例のメニューは、マウスによる使用を意図しています
+。もしキーボードの使用を意図したメニュー、つまりキーボー
+ドイベントで終了するキーシーケンスにバインドされたメニュ
+ーの場合、メニューアイテムはキーボードでタイプできる文字
+、または“実際”のファンクションキーにバインドされるべきで
+す。
+
+   定義が‘("--")’のバインディングは、セパレーターライン
+です。実際のメニューアイテムと同様、セパレーターはキーシ
+ンボルをもち、この例では‘separator-replace-tags’です。
+1つのメニューが2つのセパレーターをもつ場合、それらは2つ
+の異なるキーシンボルをもたなければなりません。
+
+   以下では、親メニュー内のアイテムとしてこのメニューが
+どのように表示されるかを記述しています:
+
+     (define-key menu-bar-edit-menu [replace]
+       (list 'menu-item "Replace" menu-bar-replace-menu))
+
+これは、シンボル‘menu-bar-replace-menu’自体ではなく、変
+数‘menu-bar-replace-menu’の値であるサブメニューキーマッ
+プを組み込むことに注意してください。
+‘menu-bar-replace-menu’はコマンドではないので、親メニュ
+ーアイテムにそのシンボルを使用するのは無意味です。
+
+   同じreplaceメニューをマウスクリックに割り当てたい場合
+は、以下のようにこれを行うことができます:
+
+     (define-key global-map [C-S-down-mouse-1]
+        menu-bar-replace-menu)
+
+
+File: elisp,  Node: Menu Bar,  Next: Tool Bar,  Prev: Menu Example,  Up: Menu Keymaps
+
+21.17.5 The Menu Bar
+--------------------
+
+Emacsは通常、各フレームの最上部に“メニューバー(menu
+bar)”を表示します。*note (emacs)Menu Bars::を参照してく
+ださい。メニューバーのアイテムは、アクティブキーマップ内
+で定義される偽りの“ファンクションキー”‘menu-bar’のサブコ
+マンドです。
+
+   メニューバーにアイテムを追加するには、自分で偽りの“フ
+ァンクションキー”(これをKEYと呼ぶことにしましょう)を創作
+して、キーシーケンス‘[menu-bar KEY]’にたいするキーバイン
+ディングを作成します。ほとんどの場合において、そのバイン
+ディングはメニューキーマップなので、メニューバーアイテム
+上でボタンを押下すると、他のメニューに導かれます。
+
+   メニューバーにたいして同じ“ファンクションキー”を定義
+するアクティブなキーマップが1つ以上存在するとき、そのア
+イテムは1回だけ出現します。ユーザーがメニューバーのその
+アイテムをクリックした場合、そのアイテムのすべてのサブコ
+マンド— グローバルサブコマンド、ローカルサブコマンド、マ
+イナーモードサブコマンドが組み合わされた単一のメニューを
+表示します。
+
+   変数‘overriding-local-map’は通常、メニューバーのコン
+テンツを決定する際は無視されます。つまり、メニューバーは
+‘overriding-local-map’が‘nil’の場合にアクティブになるで
+あろうキーマップから計算されます。*note Active
+Keymaps::を参照してください。
+
+   以下は、メニューバーのアイテムをセットアップする例で
+す:
+
+     ;; (プロンプト文字列とともに)メニューキーマップを作成して
+     ;; それをメニューバーアイテムの定義にする
+     (define-key global-map [menu-bar words]
+       (cons "Words" (make-sparse-keymap "Words")))
+
+     ;; メニュー内に具体的なサブコマンドを定義する
+     (define-key global-map
+       [menu-bar words forward]
+       '("Forward word" . forward-word))
+     (define-key global-map
+       [menu-bar words backward]
+       '("Backward word" . backward-word))
+
+   ローカルキーマップは、グローバルキーマップにより作成
+されたメニューバーアイテムにたいして、同じ偽ファンクショ
+ンキーを‘undefined’にリバインドしてキャンセルすることが
+できます。たとえば、以下はDiredが‘Edit’メニューバーアイ
+テムを抑制する方法です:
+
+     (define-key dired-mode-map [menu-bar edit] 'undefined)
+
+ここで、‘edit’は‘Edit’メニューバーアイテムにたいしてグロ
+ーバルキーマップにより使用される偽ファンクションキーです
+。グローバルメニューバーアイテムを抑制する主な理由は、モ
+ード特有のアイテムのためのスペースを確保するためです。
+
+ -- Variable: menu-bar-final-items
+     通常メニューバーナーグローバルアイテムの後にローカ
+     ルマップにより定義されるアイテムを表示する。
+
+     この変数は、通常の順番による位置ではなく、メニュー
+     の最後に表示するアイテムのための偽ファンクションキ
+     ーのリストを保持する。デフォルト値は‘(help-menu)’で
+     ある。したがって、‘Help’メニューアイテムはメニュー
+     バーの最後、ローカルメニューアイテムの後に表示され
+     る。
+
+ -- Variable: menu-bar-update-hook
+     このノーマルフックは、メニューバーの再表示の前に、
+     メニューバーのコンテンツを更新するための再表示によ
+     り実行される。コンテンツを変化させる必要があるメニ
+     ューの更新に使用できる。このフックは頻繁に実行され
+     るので、フックが呼び出す関数は、通常の場合は長い時
+     間を要さないことを確実にするよう助言する。
+
+   Emacsは、すべてのメニューバーアイテムの隣に、(もしそ
+のようなキーバインディングが存在するなら)同じコマンドを
+実行するキーバインディングを表示します。これは、キーバイ
+ンディングを知らないユーザーにたいして便利なヒントを与え
+る役目をもちます。コマンドが複数のバインディングをもつ場
+合、通常Emacsは最初に見つけたバインディングを表示します
+。コマンドのシンボルプロパティ‘:advertised-binding’に割
+り当てることにより、特定のキーバインディングを指定できま
+す。*note Keys in Documentation::を参照してください。
+
+
+File: elisp,  Node: Tool Bar,  Next: Modifying Menus,  Prev: Menu Bar,  Up: Menu Keymaps
+
+21.17.6 Tool bars
+-----------------
+
+“ツールバー(tool bar)”とは、フレームの最上部、メニューバ
+ー直下にある、クリック可能なアイコンの行のことです。
+*note (emacs)Tool Bars::を参照してください。Emacsは通常
+、グラフィカルなディスプレイ上でツールバーを表示します。
+
+   各フレームでは、ツールバーに何行分の高さを割り当てる
+かを、フレームパラメーター‘tool-bar-lines’が制御します。
+値0は、ツールバーを抑制します。値が非0で、
+‘auto-resize-tool-bars’が非‘nil’の場合、指定されたコンテ
+ンツを維持するのに必要な分、ツールバーは拡大縮小されます
+。値が‘grow-only’の場合、ツールバーは自動的に拡大されま
+すが、自動的に縮小はされません。
+
+   ツールバーのコンテンツは、(メニューバーが制御されるの
+と似た方法により)‘tool-bar’と呼ばれる偽りの“ファンクショ
+ンキー”に割り当てられたメニューキーマップにより制御され
+ます。したがって、以下のように‘define-key’を使用して、ツ
+ールバーアイテムを定義します。
+
+     (define-key global-map [tool-bar KEY] ITEM)
+
+ここでKEYは、そのアイテムを他のアイテムと区別する偽“ファ
+ンクションキー”で、ITEMはそのアイテムを表示する方法とア
+イテムの振る舞いを示すメニューアイテムキーバインディング
+です(*note Extended Menu Items::を参照)。
+
+   メニューキーマップの通常のプロパティ‘:visible’、
+‘:enable’、‘:button’、‘:filter’はツールバーバインディン
+グでも役に立ち、いずれのプロパティも通常通りの意味をもち
+ます。アイテム内のREAL-BINDINGは、キーマップではなくコマ
+ンドでなければなりません。別の言い方をすると、これはツー
+ルバーアイコンをプレフィクスキーとして定義するようには機
+能しないということです。
+
+   ‘:help’プロパティは、そのアイテム上にマウスがある間表
+示する、“help-echo”文字列を指定します。これは、テキスト
+プロパティ‘help-echo’と同じ方法で表示されます(*note Help
+display::を参照)。
+
+   これらに加えて、‘:image’プロパティも使用するべきでし
+ょう。これは、ツールバー内にイメージを表示するには、この
+プロパティを使用します。
+
+‘:image IMAGE’
+     IMAGESは単一イメージ様式(single image
+     specification)、または4ベクターイメージ様式(vector
+     of four image specifications)で指定する。4ベクター
+     を使用する場合、状況に応じてそれらのうち1つが使用さ
+     れる:
+
+     item 0
+          アイテムが有効かつ選択されているとき使用される
+          。
+     item 1
+          アイテムが有効かつ未選択のとき使用される。
+     item 2
+          アイテムが無効かつ選択されているとき使用される
+          。
+     item 3
+          アイテムが無効かつ未選択のとき使用される。
+
+   GTK+およびNSバージョンのEmacsは、無効、および/または
+未選択のイメージをitem0から自動的に計算するので、item1か
+らitem3は無視されます。
+
+   IMAGEが単一イメージ様式の場合、Emacsはそのイメージに
+エッジ検出アルゴリズム(edge-detection algorithm)を適用す
+ることにより、ツールバーの無効な状態のボタンを描画します
+。
+
+   ‘:rtl’プロパティには、右から左に記述する言語のための
+イメージ候補を指定します。現在のところ、これをサポートす
+るのはGTK+バージョンのEmacsだけです。
+
+   メニューバーと同様、ツールバーはセパレーター(*note
+Menu Separators::を参照)を表示できます。ツールバーのセパ
+レーターは水平ラインではなく垂直ラインであり、1つのスタ
+イルだけがサポートされます。これらは、ツールバーキーマッ
+プ内では‘(menu-item "--")’エントリーで表されます。ツール
+バーのセパレーターでは、‘:visible’のようなプロパティはサ
+ポートされません。GTK+とNextstepのツールバーでは、セパレ
+ーターはネイティブに描画されます。それ以外では、セパレー
+ターは垂直ラインイメージを使用して描画されます。
+
+   デフォルトツールバーは、コマンドシンボルの
+‘mode-class’プロパティに‘special’をもつメジャーモードに
+たいしては、編集に特化したアイテムは表示されないよう定義
+されています(*note Major Mode Conventions::を参照)。メジ
+ャーモードは、ローカルマップ内でバインディング‘[tool-bar
+FOO]’によって、グローバルバーにアイテムを追加するかもし
+れません。デフォルトツールバーの多くを適宜流用するのがで
+きないかもしれないため、デフォルトツールバーを完全に置き
+換えることは、いくつかのメジャーモードにとっては意味があ
+ります。デフォルトバインディングで‘tool-bar-map’を通じて
+インダイレクトすることにより、これを簡単に行うことができ
+ます。
+
+ -- Variable: tool-bar-map
+     デフォルトでは、グローバルマップは‘[tool-bar]’を以
+     下のようにバインドする:
+
+          (global-set-key [tool-bar]
+                          `(menu-item ,(purecopy "tool bar") ignore
+                                      :filter tool-bar-make-keymap))
+
+     関数‘tool-bar-make-keymap’は、変数‘tool-bar-map’の
+     値より、順に実際のツールバーマップをダイナミックに
+     継承する。したがって、通常はそのマップを変更するこ
+     とにより、デフォルト(グローバル)ツールバーを調整す
+     べきである。Infoモードのようないくつかのメジャーモ
+     ードは、‘tool-bar-map’をバッファーローカルにして、
+     それに異なるキーマップをセットすることにより、グロ
+     ーバルツールバーを完全に置き換える。
+
+   以下のような、ツールバーアイテムを定義するのに便利な
+関数があります。
+
+ -- Function: tool-bar-add-item icon def key &rest props
+     この関数は、‘tool-bar-map’を変更することにより、ツ
+     ールバーにアイテムを追加する。使用するイメージは
+     ICONにより定義され、これは‘find-image’に配置された
+     XPM、XBM、PBMのイメージファイルの拡張子を除いたファ
+     イル名(basename)である。たとえばカラーディスプレイ
+     上では、値に‘"exit"’を与えると‘exit.xpm’、
+     ‘exit.pbm’、‘exit.xbm’の順に検索されるだろう。モノ
+     クロディスプレイでは、検索は‘.pbm’、‘.xbm’、
+     ‘.xpm’の順になる。使用するバインディングはコマンド
+     DEFで、KEYはプレフィクスキーマップ内の偽ファンクシ
+     ョンキーである。残りの引数PROPSは、メニューアイテム
+     仕様に追加する、追加のプロパティリスト要素である。
+
+     あるローカルマップ内にアイテムを定義するためには、
+     この関数呼び出しの周囲の‘let’で‘tool-bar-map’をバイ
+     ンドする:
+          (defvar foo-tool-bar-map
+            (let ((tool-bar-map (make-sparse-keymap)))
+              (tool-bar-add-item ...)
+              ...
+              tool-bar-map))
+
+ -- Function: tool-bar-add-item-from-menu command icon
+          &optional map &rest props
+     この関数は、既存のメニューバインディングと矛盾しな
+     いツールバーアイテムの定義に有用である。COMMANDのバ
+     インディングはMAP(デフォルトは‘global-map’)内よりル
+     ックアップ(lookup: 照合)され、ICONにたいするイメー
+     ジ仕様は‘tool-bar-add-item’と同じ方法で見つけ出され
+     る。結果のバインディングは‘tool-bar-map’に配される
+     ので、この関数の使用はグローバルツールバーアイテム
+     に限定される。
+
+     MAPには、‘[menu-bar]’にバインドされた適切なキーマッ
+     プが含まれていなければならない。残りの引数PROPSは、
+     メニューアイテム仕様に追加する、追加のプロパティリ
+     スト要素である。
+
+ -- Function: tool-bar-local-item-from-menu command icon
+          in-map &optional from-map &rest props
+     この関数は、非グローバルツールバーアイテムの作成に
+     使用される。IN-MAPに定義を作成するローカルマップを
+     指定する以外は、‘tool-bar-add-item-from-menu’と同じ
+     ように使用する。引数FROM-MAPは、
+     ‘tool-bar-add-item-from-menu’のMAPと同様である。
+
+ -- Variable: auto-resize-tool-bars
+     この変数が非‘nil’の場合、定義されたすべてのツールバ
+     ーアイテムを表示するために、ツールバーは自動的にリ
+     サイズ — ただし、そのフレーム高さの1/4を超えてリサ
+     イズされることはない。
+
+     値が‘grow-only’の場合、ツールバーは自動的に拡張され
+     るが、自動的に縮小はされない。ツールバーを縮小する
+     ために、ユーザーは‘C-l’をエンターしてフレームを再描
+     画する必要がある。
+
+     GTK、またはNextstepとともにEmacsがビルドされた場合
+     、ツールバーが表示できるのは1行だけであり、この変数
+     は効果がない。
+
+ -- Variable: auto-raise-tool-bar-buttons
+     この変数が非‘nil’の場合、ツールバーアイテムの上をマ
+     ウスが通過したとき、浮き上がった形式(raised form)で
+     表示される。
+
+ -- Variable: tool-bar-button-margin
+     この変数は、ツールバーアイテムの周囲に追加する余白
+     (extra margin)を指定する。値はピクセル数を整数で指
+     定し、デフォルトは4である。
+
+ -- Variable: tool-bar-button-relief
+     この変数は、ツールバーアイテムの影(shadow)を指定す
+     る。値はピクセル数を整数で指定し、デフォルトは1であ
+     る。
+
+ -- Variable: tool-bar-border
+     この変数は、ツールバーエリアの下に描画するボーダー
+     高さを指定する。値が整数の場合は、高さのピクセル数
+     である。値が‘internal-border-width’(デフォルト)か
+     ‘border-width’のいずれの場合、ツールバーのボーダー
+     高さは、そのフレームの対応するパラメーターとなる。
+
+   シフト、メタ等の修飾キーを押下した状態でのツールバー
+アイテムのクリックにたいして、特別な意味を付与できます。
+偽りのファンクションキーを通じて、元のアイテムに関連する
+追加アイテムをセットアップすることにより、これを行うこと
+ができます。より具体的には、追加アイテムは、元のアイテム
+の命名に使用されたのと同じ偽ファンクションキーの修飾され
+たバージョンを使用するべきです。
+
+   つまり、元のアイテムが以下のように定義されている場合
+、
+
+     (define-key global-map [tool-bar shell]
+       '(menu-item "Shell" shell
+                   :image (image :type xpm :file "shell.xpm")))
+
+シフト修飾とともに同じツールバーイメージをクリックしたと
+きは、以下のような方法で定義することができます:
+
+     (define-key global-map [tool-bar S-shell] 'some-command)
+
+   ファンクションキーにたいして修飾を追加する方法につい
+ての詳細な情報は、*note Function Keys::を参照してくださ
+い。
+
+
+File: elisp,  Node: Modifying Menus,  Next: Easy Menu,  Prev: Tool Bar,  Up: Menu Keymaps
+
+21.17.7 Modifying Menus
+-----------------------
+
+既存のメニューに新たなアイテムを挿入するときは、そのメニ
+ューの既存のアイテムの中の特定の位置にアイテムを追加した
+いと思うかもしれません。‘define-key’を使用してアイテムを
+追加した場合は通常、そのアイテムはメニューの先頭に追加さ
+れます。メニュー内の他の位置にアイテムを追加するには、
+‘define-key-after’を使用します:
+
+ -- Function: define-key-after map key binding &optional
+          after
+     ‘define-key’と同じように、MAP内にKEYにたいする値
+     BINDINGのバインディングを定義するが、MAP内でそのバ
+     インディングの位置は、イベントAFTERにたいするバイン
+     ディングの後になる。引数KEYは長さ1 — 1要素だけのベ
+     クターか文字列にすべきである。しかしAFTERは単一のイ
+     ベント型 — シーケンスではないシンボルか文字にすべき
+     である。新たなバインディングは、AFTERにたいするバイ
+     ンディングの後に追加される。AFTERが‘t’、または省略
+     された場合、新たなバインディングはそのキーマップの
+     最後に追加される。しかし、新たなバインディングは、
+     すべての継承されたキーマップの前に追加される。
+
+     以下に例を示す:
+
+          (define-key-after my-menu [drink]
+            '("Drink" . drink-command) 'eat)
+
+     これは、偽ファンクションキー<DRINK>にたいするバイン
+     ディングを作成して、<EAT>にたいするバインディングの
+     直後に追加する。
+
+     以下に、Shellモードの‘Signals’メニュー内のアイテム
+     ‘break’の後に、‘Work’と呼ばれるアイテムを追加する方
+     法を示す:
+
+          (define-key-after
+            (lookup-key shell-mode-map [menu-bar signals])
+            [work] '("Work" . work-command) 'break)
+
+
+File: elisp,  Node: Easy Menu,  Prev: Modifying Menus,  Up: Menu Keymaps
+
+21.17.8 Easy Menu
+-----------------
+
+以下のマクロは、ポップアップメニュー、および/またはメニ
+ューバーメニューを定義する便利な方法を提供します。
+
+ -- Macro: easy-menu-define symbol maps doc menu
+     このマクロは、MENUにより与えるコンテンツのポップア
+     ップメニュー、および/またはメニューバーサブメニュー
+     を定義する。
+
+     SYMBOLが非‘nil’の場合、それはシンボルである。その場
+     合、このマクロはドキュメント文字列DOCをもつ、メニュ
+     ーをポップアップ(*note Pop-Up Menus::を参照)する関
+     数としてSYMBOLをを定義する。SYMBOLはクォートされる
+     べきではない。
+
+     SYMBOLの値とは関係なく、MAPSがキーマップの場合、メ
+     ニューはメニューバーのトップレベルのメニュー(*note
+     Menu Bar::を参照)としてMAPSに追加される。これにはキ
+     ーマップのリストも指定でき、その場合メニューはそれ
+     らのキーマップに個別に追加される。
+
+     MENUの最初の要素は文字列でなければならず、それはメ
+     ニューラベルの役割をもつ。値には、以下のキーワード
+     /引数ペアーが任意の個数続くかもしれない:
+
+     ‘:filter FUNCTION’
+          FUNCTIONは1つの引数(他のメニューアイテムのリス
+          ト)で呼び出される関数でなければならず、メニュ
+          ー内に表示される実際のアイテムをリターンする。
+
+     ‘:visible INCLUDE’
+          INCLUDEには式を指定する。その式が‘nil’に評価さ
+          れた場合、メニューは不可視になる。
+          ‘:included’は、‘:visible’にたいするエイリアス
+          である。
+
+     ‘:active ENABLE’
+          ENABLEは式を。指定する。その式が‘nil’に評価さ
+          れた場合、メニューは選択不可になる。
+          ‘:enable’は、‘:active’にたいするエイリアスであ
+          る。
+
+     MENU内の残りの要素は、メニューアイテムである。
+
+     メニューアイテムには、3要素のベクター‘[NAME
+     CALLBACK ENABLE]’を指定できる。ここでNAMEはメニュー
+     アイテム名(文字列)、CALLBACKはアイテム選択時に実行
+     するコマンド、または評価される式である。ENABLEは式
+     であり、‘nil’に評価された場合、そのアイテムにたいす
+     る選択は無効になる。
+
+     かわりに、メニューアイテムは以下の形式をもつかもし
+     れない:
+
+             [ NAME CALLBACK [ KEYWORD ARG ]... ]
+
+     ここでNAMEとCALLBACKは上記と同じ意味をもち、オプシ
+     ョンのKEYWORDとARGの各ペアーは、以下のいずれかであ
+     る:
+
+     ‘:keys KEYS’
+          KEYSは、メニューアイテムにたいする等価なキーボ
+          ード入力(文字列)である。等価なキーボード入力は
+          自動的に計算されるので、通常は必要ない。KEYSは
+          、表示される前に‘substitute-command-keys’によ
+          り展開される(*note Keys in Documentation::を参
+          照)。
+
+     ‘:key-sequence KEYS’
+          KEYSは、最初にメニューを表示されるかをする際、
+          Emacsを高速化するヒントになる。等価なキーボー
+          ド入力のないことが既知の場合は、‘nil’を指定す
+          べきである。それ以外では、メニューアイテムにた
+          いする等価なキーボード入力を指定する文字列、ま
+          たはベクターを指定すべきである。
+
+     ‘:active ENABLE’
+          ENABLEには式を指定する。その式が‘nil’に評価さ
+          れた場合、アイテムは選択不可になる。ENABLEは、
+          ‘:active’にたいするエイリアスである。
+
+     ‘:visible INCLUDE’
+          INCLUDEには式を指定する。その式が‘nil’に評価さ
+          れた場合、アイテムは不可視になる。
+          ‘:included’は、‘:visible’にたいするエイリアス
+          である。
+
+     ‘:label FORM’
+          FORMは、メニューアイテムのラベル(デフォルトは
+          NAME)の役目をもつ値を取得するために表示される
+          式である。
+
+     ‘:suffix FORM’
+          FORMは、動的に評価される式であり、値はメニュー
+          エントリーのラベルに結合される。
+
+     ‘:style STYLE’
+          STYLEは、メニューアイテムの型を記述するシンボ
+          ルであり、‘toggle’(チェックボックス)、
+          ‘radio’(ラジオボタン)、またはそれ以外(通常のメ
+          ニューアイテムであることを意味する)のいずれか
+          である。
+
+     ‘:selected SELECTED’
+          SELECTEDには式を指定し、その式の値が非‘nil’の
+          ときはチェックボックス、またはラジオボタンが選
+          択状態になる。
+
+     ‘:help HELP’
+          HELPは、メニューアイテムを説明する文字列である
+          。
+
+     かわりに、メニューアイテムに文字列を指定できる。そ
+     の場合、文字列は選択不可なテキストとしてメニューに
+     表示される。ダッシュから構成される文字列は、セパレ
+     ーターとして表示される(*note Menu Separators::を参
+     照)
+
+     かわりに、メニューアイテムにMENUと同じフォーマット
+     のリストを指定できる。これはサブメニューとなる。
+
+   以下は、‘easy-menu-define’を使用して、*note Menu
+Bar::内で定義したメニューと同等なメニューを定義する例で
+ある:
+
+     (easy-menu-define words-menu global-map
+       "単語単位コマンドにたいするメニュー"
+       '("Words"
+          ["Forward word" forward-word]
+          ["Backward word" backward-word]))
+
+
+File: elisp,  Node: Modes,  Next: Documentation,  Prev: Keymaps,  Up: Top
+
+22 Major and Minor Modes
+************************
+
+“モード(mode)”とは、Emacsをカスタマイズする定義のセット
+であり、編集時にオン/オフを切り替えることができます。モ
+ードには2つの種類があります。“メジャーモード(major
+modes)”とは、互いに排他なモードであり、特定の種類のテキ
+ストの編集にたいして使用されます。“マイナーモード(minor
+modes)”とは、ユーザーが個別に有効にすることができる機能
+を提供します。
+
+   このチャプターでは、メジャーモード、およびマイナーモ
+ードを記述する方法、モードラインにそれらを示す方法、そし
+てそれらのモードがユーザーが提供するフックを実行する方法
+について説明します。キーマップ(keymaps)や構文テーブル
+(syntax tables)のような関連するトピックについては*note
+Keymaps::および*note Syntax Tables::を参照してください。
+
+* Menu:
+
+* Hooks::                    フックの使い方と、フックを提供するコードの記述方法。
+* Major Modes::              メジャーモードの定義。
+* Minor Modes::              マイナーモードの定義。
+* Mode Line Format::         モードラインに表示されるテキストのカスタマイズ。
+* Imenu::                    バッファーで作成された定義のメニューを提供する。
+* Font Lock Mode::           モードが構文に応じてテキストをハイライトする方法。
+* Auto-Indentation::         メジャーモードにたいするインデントをEmacsに伝える方法。
+* Desktop Save Mode::        Emacsセッション間でモードがバッファー状態を保存する方法。
+
+
+File: elisp,  Node: Hooks,  Next: Major Modes,  Up: Modes
+
+22.1 Hooks
+==========
+
+“フック(hook)”とは、既存のプログラムから特定のタイミング
+で呼び出される関数(複数可)を格納することができる変数のこ
+とです。Emacsはカスタマイズ用にフックを提供します。ほと
+んどの場合は、initファイル内(*note Init File::を参照)で
+フックをセットアップしますが、Lispプログラムもフックをセ
+ットできます。標準的なフック変数のリストは、*note
+Standard Hooks::を参照してください。
+
+   Emacsのほとんどのフックは、“ノーマルフック(normal
+hooks)”です。これらの変数は、引数なしで呼び出される、関
+数のリストを含んでいます。慣習により、フック名が
+‘-hook’で終わるフックは、そのフックがノーマルフックであ
+ることを意味します。わたしたちは、一貫した方法でフックを
+使用できるよう、すべてのフックが可能な限りノーマルフック
+となるよう努力しています。
+
+   すべてのメジャーモードコマンドは、初期化の最終ステッ
+プの1つとして、“モードフック(mode hook)”と呼ばれるノーマ
+ルフックを実行するとみなされます。これにより、そのモード
+によりすでに作成されたバッファーローカル変数割り当てをオ
+ーバーライドすることにより、ユーザーがそのモードの動作を
+カスタマイズするのが簡単になります。ほとんどのマイナーモ
+ード関数も、最後にモードフックを実行します。しかし、フッ
+クは他のコンテキストでも使用されます。たとえばフック
+‘suspend-hook’は、Emacsが自身をサスペンド(*note
+Suspending Emacs::を参照)する直前に実行されます。
+
+   フックにフック関数を追加するには、‘add-hook’(*note
+Setting Hooks::を参照)を呼び出す方法が推奨です。フック関
+数は、‘funcall’(*note What Is a Function::を参照)が受け
+入れる任意の種類の関数を指定できます。ほとんどのフック変
+数の初期値はvoidです。‘add-hook’は、これを扱う方法を知っ
+ています。‘add-hook’により、グローバルフック、またはバッ
+ファーローカルフックのどちらを追加することも可能です。
+
+   フック変数の名前が‘-hook’で終わらない場合は、それが恐
+らく“アブノーマルフック(abnormal hook)”であることを示し
+ています。こええは、フック関数が引数とともに呼ぶ出される
+こと、または何らかの方法により、そのリターン値が使用され
+ることを意味します。その関数の呼び出し方は、フックのドキ
+ュメントに記載されています。アブノーマルフックとして関数
+を追加するために‘add-hook’を使用できますが、その関数はフ
+ック呼び出しの慣習にしたがって記述しななければなりません
+。慣習により、アブノーマルフックの名前は‘-functions’で終
+わります。
+
+   変数の名前が‘-function’で終わる場合、その値は関数のリ
+ストではなく単一の関数です。‘add-hook’を、_単一関数フッ
+ク_のように修正して使用することはできないので、かわりに
+‘add-function’を使用します(*note Advising Functions::を
+参照)。
+
+* Menu:
+
+* Running Hooks::            フックの実行方法。
+* Setting Hooks::            関数をフックに登録、削除する方法。
+
+
+File: elisp,  Node: Running Hooks,  Next: Setting Hooks,  Up: Hooks
+
+22.1.1 Running Hooks
+--------------------
+
+このセクションでは、ノーマルフックを実行するために使用さ
+れる、‘run-hooks’について説明します。また、さまざまな種
+類のアブノーマルフックを実行する関数についても説明します
+。
+
+ -- Function: run-hooks &rest hookvars
+     この関数は、引数として1つ以上のノーマルフック変数名
+     をとり、各フックを順に実行する。引数はそれぞれ、ノ
+     ーマルフック変数であるようなシンボルであること。こ
+     れらの引数は、指定された順に処理される。
+
+     フック変数の値が非‘nil’の場合、その値は関数のリスト
+     であること。‘run-hooks’は、すべての関数を引数なしで
+     1つずつ呼び出す。
+
+     フック変数の値には、単一の関数(ラムダ式、またはシン
+     ボルの関数定義)も指定でき、その場合‘run-hooks’はそ
+     れを喚び出す。しかし、この使い方は時代遅れである。
+
+     フック変数がバッファーローカルな場合、グローバル変
+     数のかわりにそのバッファーローカル変数が使用される
+     。しかし、そのバッファーローカル変数が要素‘t’を含む
+     場合は、そのグローバルフック変数も同様に実行される
+     だろう。
+
+ -- Function: run-hook-with-args hook &rest args
+     この関数は、HOOK内のすべての関数に、1つの引数ARGSを
+     渡して喚び出すことにより、アブノーマルフックを実行
+     する。
+
+ -- Function: run-hook-with-args-until-failure hook
+          &rest args
+     この関数は、各フック関数を順に呼び出すことによりア
+     ブノーマルフック関数を実行し、それらのうち1つが
+     ‘nil’をリターンして“失敗”したときは停止する。それぞ
+     れのフック関数は、引数にARGSを渡される。この関数は
+     、フック関数の1つが失敗して停止した場合は‘nil’、そ
+     れ以外は非‘nil’値をリターンする。
+
+ -- Function: run-hook-with-args-until-success hook
+          &rest args
+     この関数は、各フック関数を順に呼び出すことによりア
+     ブノーマルフック関数を実行し、それらのうち1つが非
+     ‘nil’値をリターンして“成功”したときは停止する。それ
+     ぞれのフック関数は、引数にARGSを渡される。この関数
+     は、フック関数の1つが失敗して停止した場合はその値を
+     、それ以外は‘nil’をリターンする。
+
+
+File: elisp,  Node: Setting Hooks,  Prev: Running Hooks,  Up: Hooks
+
+22.1.2 Setting Hooks
+--------------------
+
+以下は、Lisp Interactionモードのときに、モードフックを使
+用してAuto Fillモードをオンに切り替える例です:
+
+     (add-hook 'lisp-interaction-mode-hook 'auto-fill-mode)
+
+ -- Function: add-hook hook function &optional append
+          local
+     この関数は、フック変数に関数FUNCTIONを追加する手軽
+     な方法である。ノーマルフックと同じように、アブノー
+     マルフックにたいしてもこの関数を使用できる。
+     FUNCTIONには、正しい数の引数を受け付ける任意の
+     Lisp関数を指定できる。たとえば、
+
+          (add-hook 'text-mode-hook 'my-text-hook-function)
+
+     は、‘text-mode-hook’と呼ばれるフックに
+     ‘my-text-hook-function’を追加する。
+
+     HOOK内にFUNCTIONがすでに存在する場合(比較には
+     ‘equal’を使用)、‘add-hook’は2回目の追加を行わない。
+
+     FUNCTIONのプロパティ‘permanent-local-hook’が非
+     ‘nil’の場合、‘kill-all-local-variables’(またはメジ
+     ャーモードを変更しても)、そのフック変数のローカル値
+     から関数を削除しない。
+
+     ノーマルフックにたいして、フック関数は実行される順
+     序に無関係であるようにデザインされるべきである。順
+     序への依存は、トラブルを招く。とはいえ、その順序は
+     予測可能である。通常、FUNCTIONはフックリストの先頭
+     に追加されるので、(他の‘add-hook’呼び出しがなければ
+     )それは最初に実行される。オプション引数APPENDが非
+     ‘nil’の場合、新たなフック関数はフックリストの最後に
+     追加され、実行されるのも最後になる。
+
+     ‘add-hook’は、HOOKがvoidのとき、または値が単一の関
+     数の場合、値を関数リストにセットまたは変更して、そ
+     れらを扱うことができる。
+
+     LOCALが非‘nil’の場合、それはグローバルフックリスト
+     ではなくバッファーローカルフックリストにFUNCTIONを
+     追加する。これはフックをバッファーローカルにして、
+     そのバッファーローカルな値に‘t’を追加する。バッファ
+     ーローカルな値への‘t’の追加は、ローカル値と同じよう
+     にデフォルト値でもフック関数を実行するためのフラグ
+     である。
+
+ -- Function: remove-hook hook function &optional local
+     この関数は、フック変数HOOKからFUNCTIONを削除する。
+     これは、‘equal’を使用してFUNCTIONとHOOK要素を比較す
+     るので、その比較はシンボルとラムダ式の両方で機能す
+     る。
+
+     LOCALが非‘nil’の場合、それはグローバルフックリスト
+     ではなく、バッファーローカルフックリストから
+     FUNCTIONを削除する。
+
+
+File: elisp,  Node: Major Modes,  Next: Minor Modes,  Prev: Hooks,  Up: Modes
+
+22.2 Major Modes
+================
+
+メジャーモードは特定の種類のテキスト編集にEmacsを特化し
+ます。すべてのバッファーは1度に1つのメジャーモードをもち
+ます。すべてのメジャーモードは、“メジャーモードコマンド
+(major mode command)”に関連付けられ、そのコマンド名は
+‘-mode’で終わるべきです。このコマンドは、ローカルキーマ
+ップのようなさまざまなバッファーローカル変数をセットする
+ことにより、カレントバッファーないでそのモードに切り替え
+る配慮をします。*note Major Mode Conventions::を参照して
+ください。
+
+   “Fundamentalモード”と呼ばれるはもっとも特化されていな
+いメジャーモードであり、モード特有な定義や変数セッティン
+グをもちません。
+
+ -- Command: fundamental-mode
+     これは、Fundamentalモードにたいするメジャーモードコ
+     マンドである。他のモードコマンドと異なり、このモー
+     ドはカスタマイズしてはならないことになっているので
+     、モードフックは何も実行_されない_(*note Major Mode
+     Conventions::を参照)。
+
+   メジャーモードを記述するもっとも簡単な方法は、マクロ
+‘define-derived-mode’を使用する方法です。これは、既存の
+メジャーモードを変形して、新たなモードをセットアップしま
+す。*note Derived Modes::を参照してください。
+‘define-derived-mode’は多くのコーディング規約を自動的に
+強要するので、たとえ新たなモードが他のモードから明示的に
+派生されない場合でも、わたしたちは
+‘define-derived-mode’の使用を推奨します。派生元とするた
+めの一般的なモードについては、*note Basic Major Modes::を
+参照してください。
+
+   標準的なGNU EmacsのLispディレクトリーツリーには、いく
+つかのメジャーモードが‘text-mode.el’、‘texinfo.el’、
+‘lisp-mode.el’、‘rmail.el’のようなファイルとして含まれて
+います。モードの記述方法を確認するために、これらのライブ
+ラリーを学ぶことができます。
+
+ -- User Option: major-mode
+     この変数のバッファーローカル値は、カレントのメジャ
+     ーモードにたいするシンボルを保持する。この変数のデ
+     フォルト値は、新たなバッファーにたいするデフォルト
+     のメジャーモードを保持する。標準的なデフォルト値は
+     、‘fundamental-mode’である。
+
+     デフォルト値が‘nil’の場合、‘C-x
+     b’(‘switch-to-buffer’)のようなコマンドを通じて
+     Emacsが新たなバッファーを作成したとき、新たなバッフ
+     ァーは以前カレントだったバッファーのメジャーモード
+     になる。例外として、以前のバッファーのメジャーモー
+     ドのシンボルプロパティ‘mode-class’が値‘special’をも
+     つ場合、新たなバッファーはFundamentalモードになる
+     (*note Major Mode Conventions::を参照)。
+
+* Menu:
+
+* Major Mode Conventions::   キーマップなどにたいするコーディング規約。
+* Auto Major Mode::          Emacsが自動的にメジャーモードを選択する方法。
+* Mode Help::                モードの使用方法の探し方。
+* Derived Modes::            他のメジャーモードにもとづき新たなメジャーモードを定義する。
+* Basic Major Modes::        他のモードからよく派生元とさｒｗるモード。
+* Mode Hooks::               メジャーモード関数の最後に実行されるフック。
+* Tabulated List Mode::      表形式データを含むバッファーにたいする親モード。
+* Generic Modes::            コメント構文とFont
+                               Lockモードをサポートするシンプルなメジャーモードの定義。
+* Example Major Modes::      TextモードとLispモード。
+
+
+File: elisp,  Node: Major Mode Conventions,  Next: Auto Major Mode,  Up: Major Modes
+
+22.2.1 Major Mode Conventions
+-----------------------------
+
+メジャーモードにたいするすべてのコードはさまざまなコーデ
+ィング規約にしたがうべきであり、それらの規約にはローカル
+キーマップおよび構文テーブルの初期化、関数名や変数名、フ
+ックにたいする規約が含まれます。
+
+   ‘define-derived-mode’マクロを使用した場合は、これらの
+規約を自動的に配慮します。*note Derived Modes::を参照し
+てください。Fundamentalモードは、Emacsのデフォルト状態を
+表すモードなにで、これらの規約が当てはまらないことに注意
+してください。
+
+   以下の規約リストは、ほんの一部です。一般的に、すべて
+のメジャーモードは、Emacs全体が首尾一貫するよう、他の
+Emacsメジャーモードとの一貫性を目指すべきです。ここで、
+この問題を洗い出すすべての想定される要点をリストするのは
+不可能です。Emacs開発者が、自身の開発するメジャーモード
+が通常の規約を逸脱する領域を示す場合は、互換性を保つよう
+にしてください。
+
+   • 名前が‘-mode’で終わるようにメジャーモードコマンドを
+     定義する。引数なしで呼び出されたとき、このコマンド
+     はキーマップ、構文テーブル、既存バッファーのバッフ
+     ァーローカル変数をセットアップして、カレントバッフ
+     ァーを新たなモードに切り替えるべきである。そのバッ
+     ファーのコンテンツを変更するべきではない。
+
+   • そのモードで利用できる特別なコマンドを説明するドキ
+     ュメント文字列を記述する。*note Mode Help::を参照の
+     こと。
+
+     そのユーザー自身のキーバインディングに自動的に適合
+     してヘルプが表示されるように、ドキュメント文字列に
+     特別なドキュメントサブストリング‘\[COMMAND]’、
+     ‘\{KEYMAP}’、‘\<KEYMAP>’を含めるとよいかもしれない
+     。*note Keys in Documentation::を参照のこと。
+
+   • メジャーモードコマンドは、
+     ‘kill-all-local-variables’を呼び出すことにより開始
+     するべきである。これは、ノーマルフック
+     ‘change-major-mode-hook’を実行してから、前のメジャ
+     ーモードで効力のあったバッファーローカル変数を解放
+     する。*note Creating Buffer-Local::を参照のこと。
+
+   • メジャーモードコマンドは、変数‘major-mode’にメジャ
+     ーモードコマンドのシンボルをセットするべきである。
+     これは、‘describe-mode’がプリントするドキュメントを
+     探す手掛かりとなる。
+
+   • メジャーモードコマンドは、変数‘mode-name’にそのモー
+     ドの“愛称(pretty name)”をセットするべきである(これ
+     は通常は文字列だが、他の利用可能な形式は、*note
+     Mode Line Data::を参照のこと)。このモード名は、モー
+     ドラインに表示される。
+
+   • すべてのグローバル名は同じネームスペースにあるので
+     、モードの一部であるようなすべてのグローバルな変数
+     、定数、関数は、メジャーモード名(メジャーモード名が
+     長いようなら短縮名)で始まる名前をもつべきである。
+     *note Coding Conventions::を参照のこと。
+
+   • プログラム言語のような、ある種の構造型テキストを編
+     集するためのメジャーモードでは、その構造に応じたテ
+     キストのインデントはおそらく有用であろう。したがっ
+     て、そのようなモードは‘indent-line-function’に適切
+     な関数をセットするとともに、インデント用のその他の
+     変数をカスタマイズすべきだろう。
+
+   • メジャーモードは通常、そのモードにあるすべてのバッ
+     ファーのローカルキーマップとして使用される、自モー
+     ド身のキーマップをもつべきである。メジャーモードコ
+     マンドは、そのローカルマップをインストールするため
+     に、‘use-local-map’を呼び出すべきである。詳細は、
+     *note Active Keymaps::を参照のこと。
+
+     このキーマップは、‘MODENAME-mode-map’という名前のグ
+     ローバル変数に永続的に格納されるべきである。通常、
+     そのモードを定義するライブラリーは、この変数をセッ
+     トする。
+
+     モード用のキーマップ変数をセットアップするコードの
+     記述する方法に関するアドバイスは、*note Tips for
+     Defining::を参照のこと。
+
+   • メジャーモードのキーマップ内でバインドされるキーシ
+     ーケンスは、通常は‘C-c’で始まり、その後にコントロー
+     ル文字、数字、‘{’、‘}’、‘<’、‘>’、‘:’、‘;’が続くべ
+     きである。その他の記号文字(punctuation characters)は
+     マイナーモードに、通常のアルファベット文字はユーザ
+     ーのために予約されている。
+
+     メジャーモードは‘M-n’、‘M-p’、‘M-s’などのキーもリバ
+     インドできる。‘M-n’と‘M-p’にたいするバインディング
+     は、通常は “前方あるいは後方への移動”を意味するよう
+     な類のものであるべきだが、これは必ずしもカーソル移
+     動を意味する必要はない。
+
+     そのモードにより適した方法でテキストに“同じ処理”を
+     行うコマンドを提供する場合に、メジャーモードが標準
+     的なキーシーケンスをリバインドするのは正当性がある
+     。たとえば、プログラム言語を編集するためのメジャー
+     モードは、その言語にとって“関数の先頭に移動する”が
+     より良く機能する方法で、‘C-M-a’を再定義するかもしれ
+     ない。
+
+     ある標準的なキーシーケンスの標準的な意味が、そのモ
+     ードではほとんど役に立たないような場合にも、メジャ
+     ーモードが標準的なキーシーケンスをリバインドする正
+     当性がある。たとえば、ミニバッファーモードは、
+     ‘M-r’の標準的な意味はミニバッファーではほとんど使用
+     されないので、このキーシーケンスをリバインドする。
+     テキストの自己挿入を許さないDiredやRmailのようなメ
+     ジャーモードは、アルファベット文字や、その他のプリ
+     ント文字を特別なコマンドに再定義する正当性がある。
+
+   • テキストを編集するメジャーモードは、改行の挿入以外
+     の何かに<RET>を定義すべきではない。しかし、ユーザー
+     が直接テキストを編集しない、DiredやInfoのような特別
+     なモードにたいしては、完全に異なることを行うように
+     <RET>を再定義しても構わない。
+
+   • メジャーモードは、たとえばAuto-Fillモードを有効にす
+     るか等の、主にユーザーの好みに関するオプションを変
+     更すべきではない。それらのオプションは、ユーザーに
+     選択に任せること。ただし、_もし_ユーザーが
+     Auto-Fillモードを使用すると決定した場合には、それが
+     便利に機能するように、他の変数をカスタマイズすべき
+     である。
+
+   • モードは自身の構文テーブルをもつかもしれず、他の関
+     連するモードと構文テーブルを共有するかもするかもし
+     れない。モードが自身の構文テーブルをもつ場合は、
+     ‘MODENAME-mode-syntax-table’という名前の変数にそれ
+     を格納すべきである。*note Syntax Tables::を参照のこ
+     と。
+
+   • コメントにたいして構文をもつ言語を扱うモードは、コ
+     メント構文を定義する変数をセットすべきである。*note
+     Options Controlling Comments: (emacs)Options for
+     Comments.を参照のこと。
+
+   • モードは自身のabbrevテーブルをもつかもしれず、他の
+     関連するモードと構文テーブルを共有するかもするかも
+     しれない。モードが自身のabbrevテーブルをもつ場合は
+     、‘MODENAME-mode-abbrev-table’という名前の変数にそ
+     れを格納すべきである。メジャーモードコマンドが自身
+     で何らかのabbrevを定義する場合は、‘define-abbrev’の
+     SYSTEM-FLAG引数に‘t’を渡すべきである。*note
+     Defining Abbrevs::を参照のこと。
+
+   • モードは、変数‘font-lock-defaults’にバッファーロー
+     カルな値をセットすることにより、Font Lockモードにた
+     いしてハイライトする方法を指定すべきである(*note
+     Font Lock Mode::を参照)。
+
+   • モードが定義するすべてのフェイスは、もし可能なら既
+     存のEmacsフェイスを継承すべきである。*note Basic
+     Faces::と*note Faces for Font Lock::を参照のこと。
+
+   • モードは変数‘imenu-generic-expression’、変数
+     ‘imenu-prev-index-position-function’ and
+     ‘imenu-extract-index-name-function’、または変数
+     ‘imenu-create-index-function’にバッファーローカルな
+     値をセットすることにより、Imenuがバッファー内の定義
+     、またはセクションを探す方法を指定すべきである
+     (*note Imenu::を参照)。
+
+   • モードは、‘eldoc-documentation-function’にローカル
+     値を指定して、ElDocモードがそのモードを処理する方法
+     を指定できる。
+
+   • モードは、スペシャルフック
+     ‘completion-at-point-functions’に1つ以上のバッファ
+     ーローカルエントリーを追加することにより、さまざま
+     なキーワードの補完方法を指定できる。*note
+     Completion in Buffers::を参照のこと。
+
+   • Emacsのカスタマイズ変数にたいしてバッファーローカル
+     なバインディングを作成するには、
+     ‘make-variable-buffer-local’ではなく、メジャーモー
+     ドコマンド内で‘make-local-variable’を使用すること。
+     関数、‘make-variable-buffer-local’は、それ以降にカ
+     スタマイズ変数をセットするすべてのバッファーにたい
+     してその変数をローカルにし、そのモードを使用しない
+     バッファーにたいしても影響があるだろう。そのような
+     グローバルな効果は、モードにとって好ましくない。
+     *note Buffer-Local Variables::を参照のこと。
+
+     稀な例外として、Lispパッケージ内で
+     ‘make-variable-buffer-local’を使用する唯一の正当な
+     方法は、そのパッケージ内でのみ使用される変数にたい
+     して使用をする場合である。他のパッケージにより使用
+     される変数にたいしてこの関数を使用すると、干渉が起
+     こるだろう。
+
+   • すべてのメジャーモードは、‘MODENAME-mode-hook’とい
+     う名前のノーマルな“モードフック(mode hook)”をもつべ
+     きである。メジャーモードコマンドが一番最後に行うべ
+     きことは、‘run-mode-hooks’の呼び出しである。これは
+     、ノーマルフック
+     ‘change-major-mode-after-body-hook’、モードフック、
+     その後に‘after-change-major-mode-hook’を実行する。
+     *note Mode Hooks::を参照のこと。
+
+   • メジャーモードコマンドは、“親モード(parent mode)”と
+     呼ばれる他のいくつかのメジャーモードを呼び出すこと
+     により開始されるかもしれず、それらのセッティングの
+     いくつかを変更するかもしれない。これを行うモードは
+     、“派生モード(derived mode)”と呼ばれる。派生モード
+     を定義する推奨方法は、‘define-derived-mode’マクロの
+     使用であるが、これは必須ではない。そのようなモード
+     は、‘delay-mode-hooks’フォーム内で親のモードコマン
+     ドを呼び出すべきである(‘define-derived-mode’は自動
+     的にこれを行う)。*note Derived Modes::、および*note
+     Mode Hooks::を参照のこと。
+
+   • ユーザーが、そのモードのバッファーから他のモードの
+     バッファーに切り替える際に特別な何かを行う必要があ
+     る場合、モードは‘change-major-mode-hook’にたいして
+     バッファーローカル値をセットアップできる(*note
+     Creating Buffer-Local::を参照)。
+
+   • そのモードが、(ユーザーがキーボードでタイプしたテキ
+     ストや、外部ファイルのテキストではなく)モード自身が
+     生成する特別に用意されたテキストにたいしてのみ適す
+     場合、メジャーモードコマンドのシンボルは、以下のよ
+     うに‘mode-class’という名前のプロパティに値
+     ‘special’をputすべきである:
+
+          (put 'funny-mode 'mode-class 'special)
+
+     これはEmacsにたいして、カレントバッファーがFunnyモ
+     ードのときに新たなバッファーを作成したとき、たとえ
+     ‘major-mode’のデフォルト値が‘nil’であっても、そのバ
+     ッファーをFunnyモードにしないよう指示する。デフォル
+     トでは、‘major-mode’にたいする値‘nil’は、新たなバッ
+     ファー作成時にカレントバッファーのメジャーモードを
+     使用することを意味するが(*note Auto Major Mode::を
+     参照)、‘special’なモードにたいしてはかわりに
+     Fundamentalモードが使用される。Dired、Rmail、Buffer
+     Listのようなモードは、この機能を使用する。
+
+     関数‘view-buffer’は、mode-classがspecialであるよう
+     なバッファーではViewモードを有効にしない。そのよう
+     なモードは、通常は自身でViewに相当するバインディン
+     グを提供するからである。
+
+     ‘define-derived-mode’マクロは、親モードがspecialの
+     場合は、自動的に派生モードをspecialにマークする。親
+     モードでspecialモードが有用なら、それを継承したモー
+     ドでもであろう。*note Basic Major Modes::を参照のこ
+     と。
+
+   • 新たなモードを、識別可能な特定のファイルにたいする
+     デフォルトとしたい場合は、そのようなファイル名にた
+     いしてそのモードを選択するために、
+     ‘auto-mode-alist’に要素を追加する。autoload用にモー
+     ドコマンドを定義する場合は、‘autoload’を呼び出すの
+     と同じファイル内にその要素を追加すべきである。モー
+     ドコマンドにたいしてautoload cookieを使用する場合は
+     、その要素を追加するフォームにたいしてもautoload
+     cookieを使用できる(*note autoload cookie::を参照)。
+     モードコマンドをautoloadしない場合は、モード定義を
+     含むファイル内で要素を追加すれば十分である。
+
+   • 悪影響を与えることなく1回以上評価されるように、モー
+     ド定義はファイル内のトップレベルのフォームとして記
+     述すべきである。たとえば、すでに値をもつ変数が再初
+     期化されないように、モードに関連した変数をセットす
+     るときは、‘defvar’か‘defcustom’を使用する(*note
+     Defining Variables::を参照)。
+
+
+File: elisp,  Node: Auto Major Mode,  Next: Mode Help,  Prev: Major Mode Conventions,  Up: Major Modes
+
+22.2.2 How Emacs Chooses a Major Mode
+-------------------------------------
+
+ファイルをvisitするとき、ファイル名やファイル自体の内容
+などの情報を元に、Emacsはそのバッファーにたいするメジャ
+ーモードを選択します。また、ファイルのテキスト内で指定さ
+れたローカル変数も処理します。
+
+ -- Command: normal-mode &optional find-file
+     この関数は、カレントバッファーにたいして適切なメジ
+     ャーモードと、バッファーローカル変数のバインディン
+     グを設定する。これはまず‘set-auto-mode’(以下参照)を
+     呼び出し、その後に‘hack-local-variables’を実行して
+     パース処理を行って、そのファイルのローカル変数
+     (*note File Local Variables::を参照)を適切にバイン
+     ド、または評価する。
+
+     ‘normal-mode’のFIND-FILE引数が非‘nil’の場合、
+     ‘normal-mode’は‘find-file’関数が自身を呼び出したと
+     みなす。この場合、‘normal-mode’はそのファイル内の
+     ‘-*-’行の、またはファイルの最後にあるローカル変数を
+     処理するかもしれない。これを行うかどうかは、変数
+     ‘enable-local-variables’が制御する。ファイルのロー
+     カル変数セクションの構文は、*note Local Variables
+     in Files: (emacs)File Variables.を参照のこと。
+
+     インタラクティブに‘normal-mode’を実行した場合、引数
+     FIND-FILEは通常‘nil’である。この場合、
+     ‘normal-mode’は無条件に任意のファイルローカル変数を
+     処理する。
+
+     この関数は、メジャーモードを選択するために
+     ‘set-auto-mode’を呼び出す。この関数がモードを特定し
+     ない場合、そのバッファーの‘major-mode’(以下参照)の
+     デフォルト値により決定されるメジャーモードに留まる
+     。
+
+     ‘normal-mode’は、メジャーモードコマンド呼び出しの周
+     囲に‘condition-case’を使用するので、エラーはcatchさ
+     れて、‘File mode specification error’とともに、元の
+     エラーメッセージがその後に報告される。
+
+ -- Function: set-auto-mode &optional keep-mode-if-same
+     この関数は、カレントバッファーにたいして適切なメジ
+     ャーモードを選択する。この選択は、関数自身の(優先順
+     位による)決定にもとづく。優先順位は、‘-*-’行、ファ
+     イル終端近傍の任意の‘mode:’ローカル変数、‘#!’行
+     (‘interpreter-mode-alist’を使用)、バッファーの先頭
+     のテキスト(‘magic-mode-alist’を使用)、最後がvisitさ
+     れるファイル名(‘auto-mode-alist’を使用)の順である。
+     *note How Major Modes are Chosen: (emacs)Choosing
+     Modes.を参照のこと。‘enable-local-variables’が
+     ‘nil’の場合、‘set-auto-mode’は‘-*-’行、およびファイ
+     ル終端近傍にたいして、modeタグのチェックを何もしな
+     い。
+
+     モード特定のためにファイル内容をスキャンするのがふ
+     さわしくないファイルタイプがいくつかある。たとえば
+     、tarアーカイブファイルの終わり付近に、特定のファイ
+     ルにたいしてモードを指定するローカル変数セクション
+     をもつアーカイブメンバーファイルが、たまたま含まれ
+     ているかもしれない。これは、そのファイルを含むtarフ
+     ァイルに適用されるべきではないだろう。同様に、
+     tiffイメージファイルが、‘-*-’パターンにマッチするよ
+     うに見える行を、最初の行に偶然含むかもしれない。こ
+     れらの理由により、これらのファイル拡張子はどちらも
+     ‘inhibit-local-variables-regexps’リストのメンバーに
+     なっている。Emacsが、(モード指定に限らず)ファイルか
+     ら任意の種類のローカル変数を検索することを防ぐには
+     、このリストにパターンを追加する。
+
+     KEEP-MODE-IF-SAMEが非‘nil’の場合は、すでにそのバッ
+     ファーが適切なメジャーモードをもつとき、この関数は
+     モードコマンドを呼び出さない。たとえば
+     ‘set-visited-file-name’は、ユーザーがセットしたかも
+     しれないバッファーローカル変数をkillするのを防ぐた
+     めに、これを‘t’にセットする。
+
+ -- Function: set-buffer-major-mode buffer
+     この関数は、BUFFERのメジャーモードを、
+     ‘major-mode’のデフォルト値にセットする。
+     ‘major-mode’が‘nil’の場合は、(それが適切なら)カレン
+     トバッファーのメジャーモードを使用する。例外として
+     、BUFFERの名前が‘*scratch*’の場合は、モードを
+     ‘initial-major-mode’にセットする。
+
+     バッファーを作成する低レベルのプリミティブはこの関
+     数を使用しないが、‘switch-to-buffer’や
+     ‘find-file-noselect’のような中位レベルのコマンドは
+     、バッファーを作成するときは、常にこの関数を使用す
+     る。
+
+ -- User Option: initial-major-mode
+     この変数の値は、‘*scratch*’バッファーの初期のメジャ
+     ーモードを決定する。値は、メジャーモードコマンドで
+     あるようなシンボルであること。デフォルト値は
+     ‘lisp-interaction-mode’である。
+
+ -- Variable: interpreter-mode-alist
+     この変数は、‘#!’行内のコマンドインタープリターを指
+     定するスクリプトにたいして使用するメジャーモードを
+     指定する。変数の値は、‘(REGEXP . MODE)’の形式の要素
+     をもつalistである。これは、そのファイルが
+     ‘\\`REGEXP\\'’にマッチするインタープリターを指定す
+     る場合は、MODEを使用することを意味する。たとえば、
+     デフォルト要素の1つは‘("python[0-9.]*" .
+     python-mode)’である。
+
+ -- Variable: magic-mode-alist
+     この変数の値は、‘(REGEXP FUNCTION)’という形式の要素
+     をもつalistである。ここで、REGEXPは正規表現、
+     FUNCTIONは関数、または‘nil’である。ファイルを
+     visitした後に、バッファーの先頭のテキストがREGEXPに
+     マッチした場合、FUNCTIONが非‘nil’なら
+     ‘set-auto-mode’はFUNCTIONを呼び出す。FUNCTIONが
+     ‘nil’の場合は、‘auto-mode-alist’がモードを決定する
+     。
+
+ -- Variable: magic-fallback-mode-alist
+     これは‘magic-mode-alist’と同様に機能するが、そのフ
+     ァイルにたいして‘auto-mode-alist’がモードを指定しな
+     い場合だけ処理される点が異なる。
+
+ -- Variable: auto-mode-alist
+     この変数は、ファイル名パターン(正規表現)と対応する
+     メジャーモードコマンドの連想配列を含む。通常、ファ
+     イル名パターンは、‘.el’や‘.c’のようなサフィックスを
+     テストするが、必須ではない。このalistの通常の要素は
+     ‘(REGEXP . MODE-FUNCTION)’のようになる。
+
+     たとえば、
+
+          (("\\`/tmp/fol/" . text-mode)
+           ("\\.texinfo\\'" . texinfo-mode)
+           ("\\.texi\\'" . texinfo-mode)
+           ("\\.el\\'" . emacs-lisp-mode)
+           ("\\.c\\'" . c-mode)
+           ("\\.h\\'" . c-mode)
+           ...)
+
+     バージョン番号およびバックアップ用サフィックスをも
+     つファイルをvisitしたとき、それらは
+     ‘file-name-sans-versions’(*note File Name
+     Components::を参照)を使用して展開されたファイル名
+     (*note File Name Expansion::を参照)から取り除かれて
+     REGEXPとマッチされて、‘set-auto-mode’は対応する
+     MODE-FUNCTIONを呼び出す。この機能により、ほとんどの
+     ファイルにたいしてEmacsが適切なメジャーモードを選択
+     することが可能になる。
+
+     ‘auto-mode-alist’の要素が‘(REGEXP FUNCTION t)’とい
+     う形式の場合は、FUNCTIONを呼び出した後、Emacsは前回
+     マッチしなかったファイル名部分にたいしてマッチする
+     ために、再度‘auto-mode-alist’を検索する。この機能は
+     、圧縮されたパッケージにたいして有用である。
+     ‘("\\.gz\\'" FUNCTION t)’という形式のエントリーは、
+     ファイルを解凍してから、‘.gz’抜きのファイル名にたい
+     して適切なモードに解凍されたファイルを配す。
+
+     以下は‘auto-mode-alist’の先頭に、複数のパターンペア
+     ーを追加する方法の例である(あなたは、initファイル内
+     でこの種の式を使ったことがあるかもしれない)。
+
+          (setq auto-mode-alist
+            (append
+             ;; ドットで始まる(ディレクトリー名付きの)ファイル名
+             '(("/\\.[^/]*\\'" . fundamental-mode)
+               ;; ドットのないファイル名
+               ("/[^\\./]*\\'" . fundamental-mode)
+               ;; ‘.C’で終わるファイル名
+               ("\\.C\\'" . c++-mode))
+             auto-mode-alist))
+
+
+File: elisp,  Node: Mode Help,  Next: Derived Modes,  Prev: Auto Major Mode,  Up: Major Modes
+
+22.2.3 Getting Help about a Major Mode
+--------------------------------------
+
+‘describe-mode’関数は、メジャーモードに関する情報を提供
+します。これは通常、‘C-h m’にバインドされています。この
+関数は、変数‘major-mode’(*note Major Modes::を参照)の値
+を使用します。すべてのメジャーモードがこの変数をセットす
+る必要があるのは、これが理由です。
+
+ -- Command: describe-mode &optional buffer
+     このコマンドは、カレントバッファーのメジャーモード
+     とマイナーモードのドキュメントを表示する。この関数
+     は、メジャーモードおよびマイナーモードのコマンドの
+     ドキュメント文字列を取得するために、
+     ‘documentation’関数を使用する(*note Accessing
+     Documentation::を参照)。
+
+     BUFFER引数に非‘nil’を指定してLispから呼び出された場
+     合、この関数はカレントバッファーではなく、そのバッ
+     ファーのメジャーモードとマイナーモードのドキュメン
+     トを表示する。
+
+
+File: elisp,  Node: Derived Modes,  Next: Basic Major Modes,  Prev: Mode Help,  Up: Major Modes
+
+22.2.4 Defining Derived Modes
+-----------------------------
+
+新しいメジャーモードを定義する推奨された方法は、
+‘define-derived-mode’を使用して既存のメジャーモードから
+派生させる方法です。それほど近いモードが存在しない場合は
+‘text-mode’、‘special-mode’、または‘prog-mode’から継承す
+るべきです。*note Basic Major Modes::を参照してください
+。これらがどれも適切でない場合は、‘fundamental-mode’から
+継承することができます(*note Major Modes::を参照)。
+
+ -- Macro: define-derived-mode variant parent name
+          docstring keyword-args... body...
+     このマクロは、VARIANTをメジャーモードコマンドとして
+     定義し、NAMEをモード名の文字列形式とする。VARIANTと
+     PARENTは、クォートされていないシンボルであること。
+
+     新たなコマンドVARIANTは、関数PARENTを呼び出すよう定
+     義され、その後その親モードの特定の性質をオーバーラ
+     イドする。
+
+        • 新たなモードは、‘VARIANT-map’という名前の、自
+          身のsparseキーマップ(疎キーマップ)をもつ。
+          ‘define-derived-mode’は、‘VARIANT-map’がすでに
+          セットされていて、かつすでに親をもつ場合を除き
+          、親モードのキーマップを新たなマップの親キーマ
+          ップにする。
+
+        • 新たなモードは、自身の構文テーブル(syntax
+          table)をもち、それは変数
+          ‘VARIANT-syntax-table’に保持される。ただし、
+          ‘:syntax-table’キーワード(以下参照)を使用して
+          、これをオーバーライドした場合は異なる。
+          ‘define-derived-mode’は、
+          ‘VARIANT-syntax-table’がすでにセットされていて
+          、かつ標準的な構文テーブルよ異なる親をもつ場合
+          を除き、ペアレントモードの構文テーブルを
+          ‘VARIANT-syntax-table’の親とする。
+
+        • 新たなモードは、自身のabbrevテーブル(略語テー
+          ブル)をもち、それは変数
+          ‘VARIANT-abbrev-table’に保持される。ただし、
+          ‘:abbrev-table’キーワード(以下参照)を使用して
+          、これをオーバーライドした場合は異なる。
+
+        • 新たなモードは、自身のモードフック
+          ‘VARIANT-hook’をもつ。これは、このフックを実行
+          した後に、最後に‘run-mode-hooks’により、自身の
+          祖先のモードのフックを実行する。
+
+     これらに加えて、BODYでPARENTのその他の性質をオーバ
+     ーライドする方法を指定できます。コマンドVARIANTはー
+     、通常のオーバーライドをセットアップした後、そのモ
+     ードのフックを実行する直前にBODY内のフォームを評価
+     します。
+
+     PARENTが非‘nil’の‘mode-class’シンボルプロパティをも
+     つ場合、‘define-derived-mode’はVARIANTの
+     ‘mode-class’プロパティに、同じ値をセットします。こ
+     れは、たとえばPARENTがspecialモードの場合は、
+     VARIANTもspecialモードになることを保証します(*note
+     Major Mode Conventions::を参照)。
+
+     PARENTにたいして‘nil’を指定することもできます。これ
+     により、新たなモードは親をもたなくなります。その後
+     、‘define-derived-mode’は上述のように振る舞いますが
+     、当然PARENTにつながるすべてのアクションは省略され
+     ます。
+
+     引数DOCSTRINGは、新たなモードにたいするドキュメント
+     文字列を指定します。‘define-derived-mode’は、このド
+     キュメント文字列の最後にそのモードフックに関する一
+     般的な情報と、その後にそのモードのキーマップを追加
+     します。DOCSTRINGを省略した場合は、
+     ‘define-derived-mode’がドキュメント文字列を生成しま
+     す。
+
+     KEYWORD-ARGSは、キーワードと値のペアーです。値は評
+     価されます。現在、以下のキーワードがサポートされて
+     います:
+
+     ‘:syntax-table’
+          新たなモードにたいする構文テーブルを明示的に指
+          定するために、これを使用できる。‘nil’値を指定
+          した場合、新たなモードはPARENTと同じ構文テーブ
+          ル、PARENTも‘nil’の場合は標準的な構文テーブル
+          を使用する(これは、‘nil’値の非キーワード引数は
+          引数を指定しないのと同じという通常の慣習には
+          _したがわない_ことに注意されたい)。
+
+     ‘:abbrev-table’
+          新たなモードにたいするabbrevテーブルを明示的に
+          指定するために、これを使用できる。‘nil’値を指
+          定した場合、新たなモードはPARENTと同じabbrevテ
+          ーブル、PARENTも‘nil’の場合は、
+          ‘fundamental-mode-abbrev-table’を使用する(繰り
+          返すが、‘nil’値はこのキーワードを指定しないこ
+          とでは_ない_)。
+
+     ‘:group’
+          これが指定された場合、値はそのモードにたいする
+          カスタマイズグループ(customization group)であ
+          ること(すべてのメジャーモードがカスタマイズグ
+          ループをもつ訳ではない)。(まだ実験的かつ未公表
+          だが)現在のところ、これを使用するのは
+          ‘customize-mode’コマンドだけである。
+          ‘define-derived-mode’は、指定されたカスタマイ
+          ズグループを自動的に定義_しない_。
+
+     以下は架空の例である:
+
+          (define-derived-mode hypertext-mode
+            text-mode "Hypertext"
+            "ハイパーテキスト用のメジャーモード
+          \\{hypertext-mode-map}"
+            (setq case-fold-search nil))
+
+          (define-key hypertext-mode-map
+            [down-mouse-3] 'do-hyper-link)
+
+     ‘define-derived-mode’が自動的に行うので、この定義内
+     に‘interactive’指定を記述してはならない。
+
+ -- Function: derived-mode-p &rest modes
+     この関数は、シンボルMODESで与えられたメジャーモード
+     のいずれかから、カレントメジャーモードが派生された
+     場合は非‘nil’をリターンする。
+
+
+File: elisp,  Node: Basic Major Modes,  Next: Mode Hooks,  Prev: Derived Modes,  Up: Major Modes
+
+22.2.5 Basic Major Modes
+------------------------
+
+Fundamentalモードは別として、他のメジャーモードの一般的
+な派生元となるメジャーモードが3つあります。それはTextモ
+ード、Progモード、およびSpecialです。Textモードはその本
+来もつ機能から有用なモードです(たとえば‘.txt’ファイルの
+編集など)。一方、ProgモードとSpecialモードは主にそのよう
+なモード以外のモードの派生元として存在します。
+
+   新たなモードは、直接または間接を問わず、可能な限りれ
+ら3つのモードから派生させるべきです。その理由の1つは、関
+連のあるモードファミリー全体(たとえばすべてのプログラミ
+ング言語のモード)にたいして、ユーザーが単一のモードフッ
+クをカスタマイズできる空からです。
+
+ -- Command: text-mode
+     Textモードは、人間の言語を編集するためのメジャーモ
+     ードである。このモードは、文字‘"’および‘\’を区切り
+     文字構文(punctuation syntax: *note Syntax Class
+     Table::を参照)としてもち、‘M-<TAB>’を
+     ‘ispell-complete-word’にバインドする(*note
+     (emacs)Spelling::を参照)。
+
+     Textモードから派生されたメジャーモードの例として、
+     HTMLモードがある。*note SGML and HTML Modes:
+     (emacs)HTML Mode.を参照のこと。
+
+ -- Command: prog-mode
+     Progモードは、プログラミング言語のソースコードを含
+     むバッファーにたいする、基本的なメジャーモードであ
+     る。Emacsビルトインのプログラミング言語用メジャーモ
+     ードは、このモードから派生されている。
+
+     Progモードは、‘parse-sexp-ignore-comments’を
+     ‘t’(*note Motion via Parsing::を参照)にバインドし、
+     ‘bidi-paragraph-direction’を‘left-to-right’(*note
+     Bidirectional Display::を参照)にバインドする。
+
+ -- Command: special-mode
+     Specialモードは、ファイルから直接ではなく、Emacsに
+     より特別(specially)に生成されたテキストを含むバッフ
+     ァーにたいする、基本的なメジャーモードである。
+     Specialモードから派生されたメジャーモードは、
+     ‘mode-class’プロパティに‘special’ーが与えられる
+     (*note Major Mode Conventions::を参照)。
+
+     Specialモードは、バッファーを読み取り専用にセットす
+     る。このモードのキーマップは、いくつかの一般的なバ
+     インディングを定義し、それには‘quit-window’にたいす
+     る‘q’、‘revert-buffer’(*note Reverting::を参照)にた
+     いする‘g’が含まれる。
+
+     Specialから派生されたメジャーモードの例としては
+     Buffer Menuモードがあり、これは‘*Buffer List*’バッ
+     ファーにより使用される。*note Listing Existing
+     Buffers: (emacs)List Buffers.を参照のこと。
+
+   これらに加えて、表形式データのバッファーにたいするモ
+ードはTabulated Listモードから継承できます。このモードは
+、Specialモードから順に派生されているモードです。*note
+Tabulated List Mode::を参照してください。
+
+
+File: elisp,  Node: Mode Hooks,  Next: Tabulated List Mode,  Prev: Basic Major Modes,  Up: Major Modes
+
+22.2.6 Mode Hooks
+-----------------
+
+すべてのメジャーモードコマンドは、モード独自のノーマルフ
+ック‘change-major-mode-after-body-hook’、そのモードのモ
+ードフック、ノーマルフック
+‘after-change-major-mode-hook’を実行することにより終了す
+べきです。これは、‘run-mode-hooks’を呼び出すことにより行
+われます。もしそのモードが派生モードなら、自身のbody内で
+他のメジャーモード(親モード)を呼び出す場合は、親モードが
+自身でこれらのフックを実行しないように、
+‘delay-mode-hooks’の中でこれを行うべきです。そのかわりに
+、派生モードは親のモードフックも実行する、
+‘run-mode-hooks’を呼び出すのです。*note Major Mode
+Conventions::を参照してください。
+
+   Emacs 22より前のバージョンのEmacsには、
+‘delay-mode-hooks’がありません。また、Emacs 24より前のバ
+ージョンには、‘change-major-mode-after-body-hook’があり
+ません。ユーザー実装のメジャーモードが‘run-mode-hooks’を
+使用せず、これらの新しい機能を使用するようにアップデート
+されていないときは、これらのメジャーモードは以下の慣習に
+完全にしたがわないでしょう。それらのモードは、親のモード
+フックをあまりに早く実行したり、
+‘after-change-major-mode-hook’の実行に失敗するかもしれま
+せん。そのようなメジャーモードに遭遇した場合は、以下の慣
+習にしたがって修正をお願いします。
+
+   ‘define-derived-mode’を使用してメジャーモードを定義し
+たときは、自動的にこれらの慣習にしたがうことが確実になり
+ます。‘define-derived-mode’を使用せずにメジャーモードを
+“手動”で定義した場合は、これらの慣習を自動的に処理するよ
+うに、以下の関数を使用してください。
+
+ -- Function: run-mode-hooks &rest hookvars
+     メジャーモード、この関数を使用してそれらのモードフ
+     ックを実行すべきである。これは‘run-hooks’(*note
+     Hooks::を参照)と似ているが、
+     ‘change-major-mode-after-body-hook’と
+     ‘after-change-major-mode-hook’も実行する。
+
+     この関数が、‘delay-mode-hooks’フォーム実行中に呼び
+     出されたときは、それらのフックを即座には実行しない
+     。かわりに、次の‘run-mode-hooks’呼び出しでそれらを
+     実行するようにアレンジする。
+
+ -- Macro: delay-mode-hooks body...
+     あるメジャーモードコマンドが他のメジャーモードコマ
+     ンドを呼び出すとき、それは‘delay-mode-hooks’の内部
+     で行われるべきである。
+
+     このマクロはBODYを実行するが、BODY実行中はすべての
+     ‘run-mode-hooks’呼び出しにたいして、それらのフック
+     の実行を遅延するよう指示する。それらのフックは、実
+     際には‘delay-mode-hooks’構造の最後の後、次の
+     ‘run-mode-hooks’呼び出しの間に実行されるだろう。
+
+ -- Variable: change-major-mode-after-body-hook
+     これは、‘run-mode-hooks’により実行されるノーマルフ
+     ックである。これは、そのモードのフックの前に実行さ
+     れる。
+
+ -- Variable: after-change-major-mode-hook
+     これは、‘run-mode-hooks’により実行されるノーマルフ
+     ックである。これは、すべての適切に記述されたメジャ
+     ーモードコマンドの一番最後に実行される。
+
+
+File: elisp,  Node: Tabulated List Mode,  Next: Generic Modes,  Prev: Mode Hooks,  Up: Major Modes
+
+22.2.7 Tabulated List mode
+--------------------------
+
+Tabulated Listモードとは、表形式データ(“エントリー”から
+構成されるデータであり、各エントリーはそれぞれテキストの
+1行を占め、エントリーの内容は列に分割されるようなデータ
+)を表示するためのメジャーモードです。Tabulated Listモー
+ドは、行列の見栄えよくプリントする機能、および各列の値に
+応じて行をソートする機能を提供します。これは、Specialモ
+ードから派生されたモードです(*note Basic Major Modes::を
+参照)。
+
+   Tabulated Listモードは、より特化したメジャーモードの
+親モードとして使用されることを意図しています。例としては
+、Process Menuモード(*note Process Information::を参照
+)や、Package Menuモード(*note (emacs)Package Menu::を参
+照)が含まれます。
+
+   このような派生されたモードは、‘tabulated-list-mode’を
+2つ目の引数に指定して、通常の方法で
+‘define-derived-mode’を使用するべきです(*note Derived
+Modes::を参照)。‘define-derived-mode’フォームのbodyは、
+以下にドキュメントされている変数に値を割り当てることによ
+り、表形式データのフォーマットを指定するべきです。その後
+、ヘッダー行を初期化するために関数
+‘tabulated-list-init-header’を呼び出すべきです。
+
+   派生されたモードは、“リスティングコマンド”も定義する
+べきです。これはモードコマンドではなく、(‘M-x
+list-processes’のように)ユーザーが呼び出すコマンドです。
+リスティングコマンドは、バッファーを作成または切り替えて
+、派生モードをオンにして、表形式データを指定し、最後にそ
+のバッファーを事前設定(populate)するために
+‘tabulated-list-print’を呼び出すべきです。
+
+ -- Variable: tabulated-list-format
+     このバッファーローカル変数は、表形式データのフォー
+     マットを指定する。値はベクターで、ベクターの各要素
+     はデータ列を表すリスト‘(NAME WIDTH SORT)’である。こ
+     こで
+
+        • NAMEは列の名前(文字列)。
+
+        • WIDTHは列にたいして予約される文字数幅(整数)。
+          最終列は各行の終端までなので意味がない。
+
+        • SORTは列によりエントリーをソートする方法を指定
+          する。‘nil’の場合、その列はソートに使用できな
+          い。‘t’の場合は、列の文字列値を比較することに
+          よりソートされる。それ以外の場合は、
+          ‘tabulated-list-entries’の要素と同じ形式の2つ
+          の引数をとる、‘sort’にたいする述語関数
+          (predicate function)であること。
+
+ -- Variable: tabulated-list-entries
+     このバッファーローカル変数は、Tabulated Listバッフ
+     ァー内に表示されるエントリーを指定する。値にはリス
+     ト、または関数のいずれかであること。
+
+     値がリストの場合、各リスト要素は1つのエントリーに対
+     応し、‘(ID CONTENTS)’という形式であること。ここで
+
+        • IDは‘nil’、またはエントリーを識別するLispオブ
+          ジェクト。Lispオブジェクトの場合には、エントリ
+          ーを再ソートした際、カーソルは“同じ”エントリー
+          上に留まる。比較は‘equal’で行われる。
+
+        • CONTENTSは、‘tabulated-list-format’と要素数が
+          同じベクター。ベクター要素は文字列、またはリス
+          ト。文字列の場合は、バッファーにそのまま挿入さ
+          れる。リスト‘(LABEL . PROPERTIES)’の場合には、
+          LABELとPROPERTIESを引数として
+          ‘insert-text-button’を呼び出すことにより、テキ
+          ストボタンを挿入することを意味する(*note
+          Making Buttons::を参照)。
+
+          これらの文字列には、改行を含めるべきではない。
+
+     それ以外の場合、値は引数なしで呼び出され上記形式の
+     リストをリターンする関数であること。
+
+ -- Variable: tabulated-list-revert-hook
+     このノーマルフックはTabulated Listバッファーのリバ
+     ートに先立ち実行される。派生モードは、
+     ‘tabulated-list-entries’を再計算するために、このフ
+     ックに関数を追加できる。
+
+ -- Variable: tabulated-list-printer
+     この変数の値は、ポイント位置にエントリー(エントリー
+     を終端する改行を含む)を挿入するために呼び出される関
+     数である。この関数は、‘tabulated-list-entries’と同
+     じ意味をもつ2つの引数IDとCONTENTSを受け取る。デフォ
+     ルト値は、エントリーをそのまま挿入する関数である。
+     より複雑な方法によりTabulated Listモードを使用する
+     モードは、別の関数を指定できる。
+
+ -- Variable: tabulated-list-sort-key
+     この変数の値は、Tabulated Listバッファーにたいする
+     カレントのソートキーを指定する。‘nil’の場合、ソート
+     は行われていない。それ以外では、‘(NAME . FLIP)’とい
+     う形式の値をもつ。ここでNAMEは
+     ‘tabulated-list-format’内の列目の1つとマッチする文
+     字列、FLIPが非‘nil’の場合は逆順でのソートを意味する
+     。
+
+ -- Function: tabulated-list-init-header
+     この関数は、Tabulated Listバッファーにたいする
+     ‘header-line-format’を計算してセットし、列ヘッダー
+     上でのクリックでソートを可能にするキーマップをヘッ
+     ダー行に割り当てる。
+
+     Tabulated Listから派生したモードは、上記の変数(特に
+     ‘tabulated-list-format’をセットした後のみ)をセット
+     した後にこれを呼び出すべきである。
+
+ -- Function: tabulated-list-print &optional
+          remember-pos
+     この関数は、カレントバッファーにエントリーを準備
+     (populate)する。これはリスティングコマンドとして呼
+     び出されるべきである。この関数は、バッファーを消去
+     して‘tabulated-list-entries’で指定されるエントリー
+     を‘tabulated-list-sort-key’にしたがってソートした後
+     、各エントリーを挿入するために
+     ‘tabulated-list-printer’で指定される関数を呼び出す
+     。
+
+     オプション引数REMEMBER-POSが非‘nil’の場合、この関数
+     はカレント行でID要素を探して、もしあればすべてのエ
+     ントリーを(再)挿入して、その後へそのエントリーの移
+     動を試みる。
+
+
+File: elisp,  Node: Generic Modes,  Next: Example Major Modes,  Prev: Tabulated List Mode,  Up: Major Modes
+
+22.2.8 Generic Modes
+--------------------
+
+“genericモード (generic mode:汎用モード))”とは、コメント
+構文にたいする基本的なサポートとFont Lockモードをもつ、
+シンプルなメジャーモードです。genericモードを定義するに
+は、マクロ‘define-generic-mode’を使用します。
+‘define-generic-mode’の使い方の例は、ファイル
+‘generic-x.el’を参照してください。
+
+ -- Macro: define-generic-mode mode comment-list
+          keyword-list font-lock-list auto-mode-list
+          function-list &optional docstring
+     このマクロは、MODE(クォートされていないシンボル)と
+     いう名前のgenericモードコマンドを定義する。オプショ
+     ン引数DOCSTRINGは、そのモードコマンドにたいするドキ
+     ュメント文字列である。これを与えない場合は、
+     ‘define-generic-mode’がデフォルトのドキュメント文字
+     列を生成する。
+
+     引数COMMENT-LISTは、要素が文字、2文字以下の文字列、
+     またはコンスセルである。文字か文字列の場合には、そ
+     のモードの構文テーブル内で“コメント開始識別子”とし
+     てセットアップされる。エントリーがコンスセルの場合
+     、CARは“コメント開始識別子”、CDRは“コメント終了識別
+     子”としてセットアップされる(行末によりコメントを終
+     端させたい場合は、後者に‘nil’を使用する)。構文テー
+     ブルのメカニズムには、実際にコメントの開始および終
+     了識別子に関する制限があることに注意されたい。
+     *note Syntax Tables::を参照のこと。
+
+     引数KEYWORD-LISTは、‘font-lock-keyword-face’でハイ
+     ライトするキーワードのリストである。キーワードは文
+     字列であること。一方、FONT-LOCK-LISTはハイライトす
+     るための追加の式リストである。このリストの各要素は
+     、‘font-lock-keywords’の要素と同じ形式をもつべきで
+     ある。*note Search-based Fontification::を参照のこ
+     と。
+
+     引数AUTO-MODE-LISTは、変数‘auto-mode-alist’に追加す
+     る正規表現のリストである。これらの式は、マクロ呼び
+     出しの展開時ではなく、‘define-generic-mode’の実行時
+     に追加される。
+
+     最後にFUNCTION-LISTは、追加セットアップのためにモー
+     ドコマンドに呼び出される関数のリストである。これら
+     の関数は、モードフック変数‘MODE-hook’の実行の直前に
+     呼び出される。
+
+
+File: elisp,  Node: Example Major Modes,  Prev: Generic Modes,  Up: Major Modes
+
+22.2.9 Major Mode Examples
+--------------------------
+
+Textモードは、Fundamentalを除き、おそらくもっともシンプ
+ルなモードです。上述した慣習の多くを説明するために、以下
+に‘text-mode.el’の抜粋を示します:
+
+     ;; このモード用に構文テーブルを作成
+     (defvar text-mode-syntax-table
+       (let ((st (make-syntax-table)))
+         (modify-syntax-entry ?\" ".   " st)
+         (modify-syntax-entry ?\\ ".   " st)
+         ;; M-cで`hello'が`hello'でなく`Hello'になるよう`p'を追加
+         (modify-syntax-entry ?' "w p" st)
+         st)
+       "`text-mode'で使用される構文テーブル")
+
+     ;; このモード用にキーマップを作成
+     (defvar text-mode-map
+       (let ((map (make-sparse-keymap)))
+         (define-key map "\e\t" 'ispell-complete-word)
+         map)
+       "`text-mode'のキーマップ
+     `mail-mode'、`outline-mode'、`indented-text-mode'のような
+     他の多くのモードはこのマップ内で定義した全コマンドを継承する")
+
+   そして、実際にモードコマンドが定義される方法です:
+
+     (define-derived-mode text-mode nil "Text"
+       "人間が読むために記述されたテキストを編集するためのメジャーモード
+     このモードではパラグラフを区切るのはブランク行か空白行だけである
+     したがって適応型フィル(adaptive filling)の全恩恵を受けられる
+      (変数`adaptive-fill-mode'を参照のこと)
+     \\{text-mode-map}
+     Textモードのオンによりノーマルフック`text-mode-hook'が実行される"
+       (set (make-local-variable 'text-mode-variant) t)
+       (set (make-local-variable 'require-final-newline)
+            mode-require-final-newline)
+       (set (make-local-variable 'indent-line-function) 'indent-relative))
+
+(‘indent-relative’がデフォルト値の現在では、最後の行は冗
+長なので、将来のバージョンで削除するつもりです。)
+
+   3つのLisp用モード(Lispモード、Emacs Lispモード、Lisp
+Interactionモード)は、Textモードより多くの機能をもち、そ
+れにふさわしくコードもより複雑です。そのようなモードの記
+述方法を説明するために、‘lisp-mode.el’の抜粋を示します。
+
+   以下は、Lispモードの構文テーブルとabbrevテーブルを定
+義する方法です:
+
+     ;; モード固有のテーブル変数の作成
+     (defvar lisp-mode-abbrev-table nil)
+     (define-abbrev-table 'lisp-mode-abbrev-table ())
+
+     (defvar lisp-mode-syntax-table
+       (let ((table (copy-syntax-table emacs-lisp-mode-syntax-table)))
+         (modify-syntax-entry ?\[ "_   " table)
+         (modify-syntax-entry ?\] "_   " table)
+         (modify-syntax-entry ?# "' 14" table)
+         (modify-syntax-entry ?| "\" 23bn" table)
+         table)
+       "`lisp-mode'で使用される構文テーブル")
+
+   Lisp用の3つのモードは、コードの多くを共有します。たと
+えば、以下の関数呼び出しにより、さまざまな変数がセットさ
+れます:
+
+     (defun lisp-mode-variables (&optional syntax keywords-case-insensitive)
+       (when syntax
+         (set-syntax-table lisp-mode-syntax-table))
+       (setq local-abbrev-table lisp-mode-abbrev-table)
+       ...
+
+その中でも特に、以下の関数はLispコメントを処理するために
+、変数‘comment-start’をセットアップします:
+
+       (make-local-variable 'comment-start)
+       (setq comment-start ";")
+       ...
+
+   これら異なるLisp用モードは、微妙に異なるキーマップを
+もちます。たとえば、Lispモードは‘C-c C-z’を‘run-lisp’に
+バインドしますが、他のLisp用モードはこれを行いません。と
+はいえ、すべてのLisp用モードに共通なコマンドがいくつかあ
+ります。以下のコードは、それらの共通コマンドをセットアッ
+プします:
+
+     (defvar lisp-mode-shared-map
+       (let ((map (make-sparse-keymap)))
+         (define-key map "\e\C-q" 'indent-sexp)
+         (define-key map "\177" 'backward-delete-char-untabify)
+         map)
+       "すべてのLisp用モードでコマンドを共有するためのキーマップ")
+
+そして、以下がLispモードのためのキーマップをセットアップ
+するコードです:
+
+     (defvar lisp-mode-map
+       (let ((map (make-sparse-keymap))
+     	(menu-map (make-sparse-keymap "Lisp")))
+         (set-keymap-parent map lisp-mode-shared-map)
+         (define-key map "\e\C-x" 'lisp-eval-defun)
+         (define-key map "\C-c\C-z" 'run-lisp)
+         ...
+         map)
+       "Keymap for ordinary Lisp mode.
+     All commands in `lisp-mode-shared-map' are inherited by this map.")
+
+最後は、Lispモードのためのメジャーモードコマンドです:
+
+     (define-derived-mode lisp-mode prog-mode "Lisp"
+       "GNU Emacs Lisp以外のLispコードを編集するためのメジャーモード
+     コマンド:
+     後方に移動させるかのようにタブをスペースに削除変換する。
+     パラグラフ区切りはブランク行。コメント開始はセミコロン。
+
+     \\{lisp-mode-map}
+     `run-lisp'はinferior Lispジョブの開始と既存ジョブ
+     から戻るための両方に使われるかもしれないことに注意
+
+     このモードへのエントリーにより、
+     `lisp-mode-hook'の値が非nilならそれを呼び出す"
+       (lisp-mode-variables nil t)
+       (set (make-local-variable 'find-tag-default-function)
+            'lisp-find-tag-default)
+       (set (make-local-variable 'comment-start-skip)
+            "\\(\\(^\\|[^\\\\\n]\\)\\(\\\\\\\\\\)*\\)\\(;+\\|#|\\) *")
+       (setq imenu-case-fold-search t))
+
+
+File: elisp,  Node: Minor Modes,  Next: Mode Line Format,  Prev: Major Modes,  Up: Modes
+
+22.3 Minor Modes
+================
+
+“マイナーモード(minor mode)”は、メジャーモードの選択とは
+無関係にユーザーが有効、あるいは無効にする可能性のある、
+オプション機能を使用を提供します。マイナーモードは個別に
+、あるいは組み合わせて有効にできます。
+
+   ほとんどのマイナーモードは、メジャーモードとは独立し
+た機能を実装し、それゆえにほとんどのメジャーモードととも
+に使用することができます。たとえば、Auto Fillモードはテ
+キスト挿入を許す任意のメジャーモードとともに機能します。
+しかし少数ながら、特定のメジャーモードに特化した少数のマ
+イナーモードもあります。たとえば、Diff Auto Refineモード
+は、Diffモードとともに使用されることだけを意図したマイナ
+ーモードです。
+
+   理想的には、マイナーモードは他のマイナーモードの効果
+と無関係に、期待する効果をもつべきです。これは、任意の順
+序でマイナーモードをアクティブ、あるいは非アクティブにし
+ても可能なはずです。
+
+ -- Variable: minor-mode-list
+     この変数の値は、すべてのマイナーモードコマンドのリ
+     ストである。
+
+* Menu:
+
+* Minor Mode Conventions::   マイナーモードを記述するためのTips。
+* Keymaps and Minor Modes::  マイナーモードが自身のキーマップをもつための方法。
+* Defining Minor Modes::     マイナーモードを定義するための便利な機能。
+
+
+File: elisp,  Node: Minor Mode Conventions,  Next: Keymaps and Minor Modes,  Up: Minor Modes
+
+22.3.1 Conventions for Writing Minor Modes
+------------------------------------------
+
+メジャーモードにあるように、マイナーモードの記述にも慣習
+があります。以下で、その慣習について説明します。これらの
+慣習にしたがうには、マクロ‘define-minor-mode’を使用する
+のがもっとも簡単な方法です。*note Defining Minor
+Modes::を参照してください。
+
+   • 名前が‘-mode’で終わる変数を定義する。これを“モード
+     変数(mode variable)”と呼ぶ。マイナーモードコマンド
+     は、この変数をセットすべきである。値は、そのモード
+     が無効な場合は‘nil’、有効な場合は非‘nil’になるだろ
+     う。そのマイナーモードがバッファーローカルなら、こ
+     の変数もバッファーローカルであること。
+
+     この変数は、モードラインにマイナーモードの名前を表
+     示するために、‘minor-mode-alist’と結合して使用され
+     る。これは、‘minor-mode-map-alist’を通じて、そのマ
+     イナーモードのキーマップがアクティブかどうかも判定
+     する(*note Controlling Active Maps::を参照)。個々の
+     コマンドやフックも、この変数の値をチェックできる。
+
+   • モード変数と同じ名前をもつ、“モードコマンド(mode
+     command)”と呼ばれるコマンドを定義する。このコマンド
+     の役目は、モード変数の値のセットに加えて、そのモー
+     ドの機能を使用を実際に有効、または無効にするために
+     必要な、その他すべてを行うことである。
+
+     モードコマンドは、1つのオプション引数を受け入れるべ
+     きである。プレフィクス引数なしでinteractiveに呼び出
+     された場合は、モードをトグルする(toggle: 切り替える
+     。たとえば無効なら有効に、有効なら無効にする)こと。
+     プレフィクス引数とともにinteractiveに呼び出された場
+     合、その引数が正であればモードを有効に、それ以外は
+     無効にすべきである。
+
+     モードコマンドが、Lispから(つまりからの非
+     interactiveに)呼び出された場合は、引数が省略、また
+     は‘nil’の場合はモードを有効にすべきである。引数がシ
+     ンボル‘toggle’の場合はモードをトグルし、それ以外の
+     場合は、上述の数引数とともにinteractiveに呼び出され
+     たときと同じ方法により、その引数を扱うべきである。
+
+     以下は、この挙動の実装方法を示す例である
+     (‘define-minor-mode’マクロが生成するコードも、これ
+     に類似する)。
+
+          (interactive (list (or current-prefix-arg 'toggle)))
+          (let ((enable (if (eq arg 'toggle)
+                            (not foo-mode) ; このモードのモード変数
+                          (> (prefix-numeric-value arg) 0))))
+            (if enable
+                DO-ENABLE
+              DO-DISABLE))
+
+     この、やや複雑な挙動の理由は、ユーザーが簡単かつ
+     interactiveにマイナーモードをトグルでき、以下のよう
+     にモードフック内で簡単にマイナーモードを有効にでき
+     るからである:
+
+          (add-hook 'text-mode-hook 'foo-mode)
+
+     ‘foo-mode’モードコマンドは、引数なしでLispから呼び
+     出されたときは、無条件にそのマイナーモードを有効に
+     するので、これは‘foo-mode’がすでに有効でもそうでな
+     くても正しく振る舞う。モードフック内でマイナーモー
+     ドを無効にする場合は、少々醜くなる:
+
+          (add-hook 'text-mode-hook (lambda () (foo-mode -1)))
+
+     しかし、これは頻繁には行われない。
+
+   • モードラインにマイナーモードを標示したい場合は、そ
+     れぞれのマイナーモードにたいして、要素を
+     ‘minor-mode-alist’に追加する(*note Definition of
+     minor-mode-alist::を参照)。この要素は以下の形式のリ
+     ストであること:
+
+          (MODE-VARIABLE STRING)
+
+     ここで、MODE-VARIABLEはマイナーモードの有効化を制御
+     する変数であり、STRINGはモードラインに標示するため
+     の、スペースで始まる短い文字列である。一度に複数モ
+     ードの文字列がスペースを占めるので、これらの文字列
+     は短くなければならない。
+
+     ‘minor-mode-alist’に要素を追加する際は、重複を避け
+     るために、既存要素のチェックに‘assq’を使用すること
+     。たとえば:
+
+          (unless (assq 'leif-mode minor-mode-alist)
+            (push '(leif-mode " Leif") minor-mode-alist))
+
+     または、以下のように‘add-to-list’(*note List
+     Variables::を参照)を使用すること:
+
+          (add-to-list 'minor-mode-alist '(leif-mode " Leif"))
+
+   これらに加えて、メジャーモードにたいする慣習のいくつ
+かは、マイナーモードにたいしても同様に適用されます。それ
+らの慣習はグローバルシンボルの名前、初期化関数の最後での
+フックの使用、キーマップおよびその他のテーブルの使用です
+。
+
+   マイナーモードは、可能ならばCustom(*note
+Customization::を参照)を通じての有効化および無効化をサポ
+ートするべきです。これを行うには、モード変数はは通常は
+‘:type 'boolean’とともに‘defcustom’で定義されるべきです
+。その変数をセットするだけではモードの有効化に不足なら、
+モードコマンドを呼び出すことによりモードを有効にする
+‘:set’メソッドも指定するべきです。そして、その変数のドキ
+ュメント文字列にCustomを通じて変数をセットしなければ効果
+がないことを注記してください。さらに、その定義をautoload
+cookie(*note autoload cookie::を参照)でマークして、その
+変数のカスタマイズによりモードを定義するライブラリーがロ
+ードされるように‘:require’を指定します。たとえば:
+
+     ;;;###autoload
+     (defcustom msb-mode nil
+       "msb-modeをトグルする
+     この変数を直接セットしても効果がない
+     \\[customize]か関数`msb-mode'を使用すること"
+       :set 'custom-set-minor-mode
+       :initialize 'custom-initialize-default
+       :version "20.4"
+       :type    'boolean
+       :group   'msb
+       :require 'msb)
+
+
+File: elisp,  Node: Keymaps and Minor Modes,  Next: Defining Minor Modes,  Prev: Minor Mode Conventions,  Up: Minor Modes
+
+22.3.2 Keymaps and Minor Modes
+------------------------------
+
+マイナーモードはそれぞれ自身のキーマップをもつことができ
+、そのモードが有効になるとそのキーマップがアクティブにな
+ります。マイナーモード用のキーマップをセットアップするに
+は、‘minor-mode-map-alist’というalistに要素を追加します
+。*note Definition of minor-mode-map-alist::を参照してく
+ださい。
+
+   特定の自己挿入文字にたいして、自己挿入と同様に他の何
+かを行うように振る舞いを変更するのは、マイナーモードキー
+マップの1つの使い方です。(‘self-insert-command’をカスタ
+マイズする別の方法は、‘post-self-insert-hook’を通じて行
+う方法です。これ以外の‘self-insert-command’カスタマイズ
+用機能は特別なケースに限定されていて、abbrevモードとAuto
+Fillモードのためにデザインされています。
+‘self-insert-command’にたいする標準定義を、あなた独自の
+定義に置き換えることを試みてはなりません。エディターコマ
+ンドループは、この関数を特別に処理します。)
+
+   マイナーモードは、コマンドを‘C-c’とその後の区切り文字
+より構成されるキーシーケンスにバインドするかもしれません
+。しかし、‘C-c’とその後の‘{}<>:;’のいずれかの文字、また
+はコントロール文字、数字より構成されるシーケンスは、メジ
+ャーモード用に予約されています。また、‘C-c LETTER’はユー
+ザー用に予約されています。*note Key Binding
+Conventions::を参照してください。
+
+
+File: elisp,  Node: Defining Minor Modes,  Prev: Keymaps and Minor Modes,  Up: Minor Modes
+
+22.3.3 Defining Minor Modes
+---------------------------
+
+マクロ‘define-minor-mode’は、1つの自己完結した定義内にモ
+ードを実装する便利な方法を提供します。
+
+ -- Macro: define-minor-mode mode doc [init-value
+          [lighter [keymap]]] keyword-args... body...
+     このマクロは、名前がMODE(シンボル)の新たなマイナー
+     モードを定義する。これは、ドキュメント文字列として
+     DOCをもつ、マイナーモードをトグルするための、MODEと
+     いう名前のコマンドを定義する。
+
+     トグルコマンドは１つのオプション(プレフィクス)引数
+     をとる。引数なしでinteractiveに呼び出された場合は、
+     そのモードのオンとオフをトグルする。正のプレフィク
+     ス引数はモードを有効にし、それ以外のプレフィクス引
+     数はモードを無効にする。Lispから呼び出した場合、引
+     数が‘toggle’の場合はモードをトグルし、引数が省略も
+     しくは‘nil’の場合はモードを有効にする。これはたとえ
+     ば、メジャーモードフック内でマイナーモードを有効に
+     するのを簡便にする。DOCが‘nil’の場合、このマクロは
+     上記を説明するデフォルトのドキュメント文字列を提供
+     する。
+
+     デフォルトでは、これはモードを有効にすると‘t’、無効
+     にすると‘nil’にセットされる、MODEという名前の変数も
+     定義する。この変数は、INIT-VALUEに初期化される。通
+     常では(以下参照)、この値は‘nil’でなければならない。
+
+     文字列LIGHTERは、モード有効時にモードライン内に何を
+     表示するか指定する。これが‘nil’の場合は、このモード
+     はモードライン内に表示されない。
+
+     オプション引数KEYMAPは、そのマイナーモードにたいす
+     るキーマップを指定する。非‘nil’の場合、それは(値が
+     キーマップであるような)変数の名前、キーマップ、また
+     は以下の形式のalistであること
+
+          (KEY-SEQUENCE . DEFINITION)
+
+     ここで、それぞれのKEY-SEQUENCEとDEFINITIONは、
+     ‘define-key’に渡すのに適した引数である(*note
+     Changing Key Bindings::を参照)。KEYMAPはキーマップ
+     またはalistであり、これは変数‘MODE-map’も定義する。
+
+     上記の3つの引数INIT-VALUE、LIGHTER、KEYMAPは、
+     KEYWORD-ARGSが使用されたときは、(部分的に)省略でき
+     る。KEYWORD-ARGSは、キーワードとその後の対応する値
+     により構成され、いくつかのキーワードは特別な意味を
+     もつ:
+
+     ‘:group GROUP’
+          生成されるすべての‘defcustom’フォームで使用さ
+          れるカスタムグループ名。MODE(後の‘-mode’がある
+          場合はそれを除く)にたいするデフォルトである。
+          *警告:* そのグループを定義するため‘defgroup’を
+          正しく記述していない場合は、このデフォルトグル
+          ープ名を使用してはならない。*note Group
+          Definitions::を参照のこと。
+
+     ‘:global GLOBAL’
+          非‘nil’の場合、これはそのマイナーモードがバッ
+          ファーローカルでなくグローバルであることを指定
+          する。デフォルトは‘nil’。
+
+          マイナーモードをグローバルにしたときの効果の
+          1つは、MODE変数がカスタマイズ変数になることで
+          ある。Customizeインターフェイスを通じてこの変
+          数をトグルするとモードがオン、またはオフになり
+          、変数の値は将来のEmacsセッション用に保存でき
+          るようになる(*note (emacs)Saving
+          Customizations::を参照)。保存された変数が機能
+          するためには、Emacsが開始されるたびに
+          ‘define-minor-mode’フォームが確実に評価される
+          ようにすべきである。Emacsの一部ではないパッケ
+          ージにたいしては、‘:require’キーワードを指定す
+          るのが、これを行う一番簡単な方法である。
+
+     ‘:init-value INIT-VALUE’
+          これは、INIT-VALUE引数を指定するのと等しい。
+
+     ‘:lighter LIGHTER’
+          これは、LIGHTER引数を指定するのと等しい。
+
+     ‘:keymap KEYMAP’
+          これは、KEYMAP引数を指定するのと等しい。
+
+     ‘:variable PLACE’
+          これは、そのモードの状態を格納するために使用さ
+          れる、デフォルトの変数MODEを置き換える。これを
+          指定した場合、MODE変数は定義されず、すべての
+          INIT-VALUE引数は使用されない。PLACEは異なる名
+          前の変数(あなた自身が定義しなければならない)、
+          または‘setf’関数とともに使用され得るすべてのも
+          の(*note Generalized Variables::を参照)。
+          PLACEにはコンス‘(GET . SET)’も指定できる。ここ
+          で、GETはカレント状態をリターンする式であり、
+          SETはそれをセットする1つの引数(状態)をとる関数
+          である。
+
+     ‘:after-hook AFTER-HOOK’
+          これは、モードフック実行後に評価される、単一の
+          Lispフォームを定義する。これはクォートすべきで
+          ない。
+
+     その他のすべてのキーワード引数は、変数MODEにたいし
+     て生成された‘defcustom’に直接渡される。
+
+     MODEという名前のコマンドは、最初にMODEという名前の
+     変数をセットする等の標準的な動作を処理した後に、も
+     しあればBODYフォームを実行する。それからモードフッ
+     ク変数‘MODE-hook’を実行し、‘:after-hook’内のフォー
+     ムを評価して終了する。
+
+   INIT-VALUEの値は‘nil’でなければなりません。ただし、
+(1)Emacsによりそのモードが事前ロードされている、または
+(2)たとえユーザーが要求しなくともモードを有効にするため
+にロードするのが容易な場合を除きます。たとえば、他の何か
+が有効でなければそのモードの効果がなく、常にそのタイミン
+グでロードされるような場合は、デフォルトでそのモードを有
+効にすることに害はありません。しかし、この状況は通常はあ
+り得ません。通常は、INIT-VALUEの値は‘nil’でなければなら
+ないのです。
+
+   ‘easy-mmode-define-minor-mode’という名前は、このマク
+ロにたいするエイリアスです。
+
+   以下は、‘define-minor-mode’の使い方の例です:
+
+     (define-minor-mode hungry-mode
+       "Hungryモードをトグルする。
+     引数なしでinteractiveに呼び出すとモードをトグルする。
+     正のプレフィクス引数でモードを有効に、その他のプレフィクス引数で
+     無効にする。Lispから呼び出す場合、引数を省略、またはnilなら
+     モードを有効に、`toggle'なら状態をトグルする。
+
+     Hungryモードが有効なときは、C-DELキーは、
+     最後を除く先行するすべての空白を飲み込む。
+     コマンド \\[hungry-electric-delete] を参照のこと。"
+      ;; 初期値
+      nil
+      ;; モードラインの標示
+      " Hungry"
+      ;; マイナーモードのバインディング
+      '(([C-backspace] . hungry-electric-delete))
+      :group 'hunger)
+
+これは、“Hungry mode”という名前のマイナーモード、モード
+をトグルする‘hungry-mode’という名前のコマンド、モードが
+有効かどうかを示す‘hungry-mode’という名前の変数、モード
+が有効なときそのキーマップを保持する‘hungry-mode-map’と
+いう名前の変数を定義します。これは、‘C-<DEL>’にたいする
+キーバインディングでキーマップを初期化します。また、変数
+‘hungry-mode’をカスタムグループ‘hunger’に置きます。
+BODYフォームはありません — 多くのマイナーモードは必要と
+しません。
+
+   以下は、これを記述する等価な方法です:
+
+     (define-minor-mode hungry-mode
+       "Hungryモードをトグルする。
+     ...省略..."
+      ;; 初期値
+      :init-value nil
+      ;; モードラインへのインジケーター
+      :lighter " Hungry"
+      ;; マイナーモードのバインディング
+      :keymap
+      '(([C-backspace] . hungry-electric-delete)
+        ([C-M-backspace]
+         . (lambda ()
+             (interactive)
+             (hungry-electric-delete t))))
+      :group 'hunger)
+
+ -- Macro: define-globalized-minor-mode global-mode mode
+          turn-on keyword-args...
+     これは、GLOBAL-MODEという名前をグローバルにトグルす
+     る。この意味は、MODEという名前のバッファーローカル
+     なマイナーモードを、すべてのバッファーで有効、また
+     は無効にするということである。あるバッファー内でそ
+     のマイナーモードをオンにするには、関数TURN-ONを使用
+     する。マイナーモードをオフにするには、−1を引数とし
+     てMODEを呼び出す。
+
+     モードをグローバルに有効にすると、それ以降ファイル
+     をvisitすることにより作成されるバッファー、
+     Fundamental以外のメジャーモードを使用するバッファー
+     にも影響がある。しかし、Fundamentalで作成される新た
+     なバッファーは検知しない。
+
+     これは、Customizeインターフェイス内でそのマイナーモ
+     ードのオン/オフを切り替える、カスタムオプション
+     GLOBAL-MODE(*note Customization::)を定義する。
+     ‘define-minor-mode’と同様に、たとえば‘:require’を与
+     える等により、毎回のEmacs開始時に確実に
+     ‘define-globalized-minor-mode’フォームが評価される
+     ようにすべきである。
+
+     グローバルマイナーモードのモード変数にたいしてカス
+     タムグループを指定するには、KEYWORD-ARGS内で‘:group
+     GROUP’を使用する。
+
+     一般的には、グローバル化されたマイナーモードを定義
+     するときは、ユーザーがバッファーごとにモードを使用
+     (または無効に)できるように、非グローバル版も定義す
+     べきである。ことにより、特定のメジャーモード内でそ
+     のモードのフックを使用することにより、グローバル有
+     効化されたマイナーモードを無効にすることができるよ
+     うになる。
+
+
+File: elisp,  Node: Mode Line Format,  Next: Imenu,  Prev: Minor Modes,  Up: Modes
+
+22.4 Mode Line Format
+=====================
+
+Emacsの各ウィンドウ(ミニバッファーウィンドウを除く)には
+通常、最下部にモードラインがあり、そのウィンドウ内に表示
+されたバッファーについてステータス情報がモードラインに表
+示されます。モードラインには、バッファー名、関連するファ
+イル、再帰編集の深さ、およびメジャーモードやマイナーモー
+ドなどのような、そのバッファーに関する情報が含まれていま
+す。ウィンドウは“ヘッダーライン(header line)”をもつこと
+もでき、これはモードラインによく似ていますが、ウィンドウ
+の最上部に表示されます。
+
+   このセクションでは、モードラインおよびヘッダーライン
+のコンテンツの制御の仕方について説明します。このチャプタ
+ーにモードラインを含めた理由は、モードラインに表示される
+情報の多くが、有効化されたメジャーモードとマイナーモード
+に関係があるからです。
+
+* Menu:
+
+* Base: Mode Line Basics.    モードライン制御の基本概念。
+* Data: Mode Line Data.      モードラインを制御するデータ構造。
+* Top: Mode Line Top.        トップレベル変数、mode-line-format。
+* Mode Line Variables::      そのデータ構造で使用される変数。
+* %-Constructs::             モードラインへの情報の配置。
+* Properties in Mode::       モードライン内でのテキストプロパティの使用。
+* Header Lines::             モードラインに類似した最上部のライン。
+* Emulating Mode Line::      モードラインのようにテキストをフォーマットする。
+
+
+File: elisp,  Node: Mode Line Basics,  Next: Mode Line Data,  Up: Mode Line Format
+
+22.4.1 Mode Line Basics
+-----------------------
+
+それぞれのモードラインのコンテンツは、バッファーローカル
+変数‘mode-line-format’により指定されます(*note Mode Line
+Top::を参照)。この変数は“モードライン構成(mode line
+construct)”を保持します。これは、そのバッファーのモード
+ラインに何を表示するかを制御するテンプレートです。
+‘header-line-format’の値は、同じ方法によりそのバッファー
+のヘッダーラインを指定します。同一のバッファーにたいする
+すべてのウィンドウは、同じ‘mode-line-format’と
+‘header-line-format’を使用します。
+
+   効率的な理由により、Emacsは各ウィンドウのモードライン
+とヘッダーラインを、連続して再評価しません。たとえばウィ
+ンドウ設定(window configuration)の変更、バッファーの切り
+替え、バッファーのナローイング(narrowing)またはワイドニ
+ング(widening)、スクロール、バッファーの変更等、それを呼
+び出す状況が出現したときに、Emacsは再評価を行います。
+‘mode-line-format’や‘header-line-format’(*note Mode Line
+Variables::を参照)により参照される任意の変数、またはテキ
+ストが表示される方法に影響を与えるデータ構造(*note
+Display::を参照)を変更した場合は、表示を更新するために関
+数‘force-mode-line-update’を使用するべきです。
+
+ -- Function: force-mode-line-update &optional all
+     この関数は、次の再表示サイクルの間に、すべての関連
+     する変数の最新の値にもとづき、カレントバッファーの
+     モードラインとヘッダーラインの更新をEmacsに強制する
+     。オプション引数ALLが非‘nil’の場合は、すべてのモー
+     ドラインとヘッダーラインの更新を強制する。
+
+     この関数は、メニューバーとフレームタイトルの更新も
+     強制する。
+
+   選択されたウィンドウのモードラインは、通常はフェイス
+‘mode-line’を使用して異なるカラーで表示されます。かわり
+に、他のウィンドウのモードラインは、フェイス
+‘mode-line-inactive’で表示されます。*note Faces::を参照
+してください。
+
+
+File: elisp,  Node: Mode Line Data,  Next: Mode Line Top,  Prev: Mode Line Basics,  Up: Mode Line Format
+
+22.4.2 The Data Structure of the Mode Line
+------------------------------------------
+
+モードラインのコンテンツは、“モードライン構成(mode line
+construct)”と呼ばれるデータ構造により制御されます。モー
+ドライン構成はリスト、シンボル、数字を保持するバッファー
+ローカル変数により構成されます。それぞれのデータ型は、以
+下で説明するようにモードラインの外見にたいして特別な意味
+をもちます。フレームタイトル(*note Frame Titles::を参照
+)とヘッダーライン(*note Header Lines::を参照)にたいして
+も、同じデータ構造が使用されます。
+
+   固定文字列のようにシンプルなモードライン構成の場合も
+ありますが、通常はモードライン構成のテキストを構築するた
+めに、固定文字列と変数の値を組み合わせる方法を指定します
+。これらの変数の多くは、その変数自体がその値によりモード
+ライン構成を定義する変数です。
+
+   以下は、モードライン構成における、さまざまなデータ型
+の意味です:
+
+‘STRING’
+     モードライン構成においての文字列は、文字列内に
+     “‘%’構成(‘%’-constructs)”を含む以外は、そのまま表現
+     される。これらは、他のデータによる置換を意味する。
+     *note %-Constructs::を参照のこと。
+
+     文字列の一部が‘face’プロパティをもつ場合は、バッフ
+     ァー内でそれらが表示されるときと同じように、テキス
+     ト表示を制御する。‘face’プロパティをもたない文字は
+     、デフォルトのフェイス‘mode-line’、または
+     ‘mode-line-inactive’で表示される(*note
+     (emacs)Standard Faces::を参照)。STRING内の
+     ‘help-echo’プロパティと‘keymap’プロパティは、特別な
+     意味をもつ。*note Properties in Mode::を参照のこと
+     。
+
+‘SYMBOL’
+     モードライン構成においてのシンボルは、その値を意味
+     する。モードライン構成としては、SYMBOLの値は
+     SYMBOLの位置に使用される。しかし、シンボル‘t’と
+     ‘nil’は、値がvoidであるようなシンボルとして無視され
+     る。
+
+     例外が1つある。SYMBOLの値が文字列の場合、それはその
+     まま表示され、‘%’構成は認識されない。
+
+     SYMBOLが“危険”とマークされていない(非‘nil’の
+     ‘risky-local-variable’プロパティをもつ)場合は、
+     SYMBOLの値中で指定されたテキストプロパティはすべて
+     無視される。これには、SYMBOLの値中の文字列のテキス
+     トプロパティ、同様に文字列内の‘:eval’フォームと
+     ‘:propertize’フォームがすべて含まれる。(これはセキ
+     ュリティー上の理由による。危険とマークされていない
+     変数は、ユーザーへの問い合わせなしでファイル変数か
+     ら自動的にセットされ得る。)
+
+‘(STRING REST...)’
+‘(LIST REST...)’
+     最初の要素が文字列またはリストであるようなリストは
+     、すべての要素を再帰的に処理して、その結果を結合す
+     ることを意味する。これは、モードライン構成において
+     、もっとも一般的なフォームである。
+
+‘(:eval FORM)’
+     最初の要素がシンボル‘:eval’であるようなリストは、
+     FORMを評価して、その結果を表示する文字列として使用
+     するよう指示する。この評価がファイルをロードできな
+     いことを確認すること。ファイルをロードすると、無限
+     再帰が発生するかもしれない。
+
+‘(:propertize ELT PROPS...)’
+     最初の要素がシンボル‘:propertize’であるようなリスト
+     は、モードライン構成ELTを再帰的に処理して、PROPSに
+     より指定されるテキストプロパティに結果を加えるよう
+     指示する。引数PROPSは、0個以上のTEXT-PROPERTYと
+     VALUEのペアーで構成されるべきである。
+
+‘(SYMBOL THEN ELSE)’
+     最初の要素がキーワード以外のシンボルであるようなリ
+     ストは、条件文を指定する。その意味は、SYMBOLの値に
+     依存する。SYMBOLが非‘nil’値をもつ場合は、モードライ
+     ン構成として、2つ目の要素THENが再帰的に処理され、そ
+     れ以外は3つ目の要素ELSEが再帰的に処理される。ELSEは
+     省略でき、その場合SYMBOLの値が‘nil’かvoidならば、モ
+     ードライン構成は何も表示しない。
+
+‘(WIDTH REST...)’
+     最初の要素が整数であるようなリストは、RESTの結果の
+     切り詰め、またはパディングを指定する。残りの要素
+     RESTは、モードライン構成として再帰的に処理され、互
+     いに結合される。WIDTHが正の場合、結果の幅がWIDTHよ
+     り少ないときは、右側にスペースがパディングされる。
+     WIDTHが負の場合、結果の幅が−WIDTHより大きいときは、
+     右側が切り詰められる。
+
+     たとえば、ウィンドウ最上部からのバッファー位置をパ
+     ーセント表示するには、‘(-3 "%p")’のようなリストを使
+     用すればよい。
+
+
+File: elisp,  Node: Mode Line Top,  Next: Mode Line Variables,  Prev: Mode Line Data,  Up: Mode Line Format
+
+22.4.3 The Top Level of Mode Line Control
+-----------------------------------------
+
+変数‘mode-line-format’は、モードラインの全体的な制御を行
+います。
+
+ -- User Option: mode-line-format
+     この変数の値は、モードラインのコンテンツを制御する
+     モードライン構成である。これは、すべてのバッファー
+     において、常にバッファーローカルである。
+
+     あるバッファー内でこの変数に‘nil’をセットした場合、
+     そのバッファーはモードラインをもたない(高さが1行し
+     かないウィンドウも、モードラインを表示しない)。
+
+   ‘mode-line-format’のデフォルト値は、
+‘mode-line-position’や‘mode-line-modes’(これは
+‘mode-name’と‘minor-mode-alist’の値を組み込む)のような、
+他の変数の値を使用するようデザインされています。
+‘mode-line-format’自体を変更する必要があるモードは、ほと
+んどありません。ほとんどの用途にたいしては、
+‘mode-line-format’が直接、または間接的に参照する、いくつ
+かの変数を修正すれば十分です。
+
+   ‘mode-line-format’l自体の変更を行った場合、新たな値は
+他の様式でコンテンツを複製したり情報を表示するのではなく
+、デフォルト値(*note Mode Line Variables::を参照)に現れ
+るのと同じ変数を使用するべきです。この方法を使用すれば、
+ユーザーや(‘display-time’やメジャーモードのような)Lispプ
+ログラムにより行われたカスタマイズは、それらの変数への変
+更を通じて、効力を保ちます。
+
+   以下は、Shellモードにたいして有用かもしれない、架空の
+‘mode-line-format’の例です(実際には、Shellモードは
+‘mode-line-format’をセットしない):
+
+     (setq mode-line-format
+       (list "-"
+        'mode-line-mule-info
+        'mode-line-modified
+        'mode-line-frame-identification
+        "%b--"
+        ;; これはリスト作成中に評価されることに注意。
+        ;; これは単なる文字列のモードライン構成を作成する。
+        (getenv "HOST")
+        ":"
+        'default-directory
+        "   "
+        'global-mode-string
+        "   %[("
+        '(:eval (mode-line-mode-name))
+        'mode-line-process
+        'minor-mode-alist
+        "%n"
+        ")%]--"
+        '(which-func-mode ("" which-func-format "--"))
+        '(line-number-mode "L%l--")
+        '(column-number-mode "C%c--")
+        '(-3 "%p")))
+
+(変数‘line-number-mode’、‘column-number-mode’、
+‘which-func-mode’は特定のマイナーモードを有効にする。通
+例どおり、これらの変数名は、マイナーモードコマンド名でも
+ある。)
+
+
+File: elisp,  Node: Mode Line Variables,  Next: %-Constructs,  Prev: Mode Line Top,  Up: Mode Line Format
+
+22.4.4 Variables Used in the Mode Line
+--------------------------------------
+
+このセクションでは、‘mode-line-format’の標準的な値として
+、モードラインテキストに組み込まれる変数を説明します。こ
+れらの変数は、本質的には特別なものではありません。
+‘mode-line-format’が使用する変数を他の変数に変更すれば、
+それらはモードライン上で同様の効果をもちます。しかし、
+Emacsのさまざまな部分は、それらの変数がモードラインを制
+御するという認識の元、それらの変数をセットします。したが
+って、事実上モードラインがそれらの変数を使用するのは必須
+なのです。
+
+ -- Variable: mode-line-mule-info
+     この変数は、言語環境(language environment)、バッフ
+     ァーコーディングシステム、カレント入力メソッド
+     (current input method)に関する情報のモードライン構
+     成の値を保持する。*note Non-ASCII Characters::を参
+     照のこと。
+
+ -- Variable: mode-line-modified
+     この変数は、カレントバッファーが変更されたかどうか
+     を表示する、モードライン構成の値を保持する。デフォ
+     ルト値ではバッファーが変更されていれば‘**’、バッフ
+     ァーが変更されていなければ‘--’、バッファーが読み取
+     り専用なら‘%%’、読み取り専用だが変更されているとき
+     は‘%*’を表示する。
+
+     この変数を変更しても、モードラインは強制的に更新さ
+     れない。
+
+ -- Variable: mode-line-frame-identification
+     この変数は、カレントフレームを識別する。デフォルト
+     値では、複製フレームを表示可能なウィンドウシステム
+     を使用している場合は‘" "’、一度に1つのフレームだけ
+     を表示する通常の端末では‘"-%F "’を表示する。
+
+ -- Variable: mode-line-buffer-identification
+     この変数は、そのウィンドウ内で表示されているバッフ
+     ァーを識別する。デフォルト値では、少なくとも12列に
+     なるようスペースパディングされたバッファー名を表示
+     する。
+
+ -- User Option: mode-line-position
+     この変数は、バッファー内での位置を標示する。デフォ
+     ルト値ではバッファーのパーセントを表示し、オプショ
+     ンでバッファーサイズ、行番号、列番号を表示する。
+
+ -- Variable: vc-mode
+     変数‘vc-mode’は、各バッファーにたいしてバッファーロ
+     ーカルであり、そのバッファーがvisitしているファイル
+     がバージョンコントロールで保守されているかどうかと
+     、保守されている場合はバージョンコントロールシステ
+     ムの種別を表示する。新しいモードラインに表示される
+     文字列、バージョンコントロールされていない場合は
+     ‘nil’である。
+
+ -- User Option: mode-line-modes
+     この変数は、そのバッファーのメジャーモードとマイナ
+     ーモードを表示する。デフォルト値では再帰編集レベル
+     (recursive editing level)、プロセス状態の情報、ナロ
+     ーイング(narrowing)効果の有無を表示する。
+
+ -- Variable: mode-line-remote
+     この変数は、カレントバッファーにたいする
+     ‘default-directory’がリモートかどうかを表示するため
+     に使用される。
+
+ -- Variable: mode-line-client
+     この変数は、‘emacsclient’フレームを識別するために使
+     用される。
+
+   以下の3つの変数は、‘mode-line-modes’内で使用されます:
+
+ -- Variable: mode-name
+     このバッファーローカル変数は、カレントバッファーの
+     メジャーモードの“愛称(pretty name)”を保持する。モー
+     ド名がモードラインに表示されるように、それぞれのメ
+     ジャーモードは、この変数をセットすべきである。値は
+     文字列である必要はなく、モードライン構成内で有効な
+     任意のデータ型(*note Mode Line Data::を参照)を使用
+     できる。モードライン内でモード名を識別する文字列の
+     計算には、‘format-mode-line’を使用する(*note
+     Emulating Mode Line::を参照)。
+
+ -- Variable: mode-line-process
+     このバッファーローカル変数には、そのモードにおいて
+     、サブプロセスとの通信にたいするプロセス状態のモー
+     ドライン情報が含まれる。これはメジャーモード名の直
+     後(間のスペースはない)に表示される。たとえば、
+     ‘*shell*’バッファーでの値は‘(":%s")’であり、これは
+     ‘(Shell:run)’のように、メジャーモードとともにその状
+     態を表示する。通常、この変数は‘nil’である。
+
+ -- Variable: minor-mode-alist
+     この変数は、マイナーモードがアクティブかをモードラ
+     インに示す方法を指定する要素をもつ、連想リスト
+     (association list)を保持する。‘minor-mode-alist’の
+     各要素は、2要素のリストであること:
+
+          (MINOR-MODE-VARIABLE MODE-LINE-STRING)
+
+     より一般的には、MODE-LINE-STRINGは任意のモードライ
+     ン構成であり得る。MINOR-MODE-VARIABLEの値が非
+     ‘nil’の場合はモードラインに表示され、それ以外では表
+     示されない。一緒に実行されないよう、これらの文字列
+     はスペースで始まるべきである。慣例的に、特定のモー
+     ドにたいするMINOR-MODE-VARIABLEは、そのマイナーモー
+     ドがアクティブになった際には、非‘nil’値にセットされ
+     る。
+
+     ‘minor-mode-alist’自体はバッファーローカルではない
+     。このalist内で参照される各変数は、そのマイナーモー
+     ドをバッファーごとに個別に有効にできる場合は、バッ
+     ファーローカルであること。
+
+ -- Variable: global-mode-string
+     この変数は、モードライン内でマイナーモード
+     ‘which-func-mode’がセットされている場合はその直後、
+     セットされていなければ‘mode-line-modes’の後に表示さ
+     れるモードライン構成を保持する(デフォルト)。コマン
+     ド‘display-time’は、時間とロードの情報を含む文字列
+     を保持する変数‘display-time-string’を参照する、
+     ‘global-mode-string’をセットする。
+
+     ‘%M’構成は、‘global-mode-string’の値を置き換えるが
+     、この変数は‘mode-line-format’からモードラインに
+     includeされるので、時代遅れである。
+
+   以下は、‘mode-line-format’のデフォルト値の簡略化バー
+ジョンです。実際のデフォルト値には、追加のテキストプロパ
+ティ指定も含まれます。
+
+     ("-"
+      mode-line-mule-info
+      mode-line-modified
+      mode-line-frame-identification
+      mode-line-buffer-identification
+      "   "
+      mode-line-position
+      (vc-mode vc-mode)
+      "   "
+      mode-line-modes
+      (which-func-mode ("" which-func-format "--"))
+      (global-mode-string ("--" global-mode-string))
+      "-%-")
+
+
+File: elisp,  Node: %-Constructs,  Next: Properties in Mode,  Prev: Mode Line Variables,  Up: Mode Line Format
+
+22.4.5 ‘%’-Constructs in the Mode Line
+--------------------------------------
+
+モードライン構成として使用される文字列は、さまざまな種類
+のデータを置き換えるために、‘%’構成を使用できます。以下
+は、定義済みの‘%’構成と意味のリストです。
+
+   ‘%%’以外の構成では、フィールドの最小幅を指定するため
+に、‘%’の後に10進整数を追加できます。幅がそれより小さい
+場合、そのフィールドは最小幅にパディングされます。純粋に
+数値的な構成(‘c’、‘i’、‘I’、‘l’)は左側、それ以外は右側に
+スペースを追加してパディングされます。
+
+‘%b’
+     ‘buffer-name’関数により取得されるカレントバッファー
+     名。*note Buffer Names::を参照のこと。
+
+‘%c’
+     ポイント位置のカレント列番号。
+
+‘%e’
+     EmacsがLispオブジェクトにたいしてメモリー不足になり
+     そうなときは、それを伝える簡略なメッセージを示す。
+     それ以外の場合は空である。
+
+‘%f’
+     ‘buffer-file-name’関数により取得される、visitしてい
+     るファイル名。*note Buffer File Name::を参照のこと
+     。
+
+‘%F’
+     選択されたフレームのタイトル(ウィンドウシステム上の
+     み)、または名前。*note Basic Parameters::を参照のこ
+     と。
+
+‘%i’
+     カレントバッファーのアクセス可能な範囲のサイズ。基
+     本的には‘(- (point-max) (point-min))’。
+
+‘%I’
+     ‘%i’と同様だが、10^3は‘k’、10^6は‘M’、10^9は‘G’を使
+     用して省略することにより、より読みやすい方法でサイ
+     ズをプリントする。
+
+‘%l’
+     ポイント位置のカレント行番号。そのバッファーのアク
+     セス可能な範囲内でカウントされる。
+
+‘%n’
+     ナローイングが有効なときは‘Narrow’、それ以外は何も
+     表示しない(*note Narrowing::の‘narrow-to-region’を
+     参照されたい)。
+
+‘%p’
+     ウィンドウの*最上部*より上にあるバッファーテキスト
+     のパーセント表示、または‘Top’、‘Bottom’、‘All’のい
+     ずれか。デフォルトのモードライン構成は、これを3文字
+     に切り詰めることに注意されたい。
+
+‘%P’
+     ウィンドウの*最下部*より上にあるバッファーテキスト
+     (ウィンドウ内の可視なテキストと、最上部の上にあるテ
+     キスト)のパーセント表示、およびバッファーの最上部が
+     スクリーン上で可視な場合は、それに加えて‘Top’。また
+     は‘Bottom’か‘All’。
+
+‘%s’
+     ‘process-status’により取得される、カレントバッファ
+     ーに属するサブプロセスの状態。*note Process
+     Information::を参照のこと。
+
+‘%z’
+     キーボード、端末、およびバッファーコーディングシス
+     テムのニーモニック。
+
+‘%Z’
+     ‘%z’と同様だが、EOL形式(end-of-line format: 改行形
+     式)を含む。
+
+‘%*’
+     バッファーが読み取り専用(‘buffer-read-only’を参照
+     )の場合は‘%’、
+     変更されている場合(‘buffer-modified-p’を参照)は
+     ‘*’、
+     それ以外は‘-’。*note Buffer Modification::を参照の
+     こと。
+
+‘%+’
+     バッファーが変更されている場合
+     (‘buffer-modified-p’を参照)は‘*’
+     バッファーが読み取り専用(‘buffer-read-only’を参照
+     )の場合は‘%’、
+     それ以外は‘-’。これは、読み取り専用バッファーの変更
+     にたいしてのみ‘%*’と異なる。*note Buffer
+     Modification::を参照のこと。
+
+‘%&’
+     バッファーが変更されている場合は‘*’、それ以外は
+     ‘-’。
+
+‘%[’
+     再帰編集レベルの深さを標示する(ミニバッファーレベル
+     は勘定しない)。1つの編集レベルが‘[’。*note
+     Recursive Editing::を参照のこと。
+
+‘%]’
+     1つの編集レベルが‘]’(ミニバッファーレベルは勘定しな
+     い)。
+
+‘%-’
+     モードラインの残りを充填するのに十分なダッシュ。
+
+‘%%’
+     文字‘%’。‘%’構成が許される文字列内に、リテラル‘%’を
+     含めるには、この方法を使用する。
+
+   以下の2つの‘%’構成はまだサポートされていますが、同じ
+結果を変数‘mode-name’と‘global-mode-string’で取得できる
+ので、これらは時代遅れです。
+
+‘%m’
+     ‘mode-name’の値。
+
+‘%M’
+     ‘global-mode-string’の値。
+
+
+File: elisp,  Node: Properties in Mode,  Next: Header Lines,  Prev: %-Constructs,  Up: Mode Line Format
+
+22.4.6 Properties in the Mode Line
+----------------------------------
+
+モードライン内では、特定のテキストプロパティが意味をもち
+ます。‘face’プロパティは、テキストの外見に影響します。
+‘help-echo’プロパティはそのテキストのヘルプ文字列に関連
+し、‘keymap’によりテキストをマウスに感応させることができ
+ます。
+
+   モードライン内のテキストにたいしてテキストプロパティ
+を指定するには、4つの方法があります:
+
+  1. モードラインデータ構造内に、テキストプロパティをも
+     つ文字列を直接配する。
+
+  2. ‘%12b’のような、モードライン%構成に、テキストプロパ
+     ティを配する。その場合、%構成を展開すると、同じテキ
+     ストプロパティをもつことになる。
+
+  3. PROPSで指定されるテキストプロパティをELTに与えるた
+     めに、‘(:propertize ELT PROPS...)’構成を使用する。
+
+  4. FORMがテキストプロパティをもつ文字列に評価されるよ
+     うに、モードラインデータ構造内に‘:eval FORM’を含む
+     リストを使用する。
+
+   キーマップを指定するために、‘keymap’プロパティを使用
+できます。このキーマップは、マウスクリックにたいしてのみ
+、実際の効果をもちます。モードライン内にポイントを移動さ
+せるのは不可能なので、文字キーやファンクションキーをこれ
+にバインドしても、効果はありません。
+
+   モードラインが、‘risky-local-variable’が非‘nil’である
+ようなプロパティをもつ変数を参照する場合、その変数の値に
+より与える、または指定されるテキストプロパティは、すべて
+無視されます。これは、そのようなプロパティは呼び出される
+関数を指定するかもしれず、その関数はファイルローカル変数
+が由来かもしれないからです。
+
+
+File: elisp,  Node: Header Lines,  Next: Emulating Mode Line,  Prev: Properties in Mode,  Up: Mode Line Format
+
+22.4.7 Window Header Lines
+--------------------------
+
+ウィンドウは、最下部にモードラインをもつことができるのと
+同じように、最上部に“ヘッダーライン(header line)”をもつ
+ことができます。ヘッダーライン機能は、それが
+‘header-line-format’により制御されることを除けば、モード
+ラインと同じように機能します。
+
+ -- Variable: header-line-format
+     すべてのバッファーにたいしてローカルなこの変数は、
+     そのバッファーを表示するバッファーにたいして、ヘッ
+     ダーラインを表示する方法を指定する。この変数の値の
+     フォーマットは、‘mode-line-format’にたいするフォー
+     マットと同じである(*note Mode Line Data::を参照)。
+     通常、この変数は‘nil’なので、通常のバッファーはヘッ
+     ダーラインをもたない。
+
+ -- Function: window-header-line-height &optional window
+     この関数は、WINDOWのヘッダーラインの高さを、ピクセ
+     ルでリターンする。WINDOWは生きたウィンドウでなけれ
+     ばならず、デフォルトは選択されたウィンドウである。
+
+   高さが1行しかないウィンドウは、決してヘッダーラインを
+表示しません。また、高さが2行しかないウィンドウは、一度
+にモードラインとヘッダーラインを表示できません。そのよう
+なウィンドウがモードラインをもつ場合、ヘッダーラインは表
+示されません。
+
+
+File: elisp,  Node: Emulating Mode Line,  Prev: Header Lines,  Up: Mode Line Format
+
+22.4.8 Emulating Mode Line Formatting
+-------------------------------------
+
+関数‘format-mode-line’を使用して、特定のモードライン構成
+にもとづきモードライン、またはヘッダーラインに表示される
+テキストを計算できます。
+
+ -- Function: format-mode-line format &optional face
+          window buffer
+     この関数は、あたかもWINDOWにたいしてモードラインを
+     生成するかのように、FORMATに応じてテキスト行をフォ
+     ーマットするが、さらにそのテキストを文字列としてリ
+     ターンする。引数WINDOWのデフォルトは、選択されたウ
+     ィンドウである。BUFFERが非‘nil’の場合、使用されるす
+     べての情報はBUFFERから取得される。デフォルトでは、
+     WINDOWのバッファーから取得される。
+
+     文字列の値は通常、モードラインがもつであろうフェイ
+     ス、キーマップ等に対応するテキストプロパティをもつ
+     。FORMATにより指定された‘face’プロパティのないすべ
+     ての文字は、FACEにより決定されるデフォルト値を取得
+     する。FACEが‘t’の場合は、WINDOWが選択されていれば
+     ‘mode-line’、それ以外は‘mode-line-inactive’であるこ
+     とを意味する。FACEが‘nil’、または省略された場合は、
+     デフォルトのフェイスを意味する。FACEが整数の場合、
+     この関数はテキストプロパティをもたない値をリターン
+     するだろう。
+
+     FACEの値として、他の有効なフェイスを指定することも
+     できる。指定された場合、それはFORMATでフェイスを指
+     定されていない文字の‘face’プロパティのフェイスを提
+     供する。
+
+     FACEとして‘mode-line’、‘mode-line-inactive’、
+     ‘header-line’を使用することにより、フォーマットされ
+     た文字列のリターンに加えて、対応するフェイスのカレ
+     ント定義を使用して、実際にモードラインやヘッダーラ
+     インが再描画されるだろうということに注意されたい(他
+     のフェイスでは、再描画は行われない)。
+
+     たとえば、‘(format-mode-line header-line-format)’は
+     選択されたウィンドウに表示されるテキスト(ヘッダーラ
+     インがない場合は‘""’)をリターンするだろう。
+     ‘(format-mode-line header-line-format
+     'header-line)’は、各文字がヘッダーライン内でもつで
+     あろうフェイスをもつ、同じテキストをリターンし、加
+     えてヘッダーラインの再描画も行う。
+
+
+File: elisp,  Node: Imenu,  Next: Font Lock Mode,  Prev: Mode Line Format,  Up: Modes
+
+22.5 Imenu
+==========
+
+“Imenu”とは、バッファー内の定義やセクションをすべてリス
+トするメニューをユーザー選択することにより、バッファー内
+の該当箇所に直接移動する機能です。Imenuは、定義(またはバ
+ッファーのその他の名前つき範囲)の名前とその定義のバッフ
+ァー内での位置をリストする、バッファーインデックスを構築
+して、ユーザーがそれを選択すればポイントをおこに移動でき
+るようにして機能します。メジャーモードは、
+‘imenu-add-to-menubar’を使用して、メニューバーアイテムを
+追加することができます。
+
+ -- Command: imenu-add-to-menubar name
+     この関数は、NAMEという名前のImenuを実行するためのロ
+     ーカルメニューバーを定義する。
+
+   Imenuを使用ためのユーザーレベルコマンドは、Emacsマニ
+ュアル内で説明されています(*note Imenu: (emacs)Imenu.を
+参照)。このセクションでは、特定のメジャーモードにたいし
+て、定義や名前つき範囲を見つける、Imenuメソッドのカスタ
+マイズ方法を説明します。
+
+   変数‘imenu-generic-expression’をセットするのが通常の
+、そしてもっともシンプルな方法です:
+
+ -- Variable: imenu-generic-expression
+     この変数が非‘nil’の場合、それはImenuにたいして定義
+     を探すための正規表現を指定するリストである。シンプ
+     ルな‘imenu-generic-expression’の要素は、以下のよう
+     になる:
+
+          (MENU-TITLE REGEXP INDEX)
+
+     ここで、MENU-TITLEが非‘nil’の場合、それはこの要素に
+     たいするマッチが、バッファーインデックスのサブメニ
+     ューとなることを告げる。MENU-TITLE自体は、そのサブ
+     メニューにたいして名前を指定する。MENU-TITLEが
+     ‘nil’,の場合は、この要素にたいするマッチは、直接ト
+     ップレベルのバッファーインデックスとなる。
+
+     このリストの2つ目の要素REGEXPは、正規表現である
+     (*note Regular Expressions::を参照)。これは、バッフ
+     ァー内でこれにマッチするものは定義、あるいはバッフ
+     ァーインデックス内に記載すべき何かであると判断され
+     る。3つ目の要素INDEXは、0以上の整数の場合は、
+     REGEXP内の部分式(subexpression)が定義名にマッチする
+     ことを示します。
+
+     以下のような要素もある:
+
+          (MENU-TITLE REGEXP INDEX FUNCTION ARGUMENTS...)
+
+     この要素にたいする各マッチはインデックスアイテムを
+     作成し、ユーザーによりそのインデックスアイテムが選
+     択されたとき、アイテム名、バッファー位置、および
+     ARGUMENTSから構成される引数で、FUNCTIONを呼び出す。
+
+     Emacs Lispモードにたいしては、
+     ‘imenu-generic-expression’は以下のようになるだろう:
+
+          ((nil "^\\s-*(def\\(un\\|subst\\|macro\\|advice\\)\
+          \\s-+\\([-A-Za-z0-9+]+\\)" 2)
+           ("*Vars*" "^\\s-*(def\\(var\\|const\\)\
+          \\s-+\\([-A-Za-z0-9+]+\\)" 2)
+           ("*Types*"
+            "^\\s-*\
+          (def\\(type\\|struct\\|class\\|ine-condition\\)\
+          \\s-+\\([-A-Za-z0-9+]+\\)" 2))
+
+     この変数をセットすることにより、カレントバッファー
+     にたいしてバッファーローカルになる。
+
+ -- Variable: imenu-case-fold-search
+     この変数は、‘imenu-generic-expression’の値中の正規
+     表現マッチが、大文字小文字を区別するかどうかを制御
+     する。‘t’,(デフォルト)の場合は、大文字小文字の違い
+     を無視することを意味する。
+
+     この変数をセットすることにより、カレントバッファー
+     にたいしてバッファーローカルになる。
+
+ -- Variable: imenu-syntax-alist
+     この変数は、‘imenu-generic-expression’処理中に、カ
+     レントバッファーの構文テーブルをオーバーライドして
+     使用する、構文テーブル変更用のalistである。この
+     alistの各要素は、以下の形式をもつべきである:
+
+          (CHARACTERS . SYNTAX-DESCRIPTION)
+
+     CARのCHARACTERSには、文字または文字列を指定できる。
+     この要素は、その文字、または文字列が
+     SYNTAX-DESCRIPTIONにより指定される構文でありことを
+     示し、‘modify-syntax-entry’に渡される(*note Syntax
+     Table Functions::を参照)。
+
+     典型的には、この機能は通常はシンボル構文(symbol
+     syntax)をもつ文字にたいして単語構文(word syntax)を
+     与えるために使用され、それにより
+     ‘imenu-generic-expression’が単純になり、マッチング
+     のスピードも向上する。たとえば、Fortranモードは以下
+     のようにこれを使用する:
+
+          (setq imenu-syntax-alist '(("_$" . "w")))
+
+     ‘imenu-generic-expression’の正規表現は、
+     ‘\\(\\sw\\|\\s_\\)+’のかわりに、‘\\sw+’を使用できる
+     。このテクニックは、モードの名前として許されるより
+     短い、頭文字に名前を制限する必要があるときは、不便
+     かもしれないことに注意されたい。
+
+     この変数をセットすることにより、カレントバッファー
+     にたいしてバッファーローカルになる。
+
+   あるメジャーモードにたいしてImenuをカスタマイズする別
+の方法には、‘imenu-prev-index-position-function’と
+‘imenu-extract-index-name-function’があります:
+
+ -- Variable: imenu-prev-index-position-function
+     この変数が非‘nil’の場合、その値はポイント位置からバ
+     ッファーを後方にスキャンして、バッファーインデック
+     スに配すべき、次の“定義”を探すための関数であること
+     。そして、ポイントより前に他の“定義”が見つからなけ
+     れば、‘nil’をリターンすべきである。見つかった場合は
+     、“definition”を見つけた場所にポイントを残し、任意
+     の非‘nil’値をリターンすべきである。
+
+     この変数をセットすることにより、カレントバッファー
+     にたいしてバッファーローカルになる。
+
+ -- Variable: imenu-extract-index-name-function
+     この変数が非‘nil’の場合、その値はポイントが定義中に
+     ある(‘imenu-prev-index-position-function’関数がポイ
+     ントを残す場所)という想定の元、その定義の名前をリタ
+     ーンする関数であること。
+
+     この変数をセットすることにより、カレントバッファー
+     にたいしてバッファーローカルになる。
+
+   メジャーモードにたいしてImenuをカスタマイズするための
+最後の方法は、変数‘imenu-create-index-function’のセット
+です:
+
+ -- Variable: imenu-create-index-function
+     この変数は、バッファーインデックスを作成するために
+     使用する関数を指定する。この関数は、引数がをとらず
+     、カレントバッファーにたいするインデックス
+     alist(index alist)をリターンすべきである。この関数
+     は‘save-excursion’内で呼び出されるので、どこにポイ
+     ントを残しても違いはない。
+
+     このインデックスalistは、3つのタイプの要素をもつこ
+     とができる。以下は、シンプル要素(simple element)の
+     例である:
+
+          (INDEX-NAME . INDEX-POSITION)
+
+     シンプル要素の選択は、そのバッファー内の位置
+     INDEX-POSITIONに移動する効果をもつ。スペシャル要素
+     (special element)は、以下のようなものである:
+
+          (INDEX-NAME INDEX-POSITION FUNCTION ARGUMENTS...)
+
+     スペシャル要素の選択により、以下が処理される:
+
+          (funcall FUNCTION
+                   INDEX-NAME INDEX-POSITION ARGUMENTS...)
+
+     ネストされたサブalist要素(nested sub-alist
+     element)は、以下のようなものである:
+
+          (MENU-TITLE . SUB-ALIST)
+
+     これは、SUB-ALISTにより指定される、サブメニュー
+     MENU-TITLEを作成する。
+
+     ‘imenu-create-index-function’のデフォルト値は、
+     ‘imenu-default-create-index-function’である。この関
+     数は、インデックスalistを生成するために、
+     ‘imenu-prev-index-position-function’の値と、
+     ‘imenu-extract-index-name-function’の値を呼び出す。
+     しかし、これら2つ変数のいずれかが‘nil’の場合、デフ
+     ォルト関数はかわりに‘imenu-generic-expression’を使
+     用する。
+
+     この変数をセットすることにより、カレントバッファー
+     にたいしてバッファーローカルになる。
+
+
+File: elisp,  Node: Font Lock Mode,  Next: Auto-Indentation,  Prev: Imenu,  Up: Modes
+
+22.6 Font Lock Mode
+===================
+
+“Font Lockモード”とは、バッファーの特定の部分にたいして
+、それらの構文的役割(syntactic role)にもとづき、自動的に
+‘face’プロパティをアタッチする、バッファーローカルなマイ
+ナーモードです。このモードがバッファーをパースする方法は
+、そのメジャーモードに依存します。ほとんどのメジャーモー
+ドは、どのコンテキストでどのフェイスを使用するかにたいし
+て、構文的条件(syntactic criteria)を定義します。このセク
+ションでは、特定のメジャーモードにたいして、Font Lockを
+カスタマイズする方法を説明します。
+
+   Font Lockモードは、2つの方法によりハイライトするテキ
+ストを探します。それは構文テーブル(syntax table)にもとづ
+く構文解析と、(通常は正規表現にたいする)検索です。最初に
+構文的フォント表示(syntactic fontification)が発生します
+。これはコメントと文字列定数を見つけて、それらをハイライ
+トします。検索ベースのフォント表示が発生するのは、2番目
+です。
+
+* Menu:
+
+* Font Lock Basics::         Font Lockカスタマイズの概要。
+* Search-based Fontification::  正規表現にもとづくフォント表示。
+* Customizing Keywords::     検索ベースフォント表示のカスタマイズ。
+* Other Font Lock Variables::  追加のカスタマイズ機能。
+* Levels of Font Lock::      多なりとも少ユーザーが選択できるように、それぞれのモードは代替レベルを定義できる。
+* Precalculated Fontification::  バッファーコンテンツを生成するLispプログラムが、どのようにしてそれをフォント表示する方法も指定できるか。
+* Faces for Font Lock::      Font
+                               Lockにたいする具体的な特殊フェイス。
+* Syntactic Font Lock::      構文テーブルにもとづくフォント表示。
+* Multiline Font Lock::      Font
+                               Lockに複数行構成の正しいハイライトを強制する方法。
+
+
+File: elisp,  Node: Font Lock Basics,  Next: Search-based Fontification,  Up: Font Lock Mode
+
+22.6.1 Font Lock Basics
+-----------------------
+
+Font Lockモードがテキストをハイライトする方法を制御する
+変数が、いくつかあります。しかし、メジャーモードは、これ
+らの変数を直接セットするべきではありません。かわりに、メ
+ジャーモードはバッファーローカル変数として、
+‘font-lock-defaults’をセットするべきです。Font Lockモー
+ドが有効なときは、他のすべての変数をセットするために、こ
+の変数に割り当てられた値が使用されます。
+
+ -- Variable: font-lock-defaults
+     この変数は、そのモード内のテキストをフォント表示す
+     る方法を指定するために、メジャーモードによりセット
+     される。この変数は、セットした際に自動的にバッファ
+     ーローカルになる。変数の値が‘nil’の場合、Font Lockモ
+     ードはハイライトを行わず、バッファー内のテキストに
+     明示的にフェイスを割り当てるために、‘Faces’メニュー
+     (メニューバーの‘Edit’の下の‘Text Properties’)を使用
+     できる。
+
+     非‘nil’の場合、値は以下のようであること:
+
+          (KEYWORDS [KEYWORDS-ONLY [CASE-FOLD
+           [SYNTAX-ALIST [SYNTAX-BEGIN OTHER-VARS...]]]])
+
+     1つ目の要素KEYWORDSは、検索ベースのフォント表示を制
+     御する‘font-lock-keywords’の値を、間接的に指定する
+     。値にはシンボル、変数、または
+     ‘font-lock-keywords’にたいして使用するリストが値で
+     あるような関数を指定できる。また、それぞれのシンボ
+     ルがフォント表示の可能なレベルであるような、いくつ
+     かのシンボルからなるリストも指定できる。この場合、
+     1つ目のシンボルはフォント表示の‘モードデフォルト
+     (mode default)’レベル、次のシンボルはフォント表示の
+     レベル1、その次はレベル2、のようになる。通常、‘モー
+     ドデフォルト’レベルはレベル1と等しい。これは、
+     ‘font-lock-maximum-decoration’が‘nil’値をもつとき使
+     用される。*note Levels of Font Lock::を参照のこと。
+
+     2つ目の要素KEYWORDS-ONLYは、変数
+     ‘font-lock-keywords-only’の値を指定する。これが省略
+     、または‘nil’の場合は、(文字列とコメントの)構文的フ
+     ォント表示も行われる。非‘nil’の場合は、構文的フォン
+     ト表示は行われない。*note Syntactic Font Lock::を参
+     照のこと。
+
+     3つ目の要素CASE-FOLDは、
+     ‘font-lock-keywords-case-fold-search’の値を指定する
+     。非‘nil’の場合、検索ベースフォント表示の間、Font
+     Lockモードは大文字小文字の違いを無視する。
+
+     4つ目の要素SYNTAX-ALISTが非‘nil’の場合、それは
+     ‘(CHAR-OR-STRING . STRING)’という形式のコンスセルの
+     リストであること。これらは、構文的フォント表示にた
+     いする構文テーブルのセットアップに使用される。結果
+     となる構文テーブルは、‘font-lock-syntax-table’に格
+     納される。SYNTAX-ALISTが省略、または‘nil’の場合、構
+     文的フォント表示は‘syntax-table’関数によりリターン
+     される構文テーブルを使用する。*note Syntax Table
+     Functions::を参照のこと。
+
+     5つ目の要素SYNTAX-BEGINは、
+     ‘font-lock-beginning-of-syntax-function’の値を指定
+     する。この変数は‘nil’にセットして、かわりに
+     ‘syntax-begin-function’の使用を推奨する。
+
+     (もしあれば)残りすべての要素は、まとめて
+     OTHER-VARSと呼ばれる。これらの要素はすべて、
+     ‘(VARIABLE . VALUE)’という形式をもつべきである。こ
+     れは、VARIABLEをバッファーローカルにしてから、それ
+     にVALUEをセットすることを意味する。これら
+     OTHER-VARSを使用して、最初の5つの要素による制御とは
+     別に、フォント表示に影響する他の変数をセットできる
+     。*note Other Font Lock Variables::を参照のこと。
+
+   モードが‘font-lock-face’プロパティ追加により明示的に
+テキストをフォント表示する場合は、自動的なフォント表示す
+べてをオフにするために、‘font-lock-defaults’に‘(nil t)’を
+指定できます。しかし、これは必須ではありません。
+‘font-lock-face’を使用して何かをフォント表示して、それ以
+外の部分のテキストを自動的にフォント表示するようにセット
+アップするのは可能です。
+
+
+File: elisp,  Node: Search-based Fontification,  Next: Customizing Keywords,  Prev: Font Lock Basics,  Up: Font Lock Mode
+
+22.6.2 Search-based Fontification
+---------------------------------
+
+検索ベースフォント表示を直接制御する変数は、
+‘font-lock-keywords’です。この変数は通常、
+‘font-lock-defaults’内の要素KEYWORDSを通じて指定されます
+。
+
+ -- Variable: font-lock-keywords
+     この変数の値は、ハイライトするキーワードのリストで
+     ある。Lispプログラムは、この変数を直接セッすべきで
+     ない。通常は、‘font-lock-defaults’内の要素
+     KEYWORDSを使用して、Font Lockモードが自動的に値をセ
+     ットする。この値は、関数‘font-lock-add-keywords’お
+     よび‘font-lock-remove-keywords’を使用して、変更され
+     ることもあり得る(*note Customizing Keywords::を参照
+     )。
+
+   ‘font-lock-keywords’の各要素は、特定のケースに該当す
+るテキストを見つける方法、およびそれらをハイライトする方
+法を指定します。Font Lockモードは、
+‘font-lock-keywords’の要素をちくじ処理してマッチを探して
+、すべてのマッチを処理します。通常は、テキストの一部はす
+でに一度はフォント表示されており、同じテキスト内で連続す
+るマッチによるこれをオーバーライドはできません。しかし、
+SUBEXP-HIGHLIGHTERの要素OVERRIDEを使用して、異なる挙動を
+指定できます。
+
+   ‘font-lock-keywords’の各要素は、以下の形式のいずれか
+をもつべきです:
+
+‘REGEXP’
+     ‘font-lock-keyword-face’を使用して、REGEXPにたいす
+     るすべてのマッチをハイライトする。たとえば、
+
+          ;; ‘font-lock-keyword-face’を使用して
+          ;; 単語‘foo’をハイライトする
+          "\\<foo\\>"
+
+     これらの正規表現を作成するときは、慎重に行うこと。
+     下手に記述されたパターンにより、スピードが劇的に低
+     下し得る! 関数‘regexp-opt’(*note Regexp
+     Functions::を参照)は、いくつかのキーワードとマッチ
+     するために最適な正規表現の計算に有用である。
+
+‘FUNCTION’
+     FUNCTIONを呼び出すことによりテキストを探し、
+     ‘font-lock-keyword-face’を使用して見つかったマッチ
+     をハイライトする。
+
+     FUNCTIONは、呼び出される際に1つの引数(検索のリミッ
+     ト)を受け取る。検索はポイント位置から開始し、そのリ
+     ミットを超えた検索は行うべきではない。これは、検索
+     が成功した場合は非‘nil’をリターンして、見つかったマ
+     ッチを表すマッチデータをセットすべきである。‘nil’の
+     リターンは、検索の失敗を示す。
+
+     フォント表示は、前の呼び出しでポイントが残された位
+     置から、同じリミットを用いてFUNCTIONを呼び出し、
+     FUNCTIONが失敗するまでFUNCTIONを繰り返し呼び出すだ
+     ろう。検索が失敗しても、何らかの特別な方法により、
+     FUNCTIONがポイントをリセットする必要はない。
+
+‘(MATCHER . SUBEXP)’
+     この種の要素では、MATCHERは上述のregexpかfunctionの
+     いずれかである。CDRのSUBEXPは、(MATCHERがマッチする
+     テキスト全体のかわりに)MATCHERのどの部分式
+     (subexpression)がハイライトされるべきかを指定する。
+
+          ;; ‘font-lock-keyword-face’Hを使用して
+          ;; ‘bar’が‘fubar’の一部のときに
+          ;; ハイライトする
+          ("fu\\(bar\\)" . 1)
+
+     正規表現MATCHERの生成に‘regexp-opt’を使用する場合は
+     、SUBEXPにたいする値の計算に
+     ‘regexp-opt-depth’(*note Regexp Functions::を参照
+     )を使用できる。
+
+‘(MATCHER . FACESPEC)’
+     この種の要素では、FACESPECの値がハイライトに使用す
+     るフェイスを指定する。もっともシンプルな例では、
+     FACESPECは値がフェイス名であるようなはLisp変数(シン
+     ボル)である。
+
+          ;; ‘fubar-face’の値のフェイスを使用して
+          ;; ‘fubar’をハイライトする
+          ("fubar" . fubar-face)
+
+     しかし、FACESPECは以下のような形式のリストに評価さ
+     れてもよい:
+
+          (face FACE PROP1 VAL1 PROP2 VAL2...)
+
+     これは、マッチしたテキストにフェイスFACEを指定し、
+     さまざまなテキストプロパティをputする。これを行う場
+     合は、この方法により
+     ‘font-lock-extra-managed-props’に値をセットする、他
+     のテキストプロパティ名を確実に追加すること。そうす
+     れば、それらのプロパティが妥当性を失ったとき、それ
+     らのプロパティもクリアーされるだろう。これらのプロ
+     パティをクリアーする関数を、変数
+     ‘font-lock-unfontify-region-function’にセットするこ
+     ともできる。*note Other Font Lock Variables::を参照
+     のこと。
+
+‘(MATCHER . SUBEXP-HIGHLIGHTER)’
+     この種の要素では、SUBEXP-HIGHLIGHTERはMATCHERにより
+     見つかったマッチをハイライトする方法を指定するリス
+     トである。これは、以下の形式をもつ。
+
+          (SUBEXP FACESPEC [OVERRIDE [LAXMATCH]])
+
+     CARのSUBEXPは、マッチのどの部分式をフォント表示する
+     かを指定する整数である(0はマッチしたテキスト全体を
+     意味する)。これの2つ目の要素FACESPECは、上述したよ
+     うな値がフェイスを指定するような式である。
+
+     SUBEXP-HIGHLIGHTER内の残りの値OVERRIDEとLAXMATCHは
+     、オプションのフラグである。OVERRIDEが‘t’の場合、こ
+     の要素は前の‘font-lock-keywords’の要素により作成さ
+     れた既存のフォント表示をオーバーライドできる。値が
+     ‘keep’の場合は、すでに他の要素によりフォント表示さ
+     れていない文字がフォント表示される。値が‘prepend’の
+     場合は、FACESPECにより指定されたフェイスが、
+     ‘font-lock-face’プロパティの先頭に追加される。値が
+     ‘append’の場合は、そのフェイスが‘font-lock-face’プ
+     ロパティの最後に追加される。
+
+     LAXMATCHが非‘nil’の場合、それはMATCHER内で番号付け
+     された部分式SUBEXPが存在しなくても、エラーにならな
+     いことを意味する。当然、番号付けされた部分式
+     SUBEXPのフォント表示は発生しない。しかし、他の部分
+     式(と他のregexp)のフォント表示は継続されるだろう。
+     LAXMATCHが‘nil’で、指定された部分式が存在しない場合
+     は、エラーがシグナルされて検索ベースのフォント表示
+     は終了する。
+
+     以下はこのタイプの要素と、それが何を行うかの例であ
+     る:
+
+          ;; ‘foo-bar-face’を使用して、たとえハイライト済みでも
+          ;; ‘foo’と‘bar’をハイライトする
+          ;; ‘foo-bar-face’は値がフェイスであるような変数であること
+          ("foo\\|bar" 0 foo-bar-face t)
+
+          ;; ‘fubar-face’の値のフェイスを使用して
+          ;; 関数‘fubar-match’が見つけた各マッチの
+          ;; 最初の部分式をハイライトする
+          (fubar-match 1 fubar-face)
+
+‘(MATCHER . ANCHORED-HIGHLIGHTER)’
+     この種の要素では、ANCHORED-HIGHLIGHTERはMATCHERが見
+     つけたマッチに後続するテキストをハイライトする方法
+     を指定する。つまり、MATCHERが見つけたマッチは、
+     ANCHORED-HIGHLIGHTERにより指定されるその先の検索に
+     たいする、アンカー(anchor)として機能する。
+     ANCHORED-HIGHLIGHTERは、以下の形式のリストである:
+
+          (ANCHORED-MATCHER PRE-FORM POST-FORM
+                                  SUBEXP-HIGHLIGHTERS...)
+
+     ここで、ANCHORED-MATCHERはMATCHERと同様、正規表現か
+     関数である。MATCHERにたいするマッチを見つけた後に、
+     ポイントはそのマッチの終端に移動する。そこで、Font
+     LockはフォームPRE-FORMを評価する。それから
+     ANCHORED-MATCHERにたいするマッチを検索し、
+     SUBEXP-HIGHLIGHTERSを使用して、それらのマッチをハイ
+     ライトする。SUBEXP-HIGHLIGHTERについては上記を参照
+     のこと。最後にFont LockはPOST-FORMを評価する。
+
+     フォームPRE-FORMおよびPOST-FORMは、
+     ANCHORED-MATCHER使用時の事前の初期化、事後のクリー
+     ンアップに使用され得る。通常、PRE-FORMは
+     ANCHORED-MATCHERを開始する前に、MATCHERのマッチに関
+     連する何らかの位置にポイントを移動するために使用さ
+     れる。POST-FORMは、MATCHERを再開する前に、ポイント
+     を戻すために使用されるかもしれない。
+
+     PRE-FORMを評価した後、Font Lockはその行の終端の先に
+     たいして、ANCHORED-MATCHERの検索を行わない。しかし
+     、PRE-FORMがPRE-FORM評価後のポイント位置より大きい
+     バッファー位置をリターンした場合には、かわりに
+     PRE-FORMによりリターンされた位置が検索リミットとし
+     て使用される。一般的に、その行の終端より大きい位置
+     をリターンするのは、よいアイデアではない。別の言い
+     方をすると、ANCHORED-MATCHER検索は複数行にわたる
+     (span lines)べきではないと言えよう。
+
+     たとえば、
+
+          ;; ‘item-face’の値を使用して
+          ;; 単語‘anchor’に(同一行内で)
+          ;; 後続する単語‘item’をハイライトする
+          ("\\<anchor\\>" "\\<item\\>" nil nil (0 item-face))
+
+     ここで、PRE-FORMとPOST-FORMは‘nil’である。したがっ
+     て、‘item’にたいする検索は‘anchor’にたいするマッチ
+     の終端から開始され、後続する‘anchor’インスタンスに
+     たいする検索は、‘item’にたいする検索が終了した位置
+     から再開される。
+
+‘(MATCHER HIGHLIGHTERS...)’
+     この種の要素は、単一のMATCHERにたいして、複数の
+     HIGHLIGHTERリストを指定する。HIGHLIGHTERリストには
+     、上述したSUBEXP-HIGHLIGHTER、または
+     ANCHORED-HIGHLIGHTERのいずれかを指定できる。
+
+     たとえば、
+
+          ;; ‘anchor-face’の値内に現れる単語‘anchor’、
+          ;; および、(同じ行の)後続の‘item-face’の
+          ;;  値内に現れる単語‘item’をハイライトする
+          ("\\<anchor\\>" (0 anchor-face)
+                          ("\\<item\\>" nil nil (0 item-face)))
+
+‘(eval . FORM)’
+     ここでFORMは、バッファー内でこの
+     ‘font-lock-keywords’の値が最初に使用されるときに評
+     価される式である。この値は、上述のこのテーブルで説
+     明した、いずれかの形式をもつべきである。
+
+   *警告:* 複数行にわたるテキストにたいするマッチさせる
+ために、‘font-lock-keywords’の要素をデザインしてはならな
+い。これは確実に機能するとは言えない。詳細は、*note
+Multiline Font Lock::を参照のこと。
+
+   検索ベースのフォント表示が大文字小文字を区別すべきか
+どうかを告げる‘font-lock-keywords-case-fold-search’の値
+を指定するために、‘font-lock-defaults’内でCASE-FOLDを使
+用できる。
+
+ -- Variable: font-lock-keywords-case-fold-search
+     非‘nil’は、‘font-lock-keywords’のための正規表現マッ
+     チングが、大文字小文字を区別すべきではないことを意
+     味する。
+
+
+File: elisp,  Node: Customizing Keywords,  Next: Other Font Lock Variables,  Prev: Search-based Fontification,  Up: Font Lock Mode
+
+22.6.3 Customizing Search-Based Fontification
+---------------------------------------------
+
+メジャーモードにたいして検索ベースフォント表示ルールを追
+加するために‘font-lock-add-keywords’、削除には
+‘font-lock-remove-keywords’を使用することができます。
+
+ -- Function: font-lock-add-keywords mode keywords
+          &optional how
+     この関数は、カレントバッファー、またはメジャーモー
+     ドMODEにたいして、ハイライトするKEYWORDSを追加する
+     。引数KEYWORDSは、変数‘font-lock-keywords’と同じ形
+     式のリストであること。
+
+     MODEが、‘c-mode’のような、あるメジャーモードのコマ
+     ンド名であるようなシンボルの場合には、そのMODE内で
+     Font Lockモードを有効にすることにより、KEYWORDSが
+     ‘font-lock-keywords’に追加される効果がある。非
+     ‘nil’値のMODEによる呼び出しは、‘~/.emacs’ファイル内
+     でのみ正しい。
+
+     MODEが‘nil’の場合、この関数はカレントバッファーの
+     ‘font-lock-keywords’にKEYWORDSを追加する。この方法
+     での‘font-lock-add-keywords’呼び出しは、通常はモー
+     ドフック関数内で使用される。
+
+     デフォルトでは、KEYWORDSは‘font-lock-keywords’の先
+     頭に追加される。オプション引数HOWが‘set’の場合、そ
+     れらは‘font-lock-keywords’の値の置換に使用される。
+     HOWがそれ以外の非‘nil’値の場合、これらは
+     ‘font-lock-keywords’の最後に追加される。
+
+     追加のハイライトパターンの使用を可能にする、特別な
+     サポートを提供するモードがいくつかある。それらの例
+     については、変数‘c-font-lock-extra-types’、
+     ‘c++-font-lock-extra-types’、
+     ‘java-font-lock-extra-types’を参照のこと。
+
+     *警告:* メジャーモードコマンドは、モードフックを除
+     き、いかなる状況においても、直接間接を問わず
+     ‘font-lock-add-keywords’を呼び出してはならない(これ
+     を行うと、いくつかのマイナーモードは不正な振る舞い
+     を起こしかねない)。メジャーモードコマンドは、
+     ‘font-lock-keywords’をセットすることにより、検索ベ
+     ースフォント表示のルールをセットアップすべきである
+     。
+
+ -- Function: font-lock-remove-keywords mode keywords
+     この関数は、カレントバッファー、またはメジャーモー
+     ドMODEにたいして、‘font-lock-keywords’から
+     KEYWORDSを削除する。‘font-lock-add-keywords’の場合
+     と同様、MODEはメジャーモードコマンド名か‘nil’である
+     こと。‘font-lock-add-keywords’にたいするすべての制
+     約と条件は、この関数にも適用される。
+
+   たとえば、以下はCモードに2つのフォント表示パターンを
+追加するコードの例である。フォント表示の1つは、たとえコ
+メント内であろうとも単語‘FIXME’をフォント表示し、もう1つ
+は‘and’、‘or’、‘not’をキーワードとしてフォント表示する。
+
+     (font-lock-add-keywords 'c-mode
+      '(("\\<\\(FIXME\\):" 1 font-lock-warning-face prepend)
+        ("\\<\\(and\\|or\\|not\\)\\>" . font-lock-keyword-face)))
+
+この例は、正にCモードだけに効果がある。Cモード、_および
+_その派生モードにたいして同じパターンを追加するには、か
+わりに以下を行う:
+
+     (add-hook 'c-mode-hook
+      (lambda ()
+       (font-lock-add-keywords nil
+        '(("\\<\\(FIXME\\):" 1 font-lock-warning-face prepend)
+          ("\\<\\(and\\|or\\|not\\)\\>" .
+           font-lock-keyword-face)))))
+
+
+File: elisp,  Node: Other Font Lock Variables,  Next: Levels of Font Lock,  Prev: Customizing Keywords,  Up: Font Lock Mode
+
+22.6.4 Other Font Lock Variables
+--------------------------------
+
+このセクションでは、‘font-lock-defaults’内のOTHER-VARSを
+用いて、メジャーモードがセットできる追加の変数について説
+明します(*note Font Lock Basics::を参照)。
+
+ -- Variable: font-lock-mark-block-function
+     この変数が非‘nil’の場合、それはコマンド‘M-o
+     M-o’(‘font-lock-fontify-block’)で再フォント表示する
+     テキスト範囲を選択するために、引数なしで呼び出され
+     る関数であること。
+
+     この関数は、結果を報告するために、選択されたテキス
+     ト範囲にリージョンを配すべきである。正しい結果を与
+     えるのに十分、かつ再フォント表示が低速にならない程
+     度のテキスト範囲を選択するのがよい。プログラミング
+     のモードにたいしては‘mark-defun’、テキストを扱うモ
+     ードにたいしては‘mark-paragraph’が典型的な値である
+     。
+
+ -- Variable: font-lock-extra-managed-props
+     この変数は、(‘font-lock-face’以外の)Font Lockにより
+     管理される追加プロパティを指定する。これらの追加プ
+     ロパティは、通常は‘font-lock-face’プロパティだけを
+     管理する、‘font-lock-default-unfontify-region’によ
+     り使用される。他のプロパティも同様にFont Lockに管理
+     させたい場合は、このリストに追加するのと同じように
+     、‘font-lock-keywords’内のFACESPEC内でもこれらを指
+     定しなければならない。*note Search-based
+     Fontification::を参照のこと。
+
+ -- Variable: font-lock-fontify-buffer-function
+     そのバッファーをフォント表示するために使用する関数
+     。デフォルト値は
+     ‘font-lock-default-fontify-buffer’。
+
+ -- Variable: font-lock-unfontify-buffer-function
+     そのバッファーを非フォント表示するために使用する関
+     数。デフォルト値は
+     ‘font-lock-default-unfontify-buffer’。
+
+ -- Variable: font-lock-fontify-region-function
+     リージョンをフォント表示するための関数。この関数は
+     、リージョンの開始と終了の2つを引数にとり、オプショ
+     ンで3つ目の引数VERBOSEをとるべきである。VERBOSEが非
+     ‘nil’の場合、その関数はステータスメッセージをプリン
+     トすべきである。デフォルト値は
+     ‘font-lock-default-fontify-region’。
+
+ -- Variable: font-lock-unfontify-region-function
+     リージョンを非フォント表示するための関数。この関数
+     は、リージョンの開始と終了の2つを引数にとるべきであ
+     る。デフォルト値は
+     ‘font-lock-default-unfontify-region’。
+
+ -- Function: jit-lock-register function &optional
+          contextual
+     この関数は、カレントバッファーの一部をフォント表示
+     /非表示する必要がある任意のタイミングで、Font Lockモ
+     ードがLisp関数FUNCTIONを実行することを宣言する。こ
+     れは、デフォルトのフォント表示関数が呼び出される前
+     に、フォント表示/非表示するリージョンを指定する2つ
+     の引数STARTとENDでFUNCTIONを呼び出す。
+
+     オプション引数CONTEXTUALが非‘nil’の場合は、行が更新
+     されたときに限らず、そのバッファーの構文的に関連す
+     る部分を常にフォント表示するよう、Font Lockモードに
+     強制する。この引数は、通常は省略できる。
+
+ -- Function: jit-lock-unregister function
+     以前に‘jit-lock-register’を使用して、フォント表示関
+     数としてFUNCTIONを登録した場合は、その関数を未登録
+     にする。
+
+
+File: elisp,  Node: Levels of Font Lock,  Next: Precalculated Fontification,  Prev: Other Font Lock Variables,  Up: Font Lock Mode
+
+22.6.5 Levels of Font Lock
+--------------------------
+
+フォント表示にたいして3つの異なるレベルを提供するモード
+が、いくつかあります。‘font-lock-defaults’内のKEYWORDSに
+たいしてシンボルのリストを使用することにより、複数のレベ
+ルを定義できます。このリストのシンボルはそれぞれ、フォン
+ト表示の1レベルを指定します。これらのレベルの選択は、通
+常は‘font-lock-maximum-decoration’をセットすることにより
+、ユーザーの責任で行われます(*note (emacs)Font Lock::を
+参照)。選択されたレベルのシンボルの値は、
+‘font-lock-keywords’の初期化に使用されます。
+
+   フォント表示レベルの定義方法に関する慣習を以下に挙げ
+ます:
+
+   • レベル1: 関数宣言、(includeやimportのような)ファイ
+     ルディレクティブ、文字列、コメントをハイライトする
+     。これは、もっとも重要かつトップレベルのコンポーネ
+     ントだけをフォント表示すれば高速になるという発想で
+     ある。
+
+   • レベル2: レベル1に加えて、すべての言語のキーワード
+     (キーワードと同様に作用する型名を含む)、および名前
+     付き定数値をハイライトする。これは、(構文的、または
+     意味的な)すべてのキーワードは適切にフォント表示され
+     るべきという発想である。
+
+   • レベル3: レベル2に加えて、関数内で定義されるシンボ
+     ル、変数宣言、およびすべてのビルトイン関数名にたい
+     して、それがどこに出現しようとハイライトする。
+
+
+File: elisp,  Node: Precalculated Fontification,  Next: Faces for Font Lock,  Prev: Levels of Font Lock,  Up: Font Lock Mode
+
+22.6.6 Precalculated Fontification
+----------------------------------
+
+‘list-buffers’や‘occur’のようないくつかのメジャーモード
+は、バッファーのテキストをプログラム的に構築します。これ
+らにたいしてFont Lockモードをサポートするには、そのバッ
+ファーにテキストを挿入するタイミングで、テキストのフェイ
+スを指定するのが、もっとも簡単な方法です。
+
+   これは、スペシャルテキストプロパティ
+‘font-lock-face’(*note Special Properties::を参照)により
+、テキスト内にフェイスを指定することにより行われます。
+Font Lockモードが有効になったとき、このプロパティは
+‘face’と同じように、表示を制御します。Font Lockモードが
+無効になると、‘font-lock-face’は表示に効果をもちません。
+
+   モードが、通常のFont Lockメカニズムとともに、あるテキ
+ストにたいして‘font-lock-face’を使用しても問題はありませ
+ん。しかし、そのモードが通常のFont Lockメカニズムを使用
+しない場合は、変数‘font-lock-face’をセットするべきではあ
+りません。
+
+
+File: elisp,  Node: Faces for Font Lock,  Next: Syntactic Font Lock,  Prev: Precalculated Fontification,  Up: Font Lock Mode
+
+22.6.7 Faces for Font Lock
+--------------------------
+
+Font Lockモードは、ハイライトに任意のフェイスを使用でき
+ますが、Emacsは、特にFontLockがテキストのハイライトに使
+用するいくつかのフェイスを定義しています。これらの“Font
+Lockフェイス(Font Lock faces)”を、以下にリストします。こ
+れらのフェイスは、FontLockモードの外部における構文的なハ
+イライトでメジャーモードが使用することもできます(*note
+Major Mode Conventions::を参照)。
+
+   以下の各シンボルは、フェイス名であり、かつデフォルト
+値がシンボル自身であるような変数でもあります。つまり、
+‘font-lock-comment-face’のデフォルト値は
+‘font-lock-comment-face’です。
+
+   リストは、そのフェイスの典型的な使い方の説明とともに
+、“重要性”が大きい順にソートされています。あるモードの構
+文的カテゴリーが、以下の使い方の説明にうまく適合しない場
+合、この並び順をガイドとして使用することにより、フェイス
+を割り当てることができるでしょう。
+
+‘font-lock-warning-face’
+     Emacs Lispの‘;;;###autoload’、Cの‘#error’のような、
+     特有な構文、またはその他のテキスト意味を大きく変更
+     する構文にたいして使用される。
+
+‘font-lock-function-name-face’
+     定義、または宣言される関数の名前にたいして使用され
+     る。
+
+‘font-lock-variable-name-face’
+     定義、または宣言される変数の名前にたいして使用され
+     る。
+
+‘font-lock-keyword-face’
+     Cの‘for’や‘if’のように、特別な構文的意味をもつキー
+     ワードにたいして使用される。
+
+‘font-lock-comment-face’
+     コメントにたいして使用される。
+
+‘font-lock-comment-delimiter-face’
+     Cの‘/*’と‘*/’のような、コメント区切りにたいして使用
+     される。ほとんどの端末では、このフェイスは
+     ‘font-lock-comment-face’を継承する。
+
+‘font-lock-type-face’
+     ユーザー定義データ型にたいして使用される。
+
+‘font-lock-constant-face’
+     Cの‘NULL’のような、定数の名前にたいして使用される。
+
+‘font-lock-builtin-face’
+     ビルトイン関数の名前にたいして使用される。
+
+‘font-lock-preprocessor-face’
+     プロセッサーコマンドにたいして使用される。デフォル
+     トでは、‘font-lock-builtin-face’を継承する。
+
+‘font-lock-string-face’
+     文字列定数にたいして使用される。
+
+‘font-lock-doc-face’
+     コード内のドキュメント文字列にたいして使用される。
+     デフォルトでは、‘font-lock-string-face’を継承する。
+
+‘font-lock-negation-char-face’
+     見逃されやすい否定文字にたいして使用される。
+
+
+File: elisp,  Node: Syntactic Font Lock,  Next: Multiline Font Lock,  Prev: Faces for Font Lock,  Up: Font Lock Mode
+
+22.6.8 Syntactic Font Lock
+--------------------------
+
+構文的フォント表示(syntactic fontification)は、構文的に
+関連性のあるテキストを探してハイライトするために、構文テ
+ーブル(syntax table: *note Syntax Tables::を参照)を使用
+します。有効な場合は、検索ベースフォント表示に先立ち実行
+されます。以下で説明する変数
+‘font-lock-syntactic-face-function’,は、どの構文的構造を
+ハイライトするかを決定します。構文的フォント表示に影響を
+与える変数が、いくつかあります。‘font-lock-defaults’のた
+めに、それらをセットするべきです(*note Font Lock
+Basics::を参照)。
+
+   Font Lockモードが一連のテキストにたいして構文的フォン
+ト表示を処理するときは、常に
+‘syntax-propertize-function’で指定される関数を最初に呼び
+出します。メジャーモードは、特別なケースでは
+‘syntax-table’テキストプロパティを適用してバッファーの構
+文テーブルをオーバーライドするために、これを使用すること
+ができます。*note Syntax Properties::を参照してください
+。
+
+ -- Variable: font-lock-keywords-only
+     この変数の値が非‘nil’の場合、Font Lockは構文的フォ
+     ント表示を行わず、‘font-lock-keywords’にもとづく検
+     索ベースフォント表示だけを行う。これは通常、
+     ‘font-lock-defaults’内のKEYWORDS-ONLY要素にもとづき
+     、Font Lockモードによりセットされる。
+
+ -- Variable: font-lock-syntax-table
+     この変数は、コメントと文字列のフォント表示に使用す
+     るための構文テーブルを保持する。これは通常、
+     ‘font-lock-defaults’内のSYNTAX-ALIST要素にもとづき
+     、Font Lockモードによりセットされる。この値が
+     ‘nil’の場合、構文的フォント表示は、バッファーの構文
+     テーブル(関数‘syntax-table’がリターンする構文テーブ
+     ル。*note Syntax Table Functions::を参照)を使用する
+     。
+
+ -- Variable: font-lock-beginning-of-syntax-function
+     この変数が非‘nil’の場合、それは構文的に“トップレベ
+     ル”で、かつ文字列やコメントの外部であるような位置に
+     戻すようにポイントを移動する関数であること。この値
+     は通常、‘font-lock-defaults’内のOTHER-VARS要素を通
+     じてセットされる。これが‘nil’の場合、Font Lockはコ
+     メント、文字列、sexpの外部に戻って移動するために
+     ‘syntax-begin-function’を使用する(*note Position
+     Parse::を参照)。
+
+     この変数は、半ば時代遅れであり、通常はかわりに
+     ‘syntax-begin-function’をセットすることを推奨する。
+     これの用途の1つは、たとえば異なる種類の文字列やコメ
+     ントを異なるようにハイライトする等、構文的フォント
+     表示の振る舞いの調整する場合である。
+
+     指定された関数は、引数なしで呼び出される。この関数
+     は、周囲の構文的ブロックの先頭にポイントを残すべき
+     である。典型的な値は‘beginning-of-line’(行頭が構文
+     的ブロック外部であることが既知の場合に使用)、プログ
+     ラミングのモードにたいしては‘beginning-of-defun’、
+     テキストを扱うモードにたいしては
+     ‘backward-paragraph’が使用される。
+
+ -- Variable: font-lock-syntactic-face-function
+     この変数が非‘nil’の場合、それは与えられた構文的要素
+     にどのフェイスを使用するかを決定する関数であること
+     。この値は通常、‘font-lock-defaults’内の
+     OTHER-VARS要素を通じてセットされる。
+
+     この関数は1つの引数で呼び出され、
+     ‘parse-partial-sexp’がリターンするポイントの状態を
+     パースして、フェイスをリターンすべきである。コメン
+     トにたいしては‘font-lock-comment-face’、文字列にた
+     いしては‘font-lock-string-face’が、リターンされるデ
+     フォルト値である(*note Faces for Font Lock::を参照
+     )。
+
+
+File: elisp,  Node: Multiline Font Lock,  Prev: Syntactic Font Lock,  Up: Font Lock Mode
+
+22.6.9 Multiline Font Lock Constructs
+-------------------------------------
+
+通常は、‘font-lock-keywords’の要素は複数行にわたるマッチ
+を行うべきではありません。それらの動作に信頼性はありませ
+ん。なぜなら、Font Lockは通常はバッファーのごく一部をス
+キャンするので、そのスキャンが開始される行境界をまたがる
+複数行構造を見逃しかねないからです(スキャンは通常、行頭
+から開始される)。
+
+   ある要素にたいして、複数行構造にたいするマッチを正し
+く機能させるには、2つの観点があります。それは_識別
+(identification)_の補正と、_再ハイライト
+(rehighlighting)_の補正です。1つ目は、Font Lockがすべて
+の複数行構造を探すことを意味します。2つ目は、複数行構造
+が変更されたとき、たとえば以前は複数行構造の一部だったテ
+キストが、複数行構造から除外されたときに、関連するすべて
+のテキストをFont Lockに正しく再ハイライトさせることを意
+味します。これら2つの観点は密接に関連しており、一方を機
+能させることがもう一方を機能させるようなことが多々ありま
+す。しかし、信頼性のある結果を得るためには、これら2つの
+観点双方にたいして、明示的に注意しなければなりません。
+
+   複数行構造の識別を確実に補正するには、3つの方法があり
+ます:
+
+   • スキャンされるテキストが複数行構造の途中で開始、ま
+     たは終了することがないように_識別_を行いスキャンを
+     拡張する関数を、
+     ‘font-lock-extend-region-functions’に追加する。
+   • 同様に、スキャンされるテキストが複数行構造の途中で
+     開始、または終了することがないようスキャンを拡張す
+     るために、‘font-lock-fontify-region-function’フック
+     を使用する。
+   • 複数行構造がバッファーに挿入されたとき(または挿入後
+     、Font Lockがハイライトを試みる前の任意のタイミング
+     で)、何らかの方法によりそれを正しく認識して、Font
+     Lockが複数行構造の途中で開始、または終了しないよう
+     指示する‘font-lock-multiline’でそれをマークする。
+
+   複数行構造の再ハイライトを行うには、3つの方法がありま
+す:
+
+   • その構造にたいして、正しく‘font-lock-multiline’を配
+     する。これにより、その構造の一部が変更された場合は
+     、構造全体が再ハイライトされるだろう。あるケースに
+     おいては、それを参照する‘font-lock-multiline’変数を
+     セットすることにより、これを自動的に行うことができ
+     る。
+   • ‘jit-lock-contextually’を確実にセットして、それが行
+     う処理に委ねる。これにより、実際の変更に続いて構造
+     の一部だけが、若干の遅延の後に再ハイライトされるだ
+     ろう。これは、複数行構造のさまざまな箇所のハイライ
+     トが、後続行のテキストに依存しない場合のみ機能する
+     。‘jit-lock-contextually’はデフォルトでアクティブな
+     ので、これは魅力的な解決策になり得る。
+   • その構造上に、正しく‘jit-lock-defer-multiline’を配
+     する。これは、‘jit-lock-contextually’が使用された場
+     合のみ機能し、再ハイライト前に同様の遅延を伴うが、
+     ‘font-lock-multiline’のように後続行に依存する箇所の
+     ハイライトも処理する。
+
+* Menu:
+
+* Font Lock Multiline::      テキストプロパティで複数行塊をマークする。
+* Region to Refontify::      バッファー変更後にどのリージョンを再フォント表示するかを制御する。
+
+
+File: elisp,  Node: Font Lock Multiline,  Next: Region to Refontify,  Up: Multiline Font Lock
+
+22.6.9.1 Font Lock Multiline
+............................
+
+複数行構造のFont Lockを確実に再ハイライトする方法の1つは
+、それらをテキストプロパティ‘font-lock-multiline’にputす
+る方法です。複数行構造の一部であるようなテキストにたいし
+ては、このプロパティが存在し、値が非‘nil’であるべきです
+。
+
+   Font Lockがテキスト範囲をハイライトしようとする際は、
+それらが‘font-lock-multiline’プロパティでマークされたテ
+キストにならないように、まず必要に応じて範囲の境界を拡張
+します。それから、その範囲のすべての
+‘font-lock-multiline’を削除して、ハイライトします。ハイ
+ライト指定(大抵は‘font-lock-keywords’)は、適宜このプロパ
+ティを毎回再インストールしなければなりません。
+
+   *警告:* ハイライトが低速になるので、大きなテキスト範
+囲にたいして‘font-lock-multiline’を使用してはならない。
+
+ -- Variable: font-lock-multiline
+     ‘font-lock-multiline’変数が‘t’にセットされている場
+     合、Font Lockは自動的に複数行構造にたいして
+     ‘font-lock-multiline’プロパティの追加を試みる。しか
+     し、これによりFont Lockが幾分遅くなるので、普遍的解
+     ではない。これは、何らかの複数行構造を見逃したり、
+     必要なものより多く、または少なくプロパティをセット
+     するかもしれない。
+
+     MATCHERが関数であるような要素は、たとえ少量のサブパ
+     ート(subpart)だけがハイライトされるような場合でも、
+     submatch 0(訳注:正規表現の後方参照においてsubmatch
+     0はマッチした文字列全体を指す)が関連する複数行構造
+     全体を確実に網羅するようにすべきである。単に手動で
+     ‘font-lock-multiline’を追加するのが容易な場合も多々
+     ある。
+
+   ‘font-lock-multiline’プロパティは、正しい再フォント表
+示を確実に行うことを意図しています。これは、新たな複数行
+構造を自動的に認識しません。Font Lockの処理を要するもの
+にたいする認識は、一度に処理を行うのに十分な大きさの
+chunkにたいして行われます。これは多くの場合にアクシデン
+トにより発生し得るかもしれないので、複数行構造が不可解に
+機能するような印象を与えるかもしれません。変数
+‘font-lock-multiline’を非‘nil’にセットした場合、発見され
+たこれらの構造にたいするハイライトは、変数をセットした後
+は正しく更新されるので、さらにこの印象が強くなるでしょう
+。しかし、これは信頼性をもって機能しません。
+
+   信頼性を保ち複数行構造を見つけるためには、Font Lockが
+調べる前にテキストの‘font-lock-multiline’プロパティを手
+動で配すか、‘font-lock-fontify-region-function’を使用し
+なければなりません。
+
+
+File: elisp,  Node: Region to Refontify,  Prev: Font Lock Multiline,  Up: Multiline Font Lock
+
+22.6.9.2 Region to Fontify after a Buffer Change
+................................................
+
+バッファーが変更されたとき、Font Lockが再フォント表示す
+るリージョンは、デフォルトではその変更に関連する、最小の
+行全体からなるシーケンスです。これはほとんどの場合は良好
+に機能しますが、うまく機能しないとき(たとえば、その変更
+がそれより前の行のテキストの構文的な意味を変更してしまう
+とき)もあります。
+
+   以下の変数をセットすることにより、再フォント表示する
+リージョンを拡張(または縮小さえ)することができます:
+
+ -- Variable:
+          font-lock-extend-after-change-region-function
+     このバッファーローカル変数は‘nil’、またはFont Lockモ
+     ードにたいしてスキャンしてフォント表示すべきリージ
+     ョンを決定するために呼び出される関数である。
+
+     この関数には、標準的なBEGとEND、および
+     ‘after-change-functions’のOLD-LEN(*note Change
+     Hooks::を参照)という、3つのパラメーターが渡される。
+     この関数はフォント表示するリージョンのバッファー位
+     置の開始と終了(この順で)からなるコンスセル、または
+     ‘nil’(標準的な方法でリージョンを選択することを意味
+     する)のいずれかをリターンすべきである。この関数は、
+     ポイント位置、match-data、カレントのナローイングを
+     保つ必要がある。これがリターンするリージョンは、行
+     の途中で開始、または終了するかもしれない。
+
+     この関数はバッファーを変更するたびに呼び出されるの
+     で、有意に高速であること。
+
+
+File: elisp,  Node: Auto-Indentation,  Next: Desktop Save Mode,  Prev: Font Lock Mode,  Up: Modes
+
+22.7 Automatic Indentation of code
+==================================
+
+プログラミング言語のメジャーモードにとって、自動的なイン
+デントの提供は、重要な機能です。これには2つのパートがあ
+ります。1つ目は正しい行のインデントが何か、そして2つ目は
+いつ行を再インデントするかの判断です。デフォルトでは、
+‘electric-indent-chars’に含まれる文字(デフォルトでは改行
+のみ)をタイプしたとき、Emacsは常に行を再インデントします
+。メジャーモードは、その言語の構文に合わせて、
+‘electric-indent-chars’に文字を追加できます。
+
+   正しいインデントの決定は、‘indent-line-function’によ
+りEmacs内で制御されます(*note Mode-Specific Indent::を参
+照)。いくつかのモードでは、_右_へのインデントは信頼性が
+ないことが知られています。これは通常、複数のインデントが
+有効だが、それぞれが異なる意味をもつので、インデント自体
+が重要だからです。そのような場合、そのモードは行が常にユ
+ーザーの望み通り再インデントされないことを念押しするため
+に、‘electric-indent-inhibit’をセットするべきです。
+
+   よいインデント関数の記述は難しく、その広範な領域にお
+いて、未だ黒魔術の域を脱していません。メジャーモード作者
+の多くは、単純なケース(たとえば前のテキスト行のインデン
+トとの比較)にたいして機能する、単純な関数の記述からスタ
+ートすることでしょう。実際には行ベースではないほとんどの
+プログラミング言語にたいして、これは貧弱なスケールになり
+がちです。そのような関数にたいして、より多様な状況を処理
+するような改良を行うと、関数はより一層複雑になり、最終的
+な結果は誰にも触れようとする気を起こさせない、巨大で複雑
+な保守不可能のインデント関数になる傾向があります。
+
+   よいインデント関数は通常、その言語の構文に応じて、実
+際にテキストをパースする必要があるでしょう。幸運なことに
+、このテキストパースはコンパイラーが要するほど詳細である
+必要はないでしょうが、その一方でインデントコードに埋め込
+まれたパーサーは、構文的に不正なコードにたいして、コンパ
+イラーより幾分寛容な振る舞いを求められるでしょう。
+
+   保守可能なよいインデント関数は、通常2つのカテゴリーに
+落ち着きます。どちらも何らかの“安全”な開始ポイントから、
+関心のある位置まで前方にパースを行うか、あるいは後方へパ
+ースを行います。この2つの方法は、どちらも一方が他方に明
+快に優る選択ではありません。後方へのパースは、プログラミ
+ング言語が前方にパースされるようデザインされているため、
+前方へのパースに比べて難しいことが多々ありますが、インデ
+ントという目的においては“安全”な開始ポイントを推測する必
+要がないという利点があり、一般的にある行のインデントの判
+断のために分析を要するのは最小限のテキストだけという特性
+に恵まれているので、前の無関係なコード片内にある、何らか
+の構文エラーの影響をインデントが受けにくくなる傾向があり
+ます。一方で前方へのパースは、通常はより簡単であり、一度
+のパースで、リージョン全体を効果的に再インデントすること
+が可能になるという利点があります。
+
+   インデント関数をスクラッチから記述するよりも、既存の
+インデント関数の試用と再利用、または一般的なインデントエ
+ンジンに委ねるほうが優る場合が、しばしばあります。しかし
+、そのようなエンジンは悲しむべきほど少数しかありません。
+CCモードのインデントコード(C、C++、Java、Awk、およびその
+類のモードが使用)は年月を経てより一般化されてきているの
+で、あなたの言語にこれらの言語と何らかの相似点があるなら
+、このエンジンの使用を試みるかもしれません。もう一方の
+SMIEはLispのsexp精神によるアプローチを採用して、それを非
+Lisp言語に適応します。
+
+* Menu:
+
+* SMIE::                     SMIE: Simple Minded Indentation
+                               Engine(純真なインデントエンジン)
+
+
+File: elisp,  Node: SMIE,  Up: Auto-Indentation
+
+22.7.1 Simple Minded Indentation Engine
+---------------------------------------
+
+SMIEは、一般的な操作とインデントを提供するエンジンです。
+これは“演算子順位文法(operator precedence grammar)”を使
+用する、非常にシンプルなパーサーにもとづいたエンジンであ
+り、メジャーモードがLispのS式ベースの操作を非Lisp言語に
+拡張するのを助け、同様にシンプルに使用できるにも関わらず
+、信頼できる自動インデントを提供します。
+
+   演算子順位文法は、コンパイラー内で使用されるより一般
+的なパーサーと比較すると、非常に原始的なパーステクノロジ
+ーです。このパーサーには次のような特徴があります。このパ
+ーサーのパース能力は非常に限定的で、大概は構文エラーを検
+出できません。しかし、アルゴリズム的に前方パースと同様に
+後方パースを効果的に行うことが可能です。実際にそれは
+SMIEが後方パースにもとづくインデントを使用でき、
+‘forward-sexp’と‘backward-sexp’の両方の機能を提供できる
+とともに、特別な努力を要さずに構文的に不正なコードにたい
+して自然に機能するであろうことを意味します。欠点は、ほと
+んどのプログラミング言語は、少なくとも何らかの特別なトリ
+ック(*note SMIE Tricks::を参照)で再分類しなければ、
+SMIEを使用して正しくパースできないことも意味するからです
+。
+
+* Menu:
+
+* SMIE setup::               SMIEのセットアップと機能。
+* Operator Precedence Grammars::  非常にシンプルなパース技術。
+* SMIE Grammar::             言語の文法を定義する。
+* SMIE Lexer::               トークンの定義。
+* SMIE Tricks::              パーサー制限の回避策。
+* SMIE Indentation::         インデントルールの指定。
+* SMIE Indentation Helpers::  インデントルールにたいするヘルパー関数。
+* SMIE Indentation Example::  インデントルールの例。
+* SMIE Customization::       インデントのカスタマイズ。
+
+
+File: elisp,  Node: SMIE setup,  Next: Operator Precedence Grammars,  Up: SMIE
+
+22.7.1.1 SMIE Setup and Features
+................................
+
+SMIEは、構造的な操作と、コードの構造的構造にもとづくその
+他さまざまな機能、特に自動インデントにたいするワンストッ
+プショップ(一カ所で必要な全ての買い物ができること、また
+はそのような場所)であることを意図しています。メインのエ
+ントリーポイントは‘smie-setup’で、これは通常メジャーモー
+ドセットアップの間に呼び出される関数です。
+
+ -- Function: smie-setup grammar rules-function &rest
+          keywords
+     SMIEの操作とインデントをセットアップする。GRAMMARは
+     ‘smie-prec2->grammar’により生成される文法テーブル
+     (grammar table)、RULES-FUNCTIONは
+     ‘smie-rules-function’で使用されるインデントルールの
+     セット、KEYWORDSは追加の引数であり以下のキーワード
+     を含むことができる:
+        • ‘:forward-token’ FUN: 使用する前方
+          lexer(lexer=lexical analyzer: 字句解析プログラ
+          ム)を指定する。
+        • ‘:backward-token’ FUN: 使用する後方lexerを指定
+          する。
+
+   この関数を呼び出せば、‘forward-sexp’、
+‘backward-sexp’、‘transpose-sexps’のようなコマンドが、す
+でに構文テーブルにより処理されている単なるカッコのペアー
+以外の、構造的な要素を正しく扱うことができるようになりま
+す。たとえば、与えられた文法が十分に明快ならば、
+‘transpose-sexps’はその言語の優先順位のルールを考慮して
+、‘+’演算子の2つの引数を正しく入れ替えることができます。
+
+   ‘smie-setup’の呼び出しもまた、TABによるインデントを期
+待通り機能させ、‘begin...end’のような要素に適用するため
+に‘blink-matching-paren’を拡張し、そのメジャーモードのキ
+ーマップ内でバインドできるいくつかのコマンドを提供するの
+に十分です。
+
+ -- Command: smie-close-block
+     このコマンドは、もっとも最近オープンされた(まだクロ
+     ーズされていない)ブロックをクローズする。
+
+ -- Command: smie-down-list &optional arg
+     このコマンドは‘down-list’と似ているが、
+     ‘begin...end’のようなカッコ以外のネストされたトーク
+     ンにも注意を払う。
+
+
+File: elisp,  Node: Operator Precedence Grammars,  Next: SMIE Grammar,  Prev: SMIE setup,  Up: SMIE
+
+22.7.1.2 Operator Precedence Grammars
+.....................................
+
+SMIEの演算子順位文法は、各トークンにたいしてシンプルに左
+優先(left-precedence)と右優先(right-precedence)という順
+位ペアーを与えます。トークン‘T1’の右優先が、トークン
+‘T2’の左優先より小さい場合は、‘T1 < T2’であると言うこと
+にしましょう。これを解読するには、‘<’をカッコの一種だと
+みなすのがよい方法です。‘... T1 something T2 ...’を見つ
+けたら、これは‘... T1 something) T2 ...’ではなく‘... T1
+(something T2 ...’とパースされるべきです。‘... T1
+something) T2 ...’と解釈するのは、‘T1 > T2’を見つけた場
+合でしょう。‘T1 = T2’を見つけた場合、それはトークンT2と
+その後のトークンT1が同じ構文構成にあり、通常は‘"begin" =
+"end"’を得ます。このような優先順位のペアーは、2項演算子
+(infix operator)、カッコのようなネストされたトークン、お
+よびその他多くのケースにたいして左結合
+(left-associativity)や右結合(right-associativity)を表現
+するのに十分です。
+
+ -- Function: smie-prec2->grammar table
+     この関数は、_prec2_文法TABLEを引数にとり、
+     ‘smie-setup’で使用するのに適したalistをリターンする
+     。_prec2_文法TABLEは、それ自体が以下の関数のいずれ
+     かによりビルドされることを意図している。
+
+ -- Function: smie-merge-prec2s &rest tables
+     この関数は、複数の_prec2_文法TABLESを、新たな
+     _prec2_テーブルにマージする。
+
+ -- Function: smie-precs->prec2 precs
+     この関数は、順位テーブルPRECSから_prec2_テーブルを
+     ビルドする。PRECSは優先順(たとえば‘"+"’は‘"*"’より
+     前にくる)にソートされたリストで、要素は‘(ASSOC OP
+     ...)’の形式であること。ここで、OPは演算子として振る
+     舞うトークン、ASSOCはそれらの結合法則であり、
+     ‘left’、‘right’、‘assoc’、‘nonassoc’のいずれかであ
+     る。与えられた要素内のすべての演算子は、同じ優先レ
+     ベルと結合法則を共有する。
+
+ -- Function: smie-bnf->prec2 bnf &rest resolvers
+     この関数により、BNF記法を使用した文法を指定すること
+     ができる。これは、その文法のBNF表記と、同様に競合解
+     決ルールRESOLVERSを受け取り、_prec2_テーブルをリタ
+     ーンする。
+
+     BNFは‘(NONTERM RHS1 RHS2 ...)’という形式の非終端定
+     義で、各RHSは終端記号(トークンとも呼ばれる)、または
+     非終端記号の(空でない)リストである。
+
+     すべての文法が許される訳ではない:
+        • RHSに空のリストは指定できない(いずれにせよ
+          SMIEは空文字列にマッチさせるためにすべての非終
+          端記号を許すので、空リストが必要になることは決
+          してない)。
+        • RHSの後に連続する2つの非終端記号は指定できない
+          。非終端記号の各ペアーは終端記号(もしくはトー
+          クン)で区切られる必要がある。これは、演算子順
+          位文法の基本的な制約である。
+
+     さらに、競合が発生し得る:
+        • リターンされる_prec2_テーブルはトークンのペア
+          ー間の制約を保持し、与えられた任意のペアーはT1
+          < T2、T1 = T2、T1 > T2のいずれかのうち、ただ
+          1つの制約を与えることができる。
+        • トークンは、‘opener’(開きカッコに似た何か)、
+          ‘closer’(閉じカッコのようなもの)、またはこれら
+          2つのいずれでもない‘neither’(2項演算子や
+          ‘"else"’のようなinnerトークン)である。
+
+     順位の競合は、RESOLVERSを通じて解決され得る。これは
+     _precs_テーブル(‘smie-precs->prec2’を参照)のリスト
+     である。それぞれの順位競合にたいして、これらの
+     ‘precs’テーブルが特定の制約を指定している場合は、か
+     わりにこの制約により競合が解決され、それ以外は競合
+     する制約のうち任意の1つが報告され、他は単に無視され
+     る。
+
+
+File: elisp,  Node: SMIE Grammar,  Next: SMIE Lexer,  Prev: Operator Precedence Grammars,  Up: SMIE
+
+22.7.1.3 Defining the Grammar of a Language
+...........................................
+
+ある言語にたいしてSMIE文法を定義する通常の方法は、順位の
+テーブルを保持する新たなグローバル変数を定義して、BNFル
+ールのセットを与える方法です。たとえば、小規模なPascal風
+言語の文法定義は、以下のようになるでしょう:
+     (require 'smie)
+     (defvar sample-smie-grammar
+       (smie-prec2->grammar
+        (smie-bnf->prec2
+         '((id)
+           (inst ("begin" insts "end")
+                 ("if" exp "then" inst "else" inst)
+                 (id ":=" exp)
+                 (exp))
+           (insts (insts ";" insts) (inst))
+           (exp (exp "+" exp)
+                (exp "*" exp)
+                ("(" exps ")"))
+           (exps (exps "," exps) (exp)))
+         '((assoc ";"))
+         '((assoc ","))
+         '((assoc "+") (assoc "*")))))
+
+注意すべき点がいくつかあります:
+
+   • 上記の文法は、関数呼び出しの構文に明示的に言及して
+     いない。SMIEは識別子、対応がとれたカッコ(balanced
+     parentheses)、または‘begin ... end’ブロックのような
+     sexpの任意のシーケンスが、どこに、どのように出現し
+     ても、自動的にそれを許容するだろう。
+   • 文法カテゴリー‘id’は、右側に何ももたない。これは、
+     ‘id’が空文字列だけにマッチ可能なことを意味しない。
+     なぜなら上述のように、任意のsexpシーケンスは、どこ
+     に、どのような方法でも出現するからである。
+   • BNF文法では非終端記号が連続して出現し得ないので、終
+     端記号として作用するトークンを正しく扱うのが困難な
+     ので、上述の文法では、SMIEが容易に扱える‘";"’を、
+     _セパレーター(separator)_ステートメントのかわりとし
+     て扱っている。
+   • シーケンス内で使用される、(上記の‘","’や‘";"’のよう
+     な)セパレーターは、BNFルールでは‘(foo (foo
+     "separator" foo) ...)’のように定義するのが最善であ
+     る。これは、順位の競合を生成するが、明示的に‘(assoc
+     "separator")’を与えることにより解決される、
+   • SMIEは、構文テーブル(syntax table)内でカッコ構文
+     (paren syntax)をもつようにマークされたー任意の文字
+     をペアーにするだろうから、‘("(" exps ")")’ルールに
+     カッコをペアーにする必要はなかった。(‘exps’の定義と
+     併せて)このルールはかわりに、‘","’がカッコの外に出
+     現すべきではないことを明確にする。
+   • 競合解決のための_precs_テーブルは、単一のテーブルよ
+     り複数のテーブルをもつほうが、可能な場合は文法の
+     BNF部分が関連する順位を指定できるので、優れている。
+   • ‘left’または‘right’を選択すること優るという明白な理
+     由がない場合は、通常は‘assoc’を使用して演算子を結合
+     演算子(associative)とマークするほうが優れている。こ
+     の理由により、上述の‘"+"’と‘"*"’は、たとえその言語
+     がそれらを形式上は左結合(left associative)と定義し
+     ていても、‘assoc’として定義されている。
+

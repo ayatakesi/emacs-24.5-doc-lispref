@@ -1,0 +1,5436 @@
+This is elisp, produced by makeinfo version 6.6 from elisp.texi.
+
+This is the ‘GNU Emacs Lisp Reference Manual’
+corresponding to Emacs version 24.5.
+
+   Copyright © 1990–1996, 1998–2015 Free Software
+Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or
+     modify this document under the terms of the GNU
+     Free Documentation License, Version 1.3 or any
+     later version published by the Free Software
+     Foundation; with the Invariant Sections being “GNU
+     General Public License,” with the Front-Cover Texts
+     being “A GNU Manual,” and with the Back-Cover Texts
+     as in (a) below.  A copy of the license is included
+     in the section entitled “GNU Free Documentation
+     License.”
+
+     (a) The FSF’s Back-Cover Text is: “You have the
+     freedom to copy and modify this GNU manual.  Buying
+     copies from the FSF supports it in developing GNU
+     and promoting software freedom.”
+INFO-DIR-SECTION Emacs lisp
+START-INFO-DIR-ENTRY
+* Elisp: (elisp).               The Emacs Lisp Reference Manual.
+END-INFO-DIR-ENTRY
+
+
+File: elisp,  Node: Buffer Modification,  Next: Modification Time,  Prev: Buffer File Name,  Up: Buffers
+
+26.5 Buffer Modification
+========================
+
+Emacsは、各バッファーにたいして、バッファーのテキストを
+変更したかどうかを記録するために、“変更フラグ(modified
+flag)”と呼ばれるフラグを管理しています。このフラグは、バ
+ッファーのコンテンツを変更すると常に‘t’にセットされ、バ
+ッファーを保存したとき‘nil’にクリアーされます。したがっ
+て、このフラグは保存されていない変更があるかどうかを表し
+ます。フラグの値は通常、モードライン内(*note Mode Line
+Variables::を参照)に表示され、保存(*note Saving
+Buffers::を参照)と自動保存(*note Auto-Saving::を参照)を
+制御します。
+
+   いくつかのLispプログラムは、このフラグを明示的にセッ
+トします。たとえば、関数‘set-visited-file-name’は、この
+フラグを‘t’にセットします。なぜなら、たとえその前に
+visitしていたファイルが変更されていなくても、テキストは
+新たにvisitされたファイルとマッチしないからです。
+
+   バッファーのコンテンツを変更する関数については、*note
+Text::で説明されています。
+
+ -- Function: buffer-modified-p &optional buffer
+     この関数は、バッファーBUFFERが最後にファイルから読
+     み込まれた、あるいは保存されてから変更されていれば
+     ‘t’、それ以外では‘nil’をリターンする。BUFFERが与え
+     られない場合は、カレントバッファーがテストされる。
+
+ -- Function: set-buffer-modified-p flag
+     この関数は、FLAGが非‘nil’ならカレントバッファーを変
+     更済みとしてマークし、‘nil’なら未変更としてマークす
+     る。
+
+     この関数を呼び出すことによる別の効果は、それがカレ
+     ントバッファーのモードラインの無条件な再表示を引き
+     起こすことである。実際のところ、関数
+     ‘force-mode-line-update’は、以下を行うことにより機
+     能する:
+
+          (set-buffer-modified-p (buffer-modified-p))
+
+ -- Function: restore-buffer-modified-p flag
+     ‘set-buffer-modified-p’と同様だが、モードラインにた
+     いする強制的な再表示を行わない。
+
+ -- Command: not-modified &optional arg
+     このコマンドは、カレントバッファーが変更されておら
+     ず、保存する必要がないとマークする。ARGが非‘nil’の
+     場合、これは変更されているとマークするので、次回の
+     適切なタイミングでバッファーは保存されるだろう。
+     interactiveに呼び出された場合、ARGはプレフィックス
+     引数である。
+
+     この関数は、エコーエリア内にメッセージをプリントす
+     るので、プログラム内で使用してはならない。かわりに
+     、‘set-buffer-modified-p’(上記)を使用すること。
+
+ -- Function: buffer-modified-tick &optional buffer
+     この関数は、BUFFERの変更カウント
+     (modification-count)をリターンする。これは、バッフ
+     ァーが変更されるたびに増加されるカウンターである。
+     BUFFERが‘nil’(または省略)の場合は、カレントバッファ
+     ーが使用される。このカウンターは、時折0にクリアーさ
+     れ得る。
+
+ -- Function: buffer-chars-modified-tick &optional
+          buffer
+     この関数は、BUFFERの文字変更に関わる変更カウントを
+     リターンする。テキストプロパティを変更しても、この
+     カウンターは変化しない。しかし、そのバッファーにテ
+     キストが挿入、または削除されるたびに、このカウンタ
+     ーは‘buffer-modified-tick’によりリターンされるであ
+     ろう値にリセットされる。
+     ‘buffer-chars-modified-tick’を2回呼び出してリターン
+     される値を比較することにより、その呼び出しの間にバ
+     ッファー内で文字変更があったかどうかを知ることがで
+     きる。BUFFERが‘nil’(または省略)の場合は、カレントバ
+     ッファーが使用される。
+
+
+File: elisp,  Node: Modification Time,  Next: Read Only Buffers,  Prev: Buffer Modification,  Up: Buffers
+
+26.6 Buffer Modification Time
+=============================
+
+あるファイルをvisitして、そのバッファー内で変更を行って
+、その一方ではディスク上でファイル自身が変更されたとしま
+す。この時点でバッファーを保存すると、ファイル内の変更は
+上書きされるでしょう。これが正に望んでいる動作のときもあ
+りますが、通常は有用な情報が失われてしまいます。したがっ
+て、Emacsはファイルを保存する前に、以下で説明する関数を
+使用して、ファイルの変更時刻をチェックします(ファイルの
+変更時刻を調べる方法は、*note File Attributes::を参照)。
+
+ -- Function: verify-visited-file-modtime &optional
+          buffer
+     この関数は、BUFFER(デフォルトはカレントバッファー
+     )にvisitされているファイルにたいして記録されている
+     変更時刻と、オペレーティングシステムにより記録され
+     た実際の変更時刻を比較する。これら2つの時刻は、
+     Emacsがそのファイルをvisit、もしくは保存して以降、
+     他のプロセスにより書き込みがされていなければ、等し
+     くなるはずである。
+
+     この関数は、実際の最終変更時刻と、Emacsが記録した変
+     更時刻が同じなら‘t’、それ以外は‘nil’をリターンする
+     。そのバッファーが記録済みの最終変更時刻をもたない
+     、すなわち‘visited-file-modtime’が0をリターンするよ
+     うな場合も、‘t’をリターンする。
+
+     これは、たとえ‘visited-file-modtime’が非0の値をリタ
+     ーンしたとしても、ファイルをvisitしていないバッファ
+     ーにたいしては、常に‘t’をリターンする。たとえば、
+     diredバッファーにたいして、この関数は常に‘t’をリタ
+     ーンする。また、存在せず、 以前に存在したこともなか
+     ったファイルをvisitするバッファーにたいして‘t’をリ
+     ターンするが、visitしているファイルが削除されたバッ
+     ファーにたいしては‘nil’をリターンする。
+
+ -- Function: clear-visited-file-modtime
+     この関数は、カレントバッファーによりvisitされている
+     ファイルの最終変更時刻の記録をクリアーする。結果と
+     して、このバッファーにを次回の保存では、ファイルの
+     変更時刻の食い違いは報告されなくなる。
+
+     この関数は‘set-visited-file-name’、および変更済みフ
+     ァイルの上書きを防ぐための通常テストを行わない例外
+     的な箇所で呼び出される。
+
+ -- Function: visited-file-modtime
+     この関数は、カレントバッファーの記録された最終ファ
+     イル変更時刻を、‘(HIGH LOW MICROSEC PICOSEC)’のよう
+     な形式のリストでリターンする(これは、
+     ‘file-attributes’が時刻値をリターンするために使用す
+     るフォーマットと同じである。*note File
+     Attributes::を参照されたい)。
+
+     バッファーが最終変更時刻の記録をもたない場合、この
+     関数は0をリターンする。これが発生するのは、たとえば
+     バッファーがファイルをvisitしていなかったり、
+     ‘clear-visited-file-modtime’で最終変更時刻が明示的
+     にクリアーされた場合である。しかし
+     ‘visited-file-modtime’は、いくつかの非ファイルバッ
+     ファーにたいするリストをリターンすることに注意。た
+     とえば、ディレクトリーをリストするDiredバッファーで
+     は、Diredが記録するそのディレクトリーの最終変更時刻
+     がリターンされる。
+
+     バッファーがファイルをvisitしていない場合、この関数
+     は-1をリターンする。
+
+ -- Function: set-visited-file-modtime &optional time
+     この関数は、バッファーがvisitしているファイルの最終
+     変更時刻の記録を、TIMEが非‘nil’、それ以外はvisitし
+     ているファイルの最終変更時刻により更新する。
+
+     TIMEが‘nil’や0でない場合、それは‘current-time’で使
+     用される形式‘(HIGH LOW MICROSEC PICOSEC)’というフォ
+     ーマットであること(*note Time of Day::を参照)。
+
+     この関数は、バッファーが通常のようにファイルから読
+     み取られたものでない場合や、ファイル自身が害のない
+     既知の理由により変更されている場合に有用である。
+
+ -- Function: ask-user-about-supersession-threat
+          filename
+     これは、visitしているファイルFILENAMEがバッファーの
+     テキストより新しいときにバッファーの変更を試みた後
+     、ユーザーに処理方法を尋ねるために使用する関数であ
+     る。Emacsはディスク上のファイルの変更時刻が、バッフ
+     ァーを最後に保存した時刻より新しいかどうかで、これ
+     を検知する。これはおそらく、他のプログラムがそのフ
+     ァイルを変更したことを意味する。
+
+     この関数が正常にリターンするかどうかは、ユーザーの
+     答えに依存する。関数はバッファーの変更が処理された
+     場合は正常にリターンし、バッファーの変更が許可され
+     なかった場合は、データ‘(FILENAME)’とともにエラー
+     ‘file-supersession’をシグナルする。
+
+     この関数は、適切なタイミングでEmacsにより自動的に呼
+     び出される。これは、再定義することによりEmacsをカス
+     タマイズ可能にするために存在する。標準的な定義は、
+     ファイル‘userlock.el’を参照されたい。
+
+     *note File Locks::のファイルロックのメカニズムも参
+     照のこと。
+
+
+File: elisp,  Node: Read Only Buffers,  Next: Buffer List,  Prev: Modification Time,  Up: Buffers
+
+26.7 Read-Only Buffers
+======================
+
+あるバッファーが“読み取り専用(read-only)”の場合は、たと
+えスクロールやナローイングによってファイルのコンテンツの
+ビューを変更しても、そのコンテンツを変更することはできま
+せん。
+
+   読み取り専用バッファーは、2つのタイプの状況において使
+用されます:
+
+   • 書き込み保護されたファイルをvisitするバッファーは、
+     通常は読み取り専用になる。
+
+     ここでの目的は、ユーザーにたいしてそのファイルへの
+     保存を意図したバッファーの編集が無益、または望まし
+     くないかもしれないことを伝えることである。それにも
+     関わらずバッファーのテキストの変更を望むユーザーは
+     、‘C-x C-q’で読み取り専用フラグをクリアーした後、こ
+     れを行うことができる。
+
+   • DiredやRmailのようなモードは、通常の編集コマンドに
+     よるコンテンツの変更がおそらく間違いであるようなと
+     きに、バッファーを読み取り専用にする。
+
+     このようなモードのスペシャルコマンドは、
+     ‘buffer-read-only’を(‘let’により)‘nil’にバインドし
+     たり、テキストを変更する箇所では
+     ‘inhibit-read-only’を‘t’にバインドする。
+
+ -- Variable: buffer-read-only
+     このバッファーローカル変数は、そのバッファーが読み
+     取り専用かどうかを指定する。この変数が非‘nil’なら、
+     そのバッファーは読み取り専用である。
+
+ -- Variable: inhibit-read-only
+     この変数が非‘nil’の場合、読み取り専用バッファー、お
+     よびその実際の値に依存して、一部もしくはすべての読
+     み取り専用文字が変更されている。バッファー内の読み
+     取り専用文字とは、テキストプロパティ‘read-only’が非
+     ‘nil’の文字である。テキストプロパティについての詳細
+     は、*note Special Properties::を参照のこと。
+
+     ‘inhibit-read-only’が‘t’の場合、すべての
+     ‘read-only’文字プロパティは効果がなくなる。
+     ‘inhibit-read-only’がリストの場合、‘read-only’文字
+     プロパティがリストのメンバーなら効果がなくなる(比較
+     は‘eq’で行われる)。
+
+ -- Command: read-only-mode &optional arg
+     これは、バッファーローカルなマイナーモードである、
+     Read Onlyモードにたいするモードコマンドである。この
+     モードが有効なときは、そのバッファーの
+     ‘buffer-read-only’は非‘nil’である。無効なときは、そ
+     のバッファーの‘buffer-read-only’は‘nil’である。呼び
+     出す際の慣習は、他のマイナーモードコマンドの慣習と
+     同じである(*note Minor Mode Conventions::を参照)。
+
+     このマイナーモードは他のマイナーモードとは異なり、
+     主に‘buffer-read-only’にたいするラッパーの役目を果
+     たし、別個に‘read-only-mode’変数は存在しない。Read
+     Onlyモードが無効なときでも、‘read-only’テキストプロ
+     パティが非‘nil’の文字は読み取り専用のままである。一
+     時的にすべての読み取り専用ステータスを無視するには
+     、上述の‘inhibit-read-only’をバインドすること。
+
+     Read Onlyモードを有効にする際、このモードコマンドは
+     オプション‘view-read-only’が非‘nil’なら、Viewモード
+     も有効にする。*note Miscellaneous Buffer
+     Operations: (emacs)Misc Buffer.を参照のこと。Read
+     Onlyモードを無効にする際に、もしもViewモードが有効
+     なら、Viewモードも無効にする。
+
+ -- Function: barf-if-buffer-read-only
+     この関数は、カレントバッファーが読み取り専用の場合
+     は、‘buffer-read-only’エラーをシグナルする。カレン
+     トバッファーが読み取り専用の場合にエラーをシグナル
+     する他の方法については、*note Using Interactive::を
+     参照のこと。
+
+
+File: elisp,  Node: Buffer List,  Next: Creating Buffers,  Prev: Read Only Buffers,  Up: Buffers
+
+26.8 The Buffer List
+====================
+
+“バッファーリスト(buffer list)”とは、すべての生きた
+(killされていない)バッファーのリストです。このリスト内の
+バッファーの順序は主に、それぞれのバッファーがウィンドウ
+に表示されたのがどれほど最近なのかにもとづきます。いくつ
+かの関数、特に‘other-buffer’はこの順序を使用します。ユー
+ザーに表示されるバッファーリストも、この順序にしたがいま
+す。
+
+   バッファーを作成すると、それはバッファーリストの最後
+に追加され バッファーをkillすることにより、そのリストか
+ら削除されます。ウィンドウに表示するためにバッファーが選
+択されたとき(*note Switching Buffers::を参照)、あるいは
+バッファーを表示するウィンドウが選択されたとき(*note
+Selecting Windows::を参照)、そのバッファーは常にこのリス
+トの先頭に移動します。バッファーがバリー(以下の
+‘bury-buffer’を参照)されたときは、このリストの最後に移動
+します。バッファーリストを直接操作するために利用できる、
+Lispプログラマー向けの関数は存在しません。
+
+   説明した基本バッファーリスト(fundamental buffer
+list)に加えて、Emacsはそれぞれのフレームにたいしてローカ
+ルバッファーリスト(local buffer list)を保守します。ロー
+カルバッファーリストでは、そのフレーム内で表示されていた
+(または選択されたウィンドウの)バッファーが先頭になります
+(この順序は、そのフレームのフレームパラメーター
+‘buffer-list’に記録される。*note Buffer Parameters::を参
+照されたい)。そのフレームでは表示されていないフレームは
+後になるよう、並び順は基本バッファーリストに準じます。
+
+ -- Function: buffer-list &optional frame
+     この関数は、すべてのバッファーを含むバッファーリス
+     トをリターンする(名前がスペースで始まるバッファーも
+     含む)。リストの要素はバッファーの名前ではなく、実際
+     のバッファーである。
+
+     FRAMEがフレームの場合は、FRAMEのローカルバッファー
+     リストをリターンする。FRAMEが‘nil’、または省略され
+     た場合は、基本バッファーリストが使用される。その場
+     合、そのバッファーを表示するフレームがどれかとは無
+     関係に、もっとも最近に表示、または選択されたバッフ
+     ァーの順になる。
+
+          (buffer-list)
+               ⇒ (#<buffer buffers.texi>
+                   #<buffer  *Minibuf-1*> #<buffer buffer.c>
+                   #<buffer *Help*> #<buffer TAGS>)
+
+          ;; ミニバッファーの名前が
+          ;;   スペースで始まることに注意!
+          (mapcar (function buffer-name) (buffer-list))
+              ⇒ ("buffers.texi" " *Minibuf-1*"
+                  "buffer.c" "*Help*" "TAGS")
+
+   ‘buffer-list’からリターンされるリストは、それ専用に構
+築されたリストであり、Emacsの内部的なデータ構造ではない
+し、それを変更してもバッファーの並び順に影響はありません
+。基本バッファーリスト内のバッファーの並び順を変更したい
+場合に簡単なのは、以下の方法です:
+
+     (defun reorder-buffer-list (new-list)
+       (while new-list
+         (bury-buffer (car new-list))
+         (setq new-list (cdr new-list))))
+
+   この方法により、バッファーを失ったり、有効な生きたバ
+ッファー以外の何かを追加する危険を犯さずに、リストに任意
+の並び順を指定できます。
+
+   特定のフレームのバッファーリストの並び順や値を変更す
+るには、‘modify-frame-parameters’でそのフレームの
+‘buffer-list’パラメーターをセットしてください(*note
+Parameter Access::を参照)。
+
+ -- Function: other-buffer &optional buffer visible-ok
+          frame
+     この関数は、バッファーリスト中でBUFFER以外の最初の
+     バッファーをリターンする。これは通常選択されたウィ
+     ンドウ(フレームFRAME、または選択されたフレーム。
+     *note Input Focus::を参照)に、もっとも最近表示され
+     た、BUFFER以外のバッファーである。名前がスペースで
+     始まるバッファーは、考慮されない。
+
+     BUFFERが与えられない(または生きたバッファーでない
+     )場合、‘other-buffer’は選択されたフレームのローカル
+     バッファーリスト内の、最初のバッファーをリターンす
+     る(FRAMEが非‘nil’の場合は、FRAMEのローカルバッファ
+     ーリスト内の最初のバッファーをリターンする)。
+
+     FRAMEが非‘nil’の‘buffer-predicate’パラメーターをも
+     つ場合は、どのバッファーを考慮すべきかを決定するた
+     めに、‘other-buffer’はその述語を使用する。これはそ
+     れぞれのバッファーごとにその述語を一度呼び出して、
+     値が‘nil’ならそのバッファーは無視される。*note
+     Buffer Parameters::を参照のこと。
+
+     VISIBLE-OKが‘nil’ならば、‘other-buffer’はやむを得な
+     い場合を除き、任意の可視のフレーム上のウィンドウ内
+     で可視のバッファーをリターンすることを避ける。
+     VISIBLE-OKが非‘nil’の場合は、バッファーがどこかで表
+     示されているかどうかは問題にしない。
+
+     適切なバッファーが存在しない場合は、バッファー
+     ‘*scratch*’を(必要なら作成して)リターンする。
+
+ -- Function: last-buffer &optional buffer visible-ok
+          frame
+     この関数は、FRAMEのバッファーリスト内から、BUFFER以
+     外の最後のバッファーをリターンする。FRAMEが省略、ま
+     たは‘nil’の場合は、選択されたフレームのバッファーリ
+     ストを使用する。
+
+     引数VISIBLE-OKは、上述した‘other-buffer’と同様に扱
+     われる。適切なバッファーを見つけられない場合は、バ
+     ッファー‘*scratch*’がリターンされる。
+
+ -- Command: bury-buffer &optional buffer-or-name
+     このコマンドは、バッファーリスト内の他のバッファー
+     の並び順を変更することなく、BUFFER-OR-NAMEをバッフ
+     ァーリストの最後に置く。つまり、このバッファーは
+     ‘other-buffer’がリターンする候補で、もっとも期待度
+     が低くなる。引数はバッファー自身か、バッファーの名
+     前を指定できる。
+
+     この関数は、基本バッファーリストと同様に、それぞれ
+     のフレームの‘buffer-list’パラメーターを操作する。し
+     たがってバリー(bury: 埋める、隠す)したバッファーは
+     、‘(buffer-list FRAME)’および‘(buffer-list)’の値の
+     最後に置かれるだろう。さらに、そのバッファーが選択
+     されたウィンドウに表示されていれば、そのウィンドウ
+     のバッファーリストの最後にバッファーを置くことも行
+     う(*note Window History::を参照)。
+
+     BUFFER-OR-NAMEが‘nil’、または省略された場合は、カレ
+     ントバッファーをバリーすることを意味する。加えて、
+     カレントバッファーが選択されたウィンドウに表示され
+     ている場合は、そのウィンドウを削除するか、他のバッ
+     ファーを表示する。より正確には、選択されたウィンド
+     ウが専用(dedicated)のウィンドウ(*note Dedicated
+     Windows::)であり、かつそのフレーム上に他のウィンド
+     ウが存在する場合、専用ウィンドウは削除される。それ
+     がフレーム上で唯一のウィンドウであり、かつそのフレ
+     ームが端末上で唯一のフレームでない場合、そのフレー
+     ムは‘frame-auto-hide-function’で指定される関数を呼
+     び出すことにより、“開放”される(*note Quitting
+     Windows::を参照)。それ以外の場合は、他のバッファー
+     をそのウィンドウ内に表示するために、
+     ‘switch-to-prev-buffer’を呼び出す(*note Window
+     History::を参照)。BUFFER-OR-NAMEが他のウィンドウで
+     表示されていた場合は、そのまま表示され続ける。
+
+     あるバッファーにたいして、それを表示するすべてのウ
+     ィンドウでバッファーを置き換えるには、
+     ‘replace-buffer-in-windows’を使用する。*note
+     Buffers and Windows::を参照のこと。
+
+ -- Command: unbury-buffer
+     このコマンドは、選択されたフレームのローカルバッフ
+     ァーリストの最後のバッファーに切り替える。より正確
+     には、選択されたウィンドウ内で、‘last-buffer’(上記
+     参照)がリターンするバッファーを表示するために、関数
+     ‘switch-to-buffer’を呼び出す(*note Switching
+     Buffers::を参照)。
+
+ -- Variable: buffer-list-update-hook
+     これは、バッファーリストが変更されたときは、常に実
+     行されるノーマルフックである。(暗黙的に)このフック
+     を実行する関数は‘get-buffer-create’(*note Creating
+     Buffers::を参照)、‘rename-buffer’(*note Buffer
+     Names::を参照)、‘kill-buffer’(*note Killing
+     Buffers::を参照)、‘bury-buffer’(上記参照)、
+     ‘select-window’(*note Selecting Windows::を参照)で
+     ある。
+
+
+File: elisp,  Node: Creating Buffers,  Next: Killing Buffers,  Prev: Buffer List,  Up: Buffers
+
+26.9 Creating Buffers
+=====================
+
+このセクションでは、バッファーを作成する2つのプリミティ
+ブについて説明します。‘get-buffer-create’は、指定された
+名前の既存バッファーが見つからない場合は作成します。
+‘generate-new-buffer’は、常に新たにバッファーを作成して
+、それに一意な名前を与えます。
+
+   バッファーを作成するために使用できる他の関数には、
+‘with-output-to-temp-buffer’(*note Temporary Displays::を
+参照)、および‘create-file-buffer’(*note Visiting
+Files::を参照)が含まれます。サブプロセスの開始によっても
+、バッファーを作成することができます(*note Processes::を
+参照)。
+
+ -- Function: get-buffer-create buffer-or-name
+     この関数は、BUFFER-OR-NAMEという名前のバッファーを
+     リターンする。リターンされたバッファーはカレントに
+     ならない — この関数はカレントがどのバッファーである
+     かを変更しない。
+
+     BUFFER-OR-NAMEは文字列、または既存バッファーのいず
+     れかでなければならない。これが文字列で、かつ既存の
+     生きたバッファーの名前の場合、‘get-buffer-create’は
+     そのバッファーをリターンする。そのようなバッファー
+     が存在しなければ、新たにバッファーを作成する。
+     BUFFER-OR-NAMEが文字列ではなくバッファーの場合、た
+     とえそのバッファーが生きていなくても、与えられたバ
+     ッファーをリターンする。
+
+          (get-buffer-create "foo")
+               ⇒ #<buffer foo>
+
+     新たに作成されたバッファーにたいするメジャーモード
+     は、Fundamentalモードにセットされる(変数
+     ‘major-mode’のデフォルト値は、より高いレベルで処理
+     される。*note Auto Major Mode::を参照されたい)。名
+     前がスペースで始まる場合、そのバッファーのアンドゥ
+     情報の記録は、初期状態では無効である(*note Undo::を
+     参照)。
+
+ -- Function: generate-new-buffer name
+     この関数は、新たに空のバッファーを作成してリターン
+     するが、それをカレントにはしない。バッファーの名前
+     は、関数‘generate-new-buffer-name’にNAMEを渡すこと
+     により生成される(*note Buffer Names::を参照)。つま
+     り、NAMEという名前のバッファーが存在しなければ、そ
+     れが新たなバッファーの名前になり、その名前が使用さ
+     れていた場合は、‘<N>’という形式のサフィックスが
+     NAMEに追加される。ここでNは整数である。
+
+     NAMEが文字列でない場合は、エラーがシグナルされる。
+
+          (generate-new-buffer "bar")
+               ⇒ #<buffer bar>
+          (generate-new-buffer "bar")
+               ⇒ #<buffer bar<2>>
+          (generate-new-buffer "bar")
+               ⇒ #<buffer bar<3>>
+
+     新たなバッファーにたいするメジャーモードは、
+     Fundamentalモードにセットされる。変数‘major-mode’の
+     デフォルト値は、より高いレベルで処理される。*note
+     Auto Major Mode::を参照のこと。
+
+
+File: elisp,  Node: Killing Buffers,  Next: Indirect Buffers,  Prev: Creating Buffers,  Up: Buffers
+
+26.10 Killing Buffers
+=====================
+
+“バッファーのkill”により、 そのバッファーの名前はEmacsに
+とって未知の名前となり、そのバッファーが占めていたメモリ
+ースペースは、他の用途に使用できるようになります。
+
+   バッファーに対応するバッファーオブジェクトは、それを
+参照するものがあればkillされても存在し続けますが、それを
+カレントにしたり表示することができないよう、特別にマーク
+されます。とはいえ、killされたバッファーの同一性は保たれ
+るので、2つの識別可能なバッファーをkillした場合、たとえ
+両方死んだバッファーであっても、‘eq’による同一性は残りま
+す。
+
+   あるウィンドウ内においてカレント、あるいは表示されて
+いるバッファーをkillした場合、Emacsはかわりに他の何らか
+のバッファーを自動的に選択、または表示します。これは、バ
+ッファーのkillにより、カレントバッファーが変更されること
+を意味します。したがって、バッファーをkillする際は、
+(killされるバッファーがカレントを偶然知っていた場合を除
+き)カレントバッファーの変更に関しても、事前に注意を払う
+べきです。*note Current Buffer::を参照してください。
+
+   1つ以上のインダイレクト バッファー(*note Indirect
+Buffers::を参照) のベースとなるバッファーをkillした場合
+は、インダイレクトバッファーも同様に自動的にkillされます
+。
+
+   バッファーの‘buffer-name’が‘nil’の場合のみ、バッファ
+ーはkillされる。killされていないバッファーは“生きた
+(live)”バッファーと呼ばれる。あるバッファーにたいして、
+そのバッファーが生きているか、またはkillされているかを確
+認するには、‘buffer-live-p’を使用する(下記参照)。
+
+ -- Command: kill-buffer &optional buffer-or-name
+     この関数は、バッファーBUFFER-OR-NAMEをkillして、そ
+     のバッファーのメモリーを他の用途のために開放、また
+     はオペレーティングシステムに返却する。
+     BUFFER-OR-NAMEが‘nil’、または省略された場合は、カレ
+     ントバッファーをkillする。
+
+     そのバッファーを‘process-buffer’として所有するすべ
+     てのプロセスには、通常はプロセスを終了させるシグナ
+     ル‘SIGHUP’(“hangup”)が送信される。*note Signals to
+     Processes::を参照のこと。
+
+     バッファーがファイルをvisitしていて、かつ保存されて
+     いない変更が含まれる場合、‘kill-buffer’はバッファー
+     をkillする前に、ユーザーにたいして確認を求める。こ
+     れは、‘kill-buffer’がinteractiveに呼び出されていな
+     くても、行われる。この確認要求を抑制するには、
+     ‘kill-buffer’の呼び出し前に、変更フラグ(modified
+     flag)をクリアーすればよい。*note Buffer
+     Modification::を参照のこと。
+
+     killされるバッファーをカレントで表示しているすべて
+     のバッファーをクリーンアップするために、この関数は
+     ‘replace-buffer-in-windows’を呼び出す。
+
+     すでに死んでいるバッファーをkillしても、効果はない
+     。
+
+     この関数は、実際にバッファーをkillした場合は、‘t’を
+     リターンする。ユーザーが確認で拒否を選択、または
+     BUFFER-OR-NAMEがすでに死んでいる場合は、‘nil’をリタ
+     ーンする。
+
+          (kill-buffer "foo.unchanged")
+               ⇒ t
+          (kill-buffer "foo.changed")
+
+          ---------- Buffer: Minibuffer ----------
+          Buffer foo.changed modified; kill anyway? (yes or no) yes
+          ---------- Buffer: Minibuffer ----------
+
+               ⇒ t
+
+ -- Variable: kill-buffer-query-functions
+     保存されていない変更について確認を求める前に、
+     ‘kill-buffer’はリスト
+     ‘kill-buffer-query-functions’内の関数を、出現順に引
+     数なしで呼び出す。 Before confirming unsaved
+     changes, calls the functions in the list , in order
+     of appearance, with no arguments. それらが呼び出さ
+     れる際には、killされるバッファーがカレントになる。
+     この機能は、これらの関数がユーザーに確認を求めると
+     いうアイデアが元となっている。これらの関数のいずれ
+     かが‘nil’をリターンした場合、‘kill-buffer’はそのバ
+     ッファーの命を奪わない。
+
+ -- Variable: kill-buffer-hook
+     これは、尋ねることになっている質問をすべて終えた後
+     、実際にバッファーをkillする直前に、‘kill-buffer’に
+     より実行されるノーマルフックである。この変数は永続
+     的にローカルであり、メジャーモードの変更により、そ
+     のローカルバインディングはクリアーされない。
+
+ -- User Option: buffer-offer-save
+     特定のバッファーにおいてこの変数が非‘nil’の場合、
+     ‘save-buffers-kill-emacs’および
+     ‘save-some-buffers’(この関数の2つ目のオプション引数
+     が‘t’の場合)は、ファイルをvisitしているバッファーと
+     同じように、そのバッファーの保存を提案する。*note
+     Definition of save-some-buffers::を参照のこと。何ら
+     かの理由により変数‘buffer-offer-save’をセットする際
+     は、自動的にバッファーローカルになる。*note
+     Buffer-Local Variables::を参照のこと。
+
+ -- Variable: buffer-save-without-query
+     特定のバッファーにおいてこの変数が非‘nil’の場合、
+     ‘save-buffers-kill-emacs’および
+     ‘save-some-buffers’は、(バッファーが変更されていれ
+     ば)ユーザーに確認を求めることなく、そのバッファーを
+     保存する。何らかの理由によりこの変数をセットする際
+     は、自動的にバッファーローカルになる。
+
+ -- Function: buffer-live-p object
+     この関数は、OBJECTが生きたバッファー(killされていな
+     いバッファー)なら‘t’、それ以外は‘nil’をリターンする
+     。
+
+
+File: elisp,  Node: Indirect Buffers,  Next: Swapping Text,  Prev: Killing Buffers,  Up: Buffers
+
+26.11 Indirect Buffers
+======================
+
+“インダイレクトバッファー(indirect buffer: 間接バッファ
+ー)”とは、“ベースバッファー(base buffer)”と呼ばれる他の
+バッファーとテキストを共有します。いくつかの点において、
+インダイレクトバッファーはファイル間でのシンボリックリン
+クに類似しています。ベースバッファー自身は、インダイレク
+トバッファーでない可能性があります。
+
+   インダイレクトバッファーのテキストは、常にベースバッ
+ファーのテキストと同一です。編集により一方が変更されると
+、それは即座に他方のバッファーから可視になります。これに
+は文字自体に加えて、テキストプロパティも同様に含まれます
+。
+
+   他のすべての観点において、インダイレクトバッファーと
+そのベースバッファーは、完全に別物です。それらは別の名前
+、独自のポイント値、ナローイング、マーカー、オーバーレイ
+、メジャーモード、バッファーローカルな変数バインディング
+をもちます(ただし、どちらかのバッファーでのテキストの挿
+入や削除を行うと、両方のバッファーでマーカーとオーバーレ
+イの再配置が行われる)。
+
+   インダイレクトバッファーはファイルをvisitできませんが
+、ベースバッファーは可能です。インダイレクトバッファーの
+保存を試みた場合、実際にはベースバッファーが保存されます
+。
+
+   インダイレクトバッファーをkillしても、ベースバッファ
+ーに影響はありません。ベースバッファーをkillすると、イン
+ダイレクトバッファーはkillされて、再びカレントバッファー
+になることはできません。
+
+ -- Command: make-indirect-buffer base-buffer name
+          &optional clone
+     これは、ベースバッファーがBASE-BUFFERであるような、
+     NAMEという名前のインダイレクトバッファーを作成して
+     リターンする。引数BASE-BUFFERは生きたバッファー、ま
+     たは既存バッファーの名前(文字列)を指定できる。
+     NAMEが既存バッファーの名前の場合は、エラーがシグナ
+     ルされる。
+
+     CLONEが非‘nil’の場合、インダイレクトバッファーは最
+     初はBASE-BUFFERのメジャーモード、マイナーモード、バ
+     ッファーローカル変数等の“状態”を共有する。CLONEが省
+     略、または‘nil’の場合、インダイレクトバッファーの情
+     報は、新たなバッファーにたいするデフォルト状態にセ
+     ットされる。
+
+     BASE-BUFFERがインダイレクトバッファーの場合は、新た
+     なバッファーのベースとして、それのベースバッファー
+     が使用される。さらに、CLONEが非‘nil’ならば、初期状
+     態はBASE-BUFFERではなく、実際のベースバッファーから
+     コピーされる。
+
+ -- Command: clone-indirect-buffer newname display-flag
+          &optional norecord
+     この関数は、カレントバッファーのベースバッファーを
+     共有するインダイレクトバッファーを新たに作成し、カ
+     レントバッファーの残りの属性をコピーしてリターンす
+     る(カレントバッファーがインダイレクトバッファーでな
+     い場合は、それがベースバッファーとして使用される)。
+
+     DISPLAY-FLAGが非‘nil’の場合、それは
+     ‘pop-to-buffer’を呼び出すことにより新しいバッファー
+     を表示することを意味する。NORECORDが非‘nil’の場合、
+     それは新しいバッファーをバッファーリストの先頭に置
+     かないことを意味する。
+
+ -- Function: buffer-base-buffer &optional buffer
+     この関数は、BUFFER(デフォルトはカレントバッファー
+     )のベースバッファーをリターンする。BUFFERがインダイ
+     レクトバッファーでない場合、値は‘nil’になり、それ以
+     外では値は他のバッファーとなり、このバッファーがイ
+     ンダイレクトバッファーではあり得ない。
+
+
+File: elisp,  Node: Swapping Text,  Next: Buffer Gap,  Prev: Indirect Buffers,  Up: Buffers
+
+26.12 Swapping Text Between Two Buffers
+=======================================
+
+特別なモードでは、ユーザーが同一のバッファーから複数の非
+常に異なったテキストにアクセスできるようにしなければなら
+ない場合があります。たとえば、バッファーのテキストのサマ
+リーを表示して、ユーザーがそのテキストにアクセスできるよ
+うにする場合です。
+
+   これは、(ユーザーがテキストを編集した際には同期を保つ
+)複数バッファーや、ナローイング(*note Narrowing::を参照
+)により実装することができるかもしれません。しかし、これ
+らの候補案はときに退屈になりがちであり、特にそれぞれのテ
+キストタイプが正しい表示と編集コマンドを提供するために高
+価なバッファーグローバル操作を要求する場合には、飛び抜け
+て高価になる場合があります。
+
+   Emacsは、そのようなモードにたいする、別の機能を提供し
+ます。‘buffer-swap-text’を使用すれば、2つのバッファー間
+でバッファーテキストを素早く交換することができます。この
+関数は、テキストの移動は行わず、異なるテキスト塊(text
+chunk)をポイントするように、バッファーオブジェクトの内部
+的なデータ構造だけを変更するので、非常に高速です。これを
+使用することにより、2つ以上のバッファーグループから、個
+々のバッファーのコンテンツすべてを併せもつような、単一の
+仮想バッファー(virtual buffer)が実在するように、見せかけ
+ることができます。
+
+ -- Function: buffer-swap-text buffer
+     この関数は、カレントバッファーのテキストと、引数
+     BUFFERのテキストを交換する。2つのバッファーのいずれ
+     か一方がインダイレクトバッファー(*note Indirect
+     Buffers::を参照)、またはインダイレクトバッファーの
+     ベースバッファーの場合は、エラーをシグナルする。
+
+     バッファーテキストに関連するすべてのバッファープロ
+     パティ、つまりポイントとマークの位置、すべてのマー
+     カーとオーバーレイ、テキストプロパティ、アンドゥリ
+     スト、‘enable-multibyte-characters’フラグの値(*note
+     enable-multibyte-characters: Text Representations.を
+     参照)等も、同じように交換される。
+
+   ファイルをvisitしているバッファーに
+‘buffer-swap-text’を使用した場合は、交換されたテキストで
+はなく、そのバッファーの元のテキストを保存するようにフッ
+クをセットアップするべきです。
+‘write-region-annotate-functions’は、正にこの目的のため
+に機能します。そのバッファーの‘buffer-saved-size’を、お
+そらく交換されたテキストにたいする変更が自動保存に干渉し
+ないであろう、−2にセットするべきでしょう。
+
+
+File: elisp,  Node: Buffer Gap,  Prev: Swapping Text,  Up: Buffers
+
+26.13 The Buffer Gap
+====================
+
+Emacsのバッファーは、挿入と削除を高速にするために、不可
+視の“ギャップ(gap)”を使用して実装されています。挿入はギ
+ャップ部分を充填し、削除はギャップを追加することにより機
+能します。もちろん、これは最初にギャップを挿入もしくは削
+除の部位(locus)に移動しなければならないことを意味します
+。Emacsは、ユーザーが挿入、または削除を試みたときだけ、
+ギャップを移動します。大きなバッファー内の遠く離れた位置
+で編集した後、他の箇所での最初の編集コマンドに無視できな
+い遅延が発生する場合があるのは、これが理由です。
+
+   このメカニズムは暗に機能するものであり、Lispコードは
+ギャップのカレント位置に影響されるべきでは決してありませ
+んが、以下の関数はギャップ状態に関する情報の取得に利用で
+きます。
+
+ -- Function: gap-position
+     この関数は、カレントバッファー内のギャップのカレン
+     ト位置をリターンする。
+
+ -- Function: gap-size
+     この関数は、カレントバッファー内のギャップのサイズ
+     をリターンする。
+
+
+File: elisp,  Node: Windows,  Next: Frames,  Prev: Buffers,  Up: Top
+
+27 Windows
+**********
+
+このチャプターでは、Emacsのウィンドウに関連する関数と変
+数について説明します。Emacsが利用可能なスクリーン領域に
+ウィンドウが割り当てられる方法については、*note
+Frames::を参照してください。ウィンドウ内にテキストが表示
+される方法についての情報は、*note Display::を参照してく
+ださい。
+
+* Menu:
+
+* Basic Windows::            ウィンドウ使用についての基本情報。
+* Windows and Frames::       ウィンドウとそれらが表示されるフレームとの関連。
+* Window Sizes::             ウィンドウのサイズへのアクセス。
+* Resizing Windows::         ウィンドウのサイズの変更。
+* Splitting Windows::        新たなウィンドウの作成。
+* Deleting Windows::         フレームからのウィンドウの削除。
+* Recombining Windows::      ウィンドウの分割や削除時のフレームレイアウトの保存。
+* Selecting Windows::        選択されたウィンドウとは、編集を行っているウィンドウである。
+* Cyclic Window Ordering::   既存のウィンドウ間の移動。
+* Buffers and Windows::      それぞれのウィンドウは、バッファーのコンテンツを表示する。
+* Switching Buffers::        バッファー切り替えのための、より高レベルな関数。
+* Choosing Window::          バッファーを表示するウィンドウの選択方法。
+* Display Action Functions::  ‘display-buffer’用のサブルーチン。
+* Choosing Window Options::  バッファー表示方法に影響する拡張オプション。
+* Window History::           それぞれのウィンドウは、表示されていたバッファーを記憶する。
+* Dedicated Windows::        特定のウィンドウ内で他のバッファーの表示を無効にする。
+* Quitting Windows::         以前に表示していたバッファーの状態をリストアする方法。
+* Window Point::             それぞれのウィンドウは、自身の位置とポイントをもつ。
+* Window Start and End::     ウィンドウ内でスクリーン表示されるテキストを表すバッファー位置。
+* Textual Scrolling::        ウィンドウを通じたテキストの上下移動。
+* Vertical Scrolling::       ウィンドウ上のコンテンツの上下移動。
+* Horizontal Scrolling::     ウィンドウ上のコンテンツの横移動。
+* Coordinates and Windows::  座標からウィンドウへの変換。
+* Window Configurations::    スクリーンの情報の保存とリストア。
+* Window Parameters::        ウィンドウへの追加情報の割り当て。
+* Window Hooks::             スクロール、ウィンドウのサイズ変更、ある特定のしきい値を超えたときに行われる再表示、ウィンドウ設定の変更にたいするフック。
+
+
+File: elisp,  Node: Basic Windows,  Next: Windows and Frames,  Up: Windows
+
+27.1 Basic Concepts of Emacs Windows
+====================================
+
+“ウィンドウ(window)”とは、任意のバッファーを表示するため
+に使用される、スクリーンの領域です。Emacs Lispでは、ウィ
+ンドウはスペシャルLispオブジェクトとして表現されます。
+
+   ウィンドウは、フレームへとグループ化されます(*note
+Frames::を参照)。それぞれのフレームは、最低でも1つのウィ
+ンドウを含みます。ユーザーは、複数のバッファーを1度に閲
+覧するために、それを複数のオーバーラップしないウィンドウ
+に分割することができます。Lispプログラムは、さまざまな目
+的にたいして、複数のウィンドウを使用できます。たとえば
+Rmailでは、1つのウィンドウでメッセージタイトル、もう一方
+のウィンドウで選択したメッセージのコンテンツを閲覧できま
+す。
+
+   Emacsは、グラフィカルなデスクトップ環境や、X Window
+Systemのようなウィンドウシステムとは異なる意味で、“ウィ
+ンドウ(window)”という単語を使用します。EmacsがX上で実行
+されているときは、XのグラフィカルなXウィンドウは、
+Emacsでの(1つ以上のEmacsウィンドウを含んだ)フレームにな
+ります。Emacsがテキスト端末上で実行されているときは、フ
+レームが端末スクリーン全体を占有します。
+
+   Xのウィンドウとは異なり、Emacsのウィンドウは“タイル表
+示(tiled)”され、フレームの領域内でオーバーラップされるこ
+とは決してありません。あるウィンドウが作成、リサイズ、削
+除されるとき、変更されたウィンドウスペースの変更は各ウィ
+ンドウの調整により取得・譲与されるので、そのフレームの総
+領域に変化はありません。
+
+ -- Function: windowp object
+     この関数は、OBJECTがウィンドウ(バッファーの表示有無
+     に関わらず)なら‘t’、それ以外は‘nil’をリターンする。
+
+   “生きたウィンドウ(live window)”とは、あるフレーム内で
+実際にバッファーを表示しているウィンドウのことです。
+
+ -- Function: window-live-p object
+     この関数は、OBJECTが生きたウィンドウなら‘t’、それ以
+     外は‘nil’をリターンする。生きたウィンドウとは、バッ
+     ファーを表示するウィンドウのこと。
+
+   各フレーム内のウィンドウは、“ウィンドウツリー(window
+tree)”内へと組織化されます。*note Windows and Frames::を
+参照してください。それぞれのウィンドウツリーのリーフノー
+ド(leaf nodes)は、実際にバッファーを表示している生きたウ
+ィンドウです。ウィンドウツリーの内部ノード(internal
+node)は“内部ウィンドウ(internal windows)”と呼ばれ、これ
+らは生きたウィンドウではありません。
+
+   “有効なウィンドウ(valid window)”とは、生きたウィンド
+ウか、内部ウィンドウのいずれかです。有効なウィンドウにた
+いしては、それを“削除(delete)”、すなわちそのウィンドウの
+フレームから削除することができます(*note Deleting
+Windows::を参照)。その場合、それは有効なウィンドウではな
+くなりますが、それを表すLispオブジェクトは依然として他の
+Lispオブジェクトから参照されたままかもしれません。削除さ
+れたウィンドウは、保存されたウィンドウ設定(window
+configuration)をリストアすることにより、再び有効になるか
+もしれません(*note Window Configurations::を参照)。
+
+   ‘window-valid-p’により、削除されたウィンドウから有効
+なウィンドウを区別できます。
+
+ -- Function: window-valid-p object
+     この関数は、OBJECTが生きたウィンドウ、またはウィン
+     ドウツリー内の内部ウィンドウの場合は、‘t’をリターン
+     する。それ以外(OBJECTが削除されたウィンドウの場合も
+     含む)は、‘nil’をリターンする。
+
+   それぞれのフレーム内において、常にただ1つのEmacsウィ
+ンドウが“そのフレームで選択されている(selected within
+the frame)”もとして指定されます。選択されたフレームにた
+いしては、そのウィンドウは“選択されたウィンドウ(selected
+window)”と呼ばれます。選択されたウィンドウは、編集のほと
+んどが行われるウィンドウであり、選択されたウィンドウに表
+示されるカーソルがあるウィンドウです(*note Cursor
+Parameters::を参照)。選択されたウィンドウのバッファーは
+通常は、‘set-buffer’が使用された場合を除き、カレントバッ
+ファーでもあります(*note Current Buffer::を参照)。選択さ
+れていないフレームでは、そのフレームが選択されたときは、
+そのフレームで選択されていたウィンドウが選択されたウィン
+ドウになります。*note Selecting Windows::を参照してくだ
+さい。
+
+ -- Function: selected-window
+     この関数は、選択されたウィンドウをリターンする(これ
+     は常に生きたウィンドウである)。
+
+
+File: elisp,  Node: Windows and Frames,  Next: Window Sizes,  Prev: Basic Windows,  Up: Windows
+
+27.2 Windows and Frames
+=======================
+
+ウィンドウはそれぞれ、正確に1つのフレームに属します
+(*note Frames::を参照)。
+
+ -- Function: window-frame &optional window
+     この関数は、ウィンドウWINDOWが属するフレームをリタ
+     ーンする。WINDOWが‘nil’の場合のデフォルトは、選択さ
+     れたウィンドウである。
+
+ -- Function: window-list &optional frame minibuffer
+          window
+     この関数は、フレームFRAMEに属する、生きたウィンドウ
+     のリストをリターンする。FRAMEが省略、または‘nil’の
+     場合のデフォルトは、選択されたフレームである。
+
+     オプション引数MINIBUFFERは、リターンされるリストに
+     ミニバッファーウィンドウを含めるべきかどうかを指定
+     する。MINIBUFFERが‘t’の場合は、ミニバッファーウィン
+     ドウが含まれる。MINIBUFFERが‘nil’、または省略された
+     場合は、ミニバッファーウィンドウがアクティブのとき
+     だけ含まれる。MINIBUFFERが‘nil’と‘t’以外の場合、ミ
+     ニバッファーウィンドウは含まれない。
+
+     オプション引数WINDOWが非‘nil’の場合、それは指定され
+     たフレーム上の生きたウィンドウであること。その場合
+     は、WINDOWがリターンされるリストの最初の要素になる
+     。WINDOWが省略、または‘nil’の場合は、そのフレームの
+     選択されたウィンドウが最初の要素になる。
+
+   同一フレーム内のウィンドウは、リーフノード(leaf
+nodes)が生きたウィンドウであるような、“ウィンドウツリー
+(window tree)”内に組織化されます。ウィンドウツリーの内部
+ノード(internal nodes)は生きたウィンドウではありません。
+これらのウィンドウは、生きたウィンドウ間の関係を組織化す
+るという目的のために存在します。ウィンドウツリーのルート
+ノード(root node)は、“ルートウィンドウ(root window)”と呼
+ばれます。ルートノードは生きたウィンドウ(そのフレームに
+ウィンドウが1つだけの場合)、または内部ウィンドウのいずれ
+かです。
+
+   ミニバッファーウィンドウ(*note Minibuffer Windows::を
+参照)は、そのフレームがミニバッファーだけのフレームでな
+い限り、そのフレームのウィンドウツリーの一部にはなりませ
+ん。にもかかわらず、このセクションのほとんどの関数は、引
+数としてミニバッファーウィンドウを受け付けます。さらにこ
+のセクションの最後に説明する関数‘window-tree’は、実際の
+ウィンドウツリーと並列してミニバッファーウィンドウをリス
+トします。
+
+ -- Function: frame-root-window &optional
+          frame-or-window
+     この関数は、FRAME-OR-WINDOWにたいするルートウィンド
+     ウをリターンする。引数FRAME-OR-WINDOWは、ウィンドウ
+     かフレームのいずれかであること。これが省略、または
+     ‘nil’の場合のデフォルトは、選択されたフレームである
+     。FRAME-OR-WINDOWがウィンドウの場合、リターン値はそ
+     のウィンドウのフレームのルートウィンドウである。
+
+   ウィンドウが分割(split)されているときは、以前は1つだ
+った2つの生きたウィンドウが存在します。これらのうちの一
+方は、元のウィンドウと同じLispウィンドウオブジェクトとし
+て表され、もう一方は新たに作成されたLispウィンドウオブジ
+ェクトとして表されます。これらの生きたウィンドウは両方と
+も、単一の内部ウィンドウの“子ウィンドウ(child windows)”と
+して、ウィンドウツリーのリーフノードになります。もし必要
+なら、Emacsはこの内部ウィンドウを自動的に作成します。こ
+の内部ウィンドウは“親ウィンドウ(parent window)”とも呼ば
+れ、ウィンドウツリー内の適切な位置に配置されます。同じ親
+を共有するウィンドウセットは、“兄弟(sibling)”と呼ばれま
+す。
+
+ -- Function: window-parent &optional window
+     この関数は、WINDOWの親ウィンドウ(parent window)をリ
+     ターンする。WINDOWが省略、または‘nil’の場合のデフォ
+     ルトは、選択されたウィンドウである。WINDOWが親をも
+     たない(ミニバッファーウィンドウやそのフレームのルー
+     トウィンドウ)場合、リターン値は‘nil’である。
+
+   内部ウィンドウはそれぞれ、常に最低でも2つの子ウィンド
+ウをもちます。ウィンドウ削除によりこの数値が1になった場
+合、Emacsは自動的に内部ウィンドウを削除して、その残った
+単一の子ウィンドウがウィンドウツリー内のその位置に配置さ
+れます。
+
+   子ウィンドウはそれぞれ生きたウィンドウ、または(次に自
+身の子ウィンドウをもつであろう)内部ウィンドウのいずれか
+です。したがって、各内部ウィンドウは、最終的にはその内部
+ウィンドウの子孫であるような生きたウィンドウにより占有さ
+れる領域を結合した、特定の矩形“スクリーン領域(screen
+area)”を占有すると考えることができます。
+
+   内部ウィンドウそれぞれにたいして、近接する子たちのス
+クリーン領域は、垂直(vertically)または水平
+(horizontally)のいずれかにより整列されます(両方で整列さ
+れることはない)。子ウィンドウが他の子ウィンドウと上下に
+整列される場合、それらは“垂直コンビネーション(vertical
+combination)”、左右に整列される場合は“水平コンビネーショ
+ン(horizontal combination)”を形成すると表現されます。以
+下の例で考えてみましょう:
+
+          ______________________________________
+         | ______  ____________________________ |
+         ||      || __________________________ ||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||____________W4____________|||
+         ||      || __________________________ ||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||____________W5____________|||
+         ||__W2__||_____________W3_____________ |
+         |__________________W1__________________|
+
+
+このフレームのルートウィンドウは、内部ウィンドウW1です。
+これの子ウィンドウは、生きたウィンドウW2と内部ウィンドウ
+W3からなる水平コンビネーションを形成します。W3の子ウィン
+ドウは、生きたウィンドウW4とW5からなる垂直コンビネーショ
+ンを形成します。したがって、このウィンドウツリー内の生き
+たウィンドウはW2、W4、およびW5です。
+
+   以下の関数は、内部ウィンドウの子ウィンドウ、および子
+ウィンドウの兄弟を取得するのに使用できます。
+
+ -- Function: window-top-child &optional window
+     この関数は、内部ウィンドウWINDOWの子ウィンドウが垂
+     直コンビネーションを形成する場合は、WINDOWの一番上
+     の子ウィンドウをリターンする。他のタイプのウィンド
+     ウにたいするリターン値は‘nil’である。
+
+ -- Function: window-left-child &optional window
+     この関数は、内部ウィンドウWINDOWの子ウィンドウが水
+     平コンビネーションを形成する場合は、WINDOWの一番左
+     の子ウィンドウをリターンする。他のタイプのウィンド
+     ウにたいするリターン値は‘nil’である。
+
+ -- Function: window-child window
+     この関数は、内部ウィンドウWINDOWの最初の子ウィンド
+     ウをリターンする。これは、垂直コンビネーションにた
+     いしては一番上、水平コンビネーションにたいしては一
+     番左の子ウィンドウである。WINDOWが生きたウィンドウ
+     の場合、リターン値は‘nil’である。
+
+ -- Function: window-combined-p &optional window
+          horizontal
+     この関数は、WINDOWが垂直コンビネーションの一部であ
+     る場合のみ、非‘nil’をリターンする。WINDOWが省略、ま
+     たは‘nil’の場合のデフォルトは、選択されたウィンドウ
+     である。
+
+     オプション引数HORIZONTALが非‘nil’ならば、WINDOWが水
+     平コンビネーションの一部である場合のみ非‘nil’をリタ
+     ーンすることを意味する。
+
+ -- Function: window-next-sibling &optional window
+     この関数は、ウィンドウWINDOWの次の兄弟をリターンす
+     る。省略または‘nil’の場合、WINDOWのデフォルトは選択
+     されたウィンドウになる。WINDOWが、その親の最後の子
+     の場合、リターン値は‘nil’である。
+
+ -- Function: window-prev-sibling &optional window
+     この関数は、ウィンドウWINDOWの前の兄弟をリターンす
+     る。省略または‘nil’の場合、WINDOWのデフォルトは選択
+     されたウィンドウになる。WINDOWが、その親の最初の子
+     の場合、リターン値は‘nil’である。
+
+   関数‘window-next-sibling’および
+‘window-prev-sibling’を、ウィンドウのサイクル順(*note
+Cyclic Window Ordering::を参照)において次、または前のウ
+ィンドウをリターンする関数‘next-window’および
+‘previous-window’と混同しないでください。
+
+   任意のフレーム上の最初の生きたウィンドウや、与えられ
+たウィンドウにもっとも近いウィンドウを探すために、以下の
+関数を使用できます。
+
+ -- Function: frame-first-window &optional
+          frame-or-window
+     この関数は、FRAME-OR-WINDOWにより指定されたフレーム
+     の、左上隅の生きたウィンドウをリターンする。引数
+     FRAME-OR-WINDOWでは、ウィンドウか生きたフレームを示
+     さなければならず、デフォルトは選択されたフレームで
+     ある。FRAME-OR-WINDOWがウィンドウを指定する場合、こ
+     の関数はそのウィンドウのフレームの最初のウィンドウ
+     をリターンする。前の例のフレームが
+     ‘(frame-first-window)’に指定されたとするならば、
+     W2がリターンされる。
+
+ -- Function: window-in-direction direction &optional
+          window ignore sign wrap mini
+     この関数は、ウィンドウWINDOW内の位置
+     ‘window-point’から、方向DIRECTIONにあるもっとも近い
+     生きたウィンドウをリターンする。引数DIRECTIONは
+     ‘above’、‘below’、‘left’、‘right’のいずれかでなけれ
+     ばならない。オプション引数WINDOWは生きたウィンドウ
+     を示さなければならず、デフォルトは選択されたウィン
+     ドウである。
+
+     この関数は、パラメーター‘no-other-window’が非
+     ‘nil’のウィンドウをリターンしない(*note Window
+     Parameters::を参照)。もっとも近いウィンドウの
+     ‘no-other-window’パラメーターが非‘nil’の場合、この
+     関数は指定された方向で‘no-other-window’パラメーター
+     が‘nil’の、他のウィンドウを探す。オプション引数
+     IGNOREが非‘nil’の場合は、たとえ‘no-other-window’パ
+     ラメーターが非‘nil’のウィンドウでも、リターンされ得
+     る。
+
+     オプション引数SIGNが負の数値の場合、それは参照位置
+     として‘window-point’のかわりに、WINDOWの右端、また
+     は下端を使用することを意味する。SIGNが正の数値の場
+     合、それは参照位置としてWINDOWの左端、または上端を
+     使用することを意味する。
+
+     オプション引数WRAPが非‘nil’の場合、それはフレームの
+     ボーダー(borders: 枠線)をDIRECTIONがラップアラウン
+     ド(wrap around: 最後に達したら最初に戻る)することを
+     意味する。たとえば、WINDOWはフレームの最上にあり、
+     DIRECTIONが‘above’の場合、フレームにミニバッファー
+     があればミニバッファーウィンドウ、それ以外はフレー
+     ム最下のウィンドウウィンドウリターンする。
+
+     オプション引数MINIが‘nil’の場合、それはミニバッファ
+     ーがカレントでアクティブな場合のみ、ミニバッファー
+     ウィンドウをリターンすることを意味する。MINIが非
+     ‘nil’ならば、たとえ非アクティブなときでもミニバッフ
+     ァーウィンドウをリターンする。しかし、WRAPが非
+     ‘nil’の場合は、常にMINIが‘nil’であるかのように動作
+     する。
+
+     適切なウィンドウが見つからない場合、この関数は
+     ‘nil’をリターンする。
+
+   以下の関数により、任意のフレームのウィンドウツリー全
+体を取得できます:
+
+ -- Function: window-tree &optional frame
+     この関数は、フレームFRAMEにたいするウィンドウツリー
+     を表すリストをリターンする。FRAMEが省略、または
+     ‘nil’の場合のデフォルトは、選択されたフレームである
+     。
+
+     リターン値は、‘(ROOT MINI)’という形式のリストである
+     。ここでROOTはそのフレームのウィンドウツリーのルー
+     トウィンドウ、MINIはそのフレームのミニバッファーウ
+     ィンドウを表す。
+
+     ルートウィンドウが生きている場合、ROOTはそのウィン
+     ドウ自身である。それ以外では、ROOTはリスト‘(DIR
+     EDGES W1 W2 ...)’である。ここでDIRは水平コンビネー
+     ションなら‘nil’、垂直コンビネーションなら‘t’となり
+     、EDGESはそのコンビネーションのサイズと位置を与え、
+     残りの要素は子ウィンドウである。子ウィンドウはそれ
+     ぞれ、同じようにウィンドウオブジェクト(生きたウィン
+     ドウにたいして)、または上記フォーマットと同じ形式の
+     リスト(内部ウィンドウにたいして)かもしれない。
+     EDGES要素は‘window-edges’がリターンする値のような、
+     リスト‘(LEFT TOP RIGHT BOTTOM)’である(*note
+     Coordinates and Windows::を参照)。
+
+
+File: elisp,  Node: Window Sizes,  Next: Resizing Windows,  Prev: Windows and Frames,  Up: Windows
+
+27.3 Window Sizes
+=================
+
+以下の図は、生きたウィンドウの構造を示しています:
+
+             ____________________________________________
+            |______________ Header Line ______________|RD| ^
+          ^ |LS|LF|LM|                       |RM|RF|RS|  | |
+          | |  |  |  |                       |  |  |  |  | |
+     Window |  |  |  |       Text Area       |  |  |  |  | Window
+     Body | |  |  |  |     (Window Body)     |  |  |  |  | Total
+     Height |  |  |  |                       |  |  |  |  | Height
+          | |  |  |  |<- Window Body Width ->|  |  |  |  | |
+          v |__|__|__|_______________________|__|__|__|  | |
+            |_______________ Mode Line _______________|__| |
+            |_____________ Bottom Divider _______________| v
+             <---------- Window Total Width ------------>
+
+
+   ウィンドウの中央は“テキストエリア(text area: テキスト
+領域)”、または“ボディー(body: 本体、本文)”と呼ばれる、バ
+ッファーテキストが表示される場所です。テキストエリアは、
+一連のオプションエリアで囲まれている可能性があります。左
+右には、内側から外側に向かって、図中にLMとRMで示される左
+右のマージン(*note Display Margins::を参照)、LFとRFで示
+される左右のフリンジ(*note Fringes::を参照)、そしてLSと
+RSはスクロールバー(*note Scroll Bars::を参照)で、常に表
+示されるのはいずれか一方だけです。そしてRDはディバイダー
+(*note Window Dividers::を参照)を示しています。ウィンド
+ウの上端はヘッダーライン(*note Header Lines::を参照)、下
+端にはモードライン(*note Mode Line Format::を参照)と、そ
+の下に下端ディバイダー(*note Window Dividers::を参照)が
+あります。
+
+   Emacsは、ウィンドウの高さと幅を求めるために、さまざま
+な関数を提供します。これらの関数がリターンする値の多くは
+、ピクセル単位か、行単位と列単位のいずれかにより指定でき
+ます。グラフィカルなディスプレイでは、後者は実際には
+‘frame-char-height’および‘frame-char-width’によりリター
+ンされる、そのフレームのデフォルトフォントが指定する、
+“デフォルト文字”の高さと幅に対応します。したがって、ある
+ウィンドウが異なるフォントやサイズでテキストを表示してい
+ると、そのウィンドウにたいして報告される行高さと列幅は、
+実際にウィンドウ内で表示されるテキスト行数と列数とは、異
+なるかもしれません。
+
+   ウィンドウの“トータル高さ(total height)”とは、そのウ
+ィンドウのボディー、ヘッダーライン、モードライン、(もし
+あれば)下端ディバイダーを構成する行数のことです。フレー
+ムにはエコーエリア、メニューバー、ツールバーが含まれるか
+もしれないので、フレームの高さはそのフレームのルートウィ
+ンドウ(*note Windows and Frames::を参照)の高さとは異なる
+ことに注意してください(*note Size and Position::を参照
+)。
+
+ -- Function: window-total-height &optional window round
+     この関数は、ウィンドウWINDOWのトータル高さを、行で
+     リターンする。WINDOWが省略、または‘nil’の場合のデフ
+     ォルトは、選択されたウィンドウである。WINDOWが内部
+     ウィンドウの場合、リターン値はそのウィンドウの子孫
+     となるウィンドウにより占有されるトータル高さになる
+     。
+
+     ウィンドウのピクセル高さが、そのウィンドウがあるフ
+     レームのデフォルト文字高さの整数倍でない場合は、そ
+     のウィンドウが占有する行数が内部で丸められる。これ
+     は、そのウィンドウが親ウィンドウの場合は、すべての
+     子ウィンドウのトータル高さの合計が、親ウィンドウの
+     トータル高さと内部的に等しくなるような方法により行
+     われる。これは、たとえ2つのウィンドウのピクセル高さ
+     が等しくでも、内部的なトータル高さは1行分異なるかも
+     しれないことを意味する。さらにこれは、そのウィンド
+     ウが垂直コンビネーションされていて、かつ右の兄弟を
+     もつ場合、その兄弟の上端行は、このウィンドウの上端
+     行とトータル高さから計算されるかもしれないことも意
+     味する(*note Coordinates and Windows::を参照)。
+
+     オプション引数ROUNDが‘ceiling’の場合、この関数は
+     WINDOWのピクセル高さを、そのフレームの文字高さで除
+     した数より大であるような最小の整数、‘floor’の場合は
+     除した数より小であるような最大の整数、それ以外の
+     ROUNDにたいしては、WINDOWSのトータル高さの内部値を
+     リターンする。
+
+   “トータル幅(total width)”とは、そのウィンドウのボディ
+ーを構成する列数、マージン、フリンジ、スクロールバー、
+(もしあれば)右ディバイダーです。
+
+ -- Function: window-total-width &optional window round
+     この関数は、ウィンドウWINDOWのトータル幅を列でリタ
+     ーンする。WINDOWが省略、または‘nil’の場合のデフォル
+     トは、選択されたウィンドウである。WINDOWが内部ウィ
+     ンドウの場合、リターン値はその子孫のウィンドウが占
+     有するトータル幅になる。
+
+     ウィンドウのピクセル幅が、そのウィンドウがあるフレ
+     ームのデフォルト文字幅の整数倍でない場合は、そのウ
+     ィンドウが占有する列数が内部で丸められる。これは、
+     そのウィンドウが親ウィンドウの場合は、すべての子ウ
+     ィンドウのトータル幅の合計が、親ウィンドウのトータ
+     ル幅と内部的に等しくなるような方法により行われる。
+     これは、たとえ2つのウィンドウのピクセル幅が等しくで
+     も、内部的なトータル幅は1列分異なるかもしれないこと
+     を意味する。さらにこれは、そのウィンドウが水平コン
+     ビネーションされていて、かつ右の兄弟をもつ場合、そ
+     の兄弟の左端行は、このウィンドウの左端行とトータル
+     幅から計算されるかもしれないことも意味する(*note
+     Coordinates and Windows::を参照)。オプション引数
+     ROUNDは、‘window-total-height’の場合と同様に振る舞
+     う。
+
+ -- Function: window-total-size &optional window
+          horizontal round
+     この関数は、ウィンドウWINDOWのトータル高さを行で、
+     またはトータル幅を列でリターンする。HORIZONTALが省
+     略、または‘nil’の場合はWINDOWにたいして
+     ‘window-total-height’を呼び出すのと等価であり、それ
+     以外ではWINDOWにたいして‘window-total-width’を呼び
+     出すのと等価である。オプション引数ROUNDは、
+     ‘window-total-height’の場合と同様に振る舞う。
+
+   以下の2つの関数は、ウィンドウのトータルサイズをピクセ
+ル単位でリターンさせるために使用できます。
+
+ -- Function: window-pixel-height &optional window
+     この関数は、ウィンドウWINDOWのトータル高さを、ピク
+     セルでリターンする。WINDOWは有効なウィンドウでなけ
+     ればならず、デフォルトは選択されたウィンドウである
+     。
+
+     リターン値には、(もしあれば)モードライン、ヘッダー
+     ライン、下端ディバイダーが含まれる。WINDOWが内部ウ
+     ィンドウの場合、そのピクセル高さは子ウィンドウたち
+     によりスパンされるスクリーン領域のピクセル高さにな
+     る。
+
+ -- Function: window-pixel-width &optional Lisp_Object
+          &optional window
+     この関数は、ウィンドウWINDOWの幅をピクセルでリター
+     ンする。WINDOWは有効なウィンドウでなければならず、
+     デフォルトは選択されたウィンドウである。
+
+     リターン値には、フリンジ、WINDOWのマージン、同様に
+     WINDOWに属する垂直ディバイダーとスクロールバーが含
+     まれる。WINDOWが内部ウィンドウの場合、そのピクセル
+     幅は子ウィンドウたちによりスパンされるスクリーン領
+     域の幅になる。
+
+   以下の関数は、与えられたウィンドウに隣接するウィンド
+ウがあるかどうかを判断するために使用できます。
+
+ -- Function: window-full-height-p &optional window
+     この関数は、フレーム内でWINDOWの上下に他のウィンド
+     ウがなければ非‘nil’をリターンする(トータル高さがそ
+     のフレーム上のルートウィンドウと等しい)。WINDOWが省
+     略、または‘nil’の場合のデフォルトは、選択されたウィ
+     ンドウである。
+
+ -- Function: window-full-width-p &optional window
+     この関数は、フレーム内でWINDOWの左右に他のウィンド
+     ウがなければ非‘nil’をリターンする(トータル幅がその
+     フレーム上のルートウィンドウと等しい)。WINDOWが省略
+     、または‘nil’の場合のデフォルトは、選択されたウィン
+     ドウである。
+
+   ウィンドウの“ボディー高さ(body height)”とは、モードラ
+イン、ヘッダーライン、下端ディバイダーを含まないテキスト
+領域の高さです。
+
+ -- Function: window-body-height &optional window
+          pixelwise
+     この関数は、ウィンドウWINDOWのボディーの高さを、行
+     でリターンする。WINDOWが省略、または‘nil’の場合のデ
+     フォルトは選択されたウィンドウで、それ以外では生き
+     たウィンドウでなければならない。
+
+     オプション引数PIXELWISEが非‘nil’の場合、この関数は
+     ピクセルで計算WINDOWのボディー高さをリターンする。
+
+     PIXELWISEが‘nil’の場合は、必要ならリターン値はもっ
+     とも近い整数に切り下げられる。これは、テキスト領域
+     の下端行が部分的に可視の場合、その行は計数されない
+     こと、さらに任意のウィンドウのボディー高さは、
+     ‘window-total-height’によりリターンされるそのウィン
+     ドウのトータル高さ決して超過し得ないことをも意味す
+     る。
+
+   ウィンドウの“ボディー幅(body width)”とは、スクロール
+バー、フリンジ、マージン、右ディバイダーを含まないテキス
+ト領域の幅です。
+
+ -- Function: window-body-width &optional window
+          pixelwise
+     この関数は、ウィンドウWINDOWのボディーの幅を、列で
+     リターンする。WINDOWが省略、または‘nil’の場合のデフ
+     ォルトは選択されたウィンドウであり、それ以外では生
+     きたウィンドウでなければならない
+
+     オプション引数PIXELWISEが非‘nil’の場合、この関数は
+     WINDOWのボディーの幅をピクセル単位でリターンする。
+
+     PIXELWISEが‘nil’の場合、リターン値は必要ならもっと
+     も近い整数に切り下げられる。これはテキスト領域の右
+     端の列が部分的に可視な場合は、その列は計数されない
+     ことを意味する。さらにこれは、ウィンドウのボディー
+     の幅が、‘window-total-width’によりリターンされるウ
+     ィンドウのトータル幅を決して超過し得ないことをも意
+     味する。
+
+ -- Function: window-body-size &optional window
+          horizontal pixelwise
+     この関数は、WINDOWのボディーの高さ、または幅をリタ
+     ーンする。HORIZONTALが省略、または‘nil’の場合は、
+     WINDOWにたいして‘window-body-height’、それ以外の場
+     合は、‘window-body-width’を呼び出すのと同じである。
+     いずれの場合も、オプション引数PIXELWISEは、呼び出さ
+     れた関数に渡される。
+
+   以前のバージョンのEmacsとの互換性のため、
+‘window-height’は‘window-total-height’、‘window-width’は
+‘window-body-width’にたいするエイリアスです。これらのエ
+イリアス時代遅れと考えられております、将来的には削除され
+るでしょう。
+
+   ウィンドウのモードラインとヘッダーラインのピクセル高
+さは、以下の関数により取得できる。それらのリターン値は、
+そのウィンドウが以前に表示されていない場合を除き、通常は
+加算される。その場合、リターン値はそのウィンドウのフレー
+ムにたいして使用を予想されるフォントが元になる。
+
+ -- Function: window-mode-line-height &optional window
+     この関数は、WINDOWモードラインの高さをピクセルでリ
+     ターンする。WINDOWは生きたウィンドウでなければなら
+     ず、デフォルトは選択されたウィンドウである。
+     WINDOWにモードラインがない場合、リターン値は0である
+     。
+
+ -- Function: window-header-line-height &optional window
+     この関数は、WINDOWのヘッダーラインの高さをピクセル
+     でリターンする。WINDOWは生きたウィンドウでなければ
+     ならず、デフォルトは選択されたウィンドウである。
+     WINDOWにヘッダーラインがない場合のリターン値は0であ
+     る。
+
+   ウィンドウディバイダー(*note Window Dividers::を参照
+)、フリンジ(*note Fringes::を参照)、スクロールバー(*note
+Scroll Bars::を参照)、ディスプレイマージン(*note Display
+Margins::を参照)を取得する関数については、対応するセクシ
+ョンで説明されています。
+
+   ウィンドウのサイズを変更(*note Resizing Windows::を参
+照)したり、ウィンドウを分割(split)するコマンド(*note
+Splitting Windows::を参照)は、指定できるウィンドウの最小
+の高さと幅を指定する変数‘window-min-height’および
+‘window-min-width’にしたがう。これらのコマンドは、ウィン
+ドウのサイズが“fixed(固定)”になる変数
+‘window-size-fixed’にもしたがう。
+
+ -- User Option: window-min-height
+     このオプションは、任意のウィンドウの最小のトータル
+     高さを行で指定する。この値は最低でも1つのテキスト行
+     、同様にモードライン、ヘッダーライン、(もしあれば
+     )下端ディバイダーに対応する必要がある。
+
+ -- User Option: window-min-width
+     このオプションは、すべてのウィンドウの最小のトータ
+     ル幅を列で指定する。この値は、2つのテキスト列、同様
+     に(もしあれば)マージン、フリンジ、スクロールバー、
+     右ディバイダーに対応する必要がある。
+
+ -- Variable: window-size-fixed
+     このバッファーローカル変数が非‘nil’の場合、そのバッ
+     ファーを表示するすべてのウィンドウのサイズが、通常
+     は変更できなくなる。ウィンドウ削除やそのフレームの
+     サイズ変更により、それ以外に方法がなければ、依然と
+     してウィンドウのサイズは変更されるかもしれない。
+
+     値が‘height’の場合は、そのウィンドウの高さだけが固
+     定される。値が‘width’の場合は、そのウィンドウの幅だ
+     けが固定される。その他の非‘nil’値では、幅と高さの両
+     方が固定される。
+
+     この変数が‘nil’場合でも、そのバッファーを表示してい
+     る任意のウィンドウを任意の方向にリサイズできるとは
+     いえない。これを決定するには、関数
+     ‘window-resizable’を使用する。*note Resizing
+     Windows::を参照のこと。
+
+   以降の関数は、ある特定の大きさのウィンドウにたいして
+、それの‘window-min-height’と‘window-min-width’と
+‘window-size-fixed’の値と、領域のサイズを示す。
+
+ -- Function: window-min-size &optional window
+          horizontal ignore pixelwise
+     この関数は、WINDOWの最小のサイズをリターンする。
+     WINDOWは有効なウィンドウでなければならず、デフォル
+     トは選択されたウィンドウ。オプション引数
+     HORIZONTALが非‘nil’の場合は、WINDOWの最小の列数、そ
+     れ以外はWINDOWの最小の行数をリターンすることを意味
+     する。
+
+     このリターン値により、WINDOWのサイズが実際にその値
+     にセットされた場合に、WINDOWのすべてのコンポーネン
+     トが完全に可視にとどまることが保証される。
+     HORIZONTALが‘nil’の場合は、モードライン、ヘッダーラ
+     イン、および下端ディバイダーが含まれる。
+     HORIZONTALが非‘nil’の場合は、もしあればフリンジ、ス
+     クロールバー、右ディバイダーが含まれる。しかしこれ
+     には、マージン用に予約済みのスペースは含まれない。
+
+     オプション引数IGNOREが非‘nil’の場合は、
+     ‘window-min-height’または‘window-min-width’によりセ
+     ットされる固定サイズのウィンドウに強いられる制限を
+     無視することを意味する。IGNOREが‘safe’の場合は、生
+     きたウィンドウは可能な限り小さな
+     ‘window-safe-min-height’の行と、
+     ‘window-safe-min-width’の列を得る。IGNOREにウィンド
+     ウが指定された場合は、そのウィンドウにたいする制限
+     だけを無視する。その他の非‘nil’値では、すべてのウィ
+     ンドウにたいする上記制限のすべてが無視されることを
+     意味する。
+
+     オプション引数PIXELWISEが非‘nil’の場合は、WINDOWの
+     最小サイズがピクセルで計数されてリターンされること
+     を意味する。
+
+
+File: elisp,  Node: Resizing Windows,  Next: Splitting Windows,  Prev: Window Sizes,  Up: Windows
+
+27.4 Resizing Windows
+=====================
+
+このセクションでは、フレームのサイズを変更せずにウィンド
+ウのサイズを変更する関数について説明します。生きたウィン
+ドウはオーバーラップしないので、これらの関数は2つ以上の
+ウィンドウを含む関数上でのみ意味があります(ウィンドウの
+リサイズにより隣接するウィンドウのサイズも変更される)。
+フレーム上に単一のウィンドウしか存在しない場合には、フレ
+ームの変更以外によりウィンドウのサイズ変更はできません
+(*note Size and Position::を参照)。
+
+   注記した場合を除き、これらの関数は引数として内部ウィ
+ンドウも受け付けます。内部ウィンドウのリサイズにより、同
+じスペースにフィットするよう、子ウィンドウもリサイズされ
+ます。
+
+ -- Function: window-resizable window delta &optional
+          horizontal ignore pixelwise
+     この関数は、WINDOWのサイズがDELTA行により垂直に変更
+     され得る場合は、DELTAをリターンする。オプション引数
+     HORIZONTALが非‘nil’の場合は、WINDOWがDELTA列単位に
+     水平方向にリサイズ可能ならば、かわりにDELTAをリター
+     ンする。これは、実際にはウィンドウのサイズを変更し
+     ない。
+
+     WINDOWが‘nil’の場合のデフォルトは選択されたウィンド
+     ウ。
+
+     DELTAが正の値の場合は、そのウィンドウが行または列の
+     単位で拡張可能かどうかをチェックすることを意味し、
+     DELTAが負の値の場合は、そのウィンドウが行または列の
+     単位で縮小可能かどうかをチェックすることを意味する
+     。DELTAが非0の場合のリターン値0は、そのウィンドウが
+     リサイズ可能であることを意味する。
+
+     通常、変数‘window-min-height’と‘window-min-width’は
+     許容される最小のウィンドウサイズを指定する(*note
+     Window Sizes::を参照)。しかし、オプション引数
+     IGNOREが非‘nil’の場合、この関数は
+     ‘window-size-fixed’と同様に‘window-min-height’と
+     ‘window-min-width’を無視する。そのかわりに、ヘッダ
+     ーライン、モードライン、(もしあれば)下端ディバイダ
+     ーに加えて1行分の高さのテキストエリアから構成される
+     ウィンドウを、最小高さのウィンドウとし、フリンジ、
+     マージン、スクロールバー、(もしあれば)右ディバイダ
+     ーに加えて1列分の幅のテキストエリアから構成されるウ
+     ィンドウを、最小幅のウィンドウと判断する。
+
+     オプション引数PIXELWISEが非‘nil’の場合、DELTAはピク
+     セル単位として解釈される。
+
+ -- Function: window-resize window delta &optional
+          horizontal ignore pixelwise
+     この関数は、WINDOWをDELTA増加することによりリサイズ
+     する。HORIZONTALが‘nil’の場合は高さをDELTA行、それ
+     以外は幅をDELTA行変更する。正のDELTAはウィンドウの
+     拡大、負のDELTAは縮小を意味する。
+
+     WINDOWが‘nil’の場合のデフォルトは、選択されたウィン
+     ドウである。要求されたようにウィンドウをリサイズで
+     きない場合は、エラーをシグナルする。
+
+     オプション引数IGNOREは、上述の関数
+     ‘window-resizable’の場合と同じ意味をもつ。
+
+     オプション引数PIXELWISEが非‘nil’の場合、DELTAはピク
+     セル単位として解釈される。
+
+     この関数はどのウィンドウのエッジを変更するかの選択
+     は、オプション‘window-combination-resize’の値と、関
+     連するウィンドウのコンビネーションリミット
+     (combination limits: 組み合わせ制限)に依存し、両方
+     のエッジを変更するような場合もいくつかある。*note
+     Recombining Windows::を参照のこと。ウィンドウの下端
+     または右端のエッジを移動することだけでリサイズする
+     には、関数‘adjust-window-trailing-edge’を使用するこ
+     と。
+
+ -- Function: adjust-window-trailing-edge window delta
+          &optional horizontal pixelwise
+     この関数は、WINDOWの下端エッジをDELTA行分移動する。
+     オプション引数HORIZONTALが非‘nil’の場合は、かわりに
+     右端エッジをDELTA列分移動する。WINDOWが‘nil’の場合
+     のデフォルトは、選択されたウィンドウである。
+
+     オプション引数PIXELWISEが非‘nil’の場合、DELTAはピク
+     セル単位として解釈される。
+
+     正のDELTAはエッジを下方もしくは右方へ移動し、負の
+     DELTAはエッジを上方もしくは左方へ移動する。DELTAで
+     指定された範囲までエッジを移動できない場合、この関
+     数はエラーをシグナルすることなく、可能な限りエッジ
+     を移動する。
+
+     この関数は、移動されたエッジに隣接するウィンドウの
+     リサイズを試みる。何らかの理由(隣接するウィンドウが
+     固定サイズの場合等)により、それが不可能な場合は、他
+     のウィンドウをリサイズするかもしれない。
+
+ -- User Option: window-resize-pixelwise
+     このオプションの値が非‘nil’の場合、Emacsはウィンド
+     ウをピクセル単位でリサイズする。現在のところ、これ
+     は‘split-window’(*note Splitting Windows::を参照)、
+     ‘maximize-window’、‘minimize-window’、
+     ‘fit-window-to-buffer’、
+     ‘shrink-window-if-larger-than-buffer’(すべて以下に
+     記述)、および‘fit-frame-to-buffer’(*note Size and
+     Position::を参照)のような関数に影響を与える。
+
+     あるフレームのピクセルサイズがそのフレームの文字サ
+     イズの整数倍でないときは、たとえこのオプションが
+     ‘nil’であっても、少なくとも1つのウィンドウがピクセ
+     ル単位でリサイズされるであろうことに注意されたい。
+     デフォルト値は‘nil’である。
+
+   以下のコマンドは、より具体的な方法でウィンドウをリサ
+イズします。これらがインタラクティブに呼び出されたときは
+、選択されたウィンドウにたいして作用します。
+
+ -- Command: fit-window-to-buffer &optional window
+          max-height min-height max-width min-width
+     このコマンドは、WINDOWの高さまたは幅を、ウィンドウ
+     内のテキストにフィットするように調整する。WINDOWが
+     リサイズできた場合は非‘nil’、それ以外は‘nil’をリタ
+     ーンする。WINDOWが省略または‘nil’の場合のデフォルト
+     は選択されたウィンドウ、それ以外の場合は生きたウィ
+     ンドウであること。
+
+     WINDOWが垂直コンビネーションの一部の場合、この関数
+     はWINDOWの高さを調整する。新たな高さは、そのウィン
+     ドウのバッファーのアクセス可能な範囲の実際の高さか
+     ら計算される。オプション引数MAX-HEIGHTが非‘nil’の場
+     合、それはこの関数がWINDOWに与えることができる、最
+     大のトータル高さを指定する。オプション引数
+     MIN-HEIGHTが非‘nil’の場合、それは与えることができる
+     最小のトータル高さを指定し、それは変数
+     ‘window-min-height’をオーバーライドする。
+     MAX-HEIGHTとMIN-HEIGHTはどちらも、(もしあれば)モー
+     ドライン、ヘッダーライン、下端ディバイダーを含む行
+     数で指定する。
+
+     WINDOWが水平コンビネーションの一部で、かつオプショ
+     ン‘fit-window-to-buffer-horizontally’(以下参照)の値
+     が非‘nil’の場合、この関数はWINDOWの幅を調整する。新
+     たな幅は、WINDOWのカレントのスタート位置以降の、バ
+     ッファーの最長の行から計算される。オプション引数
+     MAX-WIDTHは最大幅を指定し、デフォルトはWINDOWのフレ
+     ーム幅である。オプション引数MIN-WIDTHは最小幅を指定
+     し、デフォルトは‘window-min-width’である。
+     MAX-WIDTHとMIN-WIDTHはどちらも、(もしあれば)フリン
+     ジ、マージン、スクロールバーを含む列数で指定する。
+
+     オプション‘fit-frame-to-buffer’(以下参照)が非
+     ‘nil’の場合、この関数は‘fit-frame-to-buffer’(*note
+     Size and Position::)を呼び出すことにより、WINDOWの
+     コンテンツにフィットするように、WINDOWのフレームの
+     リサイズを試みるだろう。
+
+ -- User Option: fit-window-to-buffer-horizontally
+     これが非‘nil’の場合、‘fit-window-to-buffer’はウィン
+     ドウを水平方向にリサイズできる。これが‘nil’(デフォ
+     ルト)の場合、‘fit-window-to-buffer’はウィンドウウィ
+     ンドウ決して水平方向にリサイズしない。これが
+     ‘only’の場合は、ウィンドウを水平方向だけにリサイズ
+     できる。その他の値では、‘fit-window-to-buffer’がウ
+     ィンドウをどちらの方向にもリサイズできることを意味
+     する。
+
+ -- User Option: fit-frame-to-buffer
+     このオプションが非‘nil’の場合、
+     ‘fit-window-to-buffer’はフレームをフレームのコンテ
+     ンツにフィットさせることができる。フレームは、フレ
+     ームのルートウィンドウが生きたウィンドウで、かつこ
+     のオプションが非‘nil’の場合のみ、フィットされる。こ
+     れが‘horizontally’の場合、フレームは水平方向にのみ
+     フィットされる。これが‘vertically’の場合、フレーム
+     は垂直方向にのみフィットされる。その他の非‘nil’値は
+     、フレームがどちらの方向にもフィットできることを意
+     味する。
+
+ -- Command: shrink-window-if-larger-than-buffer
+          &optional window
+     このコマンドは、WINDOWにたいしてそのバッファーを完
+     全に表示できるが、‘window-min-height’以上の行を表示
+     できるまで、可能な限りWINDOWの高さを縮小する。リタ
+     ーン値は、そのウィンドウがリサイズされれば非‘nil’、
+     それ以外は非‘nil’。WINDOWが省略または‘nil’の場合の
+     デフォルトは、選択されたウィンドウである。それ以外
+     では、生きたウィンドウであること。
+
+     このコマンドは、そのウィンドウがバッファーのすべて
+     を表示するにはすでに高さが低すぎる場合、バッファー
+     のどこかがスクリーンからスクロールオフされている場
+     合、またはそのウィンドウがフレーム内で唯一の生きた
+     ウィンドウの場合は何も行わない。
+
+     このコマンドは、自身の処理を行うために、
+     ‘fit-window-to-buffer’(上記参照)を呼び出す。
+
+ -- Command: balance-windows &optional window-or-frame
+     この関数は、各ウィンドウにたいして完全な幅、および
+     /または完全な高さを与えるような方法により、各ウィン
+     ドウのバランスをとる。WINDOW-OR-FRAMEにフレームを指
+     定した場合は、そのフレーム上のすべてのウィンドウの
+     バランスをとる。WINDOW-OR-FRAMEにウィンドウを指定し
+     た場合は、そのウィンドウとウィンドウのsiblings(兄弟
+     )にたいしてのみのバランスをとる(*note Windows and
+     Frames::を参照)。
+
+ -- Command: balance-windows-area
+     この関数は、選択されたフレーム上のすべてのウィンド
+     ウにたいして、おおよそ同じスクリーンエリアを与えよ
+     うと試みる。完全な幅、または高さをもつウィンドウに
+     たいしては、他のウィンドウと比較して、より多くのス
+     ペースは与えられない。
+
+ -- Command: maximize-window &optional window
+     この関数は、WINDOWにたいして、そのフレームをリサイ
+     ズしたり、他のウィンドウを削除することなく、水平垂
+     直の両方向において、可能な限り大きくなるように試み
+     る。WINDOWが省略または‘nil’の場合のデフォルトは、選
+     択されたウィンドウである。
+
+ -- Command: minimize-window &optional window
+     この関数は、WINDOWにたいして、そのフレームをリサイ
+     ズしたり、そのウィンドウを削除することなく、水平垂
+     直の両方向において、可能な限り小さくなるように試み
+     る。WINDOWが省略または‘nil’の場合のデフォルトは、選
+     択されたウィンドウである。
+
+
+File: elisp,  Node: Splitting Windows,  Next: Deleting Windows,  Prev: Resizing Windows,  Up: Windows
+
+27.5 Splitting Windows
+======================
+
+このセクションでは、既存のウィンドウを“分割(split: スプ
+リット”することにより、新たにウィンドウを作成する関数に
+ついて説明します。
+
+ -- Function: split-window &optional window size side
+          pixelwise
+     この関数は、ウィンドウWINDOWの隣に、新たに生きたウ
+     ィンドウを作成する。WINDOWが省略または‘nil’の場合の
+     デフォルトは、選択されたウィンドウである。そのウィ
+     ンドウは“分割(split)”されて、サイズは縮小される。そ
+     のスペースは、リターンされる新たなウィンドウにより
+     吸収される。
+
+     オプションの第2引数SIZEは、WINDOWおよび/または新た
+     なウィンドウのサイズを決定する。これが省略または
+     ‘nil’の場合は、両方のウィンドウに同じサイズが割り当
+     てられる。行数が奇数の場合、余りの1行は新たなウィン
+     ドウに割り当てられる。SIZEが正の数値の場合、
+     WINDOWにSIZEの行数(SIDEの値によっては列数)が与えら
+     れる。SIZEが負の数値の場合、新たなウィンドウに
+     −SIZEの行数(または列数)が与えられる。
+
+     SIZEが‘nil’の場合、この関数は変数
+     ‘window-min-height’と‘window-min-width’にしたがう
+     (*note Window Sizes::を参照)。つまり、分割によりこ
+     れらの変数の指定より小さいウィンドウが作成されるよ
+     うなときは、エラーをシグナルする。しかし、SIZEにた
+     いして非‘nil’値を指定すれば、これらの変数は無視され
+     る。その場合、許容される最小のウィンドウは、テキス
+     トエリアの高さが1行、および/または幅が2列のウィンド
+     ウであるとされる。
+
+     したがって、SIZEが指定された場合、生成されるウィン
+     ドウがモードラインやスクロールバー等すべてのエリア
+     を含むのに十分な大きさがあるかどうかチェックするの
+     は、呼び出し側の責任である。これに関して、必要最小
+     限のWINDOWを決定するために、関数
+     ‘window-min-size’(*note Window Sizes::を参照)を使用
+     できる。新たなウィンドウは通常、モードラインやスク
+     ロールバー等のエリアをWINDOWから“継承”するので、こ
+     の関数は新たなウィンドウの最小サイズも良好に推定す
+     る。呼び出し側は、次回の再表示前にこれに応じて継承
+     されたエリアを削除する場合のみ、より小さなサイズを
+     指定すること。
+
+     オプションの第3引数SIDEは、新たなウィンドウの位置を
+     WINDOWから相対的に指定する。‘nil’または‘below’の場
+     合、新たなウィンドウはWINDOWの下に、‘above’の場合は
+     WINDOWの上に配される。どちらの場合も、SIZEはウィン
+     ドウのトータル高さを行数で指定する。
+
+     SIDEが‘t’または‘right’の場合、新たなウィンドウは
+     WINDOWの右に、SIDEが‘left’の場合はWINDOWの左に配さ
+     れる。どちらの場合も、SIZEはウィンドウのトータル幅
+     を列数で指定する。
+
+     オプションの第4引数PIXELWISEが非‘nil’の場合は、
+     SIZEを行や列ではなくピクセル単位で解釈することを意
+     味する。
+
+     WINDOWが生きたウィンドウの場合、新たなウィンドウは
+     マージンやスクロールバーを含む、さまざまなプロパテ
+     ィを継承する。WINDOWが内部ウィンドウ(internal
+     window)の場合、新たなウィンドウはWINDOWのフレームの
+     プロパティを継承する。
+
+     変数‘ignore-window-parameters’が‘nil’の場合に限り、
+     この関数の挙動はWINDOWなパラメーターにより変更され
+     るかもしれない。ウィンドウパラメーター
+     ‘split-window’の値が‘t’の場合、この関数はその他すべ
+     てのウィンドウパラメーターを無視する。それ以外では
+     、ウィンドウパラメーター‘split-window’の値が関数の
+     場合は、‘split-window’の通常アクションのかわりに、
+     引数WINDOW、SIZE、SIDEでその関数が呼び出される。値
+     が関数以外の場合、この関数は(もしあれば)ウィンドウ
+     パラメーター‘window-atom’または‘window-side’にした
+     がう。*note Window Parameters::を参照のこと。
+
+   例として、*note Windows and Frames::で議論したウィン
+ドウ構成(window configuration)を得るための、一連の
+‘split-window’呼び出しを以下に挙げます。この例では、生き
+たウィンドウの分割と、内部ウィンドウの分割も示します。最
+初はW4で表される、単一のウィンドウ(生きたルートウィンド
+ウ)を含むフレームから開始します。‘(split-window W4)’を呼
+び出すことにより、以下のウィンドウ構成が得られます。
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W4_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W5_________________||
+         |__________________W3__________________|
+
+
+‘split-window’呼び出しにより、W5で示す生きたウィンドウが
+新たに作成されました。W3で示される内部ウィンドウも新たに
+作成され、これはルートウィンドウかつW4とW5の親ウィンドウ
+になります。
+
+   次は、引数として内部ウィンドウW3を渡して、
+‘(split-window W3 nil 'left)’を呼び出します。
+
+          ______________________________________
+         | ______  ____________________________ |
+         ||      || __________________________ ||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||____________W4____________|||
+         ||      || __________________________ ||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||____________W5____________|||
+         ||__W2__||_____________W3_____________ |
+         |__________________W1__________________|
+
+内部ウィンドウW3の左に、生きたウィンドウW2が新たに作成さ
+れました。そして、内部ウィンドウW1が新たに作成され、これ
+が新たにルートウィンドウになります。
+
+   インタラクティブな使用にたいして、Emacsは選択されたウ
+ィンドウを常に分割するコマンドを2つ提供します。これらは
+内部で‘split-window’を呼び出します。
+
+ -- Command: split-window-right &optional size
+     この関数は、選択されたウィンドウが左となるような、
+     横並びの2つのウィンドウに分割する。SIZEが正ならば左
+     のウィンドウがSIZE列、負ならば右のウィンドウが
+     −SIZE列を与えられる。
+
+ -- Command: split-window-below &optional size
+     この関数は、選択されたウィンドウが上となるような、
+     縦並びの2つのウィンドウに分割する。SIZEが正ならば上
+     のウィンドウがSIZE行、負ならば下のウィンドウが
+     −SIZE行を与えられる。
+
+ -- User Option: split-window-keep-point
+     この変数の値が非‘nil’(デフォルト)なら、
+     ‘split-window-below’は上述のように振る舞う。
+
+     ‘nil’の場合、‘split-window-below’は再表示が最小とな
+     るように、2つのウィンドウの各ポイントを調節する(こ
+     れは低速な端末で有用である)。これは何であれ、以前ポ
+     イントがあったスクリーン行(screen line)を含むウィン
+     ドウを選択する。これは低レベル‘split-window’関数で
+     はなく、‘split-window-below’だけに影響することに注
+     意。
+
+
+File: elisp,  Node: Deleting Windows,  Next: Recombining Windows,  Prev: Splitting Windows,  Up: Windows
+
+27.6 Deleting Windows
+=====================
+
+ウィンドウを“削除(delete)”することにより、フレームのウィ
+ンドウツリーからウィンドウが取り除かれます。それが生きた
+ウィンドウの場合は、スクリーンに表示されなくなります。内
+部ウィンドウの場合は、その子ウィンドウも削除されます。
+
+   ウィンドウを削除した後でも、それへの参照が残っている
+限り、Lispオブジェクトとして存在し続けます。ウィンドウ構
+成(window configuration)をリストアすることにより、ウィン
+ドウの削除は取り消すことができます(*note Window
+Configurations::を参照)。
+
+ -- Command: delete-window &optional window
+     この関数は、表示からWINDOWを削除して、‘nil’をリター
+     ンする。WINDOWが省略または‘nil’の場合のデフォルトは
+     、選択されたウィンドウである。そのウィンドウを削除
+     するとウィンドウツリーにウィンドウが存在しなくなる
+     ような場合(それがフレーム内で唯一の生きたウィンドウ
+     である場合等)は、エラーをシグナルする。
+
+     デフォルトでは、WINDOWが占めていたスペースは、(もし
+     あれば)隣接する兄弟ウィンドウのうちの1つに与えられ
+     る。しかし、変数‘window-combination-resize’が非
+     ‘nil’の場合、そのスペースはウィンドウコンビネーショ
+     ン内の残りのすべてのウィンドウに比例的に分配される
+     。*Note Recombining Windows::を参照のこと。
+
+     変数‘ignore-window-parameters’が‘nil’の場合に限り、
+     この関数の振る舞いはWINDOWのウィンドウパラメーター
+     により変更される可能性がある。ウィンドウパラメータ
+     ー‘delete-window’の値が‘t’の場合、この関数はその他
+     すべてのウィンドウパラメーターを無視する。ウィンド
+     ウパラメーター‘delete-window’が関数の場合は、通常の
+     ‘delete-window’のかわりに、引数WINDOWでその関数が呼
+     び出される。それ以外では、この関数は(もしあれば)ウ
+     ィンドウパラメーター‘window-atom’または
+     ‘window-side’にしたがう。*note Window Parameters::を
+     参照のこと。
+
+ -- Command: delete-other-windows &optional window
+     この関数は、必要に応じて他のウィンドウを削除するこ
+     とにより、WINDOWでフレームを充填する。WINDOWが省略
+     または‘nil’の場合のデフォルトは、選択されたウィンド
+     ウである。リターン値は‘nil’。
+
+     変数‘ignore-window-parameters’が‘nil’の場合に限り、
+     この関数の振る舞いは変更される可能性がある。ウィン
+     ドウパラメーター‘delete-other-windows’の値が‘t’の場
+     合、この関数は他のすべてのウィンドウパラメーターを
+     無視する。ウィンドウパラメーター
+     ‘delete-other-windows’の値が関数の場合は、
+     ‘delete-other-windows’の通常の動作のかわりに、引数
+     WINDOWでその関数が呼び出される。それ以外では、この
+     関数は(もしあれば)ウィンドウパラメーター
+     ‘window-atom’または‘window-side’にしたがう。*note
+     Window Parameters::を参照のこと。
+
+ -- Command: delete-windows-on &optional buffer-or-name
+          frame
+     この関数は、BUFFER-OR-NAMEを表示しているすべてのウ
+     ィンドウにたいして‘delete-window’を呼び出すことによ
+     り、それらを削除する。BUFFER-OR-NAMEはバッファー、
+     またはバッファー名であること。省略または‘nil’の場合
+     のデフォルトはカレントバッファーである。指定された
+     バッファーを表示するウィンドウが存在しない場合、こ
+     の関数は何も行わない。ミニバッファーが指定された場
+     合は、エラーをシグナルする。
+
+     そのバッファーの表示に専用(dedicated)のウィンドウが
+     あり、フレーム上でそれが唯一のウィンドウの場合、そ
+     れが端末上で唯一のフレームでなければ、この関数はそ
+     のフレームも削除する。
+
+     オプション引数FRAMEは、操作を行うフレームがどれかを
+     指定する:
+
+        • ‘nil’ すべてのフレームを処理することを意味する
+          。
+        • ‘t’ 選択されたフレームを処理することを意味する
+          。
+        • ‘visible’ 可視なすべてのフレームを処理すること
+          を意味する。
+        • ‘0’ 可視またはアイコン化されたすべてのフレーム
+          を処理することを意味する。
+        • フレーム そのフレームを処理することを意味する
+          。
+
+     この引数の意味は、すべての生きたウィンドウを走査す
+     る他の関数(*note Cyclic Window Ordering::を参照)に
+     おける場合とは異なることに注意。特に、ここでの‘t’と
+     ‘nil’のもつ意味は、これら他の関数の場合とは逆である
+     。
+
+
+File: elisp,  Node: Recombining Windows,  Next: Selecting Windows,  Prev: Deleting Windows,  Up: Windows
+
+27.7 Recombining Windows
+========================
+
+ウィンドウWの最後の兄弟を削除したときは、ウィンドウツリ
+ー内の親ウィンドウをWを置き換えることにより、その親ウィ
+ンドウも削除されます。これは、新たなウィンドウコンビネー
+ションを形成するために、Wがその親の兄弟たちと再結合され
+なければならないことを意味します。生きたウィンドウを削除
+することにより、必然的に2つの内部ウィンドウが削除される
+かもしれない場合もあります。
+
+          ______________________________________
+         | ______  ____________________________ |
+         ||      || __________________________ ||
+         ||      ||| ___________  ___________ |||
+         ||      ||||           ||           ||||
+         ||      ||||____W6_____||_____W7____||||
+         ||      |||____________W4____________|||
+         ||      || __________________________ ||
+         ||      |||                          |||
+         ||      |||                          |||
+         ||      |||____________W5____________|||
+         ||__W2__||_____________W3_____________ |
+         |__________________W1__________________|
+
+
+この構成におけるW5の削除は、通常はW3とW4の削除を引き起こ
+します。残りの生きたウィンドウW2、W6、W7は親をW7とする水
+平コンビネーションを形成するために再結合されます。
+
+   しかし、ときにはW4のような親ウィンドウを削除しないほ
+うが合理的な場合もあります。特に、親ウィンドウが同じタイ
+プのコンビネーション内に埋め込まれるコンビネーションを保
+護するために使用されるときは、それを削除するべきではあり
+ません。そのような埋め込みは、あるウィンドウを分割した後
+に続けて新たなウィンドウを削除する際、Emacsが関連するフ
+レームで分割前にあったレイアウトを確実に再確立するために
+意味があります。
+
+   親がW1であるような2つの生きたウィンドウW2とW3を開始点
+とするシナリオを考えてみましょう。
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W3_________________||
+         |__________________W1__________________|
+
+
+W2を分割すると、以下のようにウィンドウW4が新たに作成され
+ます。
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W4_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W3_________________||
+         |__________________W1__________________|
+
+
+ここでウィンドウを垂直方向に拡大すると、Emacsはもしその
+ようなウィンドウがあれば、下位の兄弟ウィンドウから対応す
+るスペースを得ようと試みます。このシナリオでふぁW4の拡大
+により、W3からスペースが奪われます。
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W4_________________||
+         | ____________________________________ |
+         ||_________________W3_________________||
+         |__________________W1__________________|
+
+
+W4を削除すると、前にW3から奪ったスペースを含む、スペース
+全体がW2に与えられるでしょう。
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||_________________W3_________________||
+         |__________________W1__________________|
+
+
+これは特にW4が一時的にバッファーを表示するために使用され
+ていて(*note Temporary Displays::を参照)、かつ初期のレイ
+アウトで作業を継続したい場合は直感に反するかもしれません
+。
+
+   この振る舞いは、W2を分割する際に、新たな親ウィンドウ
+を作成することにより解決できます。
+
+ -- User Option: window-combination-limit
+     この変数は、ウィンドウ分割により新たに親ウィンドウ
+     を作成させるかどうかを制御する。以下の値が認識され
+     る:
+
+     ‘nil’
+          これは、既存のウィンドウコンビネーションと同じ
+          方向で分割が発生した場合(これ以外の場合は、い
+          ずれにせよ内部ウィンドウが新たに作成される)は
+          、既存の親ウィンドウが存在するならば、新たな生
+          きたウィンドウがそれを共有できることを意味する
+          。
+
+     ‘window-size’
+          この場合、‘display-buffer’はALIST引数内のエン
+          トリー‘window-height’または‘window-width’に親
+          ウィンドウが渡されるなら、新たに親ウィンドウを
+          作成する(*note Display Action Functions::を参
+          照)。
+
+     ‘temp-buffer’
+          この値は、一時的なバッファーを表示するウィンド
+          ウの分割に際し、新たに親ウィンドウを作成する。
+
+     ‘display-buffer’
+          これは、‘display-buffer’(*note Choosing
+          Window::を参照)がウィンドウを分割する際に、常
+          に親ウィンドウを新たに作成することを意味する。
+
+     ‘t’
+          この場合は、ウィンドウを分割する際、常に親ウィ
+          ンドウが新たに作成される。したがって、この変数
+          の値が常に‘t’の場合は、すべてのウィンドウツリ
+          ーｍ常に2分木(ルートウィンドウ以外のすべてのウ
+          ィンドウが正確に1つの兄弟をもつようなツリー)に
+          なる。
+
+     デフォルトは‘nil’で、これら以外の値は将来のために予
+     約済みである。
+
+     この返信のセッティングの結果として‘split-window’が
+     新たに親ウィンドウを作成した場合は、新たに作成され
+     た内部ウィンドウにたいして
+     ‘set-window-combination-limit’(以下参照)も呼び出す
+     。これは、子ウィンドウが削除された際の、ウィンドウ
+     ツリーの再配置に影響する(以下参照)。
+
+   ‘window-combination-limit’が‘t’の場合、このシナリオの
+初期構成では以下のようになるでしょう:
+
+          ______________________________________
+         | ____________________________________ |
+         || __________________________________ ||
+         |||                                  |||
+         |||________________W2________________|||
+         || __________________________________ ||
+         |||                                  |||
+         |||________________W4________________|||
+         ||_________________W5_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W3_________________||
+         |__________________W1__________________|
+
+
+子としてW2および新たな生きたウィンドウをもつ内部ウィンド
+ウW5が新たに作成されます。ここでW2はW4の唯一の兄弟なので
+、W4を拡大するとW3は変更せずに、W2を縮小しようと試みるで
+しょう。W5は垂直コンビネーションW1に埋め込まれた、2つの
+ウィンドウからなる垂直コンビネーションを表すことに注意し
+てください。
+
+ -- Function: set-window-combination-limit window limit
+     この関数は、ウィンドウWINDOWの“コンビネーションリミ
+     ット(combination limit: 結合限界”をLIMITにセットす
+     る。この値は、関数‘window-combination-limit’を通じ
+     て取得できる。効果については以下を参照のこと。これ
+     は内部ウィンドウにたいしてのみ意味をもつことに注意
+     されたい。‘split-window’は、呼び出された際に変数
+     ‘window-combination-limit’が‘t’ならば、‘t’をLIMITと
+     して、この関数を呼び出す。
+
+ -- Function: window-combination-limit window
+     この関数は、WINDOWにたいするコンビネーションリミッ
+     トをリターンする。
+
+     コンビネーションリミットは、内部ウィンドウにたいし
+     てのみ意味をもつ。これが‘nil’の場合は、Emacsはウィ
+     ンドウ削除に応じて、兄弟同士で新たなウィンドウコン
+     ビネーションを形成することにより、WINDOWの子ウィン
+     ドウをグループ化するために、WINDOWの自動的な削除を
+     許す。コンビネーションリミットが‘t’の場合、WINDOWの
+     子ウィンドウは、その兄弟と自動的に再結合されること
+     は決してない。
+
+     このセクションの冒頭で示した構成の場合、W4(W6とW7の
+     親ウィンドウ)のコンビネーションリミットは‘t’なので
+     、‘t’を削除しても暗黙でW4も削除されることはない。
+
+   かわりに、同じ構成内の中の1つのウィンドウが分割または
+削除されたときは常に構成内のすべてのウィンドウをリサイズ
+することにより、上記で示した問題を避けることができます。
+これは、そのような操作にたいして、この方法以外では小さす
+ぎるようなウィンドウの分割も可能にします。
+
+ -- User Option: window-combination-resize
+     この変数が‘nil’の場合、‘split-window’はウィンドウ
+     (以下WINDOW)自身と新たなウィンドウの両方にたいして
+     、WINDOWのスクリーンエリアが十分大きい場合のみ、
+     WINDOWを分割できる。
+
+     この変数が‘t’の場合、‘split-window’は新たなウィンド
+     ウに対応するため、WINDOWと同じコンビネーション内の
+     、すべてのウィンドウのリサイズを試みる。これは特に
+     、WINDOWが固定サイズウィンドウのときや、通常の分割
+     には小さすぎるときも、‘split-window’をが成功するこ
+     とを許す。さらに、続けてWINDOWをリサイズ、または削
+     除すると、そのコンビネーション内のその他すべてのウ
+     ィンドウをリサイズする。
+
+     デフォルトは‘nil’で、それ以外の値は、将来の使用のた
+     め予約済みである。この変数の値は、
+     ‘window-combination-limit’が非‘nil’の場合は無視され
+     る。
+
+   ‘window-combination-resize’の効果を説明するために、以
+下のフレームレイアウトを考えてください。
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W3_________________||
+         |__________________W1__________________|
+
+
+‘window-combination-resize’が‘nil’の場合、ウィンドウW3を
+分割しても、W2のサイズは変更されません:
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||_________________W3_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||_________________W4_________________||
+         |__________________W1__________________|
+
+
+‘window-combination-resize’が‘t’の場合は、W3を分割すると
+3つの生きたウィンドウすべてを、おおよそ同じ高さにします:
+
+          ______________________________________
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W2_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W3_________________||
+         | ____________________________________ |
+         ||                                    ||
+         ||                                    ||
+         ||_________________W4_________________||
+         |__________________W1__________________|
+
+
+生きたウィンドウW2、W3、W4のいずれを削除しても、削除され
+たウィンドウのスペースは、残りの2つの生きたウィンドウに
+相対的に分配されます。
+
+
+File: elisp,  Node: Selecting Windows,  Next: Cyclic Window Ordering,  Prev: Recombining Windows,  Up: Windows
+
+27.8 Selecting Windows
+======================
+
+ -- Function: select-window window &optional norecord
+     この関数は、WINDOWを選択されたウィンドウにして、そ
+     のフレーム内で選択されたウィンドウとし(*note Basic
+     Windows::を参照)、そのフレームを選択する。また、
+     WINDOWのバッファー(*note Buffers and Windows::を参
+     照)をカレントにして、そのバッファーの‘point’の値
+     (*note Window Point::を参照)を、WINDOWの
+     ‘window-point’の値にセットする。WINDOWは生きたウィ
+     ンドウでなければならない。リターン値はWINDOWである
+     。
+
+     デフォルトでは、この関数はWINDOWのバッファーをバッ
+     ファーリストの先頭(*note Buffer List::を参照)に移動
+     して、WINDOWをもっとも最近選択されたウィンドウにす
+     る。しかし、オプション引数NORECORDが非‘nil’の場合は
+     、これらの追加処理は省略される。
+
+     この関数は、NORECORDが‘nil’ならば、
+     ‘buffer-list-update-hook’(*note Buffer List::)を実
+     行する。コーディングを単純にするために、アプリケー
+     ションや内部ルーチンは、しばしばウィンドウを一時的
+     に選択することがあることに注意。一般的には、そのよ
+     うな選択(以下のマクロ‘save-selected-window’と
+     ‘with-selected-window’による選択も含む)は記録されな
+     いので、‘buffer-list-update-hook’の汚染は避けられる
+     。選択を“実際にカウント”するのは、WINDOWのフレーム
+     の次回表示時に可視の変更が発生したときで、それらは
+     常に記録されるべきである。これは、あるウィンドウが
+     選択されるたびに関数を実行するためには、それを
+     ‘buffer-list-update-hook’に配するのが良い選択である
+     ことも意味している。
+
+   引数NORECORDに非‘nil’を指定した‘select-window’の連続
+呼び出しは、ウィンドウの並び順を選択時刻により決定します
+。関数‘get-lru-window’は、もっとも昔に選択された生きたウ
+ィンドウ(*note Cyclic Window Ordering::を参照)を取得する
+ために使用できます。
+
+ -- Macro: save-selected-window forms...
+     このマクロは、選択されたフレーム、同様に各フレーム
+     の選択されたウィンドウを記録し、FORMSを順に実行して
+     から、以前に選択されていたフレームとウィンドウをリ
+     ストアする。これはカレントバッファーの保存とリスト
+     アも行う。リターン値はFORMS内の最後のフォームの値で
+     ある。
+
+     このマクロは、ウィンドウのサイズ、コンテンツ、配置
+     についての保存やリストアは何も行わない。したがって
+     、FORMSがそれらを変更した場合、その変更は永続化され
+     る。あるフレームにおいて以前に選択されていたウィン
+     ドウがFORMSのexit時にもはや生きていない場合、そのフ
+     レームの選択されたウィンドウはそのまま放置される。
+     以前に選択されていたウィンドウがもはや生きていない
+     場合はFORMSの最後に選択されていたウィンドウが何であ
+     れ、それが選択されたままになる。カレントバッファー
+     FORMSのexit時にそれが生きている場合のみリストアされ
+     る。
+
+     このマクロは、もっとも最近に選択されたウィンドウと
+     バッファーリストの順番を、どちらも変更しない。
+
+ -- Macro: with-selected-window window forms...
+     このマクロはWINDOWを選択して、FORMSを順に実行してか
+     ら、以前に選択されていたウィンドウとカレントバッフ
+     ァーをリストアする。たとえば、引数NORECORDを‘nil’で
+     ‘select-window’を呼び出す等、FORMS内で故意に変更し
+     ない限り、もっとも最近に選択されたウィンドウとバッ
+     ファーリストの順番は変更されない。
+
+     このマクロは、もっとも最近に選択されたウィンドウと
+     バッファーリストの順番を変更しない。
+
+ -- Function: frame-selected-window &optional frame
+     この関数は、フレームFRAME内で選択されているウィンド
+     ウをリターンする。FRAMEは生きたフレームであること。
+     省略または‘nil’の場合のデフォルトは、選択されたフレ
+     ームである。
+
+ -- Function: set-frame-selected-window frame window
+          &optional norecord
+     この関数は、WINDOWをフレームFRAME内で選択されたウィ
+     ンドウにする。FRAMEは生きたフレームであること。省略
+     または‘nil’の場合のデフォルトは、選択されたフレーム
+     である。WINDOWは生きたウィンドウであること。省略ま
+     たは‘nil’の場合のデフォルトは選択されたウィンドウで
+     ある。
+
+     FRAMEが選択されたフレームの場合は、WINDOWを選択され
+     たウィンドウにする。
+
+     オプション引数NORECORDが非‘nil’の場合、この関数はも
+     っとも最近に選択されたウィンドウのリストとバッファ
+     ーリストを、どちらも変更しない。
+
+
+File: elisp,  Node: Cyclic Window Ordering,  Next: Buffers and Windows,  Prev: Selecting Windows,  Up: Windows
+
+27.9 Cyclic Ordering of Windows
+===============================
+
+他のウィンドウを選択するためにコマンド‘C-x
+o’(‘other-window’)を使う際には、特定の順番で生きたウィン
+ドウを巡回します。与えられた任意のウィンドウ構成にたいし
+て、この順序は決して変更されません。これは、“ウィンドウ
+のサイクル順序(cyclic ordering of windows)”と呼ばれます
+。
+
+   この順序は、そのフレームのリーフノードである生きたウ
+ィンドウを取得するために、ツリーを深さ優先で走査すること
+により決定されます(*note Windows and Frames::を参照)。ミ
+ニバッファーがアクティブな場合は、ミニバッファーウィンド
+ウも含まれます。この順序は巡回的(cyclic)なので、この順序
+の最後のウィンドウの次には最初のウィンドウが配されます。
+
+ -- Function: next-window &optional window minibuf
+          all-frames
+     この関数は、ウィンドウのサイクル順でWINDOWの次の生
+     きたウィンドウをリターンする。WINDOWは生きたウィン
+     ドウであること。省略または‘nil’の場合のデフォルトは
+     選択されたウィンドウである。
+
+     オプション引数MINIBUFは、サイクル順にミニバッファー
+     ウィンドウを含めるべきかどうかを指定する。通常は、
+     MINIBUFが‘nil’のときは、ミニバッファーウィンドウが
+     カレントで“アクティブ”な場合のみミニバッファーウィ
+     ンドウが含まれる。これは、‘C-x o’の振る舞うと合致す
+     る(ミニバッファーが使用されている限りミニバッファー
+     ウィンドウはアクティブであることに注意。*note
+     Minibuffers::を参照のこと)。
+
+     MINIBUFが‘t’の場合、サイクル順にはすべてのミニバッ
+     ファーウィンドウが含まれる。MINIBUFが‘t’と‘nil’のい
+     ずれとも異なる場合は、たとえアクティブであってもミ
+     ニバッファーウィンドウは含まれない。
+
+     オプション引数ALL-FRAMESは、考慮に入れるフレームを
+     指定する:
+
+        • ‘nil’ を指定した場合は、WINDOWのフレーム上にあ
+          るウィンドウを考慮することを意味する。。
+          (MINIBUF引数で指定されたことにより)ミニバッフ
+          ァーウィンドウが考慮される場合は、ミニバッファ
+          ーウィンドウを共有するフレームも考慮される。
+
+        • ‘t’ を指定した場合は、すべての既存フレーム上の
+          ウィンドウを考慮することを意味する。
+
+        • ‘visible’ を指定した場合は、すべての可視フレー
+          ム上のウィンドウを考慮することを意味する。
+
+        • 0 を指定した場合は、可視またはアイコン化された
+          すべてのフレーム上のウィンドウを考慮することを
+          意味する。
+
+        • フレーム を指定した場合は、指定されたフレーム
+          上のウィンドウを考慮することを意味する。
+
+        • その他 を指定した場合は、WINDOWのあるフレーム
+          上のウィンドウを考慮し、それ以外は考慮しないこ
+          とを意味する。
+
+     複数のフレームが考慮される場合は、すべての生きたフ
+     レームのリストの順にしたがってそれらのフレームを順
+     に追加することにより、サイクル順を取得する(*note
+     Finding All Frames::を参照)。
+
+ -- Function: previous-window &optional window minibuf
+          all-frames
+     この関数は、ウィンドウのサイクル順においてWINDOWの
+     前に位置する、生きたウィンドウをリターンする。その
+     他の引数は、‘next-window’の場合と同様に処理される。
+
+ -- Command: other-window count &optional all-frames
+     この関数は、ウィンドウのサイクル順において、選択さ
+     れたウィンドウからCOUNT番目に位置する、生きたウィン
+     ドウをリターンする。COUNTが正の数ならCOUNT個のウィ
+     ンドウを前方にスキップし、負の数なら−COUNT個のウィ
+     ンドウを後方にスキップする。COUNTが0の場合は、選択
+     されたウィンドウを単に再選択する．インタラクティブ
+     に呼び出された場合、COUNTはプレフィックス数引数であ
+     る。
+
+     オプション引数ALL-FRAMESは、‘next-window’に‘nil’の
+     MINIBUF引数を指定したときの‘next-window’の場合と同
+     じ意味をもつ。
+
+     この関数は、非‘nil’のウィンドウパラメーター
+     ‘no-other-window’をもつウィンドウを選択しない。
+
+ -- Function: walk-windows fun &optional minibuf
+          all-frames
+     この関数は、生きたウィンドウそれぞれにたいして、ウ
+     ィンドウを引数に関数FUNを呼び出す。
+
+     これはウィンドウのサイクル順にしたがう。オプション
+     引数MINIBUFとALL-FRAMESは、含まれるウィンドウセット
+     を指定する。これらは、‘next-window’の引数の場合と同
+     じ意味をもつ。ALL-FRAMESがフレームを指定する場合、
+     最初に処理されるのはそのフレームの最初のウィンドウ
+     (‘frame-first-window’がリターンするウィンドウ)であ
+     り、選択されたウィンドウである必要はない。
+
+     FUNがウィンドウの分割や削除によりウィンドウ構成を変
+     更する場合でも、処理するウィンドウセットは初回の
+     FUN呼び出しに先立ち決定されるため、変更されない。
+
+ -- Function: one-window-p &optional no-mini all-frames
+     この関数は、選択されたウィンドウが唯一の生きたウィ
+     ンドウの場合は‘t’、それ以外は‘nil’をリターンする。
+
+     ミニバッファーウィンドウがアクティブな場合、ミニバ
+     ッファーウィンドウは通常は考慮される(そのため、この
+     関数は‘nil’をリターンする)。しかし、オプション引数
+     NO-MINIが非‘nil’の場合は、たとえアクティブであって
+     も、ミニバッファーウィンドウは無視される。オプショ
+     ン引数ALL-FRAMESは、‘next-window’の場合と同じ意味を
+     もつ。
+
+   以下は、何らかの条件を満足するウィンドウを、それらを
+選択することなくリターンする関数です:
+
+ -- Function: get-lru-window &optional all-frames
+          dedicated not-selected
+     この関数は、発見的には“もっとも最近に使用された”ウ
+     ィンドウであるような、生きたウィンドウをリターンす
+     る。オプション引数ALL-FRAMESは、‘next-window’の場合
+     と同じ意味をもつ。
+
+     フル幅のウィンドウが存在する場合は、それらのウィン
+     ドウだけが考慮される。ミニバッファーが候補になるこ
+     とは、決してない。オプション引数DEDICATEDが‘nil’の
+     場合は、専用のバッファー(*note Dedicated Windows::を
+     参照)が候補になることは、決してない。唯一の候補が選
+     択されたウィンドウである場合以外は、決して選択され
+     たウィンドウをリターンしない。しかし、オプション引
+     数NOT-SELECTEDが非‘nil’ならば、そのような場合でもこ
+     の関数は‘nil’をリターンする。
+
+ -- Function: get-largest-window &optional all-frames
+          dedicated not-selected
+     この関数は、もっとも大きいエリア(高さ掛ける幅)をも
+     つウィンドウをリターンする。オプション引数
+     ALL-FRAMESは検索するウィンドウを指定し、意味は
+     ‘next-window’の場合と同様。
+
+     ミニバッファーウィンドウは決して候補とならない。オ
+     プション引数DEDICATEDが‘nil’の場合、専用ウィンドウ
+     (*note Dedicated Windows::ウィンドウを参照)は決して
+     候補にならない。オプション引数NOT-SELECTEDが非
+     ‘nil’の場合、選択されたウィンドウは決して候補になら
+     ない。オプション引数NOT-SELECTEDが非‘nil’、かつ唯一
+     の候補が選択されたウィンドウの場合、この関数は
+     ‘nil’をリターンする。
+
+     同サイズの候補ウィンドウが2つある場合、この関数はウ
+     ィンドウのサイクル順で、選択されたウィンドウから数
+     えて最初にあるウィンドウを優先する。
+
+ -- Function: get-window-with-predicate predicate
+          &optional minibuf all-frames default
+     この関数は、ウィンドウのサイクル順内の各ウィンドウ
+     にたいして、そのウィンドウを引数に、関数PREDICATEを
+     順に呼び出す。いずれかのウィンドウにたいして
+     PREDICATEが非‘nil’をリターンした場合、この関数は処
+     理を停止して、そのウィンドウをリターンする。そのよ
+     うなうｌが見つからなければ、リターン値はDEFAULT(こ
+     れのデフォルトは‘nil’)となる。
+
+     オプション引数 MINIBUFとALL-FRAMESは検索するウィン
+     ドウを指定し、意味は‘next-window’の場合と同様である
+     。
+
+
+File: elisp,  Node: Buffers and Windows,  Next: Switching Buffers,  Prev: Cyclic Window Ordering,  Up: Windows
+
+27.10 Buffers and Windows
+=========================
+
+このセクションでは、ウィンドウのコンテンツを調べたりセッ
+トするための、低レベルな関数を説明します。ウィンドウ内に
+特定のバッファーを表示するための高レベルな関数については
+、*note Switching Buffers::を参照してください。
+
+ -- Function: window-buffer &optional window
+     この関数は、WINDOWが表示しているバッファーをリター
+     ンする。WINDOWが省略または‘nil’の場合のデフォルトは
+     、選択されたウィンドウである。WINDOWが内部ウィンド
+     ウの場合、この関数は‘nil’をリターンする。
+
+ -- Function: set-window-buffer window buffer-or-name
+          &optional keep-margins
+     この関数は、 WINDOWにBUFFER-OR-NAMEウィンドウ表示さ
+     せる。WINDOWは生きたウィンドウであること。‘nil’の場
+     合のデフォルトは、選択されたウィンドウである。
+     BUFFER-OR-NAMEは、バッファー、あるいは既存のバッフ
+     ァー名であること。この関数は、選択されていたウィン
+     ドウを変更せず、カレントバッファーも直接は変更しな
+     い(*note Current Buffer::を参照)。リターン値は
+     ‘nil’である。
+
+     WINDOWが、あるバッファーにたいして“特に専用”で、か
+     つBUFFER-OR-NAMEがそのバッファーを指定しない場合、
+     この関数はエラーをシグナルする。*note Dedicated
+     Windows::を参照のこと。
+
+     デフォルトでは、この関数は指定されたバッファーのロ
+     ーカル変数にもとづいて、WINDOWの位置、ディスプレイ
+     マージン、フリンジ幅、スクロールバーのセッティング
+     をリセットする。しかし、オプション引数
+     KEEP-MARGINSが非‘nil’の場合は、ディスプレイマージン
+     とフリンジ幅は未変更のままにする。
+
+     アプリケーションを記述する際は、直接
+     ‘set-window-buffer’を呼び出すのではなく、通常は
+     *note Switching Buffers::で説明する高レベルの関数を
+     使用するべきである。
+
+     これは、‘window-scroll-functions’の後に
+     ‘window-configuration-change-hook’を実行する。*note
+     Window Hooks::を参照のこと。
+
+ -- Variable: buffer-display-count
+     このバッファーローカル変数は、ウィンドウ内にバッフ
+     ァーが表示された回数を記録する。。これは、そのバッ
+     ファーにたいして‘set-window-buffer’が呼び出されるた
+     びに増分される
+
+ -- Variable: buffer-display-time
+     このバッファーローカル変数は、バッファーがウィンド
+     ウに最後に表示された時刻を記録する。バッファーが表
+     示されたことがない場合は、‘nil’をリターンする。これ
+     は、そのバッファーにたいして‘set-window-buffer’が呼
+     び出されるたびに、‘current-time’がリターンする値に
+     より更新される(*note Time of Day::を参照)。
+
+ -- Function: get-buffer-window &optional buffer-or-name
+          all-frames
+     この関数は、ウィンドウのサイクル順内で、選択された
+     ウィンドウを起点に、BUFFER-OR-NAMEを表示する最初の
+     ウィンドウをリターンする.<(*note Cyclic Window
+     Ordering::を参照)。そのようなウィンドウが存在しない
+     場合、リターン値は‘nil’となる。
+
+     BUFFER-OR-NAMEはバッファーか、バッファーの名前であ
+     ること。省略または‘nil’の場合のデフォルトは、カレン
+     トバッファーである。オプション引数ALL-FRAMESは、考
+     慮するウィンドウを指定する。
+
+        • ‘t’は、すべての既存フレーム上のウィンドウを考
+          慮することを意味する。
+        • ‘visible’は、すべての可視フレーム上のウィンド
+          ウを考慮することを意味する。
+        • 0は、すべての可視またはアイコン化されたフレー
+          ム上のウィンドウを考慮することを意味する。
+        • フレームを指定した場合は、そのフレーム上のウィ
+          ンドウだけを考慮することを意味する。
+        • その他の値は、選択されたフレーム上のウィンドウ
+          を考慮することを意味する。
+
+     これらの意味は、‘next-window’のALL-FRAMES引数の場合
+     とは若干異なることに注意されたい(*note Cyclic
+     Window Ordering::を参照)。この不一致の解消のために
+     、EEmacsの将来のバージョンにおいて、この関数は変更
+     されるかもしれない。
+
+ -- Function: get-buffer-window-list &optional
+          buffer-or-name minibuf all-frames
+     この関数は、その時点でBUFFER-OR-NAMEを表示する、す
+     べてのウィンドウのリストをリターンする。
+     BUFFER-OR-NAMEはバッファー、または既存バッファーの
+     名前であること。省略または‘nil’の場合のデフォルトは
+     、カレントバッファーである。
+
+     引数MINIBUFとALL-FRAMESは、関数‘next-window’の場合
+     と同じ意味をもつ(*note Cyclic Window Ordering::を参
+     照)。ALL-FRAMES引数は、‘get-buffer-window’の場合と
+     正確に同じようには_振る舞わない_ことに注意すること
+     。
+
+ -- Command: replace-buffer-in-windows &optional
+          buffer-or-name
+     このコマンドは、BUFFER-OR-NAMEを表示しているすべて
+     のウィンドウで、それを他の何らかのバッファーに置き
+     換える。BUFFER-OR-NAMEはバッファー、または既存のバ
+     ッファーの名前であること。省略または‘nil’の場合のデ
+     フォルトは、カレントバッファーである。
+
+     各ウィンドウで置き換えられるバッファーは、
+     ‘switch-to-prev-buffer’を通じて選択される(*note
+     Window History::を参照)。BUFFER-OR-NAMEを表示してい
+     る専用ウィンドウはすべて、可能なら削除される(*note
+     Dedicated Windows::を参照)。そのようなウィンドウが
+     そのフレームで唯一のウィンドウで、かつ同一端末上に
+     他のフレームが存在する場合は、そのフレームも同様に
+     削除される。その端末上の唯一のフレームの唯一のウィ
+     ンドウの場合は、いずれにせよそのバッファーは置き換
+     えられる。
+
+
+File: elisp,  Node: Switching Buffers,  Next: Choosing Window,  Prev: Buffers and Windows,  Up: Windows
+
+27.11 Switching to a Buffer in a Window
+=======================================
+
+このセクションでは、あるウィンドウ内で特定のバッファーに
+スイッチするための、高レベルな関数について説明します。
+“バッファーをスイッチする”とは一般的に、(1)そのバッファ
+ーをあるウィンドウに表示して、(2)そのウィンドウを選択さ
+れたウィンドウとし(かつそのフレームを選択されたフレーム
+とし、(3)そのバッファーウィンドウカレントバッファーにす
+ることを意味します。
+
+   Lispプログラムがアクセスや変更できるように、バッファ
+ーを一時的にカレントにするのにこれらの関数を_使用しない
+でください_。これらはウィンドウヒストリー(*note Window
+History::を参照)の変更のような副作用をもつので、そのよう
+な方法での使用はユーザーを驚かせることになるでしょう。バ
+ッファーをLispで変更するためにカレントにしたい場合は
+‘with-current-buffer’、‘save-current-buffer’、
+‘set-buffer’を使用します。*note Current Buffer::を参照し
+てください。
+
+ -- Command: switch-to-buffer buffer-or-name &optional
+          norecord force-same-window
+     このコマンドは、選択されたウィンドウ内で
+     BUFFER-OR-NAMEを表示して、それをカレントバッファー
+     にしようと試みる。これはよくインタラクティブ(‘C-x
+     b’のバインディングで)に使用され、同様にLispプログラ
+     ムでも使用される。リターン値はスイッチしたバッファ
+     ーである。
+
+     BUFFER-OR-NAMEが‘nil’の場合のデフォルトは、
+     ‘other-buffer’によりリターンされるバッファーになる
+     (*note Buffer List::を参照)。BUFFER-OR-NAMEが既存の
+     バッファーの名前でない文字列の場合、この関数はその
+     名前で新たにバッファーを作成する。新たなバッファー
+     のメジャーモードは、変数‘major-mode’により決定され
+     る(*note Major Modes::を参照)。
+
+     通常は、指定されたバッファーはバッファーリスト — グ
+     ローバルバッファーリストと選択されたフレームのバッ
+     ファーリストの両方の先頭に置かれる(*note Buffer
+     List::を参照)。しかし、オプション引数NORECORDが非
+     ‘nil’なら、これは行われない。
+
+     ‘switch-to-buffer’が、選択されたウィンドウ内にバッ
+     ファーを表示するのが不可能なことが時折ある。これは
+     、選択されたウィンドウがミニバッファーウィンドウの
+     場合や、選択されたウィンドウがそのバッファーにたい
+     して特に専用(strongly dedicated)な場合に発生する
+     (*note Dedicated Windows::を参照)。この場合、このコ
+     マンドは‘pop-to-buffer’(以下参照)を呼び出すことによ
+     り、通常は何か他のウィンドウにそのバッファーの表示
+     を試みる。しかし、オプション引数が非‘nil’なら、かわ
+     りにエラーをシグナルする。
+
+   デフォルトでは、‘switch-to-buffer’はバッファーの
+‘point’位置でバッファーを表示します。この振る舞いは、以
+下のオプションを使用して調整できます。
+
+ -- User Option: switch-to-buffer-preserve-window-point
+     この変数が‘nil’の場合、‘switch-to-buffer’は
+     BUFFER-OR-NAMEにより指定されたバッファーを、そのバ
+     ッファーの‘point’位置で表示する。この変数が
+     ‘already-displayed’なら、そのバッファーが任意の可視
+     またはアイコン化されたフレーム上の他のウィンドウで
+     表示されている場合は、選択されたウィンドウ内の以前
+     の位置でのバッファーの表示を試みる。この変数が‘t’な
+     ら、‘switch-to-buffer’は選択されたウィンドウ内の以
+     前の位置でそのバッファーを表示しようと試みる。
+
+     この変数は、バッファーがすでに選択されたウィンドウ
+     に表示されているか、これまで表示されたことがない、
+     またはバッファーを表示するために
+     ‘switch-to-buffer’が‘pop-to-buffer’を呼び出した場合
+     は無視される。
+
+   以下の2つのコマンドは、説明している機能以外は
+‘switch-to-buffer’と類似しています。
+
+ -- Command: switch-to-buffer-other-window
+          buffer-or-name &optional norecord
+     この関数は、BUFFER-OR-NAMEで指定されたバッファーを
+     、選択されたウィンドウ以外の、別のウィンドウに表示
+     する。これは関数‘pop-to-buffer’(以下参照)を内部で使
+     用する。
+
+     選択されたウィンドウが指定されたバッファーをすでに
+     表示している場合は表示を続けるが、見つかった他のウ
+     ィンドウも同様にそのバッファーを表示する。
+
+     引数BUFFER-OR-NAMEとNORECORDは、
+     ‘switch-to-buffer’の場合と同じ意味をもつ。
+
+ -- Command: switch-to-buffer-other-frame buffer-or-name
+          &optional norecord
+     この関数は、BUFFER-OR-NAMEで指定されたバッファーを
+     、新たなフレームに表示する。これは関数
+     ‘pop-to-buffer’(以下参照)を内部で使用する。
+
+     指定されたバッファーがすでにカレント端末上の任意の
+     フレームの他のウィンドウに表示されている場合、これ
+     はフレームを新たに作成せずにそのウィンドウに切り替
+     える。しかし、これを行うために選択されたウィンドウ
+     を使用することは決してない。
+
+     引数BUFFER-OR-NAMEとNORECORDは、
+     ‘switch-to-buffer’の場合と同じ意味をもつ。
+
+   上述したコマンドは、任意のウィンドウにバッファーを柔
+軟に表示して、編集用にそのウィンドウを選択する関数
+‘pop-to-buffer’を使用しています。次に、‘pop-to-buffer’は
+バッファーの表示に‘display-buffer’を使用します。したがっ
+て、‘display-buffer’に影響する変数も、同様に影響します。
+‘display-buffer’のドキュメントについては、*note Choosing
+Window::を参照してください。
+
+ -- Command: pop-to-buffer buffer-or-name &optional
+          action norecord
+     この関数は、BUFFER-OR-NAMEをカレントバッファーにし
+     て、なるべく前に選択されていたウィンドウではないウ
+     ィンドウにそれを表示する。そしてその後に、表示して
+     いるウィンドウを選択する。そのウィンドウが別のグラ
+     フィカルなフレーム上にある場合は、可能ならそのフレ
+     ームが入力フォーカスを与えられる(*note Input
+     Focus::を参照)。リターン値は、切り替えたバッファー
+     である。
+
+     BUFFER-OR-NAMEが‘nil’の場合のデフォルトは、
+     ‘other-buffer’によりリターンされるバッファーになる
+     (*note Buffer List::を参照)。BUFFER-OR-NAMEが既存の
+     バッファーの名前でない文字列の場合、この関数はその
+     名前で新たにバッファーを作成する。新たなバッファー
+     のメジャーモードは、変数‘major-mode’により決定され
+     る(*note Major Modes::を参照)。
+
+     ACTIONが非‘nil’の場合、それは‘display-buffer’に渡す
+     ディスプレイアクション(display action)であること
+     (*note Choosing Window::を参照)。非‘nil’、非リスト
+     値の場合は、たとえそのバッファーがすでに選択された
+     ウィンドウに表示されていたとしても、選択されたウィ
+     ンドウではなく、ウィンドウをポップ(pop)することを意
+     味する。
+
+     ‘switch-to-buffer’と同様、NORECORDが‘nil’なら、この
+     関数はバッファーリストを更新する。
+
+
+File: elisp,  Node: Choosing Window,  Next: Display Action Functions,  Prev: Switching Buffers,  Up: Windows
+
+27.12 Choosing a Window for Display
+===================================
+
+コマンド‘display-buffer’は、表示のために柔軟にウィンドウ
+を選択して、そのウィンドウ内に指定されたバッファーを表示
+します。これは、キーバインディング‘C-x 4 C-o’を通じて、
+インタラクティブに呼び出すことができます。また、
+‘switch-to-buffer’や‘pop-to-buffer’を含む、多くの関数お
+よびコマンドにより、サブルーチンとしても使用されます
+(*note Switching Buffers::を参照)。
+
+   このコマンドは、ウィンドウ内に表示するウィンドウを探
+すために、いくつかの複雑なステップを実行します。これらの
+ステップは“ディスプレイアクション(display actions)”を用
+いて記述されます。ディスプレイアクションは、‘(FUNCTION .
+ALIST)’という形式をもちます。ここで、FUNCTIONは関数、ま
+たは関数リストで、わたしたちはこれを“アクション関数
+(action functions)”として参照します。ALISTは連想リスト
+(association list)で、わたしたちはこれを“アクション
+alist(action alists)”として参照します。
+
+   アクション関数は、表示するバッファーと、アクション
+alistという、2つの引数を受け取ります。これは、自身の条件
+にしたがってウィンドウウィンドウ選択、または作成して、バ
+ッファーをウィンドウ内に表示します。成功した場合はそのウ
+ィンドウ、それ以外は‘nil’をリターンします。事前定義され
+たアクション関数については、*note Display Action
+Functions::を参照してください。
+
+   ‘display-buffer’は、複数ソースからのディスプレイアク
+ションを組み合わせて、アクション関数のいずれか1つがバッ
+ファーの表示を管理して非‘nil’値をリターンするまで、アク
+ション関数を順に呼び出します。
+
+ -- Command: display-buffer buffer-or-name &optional
+          action frame
+     このコマンドは、ウィンドウウィンドウ選択したり、そ
+     のバッファーをカレントにすることなく、
+     BUFFER-OR-NAMEをウィンドウに表示させる。引数
+     BUFFER-OR-NAMEはバッファー、または既存のバッファー
+     の名前でなければならない。リターン値は、そのバッフ
+     ァーを表示するために選ばれたウィンドウである。
+
+     オプション引数ACTIONが非‘nil’の場合、それは通常はデ
+     ィスプレイアクション(上述)であること。
+     ‘display-buffer’は、以下のソース(記載順)からディス
+     プレイアクションを集約して、アクション関数リストと
+     アクションalistを構築する:
+
+        • 変数‘display-buffer-overriding-action’。
+
+        • ユーザーオプション‘display-buffer-alist’。
+
+        • ACTION引数。
+
+        • ユーザーオプション
+          ‘display-buffer-base-action’。
+
+        • 定数‘display-buffer-fallback-action’。
+
+     各アクション関数は、いずれかが非‘nil’をリターンする
+     まで、第1引数にバッファー、第2引数に組み合わせられ
+     たアクションalistで、順番に呼び出される。呼び出し側
+     は、ウィンドウ内にバッファーを表示しない場合を処理
+     する用意があることを示すために、アクションalistの要
+     素として‘(allow-no-window . t)’を渡すことができる。
+
+     引数ACTIONには非‘nil’の非list値も指定できる。これは
+     、たとえ選択されたウィンドウがすでにそのバッファー
+     を表示していても、選択されたウィンドウではない別の
+     ウィンドウにバッファーが表示されるべきだという、特
+     別な意味をもつ。プレフィックス引数とともにインタラ
+     クティブに呼び出された場合、ACTIONは‘t’である。
+
+     オプション引数FRAMEが非‘nil’の場合は、そのバッファ
+     ーがすでに表示されているか判断する際、どのフレーム
+     をチェックするかを指定する。これはACTIONのアクショ
+     ンalistに、要素‘(reusable-frames . FRAME)’を追加す
+     るのと等価である。*note Display Action Functions::を
+     参照のこと。
+
+ -- Variable: display-buffer-overriding-action
+     この変数の値は、‘display-buffer’により最高の優先順
+     で扱われるディスプレイアクションであること。デフォ
+     ルト値は空(つまり‘(nil . nil)’)である。
+
+ -- User Option: display-buffer-alist
+     このオプションの値は、ディスプレイアクションにコン
+     ディション(condition: 状態)をマップするalistである
+     。コンディションはそれぞれ、バッファー名にマッチす
+     る正規表現か、2つの引数をとる関数で、引数はバッファ
+     ー名と‘display-buffer’に渡すACTION引数である。
+     ‘display-buffer’に渡されたバッファー名がこのalist内
+     の正規表現にマッチするか、コンディションで指定され
+     た関数が非‘nil’をリターンした場合、
+     ‘display-buffer’はバッファーを表示すために、対応す
+     るディスプレイアクションを使用する。
+
+ -- User Option: display-buffer-base-action
+     このオプションの値は、ディスプレイアクションである
+     こと。このオプションは、‘display-buffer’呼び出しに
+     たいする、“標準”のディスプレイアクションを定義する
+     ために使用できる。
+
+ -- Constant: display-buffer-fallback-action
+     このディスプレイアクションは、‘display-buffer’にた
+     いして、他のディスプレイアクションが与えられなかっ
+     た場合の代替え処理を指定する。
+
+
+File: elisp,  Node: Display Action Functions,  Next: Choosing Window Options,  Prev: Choosing Window,  Up: Windows
+
+27.13 Action Functions for ‘display-buffer’
+===========================================
+
+以下の基本的なアクション関数がEmacs内で定義されています
+。これらの関数はそれぞれ表示するバッファーBUFFERと、アク
+ションalistという、2つの引数をとります。それぞれのアクシ
+ョン関数は、成功した場合はウィンドウ、失敗したら‘nil’を
+リターンします。
+
+ -- Function: display-buffer-same-window buffer alist
+     この関数は、選択されたウィンドウ内に、BUFFERの表示
+     を試みる。選択されたウィンドウがミニバッファーウィ
+     ンドウや、他のバッファー専用(*note Dedicated
+     Windows::を参照)の場合は失敗する。ALISTに非‘nil’の
+     ‘inhibit-same-window’エントリーがある場合も失敗する
+     。
+
+ -- Function: display-buffer-reuse-window buffer alist
+     この関数は、すでにBUFFERを表示しているウィンドウを
+     探すことにより、バッファーの“表示”を試みる。
+
+     ALISTに非‘nil’の‘inhibit-same-window’エントリーがあ
+     る場合、選択されたウィンドウは再利用に適さない。
+     ALISTに‘reusable-frames’エントリーが含まれる場合、
+     その値により再利用可能なウィンドウをどのフレームで
+     検索するか決定される:
+
+        • ‘nil’は、選択されたフレーム(実際には最後の非ミ
+          ニバッファーフレーム)上のウィンドウを考慮する
+          ことを意味する。
+        • ‘t’は、すべてのフレーム上のウィンドウを考慮す
+          ることを意味する。
+        • ‘visible’は、すべての可視フレーム上のウィンド
+          ウを考慮することを意味する。
+        • 0は、すべての可視またはアイコン化されたフレー
+          ム上のウィンドウを考慮することを意味する。
+        • フレームを指定した場合は、そのフレーム上のウィ
+          ンドウだけを考慮することを意味する。
+
+     これらは、‘next-window’にたいするALL-FRAMES引数の場
+     合とは若干異なることに注意(*note Cyclic Window
+     Ordering::を参照)。
+
+     ALISTに‘reusable-frames’エントリーが含まれない場合
+     、通常この関数は選択されたフレームだけを検索する。
+     しかし、変数‘pop-up-frames’が非‘nil’なら、カレント
+     端末上のすべてのフレームを検索する。*note Choosing
+     Window Options::を参照。
+
+     この関数が他のフレーム上のウィンドウを選択した場合
+     は、そのフレームを可視にするとともに、ALISTが
+     ‘inhibit-switch-frame’エントリー(*note Choosing
+     Window Options::を参照)を含んでいなければ、必要なら
+     そのフレームを最前面に移動(raise)する。
+
+ -- Function: display-buffer-pop-up-frame buffer alist
+     この関数は、新たにフレームを作成して、そのフレーム
+     のウィンドウ内にバッファーを表示する。これは実際に
+     は、‘pop-up-frame-function’(*note Choosing Window
+     Options::を参照)内で指定された関数を呼び出すことに
+     より、フレーム作成を行う。ALISTが
+     ‘pop-up-frame-parameters’エントリーを含む場合は、そ
+     の連想値(associated value)が新たに作成されたフレー
+     ムのパラメーターに追加される。
+
+ -- Function: display-buffer-pop-up-window buffer alist
+     この関数は、最大もしくはもっとも長い間参照されてい
+     ない(LRU: least recently-used)ウィンドウを分割する
+     ことにより、BUFFERの表示を試みる。これは実際には、
+     ‘split-window-preferred-function’(*note Choosing
+     Window Options::を参照)内で指定された関数を呼び出す
+     ことにより分割を行う。
+
+     新たなウィンドウのサイズは、ALISTにエントリー
+     ‘window-height’と‘window-width’を与えることにより調
+     整できる。ウィンドウの高さを調整するには、CARが
+     ‘window-height’でCDRが以下のいずれかであるようなエ
+     ントリーを使用する:
+
+        • ‘nil’は、新たなウィンドウの高さを変更しないこ
+          とを意味する。
+
+        • 数字は、新たなウィンドウの高さを指定する。整数
+          は、ウィンドウの行数を指定する。浮動小数点数は
+          、そのフレームのルートウィンドウにたいするウィ
+          ンドウの高さの割合を与える。
+
+        • CDRが関数を指定する場合、その関数は新たなウィ
+          ンドウを引数として呼び出される関数である。この
+          関数は、そのウィンドウの高さを調整することを期
+          待されており、リターン値は無視される。これに適
+          した関数は
+          ‘shrink-window-if-larger-than-buffer’および
+          ‘fit-window-to-buffer’である。*note Resizing
+          Windows::を参照のこと。
+
+     ウィンドウの幅を調整するには、CARが‘window-width’で
+     CDRが以下のいずれかであるようなエントリーを使用する
+     :
+
+        • ‘nil’は、新たなウィンドウの幅を変更しないこと
+          を意味する。
+
+        • 数字は、新たなウィンドウの幅を指定する。整数は
+          、ウィンドウの列数を指定する。浮動小数点数は、
+          そのフレームのルートウィンドウにたいするウィン
+          ドウの幅の割合を与える。
+
+        • CDRが関数を指定する場合、その関数は新たなウィ
+          ンドウを引数として呼び出される関数である。この
+          関数は、そのウィンドウの幅を調整することを期待
+          されており、リターン値は無視される。
+
+     この関数は、何らかの理由により分割を行えるウィンド
+     ウが存在しない場合は、失敗する可能性がある(選択され
+     たフレームがフレームパラメーター‘unsplittable’をも
+     つ場合等。*note Buffer Parameters::を参照のこと)。
+
+ -- Function: display-buffer-below-selected buffer alist
+     この関数は、選択されたウィンドウの下のウィンドウ内
+     にBUFFERの表示を試みる。これは選択されたウィンドウ
+     の分割、または選択されたウィンドウの下のウィンドウ
+     の使用を意味する。新たにウィンドウを作成した場合は
+     、ALISTに適切な‘window-height’または
+     ‘window-width’エントリーが含まれていれば、サイズの
+     調整も行うだろう。上記を参照のこと。
+
+ -- Function: display-buffer-in-previous-window buffer
+          alist
+     この関数は、以前にBUFFERを表示していたウィンドウ内
+     に、そのバッファーの表示を試みる。ALISTに非‘nil’の
+     ‘inhibit-same-window’エントリーがある場合、選択され
+     たウィンドウは再利用に適さない。ALISTに
+     ‘reusable-frames’エントリーが含まれる場合、その値は
+     ‘display-buffer-reuse-window’と同様、適正なウィンド
+     ウをどのフレームから検索するかを決定する。
+
+     ALISTに‘previous-window’エントリーがある場合は、そ
+     のエントリーにより指定されたウィンドウは、たとえそ
+     のウィンドウが以前にBUFFERを表示したことが一度もな
+     くても、上記メソッドが見つけた他のすべてのウィンド
+     ウをオーバーライドするだろう。
+
+ -- Function: display-buffer-at-bottom buffer alist
+     この関数は、選択されたフレームの最下にあるウィンド
+     ウ内にBUFFERの表示を試みる。
+
+     これは、フレーム最下のウィンドウまたはフレームのル
+     ートウィンドウを分割するか、選択されたフレーム最下
+     の既存ウィンドウを再利用する。
+
+ -- Function: display-buffer-use-some-window buffer
+          alist
+     この関数は、既存のウィンドウを選択して、そのウィン
+     ドウ内にBUFFERを表示することにより、バッファーの表
+     示を試みる。すべてのウィンドウが他のバッファー専用
+     の場合、この関数は失敗する可能性がある(*note
+     Dedicated Windows::を参照)。
+
+ -- Function: display-buffer-no-window buffer alist
+     ALISTに非‘nil’の‘allow-no-window’エントリーがある場
+     合、この関数は‘buffer’を表示しない。これにより、デ
+     フォルトの動作をオーバーライドして、バッファーの表
+     示を避けることができる。これは、呼び出し側が
+     ‘allow-no-window’に非‘nil’値を指定して、
+     ‘display-buffer’からリターンされた‘nil’値を処理でき
+     るようなケースを想定している。
+
+   アクション関数を説明するために、以下の例を考えてみま
+しょう。
+
+     (display-buffer
+      (get-buffer-create "*foo*")
+      '((display-buffer-reuse-window
+         display-buffer-pop-up-window
+         display-buffer-pop-up-frame)
+        (reusable-frames . 0)
+        (window-height . 10) (window-width . 40)))
+
+上記のフォームを評価することにより、以下のように
+‘display-buffer’が実行されます: (1)*foo*と呼ばれるバッフ
+ァーが、すでに可視またはアイコン化されたフレームに表示さ
+れている場合は、そのウィンドウを再利用する。 (2)それ以外
+の場合は、新たなウィンドウをポップアップするか、それが不
+可能なら新たなフレームでバッファーを表示する。(3) すべて
+のステップが失敗した場合は、それが何であれ
+‘display-buffer-base-action’および
+‘display-buffer-fallback-action’が指示するものを使用して
+処理を行う。
+
+   さらに‘display-buffer’は、(‘display-buffer’により
+*foo*が前からそこに配置されていた場合は)再使用されるウィ
+ンドウ、およびポップアップされたウィンドウにたいして調整
+を試みます。そのウィンドウが垂直コンビネーションの一部な
+ら、高さはその行数にセットされるでしょう。数字“10”のかわ
+りに関数‘fit-window-to-buffer’を指定した場合、
+‘display-buffer’は空のバッファーにフィットするようにウィ
+ンドウを1行にセットするでしょう。ウィンドウが水平コンビ
+ネーションの一部なら、列数を40にセットします。新たなウィ
+ンドウが垂直または水平に組み合わせられるかは、ウィンドウ
+の分割方向と‘split-window-preferred-function’、
+‘split-height-threshold’、‘split-width-threshold’の値に
+依存します(*note Choosing Window Options::を参照)。
+
+   ここで、事前に以下のような‘display-buffer-alist’にた
+いするセットアップが存在していて、この呼び出しを組み合わ
+せたとしましょう。
+
+     (let ((display-buffer-alist
+            (cons
+             '("\\*foo\\*"
+               (display-buffer-reuse-window display-buffer-below-selected)
+               (reusable-frames)
+               (window-height . 5))
+             display-buffer-alist)))
+       (display-buffer
+        (get-buffer-create "*foo*")
+        '((display-buffer-reuse-window
+           display-buffer-pop-up-window
+           display-buffer-pop-up-frame)
+          (reusable-frames . 0)
+          (window-height . 10) (window-width . 40))))
+
+このフォームは、まず選択されたフレーム上で*foo*を表示し
+ているウィンドウを再利用するよう、‘display-buffer’に試み
+させます。そのようなウィンドウが存在しなければ、選択され
+たウィンドウの分割を試み、またはそれが不可能なら選択され
+たウィンドウの下のウィンドウを使用します。
+
+   選択されたウィンドウの下にウィンドウがない、あるいは
+下のウィンドウがそれのバッファーに専用の場合、
+‘display-buffer’は前の例で説明したように処理を行うでしょ
+う。しかし、再利用されたウィンドウやポップアップされたウ
+ィンドウの高さ調整を試みる場合は、‘display-buffer’の
+ACTION引数内の行数に対応する指定をオーバーライドする、行
+数“5”へのセットを試みることに注意してください。
+
+
+File: elisp,  Node: Choosing Window Options,  Next: Window History,  Prev: Display Action Functions,  Up: Windows
+
+27.14 Additional Options for Displaying Buffers
+===============================================
+
+‘display-buffer’の標準のディスプレイアクション(*note
+Choosing Window::)は、さまざまなユーザーオプションにより
+変更が可能です。
+
+ -- User Option: pop-up-windows
+     この変数の値が非‘nil’の場合、‘display-buffer’は表示
+     のために既存のバッファーを分割して新たなウィンドウ
+     の作成を許される。
+
+     この変数は、主に後方互換のために提供される。値が
+     ‘nil’のときは、アクション関数
+     ‘display-buffer-pop-up-window’(*note Display Action
+     Functions::を参照)を呼び出すだけの
+     ‘display-buffer-fallback-action’内の特別なメカニズ
+     ムを経由して、‘display-buffer’にしたがう。この変数
+     は、‘display-buffer-alist’等により直接指定できる、
+     ‘display-buffer-pop-up-window’自体からは参照されな
+     い。
+
+ -- User Option: split-window-preferred-function
+     この変数は、バッファーを表示する新たなウィンドウを
+     作成するための、ウィンドウを分割する関数を指定する
+     。これは、実際にウィンドウを分割するために、アクシ
+     ョン関数‘display-buffer-pop-up-window’により使用さ
+     れる(*note Display Action Functions::を参照)。
+
+     デフォルト値は‘split-window-sensibly’で、これは以下
+     で記述する。値は、ウィンドウを引数とする関数でなけ
+     ればならず、(要求されたバッファーを表示するために使
+     用されるであろう)新たなウィンドウ、または‘nil’(分割
+     の失敗を意味する)をリターンしなければならない。
+
+ -- Function: split-window-sensibly window
+     この関数は、WINDOWを分割して、新たに作成したウィン
+     ドウをリターンする。WINDOWを分割できなければ、
+     ‘nil’をリターンする。
+
+     この関数は、ウィンドウが分割できるかどうか判断する
+     際の、通常のルールにしたがう(*note Splitting
+     Windows::を参照)。最初にまず、
+     ‘split-height-threshold’(以下参照)、およびその他が
+     課す制約の元、新たなウィンドウが下になるように分割
+     を試みる。これが失敗したら、
+     ‘split-width-threshold’(以下参照)が課す制約の元、新
+     たなウィンドウが右になるように分割を試みる。これが
+     失敗して、かつそのウィンドウがそのフレームの唯一の
+     ウィンドウの場合、この関数は
+     ‘split-height-threshold’を無視して、新たなウィンド
+     ウが下になるよう、再度分割を試みる。これも同様に失
+     敗したら、この関数は諦めて‘nil’をリターンする。
+
+ -- User Option: split-height-threshold
+     これは‘split-window-sensibly’により使用される変数で
+     あり、ウィンドウを分割して新たなウィンドウを下に配
+     置するかどうかを指定する。整数の場合は、元のウィン
+     ドウが最低でもその行数なければ分割しないことを意味
+     する。‘nil’の場合は、この方法では分割しないことを意
+     味する。
+
+ -- User Option: split-width-threshold
+     これは‘split-window-sensibly’により使用される変数で
+     あり、ウィンドウを分割して新たなウィンドウを右に配
+     置するかどうかを指定する。整数の場合は、元のウィン
+     ドウが最低でもその列数なければ分割しないことを意味
+     する。‘nil’の場合は、この方法では分割しないことを意
+     味する。
+
+ -- User Option: pop-up-frames
+     この変数の値が非‘nil’の場合、新たにフレームを作成す
+     ることにより‘display-buffer’がバッファーを表示でき
+     ることを意味する。デフォルトは‘nil’。
+
+     非‘nil’値は、‘display-buffer’がすでに
+     BUFFER-OR-NAMEを表示しているウィンドウを探す際に、
+     選択されたフレームだけでなく、可視およびアイコン化
+     されたフレームを検索できることも意味する。
+
+     この変数は主に、後方互換のために提供されている。値
+     が非‘nil’のときは、アクション関数
+     ‘display-buffer-pop-up-frame’(*note Display Action
+     Functions::を参照)を呼び出すだけの
+     ‘display-buffer-fallback-action’内の特別なメカニズ
+     ムを経由して、‘display-buffer’にしたがう。この変数
+     は、‘display-buffer-alist’等により直接指定できる、
+     ‘display-buffer-pop-up-window’自体からは参照されな
+     い(これはウィンドウの分割前に行われる)。この変数は
+     、‘display-buffer-alist’等により直接指定できる、
+     ‘display-buffer-pop-up-frame’自体からは参照されない
+     。
+
+ -- User Option: pop-up-frame-function
+     この変数は、バッファーを表示する新たなウィンドウを
+     作成するための、フレームを作成する関数を指定する。
+     これは、アクション関数
+     ‘display-buffer-pop-up-frame’により使用される(*note
+     Display Action Functions::を参照)。
+
+     値は、フレームまたはフレームを作成できなかった場合
+     は‘nil’をリターンする、引数をとらない関数であること
+     。デフォルト値は、‘pop-up-frame-alist’(以下参照)に
+     より指定されるパラメーターを使用してフレームを作成
+     する関数である。
+
+ -- User Option: pop-up-frame-alist
+     この変数は、フレームを新たに作成するための
+     ‘pop-up-frame-function’のデフォルト関数により使用さ
+     れる、フレームパラメーター(*note Frame
+     Parameters::を参照)のalistを保持する。デフォルトは
+     ‘nil’。
+
+ -- User Option: same-window-buffer-names
+     選択されたウィンドウ内に表示されるべきバッファー名
+     のリスト。このリスト内にバッファーの名前がある場合
+     、‘display-buffer’は選択されたウィンドウ内にそのバ
+     ッファーを表示することにより、そのバッファーを処理
+     する。
+
+ -- User Option: same-window-regexps
+     選択されたウィンドウ内に表示されるバッファーを指定
+     する、正規表現のリスト。バッファー名がこのリスト内
+     の正規表現のいずれかにマッチする場合、
+     ‘display-buffer’は選択されたウィンドウ内にそのバッ
+     ファーを表示することにより、そのバッファーを処理す
+     る。
+
+ -- Function: same-window-p buffer-name
+     この関数は、BUFFER-NAMEという名前のバッファーを
+     ‘display-buffer’で表示する場合、それが選択されたウ
+     ィンドウ内に表示されるバッファーなら‘t’をリターンす
+     る。
+
+
+File: elisp,  Node: Window History,  Next: Dedicated Windows,  Prev: Choosing Window Options,  Up: Windows
+
+27.15 Window History
+====================
+
+ウィンドウはそれぞれ、リスト内に以前表示されていたバッフ
+ァーと、それらのバッファーがウィンドウから削除された順序
+を記憶しています。このヒストリーが、たとえば
+‘replace-buffer-in-windows’(*note Buffers and Windows::を
+参照)により使用されます。このリストはEmacsにより自動的に
+保守されますが、これを明示的に調べたり変更するために、以
+下の関数を使用できます:
+
+ -- Function: window-prev-buffers &optional window
+     この関数は、WINDOWの前のコンテンツを指定するリスト
+     をリターンする。オプション引数WINDOWには生きたウィ
+     ンドウを指定すべきであり、デフォルトは選択されたウ
+     ィンドウである。
+
+     リスト要素はそれぞれ、‘(BUFFER WINDOW-START
+     WINDOW-POS)’という形式をもつ。ここでBUFFERは、その
+     ウィンドウで前に表示されていたウィンドウ、
+     WINDOW-STARTはそのバッファーが最後に表示されていた
+     ときのウィンドウのスタート位置(*note Window Start
+     and End::を参照)、WINDOW-POSはWINDOW内にそのバッフ
+     ァーが最後に表示されていたときのポイント位置(*note
+     Window Point::を参照)である。
+
+     このリストは順序付きで、より前の要素がより最近に表
+     示されたバッファーに対応しており、通常は最初の要素
+     がそのウィンドウからもっとも最近削除されたバッファ
+     ーに対応する。
+
+ -- Function: set-window-prev-buffers window
+          prev-buffers
+     この関数は、WINDOWの前のバッファーを、
+     PREV-BUFFERSの値にセットする。引数WINDOWは生きたウ
+     ィンドウでなければならず、デフォルトは選択されたウ
+     ィンドウである。引数PREV-BUFFERSは、
+     ‘window-prev-buffers’によりリターンされるリストと同
+     じ形式であること。
+
+   これらに加えて、それぞれのバッファーは“次バッファー
+(next buffers)”のリストを保守します。これは
+‘switch-to-prev-buffer’(以下参照)により再表示されたバッ
+ファーのリストです。このリストは主に、切り替えるバッファ
+ーを選択するために、‘switch-to-prev-buffer’と
+‘switch-to-next-buffer’により使用されます。
+
+ -- Function: window-next-buffers &optional window
+     この関数は、‘switch-to-prev-buffer’を通じてWINDOW内
+     に最近表示されたバッファーのリストをリターンする。
+     WINDOW引数は、生きたウィンドウか‘nil’(選択されたウ
+     ィンドウの意)でなければならない。
+
+ -- Function: set-window-next-buffers window
+          next-buffers
+     この関数は、WINDOWの次バッファーリストを、
+     NEXT-BUFFERSにセットする。WINDOW引数は、生きたウィ
+     ンドウか‘nil’(選択されたウィンドウの意)であること。
+     引数NEXT-BUFFERSは、バッファーのリストであること。
+
+   以下のコマンドは、‘bury-buffer’や‘unbury-buffer’のよ
+うに、グローバルバッファーリストを巡回するために使用でき
+ます。ただし、これらはグローバルバッファーリストではなく
+、指定されたウィンドウのヒストリーリストのしたがって巡回
+します。それに加えて、これらはウィンドウ固有なウィンドウ
+のスタート位置とポイント位置をリストアし、すでに他のウィ
+ンドウに表示されているバッファーをも表示できます。特に
+‘switch-to-prev-buffer’コマンドは、ウィンドウにたいする
+置き換えバッファーを探すために
+‘replace-buffer-in-windows’、‘bury-buffer’、
+‘quit-window’により使用されます。
+
+ -- Command: switch-to-prev-buffer &optional window
+          bury-or-kill
+     このコマンドは、WINDOW内に前のバッファーを表示する
+     。引数WINDOWは生きたウィンドウ、または‘nil’(選択さ
+     れたウィンドウの意)であること。オプション引数
+     BURY-OR-KILLが非‘nil’、それはWINDOW内にカレントで表
+     示されているバッファーは今まさにバリーもしくは
+     killされるバッファーであり、したがって将来における
+     このコマンドの呼び出しで、このバッファーに切り替え
+     るべきではないことを意味する。
+
+     前のバッファーは通常、WINDOW内にカレントで表示され
+     ているバッファーの前に表示されていたバッファーであ
+     る。しかし、バリーまたはkillされたバッファー、また
+     は直近の‘switch-to-prev-buffer’呼び出しですでに表示
+     されたバッファーは、前のバッファーとして適格とはな
+     らない。
+
+     このコマンドを繰り返して呼び出すことにより、
+     WINDOW内で前に表示されたすべてのバッファーが表示さ
+     れてしまった場合、将来の呼び出しにおいては、
+     WINDOWが表示されているフレームのバッファーリスト
+     (*note Buffer List::を参照)から、そのフレームの他の
+     ウィンドウで表示済みのバッファーをスキップするよう
+     にして、バッファーを表示するだろう。
+
+ -- Command: switch-to-next-buffer &optional window
+     このコマンドは、WINDOW内の次バッファーに切り替える
+     。つまり、WINDOW内での最後の
+     ‘switch-to-prev-buffer’コマンドの効果をアンドゥする
+     。引数WINDOWは生きたウィンドウであること。デフォル
+     トは選択されたウィンドウである。
+
+     アンドゥ可能な‘switch-to-prev-buffer’の直近の呼び出
+     しが存在しない場合、この関数はWINDOWが表示されてい
+     るフレームのバッファーリスト(*note Buffer List::を
+     参照)からバッファーの表示を試みる。
+
+   デフォルトでは、‘switch-to-prev-buffer’と
+‘switch-to-next-buffer’は、同一フレーム上の他のウィンド
+ウで表示済みのバッファーに切り替えることができます。以下
+のオプションは、この挙動をオーバーライドするために使用で
+きます。
+
+ -- User Option: switch-to-visible-buffer
+     この変数が非‘nil’の場合、‘switch-to-prev-buffer’お
+     よび‘switch-to-next-buffer’は、そのバッファーが当該
+     ウィンドウで過去に表示されていれば、同一フレーム上
+     ですでに可視のバッファーに切り替えることができる。
+     ‘nil’の場合、‘switch-to-prev-buffer’および
+     ‘switch-to-next-buffer’は、同一フレーム上ですでに可
+     視なバッファーへの切り替えを常に避けるよう試みる。
+     デフォルトは‘t’。
+
+
+File: elisp,  Node: Dedicated Windows,  Next: Quitting Windows,  Prev: Window History,  Up: Windows
+
+27.16 Dedicated Windows
+=======================
+
+バッファーを表示する関数は、特定のウィンドウが、そのウィ
+ンドウのバッファーにたいして“専用(dedicated)”であるとマ
+ークすることにより、使用しないよう告げることができます。
+‘display-buffer’(*note Choosing Window::を参照)は、他の
+バッファーの表示に、専用バッファーを決して使用しません。
+and ‘get-largest-window’(*note Cyclic Window
+Ordering::)は、DEDICATED引数が非‘nil’のときは、専用ウィ
+ンドウを候補とみなしません。専用ウィンドウにたいする配慮
+に関して、‘set-window-buffer’(*note Buffers and
+Windows::を参照)の挙動は若干異なります。以下を参照してく
+ださい。
+
+   ウィンドウからバッファー、およびフレームからウィンド
+ウを削除することを意図した関数は、処理するウィンドウが専
+用ウィンドウのときは特別な挙動を示す可能性があります。こ
+こでは3つの基本ケース、すなわち(1)そのウィンドウがフレー
+ム上で唯一のウィンドウの場合、(2)ウィンドウはフレーム上
+で唯一のウィンドウだが同一端末上に別のフレームがある場合
+、(3)そのウィンドウが同一端末上で唯一のフレームの唯一の
+ウィンドウの場合、を明確に区別することにします。
+
+   特に、‘delete-windows-on’(*note Deleting Windows::を
+参照)は関連するフレームを削除する際にケース(2)を、フレー
+ム上で唯一のウィンドウに他のバッファーを表示する際にケー
+ス(3)を処理します。バッファーがkillされる際に呼び出され
+る関数‘replace-buffer-in-windows’(*note Buffers and
+Windows::)は、ケース(1)ではウィンドウを削除して、それ以
+外では‘delete-windows-on’のように振る舞います。
+
+   ‘bury-buffer’(*note Buffer List::を参照)が選択された
+ウィンドウを操作する際は、選択されたフレームを処理するた
+めに、‘frame-auto-hide-function’(*note Quitting
+Windows::を参照)を呼び出すことにより、ケース(2)を取り扱
+います。他の2つのケースは、‘replace-buffer-in-windows’と
+同様に処理されます。
+
+ -- Function: window-dedicated-p &optional window
+     この関数は、WINDOWがそのバッファーにたいして専用な
+     ら非‘nil’、それ以外は‘nil’をリターンする。より正確
+     には、最後の‘set-window-dedicated-p’呼び出しで割り
+     当てられた値、または‘set-window-dedicated-p’が
+     WINDOWを引数として呼び出されたことがない場合は
+     ‘nil’がリターン値となる。WINDOWのデフォルトは、選択
+     されたウィンドウである。
+
+ -- Function: set-window-dedicated-p window flag
+     この関数は、FLAGが非‘nil’ならWINDOWがそのバッファー
+     に専用とマークし、それ以外は非専用とマークする。
+
+     特別なケースとして、FLAGが‘t’の場合、WINDOWはそのバ
+     ッファーにたいして“特に専用(strongly dedicated)”と
+     なる。‘set-window-buffer’は、処理対象のウィンドウが
+     特に専用のウィンドウで、かつ表示を要求されたバッフ
+     ァーが表示済みでない場合は、エラーをシグナルする。
+     その他の関数は、‘t’を他の非‘nil’値と区別して扱わな
+     い。
+
+
+File: elisp,  Node: Quitting Windows,  Next: Window Point,  Prev: Dedicated Windows,  Up: Windows
+
+27.17 Quitting Windows
+======================
+
+バッファーを表示するために使用しているウィンドウを削除し
+たいときは、フレームからそのウィンドウを削除するために、
+‘delete-window’や‘delete-windows-on’を呼び出すことができ
+ます(*note Deleting Windows::を参照)。その、が別フレーム
+で表示されているときは、かわりに‘delete-frame’を呼び出し
+たいと思うかもしれません(*note Deleting Frames::を参照
+)。一方で、そのバッファーを表示するためにウィンドウが再
+利用されている場合は、関数‘switch-to-prev-buffer’を呼び
+出して、前に表示されていたバッファーを表示したいと思うか
+もしれません(*note Window History::を参照)。最終的には、
+そのウィンドウのバッファーをバリー(*note Buffer List::を
+参照)、またはkill(*note Killing Buffers::を参照)したいと
+思うかもしれません。
+
+   以下のコマンドは、ウィンドウがバッファーを表示する方
+法を最初に入手する情報を使用して、上述した説明の自動化を
+試みます。
+
+ -- Command: quit-window &optional kill window
+     このコマンドは、WINDOWをquitして、そのバッファーを
+     バリーする。引数WINDOWは生きたウィンドウでなければ
+     ならず、デフォルトは選択されたウィンドウである。プ
+     レフィックス引数KILLが非‘nil’なら、バッファーをバリ
+     ーするかわりにkillする。これは、ウィンドウとそのバ
+     ッファーを処理するために、次に説明する関数
+     ‘quit-restore-window’を呼び出す。
+
+ -- Function: quit-restore-window &optional window
+          bury-or-kill
+     この関数は、WINDOWにたいして、そのバッファーが表示
+     される前に存在した状態へのリストアを試みる。オプシ
+     ョン引数WINDOWは生きたウィンドウでなければならず、
+     デフォルトは選択されたウィンドウである。
+
+     WINDOWがそのバッファーを表示するために特別に作成さ
+     れたバッファーの場合、この関数はそのフレームに他に
+     少なくとも1つの生きたウィンドウがなければ、WINDOWを
+     削除しない。WINDOWがそのフレームで唯一のウィンドウ
+     であり、かつそのフレームの端末上に他のフレームが存
+     在する場合、オプション引数BURY-OR-KILLがそのウィン
+     ドウをどうするかを決定する。If equals ‘kill’の場合
+     は、無条件でフレームは削除される。それ以外では、フ
+     レームの運命はそのフレームを単一の引数とする
+     ‘frame-auto-hide-function’(以下参照)呼び出しにより
+     決定される。
+
+     特別に作成されたウィンドウでない場合、この関数は
+     WINDOW内で前に表示されていたバッファーの再表示を試
+     みる。これは、前に表示されていたバッファーのウィン
+     ドウのスタート位置(*note Window Start and End::を参
+     照)とポイント位置(*note Window Point::を参照)のリス
+     トアも試みる。加えて、WINDOWのバッファーが過去に一
+     時的にリサイズされていた場合、この関数はWINDOWの元
+     の高さのリストアも試みる。
+
+     これまで説明したケースでは、WINDOW内で表示されてい
+     るバッファーは、依然としてそのウィンドウにたいする
+     最後のバッファー表示関数で表示されたバッファーであ
+     る。その時点で他のバッファーが表示されている、また
+     は前に表示されていたバッファーがもはや存在しない場
+     合、この関数はかわりに何か他のバッファーを表示する
+     ために、‘switch-to-prev-buffer’(*note Window
+     History::を参照)を呼び出す。
+
+     オプション引数BURY-OR-KILLは、WINDOWを処理する方法
+     を指定し、以下の値を処理する。
+
+     ‘nil’
+          これは、バッファーを特別な方法で処理しないこと
+          を意味する。結果、WINDOWが削除されない場合は、
+          ‘switch-to-prev-buffer’の呼び出しにより、通常
+          はそのバッファーが再び表示されるだろう。
+
+     ‘append’
+          これは、WINDOWが削除されない場合、そのバッファ
+          ーをWINDOWの前のバッファーリストの最後に移動す
+          るので、将来の‘switch-to-prev-buffer’呼び出し
+          でこのバッファーには切り替わることは少なくなる
+          。これは、そのバッファーをフレームのバッファー
+          リストの最後への移動も行う。
+
+     ‘bury’
+          これは、WINDOWが削除されない場合、そのバッファ
+          ーをWINDOWの前のバッファーリストから削除する。
+          これは、そのバッファーをフレームのバッファーリ
+          ストの最後への移動も行う。この値は、バッファー
+          をkillすることなく‘switch-to-prev-buffer’がこ
+          のバッファーに再び切り替えさせないようにする、
+          もっとも信頼できる解決手段を提供する。
+
+     ‘kill’
+          これは、WINDOWのバッファーをkillすることを意味
+          する。
+
+     ‘quit-restore-window’は、WINDOWの‘quit-restore’ウィ
+     ンドウパラメーター(*note Window Parameters::を参照
+     )の情報にもとづき判定を行い、処理後にそれを‘nil’に
+     リセットしている。
+
+   以下のオプションは、quitすべきウィンドウ、あるいはバ
+リーすべきバッファーをもつウィンドウを1つだけ含むフレー
+ムを処理する方法を指定します。
+
+ -- User Option: frame-auto-hide-function
+     このオプションで指定された関数は、自動的にフレーム
+     を隠すために呼び出される。この関数は、フレームを唯
+     一の引数として呼び出される。
+
+     ここで指定される関数は、選択されたウィンドウが専用
+     (dedicated)で、かつバリーされるバッファーを表示して
+     いるときに、‘bury-buffer’(*note Buffer List::を参照
+     )から呼び出される。また、quitされるウィンドウのフレ
+     ームが、そのウィンドウのバッファーを表示するために
+     特別に作成されたフレームで、かつそのバッファーが
+     killされないときにも、‘quit-restore-window’(上記)か
+     ら呼び出される。
+
+     デフォルトでは、‘iconify-frame’(*note Visibility of
+     Frames::を参照)を呼び出す。かわりに、フレームをディ
+     スプレイから削除する‘delete-frame’(*note Deleting
+     Frames::を参照)、フレームを変更せずに残す‘ignore’、
+     またはフレームを唯一の引数とする任意の関数のいずれ
+     かを指定できる。
+
+     このオプションで指定された関数は、指定されたフレー
+     ムが生きたウィンドウただ1つを含み、かつ同一端末上に
+     少なくとも1つ他のフレームが存在する場合のみ呼び出さ
+     れることに注意。
+
+
+File: elisp,  Node: Window Point,  Next: Window Start and End,  Prev: Quitting Windows,  Up: Windows
+
+27.18 Windows and Point
+=======================
+
+それぞれのウィンドウは独自のポイント値(*note Point::を参
+照)をもっており、同じバッファーを表示する他のウィンドウ
+の間でも、それぞれのポイント値は独立しています。これは、
+1つのバッファーを複数ウィンドウで表示するのに有用です。
+
+   • ウィンドウポイント(window point)は、ウィンドウが最
+     初に作成されたときに設定される。ウィンドウポイント
+     はバッファーのポイント、またはそのバッファーからオ
+     ープンされたウィンドウがあればそのウィンドウのウィ
+     ンドウポイントより初期化される。
+
+   • ウィンドウ選択により、ウィンドウのポイント値からそ
+     のバッファーのポイント値がセットされる。反対に、ウ
+     ィンドウの非選択により、ウィンドウのポイント値にバ
+     ッファーのポイント値がセットされる。つまり、与えら
+     れたバッファーを表示するウィンドウ間で切り替えを行
+     ったときは、そのバッファーでは選択されたウィンドウ
+     のポイント値が効力をもつが、他のウィンドウのポイン
+     ト値はそのウィンドウに格納される。
+
+   • 選択されたウィンドウがカレントバッファーの表示を続
+     ける限り、そのウィンドウのポイントとバッファーのポ
+     イントは常に同時に移動し、等しくあり続ける。
+
+   ユーザーが関与し続ける限りポイントはカーソル位置にあ
+り、ユーザーが他のバッファーに切り替えた際には、カーソル
+はそのバッファーのポイント位置にジャンプします。
+
+ -- Function: window-point &optional window
+     この関数は、WINDOW内のカレントのポイント位置をリタ
+     ーンする。選択されていないウィンドウにたいしては、
+     そのウィンドウが選択された場合の、(そのウィンドウの
+     バッファーの)ポイント値である。WINDOWにたいするデフ
+     ォルトは、選択されたウィンドウである。
+
+     WINDOWが選択されたウィンドウのときのリターン値は、
+     そのウィンドウのバッファーのポイント値である。厳密
+     には、すべての‘save-excursion’フォームの外側の“トッ
+     プレベル”のポイント値のほうが、より正確であろう。し
+     かし、この値は見つかるのが困難である。
+
+ -- Function: set-window-point window position
+     この関数は、WINDOW内のポイントを、WINDOWのバッファ
+     ー内の位置POSITIONに配置する。リターン値は
+     POSITIONである。
+
+     WINDOWが選択されている場合は、単にWINDOW内で
+     ‘goto-char’を行う。
+
+ -- Variable: window-point-insertion-type
+     この変数は、‘window-point’のマーカー挿入型(*note
+     Marker Insertion Types::を参照)を指定する。デフォル
+     トは‘nil’で、‘window-point’は挿入されたテキストの後
+     に留まるだろう。
+
+
+File: elisp,  Node: Window Start and End,  Next: Textual Scrolling,  Prev: Window Point,  Up: Windows
+
+27.19 The Window Start and End Positions
+========================================
+
+ウィンドウはそれぞれ、バッファー位置を追跡するために、バ
+ッファー内で表示を開始すべき位置を指定するマーカーを保守
+しています。この位置は、そのウィンドウの
+“display-start(表示開始)”、または単に“start(開始)”と呼ば
+れます。この位置の後の文字が、ウィンドウの左上隅に表示さ
+れる文字となります。これは通常はテキスト行の先頭になりま
+すが、必須ではありません。
+
+   ウィンドウやバッファーを切り替えた後、およびいくつか
+のケースにおいては、ウィンドウが行の途中で開始される場合
+は、Emacsがィンドウの開始を行の開始に調整します。これは
+、行中で無意味な位置のウィンドウ開始のまま、特定の操作が
+行われるのを防ぐためです。この機能は、Lispモードのコマン
+ドを使用して実行することによりある種のLispコードをテスト
+する場合は、それらのコマンドがこの再調整を誘発するために
+邪魔になるかもしれません。そのようなコードをテストするた
+めには、それをコマンド内に記述して、何らかのキーにバイン
+ドしてください。
+
+ -- Function: window-start &optional window
+     この関数は、ウィンドウWINDOWの表示開始位置をリター
+     ンする。WINDOWが‘nil’なら、選択されたウィンドウが使
+     用される。
+
+     ウィンドウを作成したり、他のバッファーをウィンドウ
+     内に表示する際、display-start位置は同じバッファーに
+     たいしてもっとも最近に使用されたdisplay-start位置か
+     、そのバッファーがそれをもたなければ‘point-min’にセ
+     ットされる。
+
+     ポイントがスクリーン上に確実に現れるように、再表示
+     はwindow-start位置を更新する(前の再表示以降に
+     window-start位置を明示的に指定していない場合)。再表
+     示以外に、window-start位置を自動的に変更するものは
+     ない。ポイントを移動した場合は、次の再表示後までポ
+     イントの移動に応じてwindow-startが変更されるのを期
+     待してはならない。
+
+ -- Function: window-end &optional window update
+     この関数は、WINDOWのバッファーの最後を表示する位置
+     をリターンする。WINDOWにたいするデフォルトは、選択
+     されたウィンドウである。
+
+     バッファーテキストの単なる変更やポイントの移動では
+     、‘window-end’がリターンする値は更新されない。この
+     値は、Emacsが再表示を行い、それが妨害されることなく
+     再表示が完了したときのみ更新される。
+
+     WINDOWの最後の再表示が妨害されて完了しなかった場合
+     、Emacsはそのウィンドウ内の表示のend位置を知らない
+     。この場合、関数は‘nil’をリターンする。
+
+     UPDATEが非‘nil’の場合、‘window-end’は
+     ‘window-start’のカレント値にもとづき、どこが表示の
+     endかにたいして最新の値をリターンする。以前に保存さ
+     れた位置の値がまだ有効なら、‘window-end’はその値を
+     リターンする。それ以外は、バッファーのテキストをス
+     キャンして、正しい値を計算する。
+
+     たとえUPDATEが非‘nil’でも、‘window-end’はポイントが
+     画面外に移動していても、実際の再表示が行うような表
+     示のスクロールを試みない。これは、‘window-start’の
+     値を変更しない。これは実際には、スクロールが要求さ
+     れない場合の表示されたテキストのendがどこかを報告す
+     る。
+
+ -- Function: set-window-start window position &optional
+          noforce
+     この関数は、WINDOWのdisplay-start位置を、WINDOWのバ
+     ッファーのPOSITIONにセットする。リターン値は、
+     POSITIONである。
+
+     表示ルーチンは、バッファーが表示されたときに、ポイ
+     ント位置が可視になることを強要する。通常これらは、
+     ポイントを可視にするために必要なときは常に、
+     display-start位置を変更(つまりウィンドウをスクロー
+     ル)する。しかし、この関数でNOFORCEに‘nil’を使用して
+     start位置を指定した場合は、たとえポイントを画面外に
+     なるような場所に配したとしても、POSITIONでの表示開
+     始を望んでいることを意味する。これによりポイントが
+     画面外に配された場合、表示ルーチンはポイントをウィ
+     ンドウ内の中央行の左マージンに移動する。
+
+     たとえば、ポイントが1のときにウィンドウのstartを次
+     行の開始37にセットした場合、ポイントはウィンドウの
+     最上端の“上”になるだろう。表示ルーチンは、再表示が
+     発生したときにポイントが1のままなら、ポイントを動か
+     すことになる。以下に例を示す:
+
+          ;; 以下は式‘set-window-start’実行前
+          ;;   ‘foo’の様子である
+
+          ---------- Buffer: foo ----------
+          ★This is the contents of buffer foo.
+          2
+          3
+          4
+          5
+          6
+          ---------- Buffer: foo ----------
+
+          (set-window-start
+           (selected-window)
+           (save-excursion
+             (goto-char 1)
+             (forward-line 1)
+             (point)))
+          ⇒ 37
+
+          ;; 以下は式‘set-window-start’実行後の
+          ;;   ‘foo’の様子である
+          ---------- Buffer: foo ----------
+          2
+          3
+          ★4
+          5
+          6
+          ---------- Buffer: foo ----------
+
+     NOFORCEが非‘nil’で、かつ次回の再表示でポイントが画
+     面外に配される場合、再表示はポイントと協調して機能
+     する位置となるような新たなwindow-startを計算するの
+     で、POSITIONは使用されない。
+
+ -- Function: pos-visible-in-window-p &optional position
+          window partially
+     この関数は、WINDOW内のPOSITIONが画面上カレントで可
+     視のテキスト範囲内にある場合は、非‘nil’をリターンし
+     、POSITIONが表示範囲のスクロール外にある場合は、
+     ‘nil’をリターンする。PARTIALLYが‘nil’なら、部分的に
+     不明瞭な位置は可視とは判断されない。引数POSITIONの
+     デフォルトは、WINDOW内のポイントのカレント位置で、
+     WINDOWのデフォルトは選択されたウィンドウである。
+     POSITIONが‘t’なら、それはWINDOWの最後に可視だった位
+     置をチェックすることを意味する。
+
+     この関数は、垂直スクロールだけを考慮する。 This
+     function considers only vertical scrolling.  WINDOWが
+     水平にスクロールされたことだけの理由でPOSITIONが表
+     示範囲外の場合は、いずれにせよ
+     ‘pos-visible-in-window-p’は非‘nil’をリターンする。
+     *note Horizontal Scrolling::を参照のこと。
+
+     POSITIONが可視でPARTIALLYが‘nil’なら、
+     ‘pos-visible-in-window-p’は‘t’をリターンする。
+     PARTIALLYが非‘nil’でPOSITION以降の文字が完全に可視
+     の場合は、‘(X Y)’という形式のリストをリターンする。
+     ここでXとYは、ウィンドウの左上隅からの相対的なピク
+     セル座標である。POSITION以降の文字が完全に可視では
+     ない場合は、拡張された形式のリスト‘(X Y RTOP RBOT
+     ROWH VPOS)’をリターンする。ここでRTOPとRBOTは
+     POSITIONでウィンドウ外となった上端と下端のピクセル
+     数、ROWHはその行の可視な部分の高さ、VPOSはその行の
+     垂直位置(0基準の行番号)を指定する。
+
+     以下に例を示す:
+
+          ;; ポイントが画面外ならrecenterする
+          (or (pos-visible-in-window-p
+               (point) (selected-window))
+              (recenter 0))
+
+ -- Function: window-line-height &optional line window
+     この関数は、WINDOW内のテキスト行LINEの高さをリター
+     ンする。LINEが‘header-line’、‘mode-line’、
+     ‘window-line-height’のいずれかの場合は、そのウィン
+     ドウの対応する行についての情報をリターンする。それ
+     以外では、LINEは0から始まるテキスト行番号である。負
+     数の場合は、そのウィンドウのendから数える。LINEにた
+     いするデフォルトは、WINDOW内のカレント行、WINDOWに
+     たいするデフォルトは、選択されたウィンドウである。
+
+     表示が最新でなければ、‘window-line-height’は‘nil’を
+     リターンする。その場合は、関連する情報を入手するた
+     めに、‘pos-visible-in-window-p’を使用できる。
+
+     指定されたLINEに対応する行がなければ、
+     ‘window-line-height’は‘nil’をリターンする。それ以外
+     では、リスト‘(HEIGHT VPOS YPOS OFFBOT)’をリターンす
+     る。ここでHEIGHTはその行の可視部分のピクセル高さ、
+     VPOSとYPOSは最初のテキスト行上端からのその行への相
+     対的な垂直位置の行数とピクセル数、OFFBOTはそのテキ
+     スト行下端のウィンドウ外のピクセル数である。(最初の
+     )テキスト行上端にウィンドウ外のピクセルがある場合、
+     YPOSは負となる。
+
+
+File: elisp,  Node: Textual Scrolling,  Next: Vertical Scrolling,  Prev: Window Start and End,  Up: Windows
+
+27.20 Textual Scrolling
+=======================
+
+“テキスト的なスクロール(textual scrolling)”とは、ウィン
+ドウ内のテキストを上や下に移動することを意味します。これ
+は、そのウィンドウのdisplay-startを変更することにより機
+能します。これは、ポイントを画面上に維持するために、
+‘window-point’の値も変更するかもしれません(*note Window
+Point::を参照)。
+
+   テキスト的なスクロールの基本的な関数は、(前方にスクロ
+ールする)‘scroll-up’と、(後方にスクロールする
+)‘scroll-down’です。これらの関数の名前における“up”と
+“down”は、バッファーテキストのそのウィンドウにたいする相
+対的な移動方向を示します。そのテキストが長いロール紙に記
+述されていて、スクロールコマンドはその上を上下に移動する
+と想像してみてください。つまり、バッファーの中央に注目し
+ている場合、繰り返して‘scroll-down’を呼び出すと、最終的
+にはバッファーの先頭を目にすることになるでしょう。
+
+   残念なことに、これは時折混乱を招きます。なぜなら、あ
+る人はこれを逆の慣習にもとづいて考える傾向があるからです
+。彼らは、テキストがその場所に留まりウィンドウが移動して
+、“down”コマンドによりバッファー終端に移動するだろうと想
+像します。この慣習は、そのようなコマンドが現代風のキーボ
+ード上の<PageDown>という名前のキーにバインドされていると
+いう事実と一致しています。
+
+   選択されたウィンドウ内で表示されているバッファーがカ
+レントバッファーでない場合、(‘scroll-other-window’以外の
+)テキスト的スクロール関数の結果は予測できません。*note
+Current Buffer::を参照してください。
+
+   (たとえば大きなイメージがある等で)ウィンドウにウィン
+ドウの高さより高い行が含まれる場合、スクロール関数は部分
+的に可視な行をスクロールするために、そのウィンドウの垂直
+スクロール位置を調整します。Lisp呼び出し側は、変数
+‘auto-window-vscroll’を‘nil’にバインドすることにより、こ
+の機能を無効にできます(*note Vertical Scrolling::を参照
+)。
+
+ -- Command: scroll-up &optional count
+     この関数は、選択されたウィンドウ内でCOUNT行前方にス
+     クロールする。
+
+     COUNT負の場合は、かわりに後方へスクロールする。
+     COUNTが‘nil’(または省略)の場合、スクロールされる距
+     離は、そのウィンドウのテキストエリアの高さより小さ
+     い‘next-screen-context-lines’となる。
+
+     選択されたウィンドウがそれ以上スクロールできない場
+     合、この関数はエラーをシグナルし、それ以外は‘nil’を
+     リターンする。
+
+ -- Command: scroll-down &optional count
+     この関数は、選択されたウィンドウ内でCOUNT行後方にス
+     クロールする。
+
+     COUNT負の場合は、かわりに後方へスクロールする。それ
+     以外の点では、これは‘scroll-up’が行うのと同様に振る
+     舞う。
+
+ -- Command: scroll-up-command &optional count
+     これは‘scroll-up’と同様に振る舞うが、選択されたウィ
+     ンドウがそれ以上スクロールできず、かつ変数
+     ‘scroll-error-top-bottom’の値が‘t’の場合は、かわり
+     にそのバッファーの終端への移動を試みる。ポイントが
+     すでに終端にある場合は、エラーをシグナルする。
+
+ -- Command: scroll-down-command &optional count
+     これは‘scroll-down’と同様に振る舞うが、選択されたウ
+     ィンドウがそれ以上スクロールできず、かつ変数
+     ‘scroll-error-top-bottom’の値が‘t’の場合は、かわり
+     にそのバッファーの先頭への移動を試みる。ポイントが
+     すでに先頭にある場合は、エラーをシグナルする。
+
+ -- Command: scroll-other-window &optional count
+     この関数は、他のウィンドウ内のテキストを上方に
+     COUNT行スクロールする。COUNTが負、または‘nil’の場合
+     は、‘scroll-up’のように処理される。
+
+     変数‘other-window-scroll-buffer’にバッファーをセッ
+     トすることにより、どのバッファーをスクロールするか
+     を指定できる。そのバッファーが表示されていない場合
+     、‘scroll-other-window’はそれを何らかのウィンドウに
+     表示する、
+
+     選択されたウィンドウがミニバッファーのとき、次ウィ
+     ンドウは通常はそのウィンドウの直上最左のウィンドウ
+     である。変数‘minibuffer-scroll-window’をセットする
+     ことにより、スクロールする別のウィンドウを指定でき
+     る。この変数は、ミニバッファー以外のウィンドウが選
+     択されているときは効果がない。これが非‘nil’で、かつ
+     ミニバッファーが選択されているとき、これは
+     ‘other-window-scroll-buffer’より優先される。*note
+     Definition of minibuffer-scroll-window::を参照のこ
+     と。
+
+     ミニバッファーがアクティブのとき、選択されたウィン
+     ドウが下端右角のウィンドウなら、ミニバッファーが次
+     ウィンドウになる。この場合、‘scroll-other-window’は
+     ミニバッファーのスクロールを試みる。ミニバッファー
+     に含まれるのが1行だけの場合はどこにもスクロールでき
+     ないので、エコーエリアに瞬時メッセージ‘End of
+     buffer’を表示後、その行を再表示する。
+
+ -- Variable: other-window-scroll-buffer
+     この変数が非‘nil’なら、それは
+     ‘scroll-other-window’がどのバッファーのウィンドウを
+     スクロールするかを指定する。
+
+ -- User Option: scroll-margin
+     このオプションは、スクロールマージン(ポイントとウィ
+     ンドウの上端/下端との最小行数)のサイズを指定する。
+     ポイントがウィンドウの上端/下端からその行数になった
+     とき、再表示は(可能なら)ポイントをそのマージン外、
+     ウィンドウの中央付近に移動するために、テキストを自
+     動的にスクロールする。
+
+ -- User Option: scroll-conservatively
+     この変数は、ポイントがスクリーン外(またはスクロール
+     マージン内)に移動したとき、スクロールを自動的に行う
+     方法を指定する。値が正の整数Nの場合、再表示はそれが
+     正しい表示範囲内にポイントを戻すなら、いずれかの方
+     向にN行以下のテキストをスクロールする。この振る舞い
+     は、“保守的なスクロール(conservative scrolling)”と
+     呼ばれる。それ以外の場合、スクロールは
+     ‘scroll-up-aggressively’や
+     ‘scroll-down-aggressively’のような他の変数の制御の
+     下、通常の方法で発生する。
+
+     デフォルトの値は0で、これは保守的スクロールが発生し
+     得ないことを意味する。
+
+ -- User Option: scroll-down-aggressively
+     この変数の値は、‘nil’か、0から1までの小数Fであるこ
+     と。これが小数なら、スクリーン上でポイントが置かれ
+     たとき、下にスクロールする場所を指定する。より正確
+     には、ポイントがウィンドウstartより上という理由によ
+     りウィンドウが下にスクロールされるとき、新たな
+     start位置はウィンドウ上端からウィンドウ高さのFの箇
+     所にポイントが置かれるように選択される。より大きな
+     Fでは、よりaggressive(積極的)にスクロールする。
+
+     ポイントを中央に配すのがその効果なので、値‘nil’は
+     .5と等価である。どのような方法によりセットされたと
+     きでも、この変数は自動的にバッファーローカルになる
+     。
+
+ -- User Option: scroll-up-aggressively
+     ‘scroll-up-aggressively’と同様。値Fは、ポイントがウ
+     ィンドウ下端からどれほどの位置に置かれるべきかを指
+     定する。つまり、‘scroll-up-aggressively’と同様、大
+     きな値ｄｗはよりaggressive(積極的)になる。
+
+ -- User Option: scroll-step
+     この変数は、‘scroll-conservatively’のより古い変種で
+     ある。違いは、値がNならN以下の値ではなく、正確にNだ
+     けのスクロールを許容することである。この機能は、
+     ‘scroll-margin’とは共に機能しない。デフォルトは0。
+
+ -- User Option: scroll-preserve-screen-position
+     このオプションが‘t’なら、スクロールによりポイントが
+     ウィンドウ外に移動したとき、Emacsは常に、ポイントが
+     ポイントの上下端ではなくカーソルがそのウィンドウ内
+     の元の垂直位置に保たれるようポイントの調整を試みる
+     。
+
+     値が非‘nil’かつ非‘t’の場合、たとえスクロールコマン
+     ドによりポイントがウィンドウ外に移動していなくとも
+     、Emacsはカーソルが同じ垂直位置に保たれるよう、ポイ
+     ントを調整する。
+
+     このオプションはシンボルプロパティ
+     ‘scroll-command’が非‘nil’であるような、すべてのスク
+     ロールコマンドに影響する。
+
+ -- User Option: next-screen-context-lines
+     この変数の値は、全画面スクロールされたときに残され
+     る継続される行数を指定する。たとえば、引数が‘nil’の
+     ‘scroll-up’は、ウィンドウ上端ではなく下端に残される
+     行数でスクロールする。デフォルト値は‘2’。
+
+ -- User Option: scroll-error-top-bottom
+     このオプションが‘nil’(デフォルト)の場合、それ以上の
+     スクロールが不可能な際に、‘scroll-up-command’と
+     ‘scroll-down-command’は単にエラーをシグナルする。
+
+     値が‘t’なら、これらのコマンドはかわりにポイントをバ
+     ッファーの先頭か終端(スクロール方向に依存する)に移
+     動する。ポイントがすでにその位置にある場合のみ、エ
+     ラーをシグナルする。
+
+ -- Command: recenter &optional count
+     この関数は、選択されたウィンドウ内の指定された垂直
+     位置にポイントを表示するように、ウィンドウ内のテキ
+     ストをスクロールする。これはテキストに応じた“ポイン
+     ト移動”を行わない。
+
+     COUNTが非負の数の場合は、そのウィンドウ上端から
+     COUNT行下にポイントを含む行を配す。COUNTが負なら、
+     ウィンドウ下端から上に数えるので、−1はそのウィンド
+     ウ内で最後の利用可能な行となる。
+
+     COUNTが‘nil’(または非‘nil’のリスト)の場合、
+     ‘recenter’はポイントを含む行をウィンドウの中央に配
+     す。COUNTが‘nil’なら、この関数は
+     ‘recenter-redisplay’の値に応じて、フレームを再描画
+     するかもしれない。
+
+     ‘recenter’がインタラクティブに呼び出されたときは、
+     rawプレフィックス引数がCOUNTとなる。したがって、プ
+     レフィックスとして‘C-u’をタイプするとCOUNTに非
+     ‘nil’、‘C-u 4’ではCOUNTに4がセットされ、後者ではカ
+     レント行を上端から4行目にセットする。
+
+     引数0では、‘recenter’はカレント行をウィンドウ上端に
+     配す。コマンド‘recenter-top-bottom’は、これを達成す
+     るためにより簡便な方法を提供する。
+
+ -- User Option: recenter-redisplay
+     この変数が非‘nil’の場合は、引数‘nil’で‘recenter’を
+     呼び出すことにより、フレームを再描画する。デフォル
+     ト値は‘tty’で、これはフレームがttyフレームのときだ
+     けフレームを再描画することを意味する。
+
+ -- Command: recenter-top-bottom &optional count
+     デフォルトでは‘C-l’にバインドされているこのコマンド
+     は、‘recenter’と同様に動作するが、引数なしで呼び出
+     されたときの動作が異なる。この場合、連続して呼び出
+     すことにより、変数‘recenter-positions’で定義される
+     サイクル順に応じてポイントを配する。
+
+ -- User Option: recenter-positions
+     これは、‘recenter-top-bottom’を引数なしで呼び出した
+     ときの挙動を制御する。デフォルト値は‘(middle top
+     bottom)’で、これは引数なしで‘recenter-top-bottom’を
+     連続して呼び出すと、ポイントをウィンドウの中央、上
+     端、下端と巡回して配すことを意味する。
+
+
+File: elisp,  Node: Vertical Scrolling,  Next: Horizontal Scrolling,  Prev: Textual Scrolling,  Up: Windows
+
+27.21 Vertical Fractional Scrolling
+===================================
+
+“垂直フラクショナルスクロール(vertical fractional
+scrolling)”とは、指定された値を行に乗ずるることによりウ
+ィンドウ内のテキストを上下にシフトすることを意味します。
+ウィンドウはそれぞれ、決して0より小さくなることはない、
+“垂直スクロール位置(vertical scroll position)”という数値
+をもっています。これは、ウィンドウのコンテンツをどこから
+表示開始(raise)するかを指定します。ウィンドウのコンテン
+ツの表示開始により、一般的には上端の何行かのすべて、また
+は一部が表示されなくなり、他の何行かのすべて、または一部
+が下端に表示されるようになります。通常の値は0です。
+
+   垂直スクロール位置は、通常行の高さ(デフォルトフォント
+の高さ)の単位で数えられます。したがって、値が.5なら、そ
+れはウィンドウのコンテンツが、通常行の半分の高さで上にス
+クロールされていることを、3.3なら通常行の3倍を若干超える
+高さで上にスクロールされていることを意味します。
+
+   垂直スクロールが覆い隠す(cover)のがどれほどの行断片
+(fraction of a line)、あるいは行数かは、それらの行に何が
+含まれるかに依存します。3.3という値が高さが高い行やイメ
+ージの一部だけを画面外にスクロールできることもあれば、
+.5という値が非常に低い高さの行を画面外にスクロールできる
+こともあります。
+
+ -- Function: window-vscroll &optional window pixels-p
+     この関数は、WINDOWのカレントの垂直スクロール位置を
+     リターンする。WINDOWのデフォルトは、選択されたウィ
+     ンドウである。PIXELS-Pが非‘nil’の場合、リターン値は
+     通常行高さ単位ではなく、ピクセル単位で測定される。
+
+          (window-vscroll)
+               ⇒ 0
+
+ -- Function: set-window-vscroll window lines &optional
+          pixels-p
+     この関数は、WINDOWの垂直スクロール位置をLINESにセッ
+     トする。WINDOWが‘nil’なら、選択されたウィンドウが使
+     用される。引数LINESは0または正であること。それ以外
+     は0として扱われる。
+
+     実際の垂直スクロール位置は、常にピクセルの整数に対
+     応しなければならないため、指定した値はそれに応じて
+     丸められる。
+
+     こも丸め結果がリターン値となる。
+
+          (set-window-vscroll (selected-window) 1.2)
+               ⇒ 1.13
+
+     PIXELS-Pが非‘nil’の場合、LINESはピクセル数を指定す
+     る。この場合、リターン値はLINESである。
+
+ -- Variable: auto-window-vscroll
+     この変数が非‘nil’なら、関数‘line-move’、
+     ‘scroll-up’、‘scroll-down’は、たとえば大きなイメー
+     ジが存在する等でウィンドウ高さより高いディスプレイ
+     行をスクロールするために、垂直スクロール位置を自動
+     的に変更するだろう。
+
+
+File: elisp,  Node: Horizontal Scrolling,  Next: Coordinates and Windows,  Prev: Vertical Scrolling,  Up: Windows
+
+27.22 Horizontal Scrolling
+==========================
+
+“水平スクロール(horizontal scrolling)”とは、指定された通
+常文字幅の倍数でウィンドウ内のイメージを左右にシフトする
+ことを意味します。ウィンドウはそれぞれ、決して0より小さ
+くなることはない、“水平スクロール位置(horizontal scroll
+position)”という数値をもっています。これは、コンテンツを
+どれほど左にシフトするかを指定します。ウィンドウのコンテ
+ンツを左にシフトすることにより、一般的には左にある文字の
+すべて、または一部が表示されなくなり、右にある文字のすべ
+て、または一部が表示されることを意味します。通常の値は
+0です。
+
+   水平スクロール位置は、通常文字幅を単位として数えられ
+ます。したがって値が5なら、それはウィンドウのコンテンツ
+は通常文字幅の5倍左にスクロールされることを意味します。
+左の何文字が表示されなくなるかは、それらの文字の文字幅と
+に依存しており、行ごとに異なります。
+
+   読み取りを行う際は、“inner loop”で横方向に、“outer
+loop”で上から下に読み取るため、水平スクロールの効果はテ
+キスト的スクロールや垂直スクロールとは異なります。テキス
+ト的スクロールは表示するためのテキスト範囲の選択を引き起
+こし、垂直スクロールはウィンドウコンテンツを連続して移動
+します。しかし、水平スクロールは_すべての行_の一部をスク
+リーン外へスクロールします。
+
+   通常は、水平スクロールは行われないので、ウィンドウ左
+端には最左列があります。この状態では、右スクロールにより
+左端に新たに表示されるデータは存在しないので、右へのスク
+ロールはできません。左スクロールにより、テキストの1列目
+がウィンドウ端からウィンドウ外にスクロールされ、右端には
+その前は切り詰められていた(truncated)列が新たに表示され
+るので、左へのスクロールはできます。ウィンドウが左へ非
+0の量を水平スクロールされていれば、右スクロールしてそれ
+を戻すことができますが、正味の水平スクロールが0に減少す
+るまでの間のみ、右スクロールができます。左へどれほどスク
+ロールできるかに制限はありませんが、最終的にはすべてのテ
+キストが左端の外に消えるでしょう。
+
+   ‘auto-hscroll-mode’がセットされている場合、再表示はポ
+イントが常に可視となることを保証するために、必要に応じて
+水平スクロールを自動的に変更する。とはいえ、依然として水
+平スクロール位置を明示的に指定するのは可能である。指定し
+た値は、自動スクロールの下限値としての役目を果たす(自動
+スクロールは指定された値より小さい列にウィンドウをスクロ
+ールしない)。
+
+ -- Command: scroll-left &optional count set-minimum
+     この関数は、選択されたウィンドウを左(COUNTが負なら
+     右)にCOUNT列スクロールする。COUNTのデフォルトはウィ
+     ンドウ幅から2を減じた値である。
+
+     リターン値は、‘window-hscroll’(以下参照)がリターン
+     する値と同様、変更後に実際に左に水平スクロールされ
+     たトータル量である。
+
+     ウィンドウを可能な限り右にスクロールした後は、左ス
+     クロールの合計が0であるような通常の位置に戻り、右へ
+     のそれ以上のスクロールの試みは効果をもたない。
+
+     SET-MINIMUMが非‘nil’の場合、新たなスクロール量は自
+     動スクロールの下限値となる。つまり自動スクロールは
+     、この関数がリターンする値より小さい列にウィンドウ
+     をスクロールしないだろう。インタラクティブに呼び出
+     すと、SET-MINIMUMに非‘nil’を渡す。
+
+ -- Command: scroll-right &optional count set-minimum
+     この関数は、選択されたウィンドウを右(COUNTが負なら
+     左)にCOUNT列スクロールする。COUNTのデフォルトはウィ
+     ンドウ幅から2を減じた値である。スクロール方向を除け
+     ば、これは‘scroll-left’と同様に機能する。
+
+ -- Function: window-hscroll &optional window
+     この関数は、WINDOWの左への水平スクロールのトータル
+     (左マージンを超えて左にスクロールされたWINDOW内のテ
+     キスト列数)をリターンする。WINDOWのデフォルトは、選
+     択されたウィンドウである。
+
+     リターン値が負になることは決してない。WINDOWで水平
+     スクロールが行われていない場合(これが通常)、リター
+     ン値は0である。
+
+          (window-hscroll)
+               ⇒ 0
+          (scroll-left 5)
+               ⇒ 5
+          (window-hscroll)
+               ⇒ 5
+
+ -- Function: set-window-hscroll window columns
+     この関数は、WINDOWの水平スクロールをセットする。
+     COLUMNSの値は、スクロール量を左マージンからの列数で
+     指定する。引数COLUMNSは0または正の数であること。そ
+     うでない場合は、0とみなされる。小数値のCOLUMNSは、
+     現在のところサポートされない。
+
+     シンプルに‘M-:’を呼び出して評価する方法でテストした
+     場合は、‘set-window-hscroll’が機能していないように
+     見えるかもしれないことに注意されたい。何が発生して
+     いるかというと、この関数は水平スクロール値をセット
+     してリターンするが、その後にポイントを可視にするた
+     めに水平スクロールを調整するよう再表示が行なわれ、
+     これが関数の行った処理をオーバーライドしている。こ
+     の関数の効果は、左マージンからポイントまでのスクロ
+     ール量が、ポイントが可視のまま留まるように関数を呼
+     び出すことにより観察できる。
+
+     リターン値はCOLUMNSである。
+
+          (set-window-hscroll (selected-window) 10)
+               ⇒ 10
+
+   以下は、与えられた位置POSITIONが水平スクロールにより
+スクリーン外にあるかどうかを判断する例です:
+
+     (defun hscroll-on-screen (window position)
+       (save-excursion
+         (goto-char position)
+         (and
+          (>= (- (current-column) (window-hscroll window)) 0)
+          (< (- (current-column) (window-hscroll window))
+             (window-width window)))))
+
+
+File: elisp,  Node: Coordinates and Windows,  Next: Window Configurations,  Prev: Horizontal Scrolling,  Up: Windows
+
+27.23 Coordinates and Windows
+=============================
+
+このセクションでは、ウィンドウの位置を報告する関数を説明
+します。これらの関数のほとんどは、そのウィンドウのフレー
+ムから相対的な位置を報告します。この場合の座標原点
+‘(0,0)’は、そのフレームの左上隅付近になります。技術的な
+理由から、グラフィカルなディスプレイ上では、原点はスクリ
+ーン上のグラフィカルなウィンドウの左上隅に正確には配置さ
+れません。EmacsがGTK+とともにビルドされた場合、原点は
+(Emacsではなくウィンドウマネージャーおよび/またはGTK+に
+より描画される)タイトルバー、GTK+メニューバー、ツールバ
+ーの下のEmacsウィンドウ表示に使用されるフレーム領域の左
+上隅になります。しかし、GTK+なしでEmacsがビルドされた場
+合の原点は、ツールバーの左上隅になります(この場合は
+Emacs自身がツールバーを描画する)。どちらの場合も、X座標
+とY座標は、右または下に行くにつれ増加します。
+
+   注記された箇所を除き、X座標とY座標は整数の文字単位(行
+数と列数)で報告されます。グラフィカルなディスプレイ上で
+は、“行”と“列”はそれぞれ、そのフレームのデフォルトフォン
+トにより指定される、デフォルト文字の高さと幅に対応します
+。
+
+ -- Function: window-edges &optional window
+     この関数は、WINDOW端の座標のリストをリターンする。
+     If WINDOWが省略または‘nil’の場合のデフォルトは、選
+     択されたウィンドウである。
+
+     リターン値は、‘(LEFT TOP RIGHT BOTTOM)’という形式を
+     もつ。リストの要素は順に、そのウィンドウにより占有
+     される最左列のX座標、最上行のY座標、最右列より1列右
+     のX座標、最下行より1行下のY座標である。
+
+     これらは、ヘッダーライン、モードライン、スクロール
+     バー、ウィンドウディバイダー、ディスプレイマージン
+     を含む、ウィンドウの実際の外端であることに注意。テ
+     キスト端末では、そのウィンドウの右に隣接するウィン
+     ドウがある場合、ウィンドウの右端にはそのウィンドウ
+     と隣接するウィンドウの間のセパレーターラインが含ま
+     れる。
+
+ -- Function: window-inside-edges &optional window
+     この関数は‘window-edges’と似ているが、そのウィンド
+     ウのテキストエリア端の値をリターンする。これらから
+     はヘッダーライン、モードライン、スクロールバー、フ
+     リンジ、ウィンドウディバイダー、ディスプレイマージ
+     ン、垂直セパレーターは除外される。
+
+ -- Function: window-top-line &optional window
+     この関数は、WINDOWの最上行のY座標をリターンする。こ
+     れは‘window-edges’によりリターンされるリストのTOPエ
+     ントリーと等価である。
+
+ -- Function: window-left-column &optional window
+     この関数は、WINDOWの最左列のX座標をリターンする。こ
+     れは‘window-edges’によりリターンされるリストの
+     LEFTエントリーと等価である。
+
+   以下の関数は、フレーム相対座標(frame-relative
+coordinates)のセットからウィンドウへの関連付けに使用でき
+ます:
+
+ -- Function: window-at x y &optional frame
+     この関数は、フレームFRAME上の、フレーム相対座標X、
+     Yにある生きたウィンドウをリターンする。その位置にウ
+     ィンドウがなければ、‘nil’をリターンする。FRAMEが省
+     略または‘nil’の場合のデフォルトは、選択されたフレー
+     ムである。
+
+ -- Function: coordinates-in-window-p coordinates window
+     この関数は、ウィンドウWINDOWがフレーム相対座標
+     COORDINATESを占有するかどうかをチェックし、もしそう
+     ならウィンドウのどの部分かをチェックする。WINDOWは
+     生きたウィンドウであること。COORDINATESは‘(X . Y)’と
+     いう形式であるべきで、XとYはフレーム相対座標である
+     こと。
+
+     指定された位置にウィンドウが存在しない場合、リター
+     ン値は‘nil’である。それ以外では、リターン値は以下の
+     いずれかになる:
+
+     ‘(RELX . RELY)’
+          その座標はWINDOW内にある。数値RELXとRELYは、指
+          定された位置にたいするウィンドウ左上隅を原点に
+          0から数えたウィンドウ相対座標と等価である。
+
+     ‘mode-line’
+          その座標はWINDOWのモードライン内にある。
+
+     ‘header-line’
+          その座標はWINDOWのヘッダーライン内にある。
+
+     ‘right-divider’
+          その座標はWINDOWと右に隣接するウィンドウを分け
+          るディバイダー内にある。
+
+     ‘right-divider’
+          その座標はWINDOWと下にあるウィンドウを分けるデ
+          ィバイダー内にある。
+
+     ‘vertical-line’
+          その座標はWINDOWと右に隣接するウィンドウを分け
+          る垂直ライン内にある。この値は、ウィンドウにス
+          クロールバーがないときのみ発生し得る。スクロー
+          ルバー内の位置は、これらの目的にたいしてはウィ
+          ンドウ外と判断される。
+
+     ‘left-fringe’
+     ‘right-fringe’
+          その座標はウィンドウの左か右のフリンジ内にある
+          。
+
+     ‘left-margin’
+     ‘right-margin’
+          その座標はウィンドウの左か右のマージン内にある
+          。
+
+     ‘nil’
+          その座標は、WINDOWのいずれの部分でもない。
+
+     関数‘coordinates-in-window-p’はWINDOWのあるフレーム
+     を使用するので、引数としてフレームを要求しない。
+
+   以下の関数は、文字単位ではなくピクセル単位でウィンド
+ウ位置をリターンします。主にグラフィカルなディスプレイで
+有用ですが、テキスト端末上でも呼び出すことができ、その場
+合は各文字の占めるスクリーン領域が“1ピクセル”となります
+。
+
+ -- Function: window-pixel-edges &optional window
+     この関数は、WINDOW端のピクセル座標のリストをリター
+     ンする。WINDOWが省略または‘nil’の場合のデフォルトは
+     、選択されたウィンドウである。
+
+     リターン値は‘(LEFT TOP RIGHT BOTTOM)’という形式をも
+     つ。リストの要素は順にウィンドウ左端のXピクセル座標
+     、上端のYピクセル座標、右端のXピクセル座標+1、下端
+     のYピクセル座標+1である。
+
+ -- Function: window-inside-pixel-edges &optional window
+     この関数は‘window-pixel-edges’と同様だが、ウィンド
+     ウ端のピクセル座標ではなく、ウィンドウのテキストエ
+     リア端のピクセル座標をリターンする。WINDOWには生き
+     たウィンドウを指定しなければならない。
+
+   以下の関数は、フレームではなく、ディスプレイ画面
+(display screen)に相対的なウィンドウ位置をピクセルでリタ
+ーンする。
+
+ -- Function: window-absolute-pixel-edges &optional
+          window
+     この関数は‘window-pixel-edges’と同様だが、ディスプ
+     レイ画面の左上隅からの相対ピクセル座標でウィンドウ
+     端の座標をリターンする。
+
+ -- Function: window-inside-absolute-pixel-edges
+          &optional window
+     この関数は‘window-inside-pixel-edges’と同様だが、デ
+     ィスプレイ画面の左上隅からの相対ピクセル座標でウィ
+     ンドウのテキストエリア端の座標をリターンする。
+     WINDOWには生きたウィンドウを指定しなければならない
+     。
+
+ -- Function: window-pixel-left &optional window
+     この関数は、ウィンドウWINDOWの左端のピクセルをリタ
+     ーンする。WINDOWは有効なウィンドウでなければならず
+     、デフォルトは選択されたウィンドウである。
+
+ -- Function: window-pixel-top &optional window
+     この関数は、ウィンドウWINDOWの上端のピクセルをリタ
+     ーンする。WINDOWは有効なウィンドウでなければならず
+     、デフォルトは選択されたウィンドウである。
+
+
+File: elisp,  Node: Window Configurations,  Next: Window Parameters,  Prev: Coordinates and Windows,  Up: Windows
+
+27.24 Window Configurations
+===========================
+
+“ウィンドウ構成(window configuration)”とは1つのフレーム
+上全体のレイアウト — すべてのウィンドウ、およびそれらの
+サイズ、どんなバッファーを含んでいるか、それらのバッファ
+ーがスクロールされる方法、ポイント値とマーク値を記録し、
+フリンジ、マージン、スクロールバーのセッティングも記録し
+ます。これには‘minibuffer-scroll-window’の値も含まれます
+。特別な例外として、ウィンドウ構成には選択されたウィンド
+ウのカレントバッファーのポイント値は記録されません。
+
+   以前に保存されたウィンドウ構成をリストアすることによ
+り、フレーム全体のレイアウトを取り戻すことができます。
+1つだけではなくすべてのフレームのレイアウトを記録したい
+場合は、ウィンドウ構成のかわりに、フレーム構成(frame
+configuration)を使用します。*note Frame
+Configurations::を参照してください。
+
+ -- Function: current-window-configuration &optional
+          frame
+     この関数は、FRAMEのカレントのウィンドウ構成を表す新
+     たなオブジェクトをリターンする。FRAMEのデフォルトは
+     選択されたフレームである。変数
+     ‘window-persistent-parameters’は、この関数により保
+     存されるウィンドウパラメーター(もしあれば)を指定す
+     る。*note Window Parameters::を参照のこと。
+
+ -- Function: set-window-configuration configuration
+     この関数は、CONFIGURATIONが作成されたフレームにたい
+     して、ウィンドウとバッファーの構成をCONFIGURATIONで
+     指定された構成にリストアする。
+
+     引数CONFIGURATIONは、以前に
+     ‘current-window-configuration’がリターンした値でな
+     ければならない。この構成は、そのフレームが選択され
+     ているか否かに関わらず、CONFIGURATIONが作成時のフレ
+     ームから、当該フレームにリストアされる。これは常に
+     ウィンドウのサイズ変更とみなされ、
+     ‘window-size-change-functions’(*note Window
+     Hooks::を参照)の実行をトリガーする。なぜなら、
+     ‘set-window-configuration’は、新たな構成が古い構成
+     と実際に異なるかを示す方法を知らないからである。
+
+     CONFIGURATIONが保存されたフレームが死んでいる(生き
+     ていない)場合、この関数が行うのは3つの変数
+     ‘window-min-height’、‘window-min-width’、
+     ‘minibuffer-scroll-window’のリストアだけである。こ
+     の場合、関数は‘nil’をリターンし、それ以外は‘t’をリ
+     ターンする。
+
+     以下は、‘save-window-excursion’と同様な効果を得るた
+     めにこの関数を使用する例である:
+
+          (let ((config (current-window-configuration)))
+            (unwind-protect
+                (progn (split-window-below nil)
+                       ...)
+              (set-window-configuration config)))
+
+ -- Macro: save-window-excursion forms...
+     このマクロは、選択されたフレームのウィンドウ構成を
+     記録して、FORMSを順に実行してから、以前のウィンドウ
+     構成をリストアする。リターン値は、FORMS内の最後のフ
+     ォームの値である。
+
+     Lispコードのほとんどは、このマクロを使用すべきでは
+     ない。大抵は‘save-selected-window’で十分である。特
+     に、このマクロはFORMS内で新たなウィンドウをオープン
+     するコードを確実に防ぐことができず、新たなウィンド
+     ウは別のフレーム内でオープンされるかもしれないが
+     (*note Choosing Window::を参照)、
+     ‘save-window-excursion’が保存およびリストアするのは
+     、カレントフレーム上のウィンドウ構成だけだからであ
+     る。
+
+     このマクロを‘window-size-change-functions’内で使用
+     してはならない。このマクロをexitすることにより
+     ‘window-size-change-functions’の実行がトリガーされ
+     るが、これは無限ループを引き起こす。
+
+ -- Function: window-configuration-p object
+     この関数は、OBJECTがウィンドウ構成なら‘t’をリターン
+     する。
+
+ -- Function: compare-window-configurations config1
+          config2
+     この関数は、ポイント値、マーク値、保存されたスクロ
+     ール位置を無視して(これらの観点が異なっても‘t’をリ
+     ターンし得る)、ウィンドウ構造の観点から2つのウィン
+     ドウ構成を比較する。
+
+     関数‘equal’も2つのウィンドウ構成を比較できる。これ
+     はすべての点から、たとえ1つでも異なるものがあれば等
+     しい構成とはみなさず、たとえ保存されたポイント値や
+     マーク値が異なるだけでも、等しくないとみなす。
+
+ -- Function: window-configuration-frame config
+     この関数は、ウィンドウ構成CONFIGが作成されたフレー
+     ムをリターンする。
+
+   ウィンドウ構成の内部を調べる他のプリミティブも有用か
+もしれませんが、わたしたちはこれらを必要としないので実装
+されていません。ウィンドウ構成にたいしてより多くの操作を
+知りたい場合は、ファイル‘winner.el’を参照してください。
+
+   ‘current-window-configuration’がリターンするオブジェ
+クトは、Emacsプロセスとともに終焉します。ウィンドウ構成
+をディスク上に格納して、それを別のEmacsセッションに読み
+戻すために、次に説明する関数を使用できます。これらの関数
+は、フレームの状態を任意の生きたウィンドウにクローンする
+場合も有用です(‘set-window-configuration’はフレームのウ
+ィンドウを、そのフレームのルートウィンドウだけに効果的に
+クローンする)。
+
+ -- Function: window-state-get &optional window writable
+     この関数は、WINDOWの状態をLispオブジェクトとしてリ
+     ターンする。引数WINDOWは有効なウィンドウでなければ
+     ならず、デフォルトは選択されたフレームのルートウィ
+     ンドウである。
+
+     オプション引数WRITABLEが非‘nil’の場合、それは
+     ‘window-point’や‘window-start’のようなサンプリング
+     位置にたいするマーカーを使用しないことを意味する。
+     この状態をディスクに書き込んで別のセッションに読み
+     戻す場合は、この引数は非‘nil’であること。
+
+     引数WRITABLEと変数‘window-persistent-parameters’の
+     両方で、この関数によりどのウィンドウパラメーターが
+     保存されるかを指定する。*note Window Parameters::を
+     参照のこと。
+
+   ‘window-state-get’によりリターンされる値は、同一セッ
+ション内の他のウィンドウ内にあるウィンドウのクローンを作
+成するために使用できます。これはディスクに書き込んで、別
+のセッションに読み戻すこともできます。どちらの場合でも、
+ウィンドウの状態をリストアするためには以下の関数を使用し
+ます。
+
+ -- Function: window-state-put state &optional window
+          ignore
+     この関数は、ウィンドウ状態STATEをWINDOW内にputする
+     。引数STATEは以前に呼び出した‘window-state-get’がリ
+     ターンしたウィンドウ状態であること。オプション引数
+     WINDOWには生きたウィンドウ、または内部ウィンドウ
+     (*note Windows and Frames::を参照)のいずれかを指定
+     でき、デフォルトは選択されたウィンドウである。
+     WINDOWが生きていない場合は、STATEをputする前に生き
+     たウィンドウに置き換える。
+
+     オプション引数IGNOREが非‘nil’の場合、それは最小ウィ
+     ンドウサイズと固定サイズの制限を無視することを意味
+     する。IGNOREが‘safe’なら、それは1行および/または2列
+     まで、できる限り小さくできることを意味する。
+
+
+File: elisp,  Node: Window Parameters,  Next: Window Hooks,  Prev: Window Configurations,  Up: Windows
+
+27.25 Window Parameters
+=======================
+
+このセクションでは、ウィンドウに追加の情報を関連付けるた
+めにウィンドウパラメーターを使用する方法を説明します。
+
+ -- Function: window-parameter window parameter
+     この関数は、WINDOWのPARAMETERの値をリターンする。
+     WINDOWのデフォルトは、選択されたウィンドウである。
+     WINDOWにPARAMETERにたいするセッティングがない場合、
+     この関数は‘nil’をリターンする。
+
+ -- Function: window-parameters &optional window
+     この関数は、WINDOWのすべてのパラメーターと、その値
+     をリターンする。WINDOWのデフォルトは、選択されたウ
+     ィンドウである。リターン値は‘nil’、または
+     ‘(PARAMETER . VALUE)’という形式をもつ要素からなる連
+     想リストである。
+
+ -- Function: set-window-parameter window parameter
+          value
+     この関数は、WINDOWのPARAMETERの値にVALUEをセットし
+     て、VALUEをリターンする。WINDOWのデフォルトは、選択
+     されたウィンドウである。
+
+   デフォルトでは、ウィンドウ構成(window configuration)や
+ウィンドウ状態(states of windows)の保存とリストアを行う
+関数は、ウィンドウパラメーターについては関知しません
+(*note Window Configurations::を参照)。これは、
+‘save-window-excursion’のbody内でパラメーターの値を変更
+したときは、そのマクロのexit時に以前の値がリストアされな
+いことを意味します。これはまた、以前に
+‘window-state-get’で保存されたウィンドウ状態を
+‘window-state-put’でリストアしたときは、クローンされたす
+べてのウィンドウのパラメーターが‘nil’にリセットされるこ
+とも意味します。以下の変数により、この標準の挙動をオーバ
+ーライドできます:
+
+ -- Variable: window-persistent-parameters
+     この変数は、‘current-window-configuration’と
+     ‘window-state-get’により保存され、
+     ‘set-window-configuration’と‘window-state-put’によ
+     りリストアされるパラメーターを指定するalistである。
+     *note Window Configurations::を参照のこと。
+
+     このalistの各エントリーのCARはパラメーターを指定す
+     るシンボルである。CDRは以下のいずれかであること:
+
+     ‘nil’
+          この値は、そのパラメーターが
+          ‘window-state-get’と
+          ‘current-window-configuration’のいずれによって
+          も保存されていないことを意味する。
+
+     ‘t’
+          この値は、そのパラメーターが
+          ‘current-window-configuration’、および
+          (WRITABLE引数が‘nil’の場合は
+          )‘window-state-get’により保存されたことを意味
+          する。
+
+     ‘writable’
+          これは、そのパラメーターが無条件で
+          ‘current-window-configuration’と
+          ‘window-state-get’の両方により保存されたことを
+          意味する。この値は、入力構文(read syntax)をも
+          たないパラメーターに使用するべきではない。使用
+          した場合、別のセッションで‘window-state-put’を
+          呼び出すと、‘invalid-read-syntax’エラーで失敗
+          するだろう。
+
+   いくつかの関数(特に‘delete-window’、
+‘delete-other-windows’、‘split-window’)は、WINDOW引数に
+パラメーターセットをもつ場合は特別な挙動を示すかもしれま
+せん。以下の変数を非‘nil’値にバインドすることにより、そ
+のような特別な挙動をオーバーライドできます:
+
+ -- Variable: ignore-window-parameters
+     この変数が非‘nil’の場合、いくつかの標準関数はウィン
+     ドウパラメーターを処理しない。現在のところ影響を受
+     ける関数は‘split-window’、‘delete-window’、
+     ‘delete-other-windows’、‘other-window’である。
+
+     アプリケーションは、これらの関数の呼び出し周辺で、
+     この変数を非‘nil’にバインドできる。これを行った場合
+     、そのアプリケーションはその関数のexit時に、関連す
+     るすべてのウィンドウのパラメーターを正しく割り当て
+     る責任をもつ。
+
+   以下のパラメーターは現在のところ、ウィンドウ管理コー
+ドにより使用されています:
+
+‘delete-window’
+     このパラメーターは、‘delete-window’の実行に影響する
+     (*note Deleting Windows::を参照)。
+
+‘delete-other-windows’
+     このパラメーターは、‘delete-other-windows’の実行に
+     影響する(*note Deleting Windows::を参照)。
+
+‘split-window’
+     このパラメーターは、‘split-window’の実行に影響する
+     (*note Splitting Windows::を参照)。
+
+‘other-window’
+     このパラメーターは、‘other-window’の実行に影響する
+     (*note Cyclic Window Ordering::を参照)。
+
+‘no-other-window’
+     このパラメーターは、そのウィンドウを
+     ‘other-window’により選択不可とマークする(*note
+     Cyclic Window Ordering::を参照)。
+
+‘clone-of’
+     このパラメーターは、そのウィンドウがクローンされた
+     ことを指定する。これは‘window-state-get’によりイン
+     ストールされる(*note Window Configurations::を参照
+     )。
+
+‘quit-restore’
+     このパラメーターは、バッファー表示関数によりインス
+     トールされ、‘quit-restore-window’により参照される
+     (*note Quitting Windows::を参照)。これは4つの要素を
+     含む:
+
+     1つ目の要素は‘window’(ウィンドウは
+     ‘display-buffer’により特別に作られた)、‘frame’(別の
+     フレームが作られた)、‘same’(ウィンドウは前と同じバ
+     ッファーを表示する)、‘other’(ウィンドウは前と異なる
+     バッファーを表示する)のシンボルのいずれかである。
+
+     2つ目の要素はシンボル‘window’、‘frame’、または要素
+     がそのウィンドウに前に表示されていたバッファー、そ
+     のときのウィンドウstart位置、ウィンドウポイント位置
+     、ウィンドウの高さであるようなリストの、いずれかで
+     ある。
+
+     3つ目の要素は、そのパラメーター作成時点に選択されて
+     いたウィンドウである。関数‘quit-restore-window’は、
+     その引数としてこのウィンドウが渡された際は、そのウ
+     ィンドウの再選択を試みる。
+
+     4つ目の要素は、その表示がこのパラメーターの生成を引
+     き起こしたバッファーである。‘quit-restore-window’は
+     、指定されたウィンドウがまだそのバッファーを表示し
+     ている場合のみ、それを削除する。
+
+   追加のパラメーターとして、‘window-atom’と
+‘window-side’があります。これらは予約されており、アプリ
+ケーションが使用するべきではありません。
+
+
+File: elisp,  Node: Window Hooks,  Prev: Window Parameters,  Up: Windows
+
+27.26 Hooks for Window Scrolling and Changes
+============================================
+
+このセクションでは、あるウィンドウがそのバッファーの違う
+部分を表示したり、別のバッファーを表示したとき常にLispプ
+ログラムを実行可能にする方法について説明します。これを変
+更できる3つのアクションがあります。それはウィンドウのス
+クロール、ウィンドウ内でのバッファーの切り替え、ウィンド
+ウのサイズ変更です。最初の2つのアクションは
+‘window-scroll-functions’、最後のアクションは
+‘window-size-change-functions’を実行します。
+
+ -- Variable: window-scroll-functions
+     この変数は、ウィンドウのスクロールによりEmacsが再表
+     示前に呼び出すべき関数のリストを保持する。そのウィ
+     ンドウ内に異なるバッファーを表示したときも、これら
+     の関数が実行される。
+
+     この変数は、それぞれの関数が2つの引数、ウィンドウと
+     ウィンドウの新たなdisplay-start位置で呼び出されるの
+     で、ノーマルフックではない。
+
+     これらの関数は、‘window-end’(*note Window Start and
+     End::を参照)を使用する際には気をつけなければならな
+     い。最新の値が必要な場合は、それを確実に入力するた
+     めにUPDATE引数を使用しなければならない。
+
+     *警告:* ウィンドウのスクロール方法を変更するために
+     この機能を使用してはならない。これは、そのような用
+     途のためにデザインされておらず、そのような使用は機
+     能しないだろう。
+
+ -- Variable: window-size-change-functions
+     この変数は、理由は何であれ、任意のウィンドウのサイ
+     ズが変更された場合に呼び出される関数のリストを保持
+     する。これらの関数は、再表示ごとに1回、サイズ変更が
+     発生したフレーム上で1回呼び出される。
+
+     それぞれの関数は、フレームを唯一の引数として呼び出
+     される。そのフレーム上のどのウィンドウのサイズが変
+     更されたか、および変更された正確な方法を直接探す方
+     法はない。とはいえ、各呼び出しにおいてsize-change関
+     数が既存のウィンドウと、それらのサイズを記録すれば
+     、現在のサイズと以前のサイズを比較することも可能で
+     ある。
+
+     ウィンドウの作成と削除はサイズの変更とみなされるの
+     で、これらの関数の呼び出しを引き起こす。フレームの
+     サイズ変更は、既存のウィンドウのサイズを変更するの
+     で、これも変更とみなされる。
+
+     これらの関数内で、‘save-selected-window’を使用でき
+     る(*note Selecting Windows::を参照)。しかし、
+     ‘save-window-excursion’(*note Window
+     Configurations::を参照)を使用してはならない。このマ
+     クロのexitはサイズ変更とみなされ、それはこれらの関
+     数の際限ない呼び出しを引き起こすだろう。
+
+ -- Variable: window-configuration-change-hook
+     既存フレームのウィンドウ構成を変更するたびに毎回実
+     行される、ノーマルフックである。これにはウィンドウ
+     の分割と削除、ウィンドウのサイズ変更、ウィンドウ内
+     への異なるバッファーの表示が含まれる。
+
+     このフックのバッファーローカルな部分は、影響を受け
+     るフレーム上の各ウィンドウにたいして、関係するウィ
+     ンドウを選択、およびそのバッファーをカレントにして
+     1回実行される。グローバルな部分は、変更されたフレー
+     ムにたいして、そのフレームを選択して1回実行される。
+
+   加えて、Font Lockフォント表示関数(Font Lock
+fontification function)を登録するために、
+‘jit-lock-register’を使用できる。バッファーの一部が(再
+)フォント表示されたときは、ウィンドウがスクロール、また
+はサイズ変更されたという理由で、これが常に呼び出されるだ
+ろう。*note Other Font Lock Variables::を参照のこと。
+
+
+File: elisp,  Node: Frames,  Next: Positions,  Prev: Windows,  Up: Top
+
+28 Frames
+*********
+
+“フレーム(frame)”とは、1つ以上のEmacsウィンドウを含むス
+クリーンオブジェクトです(*note Windows::を参照)。これは
+、グラフィカル環境では“ウィンドウ”と呼ばれる類のオブジェ
+クトです。しかし、Emacsはこの単語を異なる方法で使用して
+いるので、ここではそれを“ウィンドウ”と呼ぶことはできませ
+ん。Emacs Lispにおいて“フレームオブジェクト(frame
+object)”とは、スクリーン上のフレームを表すLispオブジェク
+トです。*note Frame Type::を参照してください。
+
+   フレームには最初、1つのメインウィンドウおよび/または
+ミニバッファーウィンドウが含まれます。メインウィンドウは
+、より小さいウィンドウに垂直、または水平に分割することが
+できます。*note Splitting Windows::を参照してください。
+
+   “端末(terminal)”とは、1つ以上のEmacsフレームを表示す
+る能力のあるデバイスのことです。Emacs Lispにおいて、“端
+末オブジェクト(terminal object)”とは端末を表すLispオブジ
+ェクトです。*note Terminal Type::を参照してください。
+
+   端末には“テキスト端末(text terminals)”と“グラフィカル
+端末(graphical terminals)”という、2つのクラスがあります
+。テキスト端末はグラフィック能力をもたないディスプレイで
+、‘xterm’やその他の端末エミュレーターが含まれます。テキ
+スト端末上では、それぞれのEmacsフレームは、その端末のス
+クリーン全体を占有します。たとえ追加のフレームを作成して
+それらを切り替えることができたとしても、端末が表示するの
+は一度に1つのフレームだけです。一方でグラフィカル端末は
+、X Window Systemのようなグラフィカルディスプレイシステ
+ムにより管理されています。これにより、Emacsは同一ディス
+プレイ上に複数のフレームを同時に表示することができます。
+
+   GNUおよびUnix systemsシステムでは、単一のEmacsセッシ
+ョン内で、そのEmacsがテキスト端末とグラフィカル端末のい
+ずれで開始されたかに関わらず、任意の利用可能な端末上で、
+追加のフレームを作成することができます。Emacsは、グラフ
+ィカル端末とテキスト端末の両方を、同時に表示することがで
+きます。 これはたとえば、リモート地から同じセッションに
+接続する際などに便利でしょう。*note Multiple
+Terminals::を参照してください。
+
+ -- Function: framep object
+     この述語(predicate)は、OBJECTがフレームなら非
+     ‘nil’、それ以外は‘nil’をリターンする。フレームにた
+     いしては、フレームが使用するディスプレイの種類の値
+     となる:
+
+     ‘t’
+          そのフレームはテキスト端末上で表示されている。
+     ‘x’
+          そのフレームはXグラフィカル端末上で表示されて
+          いる。
+     ‘w32’
+          そのフレームはMS-Windowsグラフィカル端末上で表
+          示されている。
+     ‘ns’
+          そのフレームはGNUStepまたはMacintosh Cocoaグラ
+          フィカル端末上で表示されている。
+     ‘pc’
+          そのフレームはMS-DOS端末上で表示されている。
+
+ -- Function: frame-terminal &optional frame
+     この関数は、FRAMEを表示する端末オブジェクトをリター
+     ンする。FRAMEが‘nil’または未指定の場合のデフォルト
+     は、選択されたフレームである。
+
+ -- Function: terminal-live-p object
+     この述語は、OBJECTが生きた(削除されていない)端末な
+     ら非‘nil’、それ以外は‘nil’をリターンする。生きた端
+     末にたいしては、リターン値はその端末上で表示されて
+     いるフレームの種類を示す。可能な値は、上述の
+     ‘framep’と同様。
+
+* Menu:
+
+* Creating Frames::          追加のフレームの作成。
+* Multiple Terminals::       異なる複数デバイス上での表示。
+* Frame Parameters::         フレームのサイズ、位置、フォント等の制御。
+* Terminal Parameters::      端末上のすべてのフレームにたいして一般的なパラメーター。
+* Frame Titles::             フレームタイトルの自動的な更新。
+* Deleting Frames::          明示的に削除されるまでフレームは存続する。
+* Finding All Frames::       すべての既存フレームを調べる方法。
+* Minibuffers and Frames::   フレームが使用するミニバッファーを見つける方法。
+* Input Focus::              選択されたフレームの指定。
+* Visibility of Frames::     フレームは可視、不可視、またはアイコン化されているかもしれない。
+* Raising and Lowering::     フレームを前面に移動して他のウィンドウを隠し、背面に移動して他のウィンドウがフレームを隠す。
+* Frame Configurations::     すべてのフレームの状態の保存。
+* Mouse Tracking::           マウス移動時のイベントの取得。
+* Mouse Position::           マウスの場所や移動を問い合わせる。
+* Pop-Up Menus::             ユーザーに選択させるためのメニューの表示。
+* Dialog Boxes::             yes/noを問い合わせるためのボックスの表示。
+* Pointer Shape::            マウスポインターのシェイプの指定。
+* Window System Selections::  他のXクライアントとのテキストの転送。
+* Drag and Drop::            ドラッグアンドドロップの実装の内部。
+* Color Names::              カラー名定義の取得。
+* Text Terminal Colors::     テキスト端末のカラーの定義。
+* Resources::                サーバーからのリソース値の取得。
+* Display Feature Testing::  端末の機能の判定。
+
+
+File: elisp,  Node: Creating Frames,  Next: Multiple Terminals,  Up: Frames
+
+28.1 Creating Frames
+====================
+
+新たにフレームを作成するためには、関数‘make-frame’を呼び
+出します。
+
+ -- Command: make-frame &optional alist
+     この関数は、カレントバッファーを表示するフレームを
+     作成して、それをリターンする。
+
+     ALIST引数は、新たなフレームのフレームパラメーターを
+     指定するalistである。*note Frame Parameters::を参照
+     のこと。ALIST内で‘terminal’パラメーターを指定した場
+     合、新たなフレームはその端末上で作成される。それ以
+     外の場合、ALIST内で‘window-system’フレームパラメー
+     ターを指定した場合、それはフレームがテキスト端末と
+     グラフィカル端末のどちらで表示されるべきかを決定す
+     る。*note Window Systems::を参照のこと。どちらも指
+     定されない場合、新たなフレームは選択されたフレーム
+     と同じ端末上に作成される。
+
+     ALISTで指定されなかったパラメーターのデフォルトは、
+     alist ‘default-frame-alist’内の値となる。そこでも指
+     定されないパラメーターのデフォルトは、Xリソース、ま
+     たはそのオペレーティングシステムで同等のものの値と
+     なる(*note X Resources: (emacs)X Resources.を参照
+     )。フレームが作成された後、Emacsは
+     ‘frame-inherited-parameters’(以下参照)内にリストさ
+     れたすべてのパラメーターを適用して、引数にないもの
+     は‘make-frame’呼び出し時に選択されていたフレームか
+     ら値を取得する。
+
+     マルチモニターディスプレイ(*note Multiple
+     Terminals::を参照)では、ウィンドウマネージャーが
+     ALIST内の位置パラメーター(*note Position
+     Parameters::を参照)の指定とは異なる位置にフレームを
+     配置するかもしれないことに注意。たとえば、ウィンド
+     ウの大きな部分、いわゆる“支配モニター(dominating
+     monitor)”上のフレームを表示するポリシーをもつウィン
+     ドウマネージャーがいくつかあります。
+
+     この関数自体はーが、新たなフレームを選択されたフレ
+     ームにする訳ではない。*Note Input Focus::を参照のこ
+     と。以前に選択されていたフレームは、選択されたまま
+     である。しかしグラフィカル端末上では、ウィンドウシ
+     ステム自身の理由により、新たなフレームが選択される
+     かもしれない。
+
+ -- Variable: before-make-frame-hook
+     ‘make-frame’がフレームを作成する前に、それにより実
+     行されるノーマルフック。
+
+ -- Variable: after-make-frame-functions
+     ‘make-frame’がフレームを作成した後に、それにより実
+     行されるアブノーマルフック。
+     ‘after-make-frame-functions’内の各関数は、作成され
+     た直後のフレームを単一の引数として受け取る。
+
+ -- Variable: frame-inherited-parameters
+     この変数は、カレントで選択されているフレームから継
+     承して新たに作成されたフレームのフレームパラメータ
+     ーのリストを指定する。リスト内の各要素は
+     ‘make-frame’の引数として与えられなかったパラメータ
+     ー(シンボル)であり、‘make-frame’は新たに作成された
+     フレームのそのパラメーターに、選択されたフレームの
+     値をセットする。
+
+
+File: elisp,  Node: Multiple Terminals,  Next: Frame Parameters,  Prev: Creating Frames,  Up: Frames
+
+28.2 Multiple Terminals
+=======================
+
+Emacsは、それぞれの端末を“端末オブジェクト(terminal
+object)”というデータ型で表します(*note Terminal Type::を
+参照)。GNUおよびUnixシステムでは、Emacsはそれぞれのセッ
+ション内で複数の端末を同時に実行できます。その他のシステ
+ムでは、単一の端末だけが使用できます。端末オブジェクトは
+それぞれ、以下の属性をもちます:
+
+   • その端末により使用されるデバイスの名前(たとえば
+     ‘:0.0’や‘/dev/tty’)。
+
+   • その端末により使用される端末とキーボードのコーディ
+     ングシステム。*note Terminal I/O Encoding::を参照の
+     こと。
+
+   • その端末に関連付けられたディスプレイの種類。これは
+     、関数‘terminal-live-p’によりリターンされるシンボル
+     (たとえば‘x’、‘t’、‘w32’、‘ns’、‘pc’)である。*note
+     Frames::を参照のこと。
+
+   • 端末パラメーターのリスト。*note Terminal
+     Parameters::を参照のこと。
+
+   端末オブジェクトを作成するプリミティブはありません。
+‘make-frame-on-display’(以下参照)を呼び出したときなど、
+Emacsは必要に応じてそれらを作成します。
+
+ -- Function: terminal-name &optional terminal
+     この関数は、TERMINALにより使用されるデバイスのファ
+     イル名をリターンする。TERMINALが省略または‘nil’の場
+     合のデフォルトは、選択されたフレームの端末である。
+     TERMINALはフレームでもよく、その場合はそのフレーム
+     の端末となる。
+
+ -- Function: terminal-list
+     この関数は、すべての生きた端末オブジェクトのリスト
+     をリターンする。
+
+ -- Function: get-device-terminal device
+     この関数は、DEVICEにより与えられたデバイス名の端末
+     をリターンする。DEVICEが文字列の場合は端末デバイス
+     名、または‘HOST:SERVER.SCREEN’という形式のXディスプ
+     レイ名のいずれかを指定できる。DEVICEの場合、この関
+     数はそのフレームの端末をリターンする。‘nil’は選択さ
+     れたフレームを意味する。最後に、もしDEVICEが生きた
+     端末を表す端末オブジェクトなら、その端末がリターン
+     される。引数がこれらのいずれとも異なる場合、この関
+     数はエラーをシグナルする。
+
+ -- Function: delete-terminal &optional terminal force
+     この関数は、TERMINAL上のすべてのフレームを削除して
+     、それらが使用していたリソースを解放する。これらは
+     アブノーマルフック‘delete-terminal-functions’を実行
+     し、各関数の引数としてTERMINALを渡す。
+
+     TERMINALが省略または‘nil’の場合のデフォルトは、選択
+     されたフレームの端末である。TERMINALはフレームでも
+     よく、その場合はそのフレームの端末を意味する。
+
+     この関数は通常、唯一アクティブな端末の削除を試みる
+     とエラーをシグナルするが、FORCEが非‘nil’なら、これ
+     を行うことができる。端末上で最後のフレームを削除し
+     た際、Emacsは自動的にこの関数を呼び出す(*note
+     Deleting Frames::を参照)。
+
+ -- Variable: delete-terminal-functions
+     ‘delete-terminal’により実行されるアブノーマルフック
+     。各関数は、‘delete-terminal’に渡されたTERMINALを、
+     唯一の引数として受け取る。技術的な詳細により、この
+     関数は端末の削除の直前、または直後のいずれかに呼び
+     出される。
+
+   数は多くありませんが、いくつかのLisp変数は“端末ローカ
+ル(terminal-local)”です。つまり、それらは端末それぞれに
+たいして、個別にバインディングをもちます。いかなるときも
+、実際に効果をもつバインディングは、カレントで選択された
+フレームに属する端末にたいして1つだけです。これらの変数
+には‘default-minibuffer-frame’、‘defining-kbd-macro’、
+‘last-kbd-macro’、‘system-key-alist’が含まれます。これら
+は常に端末ローカルであり、決してバッファーローカル(*note
+Buffer-Local Variables::を参照)にはできません。
+
+   GNUおよびUnixシステムでは、Xディスプレイはそれぞれ別
+のグラフィカル端末になります。Xウィンドウシステム内で
+Emacsが開始された際は環境変数‘DISPLAY’、または
+‘--display’オプション(*note (emacs)Initial Options::を参
+照)により指定されたXディスプレイを使用します。Emacsはコ
+マンド‘make-frame-on-display’を通じて、別のXディスプレイ
+に接続できます。それぞれのXディスプレイは各自、選択され
+たフレームとミニバッファーをもちます。しかしあらゆる瞬間
+(*note Input Focus::を参照)において、それらのフレームの
+うちの1つだけが、“_いわゆる_選択されたフレーム”になりま
+す。‘emacsclient’との対話することにより、Emacsが別のテキ
+スト端末と接続することさえ可能です。*note (emacs)Emacs
+Server::を参照してください。
+
+   1つのXサーバーが、1つ以上のディスプレイを処理できます
+。各Xディスプレイには、
+‘HOSTNAME:DISPLAYNUMBER.SCREENNUMBER’という3つの部分から
+なる名前があります。1つ目の部分のHOSTNAMEは、その端末が
+物理的に接続されるマシン名です。2つ目の部分の
+DISPLAYNUMBERは、同じキーボードとポインティングデバイス
+(マウスやタブレット等)を共有するマシンに接続された、1つ
+以上のモニターを識別するための、0基準の番号です。3つ目の
+部分のSCREENNUMBERは、そのXサーバー上の単一のモニターコ
+レクション(a single monitor collection)の一部である、0基
+準のスクリーン番号(個別のモニター)です。1つのサーバー配
+下にある2つ以上のスクリーンを使用する際、Emacsはそれらの
+名前の同一部分から、それらが単一のキーボードを共有するこ
+とを知ることができるのです。
+
+   MS-WindowsのようにXウィンドウシステムを使用しないシス
+テムは、Xディスプレイの概念をサポートせず、各ホスト上に
+は1つのディスプレイだけがあります。これらのシステム上の
+ディスプレイ名は、上述したような3つの部分からなる名前に
+したがいません。たとえば、MS-Windowsシステム上のディスプ
+レイ名は文字列定数‘w32’です。これは互換性のために存在す
+るものであり、ディスプレイ名を期待する関数にこれを渡すこ
+とができます。
+
+ -- Command: make-frame-on-display display &optional
+          parameters
+     この関数は、DISPLAY上に新たにフレームを作成して、そ
+     れをリターンする。その他のフレームパラメーターは、
+     alist PARAMETERSから取得する。DISPLAYはXディスプレ
+     イの名前(文字列)であること。
+
+     この関数は、フレーム作成前にEmacsがグラフィックを表
+     示するために“セットアップ”されることを保証する。た
+     とえば、Emacsが(テキスト端末上で開始された等で)Xリ
+     ソースを未処理なら、この時点で処理を行う。他のすべ
+     ての点においては、この関数は‘make-frame’(*note
+     Creating Frames::を参照)と同様に振る舞う。
+
+ -- Function: x-display-list
+     この関数は、EmacsがどのXディスプレイに接続したかを
+     識別するリストをリターンする。このリストの要素は文
+     字列で、それぞれがディスプレイ名を表す。
+
+ -- Function: x-open-connection display &optional
+          xrm-string must-succeed
+     この関数は、ディスプレイ上にフレームを作成すること
+     なく、XディスプレイDISPLAYへの接続をオープンする。
+     通常は、‘make-frame-on-display’が自動的に呼び出すの
+     で、Emacs Lispプログラムがこの関数を呼び出す必要は
+     ない。これを呼び出す唯一の理由は、与えられたXディス
+     プレイにたいして通信を確立できるかどうかチェックす
+     るためである。
+
+     オプション引数XRM-STRINGが非‘nil’なら、それは
+     ‘.Xresources’ファイル内で使用されるフォーマットと同
+     一な、リソース名とリソース値である。*note X
+     Resources: (emacs)X Resources.を参照のこと。これら
+     の値はそのXサーバー上で記録されたリソース値をオーバ
+     ーライドして、このディスプレイ上で作成されるすべて
+     のEmacsフレームにたいして適用される。以下は、この文
+     字列がどのようなものかを示す例である:
+
+          "*BorderWidth: 3\n*InternalBorder: 2\n"
+
+     MUST-SUCCEEDが非‘nil’なら、接続オープンの失敗により
+     Emacsが終了させられる。それ以外の場合は、通常の
+     Lispエラーとなる。
+
+ -- Function: x-close-connection display
+     この関数は、ディスプレイDISPLAYへの接続をクローズす
+     る。これを行う前にまず、そのディスプレイ上でオープ
+     ンしたすべてのフレームを削除しなければならない
+     (*note Deleting Frames::を参照)。
+
+   “マルチモニター”のセットアップにおいて、単一のXディス
+プレイが複数の物理モニターに出力される場合があります。そ
+のようなセットアップを取得するために、関数
+‘display-monitor-attributes-list’と
+‘frame-monitor-attributes’を使用できます。
+
+ -- Function: display-monitor-attributes-list &optional
+          display
+     この関数は、DISPLAY上の物理モニターの属性のリストを
+     リターンする。DISPLAYにはディスプレイ名(文字列)、端
+     末、フレームを指定でき、省略または‘nil’の場合のデフ
+     ォルトは、選択されたフレームのディスプレイである。
+     このリストの各要素は、物理モニターの属性を表す連想
+     リストである。1つ目の要素はプライマリーモニターであ
+     る。以下は属性のキーと値である:
+
+     ‘geometry’
+          ‘(X Y WIDTH HEIGHT)’のような、ピクセル単位での
+          そのモニターのスクリーンの左上隅の位置、そのサ
+          イズ。そのモニターがプライマリーモニターでない
+          場合は、いくつかの座標が負になり得る。
+
+     ‘workarea’
+          ‘(X Y WIDTH HEIGHT)’のような、ピクセル単位での
+          ワークエリア(“使用可能”なスペース)の左上隅の位
+          置と、そのサイズ。これはワークエリアから除外さ
+          れ得る、ウィンドウマネージャーのさまざまな機能
+          (dock、taskbar等)が占めるスペースの分、
+          ‘geometry’とは異なるかもしれない。そのような機
+          能が実際にワークエリアから差し引かれるかどうか
+          は、そのプラットフォームと環境に依存する。繰り
+          返しになるが、そのモニターがプライマリーモニタ
+          ーでない場合、いくつかの座標は負になり得る。
+
+     ‘mm-size’
+          ‘(WIDTH HEIGHT)’<のような、ミリメートル単位で
+          の幅と高さ。
+
+     ‘frames’
+          その物理モニターが支配(dominate)するフレームの
+          リスト(以下参照)。
+
+     ‘name’
+          STRINGのような、その物理モニターの名前。
+
+     ‘source’
+          STRINGのような、マルチモニターの情報ソース(例:
+          ‘XRandr’、‘Xinerama’等)。
+
+     X、Y、WIDTH、HEIGHTは整数。‘name’と‘source’は欠落し
+     ているかもしれない。
+
+     あるモニター内にフレームの最大領域がある、または(フ
+     レームがどの物理モニターに跨がらないなら)そのモニタ
+     ーがフレームに最も近いとき、フレームは物理モニター
+     により“支配(dominate)”される。グラフィカルなディス
+     プレイ内の(ツールチップではない)すべてのフレームは
+     、たとえそのフレームが複数の物理モニターに跨がる(ま
+     たは物理モニター上にない)としても、(可視か否かによ
+     らず)正確に1つの物理モニターにより支配される。
+
+     以下は、2つのモニターディスプレイ上でこの関数により
+     生成されたデータの例である:
+
+            (display-monitor-attributes-list)
+            ⇒
+            (((geometry 0 0 1920 1080) ;; 左手側プライマリーモニター
+              (workarea 0 0 1920 1050) ;; タスクバーが幾分かの高さを占有
+              (mm-size 677 381)
+              (name . "DISPLAY1")
+              (frames #<frame emacs@host *Messages* 0x11578c0>
+                      #<frame emacs@host *scratch* 0x114b838>))
+             ((geometry 1920 0 1680 1050) ;; 右手側モニター
+              (workarea 1920 0 1680 1050) ;; スクリーン全体を使用可
+              (mm-size 593 370)
+              (name . "DISPLAY2")
+              (frames)))
+
+ -- Function: frame-monitor-attributes &optional frame
+     この関数は、 FRAMEを支配(上記参照)する物理モニター
+     の属性をリターンする。 FRAMEのデフォルトは選択され
+     たフレームである。
+
