@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2019-10-05 03:38+0900\n"
-"PO-Revision-Date: 2019-10-08 17:01+0900\n"
+"PO-Revision-Date: 2019-10-08 19:03+0900\n"
 "Last-Translator: Ayanokoji Takesi <ayanokoji.takesi@gmail.com>\n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -3340,69 +3340,69 @@ msgstr "プロセスのタイプを示す@code{real}、@code{network}、@code{se
 #: internals.texi.orig:1565
 #, no-wrap
 msgid "integer types (C programming language)"
-msgstr ""
+msgstr "integer types (C programming language)"
 
 #. type: Plain text
 #: internals.texi.orig:1570
 msgid "Here are some guidelines for use of integer types in the Emacs C source code.  These guidelines sometimes give competing advice; common sense is advised."
-msgstr ""
+msgstr "以下はEmacsのCソースコード内で、整数タイプを使用する際のガイドラインです。これらのガイドラインはときに相反するアドバイスを与えることがありますが、一般的な常識に沿ったものがアドバイスです。"
 
 #. type: itemize
 #: internals.texi.orig:1576
 msgid "Avoid arbitrary limits.  For example, avoid @code{int len = strlen (s);} unless the length of @code{s} is required for other reasons to fit in @code{int} range."
-msgstr ""
+msgstr "任意の制限の使用を避ける。たとえば、@code{s}の長さを@code{int}の範囲に収めることが要求されるのでなければ、@code{int len = strlen (s);}を使用しないこと。"
 
 #. type: itemize
 #: internals.texi.orig:1583
 msgid "Do not assume that signed integer arithmetic wraps around on overflow.  This is no longer true of Emacs porting targets: signed integer overflow has undefined behavior in practice, and can dump core or even cause earlier or later code to behave ``illogically''.  Unsigned overflow does wrap around reliably, modulo a power of two."
-msgstr ""
+msgstr "符号付き整数の算術演算のオーバーフローのラップアラウンドを前提としてはならない。Emacsのポート対象先によっては、これは成り立たない。実際には、符号付き整数のオーバーフローは未定義であり、コアダンプや、早晩に``非論理的''な振る舞いさえ起こし得る。符号なし整数のオーバーフローは、2のべき乗の剰余に確実にラップアラウンドされることが保証されています。"
 
 #. type: itemize
 #: internals.texi.orig:1591
 msgid "Prefer signed types to unsigned, as code gets confusing when signed and unsigned types are combined.  Many other guidelines assume that types are signed; in the rarer cases where unsigned types are needed, similar advice may apply to the unsigned counterparts (e.g., @code{size_t} instead of @code{ptrdiff_t}, or @code{uintptr_t} instead of @code{intptr_t})."
-msgstr ""
+msgstr "符号なしタイプと符号付きタイプを組み合わせるとコードが混乱するので、符号なしタイプより符号付きタイプを優先すること。他のガイドラインの多くはタイプが符号付きだとみなしている。符号なしタイプを要する稀なケースでは、符号付きの符号なし版(@code{ptrdiff_t}のかわりに@code{size_t}、@code{intptr_t}のかわりに@code{uintptr_t})にたいして同様のアドバイスを適用できる。"
 
 #. type: itemize
 #: internals.texi.orig:1594
 msgid "Prefer @code{int} for Emacs character codes, in the range 0 ..@: 0x3FFFFF."
-msgstr ""
+msgstr "Emacsの文字コードでは、0から0x3FFFFFを優先すること。"
 
 #. type: itemize
 #: internals.texi.orig:1603
 msgid "Prefer @code{ptrdiff_t} for sizes, i.e., for integers bounded by the maximum size of any individual C object or by the maximum number of elements in any C array.  This is part of Emacs's general preference for signed types.  Using @code{ptrdiff_t} limits objects to @code{PTRDIFF_MAX} bytes, but larger objects would cause trouble anyway since they would break pointer subtraction, so this does not impose an arbitrary limit."
-msgstr ""
+msgstr "サイズ(たとえばすべての個別のCオブジェクトの最大サイズや、すべてのC配列の最大要素数にバインドされる整数)にたいしては、@code{ptrdiff_t}を優先すること。これは符号付きタイプにたいする、Emacsの一般的な優先事項である。@code{ptrdiff_t}の使用によりオブジェクトは@code{PTRDIFF_MAX}に制限されるが、より大きいオブジェクトはポインター減算を破壊するかもしれず、結局のところ問題を起こす可能性があるので、これは一方的に制限を課すものではない。"
 
 #. type: itemize
 #: internals.texi.orig:1611
 msgid "Prefer @code{intptr_t} for internal representations of pointers, or for integers bounded only by the number of objects that can exist at any given time or by the total number of bytes that can be allocated.  Currently Emacs sometimes uses other types when @code{intptr_t} would be better; fixing this is lower priority, as the code works as-is on Emacs's current porting targets."
-msgstr ""
+msgstr "ポインターの内部表現や、与えられた任意のタイミングで存在可能なオブジェクト数や割り当て可能な総バイト数にのみバインドされる整数には、@code{intptr_t}を優先すること。現在のことこEmacsは@code{intptr_t}の使用したほうがよいときに、別のタイプを使用する場合がある。現在のEmacsのカレント移植先にたいして未修正でコードが動作するので、これの修正の優先度は低い。"
 
 #. type: itemize
 #: internals.texi.orig:1616
 msgid "Prefer the Emacs-defined type @code{EMACS_INT} for representing values converted to or from Emacs Lisp fixnums, as fixnum arithmetic is based on @code{EMACS_INT}."
-msgstr ""
+msgstr "Emacs Lispのfixnumへの変換や逆変換を表す値では、fixnum演算が@code{EMACS_INT}にもとづくので、Emacsで定義されたタイプ@code{EMACS_INT}を優先すること。"
 
 #. type: itemize
 #: internals.texi.orig:1623
 msgid "When representing a system value (such as a file size or a count of seconds since the Epoch), prefer the corresponding system type (e.g., @code{off_t}, @code{time_t}).  Do not assume that a system type is signed, unless this assumption is known to be safe.  For example, although @code{off_t} is always signed, @code{time_t} need not be."
-msgstr ""
+msgstr "(ファイルサイズやエポック以降の経過秒数等の)システム値を表す際は、(@code{off_t}や@code{time_t}等の)システムタイプを優先すること。安全だと解っていなければ、システムタイプが符号付きだと仮定してはならない。たとえば@code{off_t}は常に符号付きだが、@code{time_t}は符号付きである必要はない。"
 
 #. type: itemize
 #: internals.texi.orig:1628
 msgid "Prefer the Emacs-defined type @code{printmax_t} for representing values that might be any signed integer that can be printed, using a @code{printf}-family function."
-msgstr ""
+msgstr "@code{printf}族の関数を使用してプリントされ得る任意の符号付き整数であるかもしれない値を表す場合は、Emacsの定義タイプ@code{printmax_t}を優先すること。"
 
 #. type: itemize
 #: internals.texi.orig:1632
 msgid "Prefer @code{intmax_t} for representing values that might be any signed integer value."
-msgstr ""
+msgstr "任意の符号付き整数であるかもしれない値を表す場合は、@code{intmax_t}を優先すること。"
 
 #. type: itemize
 #: internals.texi.orig:1644
 msgid "Prefer @code{bool}, @code{false} and @code{true} for booleans.  Using @code{bool} can make programs easier to read and a bit faster than using @code{int}.  Although it is also OK to use @code{int}, @code{0} and @code{1}, this older style is gradually being phased out.  When using @code{bool}, respect the limitations of the replacement implementation of @code{bool}, as documented in the source file @file{lib/stdbool.in.h}, so that Emacs remains portable to pre-C99 platforms.  In particular, boolean bitfields should be of type @code{bool_bf}, not @code{bool}, so that they work correctly even when compiling Objective C with standard GCC."
-msgstr ""
+msgstr "ブーリーンには@code{bool}、@code{false}、@code{true}を使用すること。@code{bool}の使用によりプログラムの可読性が増し、@code{int}を使用するより若干高速になる。@code{int}、@code{0}、@code{1}を使用しても大丈夫だが、この旧スタイルは段階的に廃止される。@code{bool}を使用する際には、ソースファイル@file{lib/stdbool.in.h}に文書化されている@code{bool}の代替実装の制限を尊重すれば、C99以前のプラットフォームにたいするEmacsの可搬性か保たれる。特にブーリーンのビットフィールドは@code{bool}ではなく、@code{bool_bf}タイプであること。そうすれば標準のGCCでObjective Cをコンパイルするときでさえ、正しく機能する。"
 
 #. type: itemize
 #: internals.texi.orig:1650
 msgid "In bitfields, prefer @code{unsigned int} or @code{signed int} to @code{int}, as @code{int} is less portable: it might be signed, and might not be.  Single-bit bit fields should be @code{unsigned int} or @code{bool_bf} so that their values are 0 or 1."
-msgstr ""
+msgstr "ビットフィールドでは、@code{int}は可搬性に劣るので、@code{int}より@code{unsigned int}か@code{signed int}を優先すること。単一ビットのビットフィールドの値は0か1なので、@code{unsigned int}か@code{bool_bf}を使用すること。"
