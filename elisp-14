@@ -1872,194 +1872,196 @@ File: elisp,  Node: Standard Hooks,  Next: Index,  Prev: Standard Keymaps,  Up: 
 Appendix H Standard Hooks
 *************************
 
-The following is a list of some hook variables that let you provide
-functions to be called from within Emacs on suitable occasions.
+以下は、EMacsで適切なタイミングで呼び出す関数を提供するための、いくつか
+のフック関数のリストです。
 
-   Most of these variables have names ending with ‘-hook’.  They are
-“normal hooks”, run by means of ‘run-hooks’.  The value of such a hook
-is a list of functions; the functions are called with no arguments and
-their values are completely ignored.  The recommended way to put a new
-function on such a hook is to call ‘add-hook’.  *Note Hooks::, for more
-information about using hooks.
+   これらの変数のほとんどは、‘-hook’で始まる名前をもちます。これらは“ノ
+ーマルフック(normal hooks)”と呼ばれ、‘run-hooks’により実行されます。その
+ようなフックの値は関数のリストです。これらの関数は引数なしで呼び出され、
+値は完全にに無視されます。そのようなフック上に新たに関数を配置するための
+推奨は、‘add-hook’を呼び出す方法です。フック使用についての詳細は、*note
+Hooks::を参照してください。
 
-   The variables whose names end in ‘-functions’ are usually “abnormal
-hooks” (some old code may also use the deprecated ‘-hooks’ suffix);
-their values are lists of functions, but these functions are called in a
-special way (they are passed arguments, or their return values are
-used).  The variables whose names end in ‘-function’ have single
-functions as their values.
+   ‘-functions’で終わる名前の変数は、通常は“アブノーマルフック(abnormal
+hooks)”です(古いコードには推奨されない‘-hooks’サフィクスを使用するものも
+ある)。これらの値は関数のリストですが、これらの関数は特殊な方法で呼び出
+されます(引数を渡されたりリターン値が使用される)。‘-function’で終わる名
+前の変数は、値として単一の関数をもちます。
 
-   This is not an exhaustive list, it only covers the more general
-hooks.  For example, every major mode defines a hook named
-‘MODENAME-mode-hook’.  The major mode command runs this normal hook with
-‘run-mode-hooks’ as the very last thing it does.  *Note Mode Hooks::.
-Most minor modes have mode hooks too.
+   以下のリストはすべてを網羅したリストではなく、より一般的なフックだけ
+をカバーしています。たとえばメジャーモードはそれぞれ、
+‘MODENAME-mode-hook’という名前のフックを定義します。メジャーモードは自身
+が行う最後のこととして、‘run-mode-hooks’でこのノーマルフックを実行します
+。*note Mode Hooks::を参照してください。ほとんどのマイナーモードにもフッ
+クがあります。
 
-   A special feature allows you to specify expressions to evaluate if
-and when a file is loaded (*note Hooks for Loading::).  That feature is
-not exactly a hook, but does a similar job.
+   特別な機能により、あるファイルがロードされたときに評価する式を指定で
+きます(*note Hooks for Loading::を参照)。この機能は正確にはフックではあ
+りませんが、同様のことを行います。
 
 ‘activate-mark-hook’
 ‘deactivate-mark-hook’
-     *Note The Mark::.
+     *note The Mark::を参照のこと。
 
 ‘after-change-functions’
 ‘before-change-functions’
 ‘first-change-hook’
-     *Note Change Hooks::.
+     *note Change Hooks::を参照のこと。
 
 ‘after-change-major-mode-hook’
 ‘change-major-mode-after-body-hook’
-     *Note Mode Hooks::.
+     *note Mode Hooks::を参照のこと。
 
 ‘after-init-hook’
 ‘before-init-hook’
 ‘emacs-startup-hook’
 ‘window-setup-hook’
-     *Note Init File::.
+     *note Init File::を参照のこと。
 
 ‘after-insert-file-functions’
 ‘write-region-annotate-functions’
 ‘write-region-post-annotation-function’
-     *Note Format Conversion::.
+     *note Format Conversion::を参照のこと。
 
 ‘after-make-frame-functions’
 ‘before-make-frame-hook’
-     *Note Creating Frames::.
+     *note Creating Frames::を参照のこと。
 
 ‘after-save-hook’
 ‘before-save-hook’
 ‘write-contents-functions’
 ‘write-file-functions’
-     *Note Saving Buffers::.
+     *note Saving Buffers::を参照のこと。
 
 ‘after-setting-font-hook’
      Hook run after a frame’s font changes.
 
 ‘auto-save-hook’
-     *Note Auto-Saving::.
+     *Note Auto-Saving::を参照のこと。
 
 ‘before-hack-local-variables-hook’
 ‘hack-local-variables-hook’
-     *Note File Local Variables::.
+     *note File Local Variables::を参照のこと。
 
 ‘buffer-access-fontify-functions’
-     *Note Lazy Properties::.
+     *note Lazy Properties::を参照のこと。
 
 ‘buffer-list-update-hook’
-     Hook run when the buffer list changes (*note Buffer List::).
+     バッファーリスト変更時に実行されるフック(*note Buffer List::を参照
+     )。
 
 ‘buffer-quit-function’
-     Function to call to “quit” the current buffer.
+     カレントバッファーを“quit”するために呼び出されるフック。
 
 ‘change-major-mode-hook’
-     *Note Creating Buffer-Local::.
+     *note Creating Buffer-Local::を参照のこと。
 
 ‘command-line-functions’
-     *Note Command-Line Arguments::.
+     *note Command-Line Arguments::を参照のこと。
 
 ‘delayed-warnings-hook’
-     The command loop runs this soon after ‘post-command-hook’ (q.v.).
+     コマンドループは‘post-command-hook’(以下参照)の直後にこれを実行する
+     。
 
 ‘focus-in-hook’
 ‘focus-out-hook’
-     *Note Input Focus::.
+     *note Input Focus::を参照のこと。
 
 ‘delete-frame-functions’
-     *Note Deleting Frames::.
+     *note Deleting Frames::を参照のこと。
 
 ‘delete-terminal-functions’
-     *Note Multiple Terminals::.
+     *note Multiple Terminals::を参照のこと。
 
 ‘pop-up-frame-function’
 ‘split-window-preferred-function’
-     *Note Choosing Window Options::.
+     *note Choosing Window Options::を参照のこと。
 
 ‘echo-area-clear-hook’
-     *Note Echo Area Customization::.
+     *note Echo Area Customization::を参照のこと。
 
 ‘find-file-hook’
 ‘find-file-not-found-functions’
-     *Note Visiting Functions::.
+     *note Visiting Functions::を参照のこと。
 
 ‘font-lock-extend-after-change-region-function’
-     *Note Region to Refontify::.
+     *note Region to Refontify::を参照のこと。
 
 ‘font-lock-extend-region-functions’
-     *Note Multiline Font Lock::.
+     *note Multiline Font Lock::を参照のこと。
 
 ‘font-lock-fontify-buffer-function’
 ‘font-lock-fontify-region-function’
 ‘font-lock-mark-block-function’
 ‘font-lock-unfontify-buffer-function’
 ‘font-lock-unfontify-region-function’
-     *Note Other Font Lock Variables::.
+     *note Other Font Lock Variables::を参照のこと。
 
 ‘fontification-functions’
-     *Note Automatic Face Assignment: Auto Faces.
+     *note Automatic Face Assignment: Auto Faces.を参照のこと。
 
 ‘frame-auto-hide-function’
-     *Note Quitting Windows::.
+     *note Quitting Windows::を参照のこと。
 
 ‘kill-buffer-hook’
 ‘kill-buffer-query-functions’
-     *Note Killing Buffers::.
+     *note Killing Buffers::を参照のこと。
 
 ‘kill-emacs-hook’
 ‘kill-emacs-query-functions’
-     *Note Killing Emacs::.
+     *note Killing Emacs::を参照のこと。
 
 ‘menu-bar-update-hook’
-     *Note Menu Bar::.
+     *note Menu Bar::を参照のこと。
 
 ‘minibuffer-setup-hook’
 ‘minibuffer-exit-hook’
-     *Note Minibuffer Misc::.
+     *note Minibuffer Misc::を参照のこと。
 
 ‘mouse-leave-buffer-hook’
-     Hook run when about to switch windows with a mouse command.
+     マウスコマンドでのウィンドウ切り替え時に実行されるフック。
 
 ‘mouse-position-function’
-     *Note Mouse Position::.
+     *note Mouse Position::を参照のこと。
 
 ‘post-command-hook’
 ‘pre-command-hook’
-     *Note Command Overview::.
+     *note Command Overview::を参照のこと。
 
 ‘post-gc-hook’
-     *Note Garbage Collection::.
+     *note Garbage Collection::を参照のこと。
 
 ‘post-self-insert-hook’
-     *Note Keymaps and Minor Modes::.
+     *note Keymaps and Minor Modes::を参照のこと。
 
 ‘suspend-hook’
 ‘suspend-resume-hook’
 ‘suspend-tty-functions’
 ‘resume-tty-functions’
-     *Note Suspending Emacs::.
+     *note Suspending Emacs::を参照のこと。
 
 ‘syntax-begin-function’
 ‘syntax-propertize-extend-region-functions’
 ‘syntax-propertize-function’
 ‘font-lock-syntactic-face-function’
-     *Note Syntactic Font Lock::.  *Note Syntax Properties::.
+     *note Syntactic Font Lock::および*note Syntax Properties::を参照さ
+     れたい。
 
 ‘temp-buffer-setup-hook’
 ‘temp-buffer-show-function’
 ‘temp-buffer-show-hook’
-     *Note Temporary Displays::.
+     *note Temporary Displays::を参照のこと。
 
 ‘tty-setup-hook’
-     *Note Terminal-Specific::.
+     *note Terminal-Specific::を参照のこと。
 
 ‘window-configuration-change-hook’
 ‘window-scroll-functions’
 ‘window-size-change-functions’
-     *Note Window Hooks::.
+     *note Window Hooks::を参照のこと。
 
 ‘window-text-change-functions’
-     Functions to call in redisplay when text in the window might
-     change.
+     ウィンドウのテキスト変更時の再表示で呼び出す関数。
 
 
 File: elisp,  Node: Index,  Prev: Standard Hooks,  Up: Top
@@ -2623,7 +2625,7 @@ Index
 * buffer-narrowed-p:                     Narrowing.           (line  50)
 * buffer-offer-save:                     Killing Buffers.     (line  86)
 * buffer-predicate, a frame parameter:   Buffer Parameters.   (line  18)
-* buffer-quit-function:                  Standard Hooks.      (line  84)
+* buffer-quit-function:                  Standard Hooks.      (line  85)
 * buffer-read-only:                      Read Only Buffers.   (line  29)
 * buffer-save-without-query:             Killing Buffers.     (line  95)
 * buffer-saved-size:                     Auto-Saving.         (line 163)
@@ -3389,7 +3391,7 @@ Index
 * delay-mode-hooks:                      Mode Hooks.          (line  41)
 * delayed warnings:                      Delayed Warnings.    (line   6)
 * delayed-warnings-hook:                 Delayed Warnings.    (line  24)
-* delayed-warnings-hook <1>:             Standard Hooks.      (line  93)
+* delayed-warnings-hook <1>:             Standard Hooks.      (line  94)
 * delayed-warnings-list:                 Delayed Warnings.    (line  10)
 * delete:                                Sets And Lists.      (line 123)
 * delete-and-extract-region:             Deletion.            (line  34)
@@ -4176,9 +4178,9 @@ Index
 * focus event:                           Focus Events.        (line   6)
 * focus-follows-mouse:                   Input Focus.         (line 125)
 * focus-in-hook:                         Input Focus.         (line 117)
-* focus-in-hook <1>:                     Standard Hooks.      (line  96)
+* focus-in-hook <1>:                     Standard Hooks.      (line  98)
 * focus-out-hook:                        Input Focus.         (line 121)
-* focus-out-hook <1>:                    Standard Hooks.      (line  97)
+* focus-out-hook <1>:                    Standard Hooks.      (line  99)
 * follow links:                          Clickable Text.      (line   6)
 * follow-link (button property):         Button Properties.   (line  45)
 * follow-link (text or overlay property): Clickable Text.     (line  86)
@@ -5520,7 +5522,7 @@ Index
 * mouse-face (button property):          Button Properties.   (line  27)
 * mouse-face (overlay property):         Overlay Properties.  (line 101)
 * mouse-face (text property):            Special Properties.  (line  56)
-* mouse-leave-buffer-hook:               Standard Hooks.      (line 151)
+* mouse-leave-buffer-hook:               Standard Hooks.      (line 153)
 * mouse-movement-p:                      Classifying Events.  (line  86)
 * mouse-on-link-p:                       Clickable Text.      (line 164)
 * mouse-pixel-position:                  Mouse Position.      (line  29)
@@ -7603,7 +7605,7 @@ Index
 * window-system:                         Window Systems.      (line  11)
 * window-system <1>:                     Window Systems.      (line  36)
 * window-system-initialization-alist:    Startup Summary.     (line  31)
-* window-text-change-functions:          Standard Hooks.      (line 192)
+* window-text-change-functions:          Standard Hooks.      (line 195)
 * window-text-pixel-size:                Size of Displayed Text.
                                                               (line  57)
 * window-top-child:                      Windows and Frames.  (line 111)

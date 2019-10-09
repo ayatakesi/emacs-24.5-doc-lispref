@@ -1,3 +1,8 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
 @c -*-texinfo-*-
 @c This is part of the GNU Emacs Lisp Reference Manual.
 @c Copyright (C) 1990-1993, 1998, 2001-2015 Free Software Foundation,
@@ -8,31 +13,19 @@
 @cindex standard hooks
 @cindex hook variables, list of
 
-The following is a list of some hook variables that let you provide
-functions to be called from within Emacs on suitable occasions.
+以下は、EMacsで適切なタイミングで呼び出す関数を提供するための、いくつかのフック関数のリストです。
 
-Most of these variables have names ending with @samp{-hook}.  They are
-@dfn{normal hooks}, run by means of @code{run-hooks}.  The value of such
-a hook is a list of functions; the functions are called with no
-arguments and their values are completely ignored.  The recommended way
-to put a new function on such a hook is to call @code{add-hook}.
-@xref{Hooks}, for more information about using hooks.
+これらの変数のほとんどは、@samp{-hook}で始まる名前をもちます。これらは@dfn{ノーマルフック(normal
+hooks)}と呼ばれ、@code{run-hooks}により実行されます。そのようなフックの値は関数のリストです。これらの関数は引数なしで呼び出され、値は完全にに無視されます。そのようなフック上に新たに関数を配置するための推奨は、@code{add-hook}を呼び出す方法です。フック使用についての詳細は、@ref{Hooks}を参照してください。
 
-The variables whose names end in @samp{-functions} are usually @dfn{abnormal
-hooks} (some old code may also use the deprecated @samp{-hooks} suffix); their
-values are lists of functions, but these functions are called in a special way
-(they are passed arguments, or their return values are used).  The variables
-whose names end in @samp{-function} have single functions as their values.
+@samp{-functions}で終わる名前の変数は、通常は@dfn{アブノーマルフック(abnormal
+hooks)}です(古いコードには推奨されない@samp{-hooks}サフィクスを使用するものもある)。これらの値は関数のリストですが、これらの関数は特殊な方法で呼び出されます(引数を渡されたりリターン値が使用される)。@samp{-function}で終わる名前の変数は、値として単一の関数をもちます。
 
-This is not an exhaustive list, it only covers the more general hooks.
-For example, every major mode defines a hook named
-@samp{@var{modename}-mode-hook}.  The major mode command runs this
-normal hook with @code{run-mode-hooks} as the very last thing it does.
-@xref{Mode Hooks}.  Most minor modes have mode hooks too.
+以下のリストはすべてを網羅したリストではなく、より一般的なフックだけをカバーしています。たとえばメジャーモードはそれぞれ、@samp{@var{modename}-mode-hook}という名前のフックを定義します。メジャーモードは自身が行う最後のこととして、@code{run-mode-hooks}でこのノーマルフックを実行します。@ref{Mode
+Hooks}を参照してください。ほとんどのマイナーモードにもフックがあります。
 
-A special feature allows you to specify expressions to evaluate if and
-when a file is loaded (@pxref{Hooks for Loading}).  That feature is
-not exactly a hook, but does a similar job.
+特別な機能により、あるファイルがロードされたときに評価する式を指定できます(@ref{Hooks for
+Loading}を参照)。この機能は正確にはフックではありませんが、同様のことを行います。
 
 @c We need to xref to where each hook is documented or else document it here.
 @c Add vindex for anything not indexed elsewhere.
@@ -42,31 +35,31 @@ not exactly a hook, but does a similar job.
 @table @code
 @item activate-mark-hook
 @itemx deactivate-mark-hook
-@xref{The Mark}.
+@ref{The Mark}を参照のこと。
 
 @item after-change-functions
 @itemx before-change-functions
 @itemx first-change-hook
-@xref{Change Hooks}.
+@ref{Change Hooks}を参照のこと。
 
 @item after-change-major-mode-hook
 @itemx change-major-mode-after-body-hook
-@xref{Mode Hooks}.
+@ref{Mode Hooks}を参照のこと。
 
 @item after-init-hook
 @itemx before-init-hook
 @itemx emacs-startup-hook
 @itemx window-setup-hook
-@xref{Init File}.
+@ref{Init File}を参照のこと。
 
 @item after-insert-file-functions
 @itemx write-region-annotate-functions
 @itemx write-region-post-annotation-function
-@xref{Format Conversion}.
+@ref{Format Conversion}を参照のこと。
 
 @item after-make-frame-functions
 @itemx before-make-frame-hook
-@xref{Creating Frames}.
+@ref{Creating Frames}を参照のこと。
 
 @c Not general enough?
 @ignore
@@ -82,113 +75,113 @@ not exactly a hook, but does a similar job.
 @itemx before-save-hook
 @itemx write-contents-functions
 @itemx write-file-functions
-@xref{Saving Buffers}.
+@ref{Saving Buffers}を参照のこと。
 
 @item after-setting-font-hook
 @vindex after-setting-font-hook
 Hook run after a frame's font changes.
 
 @item auto-save-hook
-@xref{Auto-Saving}.
+@xref{Auto-Saving}を参照のこと。
 
 @item before-hack-local-variables-hook
 @itemx hack-local-variables-hook
-@xref{File Local Variables}.
+@ref{File Local Variables}を参照のこと。
 
 @item buffer-access-fontify-functions
-@xref{Lazy Properties}.
+@ref{Lazy Properties}を参照のこと。
 
 @item buffer-list-update-hook
 @vindex buffer-list-update-hook
-Hook run when the buffer list changes (@pxref{Buffer List}).
+バッファーリスト変更時に実行されるフック(@ref{Buffer List}を参照)。
 
 @item buffer-quit-function
 @vindex buffer-quit-function
-Function to call to ``quit'' the current buffer.
+カレントバッファーを``quit''するために呼び出されるフック。
 
 @item change-major-mode-hook
-@xref{Creating Buffer-Local}.
+@ref{Creating Buffer-Local}を参照のこと。
 
 @item command-line-functions
-@xref{Command-Line Arguments}.
+@ref{Command-Line Arguments}を参照のこと。
 
 @item delayed-warnings-hook
 @vindex delayed-warnings-hook
-The command loop runs this soon after @code{post-command-hook} (q.v.).
+コマンドループは@code{post-command-hook}(以下参照)の直後にこれを実行する。
 
 @item focus-in-hook
 @vindex focus-in-hook
 @itemx focus-out-hook
 @vindex focus-out-hook
-@xref{Input Focus}.
+@ref{Input Focus}を参照のこと。
 
 @item delete-frame-functions
-@xref{Deleting Frames}.
+@ref{Deleting Frames}を参照のこと。
 
 @item delete-terminal-functions
-@xref{Multiple Terminals}.
+@ref{Multiple Terminals}を参照のこと。
 
 @item pop-up-frame-function
 @itemx split-window-preferred-function
-@xref{Choosing Window Options}.
+@ref{Choosing Window Options}を参照のこと。
 
 @item echo-area-clear-hook
-@xref{Echo Area Customization}.
+@ref{Echo Area Customization}を参照のこと。
 
 @item find-file-hook
 @itemx find-file-not-found-functions
-@xref{Visiting Functions}.
+@ref{Visiting Functions}を参照のこと。
 
 @item font-lock-extend-after-change-region-function
-@xref{Region to Refontify}.
+@ref{Region to Refontify}を参照のこと。
 
 @item font-lock-extend-region-functions
-@xref{Multiline Font Lock}.
+@ref{Multiline Font Lock}を参照のこと。
 
 @item font-lock-fontify-buffer-function
 @itemx font-lock-fontify-region-function
 @itemx font-lock-mark-block-function
 @itemx font-lock-unfontify-buffer-function
 @itemx font-lock-unfontify-region-function
-@xref{Other Font Lock Variables}.
+@ref{Other Font Lock Variables}を参照のこと。
 
 @item fontification-functions
-@xref{Auto Faces,, Automatic Face Assignment}.
+@ref{Auto Faces,, Automatic Face Assignment}を参照のこと。
 
 @item frame-auto-hide-function
-@xref{Quitting Windows}.
+@ref{Quitting Windows}を参照のこと。
 
 @item kill-buffer-hook
 @itemx kill-buffer-query-functions
-@xref{Killing Buffers}.
+@ref{Killing Buffers}を参照のこと。
 
 @item kill-emacs-hook
 @itemx kill-emacs-query-functions
-@xref{Killing Emacs}.
+@ref{Killing Emacs}を参照のこと。
 
 @item menu-bar-update-hook
-@xref{Menu Bar}.
+@ref{Menu Bar}を参照のこと。
 
 @item minibuffer-setup-hook
 @itemx minibuffer-exit-hook
-@xref{Minibuffer Misc}.
+@ref{Minibuffer Misc}を参照のこと。
 
 @item mouse-leave-buffer-hook
 @vindex mouse-leave-buffer-hook
-Hook run when about to switch windows with a mouse command.
+マウスコマンドでのウィンドウ切り替え時に実行されるフック。
 
 @item mouse-position-function
-@xref{Mouse Position}.
+@ref{Mouse Position}を参照のこと。
 
 @item post-command-hook
 @itemx pre-command-hook
-@xref{Command Overview}.
+@ref{Command Overview}を参照のこと。
 
 @item post-gc-hook
-@xref{Garbage Collection}.
+@ref{Garbage Collection}を参照のこと。
 
 @item post-self-insert-hook
-@xref{Keymaps and Minor Modes}.
+@ref{Keymaps and Minor Modes}を参照のこと。
 
 @ignore
 @item prog-mode-hook
@@ -201,30 +194,30 @@ Hook run when about to switch windows with a mouse command.
 @itemx suspend-resume-hook
 @itemx suspend-tty-functions
 @itemx resume-tty-functions
-@xref{Suspending Emacs}.
+@ref{Suspending Emacs}を参照のこと。
 
 @item syntax-begin-function
 @itemx syntax-propertize-extend-region-functions
 @itemx syntax-propertize-function
 @itemx font-lock-syntactic-face-function
-@xref{Syntactic Font Lock}.  @xref{Syntax Properties}.
+@ref{Syntactic Font Lock}および@ref{Syntax Properties}を参照されたい。
 
 @item temp-buffer-setup-hook
 @itemx temp-buffer-show-function
 @itemx temp-buffer-show-hook
-@xref{Temporary Displays}.
+@ref{Temporary Displays}を参照のこと。
 
 @item tty-setup-hook
-@xref{Terminal-Specific}.
+@ref{Terminal-Specific}を参照のこと。
 
 @item window-configuration-change-hook
 @itemx window-scroll-functions
 @itemx window-size-change-functions
-@xref{Window Hooks}.
+@ref{Window Hooks}を参照のこと。
 
 @item window-text-change-functions
 @vindex window-text-change-functions
-Functions to call in redisplay when text in the window might change.
+ウィンドウのテキスト変更時の再表示で呼び出す関数。
 
 @end table
 
