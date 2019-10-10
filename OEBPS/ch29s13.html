@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Mouse Tracking</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Mouse-Tracking"/>Mouse Tracking</h1></div></div></div><a id="idm70162512" class="indexterm"/><p>マウスを<em class="firstterm">トラック(track:
+追跡)</em>するのが有用なことが時折あります。マウスのトラックとは、マウスの位置を示す何かを表示して、マウス移動とともにそのインジケーターを移動する、という意味です。効果的にマウスをトラックするためには、マウスが実際に移動するまで待機する手段が必要になります。
+</p><p>マウスをトラックする便利なのは、マウスのモーション(motion:
+移動)を表すイベントを問い合わせる方法です。その後は、そのイベントを待機することにより、モーションを待機できます。加えて、発生し得る他の類のイベントも、簡単に処理できます。ボタンのリリースのような何か他のイベントだけを待機してマウスを永久にトラックするは通常は望ましくないので、これは有用です。
+</p><pre class="synopsis"><a id="idm70155984" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">track-mouse</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、マウスモーションイベントの生成を有効にして、<em class="replaceable"><code>body</code></em>を実行する。通常、<em class="replaceable"><code>body</code></em>はモーションイベントを読み取るために<code class="literal">read-event</code>を使用し、それに対応して表示を変更する。マウスモーションイベントのフォーマットについては、<a class="link" href="ch21s07.html#Motion-Events" title="Motion Events">Motion
+Events</a>を参照のこと。
+</p><p><code class="literal">track-mouse</code>の値は、<em class="replaceable"><code>body</code></em>内の最後のフォームの値である。ボタンのリリースを示すup-event、またはトラックを止めるべきタイミングを意味する類のイベントを確認した際にはリターンするよう、<em class="replaceable"><code>body</code></em>をデザインするべきである。
+</p></blockquote></div><p>マウスモーションをトラックする通常の目的は、それ以降に発生するボタンのプッシュやリリースをカレント位置に示すことです。
+</p><p>多くの場合は、テキストプロパティ<code class="literal">mouse-face</code>(<a class="link" href="ch32s19.html#Special-Properties" title="Properties with Special Meanings">Special
+Properties</a>を参照)を使用することにより、マウスをトラックする必要性を回避できます。これは、より低レベルで機能し、かつLispレベルのマウストラッキングよりスムーズに実行されます。
+</p></div></body></html>

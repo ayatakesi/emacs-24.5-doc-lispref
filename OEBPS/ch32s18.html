@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Case Changes</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Case-Changes"/>Case Changes</h1></div></div></div><a id="idm71538896" class="indexterm"/><p>ここで説明する大文字小文字変換コマンドは、カレントバッファー内のテキストに作用します。文字列と文字の大文字小文字変換コマンドは<a class="link" href="ch05s08.html" title="Case Conversion in Lisp">Case
+Conversion</a>、大文字または小文字に変換する文字や、その変換方法のカスタマイズは<a class="link" href="ch05s09.html" title="The Case Table">Case Tables</a>を参照してください。
+</p><pre class="synopsis"><a id="idm71536464" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">capitalize-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>で定義されるリージョン内のすべての単語をcapitalizeする。capitalizeとは、各単語の最初の文字を大文字、残りの文字を小文字に変換することを意味する。この関数は<code class="literal">nil</code>をリターンする。
+</p><p>リージョンのいずれかの端が単語の中間にある場合は、リージョン内にある部分を単語全体として扱う。
+</p><p>インタラクティブに<code class="literal">capitalize-region</code>が呼び出された際は、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>はポイントとマークになり、小さいほうが先になる。
+</p><pre class="screen">---------- Buffer: foo ----------
+This is the contents of the 5th foo.
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(capitalize-region 1 37)
+⇒ nil
+
+---------- Buffer: foo ----------
+This Is The Contents Of The 5th Foo.
+---------- Buffer: foo ----------
+</pre></blockquote></div><pre class="synopsis"><a id="idm71528272" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">downcase-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>で定義されるリージョン内のすべての英文字を小文字に変換する。この関数は<code class="literal">nil</code>をリターンする。
+</p><p>インタラクティブに<code class="literal">downcase-region</code>が呼び出された際は、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>はポイントとマークになり、小さいほうが先になる。
+</p></blockquote></div><pre class="synopsis"><a id="idm71521744" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">upcase-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>で定義されるリージョン内のすべての英文字を大文字に変換する。この関数は<code class="literal">nil</code>をリターンする。
+</p><p>インタラクティブに<code class="literal">upcase-region</code>が呼び出された際は、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>はポイントとマークになり、小さいほうが先になる。
+</p></blockquote></div><pre class="synopsis"><a id="idm71515216" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">capitalize-word</code> <em class="replaceable"><code>count</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポイントの後の<em class="replaceable"><code>count</code></em>単語をcapitalizeして、変換後その後にポイントを移動する。capitalizeとは、各単語の先頭を大文字、残りを小文字に変換することを意味する。<em class="replaceable"><code>count</code></em>が負なら、この関数は前の−<em class="replaceable"><code>count</code></em>単語をcapitalizeするが、ポイントは移動しない。値は<code class="literal">nil</code>。
+</p><p>ポイントが単語の中間にある場合、ポイントの前にある単語部分は、前方に移動する際は無視される。そして残りの部分が単語全体として扱われる。
+</p><p>インタラクティブに<code class="literal">capitalize-word</code>が呼び出された際は、<em class="replaceable"><code>count</code></em>に数プレフィクス引数がセットされる。
+</p></blockquote></div><pre class="synopsis"><a id="idm71508688" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">downcase-word</code> <em class="replaceable"><code>count</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポイントの後の<em class="replaceable"><code>count</code></em>単語を小文字に変換して、変換後その後にポイントを移動する。<em class="replaceable"><code>count</code></em>が負なら、この関数は前の−<em class="replaceable"><code>count</code></em>単語を小文字に変換するが、ポイントは移動しない。値は<code class="literal">nil</code>。
+</p><p>インタラクティブに<code class="literal">downcase-word</code>が呼び出された際は、<em class="replaceable"><code>count</code></em>に数プレフィクス引数がセットされる。
+</p></blockquote></div><pre class="synopsis"><a id="idm75647696" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">upcase-word</code> <em class="replaceable"><code>count</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポイントの後の<em class="replaceable"><code>count</code></em>単語を大文字に変換して、変換後その後にポイントを移動する。<em class="replaceable"><code>count</code></em>が負なら、この関数は前の−<em class="replaceable"><code>count</code></em>単語を小文字に変換するが、ポイントは移動しない。値は<code class="literal">nil</code>。
+</p><p>インタラクティブに<code class="literal">upcase-word</code>が呼び出された際は、<em class="replaceable"><code>count</code></em>に数プレフィクス引数がセットされる。
+</p></blockquote></div></div></body></html>

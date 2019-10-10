@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Formatting Strings</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Formatting-Strings"/>Formatting Strings</h1></div></div></div><a id="idm40600912" class="indexterm"/><a id="idm40600144" class="indexterm"/><p><em class="firstterm">フォーマット(formatting)</em>とは、定数文字列内のなまざまな場所を、計算された値で置き換えることにより、文字列を構築することを意味します。この定数文字列は、他の値がプリントされる方法、同様にどこに表示するかを制御します。これは<em class="firstterm">フォーマット文字列(format
+string)</em>と呼ばれます。
+</p><p>フォーマットは、表示されるメッセージを計算するために便利なことがしばしばあります。実際に、関数<code class="literal">message</code>および<code class="literal">error</code>は、ここで説明する機能と同じフォーマットを提供します。これらの関数と<code class="literal">format</code>の違いは、フォーマットされた結果を使用する方法だけです。
+</p><pre class="synopsis"><a id="idm50107088" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">format</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>objects</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>string</code></em>をコピーしてから、対応する<em class="replaceable"><code>objects</code></em>をエンコードする、コピー内の任意のフォーマット指定(format
+specification)を置換することにより作成される、新しい文字列をreturnします。引数<em class="replaceable"><code>objects</code></em>は、フォーマットされる計算された値です。
+</p><p><em class="replaceable"><code>string</code></em>内のフォーマット指定以外の文字は、(もしあれば)テキストプロパティーを含め、出力に直接コピーされます。
+</p></blockquote></div><a id="idm50089296" class="indexterm"/><a id="idm50088016" class="indexterm"/><p>フォーマット指定は、‘<code class="literal">%</code>’で始まる文字シーケンスです。したがって<em class="replaceable"><code>string</code></em>内に‘<code class="literal">%d</code>’があれば、<code class="literal">format</code>はそれを、フォーマットされる値の1つ(引数<em class="replaceable"><code>objects</code></em>のうちの1つ)にたいするプリント表現で置き換えます。たとえば:
+</p><pre class="screen">(format "The value of fill-column is %d." fill-column)
+     ⇒ "The value of fill-column is 72."
+</pre><p><code class="literal">format</code>は文字‘<code class="literal">%</code>’をフォーマット指定と解釈するので、<span class="emphasis"><em>決して</em></span>最初の引数に不定な文字列(arbitrary
+string)を渡すべきではありません。これは特に何らかのLispコードにより生成された文字列の場合に当てはまります。その文字列が決して文字‘<code class="literal">%</code>’を含まないと<span class="emphasis"><em>確信</em></span>できないときは、以下で説明するように最初の引数に<code class="literal">"%s"</code>を渡して、不定な文字列を2番目の引数として渡します:
+</p><pre class="screen">  (format "%s" <em class="replaceable"><code>arbitrary-string</code></em>)
+</pre><p><em class="replaceable"><code>string</code></em>に複数のフォーマット指定が含まれる場合、フォーマット指定は<em class="replaceable"><code>objects</code></em>から連続して値を引き当てます。つまり、<em class="replaceable"><code>string</code></em>内の1番目のフォーマット指定は1番目の値、2番目のフォーマット指定は2番目の値、...を使用します。余分なフォーマット指定(対応する値がない場合)は、エラーとなります。フォーマットされる値が余分にある場合は、無視されます。
+</p><p>ある種のフォーマット指定は、特定の型の値を要求します。その要求に適合しない値を与えた場合、エラーがシグナルされます。
+</p><p>以下は有効なフォーマット指定の表です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">%s</code>’
+</span></dt><dd><p>フォーマット指定を、クォートなし(つまり<code class="literal">prin1</code>ではなく<code class="literal">princ</code>を使用して。<a class="link" href="ch19s05.html" title="Output Functions">Output
+Functions</a>を参照してください)の、オブジェクトのプリント表現で置き換えます。したがって、文字列は‘<code class="literal">"</code>’文字なしの、文字列内容だけが表示され、シンボルは‘<code class="literal">\</code>’文字なしで表されます。
+</p><p>オブジェクトが文字列の場合、文字列のプロパティーは出力にコピーされます。‘<code class="literal">%s</code>’のテキストプロパティー自身もコピーされますが、オブジェクトのテキストプロパティーが優先されます。
+</p></dd><dt><span class="term">‘<code class="literal">%S</code>’
+</span></dt><dd><p>フォーマット指定を、クォートあり(つまり<code class="literal">prin1</code>を使用して。<a class="link" href="ch19s05.html" title="Output Functions">Output
+Functions</a>を参照してください)の、オブジェクトのプリント表現で置き換えます。したがって、文字列は‘<code class="literal">"</code>’文字で囲まれ、必要となる特別文字の前に‘<code class="literal">\</code>’文字が表示されます。
+</p></dd><dt><span class="term">‘<code class="literal">%o</code>’
+</span></dt><dd><a id="idm50068176" class="indexterm"/><p>フォーマット指定を8進表現の整数で置き換えます。
+</p></dd><dt><span class="term">‘<code class="literal">%d</code>’
+</span></dt><dd><p>フォーマット指定を10進表現の整数で置き換えます。
+</p></dd><dt><span class="term">‘<code class="literal">%x</code>’
+, </span><span class="term">‘<code class="literal">%X</code>’
+</span></dt><dd><a id="idm50063824" class="indexterm"/><p>フォーマット指定を16進表現の整数で置き換えます。‘<code class="literal">%x</code>’の場合は小文字、‘<code class="literal">%X</code>’の場合は大文字が使用されます。
+</p></dd><dt><span class="term">‘<code class="literal">%c</code>’
+</span></dt><dd><p>フォーマット指定を、与えられた値の文字で置き換えます。
+</p></dd><dt><span class="term">‘<code class="literal">%e</code>’
+</span></dt><dd><p>フォーマット指定を、浮動小数点数の指数表現で置き換えます。
+</p></dd><dt><span class="term">‘<code class="literal">%f</code>’
+</span></dt><dd><p>フォーマット指定を、浮動小数点数にたいする10進少数表記で置き換えます。
+</p></dd><dt><span class="term">‘<code class="literal">%g</code>’
+</span></dt><dd><p>フォーマット指定を、指数または10進少数のどちらか短いほうの表記を使用した浮動小数点数で置き換えます。
+</p></dd><dt><span class="term">‘<code class="literal">%%</code>’
+</span></dt><dd><p>フォーマット指定を1つの‘<code class="literal">%</code>’で置き換えます。このフォーマット指定は、値を使用しません。たとえば、<code class="literal">(format "%% %d"
+30)</code>は<code class="literal">"% 30"</code>をreturnします。
+</p></dd></dl></div><p>他のフォーマット文字は、‘<code class="literal">Invalid format operation</code>’エラーになります。
+</p><p>以下にいくつかの例を示します:
+</p><pre class="screen">(format "The name of this buffer is %s." (buffer-name))
+     ⇒ "The name of this buffer is strings.texi."
+
+(format "The buffer object prints as %s." (current-buffer))
+     ⇒ "The buffer object prints as strings.texi."
+
+(format "The octal value of %d is %o,
+         and the hex value is %x." 18 18 18)
+     ⇒ "The octal value of 18 is 22,
+         and the hex value is 12."
+</pre><a id="idm50047184" class="indexterm"/><a id="idm50046416" class="indexterm"/><p>フォーマット指定は<em class="firstterm">フィールド幅(width)</em>をもつことができ、これは‘<code class="literal">%</code>’とフォーマット指定文字(specification
+character)の間の10進の数字です。そのオブジェクトのプリント表現が、このフィールド幅より少ない文字で構成される場合、<code class="literal">format</code>はパディングしてフィールド幅に拡張します。フォーマット指定‘<code class="literal">%%</code>’では、フィールド幅の指定は無視されます。シールド幅指定により行なわれるパディングは通常、左側にスペースを挿入します。
+</p><pre class="screen">(format "%5d is padded on the left with spaces" 123)
+     ⇒ "  123 is padded on the left with spaces"
+</pre><p>フィールド幅が小さすぎる場合でも、<code class="literal">format</code>はオブジェクトのプリント表現を切り詰めません。したがって、情報を失う危険を犯すことなく、フィールドの最小幅を指定することができます。以下の2つの例では、‘<code class="literal">%7s</code>’は最小幅に7を指定します。1番目の例では、‘<code class="literal">%7s</code>’に挿入される文字列は3文字だけなので、4つのブランクスペースによりパディングされます。2番目の例では、文字列<code class="literal">"specification"</code>は13文字ですが、切り詰めはされません。
+</p><pre class="screen">(format "The word `%7s' has %d letters in it."
+        "foo" (length "foo"))
+     ⇒ "The word `    foo' has 3 letters in it."
+(format "The word `%7s' has %d letters in it."
+        "specification" (length "specification"))
+     ⇒ "The word `specification' has 13 letters in it."
+</pre><a id="idm50039632" class="indexterm"/><p>‘<code class="literal">%</code>’の直後、オプションのフィールド幅指定の前に、<em class="firstterm">フラグ文字(flag characters)</em>を置くこともできます。
+</p><p>フラグ‘<code class="literal">+</code>’は、正数の前にプラス符号を挿入するので、数には常に符号がつきます。フラグとしてスペースを指定すると、正数の前に1つのスペースが挿入されます(それ以外は、正数は最初の数字から開始されます)。これらのフラグは、正数と負数が同じ列数を使用することを確実にするのに便利です。これらは‘<code class="literal">%d</code>’、‘<code class="literal">%e</code>’、‘<code class="literal">%f</code>’、‘<code class="literal">%g</code>’以外では無視され、両方が指定された場合は、‘<code class="literal">+</code>’が優先されます。
+</p><p>フラグ‘<code class="literal">#</code>’は“代替形式(alternate
+form)”を指定し。これは使用するフォーマットに依存します。‘<code class="literal">%o</code>’にたいしては、結果を‘<code class="literal">0</code>’で開始させます。‘<code class="literal">%x</code>’と‘<code class="literal">%X</code>’にたいしては、結果のプレフィクスは‘<code class="literal">0x</code>’または‘<code class="literal">0X</code>’になります。‘<code class="literal">%e</code>’、‘<code class="literal">%f</code>’、‘<code class="literal">%g</code>’にたいしては、‘<code class="literal">#</code>’フラグは、少数部が0のときも小数点が含まれることを意味します。
+</p><p>フラグ‘<code class="literal">0</code>’は、スペースの代わりに文字‘<code class="literal">0</code>’でパディングします。このフラグは‘<code class="literal">%s</code>’、‘<code class="literal">%S</code>’、‘<code class="literal">%c</code>’のような、非数値のフォーマット指定文字では無視されます。もれらのフォーマット指定文字で‘<code class="literal">0</code>’フラグを指定できますが、それでも<span class="emphasis"><em>スペース</em></span>でパディングされます。
+</p><p>フラグ‘<code class="literal">-</code>’はフィールド幅指定により挿入されるパディングに作用し、もしパディングがある場合、左側ではなく右側にパディングされます。‘<code class="literal">-</code>’と‘<code class="literal">0</code>’の両方が指定された場合、‘<code class="literal">0</code>’フラグは無視されます。
+</p><pre class="screen">(format "%06d is padded on the left with zeros" 123)
+     ⇒ "000123 is padded on the left with zeros"
+
+(format "%-6d is padded on the right" 123)
+     ⇒ "123    is padded on the right"
+
+(format "The word `%-7s' actually has %d letters in it."
+        "foo" (length "foo"))
+     ⇒ "The word `foo    ' actually has 3 letters in it."
+</pre><a id="idm50017232" class="indexterm"/><p>すべてのフォーマット指定文字には、その文字の前(フィールド幅がある場合は、その後)に、オプションで<em class="firstterm">精度(precision)</em>を指定できます。精度は小数点‘<code class="literal">.</code>’と、その後に桁文字列(digit-string)を指定します。浮動少数のフォーマット指定(‘<code class="literal">%e</code>’、‘<code class="literal">%f</code>’、‘<code class="literal">%g</code>’)では、精度は表示する小数点以下の桁数を指定します。0の場合は小数点も省略されます。‘<code class="literal">%s</code>’と‘<code class="literal">%S</code>’にたいしては、文字列を精度で指定された幅に切り詰めます。したがって‘<code class="literal">%.3s</code>’では、<em class="replaceable"><code>object</code></em>にたいするプリント表現の最初の3文字だけが表示されます。他のフォーマット指定文字にたいしては、精度は効果がありません。
+</p></div></body></html>

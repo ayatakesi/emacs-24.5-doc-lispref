@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Appendix D. Tips and Conventions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="appendix"><div class="titlepage"><div><div><h1 class="title"><a id="Tips"/>Appendix D. Tips and Conventions</h1></div></div></div><a id="idm84741072" class="indexterm"/><a id="idm84740304" class="indexterm"/><a id="idm84739536" class="indexterm"/><p>このチャプターででは、Emacs Lispの追加機能については説明しません。かわりに、以前のチャプターで説明した機能を効果的に使う方法と、Emacs
+Lispプログラマーがしたがうべき慣習を説明します。
+</p><p>以降で説明する慣習のいくつかは、Lispファイルのvisit時にコマンド<strong class="userinput"><code>M-x checkdoc
+RET</code></strong>を実行することにより、自動的にチェックできます。これはすべての監修はチェックできませんし、与えられた警告すべてが必ずしも問題に対応する訳ではありませんが、それらすべてを検証することには価値があります。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Coding-Conventions"/>Emacs Lisp Coding Conventions</h1></div></div></div><a id="idm84736592" class="indexterm"/><p>以下は、幅広いユーザーを意図したEmacs Lispコードを記述する際にしたがうべき慣習です:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>単なるパッケージのロードが、Emacsの編集の挙動を変更すねきではない。コマンドと、その機能を有効または無効にするコマンド、またはそれの呼び出しが含まれる。
+</p><p>この慣習は、カスタム定義を含むすべてのファイルに必須である。そのようなファイルを、この慣習にしたがうために修正するのが、非互換の変更を要求するなら、構うことはないから、非互換の修正を行うこと。先送りにしてはならない。
+</p></li><li class="listitem"><p>他のLispプログラムと区別するための、短い単語を選択すること。あなたのプログラム内のグローバルなシンボルすべて、すなわち変数、定数、関数の名前はその選択したプレフィクスで始まること。そのプレフィクスと名前の残りの部分は、ハイフン‘<code class="literal">-</code>’で区切る。Emacs
+Lisp内のすべてのグローバル変数は同じネームスペース、関数はすべて別のネームスペースを共有するので、これの実践は名前の競合を回避する<a href="#ftn.idm84733392" class="footnote" id="idm84733392"><sup class="footnote">[21]</sup></a>。他のパッケージから使用されることを意図しない場合には、プレフィクス名前を2つのハイフンで区切ること。
+</p><p>ユーザーの使用を意図したコマンド名では、何らかの単語がそのパッケージ名のプレフィクスの前にあると便利なことがある。関数や変数等を定義する構成は、それらが‘<code class="literal">defun</code>’や‘<code class="literal">defvar</code>’で始まればより良く機能するので、名前内でそれらの後に名前プレフィクスを置くこと。
+</p><p>この勧告は、<code class="literal">copy-list</code>のようなEmacs
+Lisp内のプリミティブではなく、伝統的なLispプリミティブにさえ適用される。信じようと信じまいと、<code class="literal">copy-list</code>を定義する尤もらしい方法は複数あるのだ。安全第一である。かわりに<code class="literal">foo-copy-list</code>や<code class="literal">mylib-copy-list</code>のような名前を生成するために、あなたの名前プレフィクスを追加しよう。
+</p><p><code class="literal">twiddle-files</code>のような特定の名前でEmacsに追加されるべきと考えている関数を記述する場合には、プログラム内でそれを名前で呼び出さないこと。プログラム内ではそれを<code class="literal">mylib-twiddle-files</code>で呼び出して、わたしたちがそれをEmacsに追加するため提案メールを、‘<code class="literal">bug-gnu-emacs@gnu.org</code>’に送信すること。もし追加することになったそのとき、わたしたちは十分容易にその名前を変更できるだろう。
+</p><p>1つのプレフィクスで十分でなければ、それらに意味があるかぎり、あなたんパッケージは2つまたは3つの一般的なプレフィクス候補を使用できる。
+</p></li><li class="listitem"><p>個々のLispファイルすべての終端に、<code class="literal">provide</code>呼出を配置すること。<a class="link" href="ch16s07.html" title="Features">Named Features</a>を参照されたい。
+</p></li><li class="listitem"><p>事前に他の特定のLispプログラムのロードを要するファイルは、そのファイル先頭のコメントでそのように告げるべきである。また、それらが確実にロードされるよう、<code class="literal">require</code>を使用すること。<a class="link" href="ch16s07.html" title="Features">Named
+Features</a>を参照されたい。
+</p></li><li class="listitem"><p>ファイル<em class="replaceable"><code>foo</code></em>が、別のファイル<em class="replaceable"><code>bar</code></em>内で定義されたマクロを使用するが、<em class="replaceable"><code>bar</code></em>内の他の関数や変数を何も使用しない場合には、<em class="replaceable"><code>foo</code></em>に以下の式を含めるべきである:
+</p><pre class="screen">(eval-when-compile (require '<em class="replaceable"><code>bar</code></em>))
+</pre><p>これは、<em class="replaceable"><code>foo</code></em>のバイトコンパイル直前に<em class="replaceable"><code>bar</code></em>をロードするようEmacsに告げるので、そのマクロはコンパイル中は利用可能になる。<code class="literal">eval-when-compile</code>の使用により、コンパイル済みバージョンの<em class="replaceable"><code>foo</code></em>が<span class="emphasis"><em>中古</em></span>なら、<em class="replaceable"><code>bar</code></em>のロードを避けられる。これはファイル内の、最初のマクロ呼び出しの前に呼び出すこと。<a class="link" href="ch14s03.html" title="Macros and Byte Compilation">Compiling
+Macros</a>を参照されたい。
+</p></li><li class="listitem"><p>実行時、それらが本当に必要でなければ、追加ライブラリーのロードを避けること。あなたのファイルが、単に他のいくつかのライブラリーなしでは機能しないなら、単にトップレベルでそのライブラリーを<code class="literal">require</code>して、それを使って行うこと。しかしあなたのファイルが、いくつかの独立した機能を含み、それらの1つか2つだけが余分なライブラリーを要するなら、トップレベルではなく関連する関数内部に、<code class="literal">require</code>を配置することを考慮すること。または必要時に余分のライブラリーをロードするために、<code class="literal">autoload</code>ステートメントを使用すること。この方法では、あなたのファイルの該当部分を使用しない人は、余分なライブラリーをロードする必要がなくなる。
+</p></li><li class="listitem"><p>Common
+Lisp拡張が必要なら、古い<code class="literal">cl</code>ライブラリーではなく、<code class="literal">cl-lib</code>ライブラリーを使うこと。<code class="literal">cl</code>ライブラリーは、クリーンなネームスペースを使用しない(定義が‘<code class="literal">cl-</code>’で始まらない)。パッケージが実行時に<code class="literal">cl</code>をロードする場合、そのパッケージを使用しないユーザーにたいして、名前の衝突を起こすかもしれない。
+</p><p><code class="literal">(eval-when-compile (require
+'cl))</code>で、<span class="emphasis"><em>コンパイル時</em></span>に<code class="literal">cl</code>を使用するのは問題ない。コンパイラーはバイトコードを生成する前にマクロを展開するので、<code class="literal">cl</code>内のマクロを使用するには十分である。ただしこの場合でも、現代的な<code class="literal">cl-lib</code>を使用したほうが良い。
+</p></li><li class="listitem"><p>メジャーモードを定義する際には、メジャーモードの慣習にしたがってほしい。<a class="link" href="ch23s02.html#Major-Mode-Conventions" title="Major Mode Conventions">Major Mode Conventions</a>を参照されたい。
+</p></li><li class="listitem"><p>マイナーモードを定義する際には、マイナーモードの慣習にしたがってほしい。<a class="link" href="ch23s03.html#Minor-Mode-Conventions" title="Conventions for Writing Minor Modes">Minor Mode Conventions</a>を参照されたい。
+</p></li><li class="listitem"><p>ある関数の目的が、特定の条件の真偽を告げることであるなら、(述語である“predicate”を意味する)‘<code class="literal">p</code>’で終わる名前を与えること。その名前が1単語なら単に‘<code class="literal">p</code>’を追加し、複数単語なら‘<code class="literal">-p</code>’を追加する。例は<code class="literal">framep</code>や<code class="literal">frame-live-p</code>。
+</p></li><li class="listitem"><p>ある変数の目的が、単一の関数の格納にあるなら、‘<code class="literal">-function</code>’で終わる名前を与えること。ある変数の目的が、関数のリストの格納にあるなら(たとえばその変数がフックなら)、フックの命名規約にしたがってほしい。<a class="link" href="ch23.html#Hooks" title="Hooks">Hooks</a>を参照されたい。
+</p></li><li class="listitem"><a id="idm84702416" class="indexterm"/><p>そのファイルをロードすることにより、フックに関数が追加されるなら、<code class="literal"><em class="replaceable"><code>feature</code></em>-unload-hook</code>という関数を定義すること。ここで<em class="replaceable"><code>feature</code></em>は、そのパッケージが提供する機能の名前で、そのような変更をアンドゥするためのフックにする。そのファイルのアンロードに<code class="literal">unload-feature</code>を使用することにより、この関数が実行されるようになる。<a class="link" href="ch16s09.html" title="Unloading">Unloading</a>を参照のこと。
+</p></li><li class="listitem"><p>Emacsのプリミティブにエイリアスを定義するのは、悪いアイデアである。通常は、かわりに標準の名前を使用すること。エイリアスが有用になるかもしれないケースは、後方互換性や可搬性を向上させる場合である。
+</p></li><li class="listitem"><p>パッケージで、別のバージョンのEmacsにたいする互換性のためにエイリアスや新たな関数の定義が必要なら、別のバージョンにあるそのままの名前ではなく、そのパッケージのプレフィクスを名前に付加すること。以下は、そのような互換性問題を多く提供するGnusでの例である。
+</p><pre class="screen">(defalias 'gnus-point-at-bol
+  (if (fboundp 'point-at-bol)
+      'point-at-bol
+    'line-beginning-position))
+</pre></li><li class="listitem"><p>Emacsのプリミティブの再定義やadviseは悪いアイデアである。これは特定のプログラムには正しいことを行うが、結果として他のプロラムが破壊されるかもしれない。
+</p></li><li class="listitem"><p>同様に、あるLispパッケージで別のLispパッケージ内の関数にadviseするのも悪いアイデアである。
+</p></li><li class="listitem"><p>ライブラリやパッケージでの<code class="literal">eval-after-load</code>の使用を避けること(<a class="link" href="ch16s10.html" title="Hooks for Loading">Hooks for
+Loading</a>を参照)。この機能は個人的なカスタマイズを意図している。Lispプログラム内でこれを使用すると、別のLisp内ではそれが見えず、その挙動を変更するため不明瞭になる。これは、別のパッケージ内の関数へのadviseに似て、デバッグの障害になる。
+</p></li><li class="listitem"><p>Emacsの標準的な関数やライブラリープログラムの何かをファイルが置換するなら、そのファイル冒頭の主要コメントで、どの関数が置換されるか、および置換によりオリジナルと挙動がどのように異なるかを告げること。
+</p></li><li class="listitem"><p>関数や変数を定義するコンストラクターは、関数ではなくマクロであるべきで、その名前は‘<code class="literal">define-</code>’で始まること。そのマクロは、定義される名前を1つ目の引数で受け取ること。これは自動的に定義を探す、種々のツールを助けることになる。マクロ自身の中でその名前を構築するのは、それらのツールを混乱させるので避けること。
+</p></li><li class="listitem"><p>別のいくつかのシステムでは、‘<code class="literal">*</code>’が先頭や終端にある変数名を選択する慣習がある。Emacs
+Lispではその慣習を使用しないので、あなたのプログラム内でそれを使用しないでほしい。(Emacsでは特別な目的をもつバッファーだけに、そのような名前を使用する)。すべてのライブラリーが同じ慣習を使用するなら、人はEmacsがより整合性があることを見い出すだろう。
+</p></li><li class="listitem"><p>Emacs LispソースファイルのデフォルトのファイルコーディングシステムはUTFである(<a class="link" href="ch33.html#Text-Representations" title="Text Representations">Text
+Representations</a>を参照)。あなたのプログラムがUTF-8<span class="emphasis"><em>以外</em></span>の文字を含むような稀なケースでは、ソースファイル内の‘<code class="literal">-*-</code>’行かローカル変数リスト内で、適切なコーディングシステムを指定するべきである。section “Local Variables in Files” in <em class="citetitle">The GNU Emacs Manual</em>を参照されたい。
+</p></li><li class="listitem"><p>デフォルトのインデントパラメーターで、ファイルをインデントすること。
+</p></li><li class="listitem"><p>自分で行に閉カッコを配置するのを習慣としてはならない。Lispプログラマーは、これに当惑させられる。
+</p></li><li class="listitem"><p>コピーを配布する場合は著作権表示と複製許可表示を配してほしい。<a class="link" href="apds08.html" title="Conventional Headers for Emacs Libraries">Library Headers</a>を参照されたい。
+</p></li></ul></div></div><div class="footnotes"><br/><hr/><div id="ftn.idm84733392" class="footnote"><p><a href="#idm84733392" class="para"><sup class="para">[21] </sup></a>Common
+Lispスタイルのパッケージシステムの恩恵は、そのコストを上回るとは考えられない。</p></div></div></div></body></html>

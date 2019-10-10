@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Search and Replace</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Search-and-Replace"/>Search and Replace</h1></div></div></div><a id="idm76599888" class="indexterm"/><a id="idm76599120" class="indexterm"/><p>バッファーのある部分で、regexpにたいするすべてのマッチを見つけてそれらを置換したい場合は、以下のように<code class="literal">re-search-forward</code>と<code class="literal">replace-match</code>を使用して、明示的なループを記述するのが最良の方法です:
+</p><pre class="screen">(while (re-search-forward "foo[ \t]+bar" nil t)
+  (replace-match "foobar"))
+</pre><p><code class="literal">replace-match</code>の説明は、<a class="link" href="ch34s06.html#Replacing-Match" title="Replacing the Text that Matched">Replacing the Text that
+Matched</a>を参照してください。
+</p><p>しかし文字列内のマッチの置換、特にそれを効果的に行いたい場合は、より複雑になります。そのため、Emacsはこれを行うための関数を提供します。
+</p><pre class="synopsis"><a id="idm76594512" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">replace-regexp-in-string</code> <em class="replaceable"><code>regexp</code></em> <em class="replaceable"><code>rep</code></em> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>fixedcase</code></em> <em class="replaceable"><code>literal</code></em> <em class="replaceable"><code>subexp</code></em> <em class="replaceable"><code>start</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>string</code></em>をコピーして<em class="replaceable"><code>regexp</code></em>にたいするマッチを検索し、それらを<em class="replaceable"><code>rep</code></em>に置き換える。これは変更されたコピーwリターンする。<em class="replaceable"><code>start</code></em>が非<code class="literal">nil</code>なら、マッチにたいする検索は<em class="replaceable"><code>string</code></em>内のそのインデックスから開始され、そのインデックスより前で始まるマッチは変更されない。
+</p><p>この関数は置換を行うために<code class="literal">replace-match</code>を使用し、オプション引数<em class="replaceable"><code>fixedcase</code></em>、<em class="replaceable"><code>literal</code></em>、<em class="replaceable"><code>subexp</code></em>を<code class="literal">replace-match</code>に渡す。
+</p><p>文字列のかわりに、<em class="replaceable"><code>rep</code></em>は関数でもよい。この場合、<code class="literal">replace-regexp-in-string</code>はそれぞれのマッチにたいして、そのテキストを単一の引数として<em class="replaceable"><code>rep</code></em>を呼び出す。これは<em class="replaceable"><code>rep</code></em>がリターンする値を収集して、それを置換文字列として<code class="literal">replace-match</code>に渡す。この時点でのマッチデータは<em class="replaceable"><code>string</code></em>の部分文字列にたいする<em class="replaceable"><code>regexp</code></em>のマッチ結果である。
+</p></blockquote></div><p><code class="literal">query-replace</code>の行に関するコマンドを記述したい場合は、<code class="literal">perform-replace</code>を使用してこれを行うことができる。
+</p><pre class="synopsis"><a id="idm76574928" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">perform-replace</code> <em class="replaceable"><code>from-string</code></em> <em class="replaceable"><code>replacements</code></em> <em class="replaceable"><code>query-flag</code></em> <em class="replaceable"><code>regexp-flag</code></em> <em class="replaceable"><code>delimited-flag</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>repeat-count</code></em> <em class="replaceable"><code>map</code></em> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは<code class="literal">query-replace</code>および関連するコマンドの根幹となる関数である。これは位置<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>の間にあるテキスト内に出現する<em class="replaceable"><code>from-string</code></em>の一部またはすべてを置換する。<em class="replaceable"><code>start</code></em>が<code class="literal">nil</code>(または省略された)ならかわりにポイントガ使用され、<em class="replaceable"><code>end</code></em>にはそのバッファーのアクセス可能範囲の終端が使用される。
+</p><p><em class="replaceable"><code>query-flag</code></em>が<code class="literal">nil</code>なら、マッチすべてを置換する。それ以外の場合は、それぞれにたいしてユーザーにたいして何をすべきか問い合わせる。
+</p><p><em class="replaceable"><code>regexp-flag</code></em>が非<code class="literal">nil</code>なら<em class="replaceable"><code>from-string</code></em>は正規表現とみなされ、それ以外はリテラルとしてマッチしなければならない。<em class="replaceable"><code>delimited-flag</code></em>が非<code class="literal">nil</code>なら、単語境界に囲まれた置換だけが考慮される。
+</p><p>引数<em class="replaceable"><code>replacements</code></em>は、マッチを何で置き換えるかを指定する。文字列ならその文字列を使用する。サイクル順に使用される文字列リストでもよい。
+</p><p><em class="replaceable"><code>replacements</code></em>がコンスセル<code class="literal">(<em class="replaceable"><code>function</code></em>
+.
+<em class="replaceable"><code>data</code></em>)</code>なら、これは置換テキストを取得するためにそれぞれのマッチ後に<em class="replaceable"><code>function</code></em>を呼び出すことを意味する。この関数は<em class="replaceable"><code>data</code></em>と、すでに置換された個数という、2つの引数で呼び出される。
+</p><p><em class="replaceable"><code>repeat-count</code></em>が非<code class="literal">nil</code>なら、それは整数であること。その場合、サイクルを次に進める前に、<em class="replaceable"><code>replacements</code></em>リスト内の各文字列を何度使用するかを指定する。
+</p><p><em class="replaceable"><code>from-string</code></em>が大文字アルファベットを含む場合、<code class="literal">perform-replace</code>は<code class="literal">case-fold-search</code>を<code class="literal">nil</code>にバインドして、大文字小文字を変換せずに<em class="replaceable"><code>replacements</code></em>を使用する。
+</p><p>キーマップ<code class="literal">query-replace-map</code>は通常、問い合わせにたいして可能なユーザー応答を定義する。引数<em class="replaceable"><code>map</code></em>が非<code class="literal">nil</code>なら、それは<code class="literal">query-replace-map</code>のかわりに使用するキーマップを指定する。
+</p><p>この関数は<em class="replaceable"><code>from-string</code></em>の次のマッチを検索するために、2つの関数のうち1つを使用する。これらの関数は2つの変数<code class="literal">replace-re-search-function</code>と<code class="literal">replace-search-function</code>により指定される。引数<em class="replaceable"><code>regexp-flag</code></em>が非<code class="literal">nil</code>なら前者、<code class="literal">nil</code>なら後者が呼び出される。
+</p></blockquote></div><pre class="synopsis"><a id="idm76548432" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">query-replace-map</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は<code class="literal">perform-replace</code>にたいする有効なユーザー応答を定義するスペシャルキーマップを保持し、コマンドは<code class="literal">y-or-n-p</code>や<code class="literal">map-y-or-n-p</code>と同様に、それを使用する。このマップは2つの点において普通のマップと異なる。
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>“キーバインディング”がコマンドではなく、このマップを使用する関数にとって意味のある単なるシンボルであること。
+</p></li><li class="listitem"><p>プレフィクスキーはサポートされない。各キーバインディングは単一イベントキーシーケンスでなければならない。これは入力を取得するために、関数が<code class="literal">read-key-sequence</code>を使用せず、かわりに単一イベントを読み取って、それを“手動”で照合する。
+</p></li></ul></div></blockquote></div><p><code class="literal">query-replace-map</code>にたいして意味をもつ“バインディング”があります。それらのうちいくつかは、<code class="literal">query-replace</code>とその同族にたいしてのみ意味をもちます。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">act</code>
+</span></dt><dd><p>判断している対象にたいしてアクションを起こす(別の言い方をすると“yes”)。
+</p></dd><dt><span class="term"><code class="literal">skip</code>
+</span></dt><dd><p>この問いにたいしてアクションを起こさない(別の言い方をすると“no”)。
+</p></dd><dt><span class="term"><code class="literal">exit</code>
+</span></dt><dd><p>この問いにたいして“no”を答えて、一連の問いすべてにたいして“no”が応答されたとみなし、問い合わせをあきらめる。
+</p></dd><dt><span class="term"><code class="literal">exit-prefix</code>
+</span></dt><dd><p><code class="literal">exit</code>と似ているが、<code class="literal">unread-command-events</code>にたいして押下されたキーを追加する(<a class="link" href="ch21s08.html#Event-Input-Misc" title="Miscellaneous Event Input Features">Event
+Input Misc</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">act-and-exit</code>
+</span></dt><dd><p>この問いにたいして“yes”を答えて、一連の問いすべてにたいして後続の問いに“no”が応答されるとみなし、問い合わせをあきらめる。
+</p></dd><dt><span class="term"><code class="literal">act-and-show</code>
+</span></dt><dd><p>この問いに“yes”を答えるが結果を表示して、まだ次の問いへ進まない。
+</p></dd><dt><span class="term"><code class="literal">automatic</code>
+</span></dt><dd><p>これ以上のユーザーとの対話を行わず、この問いと後続の問いにたいして“yes”を答える。
+</p></dd><dt><span class="term"><code class="literal">backup</code>
+</span></dt><dd><p>前に問い合わせた以前の場所に戻る。
+</p></dd><dt><span class="term"><code class="literal">edit</code>
+</span></dt><dd><p>この問いに対処するために、通常とられるアクションのかわりに再帰編集にエンターする。
+</p></dd><dt><span class="term"><code class="literal">edit-replacement</code>
+</span></dt><dd><p>ミニバッファー内で、この問いにたいする置換を編集する。
+</p></dd><dt><span class="term"><code class="literal">delete-and-edit</code>
+</span></dt><dd><p>検討中のテキストを削除して、それを置換するために再帰編集にエンターする。
+</p></dd><dt><span class="term"><code class="literal">recenter</code>
+, </span><span class="term"><code class="literal">scroll-up</code>
+, </span><span class="term"><code class="literal">scroll-down</code>
+, </span><span class="term"><code class="literal">scroll-other-window</code>
+, </span><span class="term"><code class="literal">scroll-other-window-down</code>
+</span></dt><dd><p>指定されたウィンドウスクロール操作を行い、同じ問いを再度尋ねる。この問いには<code class="literal">y-or-n-p</code>と、関連する関数だけが使用される。
+</p></dd><dt><span class="term"><code class="literal">quit</code>
+</span></dt><dd><p>即座にquitを行う。この問いには<code class="literal">y-or-n-p</code>と、関連する関数だけが使用される。
+</p></dd><dt><span class="term"><code class="literal">help</code>
+</span></dt><dd><p>ヘルプを表示して、再度尋ねる。
+</p></dd></dl></div><pre class="synopsis"><a id="idm76509520" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">multi-query-replace-map</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、マルチバッファー置換で有用な追加キーバインディングを提供することにより<code class="literal">query-replace-map</code>を拡張するキーマップを保持する。追加される“バインディング”は以下のとおり:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">automatic-all</code>
+</span></dt><dd><p>残りすべてのバッファーにたいして、それ以上の対話をせず、その問いと後続のすべての問いに“yes”を答える。
+</p></dd><dt><span class="term"><code class="literal">exit-current</code>
+</span></dt><dd><p>この問いに“no”を答えて、カレントバッファーにたいする一連の問いすべてをあきらめる。そしてシーケンス内の次のバッファーへ問いを継続する。
+</p></dd></dl></div></blockquote></div><pre class="synopsis"><a id="idm76503504" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">replace-search-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、置換する次の文字列を検索するために<code class="literal">perform-replace</code>が呼び出す関数を指定する。デフォルト値は<code class="literal">search-forward</code>。それ以外の値の場合は、<code class="literal">search-forward</code>の最初の3つの引数を引数とする関数を指定すること(<a class="link" href="ch34.html#String-Search" title="Searching for Strings">String
+Search</a>を参照)。
+</p></blockquote></div><pre class="synopsis"><a id="idm76498768" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">replace-re-search-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、置換する次のregexpを検索するために<code class="literal">perform-replace</code>が呼び出す関数を指定する。デフォルト値は<code class="literal">re-search-forward</code>。それ以外の値の場合は、<code class="literal">re-search-forward</code>の最初の3つの引数を引数とする関数を指定すること(<a class="link" href="ch34s04.html" title="Regular Expression Searching">Regexp
+Search</a>を参照)。
+</p></blockquote></div></div></body></html>

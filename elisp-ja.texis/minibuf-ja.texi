@@ -1,0 +1,1588 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990-1995, 1998-1999, 2001-2015 Free Software
+@c Foundation, Inc.
+@c See the file elisp.texi for copying conditions.
+@node Minibuffers
+@chapter Minibuffers
+@cindex arguments, reading
+@cindex complex arguments
+@cindex minibuffer
+
+  @dfn{ミニバッファー(minibuffer)}とは、単一の数プレフィックス引数より複雑な引数を読み取るためにEmacsコマンドが使用する、特別なバッファーのことです。これらの引数にはファイル名、バッファー名、(@kbd{M-x}での)コマンド名が含まれます。ミニバッファーはフレームの最下行、エコーエリア(@ref{The
+Echo Area}を参照)と同じ場所に表示されますが、引数を読み取るときだけ使用されます。
+
+@menu
+* Intro to Minibuffers::     ミニバッファーに関する基本的な情報。
+* Text from Minibuffer::     そのままのテキスト文字列を読み取る方法。
+* Object from Minibuffer::   Lispオブジェクトや式を読み取る方法。
+* Minibuffer History::       ユーザーが再利用できるように以前のミニバッファー入力は記録される。
+* Initial Input::            ミニバッファーにたいして初期内容を指定する。
+* Completion::               補完の呼び出しとカスタマイズ方法。
+* Yes-or-No Queries::        問いにたいし単純な答えを求める。
+* Multiple Queries::         一連の似たような問いに答える。
+* Reading a Password::       端末からパスワードを読み取る。
+* Minibuffer Commands::      ミニバッファー内でキーバインドとして使用されるコマンド。
+* Minibuffer Windows::       特殊なミニバッファーウィンドウを処理する。
+* Minibuffer Contents::      どのようなコマンドがミニバッファーのテキストにアクセスするか。
+* Recursive Mini::           ミニバッファーへの再帰的なエントリーが許容されるかどうか。
+* Minibuffer Misc::          カスタマイズ用のさまざまなフックや変数。
+@end menu
+
+@node Intro to Minibuffers
+@section Introduction to Minibuffers
+
+  ほとんどの点において、ミニバッファーは普通のEmacsバッファーです。編集コマンドのようなバッファーにたいするほとんどの操作は、ミニバッファーでも機能します。しかし、バッファーを管理する操作の多くは、ミニバッファーに適用できません。ミニバッファーは常に@w{@samp{
+*Minibuf-@var{number}*}}という形式の名前をもち、変更することはできません。ミニバッファーはミニバッファー用の特殊なウィンドウだけに表示されます。これらのウィンドウは常にフレーム最下に表示されます。(フレームにミニバッファーウィンドウがないときや、ミニバッファーウィンドウだけをもつ特殊なフレームもあります。)@ref{Minibuffers
+and Frames}を参照してください。
+
+  ミニバッファー内のテキストは常に@dfn{プロンプト文字列(prompt
+string)}で始まります。これはミニバッファーを使用しているプログラムが、ユーザーにたいしてどのような種類の入力が求められているか告げるために指定するテキストです。このテキストは意図せずに変更してしまわないように、読み取り専用としてマークされます。このテキストは@code{beginning-of-line}、@code{forward-word}、@code{forward-sentence}、@code{forward-paragraph}を含む特定の移動用関数が、プロンプトと実際のテキストの境界でストップするように、フィールド(@ref{Fields}を参照)としてもマークされています。
+
+@c See http://debbugs.gnu.org/11276
+  ミニバッファーのウィンドウは、通常は1行です。ミニバッファーのコンテンツがより多くのスペースを要求する場合は、自動的に拡張されます。ミニバッファーのウィンドウがアクティブな間は、ウィンドウのサイズ変更コマンドで一時的にウィンドウのサイズを変更できます。サイズの変更は、ミニバッファーをexitしたとき、通常のサイズにリバートされます。ミニバッファーがアクティブでないときはフレーム内の他のウィンドウでウィンドウのサイズ変更コマンドを使用するか、マウスでモードラインをドラッグして、ミニバッファーのサイズを永続的に変更できます。(現実装では、これが機能するには@code{resize-mini-windows}が@code{nil}でなければなりません。)
+フレームがミニバッファーだけを含む場合は、そのフレームのサイズを変更してミニバッファーのサイズを変更できます。
+
+  ミニバッファーの使用により入力イベントが読み取られ、@code{this-command}や@code{last-command}のような変数の値が変更されます(@ref{Command
+Loop Info}を参照)。プログラムにそれらを変更させたくない場合は、ミニバッファーを使用するコードの前後でそれらをバインドするべきです。
+
+  ある状況下では、アクティブなミニバッファーが存在するときでもコマンドがミニバッファーを使用できます。そのようなミニバッファーは@dfn{再帰ミニバッファー(recursive
+minibuffer)}と呼ばれます。この場合、最初のミニバッファーは@w{@samp{
+*Minibuf-1*}}という名前になります。再帰ミニバッファーはミニバッファー名の最後の数字を増加させて命名されます。(名前はスペースで始まるので、通常のバッファーリストには表示されません。)
+再帰ミニバッファーが複数ある場合は、最内の(もっとも最近にエンターされた)ミニバッファーがアクティブなミニバッファーになります。このバッファーが、通常ではミニバッファーと呼ばれるバッファーです。変数@code{enable-recursive-minibuffers}、またはコマンドシンボルのその名前のプロパティをセットすることにより再帰ミニバッファーを許可、または禁止できます(@ref{Recursive
+Mini}を参照)。
+
+  他のバッファーと同様、ミニバッファーは特別なキーバインドを指定するためにローカルキーマップ(@ref{Keymaps}を参照)を使用します。ミニバッファーを呼び出す関数も、処理を行うためにローカルマップをセットアップします。補完なしのミニバッファーローカルマップについては、@ref{Text
+from Minibuffer}を参照してください。補完つきのミニバッファーローカルマップについては、@ref{Completion
+Commands}を参照してください。
+
+@cindex inactive minibuffer
+  ミニバッファーが非アクティブのときのメジャーモードは@code{minibuffer-inactive-mode}で、キーマップは@code{minibuffer-inactive-mode-map}です。これらは、実際にはミニバッファーが別フレームにある場合だけ、便利です。@ref{Minibuffers
+and Frames}を参照してください。
+
+  Emacsがバッチモードで実行されている場合、ミニバッファーからの読み取りリクエストは、実装にはEmacs開始時に提供された標準入力記述子から行を読み取ります。これは基本的な入力だけをサポートします。特別なミニバッファーの機能(ヒストリー、補完、パスワードのマスクなど)は、バッチモードでは利用できません。
+
+@node Text from Minibuffer
+@section Reading Text Strings with the Minibuffer
+@cindex minibuffer input, reading text strings
+
+  ミニバッファー入力にたいする基本的なプリミティブは@code{read-from-minibuffer}で、これは文字列とLispオブジェクトの両方からテキスト表現されたフォームを読み取ることができます。関数@code{read-regexp}は、特別な種類の文字列である正規表現式(@ref{Regular
+Expressions}を参照)の読み取りに使用されます。コマンドや変数、ファイル名などの読み取りに特化した関数もあります(@ref{Completion}を参照)。
+
+  ほとんどの場合では、Lisp関数の途中でミニバッファー入力関数を呼び出すべきではありません。かわりに@code{interactive}指定されたコマンドの引数読み取りの一部として、すべてのミニバッファー入力を行います。@ref{Defining
+Commands}を参照してください。
+
+@defun read-from-minibuffer prompt &optional initial keymap read history default inherit-input-method
+この関数は、ミニバッファーから入力を取得するもっとも一般的な手段である。デフォルトでは、任意のテキストを受け入れて、それを文字列としてリターンする。しかし、@var{read}が非@code{nil}の場合は、テキストをLispオブジェクトに変換するために@code{read}を使用する(@ref{Input
+Functions}を参照)。
+
+この関数が最初に行うのは、ミニバッファーをアクティブにして、プロンプトに@var{prompt}(文字列でなければならない)を用いてミニバッファーを表示することである。その後に、ユーザーはミニバッファーでテキストを編集できる。
+
+ミニバッファーをexitするためにユーザーがコマンドをタイプするとき、@code{read-from-minibuffer}はミニバッファー内のテキストからリターン値を構築する。通常はそのテキストを含む文字列がリターンされる。しかし、@var{read}が非@code{nil}の場合、@code{read-from-minibuffer}はテキストを読み込んで結果を未評価のLispオブジェクトでリターンする。(読み取りについての詳細は、@xref{Input
+Functions}を参照のこと。)
+
+引数@var{default}は、ヒストリーコマンドを通じて利用できるデフォルト値を指定する。値には文字列、文字列リスト、または@code{nil}を指定する。文字列または文字列リストは、ユーザーが@kbd{M-n}で利用可能な``未来のヒストリー(future
+history)''になります。
+
+@var{read}が非@code{nil}の場合は、ユーザーの入力が空のときの@code{read}の入力としても、@var{default}が使用される。@var{default}が文字列リストの!は、最初の文字列が入力として使用される。@var{default}が@code{nil}の場合、空の入力は@code{end-of-file}エラーとなる。しかし通常(@var{read}が@code{nil})の場合には、ユーザーの入力が空のとき@code{read-from-minibuffer}は@var{default}を無視して、空文字列@code{""}をリターンする。この点において、この関数はこのチャプターの他のどのミニバッファー入力関数とも異なる。
+
+@var{keymap}が非@code{nil}の場合、そのキーマップはミニバッファー内で使用されるローカルキーマップとなる。@var{keymap}が省略、または@code{nil}の場合は、@code{minibuffer-local-map}の値がキーマップとして使用される。キーマップの指定は、補完のようなさまざまなアプリケーションにたいしてミニバッファーをカスタマイズする、もっとも重要な方法である。
+
+引数@var{history}は、入力の保存やミニバッファー内で使用されるヒストリーコマンドが使用するヒストリーリスト変数を指定する。デフォルトは@code{minibuffer-history}である。同様に、オプションでヒストリーリスト内の開始位置を指定できる。@ref{Minibuffer
+History}を参照のこと。
+
+変数@code{minibuffer-allow-text-properties}が非@code{nil}の場合には、リターンされる文字列にはミニバッファーでのすべてのテキストプロパティが含まれる。それ以外では、値がリターンされるときすべてのテキストプロパティが取り除かれる。
+
+引数@var{inherit-input-method}が非@code{nil}の場合には、ミニバッファーにエンターする前にカレントだったバッファーが何であれ、カレントのインプットメソッド(@ref{Input
+Methods}を参照)、および@code{enable-multibyte-characters}のセッティング(@ref{Text
+Representations}を参照)が継承される。
+
+ほとんどの場合、@var{initial}の使用は推奨されない。非@code{nil}値の使用は、@var{history}にたいするコンスセル指定と組み合わせる場合のみ推奨する。@ref{Initial
+Input}を参照のこと。
+@end defun
+
+@defun read-string prompt &optional initial history default inherit-input-method
+この関数はミニバッファーから文字列を読み取り、それをリターンする。引数@var{prompt}、@var{initial}、@var{history}、@var{inherit-input-method}は@code{read-from-minibuffer}で使用する場合と同様。使用されるキーマップは@code{minibuffer-local-map}である。
+
+オプション引数@var{default}は@code{read-from-minibuffer}の場合と同様に使用されるが、ユーザーの入力が空の場合にリターンするデフォルト値も指定する。@code{read-from-minibuffer}の場合と同様、値は文字列、文字列リスト、または@code{nil}(空文字列と等価)である。@var{default}が文字列のときは、その文字列がデフォルト値になる。文字列リストのときは、最初の文字列がデフォルト値になる。(これらの文字列はすべて``未来のミニバッファーヒストリー(future
+minibuffer history)''としてユーザーが利用可能)。
+
+この関数は@code{read-from-minibuffer}を呼び出すことにより機能する。
+
+@smallexample
+@group
+(read-string @var{prompt} @var{initial} @var{history} @var{default} @var{inherit})
+@equiv{}
+(let ((value
+       (read-from-minibuffer @var{prompt} @var{initial} nil nil
+                             @var{history} @var{default} @var{inherit})))
+  (if (and (equal value "") @var{default})
+      (if (consp @var{default}) (car @var{default}) @var{default})
+    value))
+@end group
+@end smallexample
+@end defun
+
+@defun read-regexp prompt &optional defaults history
+この関数はミニバッファーから文字列として正規表現を読み取り、それをリターンする。ミニバッファーのプロンプト文字列@var{prompt}が@samp{:}(とその後にオプションの空白文字)で終端されていない場合、この関数はデフォルトのリターン値(空文字列でない場合。以下参照)の前に@samp{:
+}を付加する。
+
+オプション引数@var{defaults}は、入力が空の場合にリターンするデフォルト値を制御する。値は文字列、@code{nil}(空文字列と等価)、文字列リスト、シンボルのうちのどれか。
+
+@var{defaults}がシンボルの場合、@code{read-regexp}は変数@code{read-regexp-defaults-function}(以下参照)の値を調べて非@code{nil}のときは、@var{defaults}よりそちらを優先的に使用する。この場合、値は以下のいずれか:
+
+@itemize @minus
+@item
+@code{regexp-history-last}。これは適切なミニバッファーヒストリーリスト(以下参照)の最初の要素を使用することを意味する。
+
+@item
+引数なしの関数。リターン値(@code{nil}、文字列、文字列リストのいずれか)が@var{defaults}の値となる。
+@end itemize
+
+これで、@code{read-regexp}が@var{defaults}を処理した結果はリストに確定する(値が@code{nil}または文字列の場合は1要素のリストに変換する)。このリストにたいし、@code{read-regexp}は、以下のような入力として有用な候補をいくつか追加する:
+
+@itemize @minus
+@item
+ポイント位置の単語またはシンボル。
+@item
+インクリメンタル検索で最後に使用されたregexp。
+@item
+インクリメンタル検索で最後に使用された文字列。
+@item
+問い合わせつき置換コマンドで最後に使用された文字列またはパターン。
+@end itemize
+
+これで関数は、ユーザー入力を取得するために@code{read-from-minibuffer}に渡す正規表現のリストを得た。リストの最初の要素は入力が空の場合のデフォルト値である。リストのすべての要素は``未来のミニバッファーヒストリーリスト(future
+minibuffer history list)'' (@pxref{Minibuffer History, future list,, emacs,
+The GNU Emacs Manual}を参照)としてユーザーが利用可能になる。
+
+オプション引数@var{history}が非@code{nil}の場合、それは使用するミニバッファーヒストリーリストを指定するシンボルである(@ref{Minibuffer
+History}を参照)。これが省略、または@code{nil}の場合、ヒストリーリストのデフォルトは@code{regexp-history}となる。
+@end defun
+
+@defvar read-regexp-defaults-function
+関数@code{read-regexp}は、デフォルトの正規表現リストを決定するために、この変数の値を使用するかもしれない。非@code{nil}の場合、この変数は以下のいずれかである:
+
+@itemize @minus
+@item
+シンボル@code{regexp-history-last}。
+
+@item
+@code{nil}、文字列、文字列リストのいずれかをリターンする引数なしの関数。
+@end itemize
+
+@noindent
+これらの変数の使い方についての詳細は、上述の@code{read-regexp}を参照のこと。
+@end defvar
+
+@defvar minibuffer-allow-text-properties
+この変数が@code{nil}の場合、@code{read-from-minibuffer}および@code{read-string}はミニバッファー入力をリターンする前に、すべてのテキストプロパティを取り除く。しかし@code{read-no-blanks-input}(以下参照)、同様に補完つきでミニバッファー入力を行う@code{read-minibuffer}およびそれに関連する関数(@ref{Object
+from Minibuffer,, Reading Lisp Objects With the
+Minibuffer}を参照)は、この変数の値に関わらず、無条件でテキストプロパティを破棄する。
+@end defvar
+
+@defvar minibuffer-local-map
+@c avoid page break at anchor; work around Texinfo deficiency
+@anchor{Definition of
+minibuffer-local-map}これはミニバッファーからの読み取りにたいするデフォルトローカルキーマップである。デフォルトでは以下のバインディングをもつ:
+
+@table @asis
+@item @kbd{C-j}
+@code{exit-minibuffer}
+
+@item @key{RET}
+@code{exit-minibuffer}
+
+@item @kbd{C-g}
+@code{abort-recursive-edit}
+
+@item @kbd{M-n}
+@itemx @key{DOWN}
+@code{next-history-element}
+
+@item @kbd{M-p}
+@itemx @key{UP}
+@code{previous-history-element}
+
+@item @kbd{M-s}
+@code{next-matching-history-element}
+
+@item @kbd{M-r}
+@code{previous-matching-history-element}
+
+@ignore
+@c Does not seem worth/appropriate mentioning.
+@item @kbd{C-@key{TAB}}
+@code{file-cache-minibuffer-complete}
+@end ignore
+@end table
+@end defvar
+
+@c In version 18, initial is required
+@c Emacs 19 feature
+@defun read-no-blanks-input prompt &optional initial inherit-input-method
+この関数はミニバッファーから文字列を読み取るが、入力の一部として空白文字を認めず、かわりに空白文字は入力を終端させる。引数@var{prompt}、@var{initial}、@var{inherit-input-method}は@code{read-from-minibuffer}で使用するときと同様。
+
+これは関数@code{read-from-minibuffer}の簡略化されたインターフェイスであり、キーマップ@code{minibuffer-local-ns-map}の値を@var{keymap}引数として、@code{read-from-minibuffer}関数に渡す。キーマップ@code{minibuffer-local-ns-map}は@kbd{C-q}をリバインドしないので、クォートすることにより文字列内にスペースを挿入することが@emph{可能である}。
+
+@code{minibuffer-allow-text-properties}の値に関わらず、この関数はテキストプロパティを破棄する。
+
+@smallexample
+@group
+(read-no-blanks-input @var{prompt} @var{initial})
+@equiv{}
+(let (minibuffer-allow-text-properties)
+  (read-from-minibuffer @var{prompt} @var{initial} minibuffer-local-ns-map))
+@end group
+@end smallexample
+@end defun
+
+@c Slightly unfortunate name, suggesting it might be related to the
+@c Nextstep port...
+@defvar minibuffer-local-ns-map
+このビルトイン変数は関数@code{read-no-blanks-input}内でミニバッファーローカルキーマップとして使用されるキーマップである。デフォルトでは、@code{minibuffer-local-map}のバインディングに加えて、以下のバインディングが有効になる:
+
+@table @asis
+@item @key{SPC}
+@cindex @key{SPC} in minibuffer
+@code{exit-minibuffer}
+
+@item @key{TAB}
+@cindex @key{TAB} in minibuffer
+@code{exit-minibuffer}
+
+@item @kbd{?}
+@cindex @kbd{?} in minibuffer
+@code{self-insert-and-exit}
+@end table
+@end defvar
+
+@node Object from Minibuffer
+@section Reading Lisp Objects with the Minibuffer
+@cindex minibuffer input, reading lisp objects
+
+  このセクションでは、ミニバッファーでLispオブジェクトを読み取る関数を説明します。
+
+@defun read-minibuffer prompt &optional initial
+この関数はミニバッファーを使用してLispオブジェクトをよみ、それを評価せずにリターンする。引数@var{prompt}と@var{initial}は、@code{read-from-minibuffer}のときと同様に使用する。
+
+これは@code{read-from-minibuffer}関数にたいする簡略化されたインターフェイスである。
+
+@smallexample
+@group
+(read-minibuffer @var{prompt} @var{initial})
+@equiv{}
+(let (minibuffer-allow-text-properties)
+  (read-from-minibuffer @var{prompt} @var{initial} nil t))
+@end group
+@end smallexample
+
+以下の例では、初期入力として文字列@code{"(testing)"}を与えている:
+
+@smallexample
+@group
+(read-minibuffer
+ "Enter an expression: " (format "%s" '(testing)))
+
+;; @r{以下はミニバッファーでの表示::}
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+Enter an expression: (testing)@point{}
+---------- Buffer: Minibuffer ----------
+@end group
+@end smallexample
+
+@noindent
+ユーザーは@key{RET}をタイプして初期入力をデフォルトとして利用したり、入力を編集することができる。
+@end defun
+
+@defun eval-minibuffer prompt &optional initial
+この関数はミニバッファーを使用してLisp式を読み取り、それを評価して結果をリターンする。引数@var{prompt}と@var{initial}の使い方は、@code{read-from-minibuffer}と同様。
+
+この関数は、@code{read-minibuffer}の呼び出し結果を単に評価する:
+
+@smallexample
+@group
+(eval-minibuffer @var{prompt} @var{initial})
+@equiv{}
+(eval (read-minibuffer @var{prompt} @var{initial}))
+@end group
+@end smallexample
+@end defun
+
+@defun edit-and-eval-command prompt form
+この関数はミニバッファーでLisp式を読み取り、それを評価して結果をリターンする。このコマンドと@code{eval-minibuffer}の違いは、このコマンドでは初期値としての@var{form}はオプションではなく、テキストの文字列ではないプリント表現に変換されたLispオブジェクトとして扱われることである。これは@code{prin1}でプリントされるので、文字列の場合はテキスト初期値内にダブルクォート文字(@samp{"})が含まれる。@ref{Output
+Functions}を参照のこと。
+
+以下の例では、すでに有効なフォームであるようなテキスト初期値として式をユーザーに提案している:
+
+@smallexample
+@group
+(edit-and-eval-command "Please edit: " '(forward-word 1))
+
+;; @r{前の式を評価した後に、}
+;;   @r{ミニバッファーに以下が表示される。:}
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+Please edit: (forward-word 1)@point{}
+---------- Buffer: Minibuffer ----------
+@end group
+@end smallexample
+
+@noindent
+すぐに@key{RET} をタイプするとミニバッファーをexitして式を評価するので、1単語分ポイントは前進する。
+@end defun
+
+@node Minibuffer History
+@section Minibuffer History
+@cindex minibuffer history
+@cindex history list
+
+  @dfn{ミニバッファーヒストリーリスト(minibuffer history
+list)}は以前のミニバッファー入力を記録するので、それらを手軽に再利用できます。ミニバッファーヒストリーリストは、(以前に入力された)文字列のリストで、もっとも最近の文字列が先頭になります。
+
+  多数のミニバッファーが個別に存在し、異なる入力の種類に使用されます。それぞれのミニバッファー使用にたいして正しいヒストリーリストを指定するのは、Lispプログラマーの役目です。
+
+  ミニバッファーヒストリーリストは、@code{read-from-minibuffer}および@code{completing-read}のオプション引数@var{history}に指定します。以下が利用できる値です:
+
+@table @asis
+@item @var{variable}
+ヒストリーリストとして@var{variable}(シンボル)を使用する。
+
+@item (@var{variable} . @var{startpos})
+ヒストリーリストとして@var{variable}(シンボル)を使用し、ヒストリー位置の初期値を@var{startpos}(負の整数)とみなす。
+
+@var{startpos}に0を指定するのは、単にシンボル@var{variable}だけを指定するのと等価である。@code{previous-history-element}はミニバッファー内のヒストリーリストの最新の要素を表示するだろう。
+正の@var{startpos}を指定した場合、ミニバッファーヒストリー関数は@code{(elt @var{variable}(1-
+@var{startpos}))}がミニバッファー内でカレントで表示されているヒストリー要素であるかのように振る舞う。
+
+一貫性を保つため、ミニバッファー入力関数の@var{initial}引数(@ref{Initial
+Input}を参照)使用して、ミニバッファーの初期内容となるヒストリー要素も指定すべきである。
+@end table
+
+  @var{history}を指定しない場合は、デフォルトのヒストリーリスト@code{minibuffer-history}が使用されます。他の標準的なヒストリーリストについては、以下を参照してください。最初に使用する前に@code{nil}に初期化するだけで、独自のヒストリーリストを作成することもできます。
+
+  @code{read-from-minibuffer}と@code{completing-read}は、どちらも新たな要素を自動的にヒストリーリストに追加して、ユーザーがそのリストのアイテムを再使用するためのコマンドを提供します。ヒストリーリストを使用するためにプログラムが行う必要があるのは、リストの初期化と、使用するときに入力関数にリストの名前を渡すだけです。しかし、ミニバッファー入力関数がリストを使用していないときに、手動でリストを変更しても問題はありません。
+
+  新たな要素をヒストリーリストに追加するEmacs関数は、リストが長くなりすぎたときに古い要素の削除も行うことができます。変数@code{history-length}は、ほとんどのヒストリーリストの最大長を指定する変数です。特定のヒストリーリストにたいして異なる最大長を指定するには、そのヒストリーリストシンボルの@code{history-length}プロパティにその最大長をセットします。変数@code{history-delete-duplicates}には、ヒストリー内の重複を削除するかどうかを指定します。
+
+@defun add-to-history history-var newelt &optional maxelt keep-all
+この関数は@var{newelt}が空文字列でなければ、それを新たな要素として変数@var{history-var}に格納されたヒストリーリストに追加して、更新されたヒストリーリストをリターンする。これは@var{maxelt}または@code{history-length}がが非@code{nil}の場合は、リストの長さをその変数の値に制限する(以下参照)。@var{maxelt}に指定できる値の意味は、@code{history-length}の値と同様。
+
+@code{add-to-history}は通常、@code{history-delete-duplicates}が非@code{nil}ならば、ヒストリーリスト内の重複メンバーを削除する。しかし、@var{keep-all}が非@code{nil}の場合、それは重複を削除しないことを意味し、たとえ@var{newelt}が空でもリストに追加する。
+@end defun
+
+@defvar history-add-new-input
+この変数の値が@code{nil}の場合、ミニバッファーから読み取りを行う標準的な関数は、ヒストリーリストに新たな要素を追加しない。これにより、Lispプログラムが@code{add-to-history}を使用して明示的に入力ヒストリーを管理することになる。デフォルト値は@code{t}。
+@end defvar
+
+@defopt history-length
+この変数の値は、最大長を独自に指定しないすべてのヒストリーリストの最大長を指定する。値が@code{t}の場合は、最大長がない(古い要素を削除しない)ことを意味する。ヒストリーリスト変数のシンボルの@code{history-length}プロパティが非@code{nil}の場合には、その特定のヒストリーリストにたいする最大長として、そのプロパティ値がこの変数をオーバーライドする。
+@end defopt
+
+@defopt history-delete-duplicates
+この変数の値が@code{t}の場合、それは新たなヒストリー要素の追加時に、以前からある等しい要素が削除されることを意味する。
+@end defopt
+
+  以下は、標準的なミニバッファーヒストリーリスト変数です:
+
+@defvar minibuffer-history
+ミニバッファーヒストリー入力にたいするデフォルトのヒストリーリスト。
+@end defvar
+
+@defvar query-replace-history
+@code{query-replace}の引数(および他のコマンドの同様の引数)にたいするヒストリーリスト。
+@end defvar
+
+@defvar file-name-history
+ファイル名引数にたいするヒストリーリスト。
+@end defvar
+
+@defvar buffer-name-history
+バッファー名引数にたいするヒストリーリスト。
+@end defvar
+
+@defvar regexp-history
+正規表現引数にたいするヒストリーリスト。
+@end defvar
+
+@defvar extended-command-history
+拡張コマンド名引数にたいするヒストリーリスト。
+@end defvar
+
+@defvar shell-command-history
+シェルコマンド引数にたいするヒストリーリスト。
+@end defvar
+
+@defvar read-expression-history
+評価されるためのLisp式引数にたいするヒストリーリスト。
+@end defvar
+
+@defvar face-name-history
+フェイス引数にたいするヒストリーリスト。
+@end defvar
+
+@c Less common: coding-system-history, input-method-history,
+@c command-history, grep-history, grep-find-history,
+@c read-envvar-name-history, setenv-history, yes-or-no-p-history.
+
+@node Initial Input
+@section Initial Input
+
+ミニバッファー入力にたいする関数のいくつかには、@var{initial}と呼ばれる引数があります。これは通常のように空の状態で開始されるのではなく、特定のテキストとともにミニバッファーが開始されることを指定しますが、ほとんどの場合において推奨されない機能です。
+
+@var{initial}が文字列の場合、ミニバッファーはその文字列のテキストを含む状態で開始され、ユーザーがそのテキストの編集を開始するとき、ポイントはテキストの終端にあります。ユーザーがミニバッファーをexitするために単に@key{RET}をタイプした場合には、この入力文字列の初期値をリターン値だと判断します。
+
+@strong{@var{initial}にたいして非@code{nil}値の使用には反対します。}なぜなら初期入力は強要的なインターフェイスだからです。ユーザーにたいして有用なデフォルト入力を提案するためには、ヒストリーリストやデフォルト値の提供のほうが、より便利です。
+
+しかし@var{initial}引数にたいして文字列を指定すべき状況が1つだけあります。それは、@var{history}引数にコンスセルを指定したときです。@ref{Minibuffer
+History}を参照してください。
+
+@var{initial}は@code{(@var{string}
+.
+@var{position})}という形式をとることもできます。これは@var{string}をミニバッファーに挿入するが、その文字列のテキスト中の@var{position}にポイントを配するという意味です。
+
+歴史的な経緯により、@var{position}は異なる関数において実装が統一されていません。@code{completing-read}では@var{position}の値は0基準です。つまり、値0は文字列の先頭で、1は最初の文字の次、...を意味します。しかし@code{read-minibuffer}、およびこの引数をサポートする補完を行わない他のミニバッファー入力関数では、1は文字列の先頭、2は最初の文字の次、...を意味します。
+
+@var{initial}の値としてのコンスセルの使用は、推奨されません。
+
+@node Completion
+@section Completion
+@cindex completion
+
+@c "This is the sort of English up with which I will not put."
+  @dfn{補完(complete,
+ompletion)}は省略された形式から始まる名前の残りを充填する機能です。補完はユーザー入力と有効な名前リストを比較して、ユーザーが何をタイプしたかで名前をどの程度一意に判定できるか判断することにより機能します。たとえば@kbd{C-x
+b}(@code{switch-to-buffer})とタイプしてから、スイッチしたいバッファー名の最初の数文字をタイプして、その後に@key{TAB}(@code{minibuffer-complete})をタイプすると、Emacsはその名前を可能な限り展開します。
+
+  標準的なEmacsコマンドはシンボル、ファイル、バッファー、プロセスの名前にたいして補完を提案します。このセクションの関数により、他の種類の名前にたいしても補完を実装できます。
+
+  @code{try-completion}関数は補完にたいする基本的なプリミティブです。これは初期文字列にたいして文字列セットをマッチして、最長と判定された補完をリターンします。
+
+  関数@code{completing-read}は、補完にたいする高レベルなインターフェイスを提供します。@code{completing-read}の呼び出しにより、有効な名前リストの判定方法が指定されます。その後にこの関数は補完にたいして有用ないくつかのコマンドにキーバインドするローカルキーマップとともに、ミニバッファーをアクティブ化します。その他の関数は、特定の種類の名前を補完つきで読み取る、簡便なインターフェイスを提供します。
+
+@menu
+* Basic Completion::         文字列を補完する低レベル関数。
+* Minibuffer Completion::    補完つきでミニバッファーを呼び出す。
+* Completion Commands::      補完を行うミニバッファーコマンド。
+* High-Level Completion::    特別なケースに有用な補完(バッファー名や変数名などの読み取り)。
+* Reading File Names::       ファイル名やシェルコマンドの読み取りに補完を使用する。
+* Completion Variables::     補完の挙動を制御する変数。
+* Programmed Completion::    独自の補完関数を記述する。
+* Completion in Buffers::    通常バッファー内でのテキスト補完。
+@end menu
+
+@node Basic Completion
+@subsection Basic Completion Functions
+
+  以下の補完関数は、その関数自身ではミニバッファーでなにも行いません。ここでは、ミニバッファーを使用する高レベルの補完機能と並べて、これらの関数について説明します。
+
+@defun try-completion string collection &optional predicate
+この関数は@var{collection}内の@var{string}に利用可能なすべての補完の、共通する最長部分文字列をリターンする。
+
+@cindex completion table
+@var{collection}は@dfn{補完テーブル(completion
+table)}と呼ばれる。値は文字列リスト、コンスセル、obarray、ハッシュテーブル、または補完関数でなければならない。
+
+@code{try-completion}は補完テーブルにより指定された許容できる補完それぞれにたいして、@var{string}と比較を行う。許容できる補完マッチが存在しない場合は、@code{nil}をリターンする。マッチする補完が1つだけで、それが完全一致ならば@code{t}をリターンする。それ以外は、すべてのマッチ可能な補完に共通する最長の初期シーケンス(longest
+initial sequence)をリターンする。
+
+@var{collection}がリストの場合、許容できる補完(permissible
+completions)はそのリストの要素により指定される。リストの要素は文字列、または@sc{car}が文字列または(@code{symbol-name}により文字列に変換される)シンボルであるようなコンスセルである。リストに他の型の要素が含まれる場合は無視される。
+
+@cindex obarray in completion
+@var{collection}がobarray(@ref{Creating
+Symbols}を参照)の場合、そのobarray内のすべてのシンボル名が許容できる補完セットを形成する。
+
+@var{collection}がハッシュテーブルの場合には、文字列のキーが利用可能な補完(possible
+completions)になる。他のキーは無視される。
+
+@var{collection}として関数を使用することもできる。この場合、この関数だけが補完を処理する役目を担う。つまり@code{try-completion}は、この関数が何をリターンしようとも、それをリターンする。この関数は@var{string}、@var{predicate}、@code{nil}の3つの引数で呼び出される(3つ目の引数は同じ関数を@code{all-completions}でも使用して、どちらの場合でも適切なことを行うためである)。@ref{Programmed
+Completion}を参照のこと。
+
+引数@var{predicate}が非@code{nil}の場合、@var{collection}がハッシュテーブルなら1引数、それ以外は2引数の関数でなければならない。これは利用可能なマッチのテストに使用され、マッチは@var{predicate}が非@code{nil}をリターンしたときだけ受け入れられる。@var{predicate}に与えられる引数は文字列、alistのコンスセル(@sc{car}が文字列)、またはobarrayのシンボル(シンボル名では@emph{ない})のうちのどれか。@var{collection}がハッシュテーブルの場合、@var{predicate}は文字列キー(string
+key)と関連値(associated value)の2引数で呼び出される。
+
+加えて使いやすいように、補完は@code{completion-regexp-list}内のすべての正規表現にもマッチしなければならない。(@var{collection}が関数の場合は、その関数自身が@code{completion-regexp-list}を処理する必要がある。)
+
+以下の例の1つ目では、文字列@samp{foo}がalistのうち3つの@sc{car}とマッチされている。すべてのマッチは文字@samp{fooba}で始まるので、それが結果となる。2つ目の例では、可能なマッチは1つだけで、しかも完全一致なのでリターン値は@code{t}になる。
+
+@smallexample
+@group
+(try-completion
+ "foo"
+ '(("foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4)))
+     @result{} "fooba"
+@end group
+
+@group
+(try-completion "foo" '(("barfoo" 2) ("foo" 3)))
+     @result{} t
+@end group
+@end smallexample
+
+以下の例では、文字@samp{forw}で始まるシンボルが多数あり、それらはすべて単語@samp{forward}で始まる。ほとんどのシンボルはその後に@samp{-}が続くが、すべてではないので@samp{forward}までしか補完できない。
+
+@smallexample
+@group
+(try-completion "forw" obarray)
+     @result{} "forward"
+@end group
+@end smallexample
+
+最後に、以下の例では述語@code{test}に渡される利用可能なマッチは3つのうち2つだけである(文字列@samp{foobaz}は短すぎる)。これらは両方とも文字列@samp{foobar}で始まる。
+
+@smallexample
+@group
+(defun test (s)
+  (> (length (car s)) 6))
+     @result{} test
+@end group
+@group
+(try-completion
+ "foo"
+ '(("foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4))
+ 'test)
+     @result{} "foobar"
+@end group
+@end smallexample
+@end defun
+
+@c Removed obsolete argument nospace.
+@defun all-completions string collection &optional predicate
+@c (aside from @var{nospace})
+この関数は、@var{string}の利用可能な補完すべてのリストをリターンする。この関数の引数は@code{try-completion}の引数と同じであり、@code{try-completion}が行うのと同じ方法で@code{completion-regexp-list}を使用する。
+
+@ignore
+The optional argument @var{nospace} is obsolete.  If it is
+non-@code{nil}, completions that start with a space are ignored unless
+@var{string} starts with a space.
+@end ignore
+
+@var{collection}か関数の場合は@var{string}、@var{predicate}、@code{t}の3つの引数で呼び出される。この場合、その関数がリターンするのが何であれ、@code{all-completions}はそれをリターンする。@ref{Programmed
+Completion}を参照のこと。
+
+以下の例は、@code{try-completion}の例の関数@code{test}を使用している。
+
+@smallexample
+@group
+(defun test (s)
+  (> (length (car s)) 6))
+     @result{} test
+@end group
+
+@group
+(all-completions
+ "foo"
+ '(("foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4))
+ 'test)
+     @result{} ("foobar1" "foobar2")
+@end group
+@end smallexample
+@end defun
+
+@defun test-completion string collection &optional predicate
+@anchor{Definition of test-completion}
+この関数は、@var{string}が@var{collection}および@var{predicate}で指定された有効な補完候補の場合は、@code{nil}をリターンする。引数は@code{try-completion}の引数と同じ。たとえば、@var{collection}が文字列リストの場合は、@var{string}がリスト内に存在し、かつ@var{predicate}を満足すればtrueとなる。
+
+この関数は@code{try-completion}が行うのと同じ方法で、@code{completion-regexp-list}を使用する。
+
+@var{predicate}が非@code{nil}で、@var{collection}が同じ文字列を複数含む場合には、@code{completion-ignore-case}にしたがって@code{compare-strings}で判定して、それらすべてをリターンするか、もしくは何もリターンしない。それ以外では、@code{test-completion}のリターン値は基本的に予測不可能である。
+
+@var{collection}が関数の場合は@var{string}、@var{predicate}、@code{lambda}の3つの引数で呼び出される。それが何をリターンするにせよ、@code{test-completion}はそれをリターンする。
+@end defun
+
+@defun completion-boundaries string collection predicate suffix
+この関数はポイントの前のテキストが@var{string}、ポイントの後が@var{suffix}と仮定して、@var{collection}が扱うフィールドの境界(boundary)をリターンする。
+
+補完は通常、文字列(string)全体に作用するので、すべての普通のコレクション(collection)にたいして、この関数は常に@code{(0
+. (length
+@var{suffix}))}をリターンするだろう。しかしファイルにたいする補完などのより複雑な補完は、1回に1フィールド行われる。たとえば、たとえ@code{"/usr/share/doc"}が存在しても、@code{"/usr/sh"}の補完に@code{"/usr/share/"}は含まれるが、@code{"/usr/share/doc"}は含まれないだろう。また、@code{"/usr/sh"}にたいする@code{all-completions}に@code{"/usr/share/"}は含まれず、@code{"share/"}だけが含まれるだろう。@var{string}が@code{"/usr/sh"}、@var{suffix}が@code{"e/doc"}の場合、@code{completion-boundaries}は@code{(5
+.
+1)}をリターンするだろう。これは、@var{collection}が@code{"/usr/"}の後ろにあり@code{"/doc"}の前にある領域に関する補完情報だけをリターンするであろうことを告げている。
+@end defun
+
+補完alistを変数に格納した場合は、変数の@code{risky-local-variable}プロパティに非@code{nil}をセットして、その変数が``risky(危険)''だとマークすべきである。@ref{File
+Local Variables}を参照のこと。
+
+@defvar completion-ignore-case
+この変数の値が非@code{nil}の場合、補完での大文字小文字の違いは意味をもたない。@code{read-file-name}では、この変数は@code{read-file-name-completion-ignore-case}(@ref{Reading
+File
+Names}を参照)にオーバーライドされる。@code{read-buffer}では、この変数は@code{read-buffer-completion-ignore-case}(@ref{High-Level
+Completion}を参照)にオーバーライドされる。
+@end defvar
+
+@defvar completion-regexp-list
+これは正規表現のリストである。補完関数はこのリスト内のすべての正規表現にマッチした場合のみ許容できる補完と判断する。@code{case-fold-search}(@ref{Searching
+and Case}を参照)では@code{completion-ignore-case}の値にバインドされる。
+@end defvar
+
+@defmac lazy-completion-table var fun
+この変数は変数@var{var}を補完のためのcollectionとしてlazy(lazy:
+力のない、だらけさせる、のろのろした、怠惰な、不精な、眠気を誘う)な方法で初期化する。ここでlazyとは、collection内の実際のコンテンツを必要になるまで計算しないという意味。このマクロは@var{var}に格納する値の生成に使用する。@var{var}を使用して最初に補完を行ったとき、真の値が実際に計算される。これは引数なしで@var{fun}を呼び出すことにより行われる。@var{fun}がリターンする値は、@var{var}の永続的な値となる。
+
+以下は例である:
+
+@smallexample
+(defvar foo (lazy-completion-table foo make-my-alist))
+@end smallexample
+@end defmac
+
+@c FIXME?  completion-table-with-context?
+@findex completion-table-case-fold
+@findex completion-table-in-turn
+@findex completion-table-merge
+@findex completion-table-subvert
+@findex completion-table-with-quoting
+@findex completion-table-with-predicate
+@findex completion-table-with-terminator
+@cindex completion table, modifying
+@cindex completion tables, combining
+既存の補完テーブルを受け取り変更したバージョンをリターンする関数が、いくつかあります。@code{completion-table-case-fold}は大文字小文字を区別しない、case-insensitiveなテーブルをリターンします。@code{completion-table-in-turn}と@code{completion-table-merge}は、複数の入力テーブルを、異なる方法で組み合わせます。@code{completion-table-subvert}はテーブルを異なる初期プレフィックス(initial
+prefix)で変更します。@code{completion-table-with-quoting}はクォートされたテキストの処理に適したテーブルをリターンします。@code{completion-table-with-predicate}は述語関数(predicate
+function)によりフィルターします。@code{completion-table-with-terminator}は終端文字列(terminating
+string)を追加します。
+
+
+@node Minibuffer Completion
+@subsection Completion and the Minibuffer
+@cindex minibuffer completion
+@cindex reading from minibuffer with completion
+
+  このセクションでは、補完つきでミニバッファーから読み取るための、基本的なインターフェイスを説明します。
+
+@defun completing-read prompt collection &optional predicate require-match initial history default inherit-input-method
+この関数は、補完の提供によりユーザーを支援して、ミニバッファーから文字列を読み取る。@var{prompt}(文字列でなければならない)のプロンプトとともに、ミニバッファーをアクティブ化する。
+
+実際の補完は、補完テーブル@var{collection}と補完述語@var{predicate}を関数@code{try-completion}(@ref{Basic
+Completion}を参照)に渡すことにより行われる。これは補完の使用されるローカルキーマップに特定のコマンドをバインドしたとき発生する。これらのコマンドのいくつかは、@code{test-completion}も呼び出す。したがって、@var{predicate}が非@code{nil}の場合は、@var{collection}と@code{completion-ignore-case}が矛盾しないようにすべきである。@ref{Definition
+of test-completion}を参照のこと。
+
+オプション引数@var{require-match}の値は、ユーザーがミニバッファーをexitする方法を決定する。
+
+@itemize @bullet
+@item
+@code{nil}の場合、通常のミニバッファーexitコマンドは、ミニバッファーの入力と無関係に機能する。
+
+@item
+@code{t}の場合は、入力が@var{collection}の要素に補完されるまで、通常のミニバッファーexitコマンドは機能しない。
+
+@item
+@code{confirm}の場合、どのような入力でもユーザーはexitできるが、入力が@code{confirm}の要素に補完されていなければ、確認を求められる。
+
+@item
+@code{confirm-after-completion}の場合、どのような入力でもユーザーはexitできるが、前のコマンドが補完コマンド(たとえば@code{minibuffer-confirm-exit-commands}の中のコマンドの1つの場合)で、入力の結果が@var{collection}の要素でない場合は、確認を求められる。@ref{Completion
+Commands}を参照のこと。
+
+@item
+@var{require-match}にたいする他の値は@code{t}と同じふぁが、exitコマンドは補完処理中はexitしない。
+@end itemize
+
+しかし、@var{require-match}の値に関わらず、空の入力は常に許される。この場合、@code{completing-read}は@var{default}がリストなら最初の要素、@var{default}が@code{nil}なら@code{""}、または@var{default}をリターンする。文字列および@var{default}内の文字列は、ヒストリーコマンドを通じてユーザーが利用できる。
+
+関数@code{completing-read}は@var{require-match}が@code{nil}の場合はキーマップとして@code{minibuffer-local-completion-map}を、@var{require-match}が非@code{nil}の場合は@code{minibuffer-local-must-match-map}を使用する。@ref{Completion
+Commands}を参照のこと。
+
+引数@var{history}は入力の保存とミニバッファーヒストリーコマンドに、どのヒストリーリスト変数を使用するか指定する。デフォルトは@code{minibuffer-history}。@ref{Minibuffer
+History}を参照のこと。
+
+@var{initial}は、ほとんどの場合推奨されない。@var{history}にたいするコンスセル指定と組み合わせた場合のみ、非@code{nil}値の使用を推奨する。@ref{Initial
+Input}を参照のこと。デフォルト入力にたいしては、かわりに@var{default}を使用する。
+
+引数@var{inherit-input-method}が非@code{nil}の場合には、ミニバッファーにエンターする前にカレントだったバッファーが何であれ、カレントのインプットメソッド(@ref{Input
+Methods}を参照)、および@code{enable-multibyte-characters}のセッティング(@ref{Text
+Representations}を参照)が継承される。
+
+変数@code{completion-ignore-case}が非@code{nil}の場合、利用可能なマッチにたいして入力を比較するときの補完は、大文字小文字を区別しない。@ref{Basic
+Completion}を参照のこと。このモードでの操作では、@var{predicate}も大文字小文字を区別してはならない(さもないと驚くべき結果となるであろう)。
+
+以下は@code{completing-read}を使用した例である:
+
+@smallexample
+@group
+(completing-read
+ "Complete a foo: "
+ '(("foobar1" 1) ("barfoo" 2) ("foobaz" 3) ("foobar2" 4))
+ nil t "fo")
+@end group
+
+@group
+;; @r{前の式を評価後に、}
+;;   @r{ミニバッファーに以下が表示される。:}
+
+---------- Buffer: Minibuffer ----------
+Complete a foo: fo@point{}
+---------- Buffer: Minibuffer ----------
+@end group
+@end smallexample
+
+@noindent
+その後ユーザーが@kbd{@key{DEL} @key{DEL} b
+@key{RET}}をタイプすると、@code{completing-read}は@code{barfoo}をリターンする。
+
+@code{completing-read}関数は、実際に補完を行うコマンドの情報を渡すために、変数をバインドする。これらの変数は、以降のセクションで説明する。
+@end defun
+
+@defvar completing-read-function
+この変数の値は関数でなければならず、補完つきの読み取りを実際に行うために@code{completing-read}から呼び出される。この関数は@code{completing-read}と同じ引数を受け入れる。他の関数のバインドして、通常の@code{completing-read}の振る舞いを完全にオーバーライドすることができる。
+@end defvar
+
+@node Completion Commands
+@subsection Minibuffer Commands that Do Completion
+
+  このセクションでは、補完のためにミニバッファーで使用されるキーマップ、コマンド、ユーザーオプションを説明します。
+
+@defvar minibuffer-completion-table
+この変数の値は、ミニバッファー内の補完に使用される補完テーブルである。これは@code{completing-read}が@code{try-completion}に渡す補完テーブルを含むグローバル変数である。@code{minibuffer-complete-word}のような、ミニバッファー補完コマンドにより使用される。
+@end defvar
+
+@defvar minibuffer-completion-predicate
+この変数の値は@code{completing-read}が@code{try-completion}に渡す述語(predicate)である。この変数は、他のミニバッファー補完関数でも使用される。
+@end defvar
+
+@defvar minibuffer-completion-confirm
+この変数はミニバッファーをexitする前に、Emacsが確認を求めるかどうかを決定する。@code{completing-read}はこの変数をバインドして、exitする前に関数@code{minibuffer-complete-and-exit}がこの値をチェックする。値が@code{nil}の場合は、確認は求められない。値が@code{confirm}の場合、入力が有効な補完候補でなくてもユーザーはexitするかもしれないが、Emacsは確認を求めない。値が@code{confirm-after-completion}の場合、入力が有効な補完候補でなくてもユーザーはexitするかもしれないが、ユーザーが@code{minibuffer-confirm-exit-commands}内の任意の補完コマンドの直後に入力を確定した場合、Emacsは確認を求める。
+@end defvar
+
+@defvar minibuffer-confirm-exit-commands
+この変数には、@code{completing-read}の引数@var{require-match}が@code{confirm-after-completion}の場合は、ミニバッファーをexitする前にEmacsが確認を求めるようにさせるコマンドのリストが保持されている。このリストないのコマンドを呼び出した直後にユーザーがミニバッファーのexitを試みると、Emacsは確認を求める。
+@end defvar
+
+@deffn Command minibuffer-complete-word
+この関数は、ただ1つの単語からミニバッファーを補完する。たとえミニバッファーのコンテンツが1つの補完しかもたない場合でも、@code{minibuffer-complete-word}はその単語に属さない最初の文字を超えた追加はしない。@ref{Syntax
+Tables}を参照のこと。
+@end deffn
+
+@deffn Command minibuffer-complete
+この関数は、可能な限りミニバッファーのコンテンツを補完する。
+@end deffn
+
+@deffn Command minibuffer-complete-and-exit
+この関数はミニバッファーのコンテンツを補完して、確認が要求されない場合(たとえば@code{minibuffer-completion-confirm}が@code{nil}のとき)はexitする。確認が@emph{要求される}場合には、このコマンドを即座に繰り返すことにより確認が行われないようにする。このコマンドは2回連続で実行された場合は確認なしで機能するようにプログラムされている。
+@end deffn
+
+@deffn Command minibuffer-completion-help
+この関数は、カレントのミニバッファーのコンテンツで利用可能な補完のリストを作成する。これは@code{all-completions}の引数@var{collection}に変数@code{minibuffer-completion-table}の値を、引数@var{predicate}に@code{minibuffer-completion-predicate}の値を使用して呼び出すことにより機能する。補完リストは、@file{*Completions*}と呼ばれるバッファーのテキストとして表示される。
+@end deffn
+
+@defun display-completion-list completions
+この関数は@code{standard-output}内のストリーム(通常はバッファー)に@var{completions}を表示する(ストリームについての詳細は、@ref{Read
+and
+Print}を参照)。引数@var{completions}は通常、@code{all-completions}がリターンする補完リストそのものだが、それである必要はない。要素はシンボルか文字列で、どちらも単にプリントされる。文字列2つのリストでもよく、2つの文字列が結合されたかのようにプリントされる。この場合、1つ目の文字列は実際の補完で、2つ目の文字列は注釈の役目を負う。
+
+この関数は@code{minibuffer-completion-help}により呼び出される。一般的には、以下のように@code{with-output-to-temp-buffer}とともに使用される。
+
+@example
+(with-output-to-temp-buffer "*Completions*"
+  (display-completion-list
+    (all-completions (buffer-string) my-alist)))
+@end example
+@end defun
+
+@defopt completion-auto-help
+この変数が非@code{nil}の場合には、次の文字が一意でないために決定できず補完が完了しないときは常に、補完コマンドは利用可能な補完リストを自動的に表示する。
+@end defopt
+
+@defvar minibuffer-local-completion-map
+@code{completing-read}の値は、補完の1つが完全に一致することを要求されないときにローカルキーマップとして使用される。デフォルトでは、このキーマップは以下のバインディングを作成する:
+
+@table @asis
+@item @kbd{?}
+@code{minibuffer-completion-help}
+
+@item @key{SPC}
+@code{minibuffer-complete-word}
+
+@item @key{TAB}
+@code{minibuffer-complete}
+@end table
+
+@noindent
+親キーマップとして@code{minibuffer-local-map}を使用する(@ref{Definition of
+minibuffer-local-map}を参照)。
+@end defvar
+
+@defvar minibuffer-local-must-match-map
+@code{completing-read}は、補完の1つの完全な一致が要求されないときのローカルキーマップとして、この値を使用する。したがって@code{exit-minibuffer}にキーがバインドされていなければ、無条件にミニバッファーをexitする。デフォルトでは、このキーマップは以下のバインディングを作成する:
+
+@table @asis
+@item @kbd{C-j}
+@code{minibuffer-complete-and-exit}
+
+@item @key{RET}
+@code{minibuffer-complete-and-exit}
+@end table
+
+@noindent
+親キーマップは@code{minibuffer-local-completion-map}を使用する。
+@end defvar
+
+@defvar minibuffer-local-filename-completion-map
+これは単に@key{SPC}を非バインドするsparseキーマップ(sparse:
+疎、希薄、まばら)を作成する。これはファイル名にスペースを含めることができるからである。関数@code{read-file-name}は、このキーマップと@code{minibuffer-local-completion-map}か@code{minibuffer-local-must-match-map}のいずれかを組み合わせる。
+@end defvar
+
+
+@node High-Level Completion
+@subsection High-Level Completion Functions
+
+  このセクションでは、特定の種類の名前を補完つきで読み取る便利な高レベル関数を説明します。
+
+  ほとんどの場合、Lisp関数の中盤でこれらの関数を呼び出すべきではありません。可能なときは、@code{interactive}指定の内部で呼び出し、ミニバッファーのすべての入力をコマンドの引数読み取りの一部にします。@ref{Defining
+Commands}を参照してください。
+
+@defun read-buffer prompt &optional default require-match
+この関数はバッファーの名前を読み取り、それを文字列でリターンする。引数@var{default}は、ミニバッファーが空の状態でユーザーがexitした場合にリターンされるデフォルト名として使用される。非@code{nil}の場合は文字列、文字列リスト、またはバッファーを指定する。リストの場合は、リストの先頭の要素がデフォルト値になる。デフォルト値はプロンプトに示されるが、初期入力としてミニバッファーには挿入されない。
+
+引数@var{prompt}は、コロンかスペースで終わる文字列である。@var{default}が非@code{nil}の場合、この関数はデフォルト値つきでミニバッファーから読み取る際の慣習にしたがい、コロンの前の@var{prompt}の中にこれを挿入する。
+
+オプション引数@var{require-match}は、@code{completing-read}のときと同じ。@ref{Minibuffer
+Completion}を参照のこと。
+
+以下の例で、ユーザーが@samp{minibuffer.t}とエンターしてから、@key{RET}をタイプする。引数@var{require-match}は@code{t}であり、与えられた入力で始まるバッファー名は@samp{minibuffer.texi}だけなので、その名前が値となる。
+
+@example
+(read-buffer "Buffer name: " "foo" t)
+@group
+;; @r{前の式を評価した後、}
+;;   @r{空のミニバッファーに}
+;;   @r{以下のプロンプトが表示される:}
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+Buffer name (default foo): @point{}
+---------- Buffer: Minibuffer ----------
+@end group
+
+@group
+;; @r{ユーザーが@kbd{minibuffer.t @key{RET}}とタイプする。}
+     @result{} "minibuffer.texi"
+@end group
+@end example
+@end defun
+
+@defopt read-buffer-function
+この変数が非@code{nil}の場合は、バッファー名を読み取る関数である。@code{read-buffer}は通常行うことを行うかわりに、@code{read-buffer}と同じ引数でその関数を呼び出す。
+@end defopt
+
+@defopt read-buffer-completion-ignore-case
+この変数が非non-@code{nil}の場合は、補完の処理において@code{read-buffer}は大文字小文字を無視する。
+@end defopt
+
+@defun read-command prompt &optional default
+この関数はコマンドの名前を読み取り、Lispシンボルとしてそれをリターンする。引数@var{prompt}は、@code{read-from-minibuffer}で使用される場合と同じ。それが何であれ@code{commandp}が@code{t}をリターンすればコマンドであり、コマンド名とは@code{commandp}が@code{t}をリターンするシンボルだということを思い出してほしい。@ref{Interactive
+Call}を参照のこと。
+
+引数@var{default}は、ユーザーがnull入力をエンターした場合に何をリターンするか指定する。シンボル、文字列、文字列リストを指定できる。文字列の場合、@code{read-command}はリターンする前にそれをinternする。リストの場合、@code{read-command}はリストの最初の要素をinternする。@var{default}が@code{nil}の場合は、デフォルトが指定されなかったことを意味する。その場合もしユーザーがnull入力をエンターすると、リターン値は@code{(intern
+"")}、つまり名前が空文字列のシンボルとなる。
+
+@example
+(read-command "Command name? ")
+
+@group
+;; @r{前の式を評価した後に、}
+;;   @r{空のミニバッファーに以下のプロンプトが表示される:}
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+Command name?
+---------- Buffer: Minibuffer ----------
+@end group
+@end example
+
+@noindent
+ユーザーが@kbd{forward-c @key{RET}}とタイプした場合、この関数は@code{forward-char}をリターンする。
+
+@code{read-command}関数は、@code{completing-read}の簡略化されたインターフェイスである。実在するLisp変数のセットを補完するために変数@code{obarray}を、コマンド名だけを受け入れるために述語@code{commandp}を使用する。
+
+@cindex @code{commandp} example
+@example
+@group
+(read-command @var{prompt})
+@equiv{}
+(intern (completing-read @var{prompt} obarray
+                         'commandp t nil))
+@end group
+@end example
+@end defun
+
+@defun read-variable prompt &optional default
+@anchor{Definition of read-variable}
+この変数はカスタマイズ可能な変数の名前を読み取り、それをシンボルとしてリターンする。引数の形式は@code{read-command}の引数と同じ。この関数は、@code{commandp}のかわりに@code{custom-variable-p}を述語に使用する点を除き、@code{read-command}と同様に振る舞う。
+@end defun
+
+@deffn Command read-color &optional prompt convert allow-empty display
+この関数はカラー指定(カラー名、または@code{#RRRGGGBBB}のような形式のRGB16進値)の文字列を読み取る。これはプロンプトに@var{prompt}(デフォルトは@code{"Color
+(name or #RGB
+triplet):"})を表示して、カラー名にたいする補完を提供する(16進RGB値は補完しない)。標準的なカラー名に加えて、補完候補にはポイント位置のフォアグラウンドカラーとバックグラウンドカラーが含まれる。
+
+Valid RGB values are described in @ref{Color Names}.
+
+この関数のリターン値は、ミニバッファー内でユーザーがタイプした文字列である。しかし、インタラクティブに呼び出されたとき、またはオプション引数@var{convert}が非@code{nil}の場合は、入力されたカラー名のかわりに、それに対応するRGB値文字列をリターンする。この関数は、入力に有効なカラー指定を求める。@var{allow-empty}が非@code{nil}でユーザーがnull入力をエンターした場合は、空のカラー名が許される。
+
+インタラクティブに呼び出されたとき、または@var{display}が非@code{nil}の場合には、エコーエリアにもリターン値が表示される。
+@end deffn
+
+  @ref{User-Chosen Coding
+Systems}の関数@code{read-coding-system}と@code{read-non-nil-coding-system}、および@ref{Input
+Methods}の@code{read-input-method-name}も参照のこと。
+
+@node Reading File Names
+@subsection Reading File Names
+@cindex read file names
+@cindex prompt for file name
+
+  高レベル補完関数@code{read-file-name}、@code{read-directory-name}、@code{read-shell-command}はそれぞれ、ファイル名、ディレクトリー名、シェルコマンドを読み取るようデザインされています。これらはデフォルトディレクトリーの自動挿入を含む特別な機能を提供します。
+
+@defun read-file-name prompt &optional directory default require-match initial predicate
+この関数はプロンプト@var{prompt}とともに補完つきでファイル名を読み取る。
+
+例外として以下のすべてが真ならば、この関数はミニバッファーのかわりにグラフィカルなファイルダイアログを使用してファイル名を読み取る:
+
+@enumerate
+@item
+マウスコマンドを通じて呼び出された。
+
+@item
+グラフィカルなディスプレイ上の選択されたフレームがこの種のダイアログをサポートする。
+
+@item
+変数@code{use-dialog-box}が非@code{nil}の場合。@ref{Dialog Boxes,, Dialog Boxes,
+emacs, The GNU Emacs Manual}を参照のこと。
+
+@item
+@var{directory}引数(以下参照)がリモートファイルを指定しない。@ref{Remote Files,, Remote Files,
+emacs, The GNU Emacs Manual}を参照のこと。
+@end enumerate
+
+@noindent
+グラフィカルなファイルダイアログを使用したときの正確な振る舞いは、プラットホームに依存する。ここでは単にミニバッファーを使用したときの振る舞いを記す。
+
+@code{read-file-name}はリターンするファイル名を自動的に展開しない。絶対ファイル名が必要ならば、自分で@code{expand-file-name}を呼び出さなければならない。
+
+オプション引数@var{require-match}は、@code{completing-read}のときと同じ。@ref{Minibuffer
+Completion}を参照のこと。
+
+引数@var{directory}は、相対ファイル名の補完に使用するディレクトリーを指定する。値は絶対ディレクトリー名。変数@code{insert-default-directory}が非@code{nil}の場合は、初期入力としてミニバッファーに@var{directory}も挿入される。デフォルトはカレントバッファーの@code{default-directory}の値。
+
+@var{initial}を指定した場合、それはミニバッファーに挿入する初期ファイル名になる(@var{directory}が挿入された場合はその後に挿入される)。この場合、ポイントは@var{initial}の先頭に配される。@var{initial}のデフォルト値は@code{nil}(ファイル名を挿入しない)。@var{initial}が何を行うか確認するには、ファイルをvisitしているバッファーで@kbd{C-x
+C-v}を試すとよい。@strong{注意: ほとんどの場合、}@var{initial}よりも@var{default}の使用を推奨する。
+
+@var{default}が非@code{nil}の場合、ユーザーが最初に@code{read-file-name}が挿入したものと同じ、空以外のコンテンツを残してミニバッファーをexitすると、この関数は@var{default}をリターンする。@code{insert-default-directory}が非@code{nil}の場合はそれがデフォルトとなるので、ミニバッファーの初期コンテンツは常に空以外になる。@var{require-match}の値に関わらず、@var{default}の有効性はチェックされない。とはいえ@var{require-match}が非@code{nil}の場合、ミニバッファーの初期コンテンツは有効なファイル名(またはディレクトリー名)であるべきだろう。それが有効でない場合、ユーザーがそれを編集せずにexitすると@code{read-file-name}は補完を試み、@var{default}はリターンされない。@var{default}はヒストリーコマンドからも利用できる。
+
+@var{default}が@code{nil}の場合、@code{read-file-name}はその場所に代用するデフォルトを探そうと試みる。この代用デフォルトは、明示的に@var{default}にそれが指定されたかのように、@var{default}とまったく同じ方法で扱われる。@var{default}が@code{nil}でも@var{initial}が非@code{nil}の場合、デフォルトは@var{directory}と@var{initial}から得られる絶対ファイル名になる。@var{default}と@var{initial}の両方が@code{nil}で、そのバッファーがファイルをvisitしているバッファーの場合、@code{read-file-name}はそのファイルの絶対ファイル名をデフォルトとして使用する。バッファーがファイルをvisitしていなければ、デフォルトは存在しない。この場合、ユーザーが編集せずに@key{RET}をタイプすると、@code{read-file-name}は前にミニバッファーに挿入されたコンテンツを単にリターンする。
+
+空のミニバッファー内でユーザーが@key{RET}をタイプした場合、この関数は@var{require-match}の値に関わらず、空の文字列をリターンする。たとえばユーザーが@kbd{M-x
+set-visited-file-name}を使用して、カレントバッファーをファイルをvisitしていないことにするのに、この方法を使用している。
+
+@var{predicate}が非@code{nil}の場合、それは補完候補として許容できるファイル名を決定する、1引数の関数である。@var{predicate}が関数名にたいして非@code{nil}をリターンすれば、それはファイル名として許容できる値である。
+
+以下は@code{read-file-name}を使用した例である:
+
+@example
+@group
+(read-file-name "The file is ")
+
+;; @r{前の式を評価した後に、}
+;;   @r{ミニバッファーに以下が表示される。:}
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+The file is /gp/gnu/elisp/@point{}
+---------- Buffer: Minibuffer ----------
+@end group
+@end example
+
+@noindent
+@kbd{manual @key{TAB}}をタイプすると以下がリターンされる:
+
+@example
+@group
+---------- Buffer: Minibuffer ----------
+The file is /gp/gnu/elisp/manual.texi@point{}
+---------- Buffer: Minibuffer ----------
+@end group
+@end example
+
+@c Wordy to avoid overfull hbox in smallbook mode.
+@noindent
+ここでユーザーが@key{RET}をタイプすると、@code{read-file-name}は文字列@code{"/gp/gnu/elisp/manual.texi"}をファイル名としてリターンする。
+@end defun
+
+@defvar read-file-name-function
+非@code{nil}の場合は、@code{read-file-name}と同じ引数を受け取る関数である。@code{read-file-name}が呼び出されたとき、@code{read-file-name}は通常の処理を行なうかわりに、与えられた引数でこの関数を呼び出す。
+@end defvar
+
+@defopt read-file-name-completion-ignore-case
+この変数が非@code{nil}の場合、@code{read-file-name}は補完を行なう際に大文字小文字を無視する。
+@end defopt
+
+@defun read-directory-name prompt &optional directory default require-match initial
+この関数は@code{read-file-name}と似ているが、補完候補としてディレクトリーだけを許す。
+
+@var{default}が@code{nil}で@var{initial}が非@code{nil}の場合、@code{read-directory-name}は@var{directory}(@var{directory}が@code{nil}ならカレントバッファーのデフォルトディレクトリー)と@var{initial}を組み合わせて代替えのデフォルトを構築する。@var{default}と@var{initial}の両方が@code{nil}の場合、この関数は@var{directory}、@var{directory}も@code{nil}の場合はカレントバッファーのデフォルトディレクトリーを代替えのデフォルトとして使用する。
+@end defun
+
+@defopt insert-default-directory
+この変数は@code{read-file-name}により使用されるため、ファイル名を読み取るほとんどのコマンドにより、間接的に使用される。(これらのコマンドにはコマンドのインタラクティブフォームに@samp{f}や@samp{F}のコードレター(code
+letter))をふくむすべてのコマンドが含まれる。@ref{Interactive Codes,, Code Characters for
+interactive}を参照のこと。)この変数の値は、(もしあれば)デフォルトディレクトリー名をミニバッファー内に配して@code{read-file-name}を開始するかどうかを制御する。変数の値が@code{nil}の場合、@code{read-file-name}はミニバッファーに初期入力を何も配さない(ただし@var{initial}引数で初期入力を指定しない場合)。この場合、依然としてデフォルトディレクトリーが相対ファイル名の補完に使用されるが、表示はされない。
+
+この変数が@code{nil}でミニバッファーの初期コンテンツが空の場合、ユーザーはデフォルト値にアクセスするために次のヒストリー要素を明示的にフェッチする必要があるだろう。この変数が非@code{nil}ならミニバッファーの初期コンテンツは常に空以外となり、ミニバッファーで編集をおこなわず即座に@key{RET}をタイプすることにより、常にデフォルト値を要求できる(上記参照)。
+
+たとえば:
+
+@example
+@group
+;; @r{デフォルトディレクトリーとともにミニバッファーが開始。}
+(let ((insert-default-directory t))
+  (read-file-name "The file is "))
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+The file is ~lewis/manual/@point{}
+---------- Buffer: Minibuffer ----------
+@end group
+
+@group
+;; @r{ミニバッファーはプロンプトだけで空。}
+;;   @r{appears on its line.}
+(let ((insert-default-directory nil))
+  (read-file-name "The file is "))
+@end group
+
+@group
+---------- Buffer: Minibuffer ----------
+The file is @point{}
+---------- Buffer: Minibuffer ----------
+@end group
+@end example
+@end defopt
+
+@defun read-shell-command prompt &optional initial history &rest args
+この関数は、プロンプト@var{prompt}と優れた補完を提供して、ミニバッファーからのシェルコマンドを読み取る。これはコマンド名にたいして適切な候補を使用してコマンドの最初の単語を補完する。コマンドの残りの単語はファイル名として補完する。
+
+この関数はミニバッファー入力にたいするキーマップとして@code{minibuffer-local-shell-command-map}を使用する。@var{history}引数は使用するヒストリーリストを指定する。省略、または@code{nil}の場合のデフォルトは@code{shell-command-history}(@ref{Minibuffer
+History,
+shell-command-history}を参照)。オプション引数@var{initial}はミニバッファーの初期コンテンツを指定する(@ref{Initial
+Input}を参照)。もしあれば、残りの@var{args}は@code{read-from-minibuffer}内の@var{default}および@var{inherit-input-method}として使用される(@ref{Text
+from Minibuffer}を参照)。
+@end defun
+
+@defvar minibuffer-local-shell-command-map
+このキーマップは@code{read-shell-command}により、コマンドおよびシェルコマンドの一部となるファイル名の補完のために使用される。これは親キーマップとして@code{minibuffer-local-map}を使用し、@key{TAB}を@code{completion-at-point}にバインドする。
+@end defvar
+
+@node Completion Variables
+@subsection Completion Variables
+
+  補完のデフォルト動作を変更するために使用される変数がいくつかあります。
+
+@cindex completion styles
+@defopt completion-styles
+この変数の値は、補完を行うために使用される補完スタイル(シンボル)である。@dfn{補完スタイル(completion
+style)}とは、補完を生成するためのルールセットのこと。このリストにあるシンボルはそれぞれ、@code{completion-styles-alist}内に対応するエントリーをもたなければならない。
+@end defopt
+
+@defvar completion-styles-alist
+この変数には補完スタイルのリストが格納される。リスト内の各要素は以下の形式をもつ
+
+@example
+(@var{style} @var{try-completion} @var{all-completions} @var{doc})
+@end example
+
+@noindent
+ここで@var{style}は補完スタイルの名前(シンボル)であり、そのスタイルを参照するために変数@code{completion-styles}内で使用されるかもしれない。@var{try-completion}は補完を行なう関数で、@var{all-completions}補完をリストする関数、@var{doc}補完スタイルを説明する文字列である。
+
+関数@var{try-completion}および@var{all-completions}は@var{string}、@var{collection}、@var{predicate}、@var{point}の4つの引数をとる。引数@var{string}、@var{collection}、@var{predicate}の意味は@code{try-completion}(@ref{Basic
+Completion}を参照)のときと同様。引数@var{point}は@var{string}内のポイント位置。各関数は自身の処理を行った場合は非@code{nil}を、行わなかった場合(たとえば補完スタイルに一致するように@var{string}を行う方法がない場合)は@code{nil}をリターンする。
+
+ユーザーが@code{minibuffer-complete}(@ref{Completion
+Commands}を参照)のような補完コマンドを呼び出すと、Emacsは@code{completion-styles}に最初にリストされたスタイルを探して、そのスタイルの@var{try-completion}関数を呼び出す。この関数が@code{nil}をリターンした場合、Emacsは次にリストされた補完スタイルに移動してそのスタイルの@var{try-completion}関数を呼び出すといったように、@var{try-completion}関数の1つが補完の処理に成功して非@code{nil}値をリターンするまで順次これを行なう。同様の手順は@var{all-completions}関数を通じて、補完のリストにも行われる。
+
+利用できる補完スタイルについては@ref{Completion Styles,,, emacs, The GNU Emacs
+Manual}を参照のこと。
+@end defvar
+
+@defopt completion-category-overrides
+この変数は特別な補完スタイルと、特定の種類のテキスト補完時に使用するその他の補完動作を指定する。この変数の値は@code{(@var{category}
+.
+@var{alist})}という形式の要素をもつalistである。@var{category}は何が補完されるかを記述するシンボルで、現在のところカテゴリーに@code{buffer}、@code{file}、@code{unicode-name}が定義されているが、これに特化した補完関数(@ref{Programmed
+Completion}を参照)を通じて他のカテゴリーを定義できる。@var{alist}は、そのカテゴリーにたいして補完がどのように振る舞うべきかを記述する連想リスト。以下のalistのキーがサポートされる:
+
+@table @code
+@item styles
+値は補完スタイル(シンボル)のリスト。
+
+@item cycle
+値はそのカテゴリーにたいする@code{completion-cycle-threshold}(@ref{Completion Options,,,
+emacs, The GNU Emacs Manual}を参照)の値。
+@end table
+
+@noindent
+将来、さらにalistエントリーが定義されるかもしれない。
+@end defopt
+
+@defvar completion-extra-properties
+この変数はカレント補完コマンドの特別なプロパティの指定に使用される。この変数は補完に特化したコマンドによりletバインドされることを意図している。値はプロパティ/値ペアーのリスト。以下のプロパティがサポートされる:
+
+@table @code
+@item :annotation-function
+値は補完バッファー内に注釈(annotation)を加える関数。この関数は引数completionを1つ受け取り@code{nil}、または補完の隣に表示する文字列をリターンしなければならない。
+
+@item :exit-function
+値は補完を行った後に実行する関数。この関数は2つの引数@var{string}と@var{status}を受け取る。@var{string}は補完されたフィールドのテキストで、@var{status}は行われた操作の種類を示す。操作の種類は、テキストの補完が完了したなら@code{finished}、それ以上補完できないが補完が完了していなければ@code{sole}、有効な補完だがさらに補完できるときは@code{exact}となる。
+@end table
+@end defvar
+
+@node Programmed Completion
+@subsection Programmed Completion
+@cindex programmed completion
+
+  意図した利用可能な補完のすべてを含むalistまたはobarrayを前もって作成するのが不可能または不便なことがあります。このような場合は、与えられた文字列にたいする補完を計算する独自の関数を提供できます。これは@dfn{プログラム補完(programmed
+completion)}と呼ばれます。Emacsは数あるケースの中でも特に、ファイル名の補完(@ref{File Name
+Completion}を参照)でプログラム補完を使用しています。
+
+  この機能を使用するためには、関数を@code{completing-read}の@var{collection}引数に渡します。関数@code{completing-read}はその補完関数が@code{try-completion}、@code{all-completions}などの基本的な補完関数に渡されて、その関数がすべてを行えるよう取り計らいます。
+
+  補完関数は3つの引数を受け取ります:
+
+@itemize @bullet
+@item
+補完される文字列。
+
+@item
+利用可能なマッチをフィルターする述語関数。もしなければ@code{nil}。関数は利用可能なマッチにたいしてこの述語(predicate)を呼び出し、述語が@code{nil}をリターンした場合はそのマッチを無視する。
+
+@item
+実行する補完操作のタイプを指定するフラグ。以下の4つの値のうち1つを指定する:
+
+@table @code
+@item nil
+@code{try-completion}を指定する。関数は指定された文字が一意かつ完全一致の場合は、@code{t}をリターンする。マッチが複数の場合、すべてのマッチに共通する部分文字列をリターンする(文字列が補完候補の1つに完全一致するが、より長い他の候補にもマッチする場合、リターン値はその文字列)。マッチがなければ@code{nil}をリターンする。
+
+@item t
+@code{all-completions}を指定する。関数は指定された文字列の利用可能なすべての補完のリストをリターンする。
+
+@item lambda
+@code{test-completion}を指定する。関数は指定された文字列がいくつかの補完候補に完全一致する場合は@code{t}、それ以外は@code{nil}をリターンする。
+
+@item (boundaries . @var{suffix})
+@code{completion-boundaries}を指定する。関数は@code{(boundaries @var{start}
+.
+@var{end})}をリターンする。ここで@var{start}は指定された文字列内の境界の開始位置、@var{end}は@var{suffix}内の境界の終了位置。
+
+@item metadata
+カレント補完の状態に関する情報の要求を指定する。リターン値は@code{(metadata
+. @var{alist})}の形式をもち、@var{alist}は以下で説明する要素をもつ連想配列。
+@end table
+
+@noindent
+フラグに他の値が指定された場合、補完関数は@code{nil}をリターンする。
+@end itemize
+
+以下は@code{metadata}フラグ引数への応答として補完関数がリターンするかもしれない、metadataエントリーのリストです:
+
+@table @code
+@item category
+値は補完関数が補完を試みているテキストの種類を説明するシンボル。シンボルが@code{completion-category-overrides}内のキーの1つにマッチする場合、通常の補完動作はオーバーライドされる。@ref{Completion
+Variables}を参照のこと。
+
+@item annotation-function
+値は補完に@dfn{注釈(annotation)}を付ける関数。この関数は1つの引数@var{string}をとり、これは利用可能な補完である。リターン値は文字列で、@file{*Completions*}バッファー内の補完@var{string}の後に表示される。
+
+@item display-sort-function
+値は補完をソートする関数。関数は1つの引数をとる。これは補完文字列のリストで、ソートされた補完文字列リストがリターンされる。その入力のリストは破壊的に変更することが許される。
+
+@item cycle-sort-function
+値は@code{completion-cycle-threshold}が非@code{nil}で、ユーザーが補完候補を巡回するときに補完をソートする関数。引数のリストとリターン値は@code{display-sort-function}と同様。
+@end table
+
+@defun completion-table-dynamic function
+この関数はプログラム補完関数として動作する関数を記述する便利な方法である。引数@var{function}は1つの引数(文字列)をとる関数であり、その文字列の利用可能な補完のalistをリターンする。@code{completion-table-dynamic}は、@var{function}とプログラム補完関数のインターフェイス変換器と考えることができる。
+@end defun
+
+@defun completion-table-with-cache function &optional ignore-case
+これは前回の引数/結果ペアーを保存する@code{completion-table-dynamic}にたいするラッパーである。これは同じ引数にたいする複数回の検査に必要なのは、1回の@var{function}呼び出しだけであることを意味する。これは外部プロセス呼び出しなど、処理が低速のとき有用かもしれない。
+@end defun
+
+@node Completion in Buffers
+@subsection Completion in Ordinary Buffers
+@cindex inline completion
+
+@findex completion-at-point
+  補完は通常はミニバッファー内で行われますが、補完機能は通常のEmacsバッファー内のテキストにも使用できます。多くのメジャーモードで、コマンド@kbd{C-M-i}または@kbd{M-@key{TAB}}によりバッファー内補完が行われ、それらは@code{completion-at-point}にバインドされています。@ref{Symbol
+Completion,,, emacs, The GNU Emacs
+Manual}を参照してください。このコマンドはアブノーマルフック変数@code{completion-at-point-functions}を使用します:
+
+@defvar completion-at-point-functions
+このアブノーマルフックの値は関数のリストである。これらの関数はポイント位置のテキストの補完にたいする補完テーブルの計算に使用される。これはメジャーモードにより、モード特有な補完テーブル(@ref{Major
+Mode Conventions}を参照)の提供に使用できる。
+
+コマンド@code{completion-at-point}が実行されると、引数なしでリスト内の関数が1つずつ呼び出される。それぞれの関数は、ポイント位置のテキストにたいして補完テーブルを生成できない場合は@code{nil}をリターンする。生成できた場合は、以下の形式のリストをリターンする
+
+@example
+(@var{start} @var{end} @var{collection} . @var{props})
+@end example
+
+@noindent
+ここで@var{start}と@var{end}は補完する(ポイントを取り囲む)テキストの区切りである。@var{collection}はそのテキストを補完する補完テーブルであり、@code{try-completion}(@ref{Basic
+Completion}を参照)の2つ目の引数として渡すのに適した形式である。補完候補は@code{completion-styles}(@ref{Completion
+Variables}を参照)で定義された補完スタイルを通じ、この補完テーブルを通常の方法で使用して生成されるだろう。@var{props}は追加の情報のためのプロパティリストである。@code{completion-extra-properties}内のすべてのプロパティ(@ref{Completion
+Variables}を参照)と、以下の追加のプロパティが認識される:
+
+@table @code
+@item :predicate
+値は補完候補が満足する必要がある述語。
+
+@item :exclusive
+値が@code{no}の場合は、もし補完テーブルがポイント位置のテキストのマッチに失敗したなら、補完の失敗を報告するかわりに@code{completion-at-point}は@code{completion-at-point-functions}内の次の関数へ移動する。
+@end table
+
+@code{completion-at-point-functions}内の関数も関数をリターンするかもしれない。その場合は引数なしでリターンされた関数が呼び出され、その関数が補完処理の全責任を負う。この方法は推奨されない。これは@code{completion-at-point}を使用する古いコードの救済を意図したもののだからである。
+
+非@code{nil}値を最初にリターンした@code{completion-at-point-functions}内の関数が、@code{completion-at-point}により使用される。残りの関数は呼び出されない。これの例外は上述の@code{:exclusive}指定があるときである。
+@end defvar
+
+  以下の関数は、Emacsバッファー内の任意に拡張されたテキストにたいして便利な補完方法を提供します:
+
+@defun completion-in-region start end collection &optional predicate
+この関数は@var{collection}を使用して、カレントバッファー内の位置@var{start}と@var{end}の間のテキストを補完する。引数@var{collection}は@code{try-completion}(@ref{Basic
+Completion}を参照)のときと同じ意味をもつ。
+
+この関数は補完テキストを直接カレントバッファーに挿入する。@code{completing-read}(@ref{Minibuffer
+Completion}を参照)とは異なり、ミニバッファーをアクティブにしない。
+
+この関数が機能するためには、ポイントが@var{start}と@var{end}の間になければならない。
+@end defun
+
+
+@node Yes-or-No Queries
+@section Yes-or-No Queries
+@cindex asking the user questions
+@cindex querying the user
+@cindex yes-or-no questions
+
+  このセクションでは、ユーザーにyes-or-noの確認を求める関数を説明します。関数@code{y-or-n-p}は1文字での応答に使用できます。この関数は不注意による誤った答えが深刻な結果を招かない場合に有用です。@code{yes-or-no-p}は3文字から4文字の答えを要求するので、より重大な問に適しています。
+
+   3つの関数はどれも、マウスを使用して呼び出されたコマンド、より正確には@code{last-nonmenu-event}(@ref{Command
+Loop
+Info}を参照)が@code{nil}かリストの場合は、問いに答えるためにダイアログボックスまたはポップアップメニューを使用します。それ以外の場合はキーボード入力を使用します。呼び出しの周囲で@code{last-nonmenu-event}に適切な値をバインドすることにより、マウスまたはキーボードの使用を強制できます。
+
+  厳密に言うと、@code{yes-or-no-p}はミニバッファーを使用し、@code{y-or-n-p}は使用しませんが、これらのコマンドは一緒に説明したほうがよいでしょう。
+
+@defun y-or-n-p prompt
+この関数はユーザーに答えを尋ねて、ミニバッファーに入力を求める。ユーザーが@kbd{y}をタイプしたら@code{t}、@kbd{n}をタイプしたら@code{nil}をリターンする。この関数はyesの意味で@key{SPC}、noの意味で@key{DEL}も受け入れる。``quit''の意味として@kbd{C-g}と同様に@kbd{C-]}も受け入れる。これは問いがミニバッファーのような外見をもち、ミニバッファーを抜けるためにユーザーが@kbd{C-]}の使用を試みるかもしれないという理由による。応答は1文字であり、問いを終了させるための@key{RET}は必要ない。大文字と小文字は等価である。
+
+``答えを尋ねる''とはエコーエリアに@var{prompt}と、その後に文字列@w{@samp{(y or n)
+}}をプリントすることを意味する。期待される答え(@kbd{y}、@kbd{n}、@kbd{@key{SPC}}、@kbd{@key{DEL}}、もしくは質問を終了するその他のキー)以外が入力された場合、この関数は@samp{Please
+answer y or n.}と応答し、繰り返し答えの入力を要求する。
+
+この関数は答えの編集を許さないため、実際にミニバッファーは使用しない。実際に使用するのはミニバッファーと同じスクリーンスペースを使用するエコーエリア(@ref{The
+Echo Area}を参照)である。問いが答えられるまで、カーソルはエコーエリアに移動する。
+
+答えとその意味は、たとえ@samp{y}と@samp{n}であっても固定されたものではなく、キーマップ@code{query-replace-map}により指定される(@ref{Search
+and
+Replace}を参照)。特にユーザーが@code{recenter}、@code{scroll-up}、@code{scroll-down}、@code{scroll-other-window}、@code{scroll-other-window-down}(それぞれ@code{query-replace-map}内で@kbd{C-l}、@kbd{C-v}、@kbd{M-v}、@kbd{C-M-v}、@kbd{C-M-S-v}にバインドされている)のような特殊な応答をエンターした場合、この関数はは指定されたウィンドウの再センタリングやスクロール操作を処理してから再度答えを求める。
+
+@noindent
+例ではエコーエリアのメッセージを連続する行で示しているが、スクリーン上に実際に表示されるのは1回に1行だけである。
+@end defun
+
+@defun y-or-n-p-with-timeout prompt seconds default
+@code{y-or-n-p}と同様だが、ユーザーが@var{seconds}秒以内に答えないと、この関数は待つのをやめて@var{default}をリターンする。これはタイマーをセットアップすることにより機能する。引数@var{seconds}は数字である。
+@end defun
+
+@defun yes-or-no-p prompt
+この関数は質問して、ミニバッファーに答えの入力を求める。これはユーザーが@samp{yes}をエンターすると@code{t}を、@samp{no}をエンターすると@code{nil}をリターンする。ユーザーは応答を終えるために@key{RET}をタイプしなければならない。大文字と小文字は等価である。
+
+@code{yes-or-no-p}はエコーエリアに@var{prompt}とその後に@w{@samp{(yes or no)
+}}を表示することにより開始される。ユーザーは期待される応答の1つをタイプしなければならない。それ以外の答えだと、この関数は@samp{Please
+answer yes or no.}と応答して約2秒待った後に要求を繰り返す。
+
+@code{yes-or-no-p}は@code{y-or-n-p}より多くの作業をユーザーに要求し、より重大な決定に適している。
+
+以下は例である:
+
+@smallexample
+@group
+(yes-or-no-p "Do you really want to remove everything? ")
+
+;; @r{前の式を評価した後、}
+;;   @r{空のミニバッファーに}
+;;   @r{以下のプロンプトが表示される:}
+@end group
+
+@group
+---------- Buffer: minibuffer ----------
+Do you really want to remove everything? (yes or no)
+---------- Buffer: minibuffer ----------
+@end group
+@end smallexample
+
+@noindent
+ユーザーが最初に@kbd{y
+@key{RET}}とタイプした場合、これは無効である。なぜならこの関数は@samp{yes}という単語全体を要求しているので、以下のプロンプトを説明のために一時停止して表示する。
+
+@smallexample
+@group
+---------- Buffer: minibuffer ----------
+Please answer yes or no.
+Do you really want to remove everything? (yes or no)
+---------- Buffer: minibuffer ----------
+@end group
+@end smallexample
+@end defun
+
+@node Multiple Queries
+@section Asking Multiple Y-or-N Questions
+@cindex multiple yes-or-no questions
+
+  同じような連続する質問と答えがある場合、たとえば各バッファーにたいして順に``Do you want to save this
+buffer''と確認を求めるような場合は、個別に質問するより@code{map-y-or-n-p}を使用して質問のコレクションを尋ねるべきです。これはユーザーにたいして、質問全体にたいして1回で答えられるような便利な機能を提供します。
+
+@defun map-y-or-n-p prompter actor list &optional help action-alist no-cursor-in-echo-area
+この関数はユーザーに一連の質問をし、それぞれの質問にたいしてエコーエリア内の1文字の答えを読み取る。
+
+値@var{list}は質問をするオブジェクトを指定する。これはリスト、オブジェクト、または生成関数(generator
+function)のいずれかである。関数の場合は引数なしで、次に質問するオブジェクト、または質問の中止を意味する@code{nil}のいずれかをリターンする。
+
+引数@var{prompter}は各質問について問い合わせ方法を指定する。@var{prompter}が文字列の場合、質問テキストは以下のようになる:
+
+@example
+(format @var{prompter} @var{object})
+@end example
+
+@noindent
+ここで@var{object}は、(@var{list}から得られる)質問する次のオブジェクトである。
+
+文字列でない場合、@var{prompter}は1つの引数(質問する次のオブジェクト)をとる関数で、質問テキストをリターンする。値が文字列の場合は、ユーザー問うための質問。関数は@code{t}(ユーザーに尋ねずこのオブジェクトを処理する)、または@code{nil}(ユーザーに尋ねずこのオブジェクトを無視する)をリターンすることもできる。
+
+引数@var{actor}は、ユーザーが与えた答えにたいし、どのように処理するかを指定する。これは引数が1つの関数で、ユーザーがyesと答えたオブジェクトを引数に呼び出される。引数は常に@var{list}から取得したオブジェクトである。
+
+引数@var{help}が与えられた場合は、以下の形式のリストである:
+
+@example
+(@var{singular} @var{plural} @var{action})
+@end example
+
+@noindent
+@var{singular}はそのオブジェクトが概念的に何に作用するかを説明する単数形の名詞を含む文字列、@var{plural}はそれに対応する複数形の名詞、@var{action}は@var{actor}が何を行うかを説明する他動詞である。
+
+@var{help}を指定しない場合のデフォルトは、@code{("object" "objects" "act on")}。
+
+質問のたびに、ユーザーはそのオブジェクトを処理するには@kbd{y}、@kbd{Y}または@key{SPC}を、そのオブジェクトをスキップするには@kbd{n}、@kbd{N}、または@key{DEL}を、以降のすべてのオブジェクトを処理するには@kbd{!}を、exit(以降のすべてのオブジェクトをスキップ)するには@key{ESC}か@kbd{q}を、カレントオブジェクトを処理した後にexitするには@kbd{.}(ピリオド)を、ヘルプを入手するには@kbd{C-h}をエンターする。これらは@code{query-replace}が受け入れるのと同じ答えである。キーマップ@code{query-replace-map}は@code{map-y-or-n-p}にたいするそれらの意味を定義し、@code{query-replace}にたいしても同様に定義する。@ref{Search
+and Replace}を参照のこと。
+
+@var{action-alist}を使用して、利用できる追加の答えとそれらが何を意味するかを指定できる。これは要素が@code{(@var{char}
+@var{function}
+@var{help})}という形式のalistで、それぞれの要素が追加の答えを1つ定義する。要素の内容は@var{char}が文字(答え)、@var{function}が引数が1つ(@var{list}から取得するオブジェクト)の関数、@var{help}が文字列である。
+
+ユーザーの応答が@var{char}の場合、@code{map-y-or-n-p}は@var{function}を呼び出す。これが非@code{nil}をリターンした場合には、そのオブジェクトが``処理された''と判断して、@code{map-y-or-n-p}は@var{list}内の次のオブジェクトに進む。@code{nil}をリターンした場合は、同じオブジェクトにたいして質問を繰り返す。
+
+確認を求める間は通常、@code{map-y-or-n-p}は@code{cursor-in-echo-area}をバインドする。しかし@var{no-cursor-in-echo-area}が非@code{nil}の場合はバインドしない。
+
+マウスを使用して呼び出されたコマンドから@code{map-y-or-n-p}が呼び出された場合(より正確には@code{last-nonmenu-event}は非@code{nil}かリストの場合。@ref{Command
+Loop
+Info}を参照)は、確認を求めるためにダイアログボックスかポップアップメニューが使用される。この場合、キーボード入力やエコーエリアは使用されない。呼び出しの前後で@code{last-nonmenu-event}を適切な値にバインドして、入力マウスあるいはキーボードの入力を強制できる。
+
+@code{map-y-or-n-p}のリターン値は、処理したオブジェクトの数である。
+@end defun
+@c FIXME  An example of this would be more useful than all the
+@c preceding examples of simple things.
+
+@node Reading a Password
+@section Reading a Password
+@cindex passwords, reading
+
+  他のプログラムに渡すためのパスワードを読み取るために、関数@code{read-passwd}を使用できます。
+
+@defun read-passwd prompt &optional confirm default
+この関数はプロンプト@var{prompt}を表示してパスワードを読み取る。これはユーザーがタイプしたパスワードのかわりに、パスワード内の各文字を@samp{.}にかえてエコーする(バッチモードでは入力は隠されないことに注意)。)
+
+オプション引数@var{confirm}が非@code{nil}の場合にはパスワードを2回読み取ることで、それらが同じものであることを強制する。同じでない場合は、2回の入力が同じになるまで、ユーザーはパスワードを繰り返しタイプする必要がある。
+
+オプション引数@var{default}は、ユーザーが空入力をエンターした場合のデフォルトパスワードである。@var{default}が@code{nil}の場合、@code{read-passwd}はnull文字列をリターンする。
+@end defun
+
+@node Minibuffer Commands
+@section Minibuffer Commands
+
+  このセクションではミニバッファー内で使用するコマンドを説明します。
+
+@deffn Command exit-minibuffer
+このコマンドはアクティブなミニバッファーをexitする。これは通常、ミニバッファー内のローカルキーマップのキーにバインドされる。
+@end deffn
+
+@deffn Command self-insert-and-exit
+このコマンドはキーボードでタイプされた最後の文字を挿入した後にアクティブなミニバッファーをexitする。@ref{Command Loop
+Info})を参照のこと。
+@end deffn
+
+@deffn Command previous-history-element n
+このコマンドは、@var{n}個前(古い)のヒストリー要素の値でミニバッファー内のコンテンツを置換する。
+@end deffn
+
+@deffn Command next-history-element n
+このコマンドは、@var{n}個先(新しい)のヒストリー要素の値でミニバッファー内のコンテンツを置換する。
+@end deffn
+
+@deffn Command previous-matching-history-element pattern n
+このコマンドは@var{pattern}(正規表現)にマッチする@var{n}個前(古い)のヒストリー要素でミニバッファー内のコンテンツを置換する。
+@end deffn
+
+@deffn Command next-matching-history-element pattern n
+このコマンドは@var{pattern}(正規表現)にマッチする@var{n}個先(新しい)のヒストリー要素でミニバッファー内のコンテンツを置換する。
+@end deffn
+
+@deffn Command previous-complete-history-element n
+このコマンドはミニバッファー内のポイントの前のカレントコンテンツを、@var{n}個前(古い)ヒストリー要素の値で置換する。
+@end deffn
+
+@deffn Command next-complete-history-element n
+このコマンドはミニバッファー内のポイントの前のカレントコンテンツを、@var{n}個先(新しい)ヒストリー要素の値で置換する。
+@end deffn
+
+
+@node Minibuffer Windows
+@section Minibuffer Windows
+@cindex minibuffer windows
+
+  以下の関数はミニバッファーウィンドウをアクセスにして選択して、それがアクティブかどうかテストします。
+
+@defun active-minibuffer-window
+この関数はカレントでアクティブなミニバッファーウィンドウ、アクティブなウィンドウがない場合は@code{nil}をリターンする。
+@end defun
+
+@defun minibuffer-window &optional frame
+@anchor{Definition of minibuffer-window}
+この関数はフレーム@var{frame}にたいして使用されるミニバッファーウィンドウをリターンする。@var{frame}が@code{nil}の場合はカレントフレームを意味する。フレームに使用されるミニバッファーウィンドウは、そのフレームの一部である必要はないことに注意。自身のミニバッファーをもたないフレームは、必然的に他のフレームのミニバッファーウィンドウを使用する。
+@end defun
+
+@defun set-minibuffer-window window
+この関数はミニバッファーウィンドウとして@var{window}を使用するよう指定する。
+This function specifies as the minibuffer window to use.
+これは通常のミニバッファーコマンドを呼び出さずにミニバッファーにテキストを入力する場合、そのミニバッファーがどこに表示されるかに影響を及ぼす。通常のミニバッファー入力関数はすべてカレントフレームに対応するミニバッファーを選択して開始されるので、影響はない。
+@end defun
+
+@c Emacs 19 feature
+@defun window-minibuffer-p &optional window
+この関数は@var{window}がミニバッファーウィンドウなら@code{nil}をリターンする。@var{window}のデフォルトは選択されたウィンドウである。
+@end defun
+
+@code{(minibuffer-window)}の結果を比較して、与えられたウィンドウがミニバッファーかどうか判断するのは正しくない。なぜなら複数のフレームがある場合、ミニバッファーウィンドウも複数あり得るからである。
+
+@defun minibuffer-window-active-p window
+この関数は@var{window}がカレントでアクティブなミニバッファーウィンドウの場合は、非@code{nil}をリターンする。
+@end defun
+
+@node Minibuffer Contents
+@section Minibuffer Contents
+@cindex access minibuffer contents
+@cindex minibuffer contents, accessing
+
+  以下の関数はミニバッファーのプロンプトとコンテンツにアクセスします。
+
+@defun minibuffer-prompt
+この関数はカレントでアクティブなミニバッファーのプロンプト文字列をリターンする。アクティブなミニバッファーがない場合は、@code{nil}をリターンする。
+@end defun
+
+@defun minibuffer-prompt-end
+この関数は、ミニバッファーがカレントの場合はミニバッファープロンプトの終端のカレント位置をリターンする。それ以外はバッファーの有効な最小位置をリターンする。
+@end defun
+
+@defun minibuffer-prompt-width
+この関数はミニバッファーがカレントの場合は、ミニバッファープロンプトのカレントの表示幅をリターンする。それ以外は0をリターンする。
+@end defun
+
+@defun minibuffer-contents
+この関数はミニバッファーがカレントの場合は、ミニバッファーの編集可能なコンテンツ(つまりプロンプト以外のすべて)を文字列でリターンする。それ以外は、カレントバッファーのコンテンツ全体をリターンする。
+@end defun
+
+@defun minibuffer-contents-no-properties
+これは@code{minibuffer-contents}と同様だが、テキストプロパティをコピーせず文字だけをリターンする。@ref{Text
+Properties}を参照のこと。
+@end defun
+
+@defun delete-minibuffer-contents
+この関数はミニバッファーがカレントの場合は、ミニバッファーの編集可能なコンテンツ(つまりプロンプト以外のすべて)を削除する。それ以外は、カレントバッファー全体を削除する。
+@end defun
+
+@node Recursive Mini
+@section Recursive Minibuffers
+@cindex recursive minibuffers
+
+  以下の関数および変数は再帰ミニバッファーを処理します(@ref{Recursive Editing}を参照):
+
+@defun minibuffer-depth
+この関数はアクティブなミニバッファーのカレント深さを正の整数でリターンする。アクティブなミニバッファーが存在しない場合は0をリターンする。
+@end defun
+
+@defopt enable-recursive-minibuffers
+この変数が非@code{nil}の場合は、ミニバッファーウィンドウがアクティブでも、(@code{find-file}のような)ミニバッファーを使用するコマンドを呼び出すことができる。このような呼び出しは、新たなミニバッファーにたいして再帰編集レベル(recursive
+editing level)を生成する。内側レベルの編集の間、外側レベルのミニバッファーは非表示になる。
+
+この変数が@code{nil}の場合、ミニバッファーウィンドウがアクティブなときは、たとえ他のウィンドウに切り替えても、ミニバッファーコマンドの呼び出しはできない。
+@end defopt
+
+@c Emacs 19 feature
+コマンド名が非@code{nil}のプロパティ@code{enable-recursive-minibuffers}をもつ場合は、たとえミニバッファーから呼び出された場合でも、そのコマンドは引数の読み取りにミニバッファーを使用できる。コマンドのinteractive宣言内で@code{enable-recursive-minibuffers}を@code{t}にしても、これを行うことができる(@ref{Using
+Interactive}を参照)。ミニバッファーコマンド@code{next-matching-history-element}(ミニバッファー内では通常@kbd{M-s})は後者を行う。
+
+@node Minibuffer Misc
+@section Minibuffer Miscellany
+
+@defun minibufferp &optional buffer-or-name
+この関数は@var{buffer-or-name}がミニバッファーの場合は非@code{nil}をリターンする。@var{buffer-or-name}が省略された場合はカレントバッファーをテストする。
+@end defun
+
+@defvar minibuffer-setup-hook
+これはミニバッファーがエンターされたときは常に実行されるノーマルフックである。@ref{Hooks}を参照のこと。
+@end defvar
+
+@defvar minibuffer-exit-hook
+これはミニバッファーがexitされたときは常に実行されるノーマルフックである。
+@end defvar
+
+@defvar minibuffer-help-form
+@anchor{Definition of minibuffer-help-form}
+この変数のカレント値はミニバッファー内で@code{help-form}をローカルにリバインドするために使用される(@ref{Help
+Functions}を参照)。
+@end defvar
+
+@defvar minibuffer-scroll-window
+@anchor{Definition of minibuffer-scroll-window}
+この変数の値が非@code{nil}の場合、それはウィンドウオブジェクトである。ミニバッファー内で関数@code{scroll-other-window}が呼び出されたときは、このウィンドウをスクロールする。
+@end defvar
+
+@defun minibuffer-selected-window
+この関数はミニバッファーがエンターされたときに選択されていたウィンドウをリターンする。選択されたウィンドウがミニバッファー以外のときは、@code{nil}をリターンする。
+@end defun
+
+@defopt max-mini-window-height
+この変数はミニバッファーウィンドウのリサイズにたいする最大高さを指定する。浮動小数点数の場合は、フレーム高さにたいする割り合いを指定する。整数の場合は行数を指定する。
+@end defopt
+
+@vindex minibuffer-message-timeout
+@defun minibuffer-message string &rest args
+この関数は数秒、あるいは次の入力イベントが到着するまで、ミニバッファーテキストの最後に一時的に@var{string}を表示する。変数@code{minibuffer-message-timeout}は入力がない場合に待機する秒数を指定する(デフォルトは2)。@var{args}が非@code{nil}の場合、実際のメッセージは@code{format}に@var{string}と@var{args}を渡して作成される。@xref{Formatting
+Strings}を参照のこと。
+@end defun
+
+@deffn Command minibuffer-inactive-mode
+これはインタラクティブなミニバッファー内で使用されるメジャーモードである。キーマップ@code{minibuffer-inactive-mode-map}を使用する。ミニバッファーが別のフレームにある場合は有用かもしれない。@ref{Minibuffers
+and Frames}を参照のこと。
+@end deffn

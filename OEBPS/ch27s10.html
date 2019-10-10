@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Killing Buffers</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Killing-Buffers"/>Killing Buffers</h1></div></div></div><a id="idm65289808" class="indexterm"/><a id="idm65289040" class="indexterm"/><p><em class="firstterm">バッファーのkill</em>により、
+そのバッファーの名前はEmacsにとって未知の名前となり、そのバッファーが占めていたメモリースペースは、他の用途に使用できるようになります。
+</p><p>バッファーに対応するバッファーオブジェクトは、それを参照するものがあればkillされても存在し続けますが、それをカレントにしたり表示することができないよう、特別にマークされます。とはいえ、killされたバッファーの同一性は保たれるので、2つの識別可能なバッファーをkillした場合、たとえ両方死んだバッファーであっても、<code class="literal">eq</code>による同一性は残ります。
+</p><p>あるウィンドウ内においてカレント、あるいは表示されているバッファーをkillした場合、Emacsはかわりに他の何らかのバッファーを自動的に選択、または表示します。これは、バッファーのkillにより、カレントバッファーが変更されることを意味します。したがって、バッファーをkillする際は、(killされるバッファーがカレントを偶然知っていた場合を除き)カレントバッファーの変更に関しても、事前に注意を払うべきです。<a class="link" href="ch27s02.html" title="The Current Buffer">Current
+Buffer</a>を参照してください。
+</p><p>1つ以上のインダイレクト
+バッファー(<a class="link" href="ch27s11.html" title="Indirect Buffers">Indirect Buffers</a>を参照)
+のベースとなるバッファーをkillした場合は、インダイレクトバッファーも同様に自動的にkillされます。
+</p><a id="idm65284944" class="indexterm"/><p>バッファーの<code class="literal">buffer-name</code>が<code class="literal">nil</code>の場合のみ、バッファーはkillされる。killされていないバッファーは<em class="firstterm">生きた(live)</em>バッファーと呼ばれる。あるバッファーにたいして、そのバッファーが生きているか、またはkillされているかを確認するには、<code class="literal">buffer-live-p</code>を使用する(下記参照)。
+</p><pre class="synopsis"><a id="idm65281616" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">kill-buffer</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>buffer-or-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、バッファー<em class="replaceable"><code>buffer-or-name</code></em>をkillして、そのバッファーのメモリーを他の用途のために開放、またはオペレーティングシステムに返却する。<em class="replaceable"><code>buffer-or-name</code></em>が<code class="literal">nil</code>、または省略された場合は、カレントバッファーをkillする。
+</p><p>そのバッファーを<code class="literal">process-buffer</code>として所有するすべてのプロセスには、通常はプロセスを終了させるシグナル<code class="literal">SIGHUP</code>(“hangup”)が送信される。<a class="link" href="ch37s08.html" title="Sending Signals to Processes">Signals
+to Processes</a>を参照のこと。
+</p><p>バッファーがファイルをvisitしていて、かつ保存されていない変更が含まれる場合、<code class="literal">kill-buffer</code>はバッファーをkillする前に、ユーザーにたいして確認を求める。これは、<code class="literal">kill-buffer</code>がinteractiveに呼び出されていなくても、行われる。この確認要求を抑制するには、<code class="literal">kill-buffer</code>の呼び出し前に、変更フラグ(modified
+flag)をクリアーすればよい。<a class="link" href="ch27s05.html" title="Buffer Modification">Buffer Modification</a>を参照のこと。
+</p><p>killされるバッファーをカレントで表示しているすべてのバッファーをクリーンアップするために、この関数は<code class="literal">replace-buffer-in-windows</code>を呼び出す。
+</p><p>すでに死んでいるバッファーをkillしても、効果はない。
+</p><p>この関数は、実際にバッファーをkillした場合は、<code class="literal">t</code>をリターンする。ユーザーが確認で拒否を選択、または<em class="replaceable"><code>buffer-or-name</code></em>がすでに死んでいる場合は、<code class="literal">nil</code>をリターンする。
+</p><pre class="screen">(kill-buffer "foo.unchanged")
+     ⇒ t
+(kill-buffer "foo.changed")
+
+---------- Buffer: Minibuffer ----------
+Buffer foo.changed modified; kill anyway? (yes or no) <strong class="userinput"><code>yes</code></strong>
+---------- Buffer: Minibuffer ----------
+
+     ⇒ t
+</pre></blockquote></div><pre class="synopsis"><a id="idm65268176" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">kill-buffer-query-functions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>保存されていない変更について確認を求める前に、<code class="literal">kill-buffer</code>はリスト<code class="literal">kill-buffer-query-functions</code>内の関数を、出現順に引数なしで呼び出す。
+Before confirming unsaved changes,  calls the functions in the list , in
+order of appearance, with no arguments.
+それらが呼び出される際には、killされるバッファーがカレントになる。この機能は、これらの関数がユーザーに確認を求めるというアイデアが元となっている。これらの関数のいずれかが<code class="literal">nil</code>をリターンした場合、<code class="literal">kill-buffer</code>はそのバッファーの命を奪わない。
+</p></blockquote></div><pre class="synopsis"><a id="idm65263440" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">kill-buffer-hook</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、尋ねることになっている質問をすべて終えた後、実際にバッファーをkillする直前に、<code class="literal">kill-buffer</code>により実行されるノーマルフックである。この変数は永続的にローカルであり、メジャーモードの変更により、そのローカルバインディングはクリアーされない。
+</p></blockquote></div><pre class="synopsis"><a id="idm65260112" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">buffer-offer-save</code></pre><div class="blockquote"><blockquote class="blockquote"><p>特定のバッファーにおいてこの変数が非<code class="literal">nil</code>の場合、<code class="literal">save-buffers-kill-emacs</code>および<code class="literal">save-some-buffers</code>(この関数の2つ目のオプション引数が<code class="literal">t</code>の場合)は、ファイルをvisitしているバッファーと同じように、そのバッファーの保存を提案する。<a class="link" href="ch25s02.html#Definition-of-save_002dsome_002dbuffers">Definition
+of
+save-some-buffers</a>を参照のこと。何らかの理由により変数<code class="literal">buffer-offer-save</code>をセットする際は、自動的にバッファーローカルになる。<a class="link" href="ch12s10.html" title="Buffer-Local Variables">Buffer-Local
+Variables</a>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm65253840" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">buffer-save-without-query</code></pre><div class="blockquote"><blockquote class="blockquote"><p>特定のバッファーにおいてこの変数が非<code class="literal">nil</code>の場合、<code class="literal">save-buffers-kill-emacs</code>および<code class="literal">save-some-buffers</code>は、(バッファーが変更されていれば)ユーザーに確認を求めることなく、そのバッファーを保存する。何らかの理由によりこの変数をセットする際は、自動的にバッファーローカルになる。
+</p></blockquote></div><pre class="synopsis"><a id="idm65249616" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">buffer-live-p</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>が生きたバッファー(killされていないバッファー)なら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div></div></body></html>

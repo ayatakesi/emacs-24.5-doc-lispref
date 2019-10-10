@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Input Streams</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Input-Streams"/>Input Streams</h1></div></div></div><a id="idm58591568" class="indexterm"/><a id="idm58590800" class="indexterm"/><p>テキストを読み取るLisp関数の大部分は、引数として<em class="firstterm">入力ストリーム(input
+stream)</em>をとります。入力ストリームは、読み取られるテキストの文字をどこから、どのように取得するかを指定します。以下は可能な入力ストリーム型です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>buffer</code></em>
+</span></dt><dd><a id="idm58588368" class="indexterm"/><p>入力文字は<em class="replaceable"><code>buffer</code></em>のポイントの後の文字から直接読み取られる。文字の読み取りとともに、ポイントが進む。
+</p></dd><dt><span class="term"><em class="replaceable"><code>marker</code></em>
+</span></dt><dd><a id="idm58585936" class="indexterm"/><p>入力文字は<em class="replaceable"><code>marker</code></em>のあるバッファーの、マーカーの後の文字から直接読み取られる。文字の読み取りとともに、マーカーが進む。ストリームがマーカーのときは、バッファー内のポイント値に影響はない。
+</p></dd><dt><span class="term"><em class="replaceable"><code>string</code></em>
+</span></dt><dd><a id="idm58583632" class="indexterm"/><p>入力文字は<em class="replaceable"><code>string</code></em>の最初の文字から必要な文字数分が取得される。
+</p></dd><dt><span class="term"><em class="replaceable"><code>function</code></em>
+</span></dt><dd><a id="idm58577232" class="indexterm"/><p>入力文字は<em class="replaceable"><code>function</code></em>から生成され、その関数は2種類の呼び出しをサポートしなければならない:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>引数なしで呼び出されたときは、次の文字をリターンする。
+</p></li><li class="listitem"><p>1つの引数(常に文字)で呼び出されたとき、<em class="replaceable"><code>function</code></em>は引数を保存して、次の呼び出しでリターンするよう用意する。これは文字の<em class="firstterm">読み戻し(unreading)</em>と呼ばれ、Lispリーダーが1文字多く読みとったとき、それを“読みとったところに戻したい”ときに発生する。この場合には、<em class="replaceable"><code>function</code></em>のリターン値と同じこと。
+</p></li></ul></div></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><a id="idm58572368" class="indexterm"/><p><code class="literal">t</code>は、その入力がミニバッファーから読み取られるストリームであることを意味する。実際にはミニバッファーが1回呼び出されて、ユーザーから与えられたテキストが、その後に入力ストリームとして使用される文字列となる。Emacsがbatchモードで実行されている場合は、ミニバッファーのかわりに標準入力が使用される。たとえば、
+</p><pre class="screen">(message "%s" (read t))
+</pre><p>このような場合は標準入力からLisp式が読み取られて、結果は標準出力にプリントされるだろう。
+</p></dd><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><a id="idm58568912" class="indexterm"/><p>入力ストリームとして<code class="literal">nil</code>が与えられた場合は、かわりに<code class="literal">standard-input</code>の値が使用されることを意味する。この値は<em class="firstterm">デフォルトの入力ストリーム(default
+input stream)</em>であり、非<code class="literal">nil</code>の入力ストリームでなければならない。
+</p></dd><dt><span class="term"><em class="replaceable"><code>symbol</code></em>
+</span></dt><dd><p>入力ストリームとしてのシンボルは、(もしあれば)そのシンボルの関数定義と等価である。
+</p></dd></dl></div><p>以下の例では、バッファーストリームから読み込み、読み取りの前後におけるポイント位置を示しています:
+</p><pre class="screen">---------- Buffer: foo ----------
+This★ is the contents of foo.
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(read (get-buffer "foo"))
+     ⇒ is
+</pre><pre class="screen">(read (get-buffer "foo"))
+     ⇒ the
+</pre><pre class="screen">
+</pre><pre class="screen">---------- Buffer: foo ----------
+This is the★ contents of foo.
+---------- Buffer: foo ----------
+</pre><p>最初の読み取りではスペースがスキップされていることに注意してください。読み取りにおいては、意味のあるテキストに先行する、任意のサイズの空白文字がスキップされます。
+</p><p>以下は、マーカーストリームからの読み取りの例で、最初は表示されているバッファーの先頭にマーカーが配します。読み取られた値はシンボル<code class="literal">This</code>です。
+</p><pre class="screen">
+---------- Buffer: foo ----------
+This is the contents of foo.
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(setq m (set-marker (make-marker) 1 (get-buffer "foo")))
+     ⇒ #&lt;marker at 1 in foo&gt;
+</pre><pre class="screen">(read m)
+     ⇒ This
+</pre><pre class="screen">m
+     ⇒ #&lt;marker at 5 in foo&gt;   ;; 最初のスペースの前。
+</pre><p>以下では、文字列のコンテンツから読み取っています:
+</p><pre class="screen">(read "(When in) the course")
+     ⇒ (When in)
+</pre><p>以下はミニバッファーから読み取る例です。プロンプトは、‘<code class="literal">Lisp expression:
+</code>’です。(このプロンプトはストリーム<code class="literal">t</code>から読み取る際は常に使用されます。) ユーザーの入力はプロンプトの後に表示されます。
+</p><pre class="screen">(read t)
+     ⇒ 23
+---------- Buffer: Minibuffer ----------
+Lisp expression: <strong class="userinput"><code>23 <span class="keycap"><strong>RET</strong></span></code></strong>
+---------- Buffer: Minibuffer ----------
+</pre><p>最後は、<code class="literal">useless-stream</code>という名前の関数ストリームから読み取る例です。ストリームを使用する前に、変数<code class="literal">useless-list</code>を文字のリストに初期化しています。その後は、リスト内の次の文字を取得するため、または文字をリストの先頭に追加することにより読み戻すために、関数<code class="literal">useless-stream</code>を呼び出します。
+</p><pre class="screen">(setq useless-list (append "XY()" nil))
+     ⇒ (88 89 40 41)
+</pre><pre class="screen">
+</pre><pre class="screen">(defun useless-stream (&amp;optional unread)
+  (if unread
+      (setq useless-list (cons unread useless-list))
+    (prog1 (car useless-list)
+           (setq useless-list (cdr useless-list)))))
+     ⇒ useless-stream
+</pre><p>このストリームを使って、以下のように読み取ります:
+</p><pre class="screen">(read 'useless-stream)
+     ⇒ XY
+</pre><pre class="screen">
+</pre><pre class="screen">useless-list
+     ⇒ (40 41)
+</pre><p>開カッコと閉カッコがリスト内に残ることに注意してください。Lispリーダーは開カッコに出会うと、それを入力の終わりと判断して、読み戻します。次にこのポイント位置からこのストリームを読み取ると、‘<code class="literal">()</code>’が読み取られて<code class="literal">nil</code>がリターンされます。
+</p></div></body></html>

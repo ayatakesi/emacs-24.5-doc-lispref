@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Creating an Asynchronous Process</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Asynchronous-Processes"/>Creating an Asynchronous Process</h1></div></div></div><a id="idm79379920" class="indexterm"/><p>このセクションでは、<em class="firstterm">非同期プロセス(asynchronous
+process)</em>を作成する方法について説明します。非同期プロセスは作成後、Emacsと並列して実行され、Emacsは以降のセクション(<a class="link" href="ch37s07.html" title="Sending Input to Processes">Input
+to Processes</a>および<a class="link" href="ch37s09.html" title="Receiving Output from Processes">Output from
+Processes</a>を参照)で説明する関数を使用してプロセスとコミュニケーションができます。プロセスコミュニケーションは、部分的に非同期なだけであることに注意してください。Emacsは特定の関数を呼び出したときだけプロセスにデータを送信でき、Emacsは入力の待機中または一定の遅延時間の後にのみ、プロセスのデータを受け取ることができます。
+</p><a id="idm79365072" class="indexterm"/><a id="idm79364304" class="indexterm"/><p>非同期プロセスは<em class="firstterm">pty(pseudo-terminal:
+疑似端末)</em>、または<em class="firstterm">pipe</em>の、いずれかを通じて制御されます。ptyかpipeの選択は、変数<code class="literal">process-connection-type</code>(以下参照)の値にもとづき、プロセス作成時に行われます。ptyは通常、Shellモード内のようにユーザーから可視なプロセスに適しています。それはpipeでは不可能な、そのプロセスおよびその子プロセスとの間でジョブ制御(<strong class="userinput"><code>C-c</code></strong>、<strong class="userinput"><code>C-z</code></strong>、...等)が可能だからです。プログラムの内部的な目的のために使用されるサブプロセスにたいしては、pipeのほうが適している場合が多々あります。それはpipeがより効率的であり、ptyが大量の文字(500byte前後)にたいして導入する迷入文字インジェクション(stray
+character
+injections)にたいして免疫があるのが理由です。さらに多くのしすてむではptyの合計数に制限があり、それを浪費するのは得策ではありません。
+</p><pre class="synopsis"><a id="idm79356496" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">start-process</code> <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>buffer-or-name</code></em> <em class="replaceable"><code>program</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は新たな非同期サブプロセスを作成して、その中でプログラム<em class="replaceable"><code>program</code></em>の実行を開始する。これはLisp内で新たなサブプロセスを意味する、プロセスオブジェクトをリターンする。引数<em class="replaceable"><code>name</code></em>は、そのプロセスオブジェクトにたいして、名前を指定する。その名前のプロセスがすでに存在する場合、(‘<code class="literal">&lt;1&gt;</code>’を追加することにより)一意になるよう、<em class="replaceable"><code>name</code></em>を変更する。バッファー<em class="replaceable"><code>buffer-or-name</code></em>は、そのプロセスに関連付けられたバッファーである。
+</p><p><em class="replaceable"><code>program</code></em>が<code class="literal">nil</code>なら、Emacsは疑似端末(pty)を新たにオープンして、サブプロセスを新たに作成することなく、ptyの入力と出力を<em class="replaceable"><code>buffer-or-name</code></em>に関連付ける。この場合、残りの引数<em class="replaceable"><code>args</code></em>は無視される。
+</p><p>残りの引数<em class="replaceable"><code>args</code></em>は、サブプロセスにコマンドライン引数を指定する文字列である。
+</p><p>以下の例では、1つ目のプロセスが開始して、100秒間実行(というよりはsleep)される。その間に2つ目のプロセスが開始して、一意性を保つために‘<code class="literal">my-process&lt;1&gt;</code>’という名前が与えられる。これは1つ目のプロセスが終了する前に、バッファー‘<code class="literal">foo</code>’の最後にディレクトリーのリストを挿入する。その後、2つ目のプロセスは終了して、その旨のメッセージがバッファーに挿入される。さらに遅れて1つ目のプロセスが終了して、バッファーに別のメッセージが挿入される。
+</p><pre class="screen">(start-process "my-process" "foo" "sleep" "100")
+     ⇒ #&lt;process my-process&gt;
+</pre><pre class="screen">
+</pre><pre class="screen">(start-process "my-process" "foo" "ls" "-l" "/bin")
+     ⇒ #&lt;process my-process&lt;1&gt;&gt;
+
+---------- Buffer: foo ----------
+total 8336
+-rwxr-xr-x 1 root root 971384 Mar 30 10:14 bash
+-rwxr-xr-x 1 root root 146920 Jul  5  2011 bsd-csh
+…
+-rwxr-xr-x 1 root root 696880 Feb 28 15:55 zsh4
+
+Process my-process&lt;1&gt; finished
+
+Process my-process finished
+---------- Buffer: foo ----------
+</pre></blockquote></div><pre class="synopsis"><a id="idm79340112" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">start-file-process</code> <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>buffer-or-name</code></em> <em class="replaceable"><code>program</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">start-process</code>と同様、この関数は非同期サブプロセスを開始して、その内部で<em class="replaceable"><code>program</code></em>を実行して、そのプロセスオブジェクトをリターンする。
+</p><p><code class="literal">start-process</code>との違いは、この関数が<code class="literal">default-directory</code>の値にもとづいて、ファイルハンドラーを呼び出すかもしれないという点である。このハンドラーはローカルホスト上、あるいは<code class="literal">default-directory</code>に応じたリモートホスト上で、<em class="replaceable"><code>program</code></em>を実行するべきである。後者の場合、<code class="literal">default-directory</code>のローカル部分は、そのプロセスのワーキングディレクトリーになる。
+</p><p>この関数は<em class="replaceable"><code>program</code></em>、または<em class="replaceable"><code>program-args</code></em>にたいしてファイル名ハンドラーの呼び出しを試みない。
+</p><p>そのファイルハンドラーの実装によっては、リターン結果のプロセスオブジェクトに<code class="literal">process-filter</code>または<code class="literal">process-sentinel</code>を適用することができないかもしれない。<a class="link" href="ch37s09.html#Filter-Functions" title="Process Filter Functions">Filter
+Functions</a>および<a class="link" href="ch37s10.html" title="Sentinels: Detecting Process Status Changes">Sentinels</a>を参照されたい。
+</p><p>いくつかのファイルハンドラーは<code class="literal">start-file-process</code>をサポートしないかもしれない(たとえば<code class="literal">ange-ftp-hook-function</code>関数)。そのような場合、この関数は何も行わずに<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm79325776" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">start-process-shell-command</code> <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>buffer-or-name</code></em> <em class="replaceable"><code>command</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">start-process</code>と同様だが、指定されたコマンドの実行にshellを使用する点が異なる。引数<em class="replaceable"><code>command</code></em>は、shellコマンド名である。変数<code class="literal">shell-file-name</code>は、どのshellを使用するかを指定する。
+</p><p><code class="literal">start-process</code>でプログラムを実行せずにshellを通じて実行することの要点は、引数内のワイルドカード展開のようなshell機能を利用可能にするためである。そのためにはコマンド内に任意のユーザー指定引数を含めるなら、任意の特別なshell文字が、shellでの特別な意味を<span class="emphasis"><em>もたない</em></span>ように、まず<code class="literal">shell-quote-argument</code>でそれらをクォートするべきである。<a class="link" href="ch37s02.html" title="Shell Arguments">Shell
+Arguments</a>を参照のこと。ユーザー入力にもとづいたコマンド実行時には、当然セキュリティ上の影響も考慮するべきである。
+</p></blockquote></div><pre class="synopsis"><a id="idm79318224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">start-file-process-shell-command</code> <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>buffer-or-name</code></em> <em class="replaceable"><code>command</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">start-process-shell-command</code>と似ているが、内部的に<code class="literal">start-file-process</code>を使用する点が異なる。これにより、<code class="literal">default-directory</code>に応じてリモートホスト上でも、<em class="replaceable"><code>command</code></em>を実行できる。
+</p></blockquote></div><pre class="synopsis"><a id="idm79312336" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">process-connection-type</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、非同期サブプロセスと対話するために使用する、デバイスタイプを制御する。これが非<code class="literal">nil</code>の場合、利用可能ならpty、それ以外ならpipeが使用される。
+</p><p><code class="literal">process-connection-type</code>の値は、<code class="literal">start-process</code>の呼び出し時に効果を発揮する。そのため、<code class="literal">start-process</code>の呼び出し前後でこの変数をバインドすることにより、サブプロセスとやり取りする方法を指定できる。
+</p><pre class="screen">(let ((process-connection-type nil))  ; pipeを使用
+  (start-process …))
+</pre><p>与えられたサブプロセスが実際にはpipeとptyのどちらを取得したかを判断するには、関数<code class="literal">process-tty-name</code>を使用する(<a class="link" href="ch37s06.html" title="Process Information">Process
+Information</a>を参照)。
+</p></blockquote></div></div></body></html>

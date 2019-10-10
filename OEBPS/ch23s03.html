@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Minor Modes</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Minor-Modes"/>Minor Modes</h1></div></div></div><a id="idm61371216" class="indexterm"/><p><em class="firstterm">マイナーモード(minor
+mode)</em>は、メジャーモードの選択とは無関係にユーザーが有効、あるいは無効にする可能性のある、オプション機能を使用を提供します。マイナーモードは個別に、あるいは組み合わせて有効にできます。
+</p><p>ほとんどのマイナーモードは、メジャーモードとは独立した機能を実装し、それゆえにほとんどのメジャーモードとともに使用することができます。たとえば、Auto
+Fillモードはテキスト挿入を許す任意のメジャーモードとともに機能します。しかし少数ながら、特定のメジャーモードに特化した少数のマイナーモードもあります。たとえば、Diff
+Auto Refineモードは、Diffモードとともに使用されることだけを意図したマイナーモードです。
+</p><p>理想的には、マイナーモードは他のマイナーモードの効果と無関係に、期待する効果をもつべきです。これは、任意の順序でマイナーモードをアクティブ、あるいは非アクティブにしても可能なはずです。
+</p><pre class="synopsis"><a id="idm61368784" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">minor-mode-list</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、すべてのマイナーモードコマンドのリストである。
+</p></blockquote></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Minor-Mode-Conventions"/>Conventions for Writing Minor Modes</h2></div></div></div><a id="idm61365456" class="indexterm"/><a id="idm61364688" class="indexterm"/><p>メジャーモードにあるように、マイナーモードの記述にも慣習があります。以下で、その慣習について説明します。これらの慣習にしたがうには、マクロ<code class="literal">define-minor-mode</code>を使用するのがもっとも簡単な方法です。<a class="link" href="ch23s03.html#Defining-Minor-Modes" title="Defining Minor Modes">Defining
+Minor Modes</a>を参照してください。
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><a id="idm61362256" class="indexterm"/><p>名前が‘<code class="literal">-mode</code>’で終わる変数を定義する。これを<em class="firstterm">モード変数(mode
+variable)</em>と呼ぶ。マイナーモードコマンドは、この変数をセットすべきである。値は、そのモードが無効な場合は<code class="literal">nil</code>、有効な場合は非<code class="literal">nil</code>になるだろう。そのマイナーモードがバッファーローカルなら、この変数もバッファーローカルであること。
+</p><p>この変数は、モードラインにマイナーモードの名前を表示するために、<code class="literal">minor-mode-alist</code>と結合して使用される。これは、<code class="literal">minor-mode-map-alist</code>を通じて、そのマイナーモードのキーマップがアクティブかどうかも判定する(<a class="link" href="ch22s09.html" title="Controlling the Active Keymaps">Controlling
+Active Maps</a>を参照)。個々のコマンドやフックも、この変数の値をチェックできる。
+</p></li><li class="listitem"><p>モード変数と同じ名前をもつ、<em class="firstterm">モードコマンド(mode
+command)</em>と呼ばれるコマンドを定義する。このコマンドの役目は、モード変数の値のセットに加えて、そのモードの機能を使用を実際に有効、または無効にするために必要な、その他すべてを行うことである。
+</p><p>モードコマンドは、1つのオプション引数を受け入れるべきである。プレフィクス引数なしでinteractiveに呼び出された場合は、モードをトグルする(toggle:
+切り替える。たとえば無効なら有効に、有効なら無効にする)こと。プレフィクス引数とともにinteractiveに呼び出された場合、その引数が正であればモードを有効に、それ以外は無効にすべきである。
+</p><p>モードコマンドが、Lispから(つまりからの非interactiveに)呼び出された場合は、引数が省略、または<code class="literal">nil</code>の場合はモードを有効にすべきである。引数がシンボル<code class="literal">toggle</code>の場合はモードをトグルし、それ以外の場合は、上述の数引数とともにinteractiveに呼び出されたときと同じ方法により、その引数を扱うべきである。
+</p><p>以下は、この挙動の実装方法を示す例である(<code class="literal">define-minor-mode</code>マクロが生成するコードも、これに類似する)。
+</p><pre class="screen">(interactive (list (or current-prefix-arg 'toggle)))
+(let ((enable (if (eq arg 'toggle)
+                  (not foo-mode) ; このモードのモード変数
+                (&gt; (prefix-numeric-value arg) 0))))
+  (if enable
+      <em class="replaceable"><code>do-enable</code></em>
+    <em class="replaceable"><code>do-disable</code></em>))
+</pre><p>この、やや複雑な挙動の理由は、ユーザーが簡単かつinteractiveにマイナーモードをトグルでき、以下のようにモードフック内で簡単にマイナーモードを有効にできるからである:
+</p><pre class="screen">(add-hook 'text-mode-hook 'foo-mode)
+</pre><p><code class="literal">foo-mode</code>モードコマンドは、引数なしでLispから呼び出されたときは、無条件にそのマイナーモードを有効にするので、これは<code class="literal">foo-mode</code>がすでに有効でもそうでなくても正しく振る舞う。モードフック内でマイナーモードを無効にする場合は、少々醜くなる:
+</p><pre class="screen">(add-hook 'text-mode-hook (lambda () (foo-mode -1)))
+</pre><p>しかし、これは頻繁には行われない。
+</p></li><li class="listitem"><p>モードラインにマイナーモードを標示したい場合は、それぞれのマイナーモードにたいして、要素を<code class="literal">minor-mode-alist</code>に追加する(<a class="link" href="ch23s04.html#Definition-of-minor_002dmode_002dalist">Definition
+of minor-mode-alist</a>を参照)。この要素は以下の形式のリストであること:
+</p><pre class="screen">(<em class="replaceable"><code>mode-variable</code></em> <em class="replaceable"><code>string</code></em>)
+</pre><p>ここで、<em class="replaceable"><code>mode-variable</code></em>はマイナーモードの有効化を制御する変数であり、<em class="replaceable"><code>string</code></em>はモードラインに標示するための、スペースで始まる短い文字列である。一度に複数モードの文字列がスペースを占めるので、これらの文字列は短くなければならない。
+</p><p><code class="literal">minor-mode-alist</code>に要素を追加する際は、重複を避けるために、既存要素のチェックに<code class="literal">assq</code>を使用すること。たとえば:
+</p><pre class="screen">(unless (assq 'leif-mode minor-mode-alist)
+  (push '(leif-mode " Leif") minor-mode-alist))
+</pre><p>または、以下のように<code class="literal">add-to-list</code>(<a class="link" href="ch06s05.html" title="Modifying List Variables">List Variables</a>を参照)を使用すること:
+</p><pre class="screen">(add-to-list 'minor-mode-alist '(leif-mode " Leif"))
+</pre></li></ul></div><p>これらに加えて、メジャーモードにたいする慣習のいくつかは、マイナーモードにたいしても同様に適用されます。それらの慣習はグローバルシンボルの名前、初期化関数の最後でのフックの使用、キーマップおよびその他のテーブルの使用です。
+</p><p>マイナーモードは、可能ならばCustom(<a class="link" href="ch15.html" title="Chapter 14. Customization Settings">Customization</a>を参照)を通じての有効化および無効化をサポートするべきです。これを行うには、モード変数はは通常は<code class="literal">:type
+'boolean</code>とともに<code class="literal">defcustom</code>で定義されるべきです。その変数をセットするだけではモードの有効化に不足なら、モードコマンドを呼び出すことによりモードを有効にする<code class="literal">:set</code>メソッドも指定するべきです。そして、その変数のドキュメント文字列にCustomを通じて変数をセットしなければ効果がないことを注記してください。さらに、その定義をautoload
+cookie(<a class="link" href="ch16s05.html#autoload-cookie">autoload
+cookie</a>を参照)でマークして、その変数のカスタマイズによりモードを定義するライブラリーがロードされるように<code class="literal">:require</code>を指定します。たとえば:
+</p><pre class="screen">;;;###autoload
+(defcustom msb-mode nil
+  "msb-modeをトグルする
+この変数を直接セットしても効果がない
+\\[customize]か関数`msb-mode'を使用すること"
+  :set 'custom-set-minor-mode
+  :initialize 'custom-initialize-default
+  :version "20.4"
+  :type    'boolean
+  :group   'msb
+  :require 'msb)
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Keymaps-and-Minor-Modes"/>Keymaps and Minor Modes</h2></div></div></div><p>マイナーモードはそれぞれ自身のキーマップをもつことができ、そのモードが有効になるとそのキーマップがアクティブになります。マイナーモード用のキーマップをセットアップするには、<code class="literal">minor-mode-map-alist</code>というalistに要素を追加します。<a class="link" href="ch22s09.html#Definition-of-minor_002dmode_002dmap_002dalist">Definition
+of minor-mode-map-alist</a>を参照してください。
+</p><a id="idm61306192" class="indexterm"/><p>特定の自己挿入文字にたいして、自己挿入と同様に他の何かを行うように振る舞いを変更するのは、マイナーモードキーマップの1つの使い方です。(<code class="literal">self-insert-command</code>をカスタマイズする別の方法は、<code class="literal">post-self-insert-hook</code>を通じて行う方法です。これ以外の<code class="literal">self-insert-command</code>カスタマイズ用機能は特別なケースに限定されていて、abbrevモードとAuto
+Fillモードのためにデザインされています。<code class="literal">self-insert-command</code>にたいする標準定義を、あなた独自の定義に置き換えることを試みてはなりません。エディターコマンドループは、この関数を特別に処理します。)
+</p><p>マイナーモードは、コマンドを<strong class="userinput"><code>C-c</code></strong>とその後の区切り文字より構成されるキーシーケンスにバインドするかもしれません。しかし、<strong class="userinput"><code>C-c</code></strong>とその後の<strong class="userinput"><code>{}&lt;&gt;:;</code></strong>のいずれかの文字、またはコントロール文字、数字より構成されるシーケンスは、メジャーモード用に予約されています。また、<strong class="userinput"><code>C-c
+<em class="replaceable"><code>letter</code></em></code></strong>はユーザー用に予約されています。<a class="link" href="apds02.html" title="Key Binding Conventions">Key Binding Conventions</a>を参照してください。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Defining-Minor-Modes"/>Defining Minor Modes</h2></div></div></div><p>マクロ<code class="literal">define-minor-mode</code>は、1つの自己完結した定義内にモードを実装する便利な方法を提供します。
+</p><pre class="synopsis"><a id="idm61297232" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">define-minor-mode</code> <em class="replaceable"><code>mode</code></em> <em class="replaceable"><code>doc</code></em> [<em class="replaceable"><code>init-value</code></em> [<em class="replaceable"><code>lighter</code></em> [<em class="replaceable"><code>keymap</code></em>]]] <em class="replaceable"><code>keyword-args</code></em><em class="replaceable"><code>…</code></em> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは、名前が<em class="replaceable"><code>mode</code></em>(シンボル)の新たなマイナーモードを定義する。これは、ドキュメント文字列として<em class="replaceable"><code>doc</code></em>をもつ、マイナーモードをトグルするための、<em class="replaceable"><code>mode</code></em>という名前のコマンドを定義する。
+</p><p>トグルコマンドは１つのオプション(プレフィクス)引数をとる。引数なしでinteractiveに呼び出された場合は、そのモードのオンとオフをトグルする。正のプレフィクス引数はモードを有効にし、それ以外のプレフィクス引数はモードを無効にする。Lispから呼び出した場合、引数が<code class="literal">toggle</code>の場合はモードをトグルし、引数が省略もしくは<code class="literal">nil</code>の場合はモードを有効にする。これはたとえば、メジャーモードフック内でマイナーモードを有効にするのを簡便にする。<em class="replaceable"><code>doc</code></em>が<code class="literal">nil</code>の場合、このマクロは上記を説明するデフォルトのドキュメント文字列を提供する。
+</p><p>デフォルトでは、これはモードを有効にすると<code class="literal">t</code>、無効にすると<code class="literal">nil</code>にセットされる、<em class="replaceable"><code>mode</code></em>という名前の変数も定義する。この変数は、<em class="replaceable"><code>init-value</code></em>に初期化される。通常では(以下参照)、この値は<code class="literal">nil</code>でなければならない。
+</p><p>文字列<em class="replaceable"><code>lighter</code></em>は、モード有効時にモードライン内に何を表示するか指定する。これが<code class="literal">nil</code>の場合は、このモードはモードライン内に表示されない。
+</p><p>オプション引数<em class="replaceable"><code>keymap</code></em>は、そのマイナーモードにたいするキーマップを指定する。非<code class="literal">nil</code>の場合、それは(値がキーマップであるような)変数の名前、キーマップ、または以下の形式のalistであること
+</p><pre class="screen">(<em class="replaceable"><code>key-sequence</code></em> . <em class="replaceable"><code>definition</code></em>)
+</pre><p>ここで、それぞれの<em class="replaceable"><code>key-sequence</code></em>と<em class="replaceable"><code>definition</code></em>は、<code class="literal">define-key</code>に渡すのに適した引数である(<a class="link" href="ch22s12.html" title="Changing Key Bindings">Changing
+Key
+Bindings</a>を参照)。<em class="replaceable"><code>keymap</code></em>はキーマップまたはalistであり、これは変数<code class="literal"><em class="replaceable"><code>mode</code></em>-map</code>も定義する。
+</p><p>上記の3つの引数<em class="replaceable"><code>init-value</code></em>、<em class="replaceable"><code>lighter</code></em>、<em class="replaceable"><code>keymap</code></em>は、<em class="replaceable"><code>keyword-args</code></em>が使用されたときは、(部分的に)省略できる。<em class="replaceable"><code>keyword-args</code></em>は、キーワードとその後の対応する値により構成され、いくつかのキーワードは特別な意味をもつ:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">:group <em class="replaceable"><code>group</code></em></code>
+</span></dt><dd><p>生成されるすべての<code class="literal">defcustom</code>フォームで使用されるカスタムグループ名。<em class="replaceable"><code>mode</code></em>(後の‘<code class="literal">-mode</code>’がある場合はそれを除く)にたいするデフォルトである。<span class="bold"><strong>警告:</strong></span>
+そのグループを定義するため<code class="literal">defgroup</code>を正しく記述していない場合は、このデフォルトグループ名を使用してはならない。<a class="link" href="ch15s02.html" title="Defining Customization Groups">Group
+Definitions</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">:global <em class="replaceable"><code>global</code></em></code>
+</span></dt><dd><p>非<code class="literal">nil</code>の場合、これはそのマイナーモードがバッファーローカルでなくグローバルであることを指定する。デフォルトは<code class="literal">nil</code>。
+</p><p>マイナーモードをグローバルにしたときの効果の1つは、<em class="replaceable"><code>mode</code></em>変数がカスタマイズ変数になることである。Customizeインターフェイスを通じてこの変数をトグルするとモードがオン、またはオフになり、変数の値は将来のEmacsセッション用に保存できるようになる(section “Saving
+Customizations” in <em class="citetitle">The GNU Emacs
+Manual</em>を参照)。保存された変数が機能するためには、Emacsが開始されるたびに<code class="literal">define-minor-mode</code>フォームが確実に評価されるようにすべきである。Emacsの一部ではないパッケージにたいしては、<code class="literal">:require</code>キーワードを指定するのが、これを行う一番簡単な方法である。
+</p></dd><dt><span class="term"><code class="literal">:init-value <em class="replaceable"><code>init-value</code></em></code>
+</span></dt><dd><p>これは、<em class="replaceable"><code>init-value</code></em>引数を指定するのと等しい。
+</p></dd><dt><span class="term"><code class="literal">:lighter <em class="replaceable"><code>lighter</code></em></code>
+</span></dt><dd><p>これは、<em class="replaceable"><code>lighter</code></em>引数を指定するのと等しい。
+</p></dd><dt><span class="term"><code class="literal">:keymap <em class="replaceable"><code>keymap</code></em></code>
+</span></dt><dd><p>これは、<em class="replaceable"><code>keymap</code></em>引数を指定するのと等しい。
+</p></dd><dt><span class="term"><code class="literal">:variable <em class="replaceable"><code>place</code></em></code>
+</span></dt><dd><p>これは、そのモードの状態を格納するために使用される、デフォルトの変数<em class="replaceable"><code>mode</code></em>を置き換える。これを指定した場合、<em class="replaceable"><code>mode</code></em>変数は定義されず、すべての<em class="replaceable"><code>init-value</code></em>引数は使用されない。<em class="replaceable"><code>place</code></em>は異なる名前の変数(あなた自身が定義しなければならない)、または<code class="literal">setf</code>関数とともに使用され得るすべてのもの(<a class="link" href="ch12s15.html" title="Generalized Variables">Generalized
+Variables</a>を参照)。<em class="replaceable"><code>place</code></em>にはコンス<code class="literal">(<em class="replaceable"><code>get</code></em>
+.
+<em class="replaceable"><code>set</code></em>)</code>も指定できる。ここで、<em class="replaceable"><code>get</code></em>はカレント状態をリターンする式であり、<em class="replaceable"><code>set</code></em>はそれをセットする1つの引数(状態)をとる関数である。
+</p></dd><dt><span class="term"><code class="literal">:after-hook <em class="replaceable"><code>after-hook</code></em></code>
+</span></dt><dd><p>これは、モードフック実行後に評価される、単一のLispフォームを定義する。これはクォートすべきでない。
+</p></dd></dl></div><p>その他のすべてのキーワード引数は、変数<em class="replaceable"><code>mode</code></em>にたいして生成された<code class="literal">defcustom</code>に直接渡される。
+</p><p><em class="replaceable"><code>mode</code></em>という名前のコマンドは、最初に<em class="replaceable"><code>mode</code></em>という名前の変数をセットする等の標準的な動作を処理した後に、もしあれば<em class="replaceable"><code>body</code></em>フォームを実行する。それからモードフック変数<code class="literal"><em class="replaceable"><code>mode</code></em>-hook</code>を実行し、<code class="literal">:after-hook</code>内のフォームを評価して終了する。
+</p></blockquote></div><p><em class="replaceable"><code>init-value</code></em>の値は<code class="literal">nil</code>でなければなりません。ただし、(1)Emacsによりそのモードが事前ロードされている、または(2)たとえユーザーが要求しなくともモードを有効にするためにロードするのが容易な場合を除きます。たとえば、他の何かが有効でなければそのモードの効果がなく、常にそのタイミングでロードされるような場合は、デフォルトでそのモードを有効にすることに害はありません。しかし、この状況は通常はあり得ません。通常は、<em class="replaceable"><code>init-value</code></em>の値は<code class="literal">nil</code>でなければならないのです。
+</p><a id="idm61242320" class="indexterm"/><p><code class="literal">easy-mmode-define-minor-mode</code>という名前は、このマクロにたいするエイリアスです。
+</p><p>以下は、<code class="literal">define-minor-mode</code>の使い方の例です:
+</p><pre class="screen">(define-minor-mode hungry-mode
+  "Hungryモードをトグルする。
+引数なしでinteractiveに呼び出すとモードをトグルする。
+正のプレフィクス引数でモードを有効に、その他のプレフィクス引数で
+無効にする。Lispから呼び出す場合、引数を省略、またはnilなら
+モードを有効に、`toggle'なら状態をトグルする。
+
+Hungryモードが有効なときは、C-DELキーは、
+最後を除く先行するすべての空白を飲み込む。
+コマンド \\[hungry-electric-delete] を参照のこと。"
+ ;; 初期値
+ nil
+ ;; モードラインの標示
+ " Hungry"
+ ;; マイナーモードのバインディング
+ '(([C-backspace] . hungry-electric-delete))
+ :group 'hunger)
+</pre><p>これは、“Hungry
+mode”という名前のマイナーモード、モードをトグルする<code class="literal">hungry-mode</code>という名前のコマンド、モードが有効かどうかを示す<code class="literal">hungry-mode</code>という名前の変数、モードが有効なときそのキーマップを保持する<code class="literal">hungry-mode-map</code>という名前の変数を定義します。これは、<strong class="userinput"><code>C-<span class="keycap"><strong>DEL</strong></span></code></strong>にたいするキーバインディングでキーマップを初期化します。また、変数<code class="literal">hungry-mode</code>をカスタムグループ<code class="literal">hunger</code>に置きます。<em class="replaceable"><code>body</code></em>フォームはありません
+— 多くのマイナーモードは必要としません。
+</p><p>以下は、これを記述する等価な方法です:
+</p><pre class="screen">(define-minor-mode hungry-mode
+  "Hungryモードをトグルする。
+...省略..."
+ ;; 初期値
+ :init-value nil
+ ;; モードラインへのインジケーター
+ :lighter " Hungry"
+ ;; マイナーモードのバインディング
+ :keymap
+ '(([C-backspace] . hungry-electric-delete)
+   ([C-M-backspace]
+    . (lambda ()
+        (interactive)
+        (hungry-electric-delete t))))
+ :group 'hunger)
+</pre><pre class="synopsis"><a id="idm61229904" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">define-globalized-minor-mode</code> <em class="replaceable"><code>global-mode</code></em> <em class="replaceable"><code>mode</code></em> <em class="replaceable"><code>turn-on</code></em> <em class="replaceable"><code>keyword-args</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、<em class="replaceable"><code>global-mode</code></em>という名前をグローバルにトグルする。この意味は、<em class="replaceable"><code>mode</code></em>という名前のバッファーローカルなマイナーモードを、すべてのバッファーで有効、または無効にするということである。あるバッファー内でそのマイナーモードをオンにするには、関数<em class="replaceable"><code>turn-on</code></em>を使用する。マイナーモードをオフにするには、−1を引数として<em class="replaceable"><code>mode</code></em>を呼び出す。
+</p><p>モードをグローバルに有効にすると、それ以降ファイルをvisitすることにより作成されるバッファー、Fundamental以外のメジャーモードを使用するバッファーにも影響がある。しかし、Fundamentalで作成される新たなバッファーは検知しない。
+</p><p>これは、Customizeインターフェイス内でそのマイナーモードのオン/オフを切り替える、カスタムオプション<em class="replaceable"><code>global-mode</code></em>(<a class="link" href="ch15.html" title="Chapter 14. Customization Settings">Customization</a>)を定義する。<code class="literal">define-minor-mode</code>と同様に、たとえば<code class="literal">:require</code>を与える等により、毎回のEmacs開始時に確実に<code class="literal">define-globalized-minor-mode</code>フォームが評価されるようにすべきである。
+</p><p>グローバルマイナーモードのモード変数にたいしてカスタムグループを指定するには、<em class="replaceable"><code>keyword-args</code></em>内で<code class="literal">:group
+<em class="replaceable"><code>group</code></em></code>を使用する。
+</p><p>一般的には、グローバル化されたマイナーモードを定義するときは、ユーザーがバッファーごとにモードを使用(または無効に)できるように、非グローバル版も定義すべきである。ことにより、特定のメジャーモード内でそのモードのフックを使用することにより、グローバル有効化されたマイナーモードを無効にすることができるようになる。
+</p></blockquote></div></div></div></body></html>

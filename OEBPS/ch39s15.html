@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Operating on X11 Keysyms</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="X11-Keysyms"/>Operating on X11 Keysyms</h1></div></div></div><a id="idm85431760" class="indexterm"/><p>システム固有のX11 keysym(key symbol:
+キーシンボル)を定義するには、変数<code class="literal">system-key-alist</code>をセットします。
+</p><pre class="synopsis"><a id="idm85429840" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">system-key-alist</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、システム固有のkeysymそれぞれにたいして1つの要素をもつようなalistであること。要素はそれぞれ<code class="literal">(<em class="replaceable"><code>code</code></em>
+. <em class="replaceable"><code>symbol</code></em>)</code>という形式をもつ。ここで<em class="replaceable"><code>code</code></em>は数字のkeysymコード(“ベンダー固有”の
+−2**28),
+のビットは含まない)、<em class="replaceable"><code>symbol</code></em>はそのファンクションキーの名前である。
+</p><p>たとえば<code class="literal">(168 . mute-acute)</code>は、数字コード
+−2**28
++ 168のシステム固有キーを定義する(HP Xサーバーで使用される)。
+</p><p>このalistから、他のXサーバーのkeysymを除外することは重要ではない。実際に使用中のXサーバーが使用するkeysymが、これらと競合しないかぎり無害である.
+</p><p>この変数は常にカレント端末にたいしてローカルであり、バッファーローカルにできない。<a class="link" href="ch29s02.html" title="Multiple Terminals">Multiple Terminals</a>を参照のこと。
+</p></blockquote></div><p>以下の変数をセットすれば、Emacsが修飾キーMeta、Alt、Hyper、Superにたいして何のkeysymを使用するべきか指定できます。
+</p><pre class="synopsis"><a id="idm85422416" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">x-alt-keysym</code></pre><pre class="synopsis"><a id="idm85420240" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">x-meta-keysym</code></pre><pre class="synopsis"><a id="idm85418064" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">x-hyper-keysym</code></pre><pre class="synopsis"><a id="idm85415888" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">x-super-keysym</code></pre><div class="blockquote"><blockquote class="blockquote"><p>keysymの名前はそれぞれ修飾子Alt、Meta、Hyper、Superを意味する名前であること。たとえば、以下はMeta修飾キーとAlt修飾キーを交換する方法である:
+</p><pre class="programlisting">(setq x-alt-keysym 'meta)
+(setq x-meta-keysym 'alt)
+</pre></blockquote></div></div></body></html>

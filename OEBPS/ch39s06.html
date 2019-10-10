@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Time Conversion</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Time-Conversion"/>Time Conversion</h1></div></div></div><a id="idm85963728" class="indexterm"/><a id="idm85962960" class="indexterm"/><p>以下の関数はtime値(前セクションで説明した2個から4個の整数リスト)を、暦情報に変換したり、逆変換を行います。
+</p><p>32ビットオペレーティングシステムの多くは、32ビット情報を含んだtime値に制限されます。これらのシステムは、通常は1901-12-13
+20:45:52 UTCから2038-01-19 03:14:07
+UTCまでの時刻だけを処理します。しかし64ビット、およびいくつかの32ビットオペレーティングシステムは、より大きなtime値をもち、より遠い過去や未来の時刻を表現できます。
+</p><p>時刻変換関数は、たとえグレゴリオ暦導入前の日付にたいしても、常にグレゴリオ暦を使用します。年はB.C.
+1年から年数を数え、伝統的なグレゴリオ年が行うように0年をスキップしません。たとえば年数−37は、グレゴリオ年のB.C.
+38年を表します。
+</p><pre class="synopsis"><a id="idm85960784" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">decode-time</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>time</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、time値を暦情報に変換する。<em class="replaceable"><code>time</code></em>を指定しなければ、カレント時刻をデコードする。リターン値は、以下のような9要素のリストである:
+</p><pre class="screen">(<em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>minutes</code></em> <em class="replaceable"><code>hour</code></em> <em class="replaceable"><code>day</code></em> <em class="replaceable"><code>month</code></em> <em class="replaceable"><code>year</code></em> <em class="replaceable"><code>dow</code></em> <em class="replaceable"><code>dst</code></em> <em class="replaceable"><code>zone</code></em>)
+</pre><p>以下に各要素の意味を示す:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>seconds</code></em>
+</span></dt><dd><p>0から59までの整数で表した分を過ぎた時分秒の秒。いくつかのオペレーティングシステムでは、閏秒にたいして60となる。
+</p></dd><dt><span class="term"><em class="replaceable"><code>minutes</code></em>
+</span></dt><dd><p>0から59までの整数で表した、時を過ぎた時分秒の分。
+</p></dd><dt><span class="term"><em class="replaceable"><code>hour</code></em>
+</span></dt><dd><p>0から23までの整数で表した時分秒の時。
+</p></dd><dt><span class="term"><em class="replaceable"><code>day</code></em>
+</span></dt><dd><p>1から31までの整数で表した、年月日の日。
+</p></dd><dt><span class="term"><em class="replaceable"><code>month</code></em>
+</span></dt><dd><p>1から12までの整数で表した、年月日の月。
+</p></dd><dt><span class="term"><em class="replaceable"><code>year</code></em>
+</span></dt><dd><p>通常は1900より大きい整数で表した、年月日の年。
+</p></dd><dt><span class="term"><em class="replaceable"><code>dow</code></em>
+</span></dt><dd><p>0から6までの整数で表した曜日で、0は日曜日を意味する。
+</p></dd><dt><span class="term"><em class="replaceable"><code>dst</code></em>
+</span></dt><dd><p>夏時間が有効なら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><em class="replaceable"><code>zone</code></em>
+</span></dt><dd><p>グリニッジ以東の秒数による、タイムゾーンを示す整数。
+</p></dd></dl></div><p><span class="bold"><strong>Common Lispに関する注意:</strong></span> Common Lispでは<em class="replaceable"><code>dow</code></em>と<em class="replaceable"><code>zone</code></em>の意味が異なる。
+</p></blockquote></div><pre class="synopsis"><a id="idm85940176" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">encode-time</code> <em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>minutes</code></em> <em class="replaceable"><code>hour</code></em> <em class="replaceable"><code>day</code></em> <em class="replaceable"><code>month</code></em> <em class="replaceable"><code>year</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>zone</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">decode-time</code>の逆版である。これは7アイテムの暦データをtime値に変換する。引数の意味は、上述<code class="literal">decode-time</code>のテーブルを参照のこと。
+</p><p>100未満の年が特別に扱われることはない。これを1900または2000を超える年を意味させたい場合は、<code class="literal">encode-time</code>を呼び出す前に自身でこれらを修正しなければならない。
+</p><p>オプション引数<em class="replaceable"><code>zone</code></em>のデフォルトは、カレントのタイムゾーンと夏時間ルールである。指定する場合は(<code class="literal">current-time-zone</code>で得られるような)リスト、環境変数<code class="envar">TZ</code>の値のような文字列、<code class="literal">t</code>は万国標準時、(<code class="literal">decode-time</code>で得られるような)整数のいずれかを指定できる。指定されたゾーンは夏時間による更なる変更を受けずに使用される。
+</p><p><code class="literal">encode-time</code>にたいして7個より多い引数を渡した、最初の6つは<em class="replaceable"><code>seconds</code></em>から<em class="replaceable"><code>year</code></em>、最後の引数が<em class="replaceable"><code>zone</code></em>として使用され、その間の引数は無視される。これにより、以下のように<code class="literal">decode-time</code>がリターンしたリストの要素を、<code class="literal">encode-time</code>の引数として使用することが可能になる:
+</p><pre class="screen">(apply 'encode-time (decode-time …))
+</pre><p><em class="replaceable"><code>seconds</code></em>、<em class="replaceable"><code>minutes</code></em>、<em class="replaceable"><code>hour</code></em>、<em class="replaceable"><code>day</code></em>、<em class="replaceable"><code>month</code></em>の引数に範囲外の値を使用することにより、単純な日付計算ができます。たとえば<em class="replaceable"><code>day</code></em>が0なら、それは与えられた<em class="replaceable"><code>month</code></em>の前月末になります。
+</p><p>オペレーティングシステムは、可能なtime値の範囲に制限を設けます。範囲外の時刻のエンコードを試みると、結果はエラーとなります。たとえばあるシステムでは1970年以前では機能せず、別のシステムではより以前の1901年以降から機能します。
+</p></blockquote></div></div></body></html>

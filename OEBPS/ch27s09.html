@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Creating Buffers</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Creating-Buffers"/>Creating Buffers</h1></div></div></div><a id="idm65339088" class="indexterm"/><a id="idm65338320" class="indexterm"/><p>このセクションでは、バッファーを作成する2つのプリミティブについて説明します。<code class="literal">get-buffer-create</code>は、指定された名前の既存バッファーが見つからない場合は作成します。<code class="literal">generate-new-buffer</code>は、常に新たにバッファーを作成して、それに一意な名前を与えます。
+</p><p>バッファーを作成するために使用できる他の関数には、<code class="literal">with-output-to-temp-buffer</code>(<a class="link" href="ch38s08.html" title="Temporary Displays">Temporary
+Displays</a>を参照)、および<code class="literal">create-file-buffer</code>(<a class="link" href="ch25.html#Visiting-Files" title="Visiting Files">Visiting
+Files</a>を参照)が含まれます。サブプロセスの開始によっても、バッファーを作成することができます(<a class="link" href="ch37.html" title="Chapter 36. Processes">Processes</a>を参照)。
+</p><pre class="synopsis"><a id="idm65332816" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">get-buffer-create</code> <em class="replaceable"><code>buffer-or-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>buffer-or-name</code></em>という名前のバッファーをリターンする。リターンされたバッファーはカレントにならない —
+この関数はカレントがどのバッファーであるかを変更しない。
+</p><p><em class="replaceable"><code>buffer-or-name</code></em>は文字列、または既存バッファーのいずれかでなければならない。これが文字列で、かつ既存の生きたバッファーの名前の場合、<code class="literal">get-buffer-create</code>はそのバッファーをリターンする。そのようなバッファーが存在しなければ、新たにバッファーを作成する。<em class="replaceable"><code>buffer-or-name</code></em>が文字列ではなくバッファーの場合、たとえそのバッファーが生きていなくても、与えられたバッファーをリターンする。
+</p><pre class="screen">(get-buffer-create "foo")
+     ⇒ #&lt;buffer foo&gt;
+</pre><p>新たに作成されたバッファーにたいするメジャーモードは、Fundamentalモードにセットされる(変数<code class="literal">major-mode</code>のデフォルト値は、より高いレベルで処理される。<a class="link" href="ch23s02.html#Auto-Major-Mode" title="How Emacs Chooses a Major Mode">Auto
+Major
+Mode</a>を参照されたい)。名前がスペースで始まる場合、そのバッファーのアンドゥ情報の記録は、初期状態では無効である(<a class="link" href="ch32s09.html" title="Undo">Undo</a>を参照)。
+</p></blockquote></div><pre class="synopsis"><a id="idm65312976" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">generate-new-buffer</code> <em class="replaceable"><code>name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、新たに空のバッファーを作成してリターンするが、それをカレントにはしない。バッファーの名前は、関数<code class="literal">generate-new-buffer-name</code>に<em class="replaceable"><code>name</code></em>を渡すことにより生成される(<a class="link" href="ch27s03.html" title="Buffer Names">Buffer
+Names</a>を参照)。つまり、<em class="replaceable"><code>name</code></em>という名前のバッファーが存在しなければ、それが新たなバッファーの名前になり、その名前が使用されていた場合は、‘<code class="literal">&lt;<em class="replaceable"><code>n</code></em>&gt;</code>’という形式のサフィックスが<em class="replaceable"><code>name</code></em>に追加される。ここで<em class="replaceable"><code>n</code></em>は整数である。
+</p><p><em class="replaceable"><code>name</code></em>が文字列でない場合は、エラーがシグナルされる。
+</p><pre class="screen">(generate-new-buffer "bar")
+     ⇒ #&lt;buffer bar&gt;
+</pre><pre class="screen">(generate-new-buffer "bar")
+     ⇒ #&lt;buffer bar&lt;2&gt;&gt;
+</pre><pre class="screen">(generate-new-buffer "bar")
+     ⇒ #&lt;buffer bar&lt;3&gt;&gt;
+</pre><p>新たなバッファーにたいするメジャーモードは、Fundamentalモードにセットされる。変数<code class="literal">major-mode</code>のデフォルト値は、より高いレベルで処理される。<a class="link" href="ch23s02.html#Auto-Major-Mode" title="How Emacs Chooses a Major Mode">Auto
+Major Mode</a>を参照のこと。
+</p></blockquote></div></div></body></html>

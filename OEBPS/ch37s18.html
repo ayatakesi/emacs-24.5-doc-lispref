@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Misc Network Facilities</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Misc-Network"/>Misc Network Facilities</h1></div></div></div><p>以下の追加の関数は、ネットワーク接続の作成や操作に有用です。これらは、いくつかのシステムでのみサポートされることに注意してください。
+</p><pre class="synopsis"><a id="idm78352464" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">network-interface-list</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、使用しているマシン上のネットワークインターフェースを記述する、リストをリターンする。値は、要素が<code class="literal">(<em class="replaceable"><code>name</code></em>
+.
+<em class="replaceable"><code>address</code></em>)</code>という形式をもつようなalistである。<em class="replaceable"><code>address</code></em>は、<code class="literal">make-network-process</code>の引数<em class="replaceable"><code>local-address</code></em>および<em class="replaceable"><code>remote-address</code></em>と同じ形式をもつ。
+</p></blockquote></div><pre class="synopsis"><a id="idm78346704" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">network-interface-info</code> <em class="replaceable"><code>ifname</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>ifname</code></em>という名前のネットワークインターフェースに関する情報をリターンする。値は、<code class="literal">(<em class="replaceable"><code>addr</code></em>
+<em class="replaceable"><code>bcast</code></em> <em class="replaceable"><code>netmask</code></em> <em class="replaceable"><code>hwaddr</code></em> <em class="replaceable"><code>flags</code></em>)</code>という形式をもつリストである。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>addr</code></em>
+</span></dt><dd><p>インターネットプロトコルアドレス。
+</p></dd><dt><span class="term"><em class="replaceable"><code>bcast</code></em>
+</span></dt><dd><p>ブロードキャストアドレス。
+</p></dd><dt><span class="term"><em class="replaceable"><code>netmask</code></em>
+</span></dt><dd><p>ネットワークマスク。
+</p></dd><dt><span class="term"><em class="replaceable"><code>hwaddr</code></em>
+</span></dt><dd><p>レイヤー2アドレス(たとえばイーサネットMACアドレス)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>flags</code></em>
+</span></dt><dd><p>そのインターフェースのカレントのフラグ。
+</p></dd></dl></div></blockquote></div><pre class="synopsis"><a id="idm78335312" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">format-network-address</code> <em class="replaceable"><code>address</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>omit-port</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ネットワークアドレスのLisp表現を文字列に変換する。
+</p><p>5要素のベクター<code class="literal">[<em class="replaceable"><code>a</code></em> <em class="replaceable"><code>b</code></em> <em class="replaceable"><code>c</code></em> <em class="replaceable"><code>d</code></em>
+<em class="replaceable"><code>p</code></em>]</code>はIPv4アドレス<em class="replaceable"><code>a</code></em>.<em class="replaceable"><code>b</code></em>.<em class="replaceable"><code>c</code></em>.<em class="replaceable"><code>d</code></em>、およびポート番号<em class="replaceable"><code>p</code></em>を表す。<code class="literal">format-network-address</code>はこれを、文字列<code class="literal">\"<em class="replaceable"><code>a</code></em>.<em class="replaceable"><code>b</code></em>.<em class="replaceable"><code>c</code></em>.<em class="replaceable"><code>d</code></em>:<em class="replaceable"><code>p</code></em>\"</code>に変換する。
+</p><p>9要素のベクター<code class="literal">[<em class="replaceable"><code>a</code></em> <em class="replaceable"><code>b</code></em> <em class="replaceable"><code>c</code></em> <em class="replaceable"><code>d</code></em> <em class="replaceable"><code>e</code></em> <em class="replaceable"><code>f</code></em> <em class="replaceable"><code>g</code></em>
+<em class="replaceable"><code>h</code></em>
+<em class="replaceable"><code>p</code></em>]</code>はポート番号とともに、IPv6アドレスを表す。<code class="literal">format-network-address</code>はこれを、文字列<code class="literal">"[<em class="replaceable"><code>a</code></em>:<em class="replaceable"><code>b</code></em>:<em class="replaceable"><code>c</code></em>:<em class="replaceable"><code>d</code></em>:<em class="replaceable"><code>e</code></em>:<em class="replaceable"><code>f</code></em>:<em class="replaceable"><code>g</code></em>:<em class="replaceable"><code>h</code></em>]:<em class="replaceable"><code>p</code></em>"</code>に変換する。
+</p><p>このベクターにポート番号が含まれない、または<em class="replaceable"><code>omit-port</code></em>が非<code class="literal">nil</code>なら、結果にサフィックス<code class="literal">:<em class="replaceable"><code>p</code></em></code>は含まれない。
+</p></blockquote></div></div></body></html>

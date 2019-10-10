@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Arrays</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Arrays"/>Arrays</h1></div></div></div><a id="idm48882640" class="indexterm"/><p><em class="firstterm">配列(array)</em>オブジェクトは、いくつかのLispオブジェクトを保持するスロットをもち、これらのオブジェクトは配列の要素と呼ばれます。配列内の任意の要素は、一定時間でアクセスされます。対照的に、リスト内の要素のアクセスに要する時間は、その要素がリスト内のどの位置にあるかに比例します。
+</p><p>Emacsは4つの配列型 —<em class="firstterm">文字列(strings。<a class="link" href="ch03s03.html#String-Type" title="String Type">String
+Type</a>を参照してください)</em>、<em class="firstterm">ベクター(vectors。<a class="link" href="ch03s03.html#Vector-Type" title="Vector Type">Vector
+Type</a>を参照してください)</em>、<em class="firstterm">ブールベクター(bool-vectors。<a class="link" href="ch03s03.html#Bool_002dVector-Type" title="Bool-Vector Type">Bool-Vector
+Type</a>を参照してください)</em>、<em class="firstterm">文字テーブル(char-tables。<a class="link" href="ch03s03.html#Char_002dTable-Type" title="Char-Table Type">Char-Table Type</a>を参照してください)</em>
+—
+を定義し、これらはすべて1次元です。ベクターと文字テーブルは任意の型の要素を保持できますが、文字列は文字だけ、ブールベクターは<code class="literal">t</code>か<code class="literal">nil</code>しか保持できません。
+</p><p>4種のすべての配列は、これらの特性を共有します:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>配列の1番目の要素はインデックス0、2番目はインデックス1、...となります。これは<em class="firstterm">0基準(zero-origin)</em>のインデックスづけと呼ばれます。たとえば、4つの要素の配列のインデックスは0、1、2、3です。
+</p></li><li class="listitem"><p>配列の長さは、1度配列が作成されたら固定されるので、既存の配列の長さは変更できません。
+</p></li><li class="listitem"><p>評価において、配列は定数 — つまりそれ自身に評価されます。
+</p></li><li class="listitem"><p>配列の要素は、関数<code class="literal">aref</code>により参照されたり、関数<code class="literal">aset</code>により変更されるかもしれません(<a class="link" href="ch07s03.html" title="Functions that Operate on Arrays">Array
+Functions</a>を参照してください)。
+</p></li></ul></div><p>配列を作成したとき、文字テーブル以外では、長さを指定しなければなりません。文字テーブルの長さは、文字コードの範囲により決定されるので、長さを指定できません。
+</p><p>原則として、テキスト文字の配列が欲しい場合は、文字列とベクターのどちらかを使用できます。実際のところ、そのような用途にたいしては、4つの理由により、わたしたちは常に文字列を選択します:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>文字列は、同じ要素をもつベクターと比較して、占めるスペースが1/4です。
+</p></li><li class="listitem"><p>文字列の内容は、テキストとしてより明解な方法によりプリントされます。
+</p></li><li class="listitem"><p>文字列はテキストプロパティーを保持できます。<a class="link" href="ch32s19.html" title="Text Properties">Text Properties</a>を参照してください。
+</p></li><li class="listitem"><p>Emacsがもつ特化された編集機能およびI/O機能の多くが、文字列だけに適用されます。たとえば、文字列をバッファーに挿入する方法では、文字のベクターをバッファーに挿入できません。<a class="link" href="ch05.html" title="Chapter 4. Strings and Characters">Strings
+and Characters</a>を参照してください
+</p></li></ul></div><p>対照的に、(キーシーケンスのような)キーボード入力文字の配列では、多くのキーボード入力文字は、文字列に収まる範囲の外にあるので、ベクターが必要になるでしょう。<a class="link" href="ch21s08.html#Key-Sequence-Input" title="Key Sequence Input">Key
+Sequence Input</a>を参照してください。
+</p></div></body></html>

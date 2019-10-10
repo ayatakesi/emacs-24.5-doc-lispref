@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 12. Functions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Functions"/>Chapter 12. Functions</h1></div></div></div><p>Lispプログラムは主にLisp関数で構成されます。このチャプターは、関数とは何か、引数を受け取る方法、関数を定義する方法を説明します。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="What-Is-a-Function"/>What Is a Function?</h1></div></div></div><a id="idm54199376" class="indexterm"/><a id="idm54198608" class="indexterm"/><a id="idm54197840" class="indexterm"/><p>一般的な意味では、関数とは<em class="firstterm">引数(arguments)</em>と呼ばれる与えられた入力値の計算を担うルールです。計算の結果は、その関数の<em class="firstterm">値(value)</em>、または<em class="firstterm">return値(return
+value)</em>と呼ばれます。計算は、変数の値やデータ構造の内容を変更する等の副作用をもつこともできます。
+</p><p>ほとんどのコンピューター言語では、関数はそれぞれ名前をもちます。しかしLispでは、厳密な意味において、関数は名前をもちません。関数はオブジェクトであり、関数の名前の役割を果たすシンボルに関連づけることができますが(たとえば<code class="literal">car</code>)、それは<span class="emphasis"><em>オプション</em></span>です。<a class="link" href="ch13s03.html" title="Naming a Function">Function
+Names</a>を参照してください。関数が名前を与えられたとき、通常はそのシンボルを“関数”として参照します(たとえば、関数<code class="literal">car</code>のように参照します)。このマニュアルでは、関数名と関数オブジェクト自身との間の区別は、通常は重要ではありませんが、それが意味をもつような場合は注記します。
+</p><p><em class="firstterm">スペシャルフォーム(special
+form)</em>、<em class="firstterm">マクロ(macro)</em>と呼ばれる、関数likeなオブジェクトがいくつかあり、それらも引数を受け受け、計算を担います。しかし以下で説明するように、Emacs
+Lispではこれらは関数とは考えられません。
+</p><p>以下は関数および関数likeなオブジェクトにたいする、重要な条件です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="firstterm">lambda expression</em>
+</span></dt><dd><p>Lispで記述された関数(厳密には関数オブジェクト)です。これらについては、以降のセクションで説明します。
+<a class="link" href="ch13s02.html" title="Lambda Expressions">Lambda Expressions</a>を参照してください。
+</p></dd><dt><span class="term"><em class="firstterm">primitive</em>
+</span></dt><dd><a id="idm54189264" class="indexterm"/><a id="idm54188496" class="indexterm"/><a id="idm54187728" class="indexterm"/><p>Lispから呼び出すことができますが、実際にはCで記述されています。プリミティブは、<em class="firstterm">ビルトイン関数(built-in
+functions)</em>や、<em class="firstterm">サブルーチン(subr)</em>といった呼ばれかたもします。それらの例には関数likeな<code class="literal">car</code>や<code class="literal">append</code>が含まれます。加えて、すべてのスペシャルフォーム(以下参照)もプリミティブと考えられます。
+</p><p>関数はLispの基礎となる部分(たとえば<code class="literal">car</code>)であり、オペレーティングシステムのサービスにたいして値レベルのインターフェースを与え、高速に実行される必要があるため、通常はプリミティブとして実装されています。Lispで定義された関数とは異なり、プリミティブの修正や追加には、Cソースの変更とEmacsのリコンパイルが必要です。<a class="link" href="apes06.html" title="Writing Emacs Primitives">Writing
+Emacs Primitives</a>を参照してください。
+</p></dd><dt><span class="term"><em class="firstterm">special form</em>
+</span></dt><dd><p>プリミティブは関数と似ていますが、すべての引数が通常の方法で評価はされません。いくつかの引数だけが評価されるかもしれず、通常ではない順序で、複数回評価されるかもしれません。プリミティブの例には、<code class="literal">if</code>、<code class="literal">and</code>、<code class="literal">while</code>が含まれます。<a class="link" href="ch10s02.html#Special-Forms" title="Special Forms">Special
+Forms</a>を参照してください。
+</p></dd><dt><span class="term"><em class="firstterm">macro</em>
+</span></dt><dd><a id="idm54171216" class="indexterm"/><p>あるLisp式を、オリジナルの式のかわりに評価される別の式に変換する、関数とは別のLispで定義された構造です。マクロは、スペシャルフォームが行う一連のことを、Lispプログラマーが行うのを可能にします。<a class="link" href="ch14.html" title="Chapter 13. Macros">Macros</a>を参照してください。
+</p></dd><dt><span class="term"><em class="firstterm">command</em>
+</span></dt><dd><a id="idm54168784" class="indexterm"/><p><code class="literal">command-execute</code>プリミティブを通じて呼び出すことができるオブジェクトで、通常はそのコマンドに<em class="firstterm">バインド</em>されたキーシーケンスを、ユーザーがタイプすることにより呼び出されます。<a class="link" href="ch21s03.html" title="Interactive Call">Interactive
+Call</a>を参照してください。コマンドは通常、関数です。その関数がLispで記述されている場合は、関数の定義内の<code class="literal">interactive</code>フォームによりコマンドとなります(<a class="link" href="ch21s02.html" title="Defining Commands">Defining
+Commands</a>を参照してください)。関数であるコマンドは、他の関数と同様、Lisp式から呼び出すこともできます。
+</p><p>キーボードマクロ(文字列およびベクター)は関数ではありませんが、これらもコマンドです。<a class="link" href="ch21s16.html" title="Keyboard Macros">Keyboard
+Macros</a>を参照してください。シンボルの関数セルにコマンドが含まれている場合、わたしたちはそのシンボルをコマンドと言います(<a class="link" href="ch09.html#Symbol-Components" title="Symbol Components">Symbol
+Components</a>を参照してください)。そのような<em class="firstterm">名前つきコマンド(named
+command)</em>は、<strong class="userinput"><code>M-x</code></strong>で呼び出すことができます。
+</p></dd><dt><span class="term"><em class="firstterm">closure</em>
+</span></dt><dd><p>ラムダ式とよく似た関数オブジェクトですが、クロージャーはレキシカル変数バインディングの“環境”にも囲まれています。<a class="link" href="ch13s09.html" title="Closures">Closures</a>を参照してください。
+</p></dd><dt><span class="term"><em class="firstterm">byte-code function</em>
+</span></dt><dd><p>バイトコンパイラーによりコンパイルされた関数です。<a class="link" href="ch03s03.html#Byte_002dCode-Type" title="Byte-Code Function Type">Byte-Code Type</a>を参照してください。
+</p></dd><dt><span class="term"><em class="firstterm">autoload object</em>
+</span></dt><dd><a id="idm54158672" class="indexterm"/><p>実際の関数のプレースホルダーです。autoloadオブジェクトが呼び出された場合、Emacsは実際の関数の定義を含むファイルをロードした後、実際の関数を呼び出します。<a class="link" href="ch16s05.html" title="Autoload">Autoload</a>を参照してください。
+</p></dd></dl></div><p>関数<code class="literal">functionp</code>を使用して、あるオブジェクトが関数かどうかテストできます:
+</p><pre class="synopsis"><a id="idm54155856" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">functionp</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>object</code></em>が任意の種類の関数(たとえば<code class="literal">funcall</code>に渡すことができる)の場合は、<code class="literal">t</code>をreturnします。<code class="literal">functionp</code>は関数を名づけるシンボルにたいしては<code class="literal">t</code>、スペシャルフォームにたいしては<code class="literal">nil</code>をreturnすることに注意してください。
+</p></blockquote></div><p><code class="literal">functionp</code>とは異なり、以下の3つの関数は、シンボルをそれの関数定義としては扱い<span class="emphasis"><em>ません</em></span>。
+</p><pre class="synopsis"><a id="idm54148560" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">subrp</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>がビルトイン関数(たとえばLispプリミティブ)の場合は、<code class="literal">t</code>をreturnします。
+</p><pre class="screen">(subrp 'message)            ; <code class="literal">message</code>はシンボルであり、
+     ⇒ nil                 ;   subrオブジェクトではない。
+</pre><pre class="screen">(subrp (symbol-function 'message))
+     ⇒ t
+</pre></blockquote></div><pre class="synopsis"><a id="idm54130768" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">byte-code-function-p</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>がバイトコード関数の場合は、<code class="literal">t</code>をreturnします。たとえば:
+</p><pre class="screen">(byte-code-function-p (symbol-function 'next-line))
+     ⇒ t
+</pre></blockquote></div><pre class="synopsis"><a id="idm54126032" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">subr-arity</code> <em class="replaceable"><code>subr</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はプリミティブ<em class="replaceable"><code>subr</code></em>の引数リストについての情報を提供します。retrun値は、<code class="literal">(<em class="replaceable"><code>min</code></em>
+.
+<em class="replaceable"><code>max</code></em>)</code>というペアーです。<em class="replaceable"><code>min</code></em>は引数の最小数です。<em class="replaceable"><code>max</code></em>は最大数、または引数<code class="literal">&amp;rest</code>を伴う関数にたいしてはシンボル<code class="literal">many</code>、<em class="replaceable"><code>subr</code></em>がスペシャルフォームの場合はシンボル<code class="literal">unevalled</code>です。
+</p></blockquote></div></div></div></body></html>

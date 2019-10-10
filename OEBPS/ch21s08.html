@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Reading Input</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Reading-Input"/>Reading Input</h1></div></div></div><a id="idm59954256" class="indexterm"/><a id="idm59953488" class="indexterm"/><p>エディターコマンドループはキーシーケンスの読み取りに関数<code class="literal">read-key-sequence</code>を使用し、この関数は<code class="literal">read-event</code>を使用します。イベント入力にたいしてこれらの関数、およびその他の関数がLisp関数から利用できます。<a class="link" href="ch38s08.html" title="Temporary Displays">Temporary
+Displays</a>の<code class="literal">momentary-string-display</code>、および<a class="link" href="ch21s10.html" title="Waiting for Elapsed Time or Input">Waiting</a>の<code class="literal">sit-for</code>も参照してください。端末の入力モードの制御、および端末入力のデバッグに関する関数と変数については、<a class="link" href="ch39s12.html" title="Terminal Input">Terminal
+Input</a>を参照してください。
+</p><p>高レベル入力機能については<a class="link" href="ch20.html" title="Chapter 19. Minibuffers">Minibuffers</a>を参照してください。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Key-Sequence-Input"/>Key Sequence Input</h2></div></div></div><a id="idm59946960" class="indexterm"/><p>コマンドループは<code class="literal">read-key-sequence</code>を呼び出すことにより、キーシーケンスの入力を一度に読み取ります。Lisp関数もこの関数を呼び出すことができます。たとえば<code class="literal">describe-key</code>はキーを説明するためにこの関数を使用します。
+</p><pre class="synopsis"><a id="idm59944528" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-key-sequence</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>continue-echo</code></em> <em class="replaceable"><code>dont-downcase-last</code></em> <em class="replaceable"><code>switch-frame-ok</code></em> <em class="replaceable"><code>command-loop</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はキーシーケンスを読み取り、それを文字列またはベクターでリターンする。この関数は完全なキーシーケンスに蓄積されるまで、つまりカレントでアクティブなキーマップを使用してプレフィクスなしでコマンドを指定するのに十分なキーシーケンスとなるまでイベントの読み取りを継続する(マウスイベントで始まるキーシーケンスは、カレントバッファーではなくマウスのあったウィンドウ内のバッファーのキーマップを使用して読み取られることを思い出してほしい)。
+</p><p>イベントがすべて文字で、それらがすべて文字列に適合する場合、<code class="literal">read-key-sequence</code>は文字列をリターンする(<a class="link" href="ch21s07.html#Strings-of-Events" title="Putting Keyboard Events in Strings">Strings
+of
+Events</a>を参照)。それ以外の場合は文字、シンボル、リストなどすべての種類のイベントを保持できるベクターをリターンする。文字列またはベクターの要素は、キーシーケンス内のイベントである。
+</p><p>キーシーケンスのo読み取りには、そのイベントを変換するさまざまな方法が含まれる。<a class="link" href="ch22s14.html" title="Keymaps for Translating Sequences of Events">Translation Keymaps</a>を参照のこと。
+</p><p>引数<em class="replaceable"><code>prompt</code></em>はプロンプトとしてエコーエリアに表示される文字列か、プロンプトを表示しない<code class="literal">nil</code>である。引数<em class="replaceable"><code>continue-echo</code></em>が非<code class="literal">nil</code>の場合、それは前のキーの継続としてそのキーをエコーすることを意味する。
+</p><p>通常、元となる大文字のイベントが未定義で、それと等価な小文字イベントが定義されている場合、大文字のイベントは小文字のイベントに変換される。引数<em class="replaceable"><code>dont-downcase-last</code></em>が非<code class="literal">nil</code>の場合、それは最後のイベントを小文字に変換しないことを意味する。これはキーシーケンスを定義するときに適している。
+</p><p>引数<em class="replaceable"><code>switch-frame-ok</code></em>が非<code class="literal">nil</code>の場合は、たとえ何かをタイプする前にユーザーがフレームを切り替えたとしても、この関数が<code class="literal">switch-frame</code>を処理すべきでないことを意味する。キーシーケンスの途中でユーザーがフレームを切り替えた場合、またはシーケンスの最初だが<em class="replaceable"><code>switch-frame-ok</code></em>が<code class="literal">nil</code>のときにフレームを切り替えた場合、そのイベントはカレントキーシーケンスの後に延期される。
+</p><p>引数<em class="replaceable"><code>command-loop</code></em>が非<code class="literal">nil</code>の場合は、そのキーシーケンスがコマンドを逐次読み取る何かによりa読み取られることを意味する。呼び出し側が1つのキーシーケンスだけを読み取る場合は、<code class="literal">nil</code>を指定すべきである。
+</p><p>以下の例では、Emacsはエコーエリアにプロンプト‘<code class="literal">?</code>’を表示して、その後ユーザーが<strong class="userinput"><code>C-x C-f</code></strong>をタイプしている。
+</p><pre class="screen">(read-key-sequence "?")
+
+</pre><pre class="screen">---------- Echo Area ----------
+?<strong class="userinput"><code>C-x C-f</code></strong>
+---------- Echo Area ----------
+
+     ⇒ "^X^F"
+</pre><p>関数<code class="literal">read-key-sequence</code>はquitを抑制する。この関数による読み取りの間にタイプされた<strong class="userinput"><code>C-g</code></strong>は他の文字と同じように機能し、<code class="literal">quit-flag</code>をaセットしない。<a class="link" href="ch21s11.html" title="Quitting">Quitting</a>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm59923792" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-key-sequence-vector</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>continue-echo</code></em> <em class="replaceable"><code>dont-downcase-last</code></em> <em class="replaceable"><code>switch-frame-ok</code></em> <em class="replaceable"><code>command-loop</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは<code class="literal">read-key-sequence</code>と同様だが、キーシーケンスを常にベクターでリターンし、文字列では決してリターンしない点が異なる。<a class="link" href="ch21s07.html#Strings-of-Events" title="Putting Keyboard Events in Strings">Strings
+of Events</a>を参照のこと。
+</p></blockquote></div><a id="idm59917904" class="indexterm"/><a id="idm59917136" class="indexterm"/><a id="idm59915984" class="indexterm"/><p>入力文字が大文字(またはシフト修飾をもつ)で、キーバインディングをもたないが、等価な小文字はキーバインディングをもつ場合、<code class="literal">read-key-sequence</code>はその文字を小文字に変換します。<code class="literal">lookup-key</code>はこの方法による大文字小文字変換を行わないことに注意してください。
+</p><a id="idm59913808" class="indexterm"/><p>入力を読み取った結果が<em class="firstterm">シフト変換(shift-translation)</em>されていたような場合、Emacsは変数<code class="literal">this-command-keys-shift-translated</code>に非<code class="literal">nil</code>値をセットします。シフト変換されたキーにより呼びだされたときは挙動を変更する必要があるLispプログラムは、この変数を調べることができます。たとえば、関数<code class="literal">handle-shift-selection</code>はリージョンをアクティブ、または非アクティブにするか判断するためにこの変数の値を調べます(<a class="link" href="ch31s07.html" title="The Mark">handle-shift-selection</a>を参照)。
+</p><p>この関数<code class="literal">read-key-sequence</code>も、マウスイベントのいくつかを変換します。これはバインドされていないドラッグイベントをクリックイベントに変換し、バインドされていないボタンダウンイベントを完全に破棄します。さらにフォーカスイベントとさまざまなウィンドウイベントの再配置も行うため、これらのイベントはキーシーケンス中に他のイベントとともに決して出現しません。
+</p><a id="idm59909328" class="indexterm"/><a id="idm59908176" class="indexterm"/><a id="idm59907024" class="indexterm"/><a id="idm59905872" class="indexterm"/><a id="idm59892432" class="indexterm"/><a id="idm59891280" class="indexterm"/><a id="idm59890128" class="indexterm"/><p>モードラインやスクロールバーのようなウィンドウの特別な箇所でマウスイベントが発生したとき、そのイベント型は特別なことは何も示さず、マウスボタンと修飾キーの組み合わせを通常表すのと同じシンボルになります。ウィンドウの箇所についての情報はイベント内の別のどこか、すなわち座標に保持されています。しかし<code class="literal">read-key-sequence</code>はこの情報を仮想的な“プレフィクスキー”に変換します。これらはすべてシンボルであり<code class="literal">header-line</code>、<code class="literal">horizontal-scroll-bar</code>、<code class="literal">menu-bar</code>、<code class="literal">mode-line</code>、<code class="literal">vertical-line</code>、<code class="literal">vertical-scroll-bar</code>です。これらの仮想的なプレフィクスキーを使用してキーシーケンスを定義することにより、ウィンドウの特別な部分でのカウスクリックにたいして意味を定義できます。
+</p><p>たとえば、<code class="literal">read-key-sequence</code>を呼び出した後にそのウィンドウのモードラインをマウスでクリックすると、以下のように2つのマウスイベントが取得されます:
+</p><pre class="screen">(read-key-sequence "Click on the mode line: ")
+     ⇒ [mode-line
+         (mouse-1
+          (#&lt;window 6 on NEWS&gt; mode-line
+           (40 . 63) 5959987))]
+</pre><pre class="synopsis"><a id="idm59883728" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">num-input-keys</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、そのEmacsセッション内で処理されたキーシーケンスの数である。これには端末からのキーシーケンスと、実行されるキーボードマクロにより読み取られたキーシーケンスが含まれる。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Reading-One-Event"/>Reading One Event</h2></div></div></div><a id="idm59880272" class="indexterm"/><a id="idm59879504" class="indexterm"/><p><code class="literal">read-event</code>,<code class="literal">read-char</code>、<code class="literal">read-char-exclusive</code>は、コマンド入力にたいするもっとも低レベルの関数です。
+</p><pre class="synopsis"><a id="idm59876688" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-event</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>inherit-input-method</code></em> <em class="replaceable"><code>seconds</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はコマンド入力の次のイベントを読み取り、リターンする。必要ならイベントが利用可能になるまで待機する。
+</p><p>リターンされるイベントはユーザーから直接のイベントかもしれないし、またはキーボードマクロからのイベントかもしれない。イベントはキーボードの入力コーディングシステム(<a class="link" href="ch33s10.html#Terminal-I_002fO-Encoding" title="Terminal I/O Encoding">Terminal
+I/O Encoding</a>を参照)により復号されない。
+</p><p>オプション引数<em class="replaceable"><code>prompt</code></em>が非<code class="literal">nil</code>の場合、それはエコーエリアにプロンプトとして表示される文字列である。<code class="literal">nil</code>の場合、<code class="literal">read-event</code>は入力待ちを示すメッセージを何も表示せず、エコーを行うことによりプロンプトの代用とする。エコーで表示されるのはカレントコマンドに至ったイベントや読み取られたイベントの説明である。<a class="link" href="ch38s04.html" title="The Echo Area">The
+Echo Area</a>を参照のこと。
+</p><p><em class="replaceable"><code>inherit-input-method</code></em>が非<code class="literal">nil</code>の場合、(もしあれば)非<acronym class="acronym">ASCII</acronym>文字の入力を可能にするためにカレントの入力メソッドが採用される。それ以外では、このイベントの読み取りにたいして入力メソッドの処理が無効になる。
+</p><p><code class="literal">cursor-in-echo-area</code>が非<code class="literal">nil</code>の場合、<code class="literal">read-event</code>はカーソルを一時的にエコーエリアの、そこに表示されているメッセージの終端に移動する。それ以外では、<code class="literal">read-event</code>はカーソルを移動しない。
+</p><p><em class="replaceable"><code>seconds</code></em>が非<code class="literal">nil</code>の場合、それは入力を待つ最大秒数を指定する数値である。その時間内に入力が何も到着しない場合、<code class="literal">read-event</code>は待機を終えて<code class="literal">nil</code>をリターンする。浮動小数点数<em class="replaceable"><code>seconds</code></em>は待機する秒の分数を意味する。いくつかのシステムではサポートされるのは整数の秒数だけであり、そのようなシステムでは<em class="replaceable"><code>seconds</code></em>は切り捨てられる。<em class="replaceable"><code>seconds</code></em>が<code class="literal">nil</code>の場合、<code class="literal">read-event</code>は入力が到着するのに必要なだけ待機する。
+</p><p><em class="replaceable"><code>seconds</code></em>が<code class="literal">nil</code>の場合、ユーザー入力が到着するのを待つ間、Emacsはアイドル状態にあるとみなされる。この期間中にアイドルタイマー
+— <code class="literal">run-with-idle-timer</code>(<a class="link" href="ch39s11.html" title="Idle Timers">Idle Timers</a>を参照) —
+を実行できる。しかし<em class="replaceable"><code>seconds</code></em>が非<code class="literal">nil</code>の場合には、非アイドル状態は変更されずに残る。<code class="literal">read-event</code>が呼び出されたときEmacsが非アイドルだった場合、<code class="literal">read-event</code>の処理を通じて非アイドルのままとなる。Emacsがアイドルだった場合(これはアイドルタイマー内部からその呼び出しが行われた場合に起こり得る)は、アイドルのままとまる。
+</p><p><code class="literal">read-event</code>がヘルプ文字として定義されたイベントを取得した場合、ある状況においては<code class="literal">read-event</code>がリターンせずに直接イベントを処理することがある。<a class="link" href="ch24s05.html" title="Help Functions">Help
+Functions</a>を参照のこと。その他の<em class="firstterm">スペシャルイベント(special events)</em>(<a class="link" href="ch21s09.html" title="Special Events">Special
+Events</a>を参照)と呼ばれる特定のイベントも<code class="literal">read-event</code>で直接処理される。
+</p><p>以下は<code class="literal">read-event</code>を呼び出してから右矢印キーを押下したとき何が起こるかの例である:
+</p><pre class="screen">(read-event)
+     ⇒ right
+</pre></blockquote></div><pre class="synopsis"><a id="idm59847504" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-char</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>inherit-input-method</code></em> <em class="replaceable"><code>seconds</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はコマンド入力の文字を読み取り、それをリターンする。ユーザーが文字以外(たとえばマウスクリックやファンクションキー)のイベントを生成した場合、<code class="literal">read-char</code>はエラーをシグナルする。引数は<code class="literal">read-event</code>と同じように機能する。
+</p><p>1つ目の例では、ユーザーは文字<strong class="userinput"><code>1</code></strong>(<acronym class="acronym">ASCII</acronym>コード49)をタイプしている。2つ目の例では、<code class="literal">eval-expression</code>を使用してミニバッファーから<code class="literal">read-char</code>を呼び出すキーボード定義を示している。<code class="literal">read-char</code>は、キーボードマクロの直後の文字<strong class="userinput"><code>1</code></strong>を読み取る。その後、<code class="literal">eval-expression</code>はリターン値をエコーエリアに表示する。
+</p><pre class="screen">(read-char)
+     ⇒ 49
+</pre><pre class="screen">
+</pre><pre class="screen">;; <strong class="userinput"><code>M-:</code></strong>を使用して以下を評価するものとする
+(symbol-function 'foo)
+     ⇒ "^[:(read-char)^M1"
+</pre><pre class="screen">(execute-kbd-macro 'foo)
+     ⊣ 49
+     ⇒ nil
+</pre></blockquote></div><pre class="synopsis"><a id="idm59832016" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-char-exclusive</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>inherit-input-method</code></em> <em class="replaceable"><code>seconds</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はコマンド入力の文字を読み取り、それをリターンする。ユーザーが文字以外のイベントを生成した場合、<code class="literal">read-char-exclusive</code>はそれを無視して文字を取得するまで他のイベントを読み取る。引数は<code class="literal">read-event</code>と同じように機能する。
+</p></blockquote></div><p>上記でquitを抑制する関数はありません。
+</p><pre class="synopsis"><a id="idm59826256" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">num-nonmacro-input-events</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は端末から受信した入力イベント(キーボードマクロにより生成されたイベントは勘定されない)の総数を保持する。
+</p></blockquote></div><p><code class="literal">read-key-sequence</code>と異なり、関数<code class="literal">read-event</code>、<code class="literal">read-char</code>、<code class="literal">read-char-exclusive</code>は<a class="link" href="ch22s14.html" title="Keymaps for Translating Sequences of Events">Translation
+Keymaps</a>で説明した変換を行わないことを強調しておきます。単一キー読み取りでこれらの変換を行いたい場合は、関数<code class="literal">read-key</code>を使用してください。
+</p><pre class="synopsis"><a id="idm59820240" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-key</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は1つのキーを読み取る。これは<code class="literal">read-key-sequence</code>と<code class="literal">read-event</code>の間の“中間的”な関数である。<code class="literal">read-key-sequence</code>と異なるのは、キーシーケンスではなく単一キーを読み取ることである。<code class="literal">read-event</code>と異なるのは、rawイベントをリターンせずに<code class="literal">input-decode-map</code>、<code class="literal">local-function-key-map</code>、<code class="literal">key-translation-map</code>(<a class="link" href="ch22s14.html" title="Keymaps for Translating Sequences of Events">Translation
+Keymaps</a>を参照)に合わせて復号と変換を行うことである。
+</p><p>引数<em class="replaceable"><code>prompt</code></em>はプロンプトとしてエコーエリアに表示する文字列で、<code class="literal">nil</code>はプロンプトを表示しないことを意味する。
+</p></blockquote></div><pre class="synopsis"><a id="idm59811280" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-char-choice</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>chars</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>inhibit-quit</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は1つの文字を読み取りリターンするために<code class="literal">read-key</code>を使用する。これは<em class="replaceable"><code>chars</code></em>(許容される文字のリスト)のメンバー以外の入力を無視する。オプションで、有効な入力を待つ間のquitイベントも無視する。<code class="literal">read-char-choice</code>呼び出しの間に<code class="literal">help-form</code>(<a class="link" href="ch24s05.html" title="Help Functions">Help
+Functions</a>を参照)を非<code class="literal">nil</code>値にバインドした場合、<code class="literal">help-char</code>の押下により<code class="literal">help-form</code>が評価され結果が表示される。その後、有効な入力文字、またはキーボードquitの待機を継続する。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Event-Mod"/>Modifying and Translating Input Events</h2></div></div></div><a id="idm59789904" class="indexterm"/><a id="idm59789136" class="indexterm"/><a id="idm59788368" class="indexterm"/><p>Emacsは<code class="literal">extra-keyboard-modifiers</code>に合わせて読み取ったすべてのイベントを変更して、<code class="literal">read-event</code>からリターンする前に、(もし適切なら)<code class="literal">keyboard-translate-table</code>を通じてそれを変換します。
+</p><pre class="synopsis"><a id="idm59785424" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">extra-keyboard-modifiers</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、Lispプログラムにキーボード上の修飾キーを“押下”させる。値は文字である。文字の修飾子だけが対象となる。ユーザーがキーボードのキーを押下するたびに、その修飾キーがすでに押下されたかのように処理される。たとえば、<code class="literal">extra-keyboard-modifiers</code>を<code class="literal">?\C-\M-a</code>にバインドした場合、このバインディングのスコープ内にある間、すべてのキーボード入力文字はコントロール修飾とメタ修飾を適用されるだろう。文字<code class="literal">?\C-@</code>は0と等価なので、この目的にたいしてはコントロール文字として勘定されないが、修飾無しの文字として扱われる。したがって<code class="literal">extra-keyboard-modifiers</code>を0にセットすることにより、すべての修飾をキャンセルできる。
+</p><p>ウィンドウシステムを利用する場合は、この方法によりプログラムが任意の修飾キーを“押下”できる。それ以外は<span class="keycap"><strong>CTL</strong></span>と<span class="keycap"><strong>META</strong></span>のキーだけを仮想的に押下できる。
+</p><p>この変数は実際にキーボード由来のイベントだけに適用され、マウスイベントやその他のイベントには効果がないことに注意されたい。
+</p></blockquote></div><pre class="synopsis"><a id="idm59778896" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">keyboard-translate-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この端末ローカルな変数はキーボード文字にたいする変換テーブルである。これによりコマンドバインディングを変更することなく、キーボード上のキーを再配置できる。値は通常、文字テーブル、または<code class="literal">nil</code>ある(文字列かベクターも指定できるが、時代遅れとされている)
+</p><p><code class="literal">keyboard-translate-table</code>が文字テーブル(<a class="link" href="ch07s06.html" title="Char-Tables">Char-Tables</a>を参照)の場合、キーボードから読み取られたそれぞれの文字はその文字テーブルを調べる。非<code class="literal">nil</code>の値が見つかった場合は、実際の入力文字のかわりにそれを使用する。
+</p><p>この変換は文字が端末から読み取られた後、最初に発生することに注意されたい。<code class="literal">recent-keys</code>のような記録保持機能や文字を記録するdribbleファイルは、この変換の後に処理される。
+</p><p>さらに、この変換は入力メソッド(<a class="link" href="ch33s11.html" title="Input Methods">Input
+Methods</a>を参照)に文字を提供する前に行われることにも注意されたい。入力メソッド処理の後に文字を変換したい場合は、<code class="literal">translation-table-for-input</code>(<a class="link" href="ch33s09.html" title="Translation of Characters">Translation
+of Characters</a>を参照)を使用すること。
+</p></blockquote></div><pre class="synopsis"><a id="idm59770832" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">keyboard-translate</code> <em class="replaceable"><code>from</code></em> <em class="replaceable"><code>to</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は文字コード<em class="replaceable"><code>from</code></em>を文字コード<em class="replaceable"><code>to</code></em>に変換するために、<code class="literal">keyboard-translate-table</code>を変更する。
+必要な場合は、キーボード変換テーブルを作成する。
+</p></blockquote></div><p>以下は<strong class="userinput"><code>C-x</code></strong>でカット、<strong class="userinput"><code>C-</code></strong>でコピー、<strong class="userinput"><code>C-v</code></strong>でペーストを処理するように<code class="literal">keyboard-translate-table</code>を使用する例です:
+</p><pre class="screen">(keyboard-translate ?\C-x 'control-x)
+(keyboard-translate ?\C-c 'control-c)
+(keyboard-translate ?\C-v 'control-v)
+(global-set-key [control-x] 'kill-region)
+(global-set-key [control-c] 'kill-ring-save)
+(global-set-key [control-v] 'yank)
+</pre><p>拡張<acronym class="acronym">ASCII</acronym>入力をサポートするグラフィカルな端末上では、シフトキーとともにタイプすることにより、標準的なEmacsにおける意味をこれらの文字から依然として取得することが可能です。これはキーボード変換が関与する文字とは異なりますが、それらは通常と同じ意味をもちます。
+</p><p><code class="literal">read-key-sequence</code>のレベルでイベントシーケンスを変換するメカニズムについては、<a class="link" href="ch22s14.html" title="Keymaps for Translating Sequences of Events">Translation
+Keymaps</a>を参照してください。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Invoking-the-Input-Method"/>Invoking the Input Method</h2></div></div></div><a id="idm59760208" class="indexterm"/><p>イベント読み取り関数は、もしあればカレント入力メソッドを呼び出します(<a class="link" href="ch33s11.html" title="Input Methods">Input
+Methods</a>を参照)。<code class="literal">input-method-function</code>の値が非<code class="literal">nil</code>の場合、関数を指定します。<code class="literal">read-event</code>が修飾ビットのないプリント文字(<span class="keycap"><strong>SPC</strong></span>を含む)を読み取ったときは、その文字を引数としてその関数を呼び出します。
+</p><pre class="synopsis"><a id="idm59756240" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">input-method-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これが非<code class="literal">nil</code>の場合、その値はカレントの入力メソッド関数を指定する。
+</p><p><span class="bold"><strong>警告:</strong></span>
+この変数は<code class="literal">let</code>でバインドしてはならない。この変数はしばしばバッファーローカルであり、入力の前後(これは正にあなたがバインド<span class="emphasis"><em>するであろう</em></span>タイミングである)でバインドした場合、Emacsが待機中に非同期にバッファーを切り替えると誤ったバッファーに値がリストアされるだろう。
+</p></blockquote></div><p>入力メソッド関数は、入力として使用されるイベントのリストをリターンするべきです(このリストが<code class="literal">nil</code>の場合、それは入力がないことを意味するので、<code class="literal">read-event</code>他のイベントを待機する)。これらのイベントは<code class="literal">unread-command-events</code>(<a class="link" href="ch21s08.html#Event-Input-Misc" title="Miscellaneous Event Input Features">Event
+Input
+Misc</a>を参照)内のイベントの前に処理されます。入力メソッドによりリターンされるイベントは、たとえそれらが修飾ビットのないプリント文字であっても、再度入力メソッドに渡されることはありません。
+</p><p>入力メソッド関数が<code class="literal">read-event</code>または<code class="literal">read-key-sequence</code>を呼び出した場合は、再帰を防ぐために最初に<code class="literal">input-method-function</code>を<code class="literal">nil</code>にバインドするべきです。
+</p><p>キーシーケンスの2つ目および後続のイベントを読み取るときは、入力メソッド関数は呼び出されません。したがって、それらの文字は入力メソッドの処理対象ではありません。入力メソッド関数は<code class="literal">overriding-local-map</code>と<code class="literal">overriding-terminal-local-map</code>の値をテストするべきです。これらの変数のいずれかが非<code class="literal">nil</code>の場合、入力メソッドは引数をリストにputして、それ以上の処理を行わずにそのリストをリターンするべきです。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Quoted-Character-Input"/>Quoted Character Input</h2></div></div></div><a id="idm59739728" class="indexterm"/><p>ユーザーが手軽にコントロール文字やメタ文字。リテラルや8進文字コードを指定できるように、文字の指定をもとめることができます。コマンド<code class="literal">quoted-insert</code>この関数を使用します。
+</p><pre class="synopsis"><a id="idm59737808" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-quoted-char</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm59734864" class="indexterm"/><a id="idm59734096" class="indexterm"/><a id="idm59733328" class="indexterm"/><p>この関数は<code class="literal">read-char</code>同様だが、最初に読み取った文字が8進数
+(0–7)の場合は任意の個数の8進数(8進数以外の文字を見つけた時点でストップする)を読み取り、その文字コードにより表される文字をリターンする。8進シーケンスを終端させた文字が<span class="keycap"><strong>RET</strong></span>の場合、それは無視される。他の終端文字は、この関数がリターンした後に入力として使用される。
+</p><p>最初の文字の読み取り時はquitは抑制されるので、ユーザーはは<strong class="userinput"><code>C-g</code></strong>を入力できる。<a class="link" href="ch21s11.html" title="Quitting">Quitting</a>を参照のこと。
+</p><p><em class="replaceable"><code>prompt</code></em>が与えられた場合、それはユーザーへのプロンプトに使用する文字列を指定する。プロンプト文字列は、その後の1つの‘<code class="literal">-</code>’とともに常にエコーエリアに表示される。
+</p><p>以下の例では、ユーザーは8進数の177(10進数の127)をタイプしている。
+</p><pre class="screen">(read-quoted-char "What character")
+
+</pre><pre class="screen">---------- Echo Area ----------
+What character <strong class="userinput"><code>1 7 7</code></strong>-
+---------- Echo Area ----------
+
+     ⇒ 127
+</pre></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Event-Input-Misc"/>Miscellaneous Event Input Features</h2></div></div></div><p>このセクションでは、イベントを使い切ることなく“先読み”する方法、および入力の保留や保留の破棄の方法について説明します。<a class="link" href="ch20s09.html" title="Reading a Password">Reading a
+Password</a>の関数<code class="literal">read-passwd</code>も参照してください。
+</p><pre class="synopsis"><a id="idm59719888" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">unread-command-events</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm59717840" class="indexterm"/><a id="idm59717072" class="indexterm"/><p>この変数はコマンド入力として読み取り待機中のイベントのリストを保持する。イベントはこのリスト内の出現順に使用され、使用されるごとにリストから取り除かれる。
+</p><p>ある関数がイベントを読み取ってそれを使用するかどうか決定する場合がいくつかあるので、この変数が必要になる。この変数にイベントを格納すると、コマンドループおよにコマンド入力を読み取る関数により、イベントは通常のように処理される。
+</p><a id="idm59703248" class="indexterm"/><p>たとえば、数引数を実装する関数は、任意の個数の数字を読み取る。数字イベントが見つからないとき、関数はそのイベントを読み戻す(unread)ので、そのイベントはコマンドループにより通常通り読み取られることができる。同様に、インクリメンタル検索は、検索において特別な意味をもたないイベントを読み戻すために、この機能を使用する。なぜなら、それらのイベントは検索をexitして、通常どおり実行されるべきだからである。
+</p><p><code class="literal">unread-command-events</code>にイベントを置くためにキーシーケンスからイベントを抽出するには、<code class="literal">listify-key-sequence</code>(以下参照)を使用するのが簡単で信頼のおける方法である。
+</p><p>もっとも最近読み戻したイベントが最初に再読み取りされるように、このリストの先頭にイベントを追加するのが通常である。
+</p><p>通常このリストから読み取ったイベントは、そのイベントが最初に読み取られたときにすでに一度追加されたときのように、カレントコマンドのキーシーケンスに(たとえば<code class="literal">this-command-keys</code>にリターンされたとみのように)追加される。フォーム<code class="literal">(t
+. <em class="replaceable"><code>event</code></em>)</code>の要素は、カレントコマンドのキーシーケンスに<em class="replaceable"><code>event</code></em>を強制的に追加する。
+</p></blockquote></div><pre class="synopsis"><a id="idm59693776" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">listify-key-sequence</code> <em class="replaceable"><code>key</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は文字列またはベクターの<em class="replaceable"><code>key</code></em>を、<code class="literal">unread-command-events</code>置くことができる個別のイベントのリストに変換する。
+</p></blockquote></div><pre class="synopsis"><a id="idm59685584" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">input-pending-p</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>check-timers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm59682640" class="indexterm"/><p>この関数は、コマンド入力がカレントで読み取り可能かどうか判断する。入力が利用可能なら即座に<code class="literal">t</code>を、それ以外は<code class="literal">nil</code>をリターンする。非常に稀だが、入力が利用できないときに<code class="literal">t</code>
+</p><p>オプション引数<em class="replaceable"><code>check-timers</code></em>が非<code class="literal">nil</code>の場合、Emacsは順部位ができたら任意のタイマーを実行する。<a class="link" href="ch39s10.html" title="Timers for Delayed Execution">Timers</a>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm59677904" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">last-input-event</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は最後に読み取られた端末入力イベントがコマンドの一部なのか、それともLispプログラムによる明示的なものなのかを記録する。
+</p><p>以下の例では、文字<strong class="userinput"><code>1</code></strong>(<acronym class="acronym">ASCII</acronym>コード49)をLispプログラムが読み取っている。<strong class="userinput"><code>C-e</code></strong>(<strong class="userinput"><code>C-x
+C-e</code></strong>は式を評価するコマンドとする)が<code class="literal">last-command-event</code>に値として残っている間は、それが<code class="literal">last-input-event</code>の値となる。
+</p><pre class="screen">(progn (print (read-char))
+       (print last-command-event)
+       last-input-event)
+     ⊣ 49
+     ⊣ 5
+     ⇒ 49
+</pre></blockquote></div><pre class="synopsis"><a id="idm59671376" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">while-no-input</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この構成は<em class="replaceable"><code>body</code></em>フォームを実行して、入力が何も到着しない場合だけ最後のフォームの値をリターンする。<em class="replaceable"><code>body</code></em>フォームを実行する間に何らかの入力が到着した場合は、それらの入力をする(quitのように機能する)。<code class="literal">while-no-input</code>フォームは実際のquitによりabortした場合は<code class="literal">nil</code>、入力の到着によりabortした場合は<code class="literal">t</code>をリターンする。
+</p><p><em class="replaceable"><code>body</code></em>の一部で<code class="literal">inhibit-quit</code>を非<code class="literal">nil</code>にバインドした場合、その部分の間に到着した入力は、その部分が終わるまでabortしない。
+</p><p>両方のabort条件を<em class="replaceable"><code>body</code></em>により計算されたすべての可能な値で区別できるようにしたい場合は、以下のようにコードを記述する:
+</p><pre class="screen">(while-no-input
+  (list
+    (progn . <em class="replaceable"><code>body</code></em>)))
+</pre></blockquote></div><pre class="synopsis"><a id="idm59662032" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">discard-input</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm59659856" class="indexterm"/><a id="idm59659088" class="indexterm"/><a id="idm59658320" class="indexterm"/><p>この関数は端末入力バッファーの内容を破棄して定義処理中かもしれないキーボードマクロをキャンセルする。この関数は<code class="literal">nil</code>をリターンする。
+</p><p>以下の例では、フォームの評価開始直後にユーザーが数字か文字をタイプするかもしれない。<code class="literal">sleep-for</code>がスリープを終えた後、<code class="literal">discard-input</code>はスリープ中にタイプされた文字を破棄する。
+</p><pre class="screen">(progn (sleep-for 2)
+       (discard-input))
+     ⇒ nil
+</pre></blockquote></div></div></div></body></html>

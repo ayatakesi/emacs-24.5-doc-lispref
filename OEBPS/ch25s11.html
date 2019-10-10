@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Making Certain File Names “Magic”</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Magic-File-Names"/>Making Certain File Names “Magic”</h1></div></div></div><a id="idm66499408" class="indexterm"/><p>特定のファイル名にたいして、特別な処理を実装できます。これは、それらの名前の<em class="firstterm">magic</em>化と呼ばれます。この機能は主に、リモートファイルにたいするアクセスの実装に使用されます(section “Remote Files” in <em class="citetitle">The GNU Emacs Manual</em>を参照)。
+</p><p>magicファイル名を定義するには、名前クラスを定義するための正規表現、およびそれにマッチするファイル名にたいするEmacsファイル操作プリミティブすべてを実装するハンドラーを定義しなければなりません。
+</p><a id="idm66496976" class="indexterm"/><a id="idm66496208" class="indexterm"/><p>変数<code class="literal">file-name-handler-alist</code>は各ハンドラーに適用するときを決定する正規表現とともに、ハンドラーのリストを保持します。各要素は、以下の形式をもちます:
+</p><pre class="screen">(<em class="replaceable"><code>regexp</code></em> . <em class="replaceable"><code>handler</code></em>)
+</pre><p>ファイルアクセス、およびファイル名変換にたいするすべてのEmacsプリミティブは、<code class="literal">file-name-handler-alist</code>にたいして与えられたファイル名をチェックします。そのファイル名が<em class="replaceable"><code>regexp</code></em>にマッチした場合、そのプリミティブが<em class="replaceable"><code>handler</code></em>を呼び出してファイルを処理します。
+</p><p><em class="replaceable"><code>handler</code></em>の1つ目の引数には、プリミティブの名前をシンボルとして与えます。残りの引数は、そのプリミティブに引数として渡されます(これらの引数の1つ目は、ほとんどの場合はファイル名自体である)。たとえば以下を行い:
+</p><pre class="screen">(file-exists-p <em class="replaceable"><code>filename</code></em>)
+</pre><p><em class="replaceable"><code>filename</code></em>がハンドラー<em class="replaceable"><code>handler</code></em>をもつ場合、<em class="replaceable"><code>handler</code></em>は以下のように呼び出されます:
+</p><pre class="screen">(funcall <em class="replaceable"><code>handler</code></em> 'file-exists-p <em class="replaceable"><code>filename</code></em>)
+</pre><p>関数が2つ以上の引数をとる場合、それらはファイル名でなければならず、関数はそれらのファイル名それぞれにたいしてハンドラーをチェックします。たとえば、
+</p><pre class="screen">(expand-file-name <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>dirname</code></em>)
+</pre><p>以下を行った場合は、<em class="replaceable"><code>filename</code></em>にたいするハンドラーをチェックした後、<em class="replaceable"><code>dirname</code></em>にたいするハンドラーをチェックします。どちらの場合も、<em class="replaceable"><code>handler</code></em>は以下のように呼び出されます:
+</p><pre class="screen">(funcall <em class="replaceable"><code>handler</code></em> 'expand-file-name <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>dirname</code></em>)
+</pre><p>その後、<em class="replaceable"><code>handler</code></em>は<em class="replaceable"><code>filename</code></em>と<em class="replaceable"><code>dirname</code></em>のどちらを処理するか解決する必要があります。
+</p><p>指定されたファイル名が2つ以上のハンドラーにマッチする場合は、ファイル名内で最後に開始するマッチが優先されます。リモートファイルアクセスのようなジョブにたいするハンドラーに先立ち、解凍のようなジョブにたいするハンドラーが最初に処理されるように、このルールが選択されました。
+</p><p>以下は、magicファイル名ハンドラーが処理する操作です:
+</p><p>
+<code class="literal">access-file</code>、<code class="literal">add-name-to-file</code>、<code class="literal">byte-compiler-base-file-name</code>、
+
+<code class="literal">copy-directory</code>、<code class="literal">copy-file</code>、<code class="literal">delete-directory</code>、<code class="literal">delete-file</code>、<code class="literal">diff-latest-backup-file</code>、<code class="literal">directory-file-name</code>、<code class="literal">directory-files</code>、<code class="literal">directory-files-and-attributes</code>、<code class="literal">dired-compress-file</code>、<code class="literal">dired-uncache</code>、
+
+<code class="literal">expand-file-name</code>、<code class="literal">file-accessible-directory-p</code>、<code class="literal">file-acl</code>、<code class="literal">file-attributes</code>、<code class="literal">file-directory-p</code>、<code class="literal">file-equal-p</code>、<code class="literal">file-executable-p</code>、<code class="literal">file-exists-p</code>、<code class="literal">file-in-directory-p</code>、<code class="literal">file-local-copy</code>、<code class="literal">file-modes</code>、<code class="literal">file-name-all-completions</code>、<code class="literal">file-name-as-directory</code>、<code class="literal">file-name-completion</code>、<code class="literal">file-name-directory</code>、<code class="literal">file-name-nondirectory</code>、<code class="literal">file-name-sans-versions</code>、<code class="literal">file-newer-than-file-p</code>、<code class="literal">file-notify-add-watch</code>、<code class="literal">file-notify-rm-watch</code>、<code class="literal">file-ownership-preserved-p</code>、<code class="literal">file-readable-p</code>、<code class="literal">file-regular-p</code>、<code class="literal">file-remote-p</code>、<code class="literal">file-selinux-context</code>、<code class="literal">file-symlink-p</code>、<code class="literal">file-truename</code>、<code class="literal">file-writable-p</code>、<code class="literal">find-backup-file-name</code>、<code class="literal">get-file-buffer</code>、<code class="literal">insert-directory</code>、<code class="literal">insert-file-contents</code>、
+
+<code class="literal">load</code>、<code class="literal">make-auto-save-file-name</code>、<code class="literal">make-directory</code>、<code class="literal">make-directory-internal</code>、<code class="literal">make-symbolic-link</code>、
+
+<code class="literal">process-file</code>、<code class="literal">rename-file</code>、<code class="literal">set-file-acl</code>、<code class="literal">set-file-modes</code>、<code class="literal">set-file-selinux-context</code>、<code class="literal">set-file-times</code>、<code class="literal">set-visited-file-modtime</code>、<code class="literal">shell-command</code>、<code class="literal">start-file-process</code>、<code class="literal">substitute-in-file-name</code>、
+
+<code class="literal">unhandled-file-name-directory</code>、<code class="literal">vc-registered</code>、<code class="literal">verify-visited-file-modtime</code>、
+
+<code class="literal">write-region</code>
+</p><p><code class="literal">insert-file-contents</code>にたいするハンドラーは通常、<em class="replaceable"><code>visit</code></em>引数が非<code class="literal">nil</code>の場合は、<code class="literal">(set-buffer-modified-p
+nil)</code>によりそのバッファーの変更フラグをクリアーする必要があります。これには、もしそのバッファーがロックされていたら、ロックを解除する効果もあります。
+</p><p>ハンドラー関数は上記すべての操作を処理しなければならず、他の操作が将来追加される可能性もあります。これらの操作自体すべてを実装する必要はありません
+—
+特定の操作にたいして特別なことを行う必要がないときは、その操作を“通常の方法”で処理するよう、そのプリミティブを再呼び出しできます。認識できない操作にたいしては、常にそのプリミティブを再呼び出しするべきです。以下は、これを行う方法の1つです:
+</p><pre class="screen">(defun my-file-handler (operation &amp;rest args)
+  ;; 特別に処理する必要がある、
+  ;; 特別な操作を最初にチェックする
+  (cond ((eq operation 'insert-file-contents) …)
+        ((eq operation 'write-region) …)
+        …
+        ;; 関知しないその他の操作を処理する
+        (t (let ((inhibit-file-name-handlers
+                  (cons 'my-file-handler
+                        (and (eq inhibit-file-name-operation operation)
+                             inhibit-file-name-handlers)))
+                 (inhibit-file-name-operation operation))
+             (apply operation args)))))
+</pre><p>ハンドラー関数が通常のEmacsプリミティブを呼び出す決定をした際は、無限再起を引き起こすような、同一ハンドラーからのプリミティブの再呼び出しを防ぐ必要があります。上記の例では、変数<code class="literal">inhibit-file-name-handlers</code>と<code class="literal">inhibit-file-name-operation</code>により、これを行う方法を示しています。上記の例のように、これらを正確に使用するよう、注意してください。複数ハンドラーの正しい振る舞い、およびそれぞれがハンドラーをもつかもしれない2つのファイル名にたいする操作にたいする詳細は、非常に重要です。
+</p><a id="idm66421840" class="indexterm"/><p>ファイルへの実アクセスにたいして実際には特別なことを行わないハンドラー(たとえばリモートファイル名にたいしてホスト名の補完を実装するハンドラーなど)は、<code class="literal">safe-magic</code>プロパティに非<code class="literal">nil</code>をもつべきです。たとえば、Emacsは通常は<code class="literal">PATH</code>内で見い出されるようなディレクトリーが、プレフィックス‘<code class="literal">/:</code>’によりmagicファイル名に見えるような場合に、magicファイル名にならないよう“保護”します。しかし、<code class="literal">safe-magic</code>プロパティに非<code class="literal">nil</code>をもつハンドラーがそれらにたいして使用された場合、‘<code class="literal">/:</code>’は追加されません。
+</p><a id="idm66417104" class="indexterm"/><p>ファイル名ハンドラーは、普通とは異なる方法でそれを処理(handle)するのが、どの操作(operation)なのかを宣言するために、<code class="literal">operations</code>プロパティをもつことができます。このプロパティが非<code class="literal">nil</code>値をもつ場合、それは操作のリストであるべきです。その場合は、それらの操作だけがハンドラーを呼び出すでしょう。これは無駄を省きますが、主な目的はオートロードされるハンドラー関数が実際に処理を行うとき以外はロードされないようにすることです。
+</p><p>通常のプリミティブにたいして、単にすべての操作を延期するのは、機能しません。たとえば、ファイル名ハンドラーが<code class="literal">file-exists-p</code>にたいして適用された場合は、通常の<code class="literal">load</code>コードは正しく機能しないでしょうから、ハンドラー自身で<code class="literal">load</code>を処理しなければなりません。しかし、ハンドラーが<code class="literal">file-exists-p</code>プロパティを使用して、<code class="literal">file-exists-p</code>を処理しないことを宣言した場合は、普通とは異なる方法で<code class="literal">load</code>を処理する必要はなくなります。
+</p><pre class="synopsis"><a id="idm66411216" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">inhibit-file-name-handlers</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、特定の操作にたいして現在のところ使用を抑制されているハンドラーのリストを保持する。
+</p></blockquote></div><pre class="synopsis"><a id="idm66408528" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">inhibit-file-name-operation</code></pre><div class="blockquote"><blockquote class="blockquote"><p>特定のハンドラーにたいして、現在のところ抑制されている操作。
+</p></blockquote></div><pre class="synopsis"><a id="idm66405840" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">find-file-name-handler</code> <em class="replaceable"><code>file</code></em> <em class="replaceable"><code>operation</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>file</code></em>というファイル名にたいするハンドラー関数、それが存在しなければ<code class="literal">nil</code>をリターンする。引数<em class="replaceable"><code>operation</code></em>は、そのファイルを処理する操作であること。これは、ハンドラー呼び出し時に1つ目の引数として渡すことになる値である。<em class="replaceable"><code>operation</code></em>が<code class="literal">inhibit-file-name-operation</code>と等しい、またはそのハンドラーの<code class="literal">operations</code>内に存在しない場合、この関数は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm66399056" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-local-copy</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ファイル<em class="replaceable"><code>filename</code></em>がまだローカルマシン上にない場合は、それをローカルマシン上の通常の非magicファイルにコピーする。magicファイル名は、それらが他のマシン上のファイルを参照する場合は、<code class="literal">file-local-copy</code>操作を処理するべきである。リモートファイルアクセス以外の目的にたいして使用されるmagicファイル名は、<code class="literal">file-local-copy</code>を処理するべきではない。その場合、この関数はそのファイルをローカルファイルとして扱うだろう。
+</p><p><em class="replaceable"><code>filename</code></em>がローカルの場合、それがmagicか否かにかかわらず、この関数は何も行わずに、<code class="literal">nil</code>をリターンする。それ以外では、ローカルコピーファイルのファイル名をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm66397264" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-remote-p</code> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>identification</code></em> <em class="replaceable"><code>connected</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>がリモートファイルかどうかをテストする。<em class="replaceable"><code>filename</code></em>がローカル(リモートではない)の場合、リターン値は<code class="literal">nil</code>である。<em class="replaceable"><code>filename</code></em>が正にリモートの場合、リターン値はそのリモートシステムを識別する文字列である。
+</p><p>この識別子文字列は、ホスト名とユーザー名、およびリモートシステムへのアクセスに使用されるメソッドを表す文字列も同様に含めることができる。たとえば、ファイル名<code class="literal">/sudo::/some/file</code>にたいするリモート識別子文字列は、<code class="literal">/sudo:root@localhost:</code>となる。
+</p><p>2つの異なるファイルにたいして<code class="literal">file-remote-p</code>が同じ識別子をリターンした場合は、それらが同じファイルシステム上に格納されていて、互いに配慮しつつアクセス可能であることを意味する。これはたとえば、同時に両方のファイルにアクセスするリモートプロセスを開始することが可能なことを意味する。ファイルハンドラーの実装者は、この方式を保証する必要がある。
+</p><p><em class="replaceable"><code>identification</code></em>は、文字列としてリターンされるべき識別子の一部を指定する。<em class="replaceable"><code>identification</code></em>には<code class="literal">method</code>、<code class="literal">user</code>、<code class="literal">host</code>のシンボルを指定できる。他の値はすべて<code class="literal">nil</code>のように扱われ、それは完全な識別子文字列をリターンすることを意味する。上記の例では、リモートの<code class="literal">user</code>識別子文字列は、<code class="literal">root</code>になるだろう。
+</p><p><em class="replaceable"><code>connected</code></em>が非<code class="literal">nil</code>の場合、たとえ<em class="replaceable"><code>filename</code></em>がリモートであっても、Emacsがそのホストにたいする接続をもたない場合、この関数は<code class="literal">nil</code>をリターンする。これは、接続が存在しない際の接続の遅延を回避したいときに有用である。
+</p></blockquote></div><pre class="synopsis"><a id="idm66382416" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">unhandled-file-name-directory</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、magicではないディレクトリーの名前をリターンする。これは、<em class="replaceable"><code>filename</code></em>がmagicでなければ、それのディレクトリーパートを使用する。magicファイル名にたいしては、何の値をリターンするかを決定するために、ファイル名ハンドラーを呼び出す。<em class="replaceable"><code>filename</code></em>がローカルプロセスからアクセス不能な場合、ファイル名ハンドラーは<code class="literal">nil</code>をリターンすることにより、それを示すべきである。
+</p><p>これは、サブプロセスの実行に有用である。すべてのサブプロセスは、自身が属すカレントディレクトリーとして非magicディレクトリーをもたなければならず、この関数はそれを導出するよい手段である。
+</p></blockquote></div><pre class="synopsis"><a id="idm66377552" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">remote-file-name-inhibit-cache</code></pre><div class="blockquote"><blockquote class="blockquote"><p>リモートファイルの属性は、よりよいパフォーマンスのためにキャッシュすることができる。キャッシュがEmacsの制御外で変更された場合、そのキャッシュ値は無効になり、再読込しなければならない。
+</p><p>この変数が<code class="literal">nil</code>にセットされていると、キャッシュ値は決して失効しない。このセッティングは、Emacs以外にリモートファイルを変更するものがないことが確実な場合のみ、慎重に使用すること。これが<code class="literal">t</code>にセットされていると、キャッシュ値は決して使用されない。これはもっとも安全な値であるが、パフォーマンスは低下するかもしれない。
+</p><p>折衷的な値としては、これを正の数字にセットする。これは、キャッシュされてからその数字の秒数の間は、キャッシュ値を使用することを意味する。リモートファイルが定期的にチェックされる場合には、この変数を定期的なチェックの間隔より小さい値にletバインドするのは、よい考えかもしれない。たとえば:
+</p><pre class="screen">(defun display-time-file-nonempty-p (file)
+  (let ((remote-file-name-inhibit-cache
+         (- display-time-interval 5)))
+    (and (file-exists-p file)
+         (&lt; 0 (nth 7 (file-attributes
+                       (file-chase-links file)))))))
+</pre></blockquote></div></div></body></html>

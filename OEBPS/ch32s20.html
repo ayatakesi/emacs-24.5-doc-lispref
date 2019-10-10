@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Substituting for a Character Code</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Substitution"/>Substituting for a Character Code</h1></div></div></div><a id="idm74850512" class="indexterm"/><a id="idm74849744" class="indexterm"/><p>以下の関数は、文字コードにもとづいて、指定されたリージョン内の文字を置き換えます。
+</p><pre class="synopsis"><a id="idm74848208" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">subst-char-in-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em> <em class="replaceable"><code>old-char</code></em> <em class="replaceable"><code>new-char</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>noundo</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm74843728" class="indexterm"/><p>この関数は、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>で定義されるカレントバッファーのリージョン内に出現する文字<em class="replaceable"><code>old-char</code></em>を<em class="replaceable"><code>new-char</code></em>に置き換える。
+</p><a id="idm74841040" class="indexterm"/><p><em class="replaceable"><code>noundo</code></em>が非<code class="literal">nil</code>なら、<code class="literal">subst-char-in-region</code>はundo用に変更を記録せず、バッファーを変更済みとマークしない。これは、古い機能である選択的ディスプレイ(<a class="link" href="ch38s07.html" title="Selective Display">Selective
+Display</a>を参照)にとって有用だった。
+</p><p><code class="literal">subst-char-in-region</code>はポイントを移動せず、<code class="literal">nil</code>をリターンする。
+</p><pre class="screen">---------- Buffer: foo ----------
+This is the contents of the buffer before.
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(subst-char-in-region 1 20 ?i ?X)
+     ⇒ nil
+
+---------- Buffer: foo ----------
+ThXs Xs the contents of the buffer before.
+---------- Buffer: foo ----------
+</pre></blockquote></div><pre class="synopsis"><a id="idm74835280" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">translate-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em> <em class="replaceable"><code>table</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、バッファー内の位置<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>の間の文字にたいして、変換テーブル(translation
+table)を適用する。
+</p><p>変換テーブル<em class="replaceable"><code>table</code></em>は、文字列、または文字テーブルである。<code class="literal">(aref <em class="replaceable"><code>table</code></em>
+<em class="replaceable"><code>ochar</code></em>)</code>は、<em class="replaceable"><code>ochar</code></em>に対応した変換後の文字を与える。<em class="replaceable"><code>table</code></em>が文字列なら、<em class="replaceable"><code>table</code></em>の長さより大きいコードの文字は、この変更により変更されない。
+</p><p><code class="literal">translate-region</code>のリターン値は、その変換により実際に変更された文字数である。変換テーブル内でその文字自身にマップされる文字は勘定に入らない。
+</p></blockquote></div></div></body></html>

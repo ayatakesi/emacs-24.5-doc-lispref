@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Conventions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Conventions"/>Conventions</h1></div></div></div><p>このセクションでは、このマニュアルで使用する表記規約を説明します。あなたはこのセクションはスキップして、後で参照したいと思うかもしれません。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Some-Terms"/>Some Terms</h2></div></div></div><p>このマニュアルでは、“Lispリーダー”および“Lispプリンター”という用語で、Lispのテキスト表現を実際のLispオブジェクトに変換したり、その逆を行なうLispルーチンを参照します。詳細については、<a class="link" href="ch03.html#Printed-Representation" title="Printed Representation and Read Syntax">Printed
+Representation</a>を参照してください。あなた、つまりこのマニュアルを読んでいる人のことは“プログラマー”と考えて“あなた”と呼びます。“ユーザー”とは、あなたの記述したものも含めて、Lispプログラムを使用する人を指します。
+</p><a id="idm44361936" class="indexterm"/><p>Lispコードの例は、<code class="literal">(list 1 2 3)</code>のようなフォーマットです。メタ構文変数(metasyntactic
+variables)を表す名前や、説明されている関数の引数名前は、<em class="replaceable"><code>first-number</code></em>のような形式です。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="nil-and-t"/><code class="literal">nil</code> and <code class="literal">t</code></h2></div></div></div><a id="idm44341712" class="indexterm"/><a id="idm44340944" class="indexterm"/><a id="idm44340176" class="indexterm"/><a id="idm44339152" class="indexterm"/><p>Emacs
+Lispでは、シンボル<code class="literal">nil</code>には3つの異なる意味があります。1つ目は‘<code class="literal">nil</code>’という名前のシンボル、2つ目は論理値の<em class="replaceable"><code>false</code></em>、3つ目は空リスト
+— つまり要素が0のリストです。変数として使用した場合、<code class="literal">nil</code>は常に値<code class="literal">nil</code>をもちます。
+</p><p>Lispリーダーに関する限り、‘<code class="literal">()</code>’と‘<code class="literal">nil</code>’は同一です。これらは同じオブジェクト、つまりシンボル<code class="literal">nil</code>を意味します。このシンボルを異なる方法で記述するのは、完全に人間の読み手を意図したものです。Lispリーダーが‘<code class="literal">()</code>’か‘<code class="literal">nil</code>’のどちらかを読み取った後は、プログラマーが実際にどちらの表現で記述したかを判断する方法はありません。
+</p><p>このマニュアルでは、空リストを意味することを強調したいときは<code class="literal">()</code>と記述し、論理値の<em class="replaceable"><code>false</code></em>を意味することを強調したいときは<code class="literal">nil</code>と記述します。この慣習はLispプログラムで使用してもよいでしょう。
+</p><pre class="screen">(cons 'foo ())                ; 空リストを強調
+(setq foo-flag nil)           ; 論理値の<em class="replaceable"><code>false</code></em>を強調
+</pre><a id="idm44317392" class="indexterm"/><a id="idm44316368" class="indexterm"/><p>論理値が期待されているコンテキストでは、非<code class="literal">nil</code>は<em class="replaceable"><code>true</code></em>と判断されます。しかし論理値の<em class="replaceable"><code>true</code></em>を表す好ましい方法は<code class="literal">t</code>です。<em class="replaceable"><code>true</code></em>を表す値を選択する必要があり、他に選択の根拠がない場合は、<code class="literal">t</code>を使用してください。シンボル<code class="literal">t</code>は、常に値<code class="literal">t</code>をもちます。
+</p><p>Emacs
+Lispでは、<code class="literal">nil</code>と<code class="literal">t</code>は、常に自分自身を評価する、特別なシンボルです。そのためプログラムでこれらを定数として使用する場合、クォートする必要はありません。これらの値を変更しようと試みると、結果は<code class="literal">setting-constant</code>エラーとなります。<a class="link" href="ch12s02.html" title="Variables that Never Change">Constant
+Variables</a>を参照してください。
+</p><pre class="synopsis"><a id="idm44308816" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">booleanp</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><em class="replaceable"><code>object</code></em>が、2つの正規のブーリーン値(<code class="literal">t</code>または<code class="literal">nil</code>)の場合は、非<code class="literal">nil</code>をリターンします。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Evaluation-Notation"/>Evaluation Notation</h2></div></div></div><a id="idm44303056" class="indexterm"/><a id="idm44302288" class="indexterm"/><a id="idm44301520" class="indexterm"/><p>評価することができるLisp式のことを、<em class="firstterm">フォーム(form)</em>と呼びます。フォームの評価により、これは結果として常に、Lispオブジェクトを生成します。このマニュアルの例では、これを‘<code class="literal">⇒</code>’で表します:
+</p><pre class="screen">(car '(1 2))
+     ⇒ 1
+</pre><p>これは、“<code class="literal">(car '(1 2))</code>を評価すると1になる”と読むことができます。
+</p><p>フォームがマクロ呼び出しの場合、それは評価されるための新しいLispのフォームに展開されます。展開された結果は‘<code class="literal">↦</code>’で表します。展開されたフォームを評価した結果を表すこともあれば、表さない場合もあります。
+</p><pre class="screen">(third '(a b c))
+     ↦ (car (cdr (cdr '(a b c))))
+     ⇒ c
+</pre><p>1つのフォームを説明するために、同じ結果を生成する別のフォームを示すこともあります。完全に等価な2つのフォームは、‘<code class="literal">≡</code>’で表します。
+</p><pre class="screen">(make-sparse-keymap) ≡ (list 'keymap)
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Printing-Notation"/>Printing Notation</h2></div></div></div><a id="idm44294224" class="indexterm"/><p>このマニュアルの例の多くは、それらが評価されるときにテキストをプリントします。(<code class="filename">*scratch*</code>バッファーのような)Lisp
+Interactionバッファーでコード例を実行する場合、プリントされるテキストはそのバッファーに挿入されます。(関数<code class="literal">eval-region</code>で評価するなど)他の方法でコード例を実行する場合、プリントされるテキストはエコーエリアに表示されます。
+</p><p>このマニュアルの例はプリントされるテキストがどこに出力されるかに関わらず、それを‘<code class="literal">⊣</code>’で表します。フォームを評価することにより戻される値は、‘<code class="literal">⇒</code>’とともに後続の行で示します。
+</p><pre class="screen">(progn (prin1 'foo) (princ "\n") (prin1 'bar))
+     ⊣ foo
+     ⊣ bar
+     ⇒ bar
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Error-Messages"/>Error Messages</h2></div></div></div><a id="idm44288976" class="indexterm"/><p>エラーをシグナルする例も、いくつかあります。これは通常、エコーエリアにエラーメッセージを表示します。エラーメッセージの行は、‘<code class="literal">error→</code>’で始まります。‘<code class="literal">error→</code>’自体は、エコーエリアに表示されないことに注意してください。
+</p><pre class="screen">(+ 23 'x)
+error→ Wrong type argument: number-or-marker-p, x
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Buffer-Text-Notation"/>Buffer Text Notation</h2></div></div></div><a id="idm44268880" class="indexterm"/><p>バッファー内容の変更を説明する例もあり、それらの例ではテキストの“before(以前)”と“after(以後)”のバージョンを示します。それらの例では、バッファー内容の該当する部分を、ダッシュを用いた2行の破線(バッファー名を含む)で示します。さらに、‘<code class="literal">★</code>’はポイントの位置を表します(もちろんポイントのシンボルは、バッファーのテキストの一部ではなく、それはポイントが現在配されている2つの文字の<span class="emphasis"><em>間</em></span>の位置を表します)。
+</p><pre class="screen">---------- Buffer: foo ----------
+This is the ★contents of foo.
+---------- Buffer: foo ----------
+
+(insert "changed ")
+     ⇒ nil
+---------- Buffer: foo ----------
+This is the changed ★contents of foo.
+---------- Buffer: foo ----------
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Format-of-Descriptions"/>Format of Descriptions</h2></div></div></div><a id="idm44265296" class="indexterm"/><p>このマニュアルでは関数(function)、変数(variable)、コマンド(command)、ユーザーオプション(user
+option)、スペシャルフォーム(special
+form)を、統一されたフォーマットで記述します。記述の最初の行には、そのアイテムの名前と、もしあれば引数(argument)が続きます。
+そのアイテムの属するカテゴリー(function、variableなど)は、行の先頭に表示します。
+それ以降の行は説明行で、例を含む場合もあります。
+</p><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="A-Sample-Function-Description"/>A Sample Function Description</h3></div></div></div><a id="idm44263248" class="indexterm"/><a id="idm44262480" class="indexterm"/><a id="idm44261712" class="indexterm"/><a id="idm44260944" class="indexterm"/><p>関数の記述では、関数の名前が最初に記述されます。同じ行に引数の名前のリストが続きます。引数の値を参照するために、引数の名前は記述の本文にも使用されます。
+</p><p>引数リストの中にキーワード<code class="literal">&amp;optional</code>がある場合、その後の引数が省略可能であることを示します(省略された引数のデフォルトは<code class="literal">nil</code>です)。その関数を呼び出すときは、<code class="literal">&amp;optional</code>を記述しないでください。
+</p><p>キーワード<code class="literal">&amp;rest</code>(これの後には1つの引数名を続けなければなりません)は、その後に任意の引数を続けることができることを表します。<code class="literal">&amp;rest</code>の後に記述された引数名の値には、その関数に渡された残りのすべての引数がリストとしてセットされます。この関数を呼び出すときは、<code class="literal">&amp;rest</code>を記述しないでください。
+</p><p>以下は<code class="literal">foo</code>という架空の関数(function)の説明です:
+</p><pre class="synopsis"><a id="idm44254672" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">foo</code> <em class="replaceable"><code>integer1</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>integer2</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>integers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>関数<code class="literal">foo</code>は<em class="replaceable"><code>integer2</code></em>から<em class="replaceable"><code>integer1</code></em>を減じてから、その結果に残りすべての引数を加えます。<em class="replaceable"><code>integer2</code></em>が与えられなかった場合、デフォルトして数値19が使用されます。
+</p><pre class="screen">(foo 1 5 3 9)
+     ⇒ 16
+(foo 5)
+     ⇒ 14
+</pre><p>より一般的には、
+</p><pre class="screen">(foo <em class="replaceable"><code>w</code></em> <em class="replaceable"><code>x</code></em> <em class="replaceable"><code>y</code></em>…)
+≡
+(+ (- <em class="replaceable"><code>x</code></em> <em class="replaceable"><code>w</code></em>) <em class="replaceable"><code>y</code></em>…)
+</pre></blockquote></div><p>慣例として引数の名前には、(たとえば<em class="replaceable"><code>integer</code></em>、<em class="replaceable"><code>integer1</code></em>、<em class="replaceable"><code>buffer</code></em>のような)期待されるタイプ名が含めます。(<em class="replaceable"><code>buffers</code></em>のような)複数形のタイプは、しばしばそのタイプのオブジェクトのリストを意味します。<em class="replaceable"><code>object</code></em>のような引き数名は、それが任意のタイプであることを表します(Emacsオブジェクトタイプのリストは、<a class="link" href="ch03.html" title="Chapter 2. Lisp Data Types">Lisp
+Data
+Types</a>を参照してください)。他の名前をもつ引数(たとえば<em class="replaceable"><code>new-file</code></em>)は、関数に固有の引数で、関数がドキュメント文字列をもつ場合、引数のタイプはその中で説明されるべきです(<a class="link" href="ch24.html" title="Chapter 23. Documentation">Documentation</a>を参照してください)。
+</p><p><code class="literal">&amp;optional</code>や<code class="literal">&amp;rest</code>により修飾される引数の、より完全な説明は、<a class="link" href="ch13s02.html" title="Lambda Expressions">Lambda
+Expressions</a>を参照してください。
+</p><p>コマンド(command)、マクロ(macro)、スペシャルフォーム(special
+form)の説明も同じフォーマットをもちますが、‘<code class="literal">Function</code>’が‘<code class="literal">Command</code>’、‘<code class="literal">Macro</code>’、‘<code class="literal">Special
+Form</code>’に置き換えられます。コマンドは単にインタラクティブに呼び出すことができる関数です。マクロは関数とは違う方法(引数は評価されません)で引数を処理しますは、同じ方法で記述されます。
+</p><p>マクロとスペシャルフォームにたいする説明には、特定のオプション引数や繰り替えされる引数のために、より複雑な表記が使用されます。なぜなら引数リストが、より複雑な方法で別の引数に分離されるからです。‘<code class="literal">[<em class="replaceable"><code>optional-arg</code></em>]</code>’は<em class="replaceable"><code>optional-arg</code></em>がオプションであることを意味し、‘<code class="literal"><em class="replaceable"><code>repeated-args</code></em>…</code>’は0個以上の引数を表します。カッコ(parentheses)は、複数の引数をリスト構造の追加レベルにグループ化するのに使用されます。以下は例です:
+</p><pre class="synopsis"><a id="idm47588688" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">count-loop</code> (<em class="replaceable"><code>var</code></em> [<em class="replaceable"><code>from</code></em> <em class="replaceable"><code>to</code></em> [<em class="replaceable"><code>inc</code></em>]]) <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この架空のスペシャルフォームは、
+<em class="replaceable"><code>body</code></em>フォームを実行してから変数<em class="replaceable"><code>var</code></em>をインクリメントするループを実装します。最初の繰り返しでは変数は値<em class="replaceable"><code>from</code></em>をもちます。以降の繰り返しでは、変数は1(<em class="replaceable"><code>inc</code></em>が与えられた場合は<em class="replaceable"><code>inc</code></em>)増加されます。<em class="replaceable"><code>var</code></em>が<em class="replaceable"><code>to</code></em>に等しい場合、<em class="replaceable"><code>body</code></em>を実行する前にループをexitします。以下は例です:
+</p><pre class="screen">(count-loop (i 0 10)
+  (prin1 i) (princ " ")
+  (prin1 (aref vector i))
+  (terpri))
+</pre><p><em class="replaceable"><code>from</code></em>と<em class="replaceable"><code>to</code></em>が省略された場合、ループを実行する前に<em class="replaceable"><code>var</code></em>に<code class="literal">nil</code>がバインドされ、繰り返しの先頭において<em class="replaceable"><code>var</code></em>が非<code class="literal">nil</code>の場合は、ループをexitします。以下は例です:
+</p><pre class="screen">(count-loop (done)
+  (if (pending)
+      (fixit)
+    (setq done t)))
+</pre><p>このスペシャルフォームでは、引数<em class="replaceable"><code>from</code></em>および<em class="replaceable"><code>to</code></em>はオプションですが、両方を指定するか、両方を未指定にしなければなりません。これらの引数が与えられた場合、オプションで<em class="replaceable"><code>inc</code></em>も同様に指定することができます。これらの引数は、フォームのすべての残りの要素を含む<em class="replaceable"><code>body</code></em>と区別するために、引数<em class="replaceable"><code>var</code></em>とともにリストにグループ化されます。
+</p></blockquote></div></div><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="A-Sample-Variable-Description"/>A Sample Variable Description</h3></div></div></div><a id="idm47573584" class="indexterm"/><a id="idm47572816" class="indexterm"/><p><em class="firstterm">変数(variable)</em>とは、オブジェクトに<em class="firstterm">バインド(bind)</em>(または<em class="firstterm">set</em>)される名前です。変数がバインドされたオブジェクトのことを<em class="firstterm">値(value)</em>と呼びます。このような場合、その変数が値をもつ、という言い方もします。ほとんどすべての変数はユーザーがセットすることができますが、特にユーザーが変更できる特定の変数も存在し、これらは<em class="firstterm">ユーザーオプション(user
+options)</em>と呼ばれます。通常の変数およびユーザーオプションは、関数と同様のフォーマットを使用して説明されますが、それらには引数がありません。
+</p><p>以下は架空の変数<code class="literal">electric-future-map</code>にたいする説明です。
+</p><pre class="synopsis"><a id="idm47568720" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">electric-future-map</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値はElectric Command
+Futureモードで使用される完全なキーマップです。このマップの関数により、まだ実行していないコマンドの編集が可能になります。
+</p></blockquote></div><p>ユーザーオプションも同じフォーマットをもちますが、‘<code class="literal">Variable</code>’が‘<code class="literal">User Option</code>’に置き換えられます。
+</p></div></div></div></body></html>

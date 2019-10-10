@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 16. Byte Compilation</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Byte-Compilation"/>Chapter 16. Byte Compilation</h1></div></div></div><a id="idm55868496" class="indexterm"/><a id="idm55867728" class="indexterm"/><a id="idm55866960" class="indexterm"/><p>Emacs
+Lispには、Lispで記述された関数を、より効率的に実行できる<em class="firstterm">バイトコード(byte-code)</em>と呼ばれる特別な表現に翻訳する<em class="firstterm">コンパイラー(compiler)</em>があります。コンパイラーはLispの関数定義をバイトコードに置き換えます。バイトコード関数が呼び出されたとき、その定義は<em class="firstterm">バイトコードインタープリター(byte-code
+interpreter)</em>により評価されます。
+</p><p>バイトコンパイルされたコードは、(本当のコンパイル済みコードのように)そのマシンのハードウェアにより直接実行されるのではなく、バイトコンパイラーにより評価されるため、バイトコードはリコンパイルしなくてもマシン間での完全な可搬性を有します。しかし、本当にコンパイルされたコードほど高速ではありません。
+</p><p>一般的に、任意のバージョンのEmacsはそれ以前のバージョンのEmacsにより生成されたバイトコンパイル済みコードを実行できますが、逆は成り立ちません。
+</p><a id="idm55863888" class="indexterm"/><p>あるLispファイルを常にコンパイルせずに実行したい場合は、以下のように<code class="literal">no-byte-compile</code>にバインドするファイルローカル変数を配します:
+</p><pre class="screen">;; -*-no-byte-compile: t; -*-
+</pre><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Speed-of-Byte_002dCode"/>Performance of Byte-Compiled Code</h1></div></div></div><p>バイトコンパイルされた関数はCで記述されたプリミティブ関数ほど効率的ではありませんがLispで記述されたバージョンよりは高速に実行されます。以下は例です:
+</p><pre class="screen">(defun silly-loop (n)
+  "Return the time, in seconds, to run N iterations of a loop."
+  (let ((t1 (float-time)))
+    (while (&gt; (setq n (1- n)) 0))
+    (- (float-time) t1)))
+⇒ silly-loop
+</pre><pre class="screen">
+</pre><pre class="screen">(silly-loop 50000000)
+⇒ 10.235304117202759
+</pre><pre class="screen">
+</pre><pre class="screen">(byte-compile 'silly-loop)
+⇒ [コンパイルされたコードは表示されない]
+</pre><pre class="screen">
+</pre><pre class="screen">(silly-loop 50000000)
+⇒ 3.705854892730713
+</pre><p>この例では、インタープリターによる実行には10秒を要しますが、バイトコンパイルされたコードは4秒未満です。これは典型的な結果例ですが、実際の結果はさまざまでしょう。
+</p></div></div></body></html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Syntax Table Internals</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Syntax-Table-Internals"/>Syntax Table Internals</h1></div></div></div><a id="idm75946192" class="indexterm"/><p>構文テーブルは文字テーブル(<a class="link" href="ch07s06.html" title="Char-Tables">Char-Tables</a>を参照)として実装されていますが、ほとんどのLispプログラムが直接それらの要素に作用することはありません。構文テーブルは構文データとして構文記述子を格納しません(<a class="link" href="ch35s02.html" title="Syntax Descriptors">Syntax
+Descriptors</a>を参照)。それらは内部的なフォーマットを使用しており、それについてはこのセクションで説明します。この内部的フォーマットは、構文プロパティとして割り当てることもできます(<a class="link" href="ch35s04.html" title="Syntax Properties">Syntax
+Properties</a>を参照)。
+</p><a id="idm75943504" class="indexterm"/><a id="idm75942736" class="indexterm"/><p>構文テーブル内の各要素は<em class="firstterm">raw構文記述子(raw syntax
+descriptor)</em>という、<code class="literal">(<em class="replaceable"><code>syntax-code</code></em>
+.
+<em class="replaceable"><code>matching-char</code></em>)</code>という形式のコンスセルです。<em class="replaceable"><code>syntax-code</code></em>は、下記のテーブルに応じて構文クラスと構文フラグをエンコードする整数です。<em class="replaceable"><code>matching-char</code></em>が非<code class="literal">nil</code>なら、それはマッチング文字(構文記述子内の2つ目の文字と同様)を指定します。
+</p><p>以下は、さまざまな構文クラスに対応する構文コードです。
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col/><col/><col/><col/></colgroup><tbody><tr><td><p><span class="emphasis"><em>Code</em></span> </p></td><td><p><span class="emphasis"><em>Class</em></span> </p></td><td><p><span class="emphasis"><em>Code</em></span> </p></td><td><p><span class="emphasis"><em>Class</em></span>
+</p></td></tr><tr><td><p>0 </p></td><td><p>空白文字 </p></td><td><p>8 </p></td><td><p>区切り文字ペアー
+</p></td></tr><tr><td><p>1 </p></td><td><p>句読点 </p></td><td><p>9 </p></td><td><p>エスケープ
+</p></td></tr><tr><td><p>2 </p></td><td><p>単語 </p></td><td><p>10 </p></td><td><p>文字クォート
+</p></td></tr><tr><td><p>3 </p></td><td><p>シンボル </p></td><td><p>11 </p></td><td><p>コメント開始
+</p></td></tr><tr><td><p>4 </p></td><td><p>開カッコ </p></td><td><p>12 </p></td><td><p>コメント終了
+</p></td></tr><tr><td><p>5 </p></td><td><p>閉カッコ </p></td><td><p>13 </p></td><td><p>継承
+</p></td></tr><tr><td><p>6 </p></td><td><p>式プレフィクス </p></td><td><p>14 </p></td><td><p>汎用コメント
+</p></td></tr><tr><td><p>7 </p></td><td><p>文字列クォート </p></td><td><p>15 </p></td><td><p>汎用文字列
+</p></td></tr></tbody></table></div><p>たとえば標準構文テーブルでは、‘<code class="literal">(</code>’にたいするエントリーは<code class="literal">(4 . 41)</code>であり、41は‘<code class="literal">)</code>’の文字コードです。
+</p><p>構文フラグは、最下位ビットから16ビット目より始まる、高位ビットにエンコードされます。以下のテーブルは、対応する各構文フラグにたいして、2のべき乗を与えます。
+</p><div class="informaltable"><table class="informaltable" border="1"><colgroup><col/><col/><col/><col/></colgroup><tbody><tr><td><p><span class="emphasis"><em>Prefix</em></span> </p></td><td><p><span class="emphasis"><em>Flag</em></span> </p></td><td><p><span class="emphasis"><em>Prefix</em></span> </p></td><td><p><span class="emphasis"><em>Flag</em></span>
+</p></td></tr><tr><td><p>‘<code class="literal">1</code>’ </p></td><td><p><code class="literal">(lsh 1 16)</code> </p></td><td><p>‘<code class="literal">p</code>’ </p></td><td><p><code class="literal">(lsh 1 20)</code>
+</p></td></tr><tr><td><p>‘<code class="literal">2</code>’ </p></td><td><p><code class="literal">(lsh 1 17)</code> </p></td><td><p>‘<code class="literal">b</code>’ </p></td><td><p><code class="literal">(lsh 1 21)</code>
+</p></td></tr><tr><td><p>‘<code class="literal">3</code>’ </p></td><td><p><code class="literal">(lsh 1 18)</code> </p></td><td><p>‘<code class="literal">n</code>’ </p></td><td><p><code class="literal">(lsh 1 22)</code>
+</p></td></tr><tr><td><p>‘<code class="literal">4</code>’ </p></td><td><p><code class="literal">(lsh 1 19)</code>
+</p></td><td class="auto-generated"> </td><td class="auto-generated"> </td></tr></tbody></table></div><pre class="synopsis"><a id="idm75897424" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">string-to-syntax</code> <em class="replaceable"><code>desc</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>与えられた構文記述子<em class="replaceable"><code>desc</code></em>(文字列)にたいして、この関数は対応するraw構文記述子をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm75893840" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">syntax-after</code> <em class="replaceable"><code>pos</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、バッファー内の位置<em class="replaceable"><code>pos</code></em>の後の文字にたいして、構文テーブルと同様に構文プロパティも考慮した、raw構文記述子をリターンする。<em class="replaceable"><code>pos</code></em>がバッファーのアクセス可能範囲(<a class="link" href="ch30s04.html" title="Narrowing">accessible portion</a>を参照)の外部なら、リターン値は<code class="literal">nil</code>となる。
+</p></blockquote></div><pre class="synopsis"><a id="idm75888848" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">syntax-class</code> <em class="replaceable"><code>syntax</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はraw構文記述子<em class="replaceable"><code>syntax</code></em>にたいする、構文コードをリターンする。より正確には、これはraw構文記述子の<em class="replaceable"><code>syntax-code</code></em>要素から、構文フラグを記録する高位16ビットをマスクして、その結果の整数をリターンする。
+</p><p><em class="replaceable"><code>syntax</code></em>が<code class="literal">nil</code>なら、リターン値は<code class="literal">nil</code>となる。これは以下の式
+</p><pre class="screen">(syntax-class (syntax-after pos))
+</pre><p>は、<code class="literal">pos</code>がバッファーのアクセス可能範囲外部なら、エラーをthrowしたり不正なコードをリターンすることなく、<code class="literal">nil</code>に評価されるからである。
+</p></blockquote></div></div></body></html>

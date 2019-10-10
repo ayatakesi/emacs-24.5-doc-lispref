@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Calling Functions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Calling-Functions"/>Calling Functions</h1></div></div></div><a id="idm53977296" class="indexterm"/><a id="idm53976528" class="indexterm"/><p>関数を定義しただけでは、半分しか終わっていません。関数はそれを<em class="firstterm">呼び出す(call)</em> —
+たとえば実行(run)するまでは、何も行いません。関数のcallは、<em class="firstterm">invocation</em>としても知られています。
+</p><p>関数を呼び出すもっとも一般的な方法は、リストの評価による方法です。たとえば、リスト<code class="literal">(concat "a"
+"b")</code>を評価することにより、関数<code class="literal">concat</code>が引数<code class="literal">"a"</code>と<code class="literal">"b"</code>で呼び出されます。評価については、<a class="link" href="ch10.html" title="Chapter 9. Evaluation">Evaluation</a>を参照してください。
+</p><p>プログラム内で式としてリストを記述するときは、プログラム内にテキストで、どの関数を呼び出すか、いくつの引数を与えるかを指定します。通常は、これが行いたいことです。どの関数を呼び出すかを、実行時に計算する必要がある場合もあります。これを行うには、関数<code class="literal">funcall</code>を使用します。実行時にいくつの引数を渡すか決定する必要があるときは、<code class="literal">apply</code>を使用します。
+</p><pre class="synopsis"><a id="idm53969872" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">funcall</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>arguments</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">funcall</code>は、関数<em class="replaceable"><code>function</code></em>を引数<em class="replaceable"><code>arguments</code></em>で呼び出し、<em class="replaceable"><code>function</code></em>がreturnした値をreturnします。
+</p><p><code class="literal">funcall</code>は関数なので、<em class="replaceable"><code>function</code></em>を含むすべての引数は、<code class="literal">funcall</code>の呼び出し前に評価されます。これは、呼び出される関数を得るための任意の式を使用できることを意味します。これはまた、<code class="literal">funcall</code>が<em class="replaceable"><code>arguments</code></em>に記述した式ではなく、その値だけを見ることを意味します。これらの値は<em class="replaceable"><code>function</code></em>呼び出し中では、2回目は評価<span class="emphasis"><em>されません</em></span>。<code class="literal">funcall</code>の処理は、関数の通常の呼び出し手続きと似ており、すでに評価された引数は評価されません。
+</p><p>引数<em class="replaceable"><code>function</code></em>は、Lisp関数、またはプリミティブ関数でなければなりません。つまりスペシャルフォームやマクロは、“評価されていない”引数式を与えられたときだけ意味があるので、指定することはできません。上述したように、<code class="literal">funcall</code>は最初に指定された評価前の引数を提供することはできません。
+</p><pre class="screen">(setq f 'list)
+     ⇒ list
+</pre><pre class="screen">(funcall f 'x 'y 'z)
+     ⇒ (x y z)
+</pre><pre class="screen">(funcall f 'x 'y '(z))
+     ⇒ (x y (z))
+</pre><pre class="screen">(funcall 'and t nil)
+error→ Invalid function: #&lt;subr and&gt;
+</pre><p>これらの例を、<code class="literal">apply</code>の例と比較してみてください。
+</p></blockquote></div><pre class="synopsis"><a id="idm53956560" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">apply</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>arguments</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">apply</code>は、関数<em class="replaceable"><code>function</code></em>を引数<em class="replaceable"><code>arguments</code></em>で呼び出します。これは<code class="literal">funcall</code>と同様ですが、1つ違いがあります。<em class="replaceable"><code>arguments</code></em>の最後はオブジェクトのリストです。これは1つのリストではなく、個別の引数として<em class="replaceable"><code>function</code></em>に渡されます。わたしたちはこれを、<code class="literal">apply</code>がこのリストを<em class="firstterm">展開(spread)</em>(個々の要素が引数となるので)する、と言います。
+</p><p><code class="literal">apply</code>は、<em class="replaceable"><code>function</code></em>を呼び出した結果をreturnします。<code class="literal">funcall</code>と同様、<em class="replaceable"><code>function</code></em>はLisp関数かプリミティブ関数でなければなりません。つまりスペシャルフォームやマクロは、<code class="literal">apply</code>では意味をもちません。
+</p><pre class="screen">(setq f 'list)
+     ⇒ list
+</pre><pre class="screen">(apply f 'x 'y 'z)
+error→ Wrong type argument: listp, z
+</pre><pre class="screen">(apply '+ 1 2 '(3 4))
+     ⇒ 10
+</pre><pre class="screen">(apply '+ '(1 2 3 4))
+     ⇒ 10
+</pre><pre class="screen">
+</pre><pre class="screen">(apply 'append '((a b c) nil (x y z) nil))
+     ⇒ (a b c x y z)
+</pre><p><code class="literal">apply</code>を使用した興味深い例は、<a class="link" href="ch13s06.html#Definition-of-mapcar">Definition of mapcar</a>を参照してください。
+</p></blockquote></div><a id="idm53926608" class="indexterm"/><a id="idm53925840" class="indexterm"/><p>ある関数にたいして、その関数のある引数を特定の値に固定し、他の引数は実際に呼びだされたときの値にできれば便利なことがあります。関数のいくつかの引数を固定することは、その関数の<em class="firstterm">部分適用(partial
+application)</em>と呼ばれます<a href="#ftn.idm53924432" class="footnote" id="idm53924432"><sup class="footnote">[9]</sup></a>。結果は、残りの引数をとる新たな関数で、すべての引数を合わせて元の関数を呼び出します。
+</p><p>Emacs Lispで部分適用を行う方法を示します:
+</p><pre class="synopsis"><a id="idm53922640" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">apply-partially</code> <em class="replaceable"><code>func</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、新たな関数をreturnします。この新しい関数は、呼びだされたときに<em class="replaceable"><code>args</code></em>と、呼び出し時に指定された追加の引数から成る引数リストで<em class="replaceable"><code>func</code></em>を呼び出す関数です。<em class="replaceable"><code>func</code></em>に<em class="replaceable"><code>n</code></em>個の引数を指定できる場合、<code class="literal"><em class="replaceable"><code>m</code></em>
+&lt; <em class="replaceable"><code>n</code></em></code>個の引数で<code class="literal">apply-partially</code>を呼び出すと、<code class="literal"><em class="replaceable"><code>n</code></em> -
+<em class="replaceable"><code>m</code></em></code>個の新たな関数を生成します。
+</p><p>以下は、<code class="literal">apply-partially</code>と他のビルトイン関数<code class="literal">+</code>,を使用して、(もし存在しないなら)ビルトイン関数<code class="literal">1+</code>を定義する例です:
+</p><pre class="screen">(defalias '1+ (apply-partially '+ 1)
+  "Increment argument by one.")
+</pre><pre class="screen">(1+ 10)
+     ⇒ 11
+</pre></blockquote></div><a id="idm53907664" class="indexterm"/><p>引数として関数をとったり、データ構造(特にフック変数やプロパティーリスト)から関数を探す関数はLispでは一般的で、それらは<code class="literal">funcall</code>や<code class="literal">apply</code>を使用してそれらの関数を呼び出します。引数として関数をとる関数は、<em class="firstterm">ファンクショナル(functional)</em>と呼ばれるときもあります。
+</p><p>ファンクショナルを呼び出すとき、引数としてno-op関数(何も行わない関数)を指定できると便利なときがあります。以下に２つの異なるno-op関数を示します:
+</p><pre class="synopsis"><a id="idm53875792" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">identity</code> <em class="replaceable"><code>arg</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>arg</code></em>をreturnします。副作用はありません。
+</p></blockquote></div><pre class="synopsis"><a id="idm53872208" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">ignore</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は任意の引数を無視して、<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><p>いくつかの関数はユーザーに可視な<em class="firstterm">コマンド</em>で、これらは(通常はキーシーケンスを介して)対話的に呼び出すことができます。そのようなコマンドは、<code class="literal">call-interactively</code>関数を使用することにより、対話的に呼びだされたときと同様に呼び出すことができます。<a class="link" href="ch21s03.html" title="Interactive Call">Interactive
+Call</a>を参照してください。
+</p><div class="footnotes"><br/><hr/><div id="ftn.idm53924432" class="footnote"><p><a href="#idm53924432" class="para"><sup class="para">[9] </sup></a>これは<em class="firstterm">カリー化(currying)</em>と関連しますが、異なる機能です。カーリングは、複数の引数をとる関数を、関数チェーンとして呼び出せるような、１つの引数を取る個々の関数に変換するような方法です。</p></div></div></div></body></html>

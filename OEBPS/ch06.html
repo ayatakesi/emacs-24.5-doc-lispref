@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 5. Lists</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Lists"/>Chapter 5. Lists</h1></div></div></div><a id="idm49871952" class="indexterm"/><a id="idm49871184" class="indexterm"/><p><em class="firstterm">リスト(list)</em>は0個以上の要素(任意のLispオブジェクト)のシーケンスを表します。リストとベクターの重要な違いは、、2つ以上のリストが、構造の一部を共有できることです。加えて、リスト全体をコピーすることなく、要素の挿入、削除ができます。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Cons-Cells"/>Lists and Cons Cells</h1></div></div></div><a id="idm49868880" class="indexterm"/><p>Lispでのリストは基本データ型ではありません。リストは<em class="firstterm">コンスセル(cons cells)</em>から構築されます(<a class="link" href="ch03s03.html#Cons-Cell-Type" title="Cons Cell and List Types">Cons Cell
+Type</a>を参照してください)。コンスセルは、順序つきペアを表現するデータオブジェクトです。つまり、コンスセルは2つのスロットをもち、それぞれのスロットはLispオブジェクトを<em class="firstterm">保持(holds)</em>、または<em class="firstterm">参照(refers
+to)</em>します。1つのスロットはCAR、もう1つはCDRです(これらの名前は歴史的なものです。<a class="link" href="ch03s03.html#Cons-Cell-Type" title="Cons Cell and List Types">Cons Cell
+Type</a>を参照してください)。CDRは“could-er(クダー)”と発音されます。
+</p><p>わたしたちは、コンスセルのCARスロットに現在保持されているオブジェクトが何であれ、“このコンスセルのCARは、...”のような言い方をします。これはCDRの場合も同様です。
+</p><p>リストとは、“互いにつながった(chained
+together)”一連のコンスセルであり、各セルは次のセルを参照します。リストの各要素にたいして、それぞれ1つのコンスセルがあります。慣例により、コンスセルのCARはリストの要素を保持し、CDRはリストをチェーンするのに使用されます(CARとCDRの間の非対称性は完全に慣例的なものです。コンスセルのレベルでは、CARスロットとCDRスロットは同じようなプロパティーをもちます)。したがって、リスト内の各コンスセルのCDRスロットは、次のコンスセルを参照します。
+</p><a id="idm49864784" class="indexterm"/><p>これも慣例的なものですが、リスト内の最後のコンスセルのCDRは<code class="literal">nil</code>です。わたしたちは、このような<code class="literal">nil</code>で終端された構造を、<em class="firstterm">真リスト(true
+list)</em>と呼びます。Emacs
+Lispでは、シンボル<code class="literal">nil</code>は、シンボルであり、要素なしのリストでもあります。便宜上、シンボル<code class="literal">nil</code>は、そのCDR(およびCAR)に<code class="literal">nil</code>をもつと考えます。
+</p><p>したがって真リストのCDRは、常に真リストです。空でない真リストのCDRは、1番目の要素以外を含む真リストです。
+</p><a id="idm49860304" class="indexterm"/><a id="idm49859536" class="indexterm"/><p>リストの最後のコンスセルのCDRが<code class="literal">nil</code>以外の何らかの値の場合、このリストのプリント表現はドットペア表記(dotted pair
+notation。<a class="link" href="ch03s03.html#Dotted-Pair-Notation" title="Dotted Pair Notation">Dotted Pair
+Notation</a>を参照してください)を使用するので、わたしたちはこの構造を<em class="firstterm">ドットリスト(dotted
+list)</em>と呼びます。他の可能性もあります。あるコンスセルのCDRが、そのリストのそれより前にある要素を指すかもしれません。わたしたちは、この構造を<em class="firstterm">循環リスト(circular
+list)</em>と呼びます。
+</p><p>ある目的にたいしては、そのリストが真リストか、循環リストなのか、ドットリストなのかが問題にならない場合もあります。そのプログラムが、リストを充分に下って最後のコンスセルのCDRを確認しようとしないなら、これは問題になりません。しかし、リストを処理するの関数のいくつかは、真リストを要求し、ドットリストの場合はエラーをシグナルします。リストの最後を探そうと試みる関数のほとんどは、循環リストを与えると無限ループに突入します。
+</p><a id="idm49856080" class="indexterm"/><p>ほとんどのコンスセルはリストの一部として使用されるので、わたしたちはコンスセルで構成される任意の構造を、<em class="firstterm">リスト構造(list
+structure)</em>と呼びます。
+</p></div></div></body></html>

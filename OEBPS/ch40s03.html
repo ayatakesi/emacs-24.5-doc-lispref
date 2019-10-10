@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Multi-file Packages</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Multi_002dfile-Packages"/>Multi-file Packages</h1></div></div></div><a id="idm85066960" class="indexterm"/><p>複数ファイルパッケージは、単一ファイルパッケージより作成の手軽さが少し劣りますが、より多くの機能を提供します。複数ファイルパッケージには複数のEmacs
+Lispファイル、Infoマニュアル、および(イメージのような)他のファイルタイプを含めることができます。
+</p><p>インストールに先立ち、複数パッケージはファイルとしてパッケージアーカイブに含まれます。このtarファイルは<code class="filename"><em class="replaceable"><code>name</code></em>-<em class="replaceable"><code>version</code></em>.tar</code>という名前でなければなりません。ここで<em class="replaceable"><code>name</code></em>はパッケージ名、<em class="replaceable"><code>version</code></em>はバージョン番号です。tarのコンテンツは一度解凍されたなら、<em class="firstterm">コンテンツディレクトリcontent
+directory)</em>である<code class="filename"><em class="replaceable"><code>name</code></em>-<em class="replaceable"><code>version</code></em></code>という名前のディレクトリーにすべて解凍されなければなりません(<a class="link" href="ch40.html#Packaging-Basics" title="Packaging Basics">Packaging
+Basics</a>を参照)。このコンテンツディレクトリーのサブディレクトリーにも、ファイルが抽出されるかもしれません。
+</p><p>このコンテンツディレクトリー内のファイルのうち1つは、<code class="filename"><em class="replaceable"><code>name</code></em>-pkg.el</code>という名前のファイルでなければなりません。このファイルには、以下で説明する関数<code class="literal">define-package</code>の呼び出しから構成される、単一のLispフォームを含まなければなりません。これは、そのパッケージのバージョン、簡単な説明(brief
+description)、必要条件(requirements)を定義します。
+</p><p>たとえば、複数ファイルパッケージとしてsuperfrobnicatorのバージョン1.3を配布する場合、tarファイルは<code class="filename">superfrobnicator-1.3.tar</code>になります。これのコンテンツは<code class="filename">superfrobnicator-1.3</code>に解凍され、そのうちの1つはファイル<code class="filename">superfrobnicator-pkg.el</code>になるでしょう。
+</p><pre class="synopsis"><a id="idm85057616" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">define-package</code> <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>version</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>docstring</code></em> <em class="replaceable"><code>requirements</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はパッケージを定義する。<em class="replaceable"><code>name</code></em>は、そのパッケージの名前(文字列)、<em class="replaceable"><code>version</code></em>は関数<code class="literal">version-to-list</code>が理解できる形式のバージョン(文字列)<em class="replaceable"><code>docstring</code></em>は簡単な説明(brief
+description)。
+</p><p><em class="replaceable"><code>requirements</code></em>は、必要となるパッケージとそれらのバージョン番号。このリスト内の各要素は<code class="literal">(<em class="replaceable"><code>dep-name</code></em>
+<em class="replaceable"><code>dep-version</code></em>)</code>という形式であること。ここで<em class="replaceable"><code>dep-name</code></em>はその依存するパッケージ名が名前であるようなシンボル、<em class="replaceable"><code>dep-version</code></em>は依存するパッケージのバージョン番号(文字列)である。
+</p></blockquote></div><p>コンテンツディレクトリーに<code class="filename">README</code>という名前のファイルがあれば、それは長い説明(long description)として使用されます。
+</p><p>コンテンツディレクトリーに<code class="filename">dir</code>という名前のファイルがあれば、<span class="command"><strong>install-info</strong></span>で作成されるInfoディレクトリーファイル名と▽みなされます。section “Invoking install-info” in <em class="citetitle">Texinfo</em>を参照してください。関係のあるInfoファイルも、このコンテンツディレクトリー内に解凍される必要があります。この場合、そのパッケージがアクティブ化されたとき、Emacsは自動的に<code class="literal">Info-directory-list</code>にコンテンツディレクトリーを追加します。
+</p><p>パッケージ内に、<code class="filename">.elc</code>ファイルを含めないでください。これらは、そのパッケージのインストール時に作成されます。ファイルがバイトコンパイルされる順序を制御する方法は存在しないことに注意してください。
+</p><p><code class="filename"><em class="replaceable"><code>name</code></em>-autoloads.el</code>という名前のファイルを含めてはなりません。このファイルは、そのパッケージのautoload定義のために予約済みです(<a class="link" href="ch40.html#Packaging-Basics" title="Packaging Basics">Packaging
+Basics</a>を参照)。これはパッケージのインストール時に、そのパッケージ内のすべてのLispファイルからautoloadマジックコメントを検索する際、自動的に作成されます。
+</p><p>複数パッケージファイルが、(イメージのような)補助的なデータファイルを含む場合、パッケージ内のLispファイルは変数<code class="literal">load-file-name</code>を通じて、それらのファイルを参照できます(<a class="link" href="ch16.html" title="Chapter 15. Loading">Loading</a>を参照)。以下は例です:
+</p><pre class="screen">(defconst superfrobnicator-base (file-name-directory load-file-name))
+
+(defun superfrobnicator-fetch-image (file)
+  (expand-file-name file superfrobnicator-base))
+</pre></div></body></html>

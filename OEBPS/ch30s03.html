@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Excursions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Excursions"/>Excursions</h1></div></div></div><a id="idm73352912" class="indexterm"/><p>プログラム中の限定された部分で、ポイントを“一時的”に移動するのが便利なことが時折あります。これは<em class="firstterm">エクスカーション(excursion:
+遠足、小旅行)</em>と呼ばれ、スペシャルフォーム<code class="literal">save-excursion</code>により行います。この構成は、初期のカレントバッファー自体、ポイントおよびマークの値を記憶して、そのエクスカーション完了時にそれらをリストアします。これはプログラムのある部分において、プログラムの他の部分に影響を与えることなくポイントを移動する標準的な手段であり、EmacsのLispソース内では何度も使用されています。
+</p><p>カレントバッファー自体のみの保存およびリストアが必要な場合は、かわりに<code class="literal">save-current-buffer</code>や<code class="literal">with-current-buffer</code>を使用してください(<a class="link" href="ch27s02.html" title="The Current Buffer">Current
+Buffer</a>を参照)。ウィンドウ構成の保存やリストアが必要なら、<a class="link" href="ch28s24.html" title="Window Configurations">Window Configurations</a>および<a class="link" href="ch29s12.html" title="Frame Configurations">Frame
+Configurations</a>で説明されているフォームを参照してください。 
+</p><pre class="synopsis"><a id="idm73343568" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">save-excursion</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm73340752" class="indexterm"/><a id="idm73339984" class="indexterm"/><p>このスペシャルフォームは、カレントバッファー自体、およびポイント値とマーク値を保存して<em class="replaceable"><code>body</code></em>を評価し、最後にバッファーおよび保存したポイントとマークの値をリストアする。<code class="literal">throw</code>またはエラーを通じたアブノーマルexit(<a class="link" href="ch11s05.html" title="Nonlocal Exits">Nonlocal
+Exits</a>を参照)の場合でも、保存された3つすべての値はリストアされる。
+</p><p><code class="literal">save-excursion</code>がリターンする値は<em class="replaceable"><code>body</code></em>内の最後のフォームの結果、または<em class="replaceable"><code>body</code></em>フォームが与えられなければ<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><p><code class="literal">save-excursion</code>は、エクスカーション開始時にカレントだったバッファーのポイントとマークだけを保存ため、そのエクスカーション中に変更された他のバッファーのポイントおよび/またはマークは、その後も効果が残るでしょう。これはしばしば予期せぬ結果を招くので、エクスカーション中に<code class="literal">set-buffer</code>を呼び出した場合、バイトコンパイラーは警告を発します:
+</p><pre class="screen">Warning: Use `with-current-buffer' rather than
+         save-excursion+set-buffer
+</pre><p>このような問題を避けるには、以下の例のように望むカレントバッファーをセット後にのみ<code class="literal">save-excursion</code>を呼び出すべきです:
+</p><pre class="screen">(defun append-string-to-buffer (string buffer)
+  "BUFFER末尾にSTRINGを追加"
+  (with-current-buffer buffer
+    (save-excursion
+      (goto-char (point-max))
+      (insert string))))
+</pre><a id="idm73331920" class="indexterm"/><p>同じように、<code class="literal">save-excursion</code>は<code class="literal">switch-to-buffer</code>のような関数が変更したウィンドウ/バッファーの対応をリストアしません。
+</p><p><span class="bold"><strong>警告:</strong></span>
+保存されたポイント値に隣接する通常のテキスト挿入は、それがすべてのマーカーを再配置するのと同様、保存されたポイントカーを再配置します。より正確には、保存される値は挿入タイプ<code class="literal">nil</code>のマーカーです。<a class="link" href="ch31s05.html" title="Marker Insertion Types">Marker
+Insertion Types</a>を参照してください。したがって、保存されたポイント値のリストア時は、通常は挿入されたテキストの直前になります。
+</p><p>たとえ<code class="literal">save-excursion</code>がマーク位置を保存しても、バッファーを変更する関数が<code class="literal">deactivate-mark</code>をセットするのを禁止しないため、そのコマンド完了後にマークの非アクティブ化が効力を発揮します。<a class="link" href="ch31s07.html" title="The Mark">The
+Mark</a>を参照してください。
+</p></div></body></html>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>The Match Data</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Match-Data"/>The Match Data</h1></div></div></div><a id="idm76773712" class="indexterm"/><p>Emacsは、検索の間に見つかったテキスト片の開始と終了の位置を追跡しています。これは<em class="firstterm">マッチデータ(match
+data)</em>と呼ばれます。このマッチデータのおかげで、メールメッセージ内のデータのような複雑なパターンを検索した後、そのパターンの制御下でマッチ部分を抽出できるのです。
+</p><p>マッチデータには通常、もっとも最近の検索だけが記述されるので、後で参照したい検索と、そのマッチデータの使用の間に、誤って別の検索を行わないように、注意しなければなりません。誤って別の検索を避けるのが不可能な場合は、マッチデータの上書きを防ぐために、その前後でマッチデータの保存とリストアを行わなければなりません。
+</p><p>上書きを行わないと明記されていない限り、すべての関数は上書きを許されていることに注意してください。結果としてバックグラウンド(<a class="link" href="ch39s10.html" title="Timers for Delayed Execution">Timers</a>および<a class="link" href="ch39s11.html" title="Idle Timers">Idle
+Timers</a>を参照されたい)で暗黙に実行される関数は、おそらく明示的にマッチデータの保存とリストアを行うべきでしょう。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Replacing-Match"/>Replacing the Text that Matched</h2></div></div></div><a id="idm76769488" class="indexterm"/><p>以下の関数は、最後の検索でマッチされたテキストのすべて、または一部を置換します。これはマッチデータにより機能します。
+</p><a id="idm76768336" class="indexterm"/><pre class="synopsis"><a id="idm76767312" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">replace-match</code> <em class="replaceable"><code>replacement</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>fixedcase</code></em> <em class="replaceable"><code>literal</code></em> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>subexp</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はバッファー、または文字列にたいして置換処理を行う。
+</p><p>あるバッファーで最後の検索を行った場合は、<em class="replaceable"><code>string</code></em>引数を省略または<code class="literal">nil</code>を指定するべきである。また最後に検索を行ったバッファーがカレントバッファーであることを確認すること。その場合、この関数はマッチしたテキストを<em class="replaceable"><code>replacement</code></em>で置換することにより、そのバッファーを編集する。これは、置換したテキスト終端にポイントを残す。
+</p><p>文字列にたいして最後の検索を行った場合は、同じ文字列が<em class="replaceable"><code>string</code></em>に渡される。その場合、この関数はマッチしたテキストが<em class="replaceable"><code>replacement</code></em>に置き換えられた、新たなテキストをリターンする。
+</p><p><em class="replaceable"><code>fixedcase</code></em>が非<code class="literal">nil</code>なら、<code class="literal">replace-match</code>は大文字小文字を変更せずに置換テキストを使用し、それ以外は置換されるテキストのcapitalize(先頭が大文字)されているかどうかに応じて、置換テキストを変換する。元のテキストがすべて大文字なら、置換テキストを大文字に変換する。元のテキストの単語すべてがcapitalizeされていたら、置換テキストのすべての単語をcapitalizeする。すべての単語が1文字かつ大文字なら、それらはすべて大文字の単語ではなく、capitalizeされた単語として扱われる。
+</p><p><em class="replaceable"><code>literal</code></em>が非<code class="literal">nil</code>なら、<em class="replaceable"><code>replacement</code></em>はそのまま挿入されるが、必要に応じて大文字小文字の変更だけが行われる。これが<code class="literal">nil</code>(デフォルト)なら、文字‘<code class="literal">\</code>’は特別に扱われる。<em class="replaceable"><code>replacement</code></em>内に‘<code class="literal">\</code>’が出現した場合、それは以下のシーケンスのいずれかの一部でなければならない:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">\&amp;</code>’
+</span></dt><dd><a id="idm76753232" class="indexterm"/><p>これは置換されるテキスト全体を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">\<em class="replaceable"><code>n</code></em></code>’ （<em class="replaceable"><code>n</code></em>は数字)
+</span></dt><dd><a id="idm76749904" class="indexterm"/><p>これは、元のregexpの<em class="replaceable"><code>n</code></em>番目の部分式にマッチするテキストを意味する。この部分式とは‘<code class="literal">\(…\)</code>’の内部にグループかされた式である。<em class="replaceable"><code>n</code></em>番目のマッチがなければ、空文字列が代用される。
+</p></dd><dt><span class="term">‘<code class="literal">\\</code>’
+</span></dt><dd><a id="idm76745680" class="indexterm"/><p>これは置換テキスト内で、単一の‘<code class="literal">\</code>’を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">\?</code>’
+</span></dt><dd><p>これは自身を意味する(<code class="literal">replace-regexp</code>と関連するコマンドの互換用。section “Regexp Replace” in <em class="citetitle">The GNU Emacs Manual</em>を参照されたい)。
+</p></dd></dl></div><p>これら以外の‘<code class="literal">\</code>’に続く文字は、エラーをシグナルする。
+</p><p>‘<code class="literal">\&amp;</code>’および‘<code class="literal">\<em class="replaceable"><code>n</code></em></code>’により行われる代替えは、もしあれば大文字小文字変換の後に発生する。したがって、代替えする文字列は決して大文字小文字変換されない。
+</p><p><em class="replaceable"><code>subexp</code></em>が非<code class="literal">nil</code>なら、それは全体のマッチではなく、マッチされたregexpの部分式番号<em class="replaceable"><code>subexp</code></em>だけを置換することを指定する。たとえば‘<code class="literal">foo
+\(ba*r\)</code>’のマッチング後に<code class="literal">replace-match</code>を呼び出すと、<em class="replaceable"><code>subexp</code></em>が1なら‘<code class="literal">\(ba*r\)</code>’にマッチしたテキストだけを置換することを意味する。
+</p></blockquote></div><pre class="synopsis"><a id="idm76718288" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">match-substitute-replacement</code> <em class="replaceable"><code>replacement</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>fixedcase</code></em> <em class="replaceable"><code>literal</code></em> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>subexp</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">replace-match</code>によりバッファーに挿入されるであろうテキストをリターンするが、バッファーを変更しない。これは‘<code class="literal">\<em class="replaceable"><code>n</code></em></code>’や‘<code class="literal">\&amp;</code>’のような構成要素を、マッチしたグループで置き換えた実際の結果を、ユーザーに示したいとき有用である。引数<em class="replaceable"><code>replacement</code></em>、およびオプションの<em class="replaceable"><code>fixedcase</code></em>、<em class="replaceable"><code>literal</code></em>、<em class="replaceable"><code>string</code></em>、<em class="replaceable"><code>subexp</code></em>は、<code class="literal">replace-match</code>のときと同じ意味をもつ。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Simple-Match-Data"/>Simple Match Data Access</h2></div></div></div><p>このセクションでは、最後の検索またはマッチング操作で、それが成功した場合に何がマッチされたのかを調べるための、マッチデータ使用の方法を説明します。
+</p><p>マッチしたテキスト全体、または正規表現の特定のカッコで括られた部分式にたいして、問い合わせることができます。以下の関数で<em class="replaceable"><code>count</code></em>は、どの部分式かを指定できます。<em class="replaceable"><code>count</code></em>が0ならマッチ全体を、<em class="replaceable"><code>count</code></em>が正なら望む部分式を指定します。
+</p><p>正規表現での部分式とは、エスケープされたカッコ‘<code class="literal">\(…\)</code>’でグループ化された表現であることを思い出してください。<em class="replaceable"><code>count</code></em>番目の部分式は、正規表現全体の先頭から‘<code class="literal">\(</code>’を数えることにより見つけられます。最初の部分式が1、2つ目が2、...となります。正規表現だけが部分式をもつことができ、単純な文字列検索の後で利用できるのはマッチ全体の情報だけです。
+</p><p>成功した検索すべては、マッチデータをセットします。したがって検索後は、別の検索を行うかもしれない関数を呼び出す前に、直後にマッチデータを問い合わせるべきです。別の検索を呼び出すかもしれない関数の前後で、かわりにマッチデータの保存とリストアすることもできます(<a class="link" href="ch34s06.html#Saving-Match-Data" title="Saving and Restoring the Match Data">Saving
+Match
+Data</a>を参照)。または<code class="literal">string-match-p</code>のような、マッチデータを変更しないと明示されている関数を使用してください。
+</p><p>検索が成功しようと失敗しようと、マッチデータは変更されます。現在はこのように実装されていますが、これは将来変更されるかもしれません。失敗した後のマッチデータを、信用しないでください。
+</p><pre class="synopsis"><a id="idm76701648" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">match-string</code> <em class="replaceable"><code>count</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>in-string</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、最後の検索またはマッチ処理でマッチしたテキストを、文字列としてリターンする。これは<em class="replaceable"><code>count</code></em>が0ならテキスト全体、<em class="replaceable"><code>count</code></em>が正なら<em class="replaceable"><code>count</code></em>番目のカッコで括られた部分式に対応する部分だけをリターンする。
+</p><p>そのような最後の処理が、文字列にたいする<code class="literal">string-match</code>呼び出しの場合は、引数<em class="replaceable"><code>in-string</code></em>に同じ文字列を渡すべきである。バッファーの検索またはマッチ後は、<em class="replaceable"><code>in-string</code></em>を省略するか<code class="literal">nil</code>を渡すべきである。しかし、最後に検索またはマッチを行ったバッファーが、<code class="literal">match-string</code>呼び出し時にカレントバッファーであることを確認すること。このアドバイスにしたがわない場合は、誤った結果となるだろう。
+</p><p><em class="replaceable"><code>count</code></em>が範囲外か、‘<code class="literal">\|</code>’選択肢内部の部分式が使用されない、または0回の繰り返しなら、値は<code class="literal">nil</code>となる。
+</p></blockquote></div><pre class="synopsis"><a id="idm76692176" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">match-string-no-properties</code> <em class="replaceable"><code>count</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>in-string</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">match-string</code>と似ているが、結果がテキストプロパティをもたない点が異なる。
+</p></blockquote></div><pre class="synopsis"><a id="idm76687696" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">match-beginning</code> <em class="replaceable"><code>count</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、最後に検索された正規表現またはその部分式によりマッチされた、テキストの開始位置をリターンする。
+</p><p><em class="replaceable"><code>count</code></em>が0なら、値はマッチ全体の開始位置となる。それ以外なら、<em class="replaceable"><code>count</code></em>は正規表現内の部分式を指定し、この関数の値はその部分式にたいするマッチの開始位置である。
+</p><p>使用されない、あるいは0回の繰り返しであるような‘<code class="literal">\|</code>’選択肢内部の部分式にたいして、値は<code class="literal">nil</code>になる。
+</p></blockquote></div><pre class="synopsis"><a id="idm76682064" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">match-end</code> <em class="replaceable"><code>count</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">match-beginning</code>と似ているが、マッチの開始ではなく終了位置である点が異なる。
+</p></blockquote></div><p>以下はマッチデータを使用する例です。コメントの数字はテキスト内での位置を示しています:
+</p><pre class="screen">(string-match "\\(qu\\)\\(ick\\)"
+              "The quick fox jumped quickly.")
+              ;0123456789
+     ⇒ 4
+</pre><pre class="screen">
+</pre><pre class="screen">(match-string 0 "The quick fox jumped quickly.")
+     ⇒ "quick"
+(match-string 1 "The quick fox jumped quickly.")
+     ⇒ "qu"
+(match-string 2 "The quick fox jumped quickly.")
+     ⇒ "ick"
+</pre><pre class="screen">
+</pre><pre class="screen">(match-beginning 1)       ; ‘<code class="literal">qu</code>’にたいするマッチ先頭の
+     ⇒ 4                 ;   インデックスは4
+</pre><pre class="screen">
+</pre><pre class="screen">(match-beginning 2)       ; ‘<code class="literal">ick</code>’にたいするマッチ先頭の
+     ⇒ 6                 ;   インデックスは6
+</pre><pre class="screen">
+</pre><pre class="screen">(match-end 1)             ; ‘<code class="literal">qu</code>’にたいするマッチ終端の
+     ⇒ 6                 ;   インデックスは6
+
+(match-end 2)             ; ‘<code class="literal">ick</code>’にたいするマッチ終端の
+     ⇒ 9                 ;   インデックスは9
+</pre><p>別の例を以下に示します。ポイントは最初、行の先頭にあります。検索により、ポイントはスペースと単語‘<code class="literal">in</code>’の間にあります。マッチ全体の先頭はバッファーの9つ目の文字(‘<code class="literal">T</code>’)、1つ目の部分式にたいするマッチの先頭は13番目の文字(‘<code class="literal">c</code>’)です。
+</p><pre class="screen">(list
+  (re-search-forward "The \\(cat \\)")
+  (match-beginning 0)
+  (match-beginning 1))
+    ⇒ (17 9 13)
+</pre><pre class="screen">
+</pre><pre class="screen">---------- Buffer: foo ----------
+I read "The cat ★in the hat comes back" twice.
+        ^   ^
+        9  13
+---------- Buffer: foo ----------
+</pre><p>(この場合、リターンされるインデックスはバッファー位置で、バッファーの1つ目の文字を1と数える。)
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Entire-Match-Data"/>Accessing the Entire Match Data</h2></div></div></div><p>関数<code class="literal">match-data</code>および<code class="literal">set-match-data</code>は、マッチデータ全体を一度に読み取り、または書き込みます。
+</p><pre class="synopsis"><a id="idm76662224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">match-data</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>integers</code></em> <em class="replaceable"><code>reuse</code></em> <em class="replaceable"><code>reseat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、最後の検索によりマッチしたテキストのすべての情報を記録する、位置(マーカーか整数)をリターンする。要素0は、正規表現全体にたいするマッチの、先頭の位置である。要素1は、その正規表現にたいするマッチの、終端の位置である。次の2つの要素は、1つ目の部分式にたいするマッチの先頭と終了、...となる。一般的に要素番号
+2<em class="replaceable"><code>n</code></em>
+は<code class="literal">(match-beginning <em class="replaceable"><code>n</code></em>)</code>に対応し、要素番号
+2<em class="replaceable"><code>n</code></em> + 1
+は<code class="literal">(match-end <em class="replaceable"><code>n</code></em>)</code>に対応する。
+</p><p>すべての要素は通常はマーカーか<code class="literal">nil</code>だが、もし<em class="replaceable"><code>integers</code></em>が非<code class="literal">nil</code>なら、それはマーカーのかわりに整数を使用することを意味する(この場合、マッチデータの完全なリストアwpey容易にするために、リストの最後の要素として、そのバッファー自身が追加される)。<code class="literal">string-match</code>により、最後の検索が文字列にたいして行われた場合、マーカーは文字列無いをポイントできないので、常に整数が使用される。
+</p><p><em class="replaceable"><code>reuse</code></em>が非<code class="literal">nil</code>なら、それはリストであること。この場合、<code class="literal">match-data</code>はマッチデータを<em class="replaceable"><code>reuse</code></em>内に格納する。つまり<em class="replaceable"><code>reuse</code></em>は、破壊的に変更される。<em class="replaceable"><code>reuse</code></em>が、正しい長さである必要はない。特定のマッチデータにたいして長さが十分でなければ、リストは拡張される。<em class="replaceable"><code>reuse</code></em>が長過ぎる場合、長さはそのままで使用しない要素には<code class="literal">nil</code>がセットされる。この機能には、ガベージコレクションの必要頻度を減らす目的がある。
+</p><p><em class="replaceable"><code>reseat</code></em>が非<code class="literal">nil</code>なら、<em class="replaceable"><code>reuse</code></em>リスト内のすべてのマーカーは、存在しない場所を指すよう再設定される。
+</p><p>他の場合と同様、検索関数とその検索のマッチデータへのアクセスを意図する<code class="literal">match-data</code>呼び出しの間に介入するような検索があってはならない。
+</p><pre class="screen">(match-data)
+     ⇒  (#&lt;marker at 9 in foo&gt;
+          #&lt;marker at 17 in foo&gt;
+          #&lt;marker at 13 in foo&gt;
+          #&lt;marker at 17 in foo&gt;)
+</pre></blockquote></div><pre class="synopsis"><a id="idm76633936" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-match-data</code> <em class="replaceable"><code>match-list</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>reseat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>match-list</code></em>の要素からマッチデータをセットする。<em class="replaceable"><code>match-list</code></em>は、前の<code class="literal">match-data</code>呼び出しの値であるようなリストであること(正確には同じフォーマットなら他のものでも機能するだろう)。
+</p><p><em class="replaceable"><code>match-list</code></em>が存在しないバッファーを参照する場合でも、エラーとはならない。これは無意味だが害のない方法で、マッチデータをセットする。
+</p><p><em class="replaceable"><code>reseat</code></em>が非<code class="literal">nil</code>なら、リスト<em class="replaceable"><code>match-list</code></em>内のすべてのマーカーは、存在しない場所を指すよう再設定される。
+</p><a id="idm76626512" class="indexterm"/><p><code class="literal">store-match-data</code>は、半ば時代遅れな<code class="literal">set-match-data</code>のエイリアスである。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Saving-Match-Data"/>Saving and Restoring the Match Data</h2></div></div></div><p>以前に行った検索にたいするマッチデータを後で使用するために保護する必要があるなら、検索を行うかもしれない関数の呼び出し時に、その呼び出し前後でマッチデータの保存とリストアを行う必要があるでしょう。以下はマッチデータ保存に失敗した場合に発生する問題を示す例です:
+</p><pre class="screen">(re-search-forward "The \\(cat \\)")
+     ⇒ 48
+(foo)                   ; <code class="literal">foo</code>が他の検索を行うと
+(match-end 0)
+     ⇒ 61              ; 結果は期待する48と異なる!
+</pre><p><code class="literal">save-match-data</code>で、マッチデータの保存とリストアができます:
+</p><pre class="synopsis"><a id="idm76621008" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">save-match-data</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは<em class="replaceable"><code>body</code></em>を実行して、その前後のマッチデータの保存とリストアをする。リターン値は、<em class="replaceable"><code>body</code></em>内の最後のフォームの値。
+</p></blockquote></div><p><code class="literal">set-match-data</code>と<code class="literal">match-data</code>を一緒に使用して、<code class="literal">save-match-data</code>の効果を真似ることができます。以下は、その方法です:
+</p><pre class="screen">(let ((data (match-data)))
+  (unwind-protect
+      …   ; 元のマッチデータを変更してもOK
+    (set-match-data data)))
+</pre><p>プロセスフィルター関数(see <a class="link" href="ch37s09.html#Filter-Functions" title="Process Filter Functions">Filter
+Functions</a>)、およびプロセスセンチネル(see <a class="link" href="ch37s10.html" title="Sentinels: Detecting Process Status Changes">Sentinels</a>)実行時は、Emacsが自動的にマッチデータの保存とリストアを行います。
+</p></div></div></body></html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Notifications on File Changes</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="File-Notifications"/>Notifications on File Changes</h1></div></div></div><a id="idm85210576" class="indexterm"/><a id="idm85209808" class="indexterm"/><p>いくつかのオペレーティングシステムは、ファイル変更にたいする、ファイルシステムの監視をサポートします。正しく設定されている場合には、Emacsは<code class="filename">gfilenotify</code>、<code class="filename">inotify</code>、<code class="filename">w32notify</code>のようなライブラリーを静的にリンクします。これらのライブラリーにより、ローカルマシン上でのファイルシステムの監視が有効になります。
+</p><p>リモートマシン上のファイルシステムの監視も可能です。section “Remote Files” in <em class="citetitle">The GNU
+Emacs Manual</em>を参照してください。これはEmacsにリンク済みのライブラリーの、いずれか1つに依存する訳ではありません。
+</p><p>通知されたファイル変更によりこれらすべてのライブラリーは異なるイベントを発行するので、Emacsは一意な参照を提供するライブラリー<code class="literal">filenotify</code>を提供しています。
+</p><pre class="synopsis"><a id="idm85205200" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-notify-add-watch</code> <em class="replaceable"><code>file</code></em> <em class="replaceable"><code>flags</code></em> <em class="replaceable"><code>callback</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><em class="replaceable"><code>file</code></em>に関するファイルシステムイベントの監視を追加する。これは、<em class="replaceable"><code>file</code></em>に関するファイルシステムイベントがEmacsに報告されるように取り計らう。
+</p><p>リターン値は、追加された監視のディスクリプター(descriptor)である。これのタイプは背景にあるライブラリーに依存し、以下の例に示すとおり、整数とみなすことはできない。これの比較には、<code class="literal">equal</code>を使用すること。
+</p><p>何らかの理由により、<em class="replaceable"><code>file</code></em>が監視不可能なら、この関数はエラー<code class="literal">file-notify-error</code>をシグナルする。
+</p><p>マウントされたファイルシステムでファイル変更を監視できないことがある。これはこの関数により検出されず、非<code class="literal">nil</code>のリターン値が<em class="replaceable"><code>file</code></em>の変更の通知を保証するものではない。
+</p><p><em class="replaceable"><code>flags</code></em>は、何を監視するかセットするための、コンディションのリストである。以下のシンボルを含めることができる:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">change</code>
+</span></dt><dd><p>ファイル変更を監視。
+</p></dd><dt><span class="term"><code class="literal">attribute-change</code>
+</span></dt><dd><p>パーミッションや変更時刻のような、ファイル属性の変更を監視。
+</p></dd></dl></div><p><em class="replaceable"><code>file</code></em>がディレクトリーなら、そのディレクトリー内のすべてのファイルの変更が通知される。これは再帰的には機能しない。
+</p><p>何らかのイベント発生時には、以下の形式の<em class="replaceable"><code>event</code></em>を単一の引数として、Emacsは関数<em class="replaceable"><code>callback</code></em>を呼び出す:
+</p><pre class="programlisting">(<em class="replaceable"><code>descriptor</code></em> <em class="replaceable"><code>action</code></em> <em class="replaceable"><code>file</code></em> [<em class="replaceable"><code>file1</code></em>])
+</pre><p><em class="replaceable"><code>descriptor</code></em>は、この関数がリターンするオブジェクトと同じである。<em class="replaceable"><code>action</code></em>はイベントを示し、以下のシンボルのいずれかである:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">created</code>
+</span></dt><dd><p><em class="replaceable"><code>file</code></em>が作成された。
+</p></dd><dt><span class="term"><code class="literal">deleted</code>
+</span></dt><dd><p><em class="replaceable"><code>file</code></em>が削除された。
+</p></dd><dt><span class="term"><code class="literal">changed</code>
+</span></dt><dd><p><em class="replaceable"><code>file</code></em>が変更された。
+</p></dd><dt><span class="term"><code class="literal">renamed</code>
+</span></dt><dd><p><em class="replaceable"><code>file</code></em>が<em class="replaceable"><code>file1</code></em>にリネームされた。
+</p></dd><dt><span class="term"><code class="literal">attribute-changed</code>
+</span></dt><dd><p><em class="replaceable"><code>file</code></em>の属性が変更された。
+</p></dd></dl></div><p><em class="replaceable"><code>file</code></em>および<em class="replaceable"><code>file1</code></em>は、イベントが報告されたファイルの名前である。たとえば:
+</p><pre class="screen">(require 'filenotify)
+     ⇒ filenotify
+</pre><pre class="screen">
+</pre><pre class="screen">(defun my-notify-callback (event)
+  (message "Event %S" event))
+     ⇒ my-notify-callback
+</pre><pre class="screen">
+</pre><pre class="screen">(file-notify-add-watch
+  "/tmp" '(change attribute-change) 'my-notify-callback)
+     ⇒ 35025468
+</pre><pre class="screen">
+</pre><pre class="screen">(write-region "foo" nil "/tmp/foo")
+     ⇒ Event (35025468 created "/tmp/.#foo")
+        Event (35025468 created "/tmp/foo")
+        Event (35025468 changed "/tmp/foo")
+        Event (35025468 deleted "/tmp/.#foo")
+</pre><pre class="screen">
+</pre><pre class="screen">(write-region "bla" nil "/tmp/foo")
+     ⇒ Event (35025468 created "/tmp/.#foo")
+        Event (35025468 changed "/tmp/foo") [2 times]
+        Event (35025468 deleted "/tmp/.#foo")
+</pre><pre class="screen">
+</pre><pre class="screen">(set-file-modes "/tmp/foo" (default-file-modes))
+     ⇒ Event (35025468 attribute-changed "/tmp/foo")
+</pre><p>アクション<code class="literal">renamed</code>がリターンされるかどうかは、使用する監視ライブラリーに依存する。<em class="replaceable"><code>file</code></em>と<em class="replaceable"><code>file1</code></em>の両方が同じディレクトリーに属し、そのディレクトリーが監視されていればリターンを期待できる。それ以外ではアクション<code class="literal">deleted</code>と<code class="literal">created</code>がランダムな順にリターンされる。
+</p><pre class="screen">(rename-file "/tmp/foo" "/tmp/bla")
+     ⇒ Event (35025468 renamed "/tmp/foo" "/tmp/bla")
+</pre><pre class="screen">
+</pre><pre class="screen">(file-notify-add-watch
+  "/var/tmp" '(change attribute-change) 'my-notify-callback)
+     ⇒ 35025504
+</pre><pre class="screen">
+</pre><pre class="screen">(rename-file "/tmp/bla" "/var/tmp/bla")
+     ⇒ ;; gfilenotify
+        Event (35025468 renamed "/tmp/bla" "/var/tmp/bla")
+
+     ⇒ ;; inotify
+        Event (35025504 created "/var/tmp/bla")
+        Event (35025468 deleted "/tmp/bla")
+</pre></blockquote></div><pre class="synopsis"><a id="idm85154768" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-notify-rm-watch</code> <em class="replaceable"><code>descriptor</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><em class="replaceable"><code>descriptor</code></em>に指定された、既存のファイル監視を削除する。<em class="replaceable"><code>descriptor</code></em>は、<code class="literal">file-notify-add-watch</code>がリターンしたオブジェクトであること。
+</p></blockquote></div></div></body></html>

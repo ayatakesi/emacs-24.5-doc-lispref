@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Test Coverage</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Test-Coverage"/>Test Coverage</h1></div></div></div><a id="idm58667216" class="indexterm"/><a id="idm58666448" class="indexterm"/><a id="idm58665680" class="indexterm"/><a id="idm58664912" class="indexterm"/><p><code class="literal">testcover</code>ライブラリーをロードして、コマンド<strong class="userinput"><code>M-x testcover-start <span class="keycap"><strong>RET</strong></span>
+<em class="replaceable"><code>file</code></em>
+<span class="keycap"><strong>RET</strong></span></code></strong>でコードをインストルメントすることにより、Lispコードのファイルにたいしてカバレッジテストを行なうことができます。コードを1回以上呼び出すことにより、テストが行なわれます。コマンド<strong class="userinput"><code>M-x
+testcover-mark-all</code></strong>を使用すれば、カバレッジが不十分な箇所が色付きでハイライト表示されます。コマンド<strong class="userinput"><code>M-x
+testcover-next-mark</code></strong>は、次のハイライトされた箇所へポイントを前方に移動します。
+</p><p>通常、赤くハイライトされた箇所はそのフォームが完全に評価されたことが一度もないことを示し、茶色でハイライトされた箇所は常に同じ値に評価された(その結果にたいして少ししかテストされていない)ことを意味します。しかし、<code class="literal">error</code>のように完全に評価するのが不可能なフォームにたいしては、赤いハイライトはスキップされます。<code class="literal">(setq
+x 14)</code>のように、常に同じ値に評価されることが期待されるフォームにたいしては、茶色のハイライトスキップされます。
+</p><p>難しいケースでは、テストカバレッジツールにアドバイスを与えるために、コードにdo-nothingマクロを追加することができます。
+</p><pre class="synopsis"><a id="idm58646096" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">1value</code> <em class="replaceable"><code>form</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><em class="replaceable"><code>form</code></em>を評価してその値をリターンするが、テストカバレッジにたいして<em class="replaceable"><code>form</code></em>が常に同じ値だという情報を与える。
+</p></blockquote></div><pre class="synopsis"><a id="idm58642256" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">noreturn</code> <em class="replaceable"><code>form</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><em class="replaceable"><code>form</code></em>を評価し、<em class="replaceable"><code>form</code></em>が決してリターンしないという情報をカバレッジテストに与える。もしリターンした場合は、run-timeエラーとなる。
+</p></blockquote></div><p>Edebugにもカバレッジテスト機能があります(<a class="link" href="ch18s02.html#Coverage-Testing" title="Coverage Testing">Coverage
+Testing</a>を参照)。これらの機能は部分的に重複しており、組み合わせることで明確になるでしょう。
+</p></div></body></html>

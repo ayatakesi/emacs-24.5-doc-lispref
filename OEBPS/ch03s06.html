@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Type Predicates</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Type-Predicates"/>Type Predicates</h1></div></div></div><a id="idm46898256" class="indexterm"/><a id="idm46897488" class="indexterm"/><p>Emacs
+Lispインタープリター自身は、関数が呼び出されたときに、その関数に渡された実際の引数にたいする型チェックは行ないません。それが行なえないのは、Lispにおける関数の引数は、他のプログラミング言語のようなデータ型宣言をもたないからです。したがって実際の引数が、その関数が使用できる型に属するかどうかをテストするのは、それぞれの関数に任されています。
+</p><p>すべてのビルトイン関数は、適切なときに実際の引数の型チェックを行い、引数の型が違う場合は、<code class="literal">wrong-type-argument</code>エラーをシグナルします。たとえば以下は、<code class="literal">+</code>の引数に、<code class="literal">+</code>が扱うことができない引数を渡したとき何が起こるかの例です:
+</p><pre class="screen">(+ 2 'a)
+     error→ Wrong type argument: number-or-marker-p, a
+</pre><a id="idm46893904" class="indexterm"/><a id="idm46893136" class="indexterm"/><p>異なる型にたいして異なる処理をプログラムに行なわせる場合は、明示的に型チェックを行なわなければなりません。オブジェクトの型をチェックするもっとも一般的な方法は、<em class="firstterm">型述語(type
+predicate)</em>関数の呼び出しです。Emacsはそれぞれの型にたいする型述語をもち、組み合わされた型にたいする述語もあります。
+</p><p>型述語関数は1つの引数をとり、その引数が適切な型であれば<code class="literal">t</code>、そうでない場合は<code class="literal">nil</code>をreturnします。述語関数にたいする一般的なLisp慣習にしたがい、ほとんどの型述語の名前は、‘<code class="literal">p</code>’で終わります。
+</p><p>以下はリストにたいしてチェックを行なう述語<code class="literal">listp</code>と、シンボルにたいしてチェックを行なう述語<code class="literal">symbolp</code>の例です。
+</p><pre class="screen">(defun add-on (x)
+  (cond ((symbolp x)
+         ;; If X is a symbol, put it on LIST.
+         (setq list (cons x list)))
+        ((listp x)
+         ;; If X is a list, add its elements to LIST.
+         (setq list (append x list)))
+        (t
+         ;; We handle only symbols and lists.
+         (error "Invalid argument %s in add-on" x))))
+</pre><p>以下の表は、事前定義された型述語(アルファベット順)と、さらに情報を得るためのリファレンスです。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">atom</code>
+</span></dt><dd><p><a class="link" href="ch06s02.html" title="Predicates on Lists">atom</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">arrayp</code>
+</span></dt><dd><p><a class="link" href="ch07s03.html" title="Functions that Operate on Arrays">arrayp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">bool-vector-p</code>
+</span></dt><dd><p><a class="link" href="ch07s07.html" title="Bool-vectors">bool-vector-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">bufferp</code>
+</span></dt><dd><p><a class="link" href="ch27.html#Buffer-Basics" title="Buffer Basics">bufferp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">byte-code-function-p</code>
+</span></dt><dd><p><a class="link" href="ch03s03.html#Byte_002dCode-Type" title="Byte-Code Function Type">byte-code-function-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">case-table-p</code>
+</span></dt><dd><p><a class="link" href="ch05s09.html" title="The Case Table">case-table-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">char-or-string-p</code>
+</span></dt><dd><p><a class="link" href="ch05s02.html" title="Predicates for Strings">char-or-string-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">char-table-p</code>
+</span></dt><dd><p><a class="link" href="ch07s06.html" title="Char-Tables">char-table-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">commandp</code>
+</span></dt><dd><p><a class="link" href="ch21s03.html" title="Interactive Call">commandp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">consp</code>
+</span></dt><dd><p><a class="link" href="ch06s02.html" title="Predicates on Lists">consp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">custom-variable-p</code>
+</span></dt><dd><p><a class="link" href="ch15s03.html" title="Defining Customization Variables">custom-variable-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">display-table-p</code>
+</span></dt><dd><p><a class="link" href="ch38s21.html#Display-Tables" title="Display Tables">display-table-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">floatp</code>
+</span></dt><dd><p><a class="link" href="ch04s03.html" title="Type Predicates for Numbers">floatp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">fontp</code>
+</span></dt><dd><p><a class="link" href="ch38s12.html#Low_002dLevel-Font" title="Low-Level Font Representation">Low-Level Font</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">frame-configuration-p</code>
+</span></dt><dd><p><a class="link" href="ch29s12.html" title="Frame Configurations">frame-configuration-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">frame-live-p</code>
+</span></dt><dd><p><a class="link" href="ch29s06.html" title="Deleting Frames">frame-live-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">framep</code>
+</span></dt><dd><p><a class="link" href="ch29.html" title="Chapter 28. Frames">framep</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">functionp</code>
+</span></dt><dd><p><a class="link" href="ch13.html" title="Chapter 12. Functions">functionp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">hash-table-p</code>
+</span></dt><dd><p><a class="link" href="ch08s04.html" title="Other Hash Table Functions">hash-table-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">integer-or-marker-p</code>
+</span></dt><dd><p><a class="link" href="ch31s02.html" title="Predicates on Markers">integer-or-marker-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">integerp</code>
+</span></dt><dd><p><a class="link" href="ch04s03.html" title="Type Predicates for Numbers">integerp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">keymapp</code>
+</span></dt><dd><p><a class="link" href="ch22s04.html" title="Creating Keymaps">keymapp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">keywordp</code>
+</span></dt><dd><p><a class="link" href="ch12s02.html" title="Variables that Never Change">Constant Variables</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">listp</code>
+</span></dt><dd><p><a class="link" href="ch06s02.html" title="Predicates on Lists">listp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">markerp</code>
+</span></dt><dd><p><a class="link" href="ch31s02.html" title="Predicates on Markers">markerp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">wholenump</code>
+</span></dt><dd><p><a class="link" href="ch04s03.html" title="Type Predicates for Numbers">wholenump</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">nlistp</code>
+</span></dt><dd><p><a class="link" href="ch06s02.html" title="Predicates on Lists">nlistp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">numberp</code>
+</span></dt><dd><p><a class="link" href="ch04s03.html" title="Type Predicates for Numbers">numberp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">number-or-marker-p</code>
+</span></dt><dd><p><a class="link" href="ch31s02.html" title="Predicates on Markers">number-or-marker-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">overlayp</code>
+</span></dt><dd><p><a class="link" href="ch38s09.html" title="Overlays">overlayp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">processp</code>
+</span></dt><dd><p><a class="link" href="ch37.html" title="Chapter 36. Processes">processp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">sequencep</code>
+</span></dt><dd><p><a class="link" href="ch07.html#Sequence-Functions" title="Sequences">sequencep</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">stringp</code>
+</span></dt><dd><p><a class="link" href="ch05s02.html" title="Predicates for Strings">stringp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">subrp</code>
+</span></dt><dd><p><a class="link" href="ch13s08.html" title="Accessing Function Cell Contents">subrp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">symbolp</code>
+</span></dt><dd><p><a class="link" href="ch09.html" title="Chapter 8. Symbols">symbolp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">syntax-table-p</code>
+</span></dt><dd><p><a class="link" href="ch35.html" title="Chapter 34. Syntax Tables">syntax-table-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">vectorp</code>
+</span></dt><dd><p><a class="link" href="ch07s04.html" title="Vectors">vectorp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">window-configuration-p</code>
+</span></dt><dd><p><a class="link" href="ch28s24.html" title="Window Configurations">window-configuration-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">window-live-p</code>
+</span></dt><dd><p><a class="link" href="ch28s06.html" title="Deleting Windows">window-live-p</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">windowp</code>
+</span></dt><dd><p><a class="link" href="ch28.html#Basic-Windows" title="Basic Concepts of Emacs Windows">windowp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">booleanp</code>
+</span></dt><dd><p><a class="link" href="ch02s03.html#nil-and-t" title="nil and t">booleanp</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">string-or-null-p</code>
+</span></dt><dd><p><a class="link" href="ch05s02.html" title="Predicates for Strings">string-or-null-p</a>を参照してください。
+</p></dd></dl></div><p>あるオブジェクトがどの型かチェックするもっとも一般的な方法は、関数<code class="literal">type-of</code>の呼び出しです。オブジェクトは、ただ1つだけの基本型に属することを思い出してください。<code class="literal">type-of</code>は、それがどの型(<a class="link" href="ch03.html" title="Chapter 2. Lisp Data Types">Lisp
+Data
+Types</a>を参照してください)か告げます。しかし<code class="literal">type-of</code>は基本型以外の型については何も知りません。ほとんどの場合、<code class="literal">type-of</code>より型述語を使用するほうが便利でしょう。
+</p><pre class="synopsis"><a id="idm43029328" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">type-of</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>object</code></em>の基本型を名前とする、シンボルをreturnします。retuen値はシンボル<code class="literal">bool-vector</code>、<code class="literal">buffer</code>、<code class="literal">char-table</code>、<code class="literal">compiled-function</code>、<code class="literal">cons</code>、<code class="literal">float</code>、<code class="literal">font-entity</code>、<code class="literal">font-object</code>、<code class="literal">font-spec</code>、<code class="literal">frame</code>、<code class="literal">hash-table</code>、<code class="literal">integer</code>、<code class="literal">marker</code>、<code class="literal">overlay</code>、<code class="literal">process</code>、<code class="literal">string</code>、<code class="literal">subr</code>、<code class="literal">symbol</code>、<code class="literal">vector</code>、<code class="literal">window</code>、<code class="literal">window-configuration</code>のうちの1つです。
+</p><pre class="screen">(type-of 1)
+     ⇒ integer
+</pre><pre class="screen">(type-of 'nil)
+     ⇒ symbol
+(type-of '())    ; <code class="literal">()</code>は<code class="literal">nil</code>です。
+     ⇒ symbol
+(type-of '(x))
+     ⇒ cons
+</pre></blockquote></div></div></body></html>

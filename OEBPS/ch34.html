@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 33. Searching and Matching</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Searching-and-Matching"/>Chapter 33. Searching and Matching</h1></div></div></div><a id="idm77540432" class="indexterm"/><p>GNU Emacsは、バッファーから指定されたテキストを検索するために、２つの手段を提供します。それは文字列の正確一致検索(exact string
+search)と、正規表現検索(regular expression
+search)です。正規表現検索の後、マッチしたテキストが正規表現壱阡にマッチしたのか、それとも正規表現のさまざまな部分に一致したかを判断するために、<em class="firstterm">マッチデータ(match
+data)</em>を調べることができます。
+</p><p>‘<code class="literal">skip-chars…</code>’関連の関数も、ある種の検索を行います。<a class="link" href="ch30s02.html#Skipping-Characters" title="Skipping Characters">Skipping
+Characters</a>を参照してください。文字プロパティ内の変更を検索するには、<a class="link" href="ch32s19.html#Property-Search" title="Text Property Search Functions">Property Search</a>を参照してください。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="String-Search"/>Searching for Strings</h1></div></div></div><a id="idm77535952" class="indexterm"/><p>バッファー内のテキストを検索するための、プリミティブ関数が存在します。これらはプログラム内での使用を意図したものですが、インタラクティブに呼び出すこともできます。これらをインタラクティブに呼び出した場合は、検索文字列の入力を求め、引数<em class="replaceable"><code>limit</code></em>および<em class="replaceable"><code>noerror</code></em>は<code class="literal">nil</code>、<em class="replaceable"><code>repeat</code></em>は1になります。インタラクティブ検索に関するより詳細な情報は、section “Searching and Replacement” in <em class="citetitle">The GNU Emacs Manual</em>を参照してください。
+</p><p>以下の検索関数は、バッファーがマルチバイトバッファーならマルチバイト、ユニバイトバッファーならユニバイトに、検索文字列を変換します。<a class="link" href="ch33.html#Text-Representations" title="Text Representations">Text
+Representations</a>を参照してください。
+</p><pre class="synopsis"><a id="idm77531600" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">search-forward</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>limit</code></em> <em class="replaceable"><code>noerror</code></em> <em class="replaceable"><code>repeat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>string</code></em>にたいする正確なマッチを、ポイントから前方に検索する。成功したら、見つかったマッチの終端にポイントをセットして、ポイントの新たな値をリターンする。マッチが見つからない場合の値と副作用は、<em class="replaceable"><code>noerror</code></em>(以下参照)に依存する。
+</p><p>以下の例では、ポイントは最初は行の先頭にある。その後の<code class="literal">(search-forward
+"fox")</code>により、ポイントは‘<code class="literal">fox</code>’の最後の文字の後に移動する:
+</p><pre class="screen">---------- Buffer: foo ----------
+★The quick brown fox jumped over the lazy dog.
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(search-forward "fox")
+     ⇒ 20
+
+---------- Buffer: foo ----------
+The quick brown fox★ jumped over the lazy dog.
+---------- Buffer: foo ----------
+</pre><p>引数<em class="replaceable"><code>limit</code></em>は検索の境界を指定し、それはカレントバッファー内の位置であること。その位置を超えるようなマッチは、受け入れられない。<em class="replaceable"><code>limit</code></em>が省略または<code class="literal">nil</code>の場合のデフォルトは、そのバッファーのアクセス可能範囲の終端である。
+</p><a id="idm77522000" class="indexterm"/><p>検索失敗時に何が起こるかは、<em class="replaceable"><code>noerror</code></em>の値に依存する。<em class="replaceable"><code>noerror</code></em>が<code class="literal">nil</code>なら、<code class="literal">search-failed</code>はエラーをシグナルする。<em class="replaceable"><code>noerror</code></em>が<code class="literal">t</code>なら、<code class="literal">search-forward</code>は<code class="literal">nil</code>をリターンして、何も行わない。<em class="replaceable"><code>noerror</code></em>が<code class="literal">nil</code>と<code class="literal">t</code>いずれでもなければ、<code class="literal">search-forward</code>はポイントを境界上限に移動して、<code class="literal">nil</code>をリターンする。
+</p><p>引数<em class="replaceable"><code>noerror</code></em>は、マッチに失敗した有効な検索だけに影響する。無効な引数は、<em class="replaceable"><code>noerror</code></em>とは無関係にエラーとなる。
+</p><p><em class="replaceable"><code>repeat</code></em>が正の数<em class="replaceable"><code>n</code></em>なら、それは繰り返し回数の役目をもつ。検索は<em class="replaceable"><code>n</code></em>回繰り返され、前回のマッチの終端から毎回検索が開始される。これらの連続する検索が成功した場合、関数は成功となりポイントを新たな値をリターンする。それ以外は検索失敗となり、上述したように結果は<em class="replaceable"><code>noerror</code></em>の値に依存する。<em class="replaceable"><code>repeat</code></em>が負の数-<em class="replaceable"><code>n</code></em>なら、それは逆方向(後方)への検索の繰り返し回数<em class="replaceable"><code>n</code></em>としての役目をもつ。
+</p></blockquote></div><pre class="synopsis"><a id="idm77509840" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">search-backward</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>limit</code></em> <em class="replaceable"><code>noerror</code></em> <em class="replaceable"><code>repeat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポイントから後方に<em class="replaceable"><code>string</code></em>を検索する。これは<code class="literal">search-forward</code>と似ているが、前方ではなく後方に検索する点が異なる。後方への検索では、ポイントはマッチの先頭に残される。
+</p></blockquote></div><pre class="synopsis"><a id="idm77504208" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">word-search-forward</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>limit</code></em> <em class="replaceable"><code>noerror</code></em> <em class="replaceable"><code>repeat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポイントから前方に<em class="replaceable"><code>string</code></em>にたいする“単語(word)”のマッチを検索する。マッチが見つかったら、見つかったマッチの終端にポイントをセットして、ポイントの新たな値をリターンする。
+</p><p>単語マッチは<em class="replaceable"><code>string</code></em>を単語のシーケンスとみなし、それらを分ける句読点は無視する。これはバッファーから、同じ単語シーケンスを検索する。単語はそれぞれバッファー内で明確に区別されていなければならないが(単語‘<code class="literal">ball</code>’の検索は単語‘<code class="literal">balls</code>’にマッチしない)、句読点やスペース等の細部は無視される(‘<code class="literal">ball
+boy</code>’を検索すると‘<code class="literal">ball.  Boy!</code>’にマッチする)。
+</p><p>以下の例では、ポイントは最初バッファー先頭にある。検索により、ポイントは‘<code class="literal">y</code>’と‘<code class="literal">!</code>’の間に残される。
+</p><pre class="screen">---------- Buffer: foo ----------
+★He said "Please!  Find
+the ball boy!"
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(word-search-forward "Please find the ball, boy.")
+     ⇒ 39
+
+---------- Buffer: foo ----------
+He said "Please!  Find
+the ball boy★!"
+---------- Buffer: foo ----------
+</pre><p><em class="replaceable"><code>limit</code></em>が非<code class="literal">nil</code>なら、それはカレントバッファー内の位置であること。これはその検索の境界上限を指定する。見つかったマッチは、その位置を超えてはならない。
+</p><p><em class="replaceable"><code>noerror</code></em>が<code class="literal">nil</code>なら、<code class="literal">word-search-forward</code>はエラーをシグナルする。<em class="replaceable"><code>noerror</code></em>が<code class="literal">t</code>なら、エラーをシグナルするかわりに、<code class="literal">nil</code>をリターンする。<em class="replaceable"><code>noerror</code></em>が<code class="literal">nil</code>と<code class="literal">t</code>いずれでもなければ、ポイントを<em class="replaceable"><code>limit</code></em>(またはバッファーのアクセス可能範囲の終端)に移動して、<code class="literal">nil</code>をリターンする。
+</p><p><em class="replaceable"><code>repeat</code></em>が非<code class="literal">nil</code>なら、検索はその回数繰り返される。ポイントは最後のマッチの終端に置かれる。
+</p><a id="idm77486032" class="indexterm"/><p>内部的には、<code class="literal">word-search-forward</code>と関連する関数は、<em class="replaceable"><code>string</code></em>から句読点を無視した正規表現に変換するために、関数<code class="literal">word-search-regexp</code>を使用する。
+</p></blockquote></div><pre class="synopsis"><a id="idm77483216" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">word-search-forward-lax</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>limit</code></em> <em class="replaceable"><code>noerror</code></em> <em class="replaceable"><code>repeat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは<code class="literal">word-search-forward</code>と同じだが、<em class="replaceable"><code>string</code></em>が空白で開始または終了していなければ、<em class="replaceable"><code>string</code></em>の先頭または終端が単語境界にマッチする必要がない点が異なる。たとえば‘<code class="literal">ball
+boy</code>’の検索は‘<code class="literal">ball boyee</code>’にはマッチするが、‘<code class="literal">balls boy</code>’にはマッチしない。
+</p></blockquote></div><pre class="synopsis"><a id="idm77475664" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">word-search-backward</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>limit</code></em> <em class="replaceable"><code>noerror</code></em> <em class="replaceable"><code>repeat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポイントから後方へ<em class="replaceable"><code>string</code></em>にマッチする単語を検索する。この関数は<code class="literal">word-search-forward</code>と同様だが、後方に検索して、通常はマッチの先頭にポイントを残す点が異なる。
+</p></blockquote></div><pre class="synopsis"><a id="idm77469904" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">word-search-backward-lax</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>limit</code></em> <em class="replaceable"><code>noerror</code></em> <em class="replaceable"><code>repeat</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは<code class="literal">word-search-backward</code>と同じだが、文字列が空白で開始または終了していなければ、<em class="replaceable"><code>string</code></em>の先頭または終端が単語境界にマッチする必要がない点が異なる。
+</p></blockquote></div></div></div></body></html>

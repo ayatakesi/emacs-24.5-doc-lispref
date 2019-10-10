@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Setting Variable Values</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Setting-Variables"/>Setting Variable Values</h1></div></div></div><p>ある変数の値を変更する通常の方法は、スペシャルフォーム<code class="literal">setq</code>を使用する方法です。実行時に変数選択を計算する必要がある場合は、関数<code class="literal">set</code>を使用します。
+</p><pre class="synopsis"><a id="idm50805200" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">setq</code> [<em class="replaceable"><code>symbol</code></em> <em class="replaceable"><code>form</code></em>]<em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、変数の値を変更するための、もっとも一般的な方法です。<em class="replaceable"><code>symbol</code></em>にはそれぞれ、新しい値(対応する<em class="replaceable"><code>form</code></em>が評価された結果)を与えられます。そのシンボルのカレントバインディングは変更されます。
+</p><p><code class="literal">setq</code>は<em class="replaceable"><code>symbol</code></em>を評価せず、記述されたシンボルをセットします。この引数のことを、<em class="firstterm">自動的にクォートされた(automatically
+quoted)</em>と呼びます。<code class="literal">setq</code>の‘<code class="literal">q</code>’は、“quoted(クォートされた)”が由来です。
+</p><p><code class="literal">setq</code>フォームの値は、最後の<em class="replaceable"><code>form</code></em>の値となります。
+</p><pre class="screen">(setq x (1+ 2))
+     ⇒ 3
+</pre><pre class="screen">x                   ; ここで<code class="literal">x</code>はグローバル値をもつ。
+     ⇒ 3
+</pre><pre class="screen">(let ((x 5))
+  (setq x 6)        ; <code class="literal">x</code>のローカルバインディングをセット。
+  x)
+     ⇒ 6
+</pre><pre class="screen">x                   ; グローバル値は変更されない。
+     ⇒ 3
+</pre><p>1番目の<em class="replaceable"><code>form</code></em>が評価されてから1番目の<em class="replaceable"><code>symbol</code></em>がセットされ、次に2番目の<em class="replaceable"><code>form</code></em>が評価されてから<em class="replaceable"><code>symbol</code></em>が評価されて、...となることに注意してください:
+</p><pre class="screen">(setq x 10          ; ここで、<code class="literal">x</code>がセットされるのは
+      y (1+ x))     ;   <code class="literal">y</code>の計算前であることに注目。
+     ⇒ 11
+</pre></blockquote></div><pre class="synopsis"><a id="idm50778192" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set</code> <em class="replaceable"><code>symbol</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>symbol</code></em>の値セルに<em class="replaceable"><code>value</code></em>を配置します。これはスペシャルフォームではなく関数なので、シンボルにセットするために、<em class="replaceable"><code>symbol</code></em>に記述された式は評価されます。return値は<em class="replaceable"><code>value</code></em>です。
+</p><p>ダイナミックな変数バインドが有効な場合(デフォルト)、<code class="literal">set</code>は自身の引数<em class="replaceable"><code>symbol</code></em>を評価しますが、<code class="literal">setq</code>は評価しないという点を除き、<code class="literal">set</code>は<code class="literal">setq</code>と同じ効果をもちます。しかし、変数がレキシカルバインドの場合、<code class="literal">set</code>は変数の<span class="emphasis"><em>ダイナミック</em></span>な値に影響し、<code class="literal">setq</code>は変数のカレント値(レキシカル値)に影響します。<a class="link" href="ch12s09.html" title="Scoping Rules for Variable Bindings">Variable
+Scoping</a>を参照してください。
+</p><pre class="screen">(set one 1)
+error→ Symbol's value as variable is void: one
+</pre><pre class="screen">(set 'one 1)
+     ⇒ 1
+</pre><pre class="screen">(set 'two 'one)
+     ⇒ one
+</pre><pre class="screen">(set two 2)         ; <code class="literal">two</code>は、シンボル<code class="literal">one</code>に評価される。
+     ⇒ 2
+</pre><pre class="screen">one                 ; したがって<code class="literal">one</code>がセットされる。
+     ⇒ 2
+(let ((one 1))      ; <code class="literal">one</code>のこのバインディングがセットされるのであって
+  (set 'one 3)      ;   グローバル値はセットされない。
+  one)
+     ⇒ 3
+</pre><pre class="screen">one
+     ⇒ 2
+</pre><p><em class="replaceable"><code>symbol</code></em>が実際のシンボルでない場合、<code class="literal">wrong-type-argument</code>エラーがシグナルされます。
+</p><pre class="screen">(set '(x y) 'z)
+error→ Wrong type argument: symbolp, (x y)
+</pre></blockquote></div></div></body></html>

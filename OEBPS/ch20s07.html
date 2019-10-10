@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Yes-or-No Queries</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Yes_002dor_002dNo-Queries"/>Yes-or-No Queries</h1></div></div></div><a id="idm57267536" class="indexterm"/><a id="idm57266768" class="indexterm"/><a id="idm57266000" class="indexterm"/><p>このセクションでは、ユーザーにyes-or-noの確認を求める関数を説明します。関数<code class="literal">y-or-n-p</code>は1文字での応答に使用できます。この関数は不注意による誤った答えが深刻な結果を招かない場合に有用です。<code class="literal">yes-or-no-p</code>は3文字から4文字の答えを要求するので、より重大な問に適しています。
+</p><p>3つの関数はどれも、マウスを使用して呼び出されたコマンド、より正確には<code class="literal">last-nonmenu-event</code>(<a class="link" href="ch21s05.html" title="Information from the Command Loop">Command
+Loop
+Info</a>を参照)が<code class="literal">nil</code>かリストの場合は、問いに答えるためにダイアログボックスまたはポップアップメニューを使用します。それ以外の場合はキーボード入力を使用します。呼び出しの周囲で<code class="literal">last-nonmenu-event</code>に適切な値をバインドすることにより、マウスまたはキーボードの使用を強制できます。
+</p><p>厳密に言うと、<code class="literal">yes-or-no-p</code>はミニバッファーを使用し、<code class="literal">y-or-n-p</code>は使用しませんが、これらのコマンドは一緒に説明したほうがよいでしょう。
+</p><pre class="synopsis"><a id="idm57259600" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">y-or-n-p</code> <em class="replaceable"><code>prompt</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はユーザーに答えを尋ねて、ミニバッファーに入力を求める。ユーザーが<strong class="userinput"><code>y</code></strong>をタイプしたら<code class="literal">t</code>、<strong class="userinput"><code>n</code></strong>をタイプしたら<code class="literal">nil</code>をリターンする。この関数はyesの意味で<span class="keycap"><strong>SPC</strong></span>、noの意味で<span class="keycap"><strong>DEL</strong></span>も受け入れる。“quit”の意味として<strong class="userinput"><code>C-g</code></strong>と同様に<strong class="userinput"><code>C-]</code></strong>も受け入れる。これは問いがミニバッファーのような外見をもち、ミニバッファーを抜けるためにユーザーが<strong class="userinput"><code>C-]</code></strong>の使用を試みるかもしれないという理由による。応答は1文字であり、問いを終了させるための<span class="keycap"><strong>RET</strong></span>は必要ない。大文字と小文字は等価である。
+</p><p>“答えを尋ねる”とはエコーエリアに<em class="replaceable"><code>prompt</code></em>と、その後に文字列‘<code class="literal">(y or n)
+</code>’をプリントすることを意味する。期待される答え(<strong class="userinput"><code>y</code></strong>、<strong class="userinput"><code>n</code></strong>、<strong class="userinput"><code><span class="keycap"><strong>SPC</strong></span></code></strong>、<strong class="userinput"><code><span class="keycap"><strong>DEL</strong></span></code></strong>、もしくは質問を終了するその他のキー)以外が入力された場合、この関数は‘<code class="literal">Please
+answer y or n.</code>’と応答し、繰り返し答えの入力を要求する。
+</p><p>この関数は答えの編集を許さないため、実際にミニバッファーは使用しない。実際に使用するのはミニバッファーと同じスクリーンスペースを使用するエコーエリア(<a class="link" href="ch38s04.html" title="The Echo Area">The
+Echo Area</a>を参照)である。問いが答えられるまで、カーソルはエコーエリアに移動する。
+</p><p>答えとその意味は、たとえ‘<code class="literal">y</code>’と‘<code class="literal">n</code>’であっても固定されたものではなく、キーマップ<code class="literal">query-replace-map</code>により指定される(<a class="link" href="ch34s07.html" title="Search and Replace">Search
+and
+Replace</a>を参照)。特にユーザーが<code class="literal">recenter</code>、<code class="literal">scroll-up</code>、<code class="literal">scroll-down</code>、<code class="literal">scroll-other-window</code>、<code class="literal">scroll-other-window-down</code>(それぞれ<code class="literal">query-replace-map</code>内で<strong class="userinput"><code>C-l</code></strong>、<strong class="userinput"><code>C-v</code></strong>、<strong class="userinput"><code>M-v</code></strong>、<strong class="userinput"><code>C-M-v</code></strong>、<strong class="userinput"><code>C-M-S-v</code></strong>にバインドされている)のような特殊な応答をエンターした場合、この関数はは指定されたウィンドウの再センタリングやスクロール操作を処理してから再度答えを求める。
+</p><p>例ではエコーエリアのメッセージを連続する行で示しているが、スクリーン上に実際に表示されるのは1回に1行だけである。
+</p></blockquote></div><pre class="synopsis"><a id="idm57224912" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">y-or-n-p-with-timeout</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>default</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">y-or-n-p</code>と同様だが、ユーザーが<em class="replaceable"><code>seconds</code></em>秒以内に答えないと、この関数は待つのをやめて<em class="replaceable"><code>default</code></em>をリターンする。これはタイマーをセットアップすることにより機能する。引数<em class="replaceable"><code>seconds</code></em>は数字である。
+</p></blockquote></div><pre class="synopsis"><a id="idm57219408" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">yes-or-no-p</code> <em class="replaceable"><code>prompt</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は質問して、ミニバッファーに答えの入力を求める。これはユーザーが‘<code class="literal">yes</code>’をエンターすると<code class="literal">t</code>を、‘<code class="literal">no</code>’をエンターすると<code class="literal">nil</code>をリターンする。ユーザーは応答を終えるために<span class="keycap"><strong>RET</strong></span>をタイプしなければならない。大文字と小文字は等価である。
+</p><p><code class="literal">yes-or-no-p</code>はエコーエリアに<em class="replaceable"><code>prompt</code></em>とその後に‘<code class="literal">(yes or no)
+</code>’を表示することにより開始される。ユーザーは期待される応答の1つをタイプしなければならない。それ以外の答えだと、この関数は‘<code class="literal">Please
+answer yes or no.</code>’と応答して約2秒待った後に要求を繰り返す。
+</p><p><code class="literal">yes-or-no-p</code>は<code class="literal">y-or-n-p</code>より多くの作業をユーザーに要求し、より重大な決定に適している。
+</p><p>以下は例である:
+</p><pre class="screen">(yes-or-no-p "Do you really want to remove everything? ")
+
+;; 前の式を評価した後、
+;;   空のミニバッファーに
+;;   以下のプロンプトが表示される:
+</pre><pre class="screen">
+</pre><pre class="screen">---------- Buffer: minibuffer ----------
+Do you really want to remove everything? (yes or no)
+---------- Buffer: minibuffer ----------
+</pre><p>ユーザーが最初に<strong class="userinput"><code>y
+<span class="keycap"><strong>RET</strong></span></code></strong>とタイプした場合、これは無効である。なぜならこの関数は‘<code class="literal">yes</code>’という単語全体を要求しているので、以下のプロンプトを説明のために一時停止して表示する。
+</p><pre class="screen">---------- Buffer: minibuffer ----------
+Please answer yes or no.
+Do you really want to remove everything? (yes or no)
+---------- Buffer: minibuffer ----------
+</pre></blockquote></div></div></body></html>

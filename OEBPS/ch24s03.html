@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Substituting Key Bindings in Documentation</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Keys-in-Documentation"/>Substituting Key Bindings in Documentation</h1></div></div></div><a id="idm64036432" class="indexterm"/><a id="idm64035664" class="indexterm"/><a id="idm64034896" class="indexterm"/><a id="idm64034128" class="indexterm"/><p>ドキュメント文字列がキーシーケンスを参照する際、それらはカレントである実際のキーバインディングを使用するべきです。これらは、以下で説明する特別なキーシーケンスを使用して行うことができます。通常の方法によるドキュメント文字列へのアクセスは、これらの特別なキーシーケンスをカレントキーバインディングに置き換えます。これは、<code class="literal">substitute-command-keys</code>を呼び出すことにより行われます。あなた自身がこの関数を呼び出すこともできます。
+</p><p>以下は、それら特別なシーケンスと、その意味についてのリストです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">\[<em class="replaceable"><code>command</code></em>]</code>
+</span></dt><dd><p>これは、<em class="replaceable"><code>command</code></em>を呼び出すキーシーケンス、または<em class="replaceable"><code>command</code></em>がキーバインディングをもたない場合は‘<code class="literal">M-x
+<em class="replaceable"><code>command</code></em></code>’である。
+</p></dd><dt><span class="term"><code class="literal">\{<em class="replaceable"><code>mapvar</code></em>}</code>
+</span></dt><dd><p>これは、変数<em class="replaceable"><code>mapvar</code></em>の値であるようなキーマップの要約を意味する。この要約は、<code class="literal">describe-bindings</code>を用いて作成される。
+</p></dd><dt><span class="term"><code class="literal">\&lt;<em class="replaceable"><code>mapvar</code></em>&gt;</code>
+</span></dt><dd><p>これ自体は、何のテキストも意味せず、副作用のためだけに使用される。これは、このドキュメント文字列内にある、後続のすべての‘<code class="literal">\[<em class="replaceable"><code>command</code></em>]</code>’にたいするキーマップとして、<em class="replaceable"><code>mapvar</code></em>の値を指定する。
+</p></dd><dt><span class="term"><code class="literal">\=</code>
+</span></dt><dd><p>これは、後続の文字をクォートして、無効にする。したがって、‘<code class="literal">\=\[</code>’は‘<code class="literal">\[</code>’、‘<code class="literal">\=\=</code>’は‘<code class="literal">\=</code>’を出力に配する。
+</p></dd></dl></div><p><span class="bold"><strong>注意してください:</strong></span> Emacs Lisp内の文字列として記述する際は、‘<code class="literal">\</code>’を2つ記述しなければなりません。
+</p><pre class="synopsis"><a id="idm64001616" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">substitute-command-keys</code> <em class="replaceable"><code>string</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、上述の特別なシーケンスを<em class="replaceable"><code>string</code></em>からスキャンして、それらが意味するもので置き換え、その結果を文字列としてリターンする。これにより、そのユーザー自身がカスタマイズした、実際のキーシーケンスを参照するドキュメントが表示できる。
+</p><a id="idm63998288" class="indexterm"/><p>あるコマンドが複数のバインディングをもつ場合、通常この関数は最初に見つかったバインディングを使用する。以下のようにして、コマンドのシンボルプロパティ<code class="literal">:advertised-binding</code>に割り当てることにより、特定のキーバインディングを指定できる:
+</p><pre class="screen">(put 'undo :advertised-binding [?\C-/])
+</pre><p><code class="literal">:advertised-binding</code>プロパティは、メニューアイテム(<a class="link" href="ch22s17.html#Menu-Bar" title="The Menu Bar">Menu
+Bar</a>を参照)に表示されるバインディングにも影響する。コマンドが実際にもたないキーバインディングを指定した場合、このプロパティは無視される。
+</p></blockquote></div><p>以下は、特別なキーシーケンスの例である:
+</p><pre class="screen">(substitute-command-keys
+   "再帰編集者abortするには、次をタイプする: \\[abort-recursive-edit]")
+⇒ "再帰編集者abortするには、次をタイプする: C-]"
+</pre><pre class="screen">
+</pre><pre class="screen">(substitute-command-keys
+   "ミニバッファーにたいして定義されたキーは:
+  \\{minibuffer-local-must-match-map}")
+⇒ "ミニバッファーにたいして定義されたキーは:
+</pre><pre class="screen">
+?               minibuffer-completion-help
+SPC             minibuffer-complete-word
+TAB             minibuffer-complete
+C-j             minibuffer-complete-and-exit
+RET             minibuffer-complete-and-exit
+C-g             abort-recursive-edit
+"
+
+</pre><pre class="screen">(substitute-command-keys
+   "ミニバッファーにたいして再帰編集をabortするには、次をタイプ:
+\\&lt;minibuffer-local-must-match-map&gt;\\[abort-recursive-edit].")
+⇒ "ミニバッファーにたいして再帰編集をabortするには、次をタイプ: C-g."
+</pre><p>ドキュメント文字列内のテキストにたいしては、他にも特別な慣習があります。たとえば、このマニュアルの関数、変数、およびセクションで参照できます。詳細は<a class="link" href="apds06.html" title="Tips for Documentation Strings">Documentation
+Tips</a>を参照してください。
+</p></div></body></html>

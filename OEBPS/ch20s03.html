@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Reading Lisp Objects with the Minibuffer</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Object-from-Minibuffer"/>Reading Lisp Objects with the Minibuffer</h1></div></div></div><a id="idm58067664" class="indexterm"/><p>このセクションでは、ミニバッファーでLispオブジェクトを読み取る関数を説明します。
+</p><pre class="synopsis"><a id="idm58066128" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-minibuffer</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>initial</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はミニバッファーを使用してLispオブジェクトをよみ、それを評価せずにリターンする。引数<em class="replaceable"><code>prompt</code></em>と<em class="replaceable"><code>initial</code></em>は、<code class="literal">read-from-minibuffer</code>のときと同様に使用する。
+</p><p>これは<code class="literal">read-from-minibuffer</code>関数にたいする簡略化されたインターフェイスである。
+</p><pre class="screen">(read-minibuffer <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>initial</code></em>)
+≡
+(let (minibuffer-allow-text-properties)
+  (read-from-minibuffer <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>initial</code></em> nil t))
+</pre><p>以下の例では、初期入力として文字列<code class="literal">"(testing)"</code>を与えている:
+</p><pre class="screen">(read-minibuffer
+ "Enter an expression: " (format "%s" '(testing)))
+
+;; 以下はミニバッファーでの表示::
+</pre><pre class="screen">
+</pre><pre class="screen">---------- Buffer: Minibuffer ----------
+Enter an expression: (testing)★
+---------- Buffer: Minibuffer ----------
+</pre><p>ユーザーは<span class="keycap"><strong>RET</strong></span>をタイプして初期入力をデフォルトとして利用したり、入力を編集することができる。
+</p></blockquote></div><pre class="synopsis"><a id="idm58054608" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">eval-minibuffer</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>initial</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はミニバッファーを使用してLisp式を読み取り、それを評価して結果をリターンする。引数<em class="replaceable"><code>prompt</code></em>と<em class="replaceable"><code>initial</code></em>の使い方は、<code class="literal">read-from-minibuffer</code>と同様。
+</p><p>この関数は、<code class="literal">read-minibuffer</code>の呼び出し結果を単に評価する:
+</p><pre class="screen">(eval-minibuffer <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>initial</code></em>)
+≡
+(eval (read-minibuffer <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>initial</code></em>))
+</pre></blockquote></div><pre class="synopsis"><a id="idm58046416" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">edit-and-eval-command</code> <em class="replaceable"><code>prompt</code></em> <em class="replaceable"><code>form</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はミニバッファーでLisp式を読み取り、それを評価して結果をリターンする。このコマンドと<code class="literal">eval-minibuffer</code>の違いは、このコマンドでは初期値としての<em class="replaceable"><code>form</code></em>はオプションではなく、テキストの文字列ではないプリント表現に変換されたLispオブジェクトとして扱われることである。これは<code class="literal">prin1</code>でプリントされるので、文字列の場合はテキスト初期値内にダブルクォート文字(‘<code class="literal">"</code>’)が含まれる。<a class="link" href="ch19s05.html" title="Output Functions">Output
+Functions</a>を参照のこと。
+</p><p>以下の例では、すでに有効なフォームであるようなテキスト初期値として式をユーザーに提案している:
+</p><pre class="screen">(edit-and-eval-command "Please edit: " '(forward-word 1))
+
+;; 前の式を評価した後に、
+;;   ミニバッファーに以下が表示される。:
+</pre><pre class="screen">
+</pre><pre class="screen">---------- Buffer: Minibuffer ----------
+Please edit: (forward-word 1)★
+---------- Buffer: Minibuffer ----------
+</pre><p>すぐに<span class="keycap"><strong>RET</strong></span> をタイプするとミニバッファーをexitして式を評価するので、1単語分ポイントは前進する。
+</p></blockquote></div></div></body></html>

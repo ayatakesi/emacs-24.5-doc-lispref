@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Output Streams</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Output-Streams"/>Output Streams</h1></div></div></div><a id="idm58481488" class="indexterm"/><a id="idm58480720" class="indexterm"/><p>出力ストリームは、プリントにより生成された文字に何を行うかを指定します。ほとんどのプリント関数は、オプション引数として出力ストリームを受け入れます。以下は利用できる出力ストリーム型です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>buffer</code></em>
+</span></dt><dd><a id="idm58478672" class="indexterm"/><p>出力文字は、<em class="replaceable"><code>buffer</code></em>のポイント位置に挿入される。文字が挿入された分、ポイントが進む。
+</p></dd><dt><span class="term"><em class="replaceable"><code>marker</code></em>
+</span></dt><dd><a id="idm58476368" class="indexterm"/><p>出力文字は、<em class="replaceable"><code>marker</code></em>のあるバッファーのマーカー位置に挿入される。文字が挿入された分、マーカー位置が進む。ストリームがマーカーのときは、そのバッファー内のポイント位置にプリントは影響せず、この種のプリントでポイントは移動しない(マーカー位置がポイント位置、またはポイント位置より前の場合は除外される。通常はテキストの周囲にポイントが進む)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>function</code></em>
+</span></dt><dd><a id="idm58474064" class="indexterm"/><p>出力文字は、文字を格納する役目をもつ<em class="replaceable"><code>function</code></em>に渡される。この関数は１つの文字を引数に、出力される文字の回数呼び出され、その文字を格納したい場所に格納する役目をもつ。
+</p></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><a id="idm58471632" class="indexterm"/><p>出力文字はエコーエリアに表示される。
+</p></dd><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><a id="idm58469200" class="indexterm"/><p>出力ストリームに<code class="literal">nil</code>が指定された場合は、かわりに<code class="literal">standard-output</code>の値が使用されることを意味する。この値は<em class="firstterm">デフォルトの出力ストリーム(default
+output stream)</em>であり、非<code class="literal">nil</code>でなければならない。
+</p></dd><dt><span class="term"><em class="replaceable"><code>symbol</code></em>
+</span></dt><dd><p>出力ストリームとしてのシンボルは、(もしあれば)そのシンボルの関数定義と等価である。
+</p></dd></dl></div><p>有効な出力ストリームの多くは、入力ストリームとしても有効です。したがって入力ストリームと出力ストリームの違いは、Lispオブジェクトの型ではなく、どのようにLispオブジェクトを使うかという点です。
+</p><p>以下はバッファーを出力ストリームとして使用する例です。ポイントは最初は‘<code class="literal">the</code>’の中の‘<code class="literal">h</code>’の直前にあります。そして最後も、同じ‘<code class="literal">h</code>’の直前に配されます。
+</p><a id="idm58462032" class="indexterm"/><pre class="screen">---------- Buffer: foo ----------
+This is t★he contents of foo.
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+(print "This is the output" (get-buffer "foo"))
+     ⇒ "This is the output"
+
+</pre><pre class="screen">---------- Buffer: foo ----------
+This is t
+"This is the output"
+★he contents of foo.
+---------- Buffer: foo ----------
+</pre><p>次はマーカーを出力ストリームとして使用する例です。マーカーは最初、バッファー<code class="literal">foo</code>内の単語‘<code class="literal">the</code>’の中の‘<code class="literal">t</code>’と‘<code class="literal">h</code>’の間にあります。最後には、挿入されたテキストによりマーカーが進み、同じ‘<code class="literal">h</code>’の前に留まります。通常の方法で見られるようなポイント位置への影響がないことに注意してください。
+</p><pre class="screen">---------- Buffer: foo ----------
+This is the ★output
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(setq m (copy-marker 10))
+     ⇒ #&lt;marker at 10 in foo&gt;
+</pre><pre class="screen">
+</pre><pre class="screen">(print "More output for foo." m)
+     ⇒ "More output for foo."
+</pre><pre class="screen">
+</pre><pre class="screen">---------- Buffer: foo ----------
+This is t
+"More output for foo."
+he ★output
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">m
+     ⇒ #&lt;marker at 34 in foo&gt;
+</pre><p>以下はエコーエリアに出力を表示する例です:
+</p><pre class="screen">(print "Echo Area output" t)
+     ⇒ "Echo Area output"
+---------- Echo Area ----------
+"Echo Area output"
+---------- Echo Area ----------
+</pre><p>最後は関数を出力ストリームとして使用する例です。関数<code class="literal">eat-output</code>は与えられたそれぞれの文字を<code class="literal">last-output</code>の先頭にconsします(<a class="link" href="ch06s04.html" title="Building Cons Cells and Lists">Building
+Lists</a>を参照)。最後には、リストには出力されたすべての文字が逆順で含まれます。
+</p><pre class="screen">(setq last-output nil)
+     ⇒ nil
+</pre><pre class="screen">
+</pre><pre class="screen">(defun eat-output (c)
+  (setq last-output (cons c last-output)))
+     ⇒ eat-output
+</pre><pre class="screen">
+</pre><pre class="screen">(print "This is the output" 'eat-output)
+     ⇒ "This is the output"
+</pre><pre class="screen">
+</pre><pre class="screen">last-output
+     ⇒ (10 34 116 117 112 116 117 111 32 101 104
+    116 32 115 105 32 115 105 104 84 34 10)
+</pre><p>このリストを逆転すれば、正しい順序で出力することができます:
+</p><pre class="screen">(concat (nreverse last-output))
+     ⇒ "
+\"This is the output\"
+"
+</pre><p><code class="literal">concat</code>を呼び出してリストを文字列に変換すれば、内容をより明解に確認できます。
+</p></div></body></html>

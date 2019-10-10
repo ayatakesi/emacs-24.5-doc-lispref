@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Comparing Text</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Comparing-Text"/>Comparing Text</h1></div></div></div><a id="idm72703952" class="indexterm"/><p>この関数により、最初にバッファー内のテキストを文字列内にコピーすることなく、バッファー内のテキスト断片を比較することが可能になります。
+</p><pre class="synopsis"><a id="idm72702544" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">compare-buffer-substrings</code> <em class="replaceable"><code>buffer1</code></em> <em class="replaceable"><code>start1</code></em> <em class="replaceable"><code>end1</code></em> <em class="replaceable"><code>buffer2</code></em> <em class="replaceable"><code>start2</code></em> <em class="replaceable"><code>end2</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数により、1つのバッファー、または2つの異なるバッファーの、2つの部分文字列(substrings)を比較できる。最初の3つの引数は、バッファーとそのバッファー内の2つの位置を与えることにより、1つの部分文字列を指定する。最後の3つの引数は、同様の方法によりもう一方の部分文字列を指定する。<em class="replaceable"><code>buffer1</code></em>と<em class="replaceable"><code>buffer2</code></em>のいずれか、または両方にたいして、カレントバッファーを意味する<code class="literal">nil</code>を使用できる。
+</p><p>1つ目の部分文字列が2つ目の部分文字列より小なら負、大なら正、等しければ値は0となる。結果の絶対値は、部分文字列内で最初に異なる文字のインデックスに1を和した値である。
+</p><p><code class="literal">case-fold-search</code>が非<code class="literal">nil</code>なら、この関数は大文字小文字の違いを無視する。テキストプロパティは常に無視される。
+</p><p>カレントバッファー内にテキスト‘<code class="literal">foobarbar
+haha!rara!</code>’があるとしよう。そしてこの例では2つの部分文字列が‘<code class="literal">rbar
+</code>’と‘<code class="literal">rara!</code>’であるとする。1つ目の文字列の2つ目の文字が大きいので、値は2となる。
+</p><pre class="screen">(compare-buffer-substrings nil 6 11 nil 16 21)
+     ⇒ 2
+</pre></blockquote></div></div></body></html>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Desktop Save Mode</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Desktop-Save-Mode"/>Desktop Save Mode</h1></div></div></div><a id="idm64159568" class="indexterm"/><p><em class="firstterm">Desktop Saveモード</em>とは、あるセッションから別のセッションへ、Emacs状態を保存する機能です。Desktop
+Saveモードの使用に関するユーザーレベルのコマンドについては、GNU Emacsマニュアルに記載されています(section “Saving Emacs
+Sessions” in <em class="citetitle">the GNU Emacs
+Manual</em>を参照)。バッファーでファイルをvisitしているモードでは、この機能を使うために何も行う必要はありません。
+</p><p>ファイルをvisitしていないバッファーについて状態を保存するには、そのメジャーモードがバッファーローカル変数<code class="literal">desktop-save-buffer</code>を非<code class="literal">nil</code>値にバインドしなければなりません。
+</p><pre class="synopsis"><a id="idm64156112" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">desktop-save-buffer</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数が非<code class="literal">nil</code>の場合は、デスクトップ保存時にそのバッファー状態がdesktopファイルに保存される。値が関数の場合、その関数はデスクトップ保存時に引数<em class="replaceable"><code>desktop-dirname</code></em>で呼び出され、関数が呼び出されたバッファーの状態とともに、関数の値がdesktopファイルに保存される。補助的な情報の一部としてファイル名がリターンされたとき、それらは以下を呼び出してフォーマットされるべきである
+</p><pre class="screen">(desktop-file-name <em class="replaceable"><code>file-name</code></em> <em class="replaceable"><code>desktop-dirname</code></em>)
+</pre></blockquote></div><p>ファイルをvisitしていないバッファーがリストアされるようにするには、その初を行う関数をメジャーモードが定義しなければならず、その関数はalist
+<code class="literal">desktop-buffer-mode-handlers</code>にリストされなければならない。
+</p><pre class="synopsis"><a id="idm64150224" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">desktop-buffer-mode-handlers</code></pre><div class="blockquote"><blockquote class="blockquote"><p>以下を要素にもつalistである
+</p><pre class="screen">(<em class="replaceable"><code>major-mode</code></em> . <em class="replaceable"><code>restore-buffer-function</code></em>)
+</pre><p>関数<em class="replaceable"><code>restore-buffer-function</code></em>は、以下の引数リストで呼び出されるだろう
+</p><pre class="screen">(<em class="replaceable"><code>buffer-file-name</code></em> <em class="replaceable"><code>buffer-name</code></em> <em class="replaceable"><code>desktop-buffer-misc</code></em>)
+</pre><p>この関数は、リストアされたバッファーをリターンすべきである。ここで、<em class="replaceable"><code>desktop-buffer-misc</code></em>は、オプションで<code class="literal">desktop-save-buffer</code>にバインドされる関数によりリターンされる値である。
+</p></blockquote></div></div></body></html>

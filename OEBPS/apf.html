@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Appendix F. Standard Errors</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="appendix"><div class="titlepage"><div><div><h1 class="title"><a id="Standard-Errors"/>Appendix F. Standard Errors</h1></div></div></div><a id="idm87680080" class="indexterm"/><p>以下は、標準的なEmacsにおけるより重要なエラーシンボルを概念別にグループ分けしたリストです。このリストには各シンボルのメッセージと、そのエラーを発生し得る方法へのクロスリファレンスが含まれています。
+</p><p>これらのエラーシンボルはそれぞれ、親となるエラー条件のセットを、シンボルのリストとして保持します。通常このリストには、そのエラーシンボル自身と、シンボル<code class="literal">error</code>が含まれます。このリストは、<code class="literal">error</code>より狭義ですが単一のエラーシンボルより広義であるような、中間的なクラス分けのための追加シンボルを含む場合があります。たとえば、ファイルアクセスでのすべてのエラーは、条件<code class="literal">file-error</code>をもちます。ここでわたしたちが、特定のエラーシンボルにたいする追加エラー条件に言及していなければ、それがないことを意味しています。
+</p><p>特別な例外として、エラーシンボル<code class="literal">quit</code>は、quitはエラーとみなされないので、コンディション<code class="literal">error</code>をもっていません。
+</p><p>これらのエラーシンボルのほとんどは、C(主に<code class="filename">data.c</code>)で定義されていますが、いくつかはLispで定義されています。たとえばファイル<code class="filename">userlock.el</code>では、<code class="literal">file-locked</code>と<code class="literal">file-supersession</code>のエラーが定義されています。Emacsとともに配布される専門的なLispライブラリーのいくつかは、それら自身のエラーシンボルを定義しています。それらのすべてをここでリストはしません。
+</p><p>エラーの発生とそれを処理する方法については、<a class="link" href="ch11s05.html#Errors" title="Errors">Errors</a>を参照してください。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">error</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">error</code>’。<a class="link" href="ch11s05.html#Errors" title="Errors">Errors</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">quit</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Quit</code>’。<a class="link" href="ch21s11.html" title="Quitting">Quitting</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">args-out-of-range</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Args out of
+range</code>’。これはシーケンス、バッファー、その他コンテナー風オブジェクトの範囲を超えた要素へのアクセスを試みたときに発生する。<a class="link" href="ch07.html" title="Chapter 6. Sequences, Arrays, and Vectors">Sequences
+Arrays Vectors</a>と<a class="link" href="ch32.html" title="Chapter 31. Text">Text</a>を参照されたい。
+</p></dd><dt><span class="term"><code class="literal">arith-error</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Arithmetic error</code>’。これは0による整数除算を試みたときに発生する。<a class="link" href="ch04s05.html" title="Numeric Conversions">Numeric
+Conversions</a>と<a class="link" href="ch04s06.html" title="Arithmetic Operations">Arithmetic Operations</a>を参照されたい。
+</p></dd><dt><span class="term"><code class="literal">beginning-of-buffer</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Beginning of buffer</code>’。<a class="link" href="ch30s02.html#Character-Motion" title="Motion by Characters">Character Motion</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">buffer-read-only</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Buffer is read-only</code>’。<a class="link" href="ch27s07.html" title="Read-Only Buffers">Read Only Buffers</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">circular-list</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">List contains a loop</code>’。これは循環構造に遭遇時に発生する。<a class="link" href="ch03s05.html" title="Read Syntax for Circular Objects">Circular
+Objects</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">cl-assertion-failed</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Assertion
+failed</code>’。これは<code class="literal">cl-assert</code>マクロのテスト失敗時に発生する。section “Assertions” in <em class="citetitle">Common
+Lisp Extensions</em>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">coding-system-error</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Invalid coding system</code>’。<a class="link" href="ch33s10.html#Lisp-and-Coding-Systems" title="Coding Systems in Lisp">Lisp and Coding Systems</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">cyclic-function-indirection</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Symbol's chain of function indirections contains a
+loop</code>’。See <a class="link" href="ch10s02.html#Function-Indirection" title="Symbol Function Indirection">Function Indirection</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">cyclic-variable-indirection</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Symbol's chain of variable indirections contains a
+loop</code>’。See <a class="link" href="ch12s13.html" title="Variable Aliases">Variable Aliases</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">dbus-error</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">D-Bus error</code>’。これはEmacsがD-Busサポートつきでコンパイルされたときだけ定義される。section “Errors
+and Events” in <em class="citetitle">D-Bus integration in Emacs</em>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">end-of-buffer</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">End of buffer</code>’。<a class="link" href="ch30s02.html#Character-Motion" title="Motion by Characters">Character Motion</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">end-of-file</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">End of file during
+parsing</code>’。これはファイルI/OではなくLispリーダーに属するので、<code class="literal">file-error</code>のサブカテゴリーではないことに注意のこと。<a class="link" href="ch19s03.html" title="Input Functions">Input
+Functions</a>を参照されたい。
+</p></dd><dt><span class="term"><code class="literal">file-already-exists</code>
+</span></dt><dd><p>これは<code class="literal">file-error</code>のサブカテゴリーである。<a class="link" href="ch25s04.html" title="Writing to Files">Writing to Files</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">file-date-error</code>
+</span></dt><dd><p>これは<code class="literal">file-error</code>のサブカテゴリーである。これは<code class="literal">copy-file</code>を試行して、出力ファイルの最終変更時刻のセットに失敗したときに発生する。<a class="link" href="ch25s07.html" title="Changing File Names and Attributes">Changing
+Files</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">file-error</code>
+</span></dt><dd><p>これのエラーメッセージは通常、エラー条件<code class="literal">file-error</code>が与えられたときはデータアイテムだけから構築されるので、これのエラー文字列とサブカテゴリーはここにリストしない。つまりエラー文字列は特に関連しない。しかしこれらのエラーシンボルは<code class="literal">error-message</code>プロパティをもち、何もデータが与えられなければ、<code class="literal">error-message</code>が<span class="emphasis"><em>使用される</em></span>。<a class="link" href="ch25.html" title="Chapter 24. Files">Files</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">compression-error</code>
+</span></dt><dd><p>これは圧縮ファイルの処理の問題を起因とする、<code class="literal">file-error</code>のサブカテゴリーである。<a class="link" href="ch16.html#How-Programs-Do-Loading" title="How Programs Do Loading">How Programs Do
+Loading</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">file-locked</code>
+</span></dt><dd><p>これは<code class="literal">file-error</code>のサブカテゴリーである。<a class="link" href="ch25s05.html" title="File Locks">File Locks</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">file-supersession</code>
+</span></dt><dd><p>これは<code class="literal">file-error</code>のサブカテゴリーである。<a class="link" href="ch27s06.html" title="Buffer Modification Time">Modification Time</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">file-notify-error</code>
+</span></dt><dd><p>これは<code class="literal">file-error</code>のサブカテゴリーである。<a class="link" href="ch39s19.html" title="Notifications on File Changes">File Notifications</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">ftp-error</code>
+</span></dt><dd><p>これはftpを使用したリモートファイルへのアクセスの問題を起因とする、<code class="literal">file-error</code>のサブカテゴリーである。section “Remote
+Files” in <em class="citetitle">The GNU Emacs Manual</em>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">invalid-function</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Invalid function</code>’。<a class="link" href="ch10s02.html#Function-Indirection" title="Symbol Function Indirection">Function Indirection</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">invalid-read-syntax</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Invalid read syntax</code>’。<a class="link" href="ch03.html#Printed-Representation" title="Printed Representation and Read Syntax">Printed Representation</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">invalid-regexp</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Invalid regexp</code>’。<a class="link" href="ch34s03.html" title="Regular Expressions">Regular Expressions</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">mark-inactive</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">The mark is not active now</code>’。<a class="link" href="ch31s07.html" title="The Mark">The Mark</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">no-catch</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">No catch for tag</code>’。<a class="link" href="ch11s05.html#Catch-and-Throw" title="Explicit Nonlocal Exits: catch and throw">Catch and Throw</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">scan-error</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Scan error</code>’。これは特定の構文解析関数が無効な構文やマッチしないカッコを見つけたときに発生する。<a class="link" href="ch30s02.html#List-Motion" title="Moving over Balanced Expressions">List
+Motion</a>と<a class="link" href="ch35s06.html" title="Parsing Expressions">Parsing Expressions</a>を参照されたい。
+</p></dd><dt><span class="term"><code class="literal">search-failed</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Search failed</code>’。<a class="link" href="ch34.html" title="Chapter 33. Searching and Matching">Searching and Matching</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">setting-constant</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Attempt to set a constant
+symbol</code>’。これは<code class="literal">nil</code>、<code class="literal">t</code>、およびキーワードシンボルへの値の割り当て時に発生する。<a class="link" href="ch12s02.html" title="Variables that Never Change">Constant
+Variables</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">text-read-only</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Text is
+read-only</code>’。これは<code class="literal">buffer-read-only</code>のサブカテゴリーである。<a class="link" href="ch32s19.html#Special-Properties" title="Properties with Special Meanings">Special
+Properties</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">undefined-color</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Undefined color</code>’、<a class="link" href="ch29s20.html" title="Color Names">Color Names</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">user-error</code>
+</span></dt><dd><p>メッセージは空文字列。<a class="link" href="ch11s05.html#Signaling-Errors" title="How to Signal an Error">Signaling Errors</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">void-function</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Symbol's function definition is void</code>’。<a class="link" href="ch13s08.html" title="Accessing Function Cell Contents">Function
+Cells</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">void-variable</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Symbol's value as variable is void</code>’。<a class="link" href="ch12s07.html" title="Accessing Variable Values">Accessing
+Variables</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">wrong-number-of-arguments</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Wrong number of arguments</code>’。<a class="link" href="ch10s02.html#Classifying-Lists" title="Classification of List Forms">Classifying Lists</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">wrong-type-argument</code>
+</span></dt><dd><p>メッセージは‘<code class="literal">Wrong type argument</code>’。<a class="link" href="ch03s06.html" title="Type Predicates">Type Predicates</a>を参照のこと。
+</p></dd></dl></div></div></body></html>

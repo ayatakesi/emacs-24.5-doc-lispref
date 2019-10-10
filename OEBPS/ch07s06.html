@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Char-Tables</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Char_002dTables"/>Char-Tables</h1></div></div></div><a id="idm48779088" class="indexterm"/><a id="idm48778320" class="indexterm"/><p>文字テーブル(char-table)はベクターとよく似ていますが、文字テーブルは文字コードによりインデックスづけされます。文字テーブルのインデックスには、修飾キーをともなわない任意の有効な文字コードを使用できます。他の配列と同様に、<code class="literal">aref</code>と<code class="literal">aset</code>で、文字テーブルの要素にアクセスできます。加えて、文字テーブルは、追加のデータを保持するために、特定の文字コードに関連づけられていない、<em class="firstterm">エキストラスロット(extra
+slots)</em>をもつことができます。ベクターと同様、文字テーブルは、定数として評価され、任意の型の要素を保持できます。
+</p><a id="idm48775760" class="indexterm"/><p>文字テーブルはそれぞれ<em class="firstterm">サブタイプ(subtype)</em>をもち、これは2つの目的を担うシンボルです:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>サブタイプは、それがなんのための文字テーブルなのか、簡単に表す方法を提供します。たとえば、ディスプレーテーブル(display
+tables)はサブタイプが<code class="literal">display-table</code>の文字テーブルであり、構文テーブル(syntax
+tables)は、サブタイプが<code class="literal">syntax-table</code>の文字テーブルです。以下で説明するように、関数<code class="literal">char-table-subtype</code>を使用して、サブタイプを問い合わせることができます。
+</p></li><li class="listitem"><p>サブタイプは文字テーブル内のいくつかの<em class="firstterm">エキストラスロット(extra
+slots)</em>を制御します。エキストラスロットの数は、そのサブタイプの<code class="literal">char-table-extra-slots</code>シンボルプロパティー(<a class="link" href="ch09s04.html" title="Symbol Properties">Symbol
+Properties</a>を参照してください)により指定され、値は0から10の整数です。サブタイプにそのようなシンボルプロパティーがない場合、その文字テーブルはエキストラスロットをもちません。
+</p></li></ul></div><a id="idm48770128" class="indexterm"/><p>文字テーブルは<em class="firstterm">親(parent)</em>をもつことができ、これは他の文字テーブルです。文字テーブルが親をもつ場合、その文字テーブルで特定の文字<em class="replaceable"><code>c</code></em>にたいして<code class="literal">nil</code>が指定されているときは、親として指定された文字テーブルで指定された値を継承します。言い方を変えると、文字テーブル<em class="replaceable"><code>char-table</code></em>で<em class="replaceable"><code>c</code></em>に<code class="literal">nil</code>が指定されている場合、<code class="literal">(aref
+<em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>c</code></em>)</code>は<em class="replaceable"><code>char-table</code></em>の親の値をreturnします。
+</p><a id="idm48764752" class="indexterm"/><p>文字テーブルは<em class="firstterm">デフォルト値(default
+value)</em>をもつこともできます。デフォルト値をもつとき、文字テーブル<em class="replaceable"><code>char-table</code></em>が<em class="replaceable"><code>c</code></em>にたいして<code class="literal">nil</code>値を指定すると、<code class="literal">(aref
+<em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>c</code></em>)</code>はデフォルト値をreturnします。
+</p><pre class="synopsis"><a id="idm48760400" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-char-table</code> <em class="replaceable"><code>subtype</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>init</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>サブタイプ<em class="replaceable"><code>subtype</code></em>(シンボル)をもつ、新たに作成された文字テーブルをreturnします。各要素は<em class="replaceable"><code>init</code></em>に初期化され、デフォルトは<code class="literal">nil</code>です。文字テーブルが作成された後で、文字テーブルのサブタイプを変更することはできません。
+</p><p>すべての文字テーブルは、インデックスとなる任意の有効な文字テーブルのための空間をもつので、文字テーブルの長さを指定する引数はありません。
+</p><p><em class="replaceable"><code>subtype</code></em>が<code class="literal">char-table-extra-slots</code>シンボルプロパティーをもつ場合、それはその文字列テーブル内のエキストラスロットの数を指定します。値には0から10の整数を指定し、これ以外の場合<code class="literal">make-char-table</code>はエラーとなります。<em class="replaceable"><code>subtype</code></em>が<code class="literal">char-table-extra-slots</code>シンボルプロパティー(<a class="link" href="ch06s09.html" title="Property Lists">Property
+Lists</a>を参照してください)をもたない場合、その文字テーブルはエキストラスロットをもちません。
+</p></blockquote></div><pre class="synopsis"><a id="idm48739408" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-table-p</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>が文字テーブルの場合は<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm48734800" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-table-subtype</code> <em class="replaceable"><code>char-table</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char-table</code></em>のサブタイプのシンボルをreturnします。
+</p></blockquote></div><p>文字テーブルのデフォルト値にアクセスするための、特別な関数は存在しません。これを行なうには、<code class="literal">char-table-range</code>を使用します(以下参照)。
+</p><pre class="synopsis"><a id="idm48730320" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-table-parent</code> <em class="replaceable"><code>char-table</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char-table</code></em>の親をreturnします。親は常に、<code class="literal">nil</code>、または他の文字テーブルです。
+</p></blockquote></div><pre class="synopsis"><a id="idm48726224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-char-table-parent</code> <em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>new-parent</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char-table</code></em>の親を、<em class="replaceable"><code>new-parent</code></em>にセットします。
+</p></blockquote></div><pre class="synopsis"><a id="idm48721872" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-table-extra-slot</code> <em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>n</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このガン数は、<em class="replaceable"><code>char-table</code></em>のエキストラスロット<em class="replaceable"><code>n</code></em>の内容をreturnします。文字テーブルのエキストラスロットの数は、文字テーブルのサブタイプにより決定されます。
+</p></blockquote></div><pre class="synopsis"><a id="idm48717520" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-char-table-extra-slot</code> <em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>n</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char-table</code></em>のエキストラスロット<em class="replaceable"><code>n</code></em>に、<em class="replaceable"><code>value</code></em>を格納します。
+</p></blockquote></div><p>文字テーブルは、1つの文字コードにたいして、1つの要素値(element
+value)を指定できます。文字テーブルは文字セット全体にたいして値を指定することもできます。
+</p><pre class="synopsis"><a id="idm48707920" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-table-range</code> <em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>range</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、文字範囲<em class="replaceable"><code>range</code></em>にたいして、<em class="replaceable"><code>char-table</code></em>で指定された値をreturnします。可能な<em class="replaceable"><code>range</code></em>は以下のとおりです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>デフォルト値への参照。
+</p></dd><dt><span class="term"><em class="replaceable"><code>char</code></em>
+</span></dt><dd><p>文字<em class="replaceable"><code>char</code></em>にたいする要素への参照(<em class="replaceable"><code>char</code></em>は有効な文字コードであると仮定)。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>from</code></em> . <em class="replaceable"><code>to</code></em>)</code>
+</span></dt><dd><p>包括的な範囲‘<code class="literal">[<em class="replaceable"><code>from</code></em>..<em class="replaceable"><code>to</code></em>]</code>’内のすべての文字を参照するコンスセル。
+</p></dd></dl></div></blockquote></div><pre class="synopsis"><a id="idm48696400" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-char-table-range</code> <em class="replaceable"><code>char-table</code></em> <em class="replaceable"><code>range</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char-table</code></em>内の文字範囲<em class="replaceable"><code>range</code></em>にたいして値をセットします。可能な<em class="replaceable"><code>range</code></em>は、以下のとおりです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>デフォルト値への参照。
+</p></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><p>文字コード範囲の全体を参照。
+</p></dd><dt><span class="term"><em class="replaceable"><code>char</code></em>
+</span></dt><dd><p>文字<em class="replaceable"><code>char</code></em>にたいする要素への参照(<em class="replaceable"><code>char</code></em>は有効な文字コードであると仮定)。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>from</code></em> . <em class="replaceable"><code>to</code></em>)</code>
+</span></dt><dd><p>包括的な範囲‘<code class="literal">[<em class="replaceable"><code>from</code></em>..<em class="replaceable"><code>to</code></em>]</code>’内のすべての文字を参照するコンスセル。
+</p></dd></dl></div></blockquote></div><pre class="synopsis"><a id="idm48683216" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">map-char-table</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>char-table</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char-table</code></em>の非<code class="literal">nil</code>値ではない各要素にたいして、引数<em class="replaceable"><code>function</code></em>を呼び出します。<em class="replaceable"><code>function</code></em>の呼び出しでは、2つの引数(keyとvalue)が指定されます。keyは<code class="literal">char-table-range</code>にたいする可能な<em class="replaceable"><code>range</code></em>
+— 有効な文字か、同じ値を共有する文字範囲を指定するコンスセル<code class="literal">(<em class="replaceable"><code>from</code></em>
+. <em class="replaceable"><code>to</code></em>)</code>です。valueは、<code class="literal">(char-table-range <em class="replaceable"><code>char-table</code></em>
+<em class="replaceable"><code>key</code></em>)</code>がreturnする値です。
+</p><p>全体的に見て、<em class="replaceable"><code>function</code></em>に渡されるkey-valueのペアは、<em class="replaceable"><code>char-table</code></em>に格納されたすべての値を表します。
+</p><p>return値はm常に<code class="literal">nil</code>です。<code class="literal">map-char-table</code>呼び出しを有用にするために、<em class="replaceable"><code>function</code></em>は副作用をもつべきです。たとえば、以下は構文テーブルを調べる方法です:
+</p><pre class="screen">(let (accumulator)
+   (map-char-table
+    #'(lambda (key value)
+        (setq accumulator
+              (cons (list
+                     (if (consp key)
+                         (list (car key) (cdr key))
+                       key)
+                     value)
+                    accumulator)))
+    (syntax-table))
+   accumulator)
+⇒
+(((2597602 4194303) (2)) ((2597523 2597601) (3))
+ ... (65379 (5 . 65378)) (65378 (4 . 65379)) (65377 (1))
+ ... (12 (0)) (11 (3)) (10 (12)) (9 (0)) ((0 8) (3)))
+</pre></blockquote></div></div></body></html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Creating and Maintaining Package Archives</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Package-Archives"/>Creating and Maintaining Package Archives</h1></div></div></div><a id="idm85040080" class="indexterm"/><p>Package Menuを通じて、<em class="firstterm">パッケージアーカイブ(package
+archives)</em>からユーザーはパッケージをダウンロードできます。そのようなアーカイブは、変数<code class="literal">package-archives</code>で指定されます。この変数のデフォルト値のデフォルト値として単一のエントリー、<a class="ulink" href="http://elpa.gnu.org">http://elpa.gnu.org</a>でGNUプロジェクトがホストするアーカイブが含まれています。このセクションでは、パッケージアーカイブのセットアップと保守の方法について説明します。
+</p><a id="idm85033168" class="indexterm"/><pre class="synopsis"><a id="idm85032144" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">package-archives</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、Emacsパッケージマネージャーが認識する、パッケージアーカイブのリストである。
+</p><p>このalistの要素はそれぞれが1つのアーカイブに対応し、<code class="literal">(<em class="replaceable"><code>id</code></em>
+.
+<em class="replaceable"><code>location</code></em>)</code>という形式であること。ここで<em class="replaceable"><code>id</code></em>はパッケージ名(文字列)、<em class="replaceable"><code>location</code></em>は文字列であるような<em class="firstterm">ベースロケーション(base
+location)</em>である。
+</p><p>ベースロケーションが‘<code class="literal">http:</code>’で始まる場合、それはHTTPのURLとして扱われ、(デフォルトのGNUアーカイブのように)HTTPを介してこのアーカイブからパッケージがダウンロードされる。
+</p><p>それ以外なら、ベースロケーションはディレクトリー名であること。この場合、Emacsは通常のファイルアクセスを通じて、そのアーカイブからパッケージを取得する。“local”のようなアーカイブは主として、テスト用に有用である。
+</p></blockquote></div><p>パッケージアーカイブは、そのパッケージ、および関連するファイルが格納された、単なるディレクトリーです。HTTPを介してそのアーカイブに到達できるようにしたければ、このディレクトリーがウェブサーバーにアクセスできなければなりません。これを達成する方法は、このマニュアルの範囲を超えます。
+</p><p>手軽なのは、<code class="literal">package-x</code>を通じてパッケージアーカイブのセットアップと更新を行う方法です。これはEmacsに含まれていますが、デフォルトではロードされません。ロードするには<strong class="userinput"><code>M-x
+load-library <span class="keycap"><strong>RET</strong></span> package-x <span class="keycap"><strong>RET</strong></span></code></strong>、または<code class="literal">(require
+'package-x)</code>をinitファイルに追加します。section “Lisp Libraries” in <em class="citetitle">The
+GNU Emacs Manual</em>を参照してください。一度ロードされれば、以下を使用できます:
+</p><pre class="synopsis"><a id="idm85021776" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">package-archive-upload-base</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、ディレクトリー名としてのパッケージアーカイブのベースロケーションである。<code class="literal">package-x</code>ライブラリー内のコマンドは、このベースロケーションを使用することになる。
+</p><p>このディレクトリー名は絶対ファイル名であること。パッケージアーカイブが別マシン上にある場合には、<code class="filename">/ssh:foo@example.com:/var/www/packages/</code>のようなリモート名を指定できる。section “Remote Files” in <em class="citetitle">The GNU Emacs Manual</em>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm85017168" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">package-upload-file</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドはファイル名<em class="replaceable"><code>filename</code></em>の入力を求め、そのファイルを<code class="literal">package-archive-upload-base</code>にアップロードする。このファイルはシンプルパッケージ(<code class="filename">.el</code>ファイル)、または複数ファイルパッケージ(<code class="filename">.tar</code>ファイル)のいずれかでなければならず、それ以外ならエラーが発生する。そのパッケージの属性は自動的に解凍され、アーカイブのコンテンツリストは、この情報でアップロードされる。
+</p><p><code class="literal">package-archive-upload-base</code>が有効なディレクトリーを指定しない場合、この関数はインタラクティブにそれの入力を求める。そのディレクトリーが存在しなければ作成する。このディレクトリーに、初期コンテンツをもつ必要はない(最初に空のアーカイブを作成するために、このコマンドを使用できる)。
+</p></blockquote></div><pre class="synopsis"><a id="idm84998992" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">package-upload-buffer</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは<code class="literal">package-upload-file</code>と似ているが、パッケージファイルの入力を求めずに、カレントバッファーのコンテンツをアップロードする。カレントバッファーはシンプルパッケージ(<code class="filename">.el</code>ファイル)か複数ファイルパッケージ(<code class="filename">.tar</code>ファイル)をvisitしていなればならず、それ以外ならエラーが発生する。
+</p></blockquote></div><p>アーカイブ作成後、それが<code class="literal">package-archives</code>内になければ、Package
+Menuインターフェースからアクセスできないことを忘れないでください。
+</p><a id="idm84989776" class="indexterm"/><a id="idm84989008" class="indexterm"/><p>公的なパッケージアーカイブの保守には責任が併ないます。アーカイブからEmacsユーザーがパッケージをインストールする際、それらのパッケージはそのユーザーの権限において、任意のコードを実行できるようになります(これはパッケージにたいしてだけでなく、一般的なEmacsコードにたいしても真といえる)。そのため、アーカイブの保守を保つとともに、ホスティングシステムが安全であるよう維持するべきです。
+</p><p>暗号化されたキーを使用してパッケージに<em class="firstterm">サイン(sign)</em>するのが、パッケージのセキュリティーを向上する1つの方法です。gpgのprivateキーとpublicキーを生成してあれば、以下のようにそのパッケージにサインするためにgpgを使用できます:
+</p><pre class="screen">gpg -ba -o <em class="replaceable"><code>file</code></em>.sig <em class="replaceable"><code>file</code></em>
+</pre><p>単一ファイルパッケージにたいしては、<em class="replaceable"><code>file</code></em>はそのパッケージのLispファイルです。複数ファイルパッケージではそのパッケージのtarファイルです。同じ方法により、アーカイブのコンテンツファイルにもサインできます。これを行うには、パッケージと同じディレクトリーで、<code class="filename">.sig</code>ファイルを利用可能できるようにしてください。ダウンロードする人にたいしても、<a class="ulink" href="http://pgp.mit.edu/">http://pgp.mit.edu/</a>のようなキーサーバーにアップロードすることにより、publicキーを利用できるようにするべきです。その人がアーカイブからパッケージをインストールする際、には署名の検証にpublicキーを使用できます。
+</p><p>これらの方法についての完全な説明は、このマニュアルの範囲を超えます。暗号化キーとサインに関する詳細はsection “GnuPG” in <em class="citetitle">The GNU Privacy Guard Manual</em>、Emacsに付属するGNU Privacy
+Guardへのインターフェースについては、section “EasyPG” in <em class="citetitle">Emacs EasyPG Assistant
+Manual</em>を参照してください。
+</p></div></body></html>

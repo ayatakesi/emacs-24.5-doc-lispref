@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Splitting Windows</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Splitting-Windows"/>Splitting Windows</h1></div></div></div><a id="idm68761296" class="indexterm"/><a id="idm68760528" class="indexterm"/><p>このセクションでは、既存のウィンドウを<em class="firstterm">分割(split: スプリット</em>することにより、新たにウィンドウを作成する関数について説明します。
+</p><pre class="synopsis"><a id="idm68758736" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">split-window</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>size</code></em> <em class="replaceable"><code>side</code></em> <em class="replaceable"><code>pixelwise</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ウィンドウ<em class="replaceable"><code>window</code></em>の隣に、新たに生きたウィンドウを作成する。<em class="replaceable"><code>window</code></em>が省略または<code class="literal">nil</code>の場合のデフォルトは、選択されたウィンドウである。そのウィンドウは“分割(split)”されて、サイズは縮小される。そのスペースは、リターンされる新たなウィンドウにより吸収される。
+</p><p>オプションの第2引数<em class="replaceable"><code>size</code></em>は、<em class="replaceable"><code>window</code></em>および/または新たなウィンドウのサイズを決定する。これが省略または<code class="literal">nil</code>の場合は、両方のウィンドウに同じサイズが割り当てられる。行数が奇数の場合、余りの1行は新たなウィンドウに割り当てられる。<em class="replaceable"><code>size</code></em>が正の数値の場合、<em class="replaceable"><code>window</code></em>に<em class="replaceable"><code>size</code></em>の行数(<em class="replaceable"><code>side</code></em>の値によっては列数)が与えられる。<em class="replaceable"><code>size</code></em>が負の数値の場合、新たなウィンドウに−<em class="replaceable"><code>size</code></em>の行数(または列数)が与えられる。
+</p><p><em class="replaceable"><code>size</code></em>が<code class="literal">nil</code>の場合、この関数は変数<code class="literal">window-min-height</code>と<code class="literal">window-min-width</code>にしたがう(<a class="link" href="ch28s03.html" title="Window Sizes">Window
+Sizes</a>を参照)。つまり、分割によりこれらの変数の指定より小さいウィンドウが作成されるようなときは、エラーをシグナルする。しかし、<em class="replaceable"><code>size</code></em>にたいして非<code class="literal">nil</code>値を指定すれば、これらの変数は無視される。その場合、許容される最小のウィンドウは、テキストエリアの高さが1行、および/または幅が2列のウィンドウであるとされる。
+</p><p>したがって、<em class="replaceable"><code>size</code></em>が指定された場合、生成されるウィンドウがモードラインやスクロールバー等すべてのエリアを含むのに十分な大きさがあるかどうかチェックするのは、呼び出し側の責任である。これに関して、必要最小限の<em class="replaceable"><code>window</code></em>を決定するために、関数<code class="literal">window-min-size</code>(<a class="link" href="ch28s03.html" title="Window Sizes">Window
+Sizes</a>を参照)を使用できる。新たなウィンドウは通常、モードラインやスクロールバー等のエリアを<em class="replaceable"><code>window</code></em>から“継承”するので、この関数は新たなウィンドウの最小サイズも良好に推定する。呼び出し側は、次回の再表示前にこれに応じて継承されたエリアを削除する場合のみ、より小さなサイズを指定すること。
+</p><p>オプションの第3引数<em class="replaceable"><code>side</code></em>は、新たなウィンドウの位置を<em class="replaceable"><code>window</code></em>から相対的に指定する。<code class="literal">nil</code>または<code class="literal">below</code>の場合、新たなウィンドウは<em class="replaceable"><code>window</code></em>の下に、<code class="literal">above</code>の場合は<em class="replaceable"><code>window</code></em>の上に配される。どちらの場合も、<em class="replaceable"><code>size</code></em>はウィンドウのトータル高さを行数で指定する。
+</p><p><em class="replaceable"><code>side</code></em>が<code class="literal">t</code>または<code class="literal">right</code>の場合、新たなウィンドウは<em class="replaceable"><code>window</code></em>の右に、<em class="replaceable"><code>side</code></em>が<code class="literal">left</code>の場合は<em class="replaceable"><code>window</code></em>の左に配される。どちらの場合も、<em class="replaceable"><code>size</code></em>はウィンドウのトータル幅を列数で指定する。
+</p><p>オプションの第4引数<em class="replaceable"><code>pixelwise</code></em>が非<code class="literal">nil</code>の場合は、<em class="replaceable"><code>size</code></em>を行や列ではなくピクセル単位で解釈することを意味する。
+</p><p><em class="replaceable"><code>window</code></em>が生きたウィンドウの場合、新たなウィンドウはマージンやスクロールバーを含む、さまざまなプロパティを継承する。<em class="replaceable"><code>window</code></em>が内部ウィンドウ(internal
+window)の場合、新たなウィンドウは<em class="replaceable"><code>window</code></em>のフレームのプロパティを継承する。
+</p><p>変数<code class="literal">ignore-window-parameters</code>が<code class="literal">nil</code>の場合に限り、この関数の挙動は<em class="replaceable"><code>window</code></em>なパラメーターにより変更されるかもしれない。ウィンドウパラメーター<code class="literal">split-window</code>の値が<code class="literal">t</code>の場合、この関数はその他すべてのウィンドウパラメーターを無視する。それ以外では、ウィンドウパラメーター<code class="literal">split-window</code>の値が関数の場合は、<code class="literal">split-window</code>の通常アクションのかわりに、引数<em class="replaceable"><code>window</code></em>、<em class="replaceable"><code>size</code></em>、<em class="replaceable"><code>side</code></em>でその関数が呼び出される。値が関数以外の場合、この関数は(もしあれば)ウィンドウパラメーター<code class="literal">window-atom</code>または<code class="literal">window-side</code>にしたがう。<a class="link" href="ch28s25.html" title="Window Parameters">Window
+Parameters</a>を参照のこと。
+</p></blockquote></div><p>例として、<a class="link" href="ch28s02.html" title="Windows and Frames">Windows and Frames</a>で議論したウィンドウ構成(window
+configuration)を得るための、一連の<code class="literal">split-window</code>呼び出しを以下に挙げます。この例では、生きたウィンドウの分割と、内部ウィンドウの分割も示します。最初は<em class="replaceable"><code>W4</code></em>で表される、単一のウィンドウ(生きたルートウィンドウ)を含むフレームから開始します。<code class="literal">(split-window
+W4)</code>を呼び出すことにより、以下のウィンドウ構成が得られます。
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W4_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W5_________________||
+    |__________________W3__________________|
+
+</pre><p><code class="literal">split-window</code>呼び出しにより、<em class="replaceable"><code>W5</code></em>で示す生きたウィンドウが新たに作成されました。<em class="replaceable"><code>W3</code></em>で示される内部ウィンドウも新たに作成され、これはルートウィンドウかつ<em class="replaceable"><code>W4</code></em>と<em class="replaceable"><code>W5</code></em>の親ウィンドウになります。
+</p><p>次は、引数として内部ウィンドウ<em class="replaceable"><code>W3</code></em>を渡して、<code class="literal">(split-window W3 nil 'left)</code>を呼び出します。
+</p><pre class="screen">     ______________________________________
+    | ______  ____________________________ |
+    ||      || __________________________ ||
+    ||      |||                          |||
+    ||      |||                          |||
+    ||      |||                          |||
+    ||      |||____________W4____________|||
+    ||      || __________________________ ||
+    ||      |||                          |||
+    ||      |||                          |||
+    ||      |||____________W5____________|||
+    ||__W2__||_____________W3_____________ |
+    |__________________W1__________________|
+</pre><p>内部ウィンドウ<em class="replaceable"><code>W3</code></em>の左に、生きたウィンドウ<em class="replaceable"><code>W2</code></em>が新たに作成されました。そして、内部ウィンドウ<em class="replaceable"><code>W1</code></em>が新たに作成され、これが新たにルートウィンドウになります。
+</p><p>インタラクティブな使用にたいして、Emacsは選択されたウィンドウを常に分割するコマンドを2つ提供します。これらは内部で<code class="literal">split-window</code>を呼び出します。
+</p><pre class="synopsis"><a id="idm68703440" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">split-window-right</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>size</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、選択されたウィンドウが左となるような、横並びの2つのウィンドウに分割する。<em class="replaceable"><code>size</code></em>が正ならば左のウィンドウが<em class="replaceable"><code>size</code></em>列、負ならば右のウィンドウが−<em class="replaceable"><code>size</code></em>列を与えられる。
+</p></blockquote></div><pre class="synopsis"><a id="idm68698576" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">split-window-below</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>size</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、選択されたウィンドウが上となるような、縦並びの2つのウィンドウに分割する。<em class="replaceable"><code>size</code></em>が正ならば上のウィンドウが<em class="replaceable"><code>size</code></em>行、負ならば下のウィンドウが−<em class="replaceable"><code>size</code></em>行を与えられる。
+</p></blockquote></div><pre class="synopsis"><a id="idm68693712" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">split-window-keep-point</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値が非<code class="literal">nil</code>(デフォルト)なら、 <code class="literal">split-window-below</code>は上述のように振る舞う。
+</p><p><code class="literal">nil</code>の場合、<code class="literal">split-window-below</code>は再表示が最小となるように、2つのウィンドウの各ポイントを調節する(これは低速な端末で有用である)。これは何であれ、以前ポイントがあったスクリーン行(screen
+line)を含むウィンドウを選択する。これは低レベル<code class="literal">split-window</code>関数ではなく、<code class="literal">split-window-below</code>だけに影響することに注意。
+</p></blockquote></div></div></body></html>

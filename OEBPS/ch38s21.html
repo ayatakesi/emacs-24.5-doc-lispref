@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Character Display</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Character-Display"/>Character Display</h1></div></div></div><p>このセクションでは、文字がEmacsにより実際に表示される方法について説明します。文字は通常<em class="firstterm">グリフ(glyph)</em>として表示されます。グリフとは、スクリーン上で1文字の位置を占めるグラフィカルなシンボルであり、その外観はその文字自身に対応します。たとえば文字‘<code class="literal">a</code>’(文字コード97)は、‘<code class="literal">a</code>’と表示されます。しかし、いくつかの文字は特別な方法で表示されます。たとえば、改頁文字(文字コード12)は、通常は2つのグリフのシーケンス‘<code class="literal">^L</code>’で表示され、改行文字(文字コード10)は新たなスクリーン行を開始します。
+</p><p><em class="firstterm">ディスプレイテーブル(display
+table)</em>を定義することにより、各文字が表示される方法を変更できます。これはそれぞれの文字を、グリフのシーケンスにマップするテーブルです。<a class="link" href="ch38s21.html#Display-Tables" title="Display Tables">Display
+Tables</a>を参照してください。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Usual-Display"/>Usual Display Conventions</h2></div></div></div><p>以下は、各文字コードの表示にたいする慣習です(ディスプレイテーブルが存在しなければ、これらの慣習をオーバーライドできる
+。<a class="link" href="ch38s21.html#Display-Tables" title="Display Tables">Display Tables</a>)を参照されたい)。
+</p><a id="idm82851920" class="indexterm"/><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>コード32から126の<em class="firstterm">プリント可能<acronym class="acronym">ASCII</acronym>文字(printable <acronym class="acronym">ASCII</acronym>
+characters: 数字、英文字、および‘<code class="literal">#</code>’のようなシンボル)</em>は、文字通りそのまま表示される。
+</p></li><li class="listitem"><p>タブ文字(文字コード9)は、次のタブストップ列まで伸長された空白文字として表示される。section “Text Display” in <em class="citetitle">The
+GNU Emacs Manual</em>を参照のこと。変数<code class="literal">tab-width</code>は、タブストップごとのスペース数を制御する(以下参照)。
+</p></li><li class="listitem"><p>改行文字(文字コード10)は特殊効果をもつ。これは先行する行を終端して、新たな行を開始する。
+</p></li><li class="listitem"><a id="idm82842704" class="indexterm"/><p>非プリント可能<em class="firstterm"><acronym class="acronym">ASCII</acronym>制御文字(<acronym class="acronym">ASCII</acronym> control characters)</em> —
+文字コード0から31と<span class="keycap"><strong>DEL</strong></span>文字(文字コード127) —
+は、変数<code class="literal">ctl-arrow</code>に応じて2つの方法のいずれかで表示される。この変数が非<code class="literal">nil</code>(デフォルト)なら、たとえば<span class="keycap"><strong>DEL</strong></span>にたいしては‘<code class="literal">^?</code>’のように、これらの文字は1つ目のグリフが‘<code class="literal">^</code>’(‘<code class="literal">^</code>’のかわりに使用する文字をディスプレイテーブルで指定できる)のような、2つのグリフのシーケンスとして表示される。
+</p><p><code class="literal">ctl-arrow</code>が<code class="literal">nil</code>なら、これらの文字は8進エスケープとして表示される(以下参照)。
+</p><p>このルールは、バッファー内に復帰文字(CR: carriage
+return、文字コード13)があれば、それにも適用される。しかし復帰文字は、通常はバッファーテキスト内には存在しない。これらは、行末変換(end-of-line
+conversion)の一部として除去される(<a class="link" href="ch33s10.html#Coding-System-Basics" title="Basic Concepts of Coding Systems">Coding System Basics</a>を参照)。
+</p></li><li class="listitem"><a id="idm82834512" class="indexterm"/><p><em class="firstterm">rawバイト(raw
+bytes)</em>とは、コード128から255の非<acronym class="acronym">ASCII</acronym>文字である。これらの文字は<em class="firstterm">8進エスケープ(octal
+escapes)</em>として表示される。これは1つ目が‘<code class="literal">\</code>’にたいする<acronym class="acronym">ASCII</acronym>コードのグリフで、残りがその文字のコードを8進で表した数字である(ディスプレイテーブルで‘<code class="literal">\</code>’のかわりに使用するグリフを指定できる)。
+</p></li><li class="listitem"><p>255を超える非<acronym class="acronym">ASCII</acronym>文字は、端末がサポートしていればそのまま表示される。端末がサポートしない場合、その文字は<em class="firstterm">グリフなし(glyphless)</em>と呼ばれ、通常はプレースホルダーグリフを使用して表示される。たとえば、ある文字にたいしてグラフィカル端末がフォントをもたなければ、Emacsは通常は16進文字コードを含むボックスを表示する。<a class="link" href="ch38s21.html#Glyphless-Chars" title="Glyphless Character Display">Glyphless
+Chars</a>を参照のこと。
+</p></li></ul></div><p>上記の表示慣習は、たとえディスプレイテーブルがあっても、アクティブディスプレイテーブル内のエントリーが<code class="literal">nil</code>であるような、すべての文字にたいして適用されます。したがってディスプレイテーブルのセットアップ時に指定が必要なのは、特別な振る舞いを望む文字だけです。
+</p><p>以下の変数は、スクリーン上で特定の文字が表示される方法に影響します。これらはその文字が占める列数を変更するので、インデント関数にも影響を与えます。また、モードラインが表示される方法にも影響があります。新たな値を使用してモードラインを強制的に再表示するには、関数<code class="literal">force-mode-line-update</code>を呼び出してください(<a class="link" href="ch23s04.html" title="Mode Line Format">Mode
+Line Format</a>を参照)。
+</p><pre class="synopsis"><a id="idm82826448" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">ctl-arrow</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm82824400" class="indexterm"/><p>このバッファーローカル変数は、コントロール文字が表示される方法を制御する。非<code class="literal">nil</code>なら‘<code class="literal">^A</code>’のようにカレットとその文字のように表示され、<code class="literal">nil</code>なら‘<code class="literal">\001</code>’のようにバックスラッシュと8進3桁のように8進エスケープとして表示される。
+</p></blockquote></div><pre class="synopsis"><a id="idm82820816" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">tab-width</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数の値は、Emacsバッファー内でのタブ文字表示で使用する、タブストップ間のスペース数である。値は列単位で、デフォルトは8。この機能は、コマンド<code class="literal">tab-to-tab-stop</code>で使用される、ユーザー設定可能なタブストップとは完全に無関係であることに注意。<a class="link" href="ch32s17.html#Indent-Tabs" title="Adjustable “Tab Stops”">Indent
+Tabs</a>を参照のこと。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Display-Tables"/>Display Tables</h2></div></div></div><a id="idm82816208" class="indexterm"/><p>ディスプレイテーブルとは、サブタイプとして<code class="literal">display-table</code>をもつ特殊用途の文字テーブル(<a class="link" href="ch07s06.html" title="Char-Tables">Char-Tables</a>)で、文字の通常の表示慣習をオーバーライドするために使用されます。このセクションではディスプレイテーブルオブジェクトの作成と調査、および要素を割り当てる方法について説明します。
+</p><pre class="synopsis"><a id="idm82813776" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-display-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、ディスプレイテーブルを作成してリターンする。テーブルは初期状態では、すべての要素に<code class="literal">nil</code>をもつ。
+</p></blockquote></div><p>ディスプレイテーブルの通常の要素は、文字コードによりインデックス付けされる。インデックス<em class="replaceable"><code>c</code></em>の要素は、コード<em class="replaceable"><code>c</code></em>の表示方法を示す。値は<code class="literal">nil</code>(これは通常の表示慣習に応じて文字<em class="replaceable"><code>c</code></em>を表示することを意味する。<a class="link" href="ch38s21.html#Usual-Display" title="Usual Display Conventions">Usual
+Display</a>を参照のこと)、またはグリフコードのベクター(これらのグリフとして文字<em class="replaceable"><code>c</code></em>を表示することを意味する。<a class="link" href="ch38s21.html#Glyphs" title="Glyphs">Glyphs</a>を参照のこと)のいずれかであること。
+</p><p><span class="bold"><strong>警告:</strong></span> 改行文字の表示を変更するためにディスプレイテーブルを使用すると、バッファー全体が1つの長い“行”として表示されるだろう。
+</p><p>ディスプレイテーブルは特殊用途向けに、6つの“エクストラスロット(extra
+slots)”をもつこともできます。以下は、それらの意味についてのテーブルです。<code class="literal">nil</code>のスロットは、以下で示すそのスロットにたいするデフォルトの使用を意味します。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">0
+</span></dt><dd><p>切り詰められたスクリーン行終端のグリフ(デフォルトでは‘<code class="literal">$</code>’)。<a class="link" href="ch38s21.html#Glyphs" title="Glyphs">Glyphs</a>を参照のこと。グラフィカルな端末では、Emacsは切り詰められたことをフリンジ内の矢印で示し、ディスプレイテーブルは使用しない。
+</p></dd><dt><span class="term">1
+</span></dt><dd><p>継続行終端のグリフ(デフォルトは‘<code class="literal">\</code>’)。グラフィカルな端末では、Emacsは継続ををフリンジ内の曲矢印で示し、ディスプレイテーブルは使用しない。
+</p></dd><dt><span class="term">2
+</span></dt><dd><p>8進文字コードとして表示される文字を示すグリフ(デフォルトは‘<code class="literal">\</code>’)。
+</p></dd><dt><span class="term">3
+</span></dt><dd><p>コントロール文字を示す(デフォルトは‘<code class="literal">^</code>’)。
+</p></dd><dt><span class="term">4
+</span></dt><dd><p>不可視行があることを示すグリフのベクター(デフォルトは‘<code class="literal">...</code>’)。<a class="link" href="ch38s07.html" title="Selective Display">Selective Display</a>を参照のこと。
+</p></dd><dt><span class="term">5
+</span></dt><dd><p>横並びのウィンドウ間のボーダー描画に使用されるグリフ(デフォルトは‘<code class="literal">|</code>’)。<a class="link" href="ch28s05.html" title="Splitting Windows">Splitting
+Windows</a>を参照のこと。これは、スクロールバーが存在するときだけ効果をもつ。スクロールバーがサポートされていて使用中なら、スクロールバーが2つのウィンドウを分割する。
+</p></dd></dl></div><p>たとえば以下は、関数<code class="literal">make-glyph-code</code>にたいして<code class="literal">ctl-arrow</code>に非<code class="literal">nil</code>をセットして得られる効果を模倣するディスプレイテーブル(<a class="link" href="ch38s21.html#Glyphs" title="Glyphs">Glyphs</a>を参照のこと)を構築する例です:
+</p><pre class="screen">(setq disptab (make-display-table))
+(dotimes (i 32)
+  (or (= i ?\t)
+      (= i ?\n)
+      (aset disptab i
+            (vector (make-glyph-code ?^ 'escape-glyph)
+                    (make-glyph-code (+ i 64) 'escape-glyph)))))
+(aset disptab 127
+      (vector (make-glyph-code ?^ 'escape-glyph)
+              (make-glyph-code ?? 'escape-glyph)))))
+</pre><pre class="synopsis"><a id="idm82779856" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">display-table-slot</code> <em class="replaceable"><code>display-table</code></em> <em class="replaceable"><code>slot</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>display-table</code></em>のエクストラスロット<em class="replaceable"><code>slot</code></em>の値をリターンする。引数<em class="replaceable"><code>slot</code></em>には0から5の数字(両端含む)、またはスロット名(シンボル)を指定できる。有効なシンボルは<code class="literal">truncation</code>、<code class="literal">wrap</code>、<code class="literal">escape</code>、<code class="literal">control</code>、<code class="literal">selective-display</code>、<code class="literal">vertical-border</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm82767824" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-display-table-slot</code> <em class="replaceable"><code>display-table</code></em> <em class="replaceable"><code>slot</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>display-table</code></em>のエクストラスロット<em class="replaceable"><code>slot</code></em>に<em class="replaceable"><code>value</code></em>を格納する。引数<em class="replaceable"><code>slot</code></em>には0から5の数字(両端含む)、またはスロット名(シンボル)を指定できる。有効なシンボルは<code class="literal">truncation</code>、<code class="literal">wrap</code>、<code class="literal">escape</code>、<code class="literal">control</code>、<code class="literal">selective-display</code>、<code class="literal">vertical-border</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm82759120" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">describe-display-table</code> <em class="replaceable"><code>display-table</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ヘルプバッファーにディスプレイテーブル<em class="replaceable"><code>display-table</code></em>の説明を表示する。
+</p></blockquote></div><pre class="synopsis"><a id="idm82755536" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">describe-current-display-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは、ヘルプバッファーにカレントディスプレイテーブルの説明を表示する。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Active-Display-Table"/>Active Display Table</h2></div></div></div><a id="idm82751824" class="indexterm"/><p>ウィンドウはそれぞれディスプレイテーブルを指定でき、各バッファーもディスプレイテーブルを指定できます。もしウィンドウにディスプレイテーブルがあれば、それはバッファーのディスプレイテーブルより優先されます。ウィンドウとバッファーのいずれもディスプレイテーブルをもたなければ、Emacsは標準的なディスプレイテーブルの使用を試みます。標準ディスプレイテーブルが<code class="literal">nil</code>なら、Emacsは通常の文字表示慣習を使用します(<a class="link" href="ch38s21.html#Usual-Display" title="Usual Display Conventions">Usual
+Display</a>を参照)。
+</p><p>ディスプレイテーブルはモードラインが表示される方法に影響を与えるので、新たなディスプレイテーブルを使用してモードラインを強制的に再表示するには、<code class="literal">force-mode-line-update</code>を使用することに注意してください(<a class="link" href="ch23s04.html" title="Mode Line Format">Mode
+Line Format</a>を参照)。
+</p><pre class="synopsis"><a id="idm82747984" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-display-table</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>window</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>window</code></em>のディスプレイテーブル、ディスプレイテーブルがなければ<code class="literal">nil</code>をリターンする。<em class="replaceable"><code>window</code></em>のデフォルトは、選択されたウィンドウ。
+</p></blockquote></div><pre class="synopsis"><a id="idm82743120" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-window-display-table</code> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>table</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>のディスプレイテーブルに<em class="replaceable"><code>table</code></em>をセットする。引数<em class="replaceable"><code>table</code></em>はディスプレイテーブル、または<code class="literal">nil</code>のいずれかであること。
+</p></blockquote></div><pre class="synopsis"><a id="idm82737872" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">buffer-display-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、すべてのバッファーにおいて自動的にバッファーローカルになる。変数の値は、そのバッファーのディスプレイテーブルを指定する。これが<code class="literal">nil</code>なら、バッファーのディスプレイテーブルは存在しない。
+</p></blockquote></div><pre class="synopsis"><a id="idm82734672" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">standard-display-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、ウィンドウ内にバッファーを表示する際、ウィンドウディスプレイテーブルとバッファーディスプレイテーブルのいずれも定義されていないときに、Emacsが使用する標準ディスプレイテーブル(standard
+display table)である。デフォルトは<code class="literal">nil</code>。
+</p></blockquote></div><p><code class="filename">disp-table</code>ライブラリーでは、標準ディスプレイテーブルを変更するために、いくつかの関数を定義されています。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Glyphs"/>Glyphs</h2></div></div></div><a id="idm82729936" class="indexterm"/><a id="idm82729168" class="indexterm"/><p><em class="firstterm">グリフ(glyph)</em>とは、スクリーン上で1文字を占めるグラフィカルなシンボルです。各グリフはLisp内で<em class="firstterm">グリフコード(glyph
+code)</em>として表現されます。これは文字と、オプションで表示するフェイスを指定します(<a class="link" href="ch38s12.html" title="Faces">Faces</a>を参照)。ディスプレイテーブル内のエントリーとしての使用が、グリフコードの主な用途です(<a class="link" href="ch38s21.html#Display-Tables" title="Display Tables">Display
+Tables</a>を参照)。以下の関数は、グリフコードを操作するために使用されます:
+</p><pre class="synopsis"><a id="idm82725840" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-glyph-code</code> <em class="replaceable"><code>char</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>face</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、文字<em class="replaceable"><code>char</code></em>を表すグリフを、フェイス<em class="replaceable"><code>face</code></em>でリターンする。<em class="replaceable"><code>face</code></em>が省略または<code class="literal">nil</code>ならグリフはデフォルトフェイスを使用し、その場合にはグリフコードは整数である。<em class="replaceable"><code>face</code></em>が非<code class="literal">nil</code>なら、グリフコードが整数オブジェクトである必要はない。
+</p></blockquote></div><pre class="synopsis"><a id="idm82719184" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">glyph-char</code> <em class="replaceable"><code>glyph</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、グリフコード<em class="replaceable"><code>glyph</code></em>の文字をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm82715600" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">glyph-face</code> <em class="replaceable"><code>glyph</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、グリフコード<em class="replaceable"><code>glyph</code></em>のフェイス、または<em class="replaceable"><code>glyph</code></em>がデフォルトフェイスを使用する場合は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><p>テキスト端末上で実際にどのようにグリフコードを表示するかを変更するために、<em class="firstterm">glyph
+table</em>をセットアップできる。この機能は半ば時代遅れであり、かわりに<code class="literal">glyphless-char-display</code>を使用すること(<a class="link" href="ch38s21.html#Glyphless-Chars" title="Glyphless Character Display">Glyphless
+Chars</a>を参照)。
+</p><pre class="synopsis"><a id="idm82709328" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">glyph-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値が非<code class="literal">nil</code>なら、それはカレントグリフテーブルである。これは文字端末上でのみ効果があり、グラフィカルディスプレイ上ではすべてのグリフはそのままliteralに表示される。グリフテーブルは、<em class="replaceable"><code>g</code></em>番目の要素がグリフコード<em class="replaceable"><code>g</code></em>の表示方法を指定するようなベクターであること。ここで<em class="replaceable"><code>g</code></em>はフェイス未指定なグリフにたいするグリフコードである。要素はそれぞれ、以下のいずれかであること:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>そのグリフをそのままliteralに表示する。
+</p></dd><dt><span class="term">文字列
+</span></dt><dd><p>指定された文字列を端末に送信することにより、そのグリフを表示する。
+</p></dd><dt><span class="term">グリフコード
+</span></dt><dd><p>指定されたグリフコードをかわりに表示する。
+</p></dd></dl></div><p>グリフテーブルのテーブル長以上の整数グリフコードは、そのままliteralに表示される。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Glyphless-Chars"/>Glyphless Character Display</h2></div></div></div><a id="idm82696400" class="indexterm"/><p><em class="firstterm">グリフ無し文字(glyphless
+characters)</em>とは、literalに表示されるのではなく特別な方法、すなわち16進コードを中に含むボックスとして表示される文字です。これらの文字には、グリフが無いと明示的に定義された文字や、利用可能なフォントがない文字(グラフィカルなディスプレイ)、その端末のコーディングシステムではエンコードできない文字(テキスト端末)が同様に含まれます。
+</p><pre class="synopsis"><a id="idm82694736" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">glyphless-char-display</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値はグリフ無し文字と、それらの表示方法を定義する文字テーブルである。エントリーはそれぞれ、以下の表示メソッドのいずれかでなければならない:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>通常の方法でその文字を表示する。
+</p></dd><dt><span class="term"><code class="literal">zero-width</code>
+</span></dt><dd><p>その文字を表示しない。
+</p></dd><dt><span class="term"><code class="literal">thin-space</code>
+</span></dt><dd><p>グラフィカルな端末では幅が1ピクセル、テキスト端末では幅が1文字の狭いスペース。
+</p></dd><dt><span class="term"><code class="literal">empty-box</code>
+</span></dt><dd><p>空のボックスを表示する。
+</p></dd><dt><span class="term"><code class="literal">hex-code</code>
+</span></dt><dd><p>その文字のUnicodeコードポイントの16進表記を含むボックスを表示する。
+</p></dd><dt><span class="term"><acronym class="acronym">ASCII</acronym>文字列
+</span></dt><dd><p>その文字列を含むボックスを表示する。
+</p></dd><dt><span class="term">コンスセル <code class="literal">(<em class="replaceable"><code>graphical</code></em> . <em class="replaceable"><code>text</code></em>)</code>
+</span></dt><dd><p>グラフィカルな端末では<em class="replaceable"><code>graphical</code></em>、テキスト端末では<em class="replaceable"><code>text</code></em>で表示する。<em class="replaceable"><code>graphical</code></em>と<em class="replaceable"><code>text</code></em>はいずれも、上述した表示メソッドのいずれかでなければならない。
+</p></dd></dl></div><p><code class="literal">thin-space</code>、<code class="literal">empty-box</code>、<code class="literal">hex-code</code>、および<acronym class="acronym">ASCII</acronym>文字列は<code class="literal">glyphless-char</code>フェイスで描画される。
+</p><p>文字テーブルには、利用可能なすべてのフォントでも表示できない、またはその端末のコーディングシステムでエンコードできないすべての文字の表示方法を定義する、余分なスロットが1つある。その値は、上述した表示メソッドのうち<code class="literal">zero-width</code>とコンスセル以外のいずれかでなければならない。
+</p><p>アクティブなディスプレイテーブル内に非<code class="literal">nil</code>なエントリーをもつ文字では、そのディスプレイテーブルが効果をもつ。この場合、Emacsは<code class="literal">glyphless-char-display</code>をまったく参照しない。
+</p></blockquote></div><pre class="synopsis"><a id="idm82663120" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">glyphless-char-display-control</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このユーザーオプションは、似かよった文字のグループにたいして<code class="literal">glyphless-char-display</code>をセットする便利な手段を提供する。Lispコードから、この値を直接セットしてはならない。<code class="literal">glyphless-char-display</code>更新する、カスタム関数<code class="literal">:set</code>を通じた場合のみ、その値は効果をもつ。
+</p><p>この値は、要素が<code class="literal">(<em class="replaceable"><code>group</code></em>
+.
+<em class="replaceable"><code>method</code></em>)</code>であるようなalistであること。ここで<em class="replaceable"><code>group</code></em>は文字びグループを指定するシンボル、<em class="replaceable"><code>method</code></em>はそれらを表示する方法を指定するシンボルである。
+</p><p><em class="replaceable"><code>group</code></em>は以下のいずれかであること:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">c0-control</code>
+</span></dt><dd><p>改行文字とタブ文字を除く<code class="literal">U+0000</code>から<code class="literal">U+001F</code>までの<acronym class="acronym">ASCII</acronym>コントロール文字(通常は‘<code class="literal">^A</code>’のようなエスケープシーケンスとして表示される。section “How Text Is Displayed” in <em class="citetitle">The GNU Emacs Manual</em>を参照されたい)。
+</p></dd><dt><span class="term"><code class="literal">c1-control</code>
+</span></dt><dd><p><code class="literal">U+0080</code>から<code class="literal">U+009F</code>までの非<acronym class="acronym">ASCII</acronym>、非プリント文字(通常は‘<code class="literal">\230</code>’のような8進エスケープシーケンスとして表示される)。
+</p></dd><dt><span class="term"><code class="literal">format-control</code>
+</span></dt><dd><p>‘<code class="literal">U+200E</code>’のようなUnicode General Category ‘Cf’の文字だが、‘<code class="literal">U+00AD</code>’(Soft
+Hyphen)のようにグラフィックイメージをもつ文字を除く。
+</p></dd><dt><span class="term"><code class="literal">no-font</code>
+</span></dt><dd><p>適切なフォントが存在しないか、その端末のコーディングシステムではエンコードできない文字。
+</p></dd></dl></div><p><em class="replaceable"><code>method</code></em>シンボルは<code class="literal">zero-width</code>、<code class="literal">thin-space</code>、<code class="literal">empty-box</code>、<code class="literal">hex-code</code>のいずれかであること。これらは上述の<code class="literal">glyphless-char-display</code>での場合と同様の意味をもつ。
+</p></blockquote></div></div></div></body></html>

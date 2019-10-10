@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Parsing and Formatting Times</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Time-Parsing"/>Parsing and Formatting Times</h1></div></div></div><a id="idm85901392" class="indexterm"/><a id="idm85900624" class="indexterm"/><a id="idm85899856" class="indexterm"/><p>以下の関数は、time値と文字列内のテキストの変換と逆変換を行います。time値は2つから4つの整数のリストです(<a class="link" href="ch39s05.html" title="Time of Day">Time of
+Day</a>を参照)。
+</p><pre class="synopsis"><a id="idm85897936" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">date-to-time</code> <em class="replaceable"><code>string</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はtime文字列<em class="replaceable"><code>string</code></em>をパースして、それに対応するtime値をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm85894352" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">format-time-string</code> <em class="replaceable"><code>format-string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>time</code></em> <em class="replaceable"><code>universal</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>time</code></em>(省略時はカレント時刻)を、<em class="replaceable"><code>format-string</code></em>に応じて文字列に変換する。引数<em class="replaceable"><code>format-string</code></em>には、時刻を置換する‘<code class="literal">%</code>’シーケンスを含めることができる。以下は‘<code class="literal">%</code>’シーケンスは何を意味するかのテーブルである:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">%a</code>’
+</span></dt><dd><p>これは曜日の短縮名を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%A</code>’
+</span></dt><dd><p>これは曜日の完全名を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%b</code>’
+</span></dt><dd><p>これは月の短縮名を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%B</code>’
+</span></dt><dd><p>これは月の完全名を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%c</code>’
+</span></dt><dd><p>これは‘<code class="literal">%x %X</code>’のシノニムである。
+</p></dd><dt><span class="term">‘<code class="literal">%C</code>’
+</span></dt><dd><p>これはlocale固有の意味をもつ。デフォルトlocale(Cという名前のlocale)では、これは‘<code class="literal">%A, %B %e,
+%Y</code>’と等価である。
+</p></dd><dt><span class="term">‘<code class="literal">%d</code>’
+</span></dt><dd><p>これは0パディングされた年月日の日である。
+</p></dd><dt><span class="term">‘<code class="literal">%D</code>’
+</span></dt><dd><p>これは‘<code class="literal">%m/%d/%y</code>’のシノニムである。
+</p></dd><dt><span class="term">‘<code class="literal">%e</code>’
+</span></dt><dd><p>これはブランクでパディングされた年月日の日である。
+</p></dd><dt><span class="term">‘<code class="literal">%h</code>’
+</span></dt><dd><p>これは‘<code class="literal">%b</code>’のシノニムである。
+</p></dd><dt><span class="term">‘<code class="literal">%H</code>’
+</span></dt><dd><p>時分秒の時(00から23)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%I</code>’
+</span></dt><dd><p>時分秒の時(01から12)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%j</code>’
+</span></dt><dd><p>これは年内の経過日(001から366)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%k</code>’
+</span></dt><dd><p>これはブランクでパディングされた時分秒の時(0から23)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%l</code>’
+</span></dt><dd><p>これはブランクでパディングされた時分秒の時(1から12)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%m</code>’
+</span></dt><dd><p>これは年月日の月(01から12)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%M</code>’
+</span></dt><dd><p>これは時分秒の分(00から59)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%n</code>’
+</span></dt><dd><p>これは改行を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%N</code>’
+</span></dt><dd><p>これはナノ秒(000000000–999999999)を意味する。うり少ない桁数を求める場合、ミリ秒は‘<code class="literal">%3N</code>’、マイクロ秒は‘<code class="literal">%6N</code>’を使用する。余分な桁は丸めずに切り捨てられる。
+</p></dd><dt><span class="term">‘<code class="literal">%p</code>’
+</span></dt><dd><p>これは必要に応じて‘<code class="literal">AM</code>’か‘<code class="literal">PM</code>’を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%r</code>’
+</span></dt><dd><p>これは‘<code class="literal">%I:%M:%S %p</code>’のシノニムである。
+</p></dd><dt><span class="term">‘<code class="literal">%R</code>’
+</span></dt><dd><p>これは‘<code class="literal">%H:%M</code>’のシノニムである。
+</p></dd><dt><span class="term">‘<code class="literal">%S</code>’
+</span></dt><dd><p>これは時分秒の秒(00から59)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%t</code>’
+</span></dt><dd><p>これはタブ文字を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%T</code>’
+</span></dt><dd><p>これは‘<code class="literal">%H:%M:%S</code>’のシノニムである。
+</p></dd><dt><span class="term">‘<code class="literal">%U</code>’
+</span></dt><dd><p>これは週の開始を日曜日とみなした、年内の週(01から52)である。
+</p></dd><dt><span class="term">‘<code class="literal">%w</code>’
+</span></dt><dd><p>これは数字で表した曜日(0から6)で、日曜日が0。
+</p></dd><dt><span class="term">‘<code class="literal">%W</code>’
+</span></dt><dd><p>これは週の開始を月曜日とみなした、年内の週(01から52)である。
+</p></dd><dt><span class="term">‘<code class="literal">%x</code>’
+</span></dt><dd><p>これはlocale固有の意味をもつ。デフォルトlocale(Cという名前のlocale)では、これは‘<code class="literal">%D</code>’と等価である。
+</p></dd><dt><span class="term">‘<code class="literal">%X</code>’
+</span></dt><dd><p>これはlocale固有の意味をもつ。デフォルトlocale(Cという名前のlocale)では、これは‘<code class="literal">%T</code>’と等価である。
+</p></dd><dt><span class="term">‘<code class="literal">%y</code>’
+</span></dt><dd><p>これは世紀を含まない年(00から99)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%Y</code>’
+</span></dt><dd><p>これは世紀を併なう年を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%Z</code>’
+</span></dt><dd><p>これはタイムゾーンの短縮形(たとえば‘<code class="literal">EST</code>’)を意味する。
+</p></dd><dt><span class="term">‘<code class="literal">%z</code>’
+</span></dt><dd><p>これは数値的オフセットによるタイムゾーン(たとえば‘<code class="literal">-0500</code>’)を意味する。
+</p></dd></dl></div><p>これら‘<code class="literal">%</code>’シーケンスのすべてにおいて、フィールド幅とパディングのタイプを指定できる。これは<code class="literal">printf</code>でのように機能する。フィールド幅は桁数として‘<code class="literal">%</code>’シーケンスの中間に記述する。このフィールド幅を‘<code class="literal">0</code>’で開始すると、それは0によるパディングを意味する。フィールド幅を‘<code class="literal">_</code>’で開始すれば、それはスペースによるパディングを意味する。
+</p><p>たとえば‘<code class="literal">%S</code>’は、分内で経過した秒数を指定するが、‘<code class="literal">%03S</code>’は3箇所の0を、‘<code class="literal">%_3S</code>’は3箇所にスペースをパディングすることを意味する。ただの‘<code class="literal">%3S</code>’は0でパディングを行う。これは‘<code class="literal">%S</code>’が通常において2箇所にパディングする方法だからである。
+</p><p>文字‘<code class="literal">E</code>’と‘<code class="literal">O</code>’は、‘<code class="literal">%</code>’と上記テーブルのアルファベットのいずれかの間に使用されたときは修飾子として作用する。‘<code class="literal">E</code>’は日付と時刻に、カレントlocaleの“代替”バージョンの使用を指定する。たとえば日本のlocaleでは、<code class="literal">%Ex</code>では日本の元号にもとづく日付フォーマットを得られるだろう。‘<code class="literal">E</code>’は‘<code class="literal">%Ec</code>’、‘<code class="literal">%EC</code>’、‘<code class="literal">%Ex</code>’、‘<code class="literal">%EX</code>’、‘<code class="literal">%Ey</code>’、‘<code class="literal">%EY</code>’の使用が許されている。
+</p><p>‘<code class="literal">O</code>’は通常の10進の数字(訳注：
+アラビア数字)ではなく、カレントlocaleの数字の“代替”表現を使用する。これは数字を出力する、ほとんどすべてのアルファベットで使用が許されている。
+</p><p><em class="replaceable"><code>universal</code></em>が非<code class="literal">nil</code>なら、それは時刻を万国標準時で記すことを意味する。<code class="literal">nil</code>は、Emacsがローカルのタイムゾーンを信頼して使用することを意味する(<code class="literal">current-time-zone</code>を参照)。
+</p><p>この関数は、処理のほとんどを行うために、Cライブラリー関数<code class="literal">strftime</code>を使用している(section “Formatting Calendar
+Time” in <em class="citetitle">The GNU C Library Reference
+Manual</em>を参照)。その関数とやり取りするために、<code class="literal">locale-coding-system</code>(<a class="link" href="ch33s12.html" title="Locales">Locales</a>を参照)で指定されたコーディングシステムを使用して、引数のエンコーディングを最初に行う。<code class="literal">strftime</code>が結果文字列をリターンした後に、その同じコーディングシステムを使用して、<code class="literal">format-time-string</code>はデコードを行う。
+</p></blockquote></div><pre class="synopsis"><a id="idm85788624" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">seconds-to-time</code> <em class="replaceable"><code>seconds</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、エポック以降の秒数<em class="replaceable"><code>seconds</code></em>をtime値に変換して、それをリターンする。これを逆変換するには<code class="literal">float-time</code>を使用する(<a class="link" href="ch39s05.html" title="Time of Day">Time
+of Day</a>を参照)。
+</p></blockquote></div><pre class="synopsis"><a id="idm85784016" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">format-seconds</code> <em class="replaceable"><code>format-string</code></em> <em class="replaceable"><code>seconds</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は引数<em class="replaceable"><code>seconds</code></em>を、<em class="replaceable"><code>format-string</code></em>に応じた年、日、時、...の文字列に変換する。引数<em class="replaceable"><code>format-string</code></em>には、その変換を制御する‘<code class="literal">%</code>’シーケンスを指定することができる。以下は‘<code class="literal">%</code>’が何を意味するかのテーブルである:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">%y</code>’
+, </span><span class="term">‘<code class="literal">%Y</code>’
+</span></dt><dd><p>年間365日での年の整数。
+</p></dd><dt><span class="term">‘<code class="literal">%d</code>’
+, </span><span class="term">‘<code class="literal">%D</code>’
+</span></dt><dd><p>年月日の日。
+</p></dd><dt><span class="term">‘<code class="literal">%h</code>’
+, </span><span class="term">‘<code class="literal">%H</code>’
+</span></dt><dd><p>時分秒の時の整数。
+</p></dd><dt><span class="term">‘<code class="literal">%m</code>’
+, </span><span class="term">‘<code class="literal">%M</code>’
+</span></dt><dd><p>時分秒の分の整数。
+</p></dd><dt><span class="term">‘<code class="literal">%s</code>’
+, </span><span class="term">‘<code class="literal">%S</code>’
+</span></dt><dd><p>時分秒の秒の整数。
+</p></dd><dt><span class="term">‘<code class="literal">%z</code>’
+</span></dt><dd><p>非プリント制御フラグ。これを使用する際には、他の指定はサイズ減少順、すなわち年、日、時刻、分、...のように与えなければならない。最初の非0変換に遭遇するまで、‘<code class="literal">%z</code>’の左側の結果文字列は生成されない。たとえば<code class="literal">emacs-uptime</code>(<a class="link" href="ch39s08.html" title="Processor Run time">emacs-uptime</a>を参照)で使用されるデフォルトフォーマットでは、秒数は常に生成されるが年、日、時、分はそれらが非0の場合のみ生成されるだろう。
+</p></dd><dt><span class="term">‘<code class="literal">%%</code>’
+</span></dt><dd><p>リテラルの‘<code class="literal">%</code>’を生成する。
+</p></dd></dl></div><p>大文字のフォーマットシーケンスは数字に加えて単位を生成するが、小文字フォーマットは数字だけを生成する。
+</p><p>‘<code class="literal">%</code>’に続けてフィールド幅を指定できる。指定したフ幅より短ければ、ブランクでパディングされる。この幅の前にオプションでピリオドを指定すると、かわりに0パディングを要求する。たとえば<code class="literal">"%.3Y"</code>は、<code class="literal">"004
+years"</code>を生成するだろう。
+</p><p><span class="emphasis"><em>警告:</em></span>
+この関数は<code class="literal">most-positive-fixnum</code>を超えない<em class="replaceable"><code>seconds</code></em>の値でのみ機能する(<a class="link" href="ch04.html#Integer-Basics" title="Integer Basics">most-positive-fixnum</a>を参照)。
+</p></blockquote></div></div></body></html>

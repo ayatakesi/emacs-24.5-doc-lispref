@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Invisible Text</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Invisible-Text"/>Invisible Text</h1></div></div></div><a id="idm81722192" class="indexterm"/><p><code class="literal">invisible</code>プロパティにより、スクリーン上に表示されないように、文字を<em class="firstterm">不可視(invisible)</em>にすることができます。これはテキストプロパティ(<a class="link" href="ch32s19.html" title="Text Properties">Text
+Properties</a>を参照)、またはオーバーレイプロパティ(<a class="link" href="ch38s09.html" title="Overlays">Overlays</a>を参照)のいずれかで行うことができます。カーソル移動も、これらの文字を部分的に無視します。あるコマンドの後に、不可視テキスト範囲内にポイントがあることをコマンドループが検知した場合、コマンドループはポイントをそのテキストの別サイドへ再配置します。
+</p><p>もっともシンプルなケースでは、非<code class="literal">nil</code>の<code class="literal">invisible</code>プロパティにより、文字は不可視になります。これがデフォルトのケースであり、もし<code class="literal">buffer-invisibility-spec</code>のデフォルト値を変更したくない場合は、これが<code class="literal">invisible</code>プロパティを機能させる方法です。自身で<code class="literal">buffer-invisibility-spec</code>をセットする予定がなければ、<code class="literal">invisible</code>プロパティの値として、通常は<code class="literal">t</code>を使用するべきです。
+</p><p>より一般的には、どの<code class="literal">invisible</code>の値がテキストを不可視にするかを制御するために、変数<code class="literal">buffer-invisibility-spec</code>を使用できます。テキストにたいして異なる<code class="literal">invisible</code>の値を与えることにより、事前に別のサブセットへテキストをクラス分けした後に、<code class="literal">buffer-invisibility-spec</code>の値を変更して、さまざまなサブセットを可視または不可視にすることができます。
+</p><p>特にデータベース内のエントリーのリストを表示するプログラム内では、<code class="literal">buffer-invisibility-spec</code>による可視性の制御は有用です。これにより、データベース内の一部だけを閲覧するフィルターコマンドを、簡便に実装することが可能になります。この変数をセットするのは非常に高速で、バッファー内のすべてのテキストにたいしてプロパティが変更されたかスキャンするより、はるかに高速です。
+</p><pre class="synopsis"><a id="idm81686736" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">buffer-invisibility-spec</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、どの種類の<code class="literal">invisible</code>プロパティが、実際に文字を不可視にするかを指定する。この変数はセットすることにより、バッファーローカルになる。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><p><code class="literal">invisible</code>プロパティが非<code class="literal">nil</code>なら、その文字は不可視になる。これがデフォルトである。
+</p></dd><dt><span class="term">リスト
+</span></dt><dd><p>このリスト内の各要素は、不可視性の条件を指定する。ある文字の<code class="literal">invisible</code>プロパティがこれらの条件のいずれかに適合したら、その文字は不可視になる。このリストは2種類の要素をもつことができる:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal"><em class="replaceable"><code>atom</code></em></code>
+</span></dt><dd><p><code class="literal">invisible</code>プロパティの値が<em class="replaceable"><code>atom</code></em>、または<em class="replaceable"><code>atom</code></em>をメンバーにもつリストなら、その文字は不可視になる。比較は<code class="literal">eq</code>により行われる。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>atom</code></em> . t)</code>
+</span></dt><dd><p><code class="literal">invisible</code>プロパティの値が<em class="replaceable"><code>atom</code></em>、または<em class="replaceable"><code>atom</code></em>をメンバーにもつリストなら、その文字は不可視になる。比較は<code class="literal">eq</code>により行われる。さらに、そのような文字シーケンスは省略記号(ellipsis)として表示される。
+</p></dd></dl></div></dd></dl></div></blockquote></div><p>特に<code class="literal">buffer-invisibility-spec</code>への要素の追加と削除のために、2つの関数が提供されています。
+</p><pre class="synopsis"><a id="idm81643600" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">add-to-invisibility-spec</code> <em class="replaceable"><code>element</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">buffer-invisibility-spec</code>に要素<em class="replaceable"><code>element</code></em>を追加する。<code class="literal">buffer-invisibility-spec</code>が<code class="literal">t</code>なら、これはリスト<code class="literal">(t)</code>に変更され、<code class="literal">invisible</code>プロパティが<code class="literal">t</code>のテキストは不可視のまま留まる。
+</p></blockquote></div><pre class="synopsis"><a id="idm81632848" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">remove-from-invisibility-spec</code> <em class="replaceable"><code>element</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">buffer-invisibility-spec</code>から要素<em class="replaceable"><code>element</code></em>を削除する。リスト内に<em class="replaceable"><code>element</code></em>がなければ、何も行わない。
+</p></blockquote></div><p><code class="literal">buffer-invisibility-spec</code>を使用するための規約として、メジャーモードは<code class="literal">buffer-invisibility-spec</code>の要素、および<code class="literal">invisible</code>プロパティの値として、自身のモード名を使用することになっている。
+</p><pre class="screen">;; 省略記号を表示したければ:
+(add-to-invisibility-spec '(my-symbol . t))
+;; 表示したくなければ:
+(add-to-invisibility-spec 'my-symbol)
+
+(overlay-put (make-overlay beginning end)
+             'invisible 'my-symbol)
+
+;; 不可視状態が終わったら:
+(remove-from-invisibility-spec '(my-symbol . t))
+;; または各々を:
+(remove-from-invisibility-spec 'my-symbol)
+</pre><p>以下の関数を使用することにより、不可視性をチェックできます:
+</p><pre class="synopsis"><a id="idm81625680" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">invisible-p</code> <em class="replaceable"><code>pos-or-prop</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><em class="replaceable"><code>pos-or-prop</code></em>がマーカーか数字の場合、その位置のテキストが不可視なら、この関数は非<code class="literal">nil</code>をリターンする。
+</p><p><em class="replaceable"><code>pos-or-prop</code></em>が別の類のLispオブジェクトなら、テキストプロパティまたはオーバーレイプロパティとして可能な値を意味すると解釈される。この場合、<code class="literal">buffer-invisibility-spec</code>のカレント値にもとづき、もしその値がテキストを不可視とするようなら、この関数は非<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><a id="idm81620176" class="indexterm"/><p>通常、テキストを操作したりポイントを移動する関数は、そのテキストが不可視かどうかに注意を払わず、可視および不可視のテキストを同様に処理します。<code class="literal">next-line</code>や<code class="literal">previous-line</code>のようなユーザーレベルの行移動関数は、<code class="literal">line-move-ignore-invisible</code>が非<code class="literal">nil</code>(デフォルト)なら、不可視な改行を無視します。これらの関数は不可視な改行がそのバッファーに存在しないかのように振る舞いますが、これはそう振る舞うよう、明示的にプログラムされているからです。
+</p><p>あるコマンドが、不可視テキストの境界内側のポイントで終了した場合、メイン編集ループはその不可視テキストの両端のうちのいずれかにポイントを再配置します。そのコマンドの移動関数の全体的な方向と同じになるように、Emacsが再配置の方向は決定します。これに疑問がある場合には、挿入された文字が<code class="literal">invisible</code>プロパティを継承しないような位置を優先してください。加えて、そのテキストが省略記号で置換されず、コマンドが不可視テキスト内への移動のみを行う場合、ポイントを1文字余計に移動して、目に見えるようカーソルを移動することにより、そのコマンドの移動を反映するよう試みます。
+</p><p>したがって,コマンドが(通常のstickinessをもつ)不可視範囲に、後方へとポイントを移動した場合、Emacsはポイントをその範囲の先頭へと、後方に移動します。コマンドが不可視範囲へ前方にポイントを移動した場合には、Emacsは不可視テキストの前にある最初の可視文字へと、前方にポイントを移動して、その後さらに前方へ1文字余計に移動します。
+</p><p>これら不可視テキスト中間で終了するポイントにたいするこれらの<em class="firstterm">調整(adjustments)</em>は、<code class="literal">disable-point-adjustment</code>を非<code class="literal">nil</code>にセットすることにより無効にできます。<a class="link" href="ch21s06.html" title="Adjusting Point After Commands">Adjusting
+Point</a>を参照してください。
+</p><p>インクリメンタル検索はマッチが不可視テキストを含む場合は、一時的および/または永続的に不可視オーバーレイを可視にすることができます。これを有効にするためには、そのオーバーレイが非<code class="literal">nil</code>の<code class="literal">isearch-open-invisible</code>プロパティをもつ必要があります。プロパティの値は、そのオーバーレイを引数として呼び出される関数であるべきです。その関数は、オーバーレイを永続的に可視にする必要があります。これは検索からのexit時にマッチがそのオーバーレイに重なるときに使用されます。
+</p><p>検索の間、そのようなオーバーレイのinvisible、およびintangibleプロパティを一時的に変更することにより、オーバーレイは一時的に可視にされます。特定のオーバーレイにたいして、異なる方法でこれを行いたいなら、それを<code class="literal">isearch-open-invisible-temporary</code>プロパティ(関数)に与えてください。その関数は2つの引数により呼び出されます。1つ目はそのオーバーレイ、2つ目は<code class="literal">nil</code>ならオーバーレイを可視に、<code class="literal">t</code>なら再び不可視にします。
+</p></div></body></html>

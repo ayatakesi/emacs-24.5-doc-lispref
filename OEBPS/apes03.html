@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Garbage Collection</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Garbage-Collection"/>Garbage Collection</h1></div></div></div><a id="idm84285904" class="indexterm"/><p>プログラムがリストを作成するときや、(ライブライのロード等により)ユーザーが新しい関数を定義する際、そのデータは通常ストレージに配置されます。通常ストレージが少なくなると、Emacsはもっとメモリーを割り当てるようオペレーティングシステムに要求します。シンボル、コンスセル、小さいベクター、マーカー等のような別のタイプのLispオブジェクトは、メモリー内の個別のブロックに隔離されます(大きいベクター、長い文字列、バッファー、および他の特定の編集タイプは非常に巨大であり、1つのオブジェクトにたいして個別のブロックが割り当てられ、小さな文字列は8kバイトのブロック、小さいベクターは4kバイトのブロックにパックされる)。
+</p><a id="idm84284752" class="indexterm"/><a id="idm84283984" class="indexterm"/><p>基本的なベクトではないウィンドウ、バッファー、フレームがあたかもベクターであるかのように管理されています。対応するCデータ構造体には<code class="literal">struct
+vectorlike_header</code>フィールドが含まれ、そのメンバー<code class="literal">size</code>には<code class="literal">enum
+pvec_type</code>で列挙されたサブタイプ、その構造体が含む<code class="literal">Lisp_Object</code>フィールドの数に関する情報、および残りのデータのサイズが含まれます。この情報は、オブジェクトのメモリーフットプリントの計算に必要であり、ベクターブロックの繰り返し処理の際のベクター割り当てコードにより使用されます。
+</p><a id="idm84280784" class="indexterm"/><p>しばらくの間いくつかのストレージを使用して、(たとえば)バッファーのkillやあるオブジェクトを指す最後のポインターの削除によりそれを開放するのは、非常に一般的なことです。この放棄されたストレージを再利用するために、Emacsは<em class="firstterm">ガーベージコレクター(garbage
+collector)</em>を提供します。ガーベージコレクターは、いまだLispプログラムからアクセス可能なすべてのLispオブジェクトを検索、マークすることにより動作します。これを開始するには、すべてのシンボル、それらの値と関連付けられている関数定義、現在スタック上にあるすべてのデータをアクセス可能と仮定します。別のアクセス可能オブジェクトを介して間接的に到達できるスベテのオブジェクトも、アクセス可能とみなされます。
+</p><p>マーキングが終了して、それでもマークされないオブジェクトはすべてガーベージ(garbage:
+ごみ)です。Lispプログラムかユーザーの行為かに関わらず、それらに到達する手段はもはや存在しないので、それらを参照することは不可能です。誰もそれを失うことはないので、それらのスペースは再利用されることになります。ガーベージコレクターの2つ目の((“スイープ(sweep:
+一掃”)))のフェーズでは、それらの再利用を計らいます。
+</p><a id="idm84278608" class="indexterm"/><p>スイープフェーズは将来の割り当て用に、シンボルやマーカーと同様に、未使用のコンスセルを<em class="firstterm">フリーリスト(free
+list)</em>上に配置します。これは、アクセス可能な文字列は少数の8kブロックを占有するように圧縮して、その後に他の8kブロックを開放します。ベクターブロックから到達不可能はベクターは、可能なかぎり最大のフリーエリアを作成するために統合し、フリーエリアが完全な4kブロックに跨がるようなら、そのブロックは開放されます。それ以外なら、そのフリーエリアはフリーリスト配列に記録されます。これは、各エントリーが同サイズのエリアのフリーリストに対応します。巨大なベクター、バッファー、その他の巨大なオブジェクトは、個別に割り当てと開放が行われます。
+</p><a id="idm84277072" class="indexterm"/><div class="blockquote"><blockquote class="blockquote"><p><span class="bold"><strong>Common Lispに関する注意:</strong></span> 他のLispと異なり、GNU Emacs
+Lispはフリーリストが空のときにガーベージコレクターを呼び出さない。かわりに、単にオペレーティングシステムに更なるストレージの割り当てを要求して、<code class="literal">gc-cons-threshold</code>バイトを使い切るまで処理を継続する。
+</p><p>これは特定のLispプログラムの範囲の実行直前に、明示的にガーベージコレクターを呼び出せば、その範囲の実行中はガーベージコレクターが実行されないだろうと確信できることを意味する(そのプログラム範囲が2回目のガーベージコレクションを強制するほど、多くのスペースを使用しないという前提)。
+</p></blockquote></div><pre class="synopsis"><a id="idm84253776" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">garbage-collect</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドはガーベージコレクションを実行して、使用中のスペース量の情報をリターンする(前回のガーベージコレクション以降、<code class="literal">gc-cons-threshold</code>バイトより多いLispデータを使用した場合には、自然にガーベージコレクションが発生することもあり得る)。
+</p><p><code class="literal">garbage-collect</code>は使用中のスペース量の情報をリストでリターンする。これの各エントリーは‘<code class="literal">(<em class="replaceable"><code>name</code></em>
+<em class="replaceable"><code>size</code></em>
+<em class="replaceable"><code>used</code></em>)</code>’という形式をもつ。このエントリーで<em class="replaceable"><code>name</code></em>はそのエントリーが対応するオブジェクトの種類を記述するシンボル、<em class="replaceable"><code>size</code></em>はそれが使用するバイト数、<em class="replaceable"><code>used</code></em>はヒープ内で生きていることが解ったオブケウトの数、オプションの<em class="replaceable"><code>free</code></em>は、生きていないがEmacsが将来の割り当て用に保持しているオブジェクトの数である。全体的な結果は以下のようになる:
+</p><pre class="screen">((<code class="literal">conses</code> <em class="replaceable"><code>cons-size</code></em> <em class="replaceable"><code>used-conses</code></em> <em class="replaceable"><code>free-conses</code></em>)
+ (<code class="literal">symbols</code> <em class="replaceable"><code>symbol-size</code></em> <em class="replaceable"><code>used-symbols</code></em> <em class="replaceable"><code>free-symbols</code></em>)
+ (<code class="literal">miscs</code> <em class="replaceable"><code>misc-size</code></em> <em class="replaceable"><code>used-miscs</code></em> <em class="replaceable"><code>free-miscs</code></em>)
+ (<code class="literal">strings</code> <em class="replaceable"><code>string-size</code></em> <em class="replaceable"><code>used-strings</code></em> <em class="replaceable"><code>free-strings</code></em>)
+ (<code class="literal">string-bytes</code> <em class="replaceable"><code>byte-size</code></em> <em class="replaceable"><code>used-bytes</code></em>)
+ (<code class="literal">vectors</code> <em class="replaceable"><code>vector-size</code></em> <em class="replaceable"><code>used-vectors</code></em>)
+ (<code class="literal">vector-slots</code> <em class="replaceable"><code>slot-size</code></em> <em class="replaceable"><code>used-slots</code></em> <em class="replaceable"><code>free-slots</code></em>)
+ (<code class="literal">floats</code> <em class="replaceable"><code>float-size</code></em> <em class="replaceable"><code>used-floats</code></em> <em class="replaceable"><code>free-floats</code></em>)
+ (<code class="literal">intervals</code> <em class="replaceable"><code>interval-size</code></em> <em class="replaceable"><code>used-intervals</code></em> <em class="replaceable"><code>free-intervals</code></em>)
+ (<code class="literal">buffers</code> <em class="replaceable"><code>buffer-size</code></em> <em class="replaceable"><code>used-buffers</code></em>)
+ (<code class="literal">heap</code> <em class="replaceable"><code>unit-size</code></em> <em class="replaceable"><code>total-size</code></em> <em class="replaceable"><code>free-size</code></em>))
+</pre><p>以下に例を示す:
+</p><pre class="screen">(garbage-collect)
+      ⇒ ((conses 16 49126 8058) (symbols 48 14607 0)
+                 (miscs 40 34 56) (strings 32 2942 2607)
+                 (string-bytes 1 78607) (vectors 16 7247)
+                 (vector-slots 8 341609 29474) (floats 8 71 102)
+                 (intervals 56 27 26) (buffers 944 8)
+                 (heap 1024 11715 2678))
+</pre><p>以下は、各要素を説明するためのテーブルである。最後の<code class="literal">heap</code>エントリーはオプションであり、背景の<code class="literal">malloc</code>実装が<code class="literal">mallinfo</code>関数を提供する場合のみ与えられることに注意。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>cons-size</code></em>
+</span></dt><dd><p>コンスセルの内部的サイズ(<code class="literal">sizeof (struct Lisp_Cons)</code>)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-conses</code></em>
+</span></dt><dd><p>使用中のコンスセルの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-conses</code></em>
+</span></dt><dd><p>オペレーティングシステムから取得したスペースにあるが、カレントで未使用のコンスセルの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>symbol-size</code></em>
+</span></dt><dd><p>シンボルの内部的サイズ(<code class="literal">sizeof (struct Lisp_Symbol)</code>)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-symbols</code></em>
+</span></dt><dd><p>使用中のシンボルの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-symbols</code></em>
+</span></dt><dd><p>オペレーティングシステムから取得したスペースにあるが、カレントで未使用のシンボルの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>misc-size</code></em>
+</span></dt><dd><p>雑多なエンティティーの内部的なサイズ。<code class="literal">sizeof (union Lisp_Misc)</code>は<code class="literal">enum
+Lisp_Misc_Type</code>に列挙された最大タイプのサイズ。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-miscs</code></em>
+</span></dt><dd><p>使用中の雑多なエンティティーの数。これらのエンティティーにはマーカー、オーバーレイに加えて、ユーザーにとって不可視な特定オブジェクトが含まれる。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-miscs</code></em>
+</span></dt><dd><p>オペレーティングシステムから取得したスペースにあるが、カレントで未使用の雑多なオブジェクトの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>string-size</code></em>
+</span></dt><dd><p>文字列ヘッダーの内部的サイズ(<code class="literal">sizeof (struct Lisp_String)</code>)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-strings</code></em>
+</span></dt><dd><p>使用中の文字列ヘッダーの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-strings</code></em>
+</span></dt><dd><p>オペレーティングシステムから取得したスペースにあるが、カレントで未使用の文字列ヘッダーの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>byte-size</code></em>
+</span></dt><dd><p>これは利便性のために使用され、<code class="literal">sizeof (char)</code>と同じ。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-bytes</code></em>
+</span></dt><dd><p>すべての文字列データの総バイト数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>vector-size</code></em>
+</span></dt><dd><p>ベクターヘッダーの内部的サイズ(<code class="literal">sizeof (struct Lisp_Vector)</code>)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-vectors</code></em>
+</span></dt><dd><p>ベクターブロックから割り当てられたベクターブロック数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>slot-size</code></em>
+</span></dt><dd><p>ベクタースロットの内部的なサイズで、常に<code class="literal">sizeof (Lisp_Object)</code>と等しい。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-slots</code></em>
+</span></dt><dd><p>使用されているすべてのベクターのスロット数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-slots</code></em>
+</span></dt><dd><p>すべてのベクターブロックのフリースロットの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>float-size</code></em>
+</span></dt><dd><p>浮動小数点数オブジェクトの内部的なサイズ(<code class="literal">sizeof (struct
+Lisp_Float)</code>)。(ネイティブプラットフォームの<code class="literal">float</code>や<code class="literal">double</code>と混同しないこと。)
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-floats</code></em>
+</span></dt><dd><p>使用中の浮動小数点数の数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-floats</code></em>
+</span></dt><dd><p>オペレーティングシステムから取得したスペースにあるが、カレントで未使用の浮動小数点数の数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>interval-size</code></em>
+</span></dt><dd><p>インターバルオブジェクト(interval object)の内部的なサイズ(<code class="literal">sizeof (struct interval)</code>)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-intervals</code></em>
+</span></dt><dd><p>使用中のインターバルの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-intervals</code></em>
+</span></dt><dd><p>オペレーティングシステムから取得したスペースにあるが、カレントで未使用のインターバルの数。
+</p></dd><dt><span class="term"><em class="replaceable"><code>buffer-size</code></em>
+</span></dt><dd><p>バッファーの内部的なサイズ(<code class="literal">sizeof (struct
+buffer)</code>)。(<code class="literal">buffer-size</code>関数がリターンする値と混同しないこと。)
+</p></dd><dt><span class="term"><em class="replaceable"><code>used-buffers</code></em>
+</span></dt><dd><p>使用中のバッファーオブジェクトの数。これにはユーザーからは不可視のkillされたバッファー、つまりリスト<code class="literal">all_buffers</code>内のバッファーすべてが含まれる。
+</p></dd><dt><span class="term"><em class="replaceable"><code>unit-size</code></em>
+</span></dt><dd><p>ヒープスペースを計る単位で、常に1024バイトと等しい。
+</p></dd><dt><span class="term"><em class="replaceable"><code>total-size</code></em>
+</span></dt><dd><p><em class="replaceable"><code>unit-size</code></em>単位での総ヒープサイズ。
+</p></dd><dt><span class="term"><em class="replaceable"><code>free-size</code></em>
+</span></dt><dd><p><em class="replaceable"><code>unit-size</code></em>単位での、カレントで未使用のヒープスペース。
+</p></dd></dl></div><p>純粋スペース(<a class="link" href="apes02.html" title="Pure Storage">Pure
+Storage</a>を参照)内にオーバーフローがあれば、実際にガーベージコレクションを行うことは不可能なので、<code class="literal">garbage-collect</code>は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm84177104" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">garbage-collection-messages</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>なら、Emacsはガーベージコレクションの最初と最後にメッセージを表示する。デフォルト値は<code class="literal">nil</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm84173264" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">post-gc-hook</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これはガーベージコレクションの終わりに実行される、ノーマルフックである。ガーベージコレクションは、このフックの関数の実行中は抑制されるので、慎重に記述されたい。
+</p></blockquote></div><pre class="synopsis"><a id="idm84170576" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">gc-cons-threshold</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、別のガーベージコレクションをトリガーするために、ガーベージコレクション後にLispオブジェクト用に割り当てなければならない、ストレージのバイト数である。特定ノオブジェクトタイプに関する情報を取得するために、<code class="literal">garbage-collect</code>がリターンした結果を使用できる。バッファーのコンテンツに割り当てられたスペースは、勘定に入らない。後続のガーベージコレクションは、このthreshold(閾値)が消費されても即座には実行されず、次回にLispインタープリターが呼び出されたときのみ実行されることに注意。
+</p><p>thresholdの初期値は<code class="literal">GC_DEFAULT_THRESHOLD</code>で、これは<code class="filename">alloc.c</code>内で定義されている。これは<code class="literal">word_size</code>単位で定義されているので、デフォルトの32ビット設定では400,000800,000、64ビット設定ではになる。大きい値を指定すると、ガーベージコレクションの頻度が下る。これはガーベージコレクションにより費やされる時間を減少させるが、メモリーの総使用量は増大する。大量のLispデータを作成するプログラムの実行時には、これを行いたいと思うかもしれない。
+</p><p><code class="literal">GC_DEFAULT_THRESHOLD</code>の1/10まで下げた小さな値を指定することにより、より頻繁にガーベージコレクションを発生させることができる。この最小値より小さい値は、後続のガーベージコレクションで、<code class="literal">garbage-collect</code>がthresholdを最小値に戻すときまでしか効果をもたないだろう。
+</p></blockquote></div><pre class="synopsis"><a id="idm84151888" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">gc-cons-percentage</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、ガーベージコレクション発生するまでのコンス(訳注:
+これは<code class="literal">gc-cons-threshold</code>や<code class="literal">gc-cons-percentage</code>の‘<code class="literal">-cons-</code>’のことで、これらの変数が定義されている<code class="filename">alloc.c</code>内では、Lisp方言での‘<code class="literal">cons</code>’をより一般化したメモリー割り当てプロセスのことを指すようです)の量を、カレントヒープサイズにたいする割り合いで指定する。この条件と<code class="literal">gc-cons-threshold</code>を並行して適用し、条件が両方満足されたときだけ、ガーベージコレクションが発生する。
+</p><p>ヒープサイズ増加にともない、ガーベージコレクションの処理時間は増大する。したがって、ガーベージコレクションの頻度割合を減らすのが望ましいことがある。
+</p></blockquote></div><p><code class="literal">garbage-collect</code>がリターンする値は、データ型に分類されたLispデータノめもりー使用量を記述します。それと対照的に関数<code class="literal">memory-limit</code>は、Emacsがカレントで使用中の総メモリー量の情報を提供します。
+</p><pre class="synopsis"><a id="idm84140112" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">memory-limit</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、Emacsが割り当てたメモリーの最後のバイトアドレスを1024で除した値をリターンする。その値を1024で除しているのは、Lisp整数に収まるようにするためである。
+</p><p>あなたのアクションがメモリー使用に与える影響について、大まかなアイデアを得るために、これを使用することができる。
+</p></blockquote></div><pre class="synopsis"><a id="idm84136912" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">memory-full</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、Lispオブジェクト用のメモリーが不足に近い状態なら<code class="literal">t</code>、それ以外なら<code class="literal">nil</code>となる。
+</p></blockquote></div><pre class="synopsis"><a id="idm84133200" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">memory-use-counts</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これはそのEmacsセッションで作成されたオブジェクト数をカウントしたリストである。これらのカウンターはそれぞれ、特定の種類のオブジェクトを数える。詳細はドキュメント文字列を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm84130384" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">gcs-done</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、そのEmacsセッションでそれまでに行われたガーベージコレクションの合計回数である。
+</p></blockquote></div><pre class="synopsis"><a id="idm84127696" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">gc-elapsed</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、そのEmacsセッションでガーベージコレクションの間に費やされた経過時間を、浮動小数点数で表した総秒数である。
+</p></blockquote></div></div></body></html>

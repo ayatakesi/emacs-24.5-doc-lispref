@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Blinking Parentheses</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Blinking"/>Blinking Parentheses</h1></div></div></div><a id="idm82879056" class="indexterm"/><a id="idm82878288" class="indexterm"/><a id="idm82877520" class="indexterm"/><p>このセクションでは、ユーザーが閉カッコを挿入した際に、マッチする開カッコをEmacsが示すメカニズムを説明します。
+</p><pre class="synopsis"><a id="idm82876112" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">blink-paren-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、閉カッコ構文(close parenthesis
+syntax)の文字が挿入された際に、常に呼び出される関数(引数なし)であること。<code class="literal">blink-paren-function</code>の値は<code class="literal">nil</code>も可能で、この場合は何も行わない。
+</p></blockquote></div><pre class="synopsis"><a id="idm82872400" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">blink-matching-paren</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が<code class="literal">nil</code>なら、<code class="literal">blink-matching-open</code>は何も行わない。
+</p></blockquote></div><pre class="synopsis"><a id="idm82868688" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">blink-matching-paren-distance</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、ギブアップする前にマッチするカッコをスキャンする、最大の距離を指定する。
+</p></blockquote></div><pre class="synopsis"><a id="idm82865872" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">blink-matching-delay</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、マッチするカッコを示し続ける秒数を指定する。分数の秒もよい結果をもたらすことがあるが、デフォルトはすべてのシステムで機能する1である。
+</p></blockquote></div><pre class="synopsis"><a id="idm82863184" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">blink-matching-open</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">blink-paren-function</code>のデフォルト値である。この関数は、閉カッコ構文の文字の後にポイントがあると仮定し、マッチする開カッコに瞬時適切な効果を適用する。その文字がまだスクリーン上になければ、エコーエリア内にその文字のコンテキストを表示する。長い遅延を避けるために、この関数は文字数<code class="literal">blink-matching-paren-distance</code>より遠くを検索しない。
+</p><p>以下は、この関数を明示的に呼び出す例である。
+</p><pre class="screen">(defun interactive-blink-matching-open ()
+  "ポイント前のカッコによるsexp開始を瞬時示す"
+  (interactive)
+</pre><pre class="screen">  (let ((blink-matching-paren-distance
+         (buffer-size))
+        (blink-matching-paren t))
+    (blink-matching-open)))
+</pre></blockquote></div></div></body></html>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Format of Keymaps</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Format-of-Keymaps"/>Format of Keymaps</h1></div></div></div><a id="idm59225040" class="indexterm"/><a id="idm59224272" class="indexterm"/><a id="idm59223504" class="indexterm"/><a id="idm59222736" class="indexterm"/><p>キーマップはそれぞれ、CARがシンボル<code class="literal">keymap</code>であるようなリストです。このリストの残りの要素は、そのキーマップのキーバインディングを定義します。関数定義がキーマップであるようなシンボルもキーマップです。あるオブジェクトがキーマップかどうかテストするには、関数<code class="literal">keymapp</code>(以下参照)を使用してください。
+</p><p>キーマップを開始するシンボル<code class="literal">keymap</code>の後には、いくつかの種類の要素が出現します:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">(<em class="replaceable"><code>type</code></em> . <em class="replaceable"><code>binding</code></em>)</code>
+</span></dt><dd><p>これは型<em class="replaceable"><code>type</code></em>のイベントにたいする1つのバインディングを指定する。通常のバインディングはそれぞれ、常に文字かシンボルであるような特定の<em class="firstterm">イベント型(event
+type)</em>のイベントに適用される。<a class="link" href="ch21s07.html#Classifying-Events" title="Classifying Events">Classifying
+Events</a>を参照のこと。この種のバインディングでは、<em class="replaceable"><code>binding</code></em>はコマンドである。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>type</code></em> <em class="replaceable"><code>item-name</code></em> . <em class="replaceable"><code>binding</code></em>)</code>
+</span></dt><dd><p>これは、メニュー内で<em class="replaceable"><code>item-name</code></em>として表示されるシンプルなメニューアイテムでもあるようなバインディングを指定する。<a class="link" href="ch22s17.html#Simple-Menu-Items" title="Simple Menu Items">Simple
+Menu Items</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>type</code></em> <em class="replaceable"><code>item-name</code></em> <em class="replaceable"><code>help-string</code></em> . <em class="replaceable"><code>binding</code></em>)</code>
+</span></dt><dd><p>これは、ヘルプ文字列<em class="replaceable"><code>help-string</code></em>のシンプルなメニューアイテムである。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>type</code></em> menu-item . <em class="replaceable"><code>details</code></em>)</code>
+</span></dt><dd><p>これは、拡張されたメニューアイテムでもあるようなバインディングを指定する。これは他の機能も使用できる。<a class="link" href="ch22s17.html#Extended-Menu-Items" title="Extended Menu Items">Extended Menu
+Items</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">(t . <em class="replaceable"><code>binding</code></em>)</code>
+</span></dt><dd><a id="idm59205328" class="indexterm"/><p>これは<em class="firstterm">デフォルトキーバインディング(default key
+binding)</em>を指定する。キーマップの他の要素でバインドされないイベントは、バインディングとして<em class="replaceable"><code>binding</code></em>が与えられる。デフォルトバインディングにより、利用可能なすべてのイベント型を列挙することなくバインドできる。デフォルトバインディングをもつキーマップは、明示的に<code class="literal">nil</code>にバインドされるイベント(以下参照)を除き、より低い優先度にあるすべてのキーマップをマスクする。
+</p></dd><dt><span class="term"><code class="literal"><em class="replaceable"><code>char-table</code></em></code>
+</span></dt><dd><p>キーマップのある要素が文字テーブル(char-table)の場合、それは修飾ビットなしのすべての文字イベントにたいするバインディングを保持するとみなされる。
+If an element of a keymap is a it counts as holding bindings for all
+character events with no modifier bits (see <a class="link" href="ch03s03.html#modifier-bits">modifier bits</a>):
+要素<em class="replaceable"><code>n</code></em>は、コード<em class="replaceable"><code>n</code></em>の文字にたいするバインディングである。これは多量のバインディングを記録するための、コンパクトな方法である。そのような文字テーブルのキーマップは、<em class="firstterm">fullキーマップ(full
+keymap: 完全なキーマップ)</em>と呼ばれる。それにたいし他のキーマップは<em class="firstterm">sparseキーマップ(sparse keymaps:
+疎なキーマップ)</em>と呼ばれる。
+</p></dd><dt><span class="term"><code class="literal"><em class="replaceable"><code>string</code></em></code>
+</span></dt><dd><a id="idm59193936" class="indexterm"/><a id="idm59193168" class="indexterm"/><a id="idm59192400" class="indexterm"/><p>キーにたいするバインディングを指定する要素は別として、キーマップは要素として文字列ももつことができる。これは<em class="firstterm">overallプロンプト文字列(overall
+prompt string: 全般的なプロンプト文字列)</em>と呼ばれ、メニューとしてキーマップを使用することを可能にする。<a class="link" href="ch22s17.html#Defining-Menus" title="Defining Menus">Defining
+Menus</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">(keymap …)</code>
+</span></dt><dd><p>キーマップのある要素それ自身がキーマップの場合、それは外側のキーマップ内でこれが内側のキーマップとしてinline指定されているかのようにみなされる。これは<code class="literal">make-composed-keymap</code>内で行なわれるような多重継承にたいして使用される。
+</p></dd></dl></div><p>バインディングが<code class="literal">nil</code>の場合、それは定義の構成要素ではありませんが、デフォルトバインディングや親キーマップ内のバインディングに優先されます。一方、<code class="literal">nil</code>のバインディングは、より低い優先度のキーマップを<span class="emphasis"><em>オーバーライドしません</em></span>したがって、ローカルマップで<code class="literal">nil</code>のバインディングが与えられた場合、Emacsはグローバルマップのバインディングを使用します。
+</p><a id="idm59186256" class="indexterm"/><p>キーマップはメタ文字にたいするバインディングを直接記録しません。かわりに、メタ文字は１文字目が<span class="keycap"><strong>ESC</strong></span>(または何であれ<code class="literal">meta-prefix-char</code>のカレント値)の、2文字のキーシーケンスをルックアップするものとみなされます。したがって、キー<strong class="userinput"><code>M-a</code></strong>は内部的に<strong class="userinput"><code><span class="keycap"><strong>ESC</strong></span>
+a</code></strong>で表され、そのグローバルバインディングは、<code class="literal">esc-map</code>内の<strong class="userinput"><code>a</code></strong>にたいするスロットで見つけることができます(<a class="link" href="ch22s06.html" title="Prefix Keys">Prefix
+Keys</a>を参照)。
+</p><p>この変換は文字にたいしてのみ適用され、ファンクションキーや他の入力イベントには適用されないので、<strong class="userinput"><code>M-<span class="keycap"><strong>end</strong></span></code></strong>は<strong class="userinput"><code><span class="keycap"><strong>ESC</strong></span>
+<span class="keycap"><strong>end</strong></span></code></strong>と何も関係ありません。
+</p><p>以下に例としてLispモードにたいするローカルキーマップ(sparseキーマップ)を挙げます。以下では<span class="keycap"><strong>DEL</strong></span>、<strong class="userinput"><code>C-c
+C-z</code></strong>、<strong class="userinput"><code>C-M-q</code></strong>、<strong class="userinput"><code>C-M-x</code></strong>にたいするバインディングを定義しています(実際の値はメニューバインディングも含みますが、簡潔にするためここでは省略しています)。
+</p><pre class="screen">lisp-mode-map
+⇒
+</pre><pre class="screen">(keymap
+ (3 keymap
+    ;; <strong class="userinput"><code>C-c C-z</code></strong>
+    (26 . run-lisp))
+</pre><pre class="screen"> (27 keymap
+     ;; <strong class="userinput"><code>C-M-x</code></strong>は<strong class="userinput"><code><span class="keycap"><strong>ESC</strong></span> C-x</code></strong>として扱われる
+     (24 . lisp-send-defun))
+</pre><pre class="screen"> ;; この部分は<code class="literal">lisp-mode-shared-map</code>から継承
+ keymap
+ ;; <span class="keycap"><strong>DEL</strong></span>
+ (127 . backward-delete-char-untabify)
+</pre><pre class="screen"> (27 keymap
+     ;; <strong class="userinput"><code>C-M-q</code></strong>は<strong class="userinput"><code><span class="keycap"><strong>ESC</strong></span> C-q</code></strong>として扱われる
+     (17 . indent-sexp)))
+</pre><pre class="synopsis"><a id="idm59157200" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">keymapp</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>がキーマップなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をリターンする。より正確には、この関数はリストにたいしてそのCARが<code class="literal">keymap</code>か、あるいはシンボルにたいしてその関数定義が<code class="literal">keymapp</code>かをテストする。
+</p><pre class="screen">(keymapp '(keymap))
+    ⇒ t
+</pre><pre class="screen">(fset 'foo '(keymap))
+(keymapp 'foo)
+    ⇒ t
+</pre><pre class="screen">(keymapp (current-global-map))
+    ⇒ t
+</pre></blockquote></div></div></body></html>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Creating a Synchronous Process</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Synchronous-Processes"/>Creating a Synchronous Process</h1></div></div></div><a id="idm76358224" class="indexterm"/><p><em class="firstterm">同期プロセス(synchronous
+process)</em>の作成後、Emacsは継続の前にそのプロセスが終了するのを待機します。GNUやUnix<a href="#ftn.idm76356944" class="footnote" id="idm76356944"><sup class="footnote">[18]</sup></a>でのDiredの起動が、この例です。プロセスは同期的なので、Emacsがそれにたいして何か行おうと試みる前に、ディレクトリーのリスト全体がバッファーに到着します。
+</p><p>同期サブプロセス終了をEmacsが待機する間、ユーザーは<strong class="userinput"><code>C-g</code></strong>をタイプすることによりquitができます。最初のは<strong class="userinput"><code>C-g</code></strong>は<code class="literal">SIGINT</code>シグナルにより、サブプロセスのkillを試みます。しかしこれはquitする前に、実際にそのサブプロセスが終了されるまで待機します。その間にユーザーがさらに<strong class="userinput"><code>C-g</code></strong>をタイプすると、それは<code class="literal">SIGKILL</code>で即座にサブプロセスをkillしてquitします(別プロセスのkillが機能しないMS-DOSを除く)。<a class="link" href="ch21s11.html" title="Quitting">Quitting</a>を参照してください。
+</p><p>同期サブプロセス関数は、プロセスがどのように終了したかの識別をリターンします。
+</p><p>同期サブプロセスからの出力は、ファイルからのテキスト読み込みと同じように、一般的にはコーディングシステムを使用してデコードされます。<code class="literal">call-process-region</code>によりサブプロセスに送信された入力は、ファイルへのテキスト書き込みと同じように、コーディングシステムを使用してエンコードされます。<a class="link" href="ch33s10.html" title="Coding Systems">Coding
+Systems</a>を参照してください。
+</p><pre class="synopsis"><a id="idm79487056" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">call-process</code> <em class="replaceable"><code>program</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>infile</code></em> <em class="replaceable"><code>destination</code></em> <em class="replaceable"><code>display</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>program</code></em>を呼び出して、それが完了するまで待機する。
+</p><p>サブプロセスのカレントワーキングディレクトリーは、<code class="literal">default-directory</code>である。
+</p><p>新たなプロセスの標準入力は、<em class="replaceable"><code>infile</code></em>が非<code class="literal">nil</code>ならファイル<code class="literal">nil</code>から、それ以外ならnullデバイスからとなる。引数<em class="replaceable"><code>destination</code></em>は、プロセスの出力をどこに送るかを指定する。以下は可能な値である:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">バッファー
+</span></dt><dd><p>そのバッファーの、ポイントの前に出力を挿入する。これにはプロセスの、標準出力ストリームと標準エラーストリームの両方が含まれる。
+</p></dd><dt><span class="term">文字列
+</span></dt><dd><p>その名前のバッファーの、ポイントの前に出力を挿入する。
+</p></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><p>カレントバッファーの、ポイントの前に出力を挿入する。
+</p></dd><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>出力を破棄する。
+</p></dd><dt><span class="term">0
+</span></dt><dd><p>出力を破棄して、サブプロセス完了を待機することなく、即座に<code class="literal">nil</code>をリターンする。
+</p><p>この場合、プロセスはEmacsと並列に実行可能なので、真に同期的ではない。しかしこの関数リターン後は、本質的にはすみやかにEmacsがサブプロセスを終了するという点から、これを同期的と考えることができる。
+</p><p>MS-DOSは非同期サブプロセスをサポートせず、このオプションは機能しない。
+</p></dd><dt><span class="term"><code class="literal">(:file <em class="replaceable"><code>file-name</code></em>)</code>
+</span></dt><dd><p>指定されたファイルに出力を送信し、ファイルが既に存在すれば上書きする。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>real-destination</code></em> <em class="replaceable"><code>error-destination</code></em>)</code>
+</span></dt><dd><p>標準出力ストリームを、標準エラーストリームと分けて保つ。通常の出力は<em class="replaceable"><code>real-destination</code></em>の指定にしたがって扱い、エラー出力は<em class="replaceable"><code>error-destination</code></em>にしたがって処分する。<em class="replaceable"><code>error-destination</code></em>が<code class="literal">nil</code>ならエラー出力の破棄、<code class="literal">t</code>なら通常の出力と混合することを意味し、文字列ならそれはエラー出力をリダイレクトするファイルの名前である。
+</p><p>エラー出力先に直接バッファーを指定することはできない。ただしエラー出力を一時ファイルに送信して、そのファイルをバッファーに挿入すれば、これを達成できる。
+</p></dd></dl></div><p><em class="replaceable"><code>display</code></em>が非<code class="literal">nil</code>なら、<code class="literal">call-process</code>は出力の挿入にしたがって、バッファーを再表示する(しかし出力のデコードに選択されたコーディングシステムが、実データからエンコーディングを推論することを意味する<code class="literal">undecided</code>の場合は、非<acronym class="acronym">ASCII</acronym>に一度遭遇すると再表示が継続不能になることがある。これを修正するのが困難な根本的理由が存在する。<a class="link" href="ch37s09.html" title="Receiving Output from Processes">Output
+from Processes</a>を参照されたい)。
+</p><p>それ以外なら関数<code class="literal">call-process</code>は再表示を行わず、通常のイベントに由来するEmacsの再表示時だけ、スクリーン上で結果が可視になります。
+</p><p>残りの引数<em class="replaceable"><code>args</code></em>は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
+</p><p>(待機するよう告げた場合)<code class="literal">call-process</code>がリターンする値は、プロセスが終了した理由を示します。この数字は、そのサブプロセスのexitステータスで0が成功、それ以外のすべての値は失敗を意味します。シグナルによりそのプロセスが終了された場合、<code class="literal">call-process</code>はそれを記述する文字列をリターンします。
+</p><p>以下の例では、カレントバッファーは‘<code class="literal">foo</code>’です。
+</p><pre class="screen">(call-process "pwd" nil t)
+     ⇒ 0
+
+---------- Buffer: foo ----------
+/home/lewis/manual
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(call-process "grep" nil "bar" nil "lewis" "/etc/passwd")
+     ⇒ 0
+
+---------- Buffer: bar ----------
+lewis:x:1001:1001:Bil Lewis,,,,:/home/lewis:/bin/bash
+
+---------- Buffer: bar ----------
+</pre><p>以下は<code class="literal">call-process</code>の使用法の例で、このような使用例は<code class="literal">insert-directory</code>関数の定義内で見ることができます:
+</p><pre class="screen">(call-process insert-directory-program nil t nil switches
+              (if full-directory-p
+                  (concat (file-name-as-directory file) ".")
+                file))
+</pre></blockquote></div><pre class="synopsis"><a id="idm79438544" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">process-file</code> <em class="replaceable"><code>program</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>infile</code></em> <em class="replaceable"><code>buffer</code></em> <em class="replaceable"><code>display</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、別プロセス内でファイルを同期的に処理する。これは<code class="literal">call-process</code>と似ているが、サブプロセスのカレントワーキングディレクトリーを指定する、変数<code class="literal">default-directory</code>の値にもとづく、ファイルハンドラーを呼び出すかもしれない。
+</p><p>引数は<code class="literal">call-process</code>の場合とほとんど同様の方法で処理されるが、以下の違いがある:
+</p><p>引数<em class="replaceable"><code>infile</code></em>、<em class="replaceable"><code>buffer</code></em>、<em class="replaceable"><code>display</code></em>の組み合わせと形式.をサポートしないファイルハンドラーがあるかもしれない。たとえば実際に渡された値とは無関係に、<em class="replaceable"><code>display</code></em>が<code class="literal">nil</code>であるかのように振る舞うファイルハンドラーがいくつかある。他の例としては、<em class="replaceable"><code>buffer</code></em>引数で標準出力とエラー出力を分離するのをサポートしないかもしれないファイルハンドラーがいくつか存在する。
+</p><p>ファイルハンドラーが呼び出されると、1つ目の引数<em class="replaceable"><code>program</code></em>にもとづき、実行するプログラムを決定する。たとえばリモートファイルにたいするハンドラーが呼び出されたと考えてみよ。その.場合、プログラムの検索に使用されるパスは、<code class="literal">exec-path</code>とは異なるかもしれない。
+</p><p>2つ目の引数<em class="replaceable"><code>infile</code></em>は、ファイルハンドラーを呼び出すかもしれない。そのファイルハンドラーは、<code class="literal">process-file</code>関数自身にたいして選択されたハンドラーと異なり得る(たとえば<code class="literal">default-directory</code>がリモートホスト上にあり、<em class="replaceable"><code>infile</code></em>は別のリモートホスト上の場合があり得る。もしくは<code class="literal">default-directory</code>は普通だが、<em class="replaceable"><code>infile</code></em>はリモートホスト上にあるかもしれない).
+</p><p><em class="replaceable"><code>buffer</code></em>が<code class="literal">(<em class="replaceable"><code>real-destination</code></em>
+<em class="replaceable"><code>error-destination</code></em>)</code>という形式のリストで、<em class="replaceable"><code>error-destination</code></em>がファイルの名前なら、<em class="replaceable"><code>infile</code></em>と同じ注意が適用される。
+</p><p>残りの引数(<em class="replaceable"><code>args</code></em>)は、そのままプロセスに渡される。Emacsは、<em class="replaceable"><code>args</code></em>内で与えられたファイル名の処理に関与しない。混乱を避けるためには、<em class="replaceable"><code>args</code></em>内で絶対ファイル名を使用しないのが最善であり、<code class="literal">default-directory</code>からの相対ファイル名ですべてのファイルを指定するほうがよいだろう。関数<code class="literal">file-relative-name</code>は、そのような相対ファイル名の構築に有用である。
+</p></blockquote></div><pre class="synopsis"><a id="idm79414352" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">process-file-side-effects</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、<code class="literal">process-file</code>呼び出しがリモートファイルを変更するかどうかを示す。
+</p><p>この変数はデフォルトでは常に、<code class="literal">process-file</code>呼び出しがリモートホスト上の、任意のファイルを潜在的に変更し得ることを意味する<code class="literal">t</code>にセットされる。<code class="literal">nil</code>にセットされた際は、リモートファイル属性のキャッシュにしたがうことにより、ファイルハンドラーの挙動を最適化できる可能性がある。
+</p><p>この変数は決して<code class="literal">setq</code>ではなく、常にletバインディングによってのみ変更されるべきである。
+</p></blockquote></div><pre class="synopsis"><a id="idm79408208" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">call-process-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em> <em class="replaceable"><code>program</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>delete</code></em> <em class="replaceable"><code>destination</code></em> <em class="replaceable"><code>display</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>start</code></em>から<em class="replaceable"><code>end</code></em>のテキストを、実行中のプロセス<em class="replaceable"><code>program</code></em>に、標準入力として送信する。これは<em class="replaceable"><code>delete</code></em>が非<code class="literal">nil</code>なら、送信したテキストを削除する。これは出力をカレントバッファーの入力箇所に挿入するために、<em class="replaceable"><code>destination</code></em>を<code class="literal">t</code>に指定している際に有用である。
+</p><p>引数<em class="replaceable"><code>destination</code></em>と<em class="replaceable"><code>display</code></em>は、サブロセスからの出力にたいして何を行うか、および出力の到着にともない表示を更新するかどうかを制御する。詳細は上述の、<code class="literal">call-process</code>の説明を参照されたい。<em class="replaceable"><code>destination</code></em>が整数の0なら、<code class="literal">call-process-region</code>は出力を破棄して、サブプロセス完了を待機せずに、即座に<code class="literal">nil</code>をリターンする(これは非同期サブプロセスがサポートされる場合、つまりMS-DOS以外でのみ機能する)。
+</p><p>残りの引数<em class="replaceable"><code>args</code></em>は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
+</p><p><code class="literal">call-process-region</code>のリターン値は、<code class="literal">call-process</code>の場合と同じである。待機せずにリターンするよう指示した場合は<code class="literal">nil</code>、数字か文字列ならそれはサブプロセスが終了した方法を表す。
+</p><p>以下の例では、バッファー‘<code class="literal">foo</code>’内の最初の5文字(単語‘<code class="literal">input</code>’)を標準入力として、<code class="literal">call-process-region</code>を使用して<code class="literal">cat</code>ユーティリティを実行する。<code class="literal">cat</code>は自身の標準入力を、標準出力へコピーする。引数<em class="replaceable"><code>destination</code></em>が<code class="literal">t</code>なので、その出力はカレントバッファーに挿入される。
+</p><pre class="screen">---------- Buffer: foo ----------
+input★
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(call-process-region 1 6 "cat" nil t)
+     ⇒ 0
+
+---------- Buffer: foo ----------
+inputinput★
+---------- Buffer: foo ----------
+</pre><p>たとえば<code class="literal">shell-command-on-region</code>コマンドは、以下のような方法で<code class="literal">call-process-region</code>を使用する:
+</p><pre class="screen">(call-process-region
+ start end
+ shell-file-name      ; プログラム名
+ nil                  ; リージョンを削除しない
+ buffer               ; 出力を<code class="literal">buffer</code>に送信
+ nil                  ; 出力中に再表示を行わない
+ "-c" command)        ; shellへの引数
+</pre></blockquote></div><pre class="synopsis"><a id="idm76342224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">call-process-shell-command</code> <em class="replaceable"><code>command</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>infile</code></em> <em class="replaceable"><code>destination</code></em> <em class="replaceable"><code>display</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はshellコマンド<em class="replaceable"><code>command</code></em>を、非同期に実行する。引数は<code class="literal">call-process</code>の場合と同様に処理される。古い呼び出し規約は、<em class="replaceable"><code>display</code></em>の後に任意個数の追加引数を許容し、これは<em class="replaceable"><code>command</code></em>に結合される。これはまだサポートされるものの、使用しないことを強く推奨する。
+</p></blockquote></div><pre class="synopsis"><a id="idm76335696" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">process-file-shell-command</code> <em class="replaceable"><code>command</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>infile</code></em> <em class="replaceable"><code>destination</code></em> <em class="replaceable"><code>display</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">call-process-shell-command</code>と同様だが、内部的に<code class="literal">process-file</code>を使用する点が異なる。<code class="literal">default-directory</code>に依存して、<em class="replaceable"><code>command</code></em>はリモートホスト上でも実行可能である。古い呼び出し規約は、<em class="replaceable"><code>display</code></em>の後に任意個数の追加引数を許容し、これは<em class="replaceable"><code>command</code></em>に結合される。これはまだサポートされるものの、使用しないことを強く推奨する。
+</p></blockquote></div><pre class="synopsis"><a id="idm79391952" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">shell-command-to-string</code> <em class="replaceable"><code>command</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はshellコマンドとして<em class="replaceable"><code>command</code></em>(文字列)を実行して、そのコマンドの出力を文字列としてリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm79387856" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">process-lines</code> <em class="replaceable"><code>program</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>program</code></em>を実行して完了を待機し、出力を文字列のリストとしてリターンする。リスト内の各文字列は、プログラムのテキスト出力の1つの行を保持する。各行のEOL文字(行末文字)は取り除かれる。<em class="replaceable"><code>program</code></em>の後の引数<em class="replaceable"><code>args</code></em>は、そのプログラム実行に際し、コマンドライン引数を指定する文字列である。
+</p><p><em class="replaceable"><code>program</code></em>が非0のexitステータスでexitした場合、この関数はエラーをシグナルする。
+</p><p>この関数は<code class="literal">call-process</code>を呼び出すことにより機能し、プログラムの出力は<code class="literal">call-process</code>の場合と同じ方法でデコードされる。
+</p></blockquote></div><div class="footnotes"><br/><hr/><div id="ftn.idm76356944" class="footnote"><p><a href="#idm76356944" class="para"><sup class="para">[18] </sup></a>他のシステムでは、Emacsは<code class="literal">ls</code>のLispエミュレーションを使用します。<a class="link" href="ch25s09.html" title="Contents of Directories">Contents
+of
+Directories</a>を参照してください。</p></div></div></div></body></html>

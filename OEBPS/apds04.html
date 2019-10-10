@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Tips for Making Compiled Code Fast</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Compilation-Tips"/>Tips for Making Compiled Code Fast</h1></div></div></div><a id="idm84589776" class="indexterm"/><a id="idm84589008" class="indexterm"/><p>以下は、バイトコンパイル済みLispプログラムの実行速度を改善する方法です。
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>その時間がどこで消費されているか見つかるために、プログラムのプロファイルを行う。<a class="link" href="ch18s05.html" title="Profiling">Profiling</a>を参照のこと。
+</p></li><li class="listitem"><p>可能なら常に再帰ではなく繰り返しを使用する。Emacs
+Lispでは、コンパイル済み関数が別のコンパイル済み関数を呼び出すときでさえ、関数呼び出しは低速である
+</p></li><li class="listitem"><p>プリミティブのリスト検索関数<code class="literal">memq</code>、<code class="literal">member</code>、<code class="literal">assq</code>、<code class="literal">assoc</code>は明示的な繰り返しより更に高速である。これらの検索プリミティブを使用できるように、データ構造を再配置することにも価値が有り得る。
+</p></li><li class="listitem"><p>特定のビルトイン関数は、通常の関数呼び出しの必要を回避するよう、バイトコンパイル済みコードでは特別に扱われる。別の候補案のかわりにこれらの関数を使用するのは、良いアイデアである。コンパイラーにより特別に扱われる関数かどうかを確認するには、それの<code class="literal">byte-compile</code>プロパティを調べればよい。そのプロパティが非<code class="literal">nil</code>なら、その関数は特別に扱われる。
+</p><p>たとえば以下を入力すると、<code class="literal">aref</code>が特別にコンパイルされえることが示される(<a class="link" href="ch07s03.html" title="Functions that Operate on Arrays">Array Functions</a>を参照):
+</p><pre class="screen">(get 'aref 'byte-compile)
+     ⇒ byte-compile-two-args
+</pre><p>この場合(および他の多くの場合)、最初に<code class="literal">byte-compile</code>プロパティを定義する、<code class="filename">bytecomp</code>ライブラリーをロードしなければならない。
+</p></li><li class="listitem"><p>プログラム内で実行時間のある程度を占める小さい関数を呼び出すなら、その関数をinlineにする。これにより、関数呼び出しのオーバーヘッドがなくなる。関数のinline化はプログラム変更の自由度を減少させるので、ユーザーがスピードを気にするに足るほど低速であり、inline化により顕著に速度が改善されるのでなければ、これを行ってはならない。<a class="link" href="ch13s12.html" title="Inline Functions">Inline
+Functions</a>を参照のこと。
+</p></li></ul></div></div></body></html>

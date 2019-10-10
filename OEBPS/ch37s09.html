@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Receiving Output from Processes</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Output-from-Processes"/>Receiving Output from Processes</h1></div></div></div><a id="idm79017296" class="indexterm"/><a id="idm79012432" class="indexterm"/><p>サブプロセスが自身の標準出力に書き込んだ出力は、<em class="firstterm">フィルター関数(filter
+function)</em>と呼ばれる関数に渡されます。デフォルトのフィルター関数は単に出力をバッファーに挿入します。このバッファーを、そのプロセスに関連付けられたバッファーと呼びます(<a class="link" href="ch37s09.html#Process-Buffers" title="Process Buffers">Process
+Buffers</a>を参照)。プロセスがバッファーをもたなければ、デフォルトフィルターは出力を破棄します。
+</p><p>サブプロセス終了時、Emacsは保留中の出力を読み取り、その後そのサブプロセスからの出力の読み取りを停止します。したがって、そのサブプロセスに生きた子プロセスがあり、まだ出力を生成するような場合、Emacsはその出力を受け取らないでしょう。
+</p><p>サブプロセスからの出力は、Emacsが待機している間、端末入力読み取り時(関数<code class="literal">waiting-for-user-input-p</code>、<a class="link" href="ch21s10.html" title="Waiting for Elapsed Time or Input">Waiting</a>の<code class="literal">sit-for</code>と<code class="literal">sleep-for</code>、および<a class="link" href="ch37s09.html#Accepting-Output" title="Accepting Output from Processes">Accepting
+Output</a>の<code class="literal">accept-process-output</code>を参照されたい)のみ到着可能です。これは、並列プログラミングで普遍的に悩みの種である、タイミングエラーの問題を最小化します。たとえば、安全にプロセスを作成して、その後でのみプロセスのバッファーやフィルター関数を指定できます。その間にあるコードが待機するプリミティブを何も呼び出さなければ、完了するまで到着可能な出力はありません。
+</p><pre class="synopsis"><a id="idm79006288" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">process-adaptive-read-buffering</code></pre><div class="blockquote"><blockquote class="blockquote"><p>いくつかのシステムでは、Emacsがサブプロセスの出力を読み取る際、出力データを非常に小さいブロックで読み取るため、結果として潜在的に非常に貧弱なパフォーマンスとなることがる。この挙動は、変数<code class="literal">process-adaptive-read-buffering</code>を非<code class="literal">nil</code>値(デフォルト)にセットして拡張することにより改善し得る。これにより、そのようなプロセスからの読み取りを自動的に遅延して、Emacsが読み取りを試みる前に、出力がより生成されるようになる。
+</p></blockquote></div><p>Emacsは通常、疑似端末(pseudo-TTY)内部でサブプロセスをspawnし、かつ疑似端末は出力チャンネルを1つしかもてないので、サブプロセスの標準出力ストリームと標準エラーストリームを区別するのは不可能です。それらのストリームの出力を区別して保ちたい場合は、たとえば適当なshellコマンドを使用して、いずれか1つをファイルにリダイレクトするべきです。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Process-Buffers"/>Process Buffers</h2></div></div></div><p>プロセスは<em class="firstterm">関連付けられたバッファー(associated
+buffer)</em>をもつことができます(通常はもつ)。これは普通のEmacsバッファーであり、2つの目的のために使用されます。1つはプロセスからの出力の格納、もう1つはプロセスをkillする時期を判断するためです。通常の習慣では、任意の与えられたバッファーにたいして関連付けられるプロセスは1つだけなので、処理対象のプロセスを識別するためにそのバッファーを使用することもできます。プロセス使用の多くはプロセスに送信する入力を編集するためにもこのバッファーを使用しますが、これはEmacs
+Lispに組み込まれてはいません。
+</p><p>デフォルトでは、プロセスの出力は関連付けられたバッファーに挿入されます(カスタムフィルター関数の定義により変更可能。<a class="link" href="ch37s09.html#Filter-Functions" title="Process Filter Functions">Filter
+Functions</a>を参照されたい)。出力を挿入する位置は、<code class="literal">process-mark</code>により決定されます。これは正に挿入されたテキストの終端に、ポイントを更新します。通常、ただし常にではありませんが、<code class="literal">process-mark</code>はバッファーの終端になります。
+</p><a id="idm78998864" class="indexterm"/><p>プロセスに関連付けられたバッファーをkillすることにより、そのプロセスもkillされます。そのプロセスの<code class="literal">process-query-on-exit-flag</code>が非<code class="literal">nil</code>なら、Emacsはまず確認を求めます(<a class="link" href="ch37s11.html" title="Querying Before Exit">Query
+Before
+Exit</a>を参照)。この確認は関数<code class="literal">process-kill-buffer-query-function</code>により行われ、これは<code class="literal">kill-buffer-query-functions</code>から実行されます(<a class="link" href="ch27s10.html" title="Killing Buffers">Killing
+Buffers</a>を参照)。
+</p><pre class="synopsis"><a id="idm78994384" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">process-buffer</code> <em class="replaceable"><code>process</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、プロセス<em class="replaceable"><code>process</code></em>の関連付けられたバッファーをリターンする。
+</p><pre class="screen">(process-buffer (get-process "shell"))
+     ⇒ #&lt;buffer *shell*&gt;
+</pre></blockquote></div><pre class="synopsis"><a id="idm78973904" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">process-mark</code> <em class="replaceable"><code>process</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>process</code></em>にたいするプロセスマーカーをリターンする。これはプロセスからの出力をどこに挿入するかを示すマーカーである。
+</p><p><em class="replaceable"><code>process</code></em>バッファーをもたなければ、<code class="literal">process-mark</code>は存在しない場所を指すマーカーをリターンする。
+</p><p>デフォルトフィルター関数は、プロセス出力の挿入場所の決定にこのマーカーを使用し、挿入したテキストの後にポイントを更新する。連続するバッチ出力が、連続して挿入されるのは、これが理由である。
+</p><p>カスタムフィルター関数は、このマーカーを通常は同じ方式で使用するべきである。<code class="literal">process-mark</code>を使用するフィルター関数の例は、<a class="link" href="ch37s09.html#Process-Filter-Example">Process
+Filter Example</a>を参照のこと。
+</p><p>ユーザーにプロセスバッファー内でプロセスに送信するための入力を期待する際は、プロセスマーカーは以前の出力から新たな入力を区別する。
+</p></blockquote></div><pre class="synopsis"><a id="idm78966864" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-process-buffer</code> <em class="replaceable"><code>process</code></em> <em class="replaceable"><code>buffer</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>process</code></em>に関連付けられたバッファーに、<em class="replaceable"><code>buffer</code></em>をセットする。<em class="replaceable"><code>buffer</code></em>が<code class="literal">nil</code>なら、プロセスはバッファーに関連付けられない。
+</p></blockquote></div><pre class="synopsis"><a id="idm78961616" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">get-buffer-process</code> <em class="replaceable"><code>buffer-or-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>buffer-or-name</code></em>で指定されるバッファーに関連付けられた、削除されていないプロセスをリターンする。そのバッファーに複数のプロセスが関連付けられている場合、この関数はいずれか1つ(現在のところもっとも最近作成されたプロセスだが、これを当てにしないこと)を選択する。プロセスの削除(<code class="literal">delete-process</code>を参照)により、そのプロセスはこの関数がリターンするプロセスとしては不適格となる。
+</p><p>同一のバッファーに複数のプロセスを関連付けるのは、通常は悪いアイデアである。
+</p><pre class="screen">(get-buffer-process "*shell*")
+     ⇒ #&lt;process shell&gt;
+</pre><p>プロセスのバッファーをkillすることにより、<code class="literal">SIGHUP</code>シグナルでサブプロセスをkillして、プロセスを削除する(<a class="link" href="ch37s08.html" title="Sending Signals to Processes">Signals
+to Processes</a>を参照)。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Filter-Functions"/>Process Filter Functions</h2></div></div></div><a id="idm78954064" class="indexterm"/><a id="idm78953296" class="indexterm"/><p>プロセスの<em class="firstterm">フィルター関数(filter
+function)</em>は、関連付けられたプロセスからの標準出力を受信します。そのプロセスの<span class="emphasis"><em>すべて</em></span>の出力は、そのフィルターに渡されます。デフォルトのフィルターは単に、プロセスバッファーに直接出力します。
+</p><p>サブプロセスからの出力は、Emacsが何かを待機している間だけ到着するので、フィルター関数はそのようなときだけ呼び出し可能です。Emacsは端末入力読み取り時(関数<code class="literal">waiting-for-user-input-p</code>、<a class="link" href="ch21s10.html" title="Waiting for Elapsed Time or Input">Waiting</a>の<code class="literal">sit-for</code>と<code class="literal">sleep-for</code>、および<a class="link" href="ch37s09.html#Accepting-Output" title="Accepting Output from Processes">Accepting
+Output</a>の<code class="literal">accept-process-output</code>を参照されたい)に待機します。
+</p><p>フィルター関数は関連付けられたプロセス、およびそのプロセスから正に受信した出力である文字列という、2つの引数を受け取らなければなりません。関数はその後、出力にたいして何であれ、自由に行うことができます。
+</p><p>quitは通常はフィルター関数内では抑制されます。さもないと、コマンドレベルでの<strong class="userinput"><code>C-g</code></strong>のタイプ、またはユーザーコマンドのquitは予測できません。フィルター関数内部でのquitを許可したければ、<code class="literal">inhibit-quit</code>を<code class="literal">nil</code>にバインドしてください。ほとんどの場合において、これを行う正しい方法はマクロ<code class="literal">with-local-quit</code>です。<a class="link" href="ch21s11.html" title="Quitting">Quitting</a>を参照してください。
+</p><p>フィルター関数の実行中にエラーが発生した場合、フィルター開始時に実行中だったプログラムが何であれ実行を停止しないように、自動的にcatchされます。しかし<code class="literal">debug-on-error</code>が非<code class="literal">nil</code>なら、エラーはcatchされません。これにより、Lispデバッガーを使用したフィルター関数のデバッグが可能になります。<a class="link" href="ch18.html#Debugger" title="The Lisp Debugger">Debugger</a>を参照してください。
+</p><p>多くのフィルター関数は時折(または常に)、デフォルトフィルターの動作を真似て、プロセスのバッファーにその出力を挿入します。そのようなフィルター関数は確実にカレントバッファーの保存と、(もし異なるなら)出力を挿入する前に正しいバッファーを選択して、その後に元のバッファーをリストアする必要があります。また、そのバッファーがまだ生きているか、プロセスマーカーを更新しているか、そしていくつかのケースにおいてはポイントの値を更新しているかもチェックするべきです。以下はこれらを行う方法です:
+</p><a id="Process-Filter-Example"/><pre class="screen">(defun ordinary-insertion-filter (proc string)
+  (when (buffer-live-p (process-buffer proc))
+    (with-current-buffer (process-buffer proc)
+      (let ((moving (= (point) (process-mark proc))))
+</pre><pre class="screen">        (save-excursion
+          ;; テキストを挿入してプロセスマーカーを進める
+          (goto-char (process-mark proc))
+          (insert string)
+          (set-marker (process-mark proc) (point)))
+        (if moving (goto-char (process-mark proc)))))))
+</pre><p>新たなテキスト到着時にフィルターが強制的にプロセスバッファーを可視にするために、<code class="literal">with-current-buffer</code>構成の直前に以下のような行を挿入できます:
+</p><pre class="screen">(display-buffer (process-buffer proc))
+</pre><p>以前の位置に関わらず、新たな出力の終端にポイントを強制するには、変数<code class="literal">moving</code>を削除して、無条件で<code class="literal">goto-char</code>を呼び出してください。
+</p><p>フィルター関数実行中、Emacsは自動的にマッチデータの保存とリストアを行うことに注意してください。<a class="link" href="ch34s06.html" title="The Match Data">Match Data</a>を参照してください。
+</p><p>フィルターへの出力は、任意のサイズのchunkで到着する可能性があります。同じ出力を連続して2回生成するプログラムは、一度に200文字を1回のバッチで送信して、次に40文字を5回のバッチで送信するかもしれません。フィルターが特定のテキスト文字列をサブプロセスの出力から探す場合は、それらの文字列が2回以上のバッチ出力を横断するケースに留意して処理してください。これを行うには、受信したテキストを一時的なバッファーに挿入してから、それを検索するのが1つの方法です。
+</p><pre class="synopsis"><a id="idm78915792" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-process-filter</code> <em class="replaceable"><code>process</code></em> <em class="replaceable"><code>filter</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>process</code></em>にフィルター関数<em class="replaceable"><code>filter</code></em>を与える。<em class="replaceable"><code>filter</code></em>が<code class="literal">nil</code>ならそのプロセスにたいして、プロセスバッファーにプロセス出力を挿入する、デフォルトフィルターを与える。
+</p></blockquote></div><pre class="synopsis"><a id="idm78910544" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">process-filter</code> <em class="replaceable"><code>process</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>process</code></em>のフィルター関数をリターンする。
+</p></blockquote></div><p>そのプロセスの出力を複数のフィルターに渡す必要がある場合は、既存のフィルターに新たなフィルターを組み合わせるために、<code class="literal">add-function</code>を使用できる。<a class="link" href="ch13s10.html" title="Advising Emacs Lisp Functions">Advising
+Functions</a>を参照のこと。
+</p><p>以下は、フィルター関数の使用例である:
+</p><pre class="screen">(defun keep-output (process output)
+   (setq kept (cons output kept)))
+     ⇒ keep-output
+</pre><pre class="screen">(setq kept nil)
+     ⇒ nil
+</pre><pre class="screen">(set-process-filter (get-process "shell") 'keep-output)
+     ⇒ keep-output
+</pre><pre class="screen">(process-send-string "shell" "ls ~/other\n")
+     ⇒ nil
+kept
+     ⇒ ("lewis@slug:$ "
+</pre><pre class="screen">"FINAL-W87-SHORT.MSS    backup.otl              kolstad.mss~
+address.txt             backup.psf              kolstad.psf
+backup.bib~             david.mss               resume-Dec-86.mss~
+backup.err              david.psf               resume-Dec.psf
+backup.mss              dland                   syllabus.mss
+"
+"#backups.mss#          backup.mss~             kolstad.mss
+")
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Decoding-Output"/>Decoding Process Output</h2></div></div></div><a id="idm78890064" class="indexterm"/><p>Emacsが直接マルチバイトバッファーにプロセス出力を書き込む際は、プロセス出力のコーディングシステムに応じて、出力をデコードします。コーディングシステムが<code class="literal">raw-text</code>か<code class="literal">no-conversion</code>なら、Emacsは<code class="literal">string-to-multibyte</code>を使用してユニバイト出力をマルチバイトに変換して、その結果のマルチバイトテキストを挿入します。
+</p><p>どのコーディングシステムを使用するかは、<code class="literal">set-process-coding-system</code>を使用して指定できます(<a class="link" href="ch37s06.html" title="Process Information">Process
+Information</a>を参照)。それ以外では、<code class="literal">coding-system-for-read</code>が非<code class="literal">nil</code>ならそのコーディングシステム、<code class="literal">nil</code>ならデフォルトのメカニズムが使用されます(<a class="link" href="ch33s10.html#Default-Coding-Systems" title="Default Coding Systems">Default
+Coding
+Systems</a>を参照)。プロセスのテキスト出力にnullバイトが含まれる場合、Emacsはそれにたいしてデフォルトでは<code class="literal">no-conversion</code>を使用します。この挙動を制御する方法については、<a class="link" href="ch33s10.html#Lisp-and-Coding-Systems" title="Coding Systems in Lisp">inhibit-null-byte-detection</a>を参照してください。
+</p><p><span class="bold"><strong>警告:</strong></span>
+データからコーディングシステムを<code class="literal">undecided</code>のようなコーディングシステムは、非同期サブプロセスの出力にたいして完全な信頼性をもって機能しません。これはEmacsが、到着に応じて非同期サブプロセスの出力をバッチで処理する必要があるからです。Emacsは1つのバッチが到着するたびに正しいコーディングシステムを検出しなければならず、これは常には機能しません。したがって、可能であれば文字コード変換とEOL変換の両方を決定するコーディングシステム、つまり<code class="literal">latin-1-unix</code>、<code class="literal">undecided</code>、<code class="literal">latin-1</code>のようなコーディングシステムを指定してください。
+</p><a id="idm78875472" class="indexterm"/><a id="idm78874704" class="indexterm"/><p>Emacsがプロセスフィルター関数を呼び出す際は、そのプロセスのフィルターのコーディングシステムに応じて、Emacsはプロセス出力をマルチバイト文字列、またはユニバイト文字列で提供します。Emacsはプロセス出力のコーディングシステムに応じて出力をデコードします。これは<code class="literal">binary</code>や<code class="literal">raw-text</code>のようなコーディングシステムを除き、通常はマルチバイト文字列を生成します。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Accepting-Output"/>Accepting Output from Processes</h2></div></div></div><a id="idm78871376" class="indexterm"/><p>非同期サブプロセスからの出力は通常、Emacsが時間の経過や端末入力のような、ある種の外部イベントを待機する間だけ到着します。特定のポイントで出力の到着を明示的に許可したり、あるいはプロセスからの出力が到着するまで待機することさえ、Lispプログラムでは有用な場合が時折あります。
+</p><pre class="synopsis"><a id="idm78869968" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">accept-process-output</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>process</code></em> <em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>millisec</code></em> <em class="replaceable"><code>just-this-one</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はプロセスからの保留中の出力を、Emacsが読み取ることを許す。この出力は、プロセスのフィルター関数により与えられる。<em class="replaceable"><code>process</code></em>が非<code class="literal">nil</code>なら、この関数は<em class="replaceable"><code>process</code></em>から何らかの出力を受け取るまでリターンしない。
+</p><p>引数<em class="replaceable"><code>seconds</code></em>と<em class="replaceable"><code>millisec</code></em>により、タイムアウトの長さを指定できる。前者は秒単位、後者はミリ秒単位でタイムアウトを指定する。この2つの秒数は、互いに足し合わせることによりタイムアウトを指定し、その秒数経過後はサブプロセスの出力の有無に関わらずリターンする。
+</p><p><em class="replaceable"><code>seconds</code></em>に浮動小数点数を指定することにより、秒を少数点で指定できるので、引数<em class="replaceable"><code>millisec</code></em>は時代遅れである(そして使用するべきではない)。<em class="replaceable"><code>seconds</code></em>が0なら、この関数は保留中の出力が何であれ受け取り、待機しない。
+</p><p><em class="replaceable"><code>process</code></em>がプロセスで、引数<em class="replaceable"><code>just-this-one</code></em>が非<code class="literal">nil</code>なら、そのプロセスからの出力だけが処理され、そのプロセスからの出力を受信するか、タイムアウトとなるまで、他のプロセスの出力は停止される。<em class="replaceable"><code>just-this-one</code></em>が整数なら、タイマーの実行も抑制される。この機能は一般的には推奨されないが、音声合成のような特定のアプリケーションにとっては必要かもしれない。
+</p><p>関数<code class="literal">accept-process-output</code>は、何らかの出力を取得したら非<code class="literal">nil</code>、出力の到着前にタイムアウトが到来したら<code class="literal">nil</code>をリターンする。
+</p></blockquote></div></div></div></body></html>

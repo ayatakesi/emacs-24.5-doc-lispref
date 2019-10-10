@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Compiler Errors</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Compiler-Errors"/>Compiler Errors</h1></div></div></div><a id="idm55708240" class="indexterm"/><p>バイトコンパイルのエラーメッセージと警告メッセージは、<code class="filename">*Compile-Log*</code>という名前のバッファーにプリントされます。これらのメッセージには、問題となる箇所を示すファイル名と行番号が含まれます。これらのメッセージにたいして、コンパイラー出力を操作する通常のEmacsコマンドが使用できます。
+</p><p>あるエラーがプログラムのシンタックスに由来する場合、バイトコンパイラーはエラーの正確な位置の取得に際し混乱するかもしれません。バッファー<code class="filename">
+*Compiler Input*</code>.にスイッチするのは、これを調べ1つの方法です。(このバッファー名はスペースで始まるので、Buffer
+Menuに表示されません。)このバッファーにはコンパイルされたプログラムと、バイトコンパイラーが読み取れた箇所からポイントがどれほど離れているかが含まれ、エラーの原因はその近傍にあるかもしれません。シンタックスエラーを見つけるヒントについては、<a class="link" href="ch18s03.html" title="Debugging Invalid Lisp Syntax">Syntax
+Errors</a>を参照してください。
+</p><p>定義されていない関数や変数の使用は、バイトコンパイラーにより報告される警告のタイプとしては一般的です。そのような警告では、定義されていない関数や変数を使用した位置ではなく、そのファイルの最後の行の行番号が報告されるので、それを見つけるには手作業で検索しなければなりません。
+</p><p>定義のない関数や変数の警告が間違いだと確信できる場合には、警告を抑制する方法がいくつかあります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>関数<em class="replaceable"><code>func</code></em>への特定の呼び出しにたいする警告は、それを条件式で<code class="literal">fboundp</code>によるテストを行なうことで抑制できます:
+</p><pre class="screen">(if (fboundp '<em class="replaceable"><code>func</code></em>) ...(<em class="replaceable"><code>func</code></em> ...)...)
+</pre><p><em class="replaceable"><code>func</code></em>への呼び出しは<code class="literal">if</code>文の<em class="replaceable"><code>then-form</code></em>内になければならず、<em class="replaceable"><code>func</code></em>は<code class="literal">fboundp</code>呼び出し内でクォートされていなければなりません。(この機能は<code class="literal">cond</code>でも同様に機能します。)
+</p></li><li class="listitem"><p>同じように、変数<em class="replaceable"><code>variable</code></em>の特定の使用についの警告を、条件式内の<code class="literal">boundp</code>テストで抑制できます:
+</p><pre class="screen">(if (boundp '<em class="replaceable"><code>variable</code></em>) ...<em class="replaceable"><code>variable</code></em>...)
+</pre><p><em class="replaceable"><code>variable</code></em>への参照は<code class="literal">if</code>文の<em class="replaceable"><code>then-form</code></em>内になければならず、<em class="replaceable"><code>variable</code></em>は<code class="literal">boundp</code>呼び出し内でクォートされていなければなりません。
+</p></li><li class="listitem"><p>コンパイラーに関数が<code class="literal">declare-function</code>を使用して定義されていると告げることができます。<a class="link" href="ch13s14.html" title="Telling the Compiler that a Function is Defined">Declaring
+Functions</a>を参照してください。
+</p></li><li class="listitem"><p>同じように、その変数が初期値なしの<code class="literal">defvar</code>を使用して定義されているとコンパイラーに告げることができます。(これはその変数を特別な変数としてマークすることに注意してください。<a class="link" href="ch12s05.html" title="Defining Global Variables">Defining
+Variables</a>を参照してください。
+</p></li></ul></div><p><code class="literal">with-no-warnings</code>構成を使用して特定の式にたいするコンパイラーのすべての任意の警告を抑制することもできます:
+</p><pre class="synopsis"><a id="idm55684688" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">with-no-warnings</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>実行時には〜これは<code class="literal">(progn
+<em class="replaceable"><code>body</code></em>...)</code>と等価ですが、コンパイラーは<em class="replaceable"><code>body</code></em>の中で起こるいかなる事項にたいしても警告を発しません。
+</p><p>わたしたちは、あなたが抑制したいと意図する警告以外の警告を失わないようにするために、可能な限り小さいコード断片にたいしてこの構成を使用することを推奨します。
+</p></blockquote></div><p>変数<code class="literal">byte-compile-warnings</code>をセットすることにより、コンパイラーの警告をより詳細に制御できます。詳細は、変数のドキュメント文字列を参照してください。
+</p></div></body></html>

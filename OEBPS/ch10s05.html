@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Eval</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Eval"/>Eval</h1></div></div></div><p>ほとんどの場合、実行されるプログラム内に出現することにより、フォームは自動的に評価されます。稀に、実行時 —
+たとえば編集されているテキストや、プロパティーリストから取得したフォームを読み取った後 —
+に計算されるように、フォームを評価するコードを記述する必要があるかもしれません。このようなときは、<code class="literal">eval</code>関数を使用します。<code class="literal">eval</code>が不必要だったり、かわりに他の何かを使用すべきときが、しばしばあります。たとえば、変数から値を取得するには、<code class="literal">eval</code>も機能しますが、<code class="literal">symbol-value</code>のほうが適しています。<code class="literal">eval</code>で評価するためにプロパティーリストに式を格納するより、かわりに<code class="literal">funcall</code>に渡すように関数を格納した方がよいでしょう。
+</p><p>このセクションで説明する関数と変数は、フォームの評価、評価処理の制限の指定、最後にreturnされた値の記録を行なうものです。ファイルのロードでも評価が行なわれます(<a class="link" href="ch16.html" title="Chapter 15. Loading">Loading</a>を参照してください)。
+</p><p>データ構造に式を格納してそれを評価するより、データ構造に関数を格納して、それを<code class="literal">funcall</code>や<code class="literal">apply</code>で呼び出すほうが、より明解かつ柔軟です。関数を使用することにより、引数に情報を渡す能力が提供されます。
+</p><pre class="synopsis"><a id="idm51865040" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">eval</code> <em class="replaceable"><code>form</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>lexical</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、式を評価する、基本的な関数です。この関数は、カレント環境内で<em class="replaceable"><code>form</code></em>を評価して、その結果をreturnします。<em class="replaceable"><code>form</code></em>オブジェクトの型は、それが評価される方法を決定します。<a class="link" href="ch10s02.html" title="Kinds of Forms">Forms</a>を参照してください。
+</p><p>引数<em class="replaceable"><code>lexical</code></em>は、ローカル変数にたいするスコープ規則(<a class="link" href="ch12s09.html" title="Scoping Rules for Variable Bindings">Variable
+Scoping</a>を参照してください)を指定します。これが省略されるか<code class="literal">nil</code>の場合、デフォルトのダイナミックスコープ規則を使用して<em class="replaceable"><code>form</code></em>を評価することを意味します。<code class="literal">t</code>の場合は、レキシカルスコープ規則が使用されることを意味します。<em class="replaceable"><code>lexical</code></em>の値には、レキシカルバインディングにたいする特定の<em class="firstterm">レキシカル環境(lexical
+environment)</em>を指定する、空ではないalistも指定できます。しかし、この機能はEmacs
+Lispデバッガーのような、特別な目的にたいしてのみ有用です。<a class="link" href="ch12s09.html#Lexical-Binding" title="Lexical Binding">Lexical Binding</a>を参照してください。
+</p><p><code class="literal">eval</code>は関数なので、<code class="literal">eval</code>呼び出しに現れる引数式は2回 —
+1度は<code class="literal">eval</code>が呼び出される前の準備、そして<code class="literal">eval</code>関数自身によりもう1度 — 評価されます。以下は例です:
+</p><pre class="screen">(setq foo 'bar)
+     ⇒ bar
+</pre><pre class="screen">(setq bar 'baz)
+     ⇒ baz
+;; <code class="literal">eval</code>が引数<code class="literal">foo</code>を受け取る。
+(eval 'foo)
+     ⇒ bar
+;; <code class="literal">eval</code>が、<code class="literal">foo</code>の値である、引数<code class="literal">bar</code>を受け取る。
+(eval foo)
+     ⇒ baz
+</pre><p><code class="literal">eval</code>により現在アクティブな呼び出しの数は、<code class="literal">max-lisp-eval-depth</code>に制限されます(以下参照)。
+</p></blockquote></div><pre class="synopsis"><a id="idm51848784" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">eval-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em> <em class="replaceable"><code>read-function</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="Definition-of-eval_002dregion"/><p>この関数は、カレントバッファー内の、位置<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>で定義されるリージョン内のフォームを評価します。この関数はそのリージョンからフォームを読み取り、それらにたいし<code class="literal">eval</code>を呼び出します。これは、リージョンの最後に達するまで、または処理されないエラーがシグナルされるまで行なわれます。
+</p><p>デフォルトでは、<code class="literal">eval-region</code>は何の出力も生成しません。しかし、<em class="replaceable"><code>stream</code></em>が非<code class="literal">nil</code>の場合、出力関数(<a class="link" href="ch19s05.html" title="Output Functions">Output
+Functions</a>を参照してください)で生成された任意の出力、同様にリージョン内の式を評価した結果の値は、<em class="replaceable"><code>stream</code></em>を使用してプリントされます。<a class="link" href="ch19s04.html" title="Output Streams">Output
+Streams</a>を参照してください。
+</p><p><em class="replaceable"><code>read-function</code></em>が非<code class="literal">nil</code>の場合、<code class="literal">read</code>のかわりに1つずつ式を読み取るために使用する関数を指定します。これは、入力を読み取るストリームを指定する、1つの引数で呼び出される関数です。この関数を指定するために変数<code class="literal">load-read-function</code>(<a class="link" href="ch16.html#Definition-of-load_002dread_002dfunction">How Programs Do
+Loading</a>を参照してください)も使用できますが、引数<em class="replaceable"><code>read-function</code></em>を使用するほうが確実です。
+</p><p><code class="literal">eval-region</code>はポイントを移動しません。つねに<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><a id="idm51835216" class="indexterm"/><pre class="synopsis"><a id="idm51834192" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">eval-buffer</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>buffer-or-name</code></em> <em class="replaceable"><code>stream</code></em> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>unibyte</code></em> <em class="replaceable"><code>print</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">eval-region</code>と似ていますが、引数は異なるオプション機能を提供します。<code class="literal">eval-buffer</code>は、バッファー<em class="replaceable"><code>buffer-or-name</code></em>のアクセス可能な部分全体を処理します。<em class="replaceable"><code>buffer-or-name</code></em>にはバッファー名(文字列)を指定でき、<code class="literal">nil</code>(または省略)のときはカレントバッファーを意味します。<em class="replaceable"><code>stream</code></em>が<code class="literal">nil</code>かつ<em class="replaceable"><code>print</code></em>が非<code class="literal">nil</code>でない場合、<code class="literal">eval-region</code>のように<em class="replaceable"><code>stream</code></em>が使用されます。この場合、式の評価による結果の値は依然として破棄されますが、出力関数による出力はエコーエリアにプリントされます。<em class="replaceable"><code>filename</code></em>は、<code class="literal">load-history</code>(<a class="link" href="ch16s09.html" title="Unloading">Unloading</a>を参照してください)に使用されるファイル名で、デフォルトは<code class="literal">buffer-file-name</code>(<a class="link" href="ch27s04.html" title="Buffer File Name">Buffer
+File
+Name</a>を参照してください)です。<em class="replaceable"><code>unibyte</code></em>が非<code class="literal">nil</code>の場合、可能な限り<code class="literal">read</code>は文字列をユニコードに変換します。
+</p><a id="idm51820496" class="indexterm"/><p><code class="literal">eval-current-buffer</code>は、このコマンドのエイリアスです。
+</p></blockquote></div><pre class="synopsis"><a id="idm51806416" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">max-lisp-eval-depth</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="Definition-of-max_002dlisp_002deval_002ddepth"/><p>この変数は、エラー(エラーメッセージは<code class="literal">"Lisp nesting exceeds
+max-lisp-eval-depth"</code>)がシグナルされる前に、<code class="literal">eval</code>、<code class="literal">apply</code>、<code class="literal">funcall</code>の呼び出しで許される最大の深さを定義します。
+</p><p>制限を超えたときのエラーをもつこの制限は、Emacs
+Lispで誤って定義された関数による無限再帰を避ける方法の1つです。<code class="literal">max-lisp-eval-depth</code>の値を過大に増加させた場合、そのようなコードはかわりにスタックオーバーフローを起こすでしょう。
+<a id="idm51800912" class="indexterm"/>
+</p><p>たとえば、Lisp式に記述された関数の呼び出し、関数呼び出しの引数と、関数bodyフォームにたいする再帰評価、Lispコード内での明示的な呼び出しなどにたいして、深さ制限を数えるために、内部的に<code class="literal">eval</code>、<code class="literal">apply</code>、<code class="literal">funcall</code>を使用します。
+</p><p>この変数のデフォルト値は400です。この値を100未満にセットした場合、値が与えられた値に達すると、Lispはそれを100にリセットします。空きが少ない場合、デバッガー自身を実行するために空きが必要になるので、Lispデバッガーに入ったときは、この値が増加されます。
+</p><p><code class="literal">max-specpdl-size</code>はネストの他の制限を提供します。<a class="link" href="ch12s03.html#Definition-of-max_002dspecpdl_002dsize">Local Variables</a>を参照してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm51796176" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">values</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、読み取り、評価、プリントを行なった標準的なEmacsコマンドにより、バッファー(ミニバッファーを含む)からreturnされる値のリストです(これには<code class="filename">*ielm*</code>バッファーでの評価や、<code class="literal">lisp-interaction-mode</code>での<strong class="userinput"><code>C-j</code></strong>を使用した評価は含まれ<span class="emphasis"><em>ない</em></span>ことに注意してください)。要素の順番は、もっとも最近のものが最初になります。
+</p><pre class="screen">(setq x 1)
+     ⇒ 1
+</pre><pre class="screen">(list 'A (1+ 2) auto-save-default)
+     ⇒ (A 3 t)
+</pre><pre class="screen">values
+     ⇒ ((A 3 t) 1 …)
+</pre><p>この変数は、最近評価されたフォームの値を後で参照するのに便利です。<code class="literal">values</code>自体の値をプリントするのは、それがおそらく非常に長くなるので、通常は悪いアイデアです。かわりに、以下のように特定の要素を調べます:
+</p><pre class="screen">;; もっとも最近評価された結果を参照する。
+(nth 0 values)
+     ⇒ (A 3 t)
+</pre><pre class="screen">;; これは新たな要素をputするので、
+;;   すべての要素が1つ後に移動する。
+(nth 1 values)
+     ⇒ (A 3 t)
+</pre><pre class="screen">;; これは次に新しい、この例の前の次に新しい要素を取得する。
+(nth 3 values)
+     ⇒ 1
+</pre></blockquote></div></div></body></html>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Defining Global Variables</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Defining-Variables"/>Defining Global Variables</h1></div></div></div><a id="idm50938448" class="indexterm"/><p><em class="firstterm">変数定義(variable
+definition)</em>とは、そのシンボルをグローバル変数として使用する意図を表明する構成です。これには以下で説明するスペシャルフォーム<code class="literal">defvar</code>や<code class="literal">defconst</code>が使用されます。
+</p><p>変数宣言は3つの目的をもちます。1番目は、コードを読む人にたいして、そのシンボルが特定の方法(変数として)使用されることを<span class="emphasis"><em>意図</em></span>したものだと知らせることです。2番目は、Lispシステムにたいして、オプションで初期値とドキュメント文字列を与えて、これを知らせることです。3番目は、<span class="command"><strong>etags</strong></span>のようなプログラミングツールにたいして、その変数が定義されている場所を見つけられるように、情報を提供することです。
+</p><p><code class="literal">defconst</code>と<code class="literal">defvar</code>の違いは主に、人間の読み手に、値が変更されるかどうかを知らせることにあります。Emacs
+Lispは実際、<code class="literal">defconst</code>で定義された変数の値の変更を妨げません。この2つのフォームの特筆すべき違いは、<code class="literal">defconst</code>は無条件で変数を初期化し、<code class="literal">defvar</code>は変数が元々voidのときだけ初期化することです。
+</p><p>マスタマイズ可能な変数を定義する場合は、<code class="literal">defcustom</code>を使用するべきです(これはサブルーチンとして<code class="literal">defvar</code>を呼び出します)。<a class="link" href="ch15s03.html" title="Defining Customization Variables">Variable
+Definitions</a>を参照してください。
+</p><pre class="synopsis"><a id="idm50917328" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">defvar</code> <em class="replaceable"><code>symbol</code></em> [<em class="replaceable"><code>value</code></em> [<em class="replaceable"><code>doc-string</code></em>]]</pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、変数として<em class="replaceable"><code>symbol</code></em>を定義します。<em class="replaceable"><code>symbol</code></em>は評価されないことに注意してください。シンボルは<code class="literal">defvar</code>フォーム内に明示的に表記して定義される必要があります。この変数は<em class="firstterm">特別</em>だとマークされ、これは常にそれがダイナミックにバインドされることを意味します(<a class="link" href="ch12s09.html" title="Scoping Rules for Variable Bindings">Variable
+Scoping</a>を参照してください)。
+</p><p><em class="replaceable"><code>value</code></em>が指定されていて<em class="replaceable"><code>symbol</code></em>がvoid(たとえばこのシンボルがダイナミックにバインドされた値を持たないとき。<a class="link" href="ch12s04.html" title="When a Variable is “Void”">Void
+Variables</a>を参照してください)、<em class="replaceable"><code>value</code></em>が評価されて、その結果が<em class="replaceable"><code>symbol</code></em>にセットされます。しかし<em class="replaceable"><code>symbol</code></em>がvoidでな場合、<em class="replaceable"><code>value</code></em>は評価されず、<em class="replaceable"><code>symbol</code></em>の値は変更されません。<em class="replaceable"><code>value</code></em>が省略された場合、いかなる場合も<em class="replaceable"><code>symbol</code></em>の値は変更されません。
+</p><p><em class="replaceable"><code>symbol</code></em>がカレントバッファー内でバッファーローカルなバインディングをもつ場合、<code class="literal">defvar</code>はデフォルト値に作用します。デフォルト値はバッファーローカルなバインディングではなく、バッファーにたいして独立しています。デフォルト値がvoidのときはデフォルト値をセットします。<a class="link" href="ch12s10.html" title="Buffer-Local Variables">Buffer-Local
+Variables</a>を参照してください。
+</p><p>すでに<em class="replaceable"><code>symbol</code></em>がレキシカルにバインドされている場合(たとえばレキシカルバインドが有効な状態で<code class="literal">let</code>フォーム内に<code class="literal">defvar</code>があるような場合)、<code class="literal">defvar</code>はダイナミックな値をセットします。バインディング構造を抜けるまで、レキシカルバインディングは効果をもちます。<a class="link" href="ch12s09.html" title="Scoping Rules for Variable Bindings">Variable
+Scoping</a>を参照してください。
+</p><p>Emacs
+Lispモード(<code class="literal">eval-defun</code>)でトップレベルの<code class="literal">defvar</code>を評価するとき、<code class="literal">eval-defun</code>の特別な機能は、その値がvoidであるかテストすることなく、その変数を無条件にセットします。
+</p><p>引数<em class="replaceable"><code>doc-string</code></em>が与えられた場合、それは変数にたいするドキュメント文字列を指定します(そのシンボルの<code class="literal">variable-documentation</code>プロパティーに格納されます)。<a class="link" href="ch24.html" title="Chapter 23. Documentation">Documentation</a>を参照してください。
+</p><p>以下にいくつか例を示します。これは<code class="literal">foo</code>を定義しますが、初期化は行いません:
+</p><pre class="screen">(defvar foo)
+     ⇒ foo
+</pre><p>この例は<code class="literal">bar</code>の値を<code class="literal">23</code>に初期化して、ドキュメント文字列を与えます:
+</p><pre class="screen">(defvar bar 23
+  "The normal weight of a bar.")
+     ⇒ bar
+</pre><p><code class="literal">defvar</code>フォームは<em class="replaceable"><code>symbol</code></em>をreturnしますが、通常これは値が問題にならないファイル内のトップレベルで使用されます。
+</p></blockquote></div><a id="idm50885712" class="indexterm"/><pre class="synopsis"><a id="idm50884688" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">defconst</code> <em class="replaceable"><code>symbol</code></em> <em class="replaceable"><code>value</code></em> [<em class="replaceable"><code>doc-string</code></em>]</pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、ある値として<em class="replaceable"><code>symbol</code></em>を定義して、それを初期化します。これはコードを読む人に、<em class="replaceable"><code>symbol</code></em>がここで設定される標準的なグローバル値をもち、ユーザーや他のプログラムがそれを変更すべきではないことを知らせます。<em class="replaceable"><code>symbol</code></em>は評価されないことに注意してください。このシンボルは、<code class="literal">defconst</code>内に明示的に記されなければなりません。
+</p><p><code class="literal">defvar</code>と同様、<code class="literal">defconst</code>は、変数を<em class="firstterm">特別</em> —
+この変数が常にダイナミックにバインドされているという意味 — だとマークします(<a class="link" href="ch12s09.html" title="Scoping Rules for Variable Bindings">Variable
+Scoping</a>を参照してください)。加えて、これはその変数を危険であるとマークします(<a class="link" href="ch12s11.html" title="File Local Variables">File Local
+Variables</a>を参照してください)。
+</p><p><code class="literal">defconst</code>は常に<em class="replaceable"><code>value</code></em>を評価して、その結果を<em class="replaceable"><code>symbol</code></em>の値にセットします。カレントバッファー内で<em class="replaceable"><code>symbol</code></em>がバッファーローカルなバインディングをもつ場合、<code class="literal">defconst</code>はデフォルト値ではなく、バッファーローカルな値をセットします(しかし、<code class="literal">defconst</code>で定義されたシンボルにたいしてバッファーローカルなバインディングを作るべきではありません)。
+</p><p><code class="literal">defconst</code>の使い方の例は、Emacsの<code class="literal">float-pi</code> — (たとえIndiana State
+Legislatureが何を試みようと)何者かにより変更されるべきではない、数学定数<span class="mathphrase">pi</span>にたいする定義です。しかし2番目の<code class="literal">defconst</code>の例のように、これは単にアドバイス的なものです。
+</p><pre class="screen">(defconst float-pi 3.141592653589793 "The value of Pi.")
+     ⇒ float-pi
+</pre><pre class="screen">(setq float-pi 3)
+     ⇒ float-pi
+</pre><pre class="screen">float-pi
+     ⇒ 3
+</pre></blockquote></div><p><span class="bold"><strong>警告:</strong></span>
+変数がローカルバインディングをもつとき(<code class="literal">let</code>により作成された、または関数の引数の場合)に、スペシャルフォーム<code class="literal">defconst</code>または<code class="literal">defvar</code>を使用すると、これらのフォームはグローバルバインディングではなく、ローカルバインディングをセットします。これは通常、あなたが望むことではないはずです。これを防ぐには、これらのスペシャルフォームをファイル内のトップレベルで使用します。この場所は通常、何のローカルバインディングも効果をもたないので、その変数にたいするローカルバインディングが作成される前にファイルがロードされることが確実だからです。
+</p></div></body></html>

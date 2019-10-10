@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Association Lists</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Association-Lists"/>Association Lists</h1></div></div></div><a id="idm49145424" class="indexterm"/><a id="idm49144656" class="indexterm"/><p><em class="firstterm">連想配列(association
+list。短くはalist)</em>は、キーと値のマッピングを記録します。これは<em class="firstterm">連想(associations)</em>と呼ばれるコンスセルのリストです。各コンスセルにおいて、CARは<em class="firstterm">キー(key)</em>で、CDRは<em class="firstterm">連想値(associated
+value)</em>になります。<a href="#ftn.idm49142224" class="footnote" id="idm49142224"><sup class="footnote">[3]</sup></a>
+</p><p>以下はalistの例です。キー<code class="literal">pine</code>は、値<code class="literal">cones</code>に関連付けられます。キー<code class="literal">oak</code>は、<code class="literal">acorns</code>に関連付けられます。キー<code class="literal">maple</code>は、<code class="literal">seeds</code>に関連付けられます。
+</p><pre class="screen">((pine . cones)
+ (oak . acorns)
+ (maple . seeds))
+</pre><p>alist内の値とキーには、任意のLispオブジェクトを指定できます。たとえば以下のalist0では、シンボル<code class="literal">a</code>は数字<code class="literal">1</code>に、文字列<code class="literal">"b"</code>は<span class="emphasis"><em>リスト</em></span><code class="literal">(2
+3)</code>(alist要素のCDR)に関連付けられます。
+</p><pre class="screen">((a . 1) ("b" 2 3))
+</pre><p>要素のCDRのCARに連想値を格納するようにalistデザインするほうがよい場合があります。以下は、そのようなalistです。
+</p><pre class="screen">((rose red) (lily white) (buttercup yellow))
+</pre><p>この例では、<code class="literal">red</code>が<code class="literal">rose</code>に関連付けられる値だと考えます。この種のalistの利点は、CDRのCDRの中に、他の関連する情報
+— 他のアイテムのリストでさえ —
+を格納することができることです。不利な点は、与えられた値を含む要素を見つけるために<code class="literal">rassq</code>(以下参照)を使用できないことです。これらを検討することが重要でない場合には、任意の与えられたalistにたいして一貫している限り、選択は好みの問題といえます。
+</p><p>上記で示したのと同じalistは、要素のCDRに連想値をもつと考えることができます。この場合、<code class="literal">rose</code>に関連付けられる値は、リスト<code class="literal">(red)</code>になるでしょう。
+</p><p>連想リストは、新しい連想を簡単にリストの先頭に追加できるので、スタックに保持したいような情報を記録するのによく使用されます。連想リストから与えられたキーにたいする連想を検索する場合、それが複数ある場合は、最初に見つかったものがreturnされます。
+</p><p>Emacs
+Lispでは、連想リストがコンスセルではない場合、それはエラーでは<span class="emphasis"><em>ありません</em></span>。alist検索関数は、単にそのような要素を無視します。多くの他のバージョンのLいspでは、このような場合はエラーをシグナルします。
+</p><p>いくつかの観点において、プロパティーリストは連想リストと似ていることに注意してください。それぞれのキーが1度だけ出現するような場合、プロパティーリストは連想リストと同様に振る舞います。プロパティーリストと連想リストの比較については、<a class="link" href="ch06s09.html" title="Property Lists">Property
+Lists</a>を参照してください。
+</p><pre class="synopsis"><a id="idm49127760" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">assoc</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、alist要素にたいして<em class="replaceable"><code>key</code></em>を比較するのに<code class="literal">equal</code>を使用して、<em class="replaceable"><code>alist</code></em>内から<em class="replaceable"><code>key</code></em>をもつ最初の連想をreturnします。CARが<em class="replaceable"><code>key</code></em>と<code class="literal">equal</code>の連想が<em class="replaceable"><code>alist</code></em>にない場合、この関数は<code class="literal">nil</code>をreturnします。たとえば:
+</p><pre class="screen">(setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
+     ⇒ ((pine . cones) (oak . acorns) (maple . seeds))
+(assoc 'oak trees)
+     ⇒ (oak . acorns)
+(cdr (assoc 'oak trees))
+     ⇒ acorns
+(assoc 'birch trees)
+     ⇒ nil
+</pre><p>以下はキーと値がシンボルでない場合の例です:
+</p><pre class="screen">(setq needles-per-cluster
+      '((2 "Austrian Pine" "Red Pine")
+        (3 "Pitch Pine")
+        (5 "White Pine")))
+
+(cdr (assoc 3 needles-per-cluster))
+     ⇒ ("Pitch Pine")
+(cdr (assoc 2 needles-per-cluster))
+     ⇒ ("Austrian Pine" "Red Pine")
+</pre></blockquote></div><p>関数<code class="literal">assoc-string</code>は<code class="literal">assoc</code>と似ていますが、文字列間の特定の違いを無視する点が異なります。<a class="link" href="ch05s05.html" title="Comparison of Characters and Strings">Text
+Comparison</a>を参照してください。
+</p><pre class="synopsis"><a id="idm49117392" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">rassoc</code> <em class="replaceable"><code>value</code></em> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>alist</code></em>の中から、値<em class="replaceable"><code>value</code></em>をもつ最初の連想をreturnします。CDRが<em class="replaceable"><code>value</code></em>と<code class="literal">equal</code>の連想が<em class="replaceable"><code>alist</code></em>にない場合、この関数は<code class="literal">nil</code>をreturnします。
+</p><p><code class="literal">rassoc</code>は<code class="literal">assoc</code>と似ていますが、CARではなく、<em class="replaceable"><code>alist</code></em>の連想のCDRを比較します。この関数を、与えられた値に対応するキーを探す、“reverse
+<code class="literal">assoc</code>”と考えることができます。
+</p></blockquote></div><pre class="synopsis"><a id="idm49109072" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">assq</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>alist</code></em>から<em class="replaceable"><code>key</code></em>をもつ最初の連想をreturnする点は<code class="literal">assoc</code>と同様ですが、比較に<code class="literal">equal</code>ではなく<code class="literal">eq</code>を使用します。CARが<em class="replaceable"><code>key</code></em>と<code class="literal">eq</code>な連想が<em class="replaceable"><code>alist</code></em>内に存在しない場合、<code class="literal">assq</code>は<code class="literal">nil</code>をreturnします。<code class="literal">eq</code>は<code class="literal">equal</code>より早く、ほとんどのalistはキーにシンボルを使用するので、この関数は<code class="literal">assoc</code>より多用されます。<a class="link" href="ch03s07.html" title="Equality Predicates">Equality
+Predicates</a>を参照してください。
+</p><pre class="screen">(setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
+     ⇒ ((pine . cones) (oak . acorns) (maple . seeds))
+(assq 'pine trees)
+     ⇒ (pine . cones)
+</pre><p>反対に、キーがシンボルではないalistでは通常、<code class="literal">assq</code>は有用ではありません:
+</p><pre class="screen">(setq leaves
+      '(("simple leaves" . oak)
+        ("compound leaves" . horsechestnut)))
+
+(assq "simple leaves" leaves)
+     ⇒ nil
+(assoc "simple leaves" leaves)
+     ⇒ ("simple leaves" . oak)
+</pre></blockquote></div><pre class="synopsis"><a id="idm49096912" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">rassq</code> <em class="replaceable"><code>value</code></em> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>alist</code></em>内から値<em class="replaceable"><code>value</code></em>をもつ最初の連想をreturnします。<em class="replaceable"><code>alist</code></em>内にCDRが<em class="replaceable"><code>value</code></em>と<code class="literal">eq</code>な連想が存在しない場合は、<code class="literal">nil</code>をreturnします。
+</p><p><code class="literal">rassq</code>は<code class="literal">assq</code>と似ていますが、CARではなく、<em class="replaceable"><code>alist</code></em>の各連想のCDRを比較します。この関数を、与えられた値に対応するキーを探す、“reverse
+<code class="literal">assq</code>”と考えることができます。
+</p><p>たとえば:
+</p><pre class="screen">(setq trees '((pine . cones) (oak . acorns) (maple . seeds)))
+
+(rassq 'acorns trees)
+     ⇒ (oak . acorns)
+(rassq 'spores trees)
+     ⇒ nil
+</pre><p><code class="literal">rassq</code>は、要素のCDRのCARに保管された値の検索はできません:
+</p><pre class="screen">(setq colors '((rose red) (lily white) (buttercup yellow)))
+
+(rassq 'white colors)
+     ⇒ nil
+</pre><p>この場合、連想<code class="literal">(lily
+white)</code>のCDRは<code class="literal">white</code>ではなく、リスト<code class="literal">(white)</code>です。これは連想をドットペア表記で記述すると明確になります:
+</p><pre class="screen">(lily white) ≡ (lily . (white))
+</pre></blockquote></div><pre class="synopsis"><a id="idm49071696" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">assoc-default</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>alist</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>test</code></em> <em class="replaceable"><code>default</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>key</code></em>にたいするマッチを<em class="replaceable"><code>alist</code></em>から検索します。<em class="replaceable"><code>alist</code></em>の各要素にたいして、この関数は、<em class="replaceable"><code>key</code></em>と要素(アトムの場合)、または要素のCAR(コンスの場合)を比較します。比較は<em class="replaceable"><code>test</code></em>に2つの引数
+— 要素(または要素のCAR)と<em class="replaceable"><code>key</code></em> —
+を与えて呼び出すことにより行なわれます。引数はこの順番で渡されるので、正規表現(<a class="link" href="ch34s04.html" title="Regular Expression Searching">Regexp
+Search</a>を参照してください)を含むalistでは、<code class="literal">string-match</code>を使用することにより有益な結果を得ることができます。<em class="replaceable"><code>test</code></em>が省略されているか<code class="literal">nil</code>の場合は、比較に<code class="literal">equal</code>が使用されます。
+</p><p>alistの要素がこの条件により<em class="replaceable"><code>key</code></em>とマッチした場合、<code class="literal">assoc-default</code>はこの要素の値をreturnします。要素がコンスの場合、値は要素のCDRです。それ以外の場合、return値は<em class="replaceable"><code>default</code></em>です。
+</p><p><em class="replaceable"><code>key</code></em>にマッチする要素がalistに存在しない場合、<code class="literal">assoc-default</code>は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm49054800" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">copy-alist</code> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm49052240" class="indexterm"/><p>この関数は、深さ2がレベルの<em class="replaceable"><code>alist</code></em>のコピーをreturnします。この関数は各連想の新しいコピーを作成するので、元のalistを変更せずに、新しいalistを変更できます。
+</p><pre class="screen">(setq needles-per-cluster
+      '((2 . ("Austrian Pine" "Red Pine"))
+        (3 . ("Pitch Pine"))
+</pre><pre class="screen">        (5 . ("White Pine"))))
+⇒
+((2 "Austrian Pine" "Red Pine")
+ (3 "Pitch Pine")
+ (5 "White Pine"))
+
+(setq copy (copy-alist needles-per-cluster))
+⇒
+((2 "Austrian Pine" "Red Pine")
+ (3 "Pitch Pine")
+ (5 "White Pine"))
+
+(eq needles-per-cluster copy)
+     ⇒ nil
+(equal needles-per-cluster copy)
+     ⇒ t
+(eq (car needles-per-cluster) (car copy))
+     ⇒ nil
+(cdr (car (cdr needles-per-cluster)))
+     ⇒ ("Pitch Pine")
+</pre><pre class="screen">(eq (cdr (car (cdr needles-per-cluster)))
+    (cdr (car (cdr copy))))
+     ⇒ t
+</pre><p>以下の例は、どのようにして<code class="literal">copy-alist</code>が他に影響を与えずにコピーの連想を変更可能なのかを示します:
+</p><pre class="screen">(setcdr (assq 3 copy) '("Martian Vacuum Pine"))
+(cdr (assq 3 needles-per-cluster))
+     ⇒ ("Pitch Pine")
+</pre></blockquote></div><pre class="synopsis"><a id="idm49047760" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">assq-delete-all</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>alist</code></em>から、(<code class="literal">delq</code>を使用した場合は、そのような要素を1つずつ削除するのにたいして)CARが<em class="replaceable"><code>key</code></em>と<code class="literal">eq</code>な要素すべてを削除します。この関数は短くなったalistをreturnし、<em class="replaceable"><code>alist</code></em>の元のリスト構造を変更することもよくあります。正しい結果を得るために、<em class="replaceable"><code>alist</code></em>に保存された値ではなく、<code class="literal">assq-delete-all</code>のreturn値を使用してください。
+</p><pre class="screen">(setq alist '((foo 1) (bar 2) (foo 3) (lose 4)))
+     ⇒ ((foo 1) (bar 2) (foo 3) (lose 4))
+(assq-delete-all 'foo alist)
+     ⇒ ((bar 2) (lose 4))
+alist
+     ⇒ ((foo 1) (bar 2) (lose 4))
+</pre></blockquote></div><pre class="synopsis"><a id="idm49040592" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">rassq-delete-all</code> <em class="replaceable"><code>value</code></em> <em class="replaceable"><code>alist</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>alist</code></em>からCDRが<em class="replaceable"><code>value</code></em>と<code class="literal">eq</code>なすべての要素を削除します。この関数は短くなったリストをreturnし、<em class="replaceable"><code>alist</code></em>の元のリスト構造を変更することもよくあります。<code class="literal">rassq-delete-all</code>は<code class="literal">assq-delete-all</code>と似ていますが、CARではなく<em class="replaceable"><code>alist</code></em>の各連想のCDRを比較します。
+</p></blockquote></div><div class="footnotes"><br/><hr/><div id="ftn.idm49142224" class="footnote"><p><a href="#idm49142224" class="para"><sup class="para">[3] </sup></a>ここでの“キー(key)”の使い方は、用語“キーシーケンス(key
+sequence)”とは関係ありません。キーはテーブルにあるアイテムを探すために使用される値という意味です。この場合、テーブルはalistでありalistはアイテムに関連付けられます。</p></div></div></div></body></html>

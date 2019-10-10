@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Creating Strings</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Creating-Strings"/>Creating Strings</h1></div></div></div><a id="idm50402256" class="indexterm"/><a id="idm50401488" class="indexterm"/><p>以下の関数は、新たに文字列を作成したり、文字列同士を結合して文字列を作成したり、文字列の一部から文字列を作成する関数です。
+</p><pre class="synopsis"><a id="idm50400080" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-string</code> <em class="replaceable"><code>count</code></em> <em class="replaceable"><code>character</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>character</code></em>を<em class="replaceable"><code>count</code></em>回繰り返すことにより作成された文字列をreturnします。<em class="replaceable"><code>count</code></em>が負の場合は、エラーをシグナルします。
+</p><pre class="screen">(make-string 5 ?x)
+     ⇒ "xxxxx"
+(make-string 0 ?x)
+     ⇒ ""
+</pre><p>この関数に対応する他の関数には<code class="literal">make-vector</code>
+(<a class="link" href="ch07s04.html" title="Vectors">Vectors</a>を参照してください)、および<code class="literal">make-list</code> (<a class="link" href="ch06s04.html" title="Building Cons Cells and Lists">Building
+Lists</a>を参照してください)が含まれます。
+</p></blockquote></div><pre class="synopsis"><a id="idm50388304" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">string</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>characters</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、文字<em class="replaceable"><code>characters</code></em>を含む文字列をreturnします。
+</p><pre class="screen">(string ?a ?b ?c)
+     ⇒ "abc"
+</pre></blockquote></div><pre class="synopsis"><a id="idm50383824" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">substring</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>string</code></em>から、インデックス<em class="replaceable"><code>start</code></em>の文字(その文字を含む)から、<em class="replaceable"><code>end</code></em>までの文字(その文字は含まない)の範囲の文字から構成される、新しい文字列をreturnします。文字列の最初の文字がインデックス0になります。
+</p><pre class="screen">(substring "abcdefg" 0 3)
+     ⇒ "abc"
+</pre><p>上記の例では、‘<code class="literal">a</code>’のインデックスは0、‘<code class="literal">b</code>’のインデックスは1、‘<code class="literal">c</code>’のインデックスは2です。インデックス3 —
+この文字列の4番目の文字 —
+は、部分文字列がコピーされる文字位置までをマークします。したがって文字列<code class="literal">"abcdefg"</code>から、‘<code class="literal">abc</code>’がコピーされます。
+</p><p>負のかすは、文字列の最後から数えることを意味するので、−1は文字列の最後の文字のインデックスです。たとえば:
+</p><pre class="screen">(substring "abcdefg" -3 -1)
+     ⇒ "ef"
+</pre><p>この例では、‘<code class="literal">e</code>’のインデックスは−3、‘<code class="literal">f</code>’のインデックスは−2、‘<code class="literal">g</code>’のインデックスは−1です。したがって、‘<code class="literal">e</code>’と‘<code class="literal">f</code>’が含まれ、‘<code class="literal">g</code>’は含まれません。
+</p><p><em class="replaceable"><code>end</code></em>に<code class="literal">nil</code>が使用された場合、それは文字列の長さを意味します。したがって、
+</p><pre class="screen">(substring "abcdefg" -3 nil)
+     ⇒ "efg"
+</pre><p>引数<em class="replaceable"><code>end</code></em>を省略した場合、それは<code class="literal">nil</code>を指定したのと同じです。<code class="literal">(substring <em class="replaceable"><code>string</code></em>
+0)</code>は、<em class="replaceable"><code>string</code></em>のすべてをコピーしてreturnします。
+</p><pre class="screen">(substring "abcdefg" 0)
+     ⇒ "abcdefg"
+</pre><p>しかし、この目的のためには<code class="literal">copy-sequence</code>を推奨します(see <a class="link" href="ch07.html#Sequence-Functions" title="Sequences">Sequence Functions</a>)。
+</p><p><em class="replaceable"><code>string</code></em>からコピーされた文字がテキストプロパティーをもつ場合、そのプロパティーは新しい文字列へもコピーされます。<a class="link" href="ch32s19.html" title="Text Properties">Text
+Properties</a>を参照してください。
+</p><p><code class="literal">substring</code>の最初の引数にはベクターも指定できます。たとえば:
+</p><pre class="screen">(substring [a b (c) "d"] 1 3)
+     ⇒ [b (c)]
+</pre><p><em class="replaceable"><code>start</code></em>が整数でない場合、または<em class="replaceable"><code>end</code></em>が整数でも<code class="literal">nil</code>でもない場合は、<code class="literal">wrong-type-argument</code>エラーがシグナルされます。<em class="replaceable"><code>start</code></em>が<em class="replaceable"><code>end</code></em>の後の文字を指す場合、または<em class="replaceable"><code>string</code></em>にたいして範囲外の整数をどちらかに指定した場合は、<code class="literal">args-out-of-range</code>エラーがシグナルされます。
+</p><p>この関数に対応するのは<code class="literal">buffer-substring</code> (<a class="link" href="ch32s02.html" title="Examining Buffer Contents">Buffer
+Contents</a>を参照してください)で、これはカレントバッファー内のテキストの一部を含む文字列をreturnします。文字列の先頭はインデックス0ですが、バッファーの先頭はインデックス1です。
+</p></blockquote></div><pre class="synopsis"><a id="idm50356816" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">substring-no-properties</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは<code class="literal">substring</code>と同じようにL機能しますが、値からすべてのテキストプロパティーを破棄します。<em class="replaceable"><code>start</code></em>を省略したり、<code class="literal">nil</code>を指定することができ、この場合0に等しくなります。したがって<code class="literal">(substring-no-properties
+<em class="replaceable"><code>string</code></em>)</code>は、すべてのテキストプロパティーが削除された<em class="replaceable"><code>string</code></em>のコピーをreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm50349520" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">concat</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>sequences</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm50346576" class="indexterm"/><a id="idm50345808" class="indexterm"/><p>この関数は、渡された引数内の文字からなる、新しい文字列をreturnします(もしあればテキストプロパティーも)。引数には文字列、数のリスト、数のベクターを指定できます。引数は変更されません。<code class="literal">concat</code>に引数を指定しない場合、空文字列をreturnします。
+</p><pre class="screen">(concat "abc" "-def")
+     ⇒ "abc-def"
+(concat "abc" (list 120 121) [122])
+     ⇒ "abcxyz"
+;; <code class="literal">nil</code>hあ空のシーケンス。
+(concat "abc" nil "-def")
+     ⇒ "abc-def"
+(concat "The " "quick brown " "fox.")
+     ⇒ "The quick brown fox."
+(concat)
+     ⇒ ""
+</pre><p>この関数は常に、任意の既存の文字列にたいして<code class="literal">eq</code>ではない、新しい文字列を構築しますが、結果が空文字列の時は例外です(スペースを省くために、Emacsは空のマルチバイト文字列を1つだけ作成します)。
+</p><p>他の結合関数(concatenation functions)についての情報は、<a class="link" href="ch13s06.html" title="Mapping Functions">Mapping
+Functions</a>の<code class="literal">mapconcat</code>、<a class="link" href="ch07s05.html" title="Functions for Vectors">Vector
+Functions</a>の<code class="literal">vconcat</code>、<a class="link" href="ch06s04.html" title="Building Cons Cells and Lists">Building
+Lists</a>の<code class="literal">append</code>を参照してください。シェルコマンドで使用される文字列の中に、個々のコマンドライン引数を結合するには、<a class="link" href="ch37s02.html" title="Shell Arguments">combine-and-quote-strings</a>を参照してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm50338000" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">split-string</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>separators</code></em> <em class="replaceable"><code>omit-nulls</code></em> <em class="replaceable"><code>trim</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、正規表現<em class="replaceable"><code>separators</code></em>(<a class="link" href="ch34s03.html" title="Regular Expressions">Regular
+Expressions</a>を参照してください)にもとづいて、<em class="replaceable"><code>string</code></em>を部分文字列に分解します。<em class="replaceable"><code>separators</code></em>にたいする各マッチは、分割位置を定義します。分割位置の間にある部分文字列を、リストにまとめてreturnします。
+</p><p><em class="replaceable"><code>omit-nulls</code></em>が<code class="literal">nil</code>(または省略)の場合、連続する2つの<em class="replaceable"><code>separators</code></em>へのマッチ、または<em class="replaceable"><code>string</code></em>の最初か最後にマッチしたときの空文字列が結果に含まれます。<em class="replaceable"><code>omit-nulls</code></em>が<code class="literal">t</code>の場合、これらの空文字列は結果から除外されます。
+</p><p><em class="replaceable"><code>separators</code></em>が<code class="literal">nil</code>(または省略)の場合、デフォルトは<code class="literal">split-string-default-separators</code>の値になります。
+</p><p>特別なケースとして、<em class="replaceable"><code>separators</code></em>が<code class="literal">nil</code>(または省略)の場合、常に結果から空文字列が除外されます。したがって:
+</p><pre class="screen">(split-string "  two words ")
+     ⇒ ("two" "words")
+</pre><p>結果は、ほとんど有用ではないであろう<code class="literal">("" "two" "words"
+"")</code>という結果ではありません。このような結果が必要な時は、<em class="replaceable"><code>separators</code></em>に明示的な値を使用します:
+</p><pre class="screen">(split-string "  two words "
+              split-string-default-separators)
+     ⇒ ("" "two" "words" "")
+</pre><p>他にも例を示します:
+</p><pre class="screen">(split-string "Soup is good food" "o")
+     ⇒ ("S" "up is g" "" "d f" "" "d")
+(split-string "Soup is good food" "o" t)
+     ⇒ ("S" "up is g" "d f" "d")
+(split-string "Soup is good food" "o+")
+     ⇒ ("S" "up is g" "d f" "d")
+</pre><p>空のマッチはカウントされます。例外は、空でないマッチを使用することにより、すでに文字列の最後に到達しているとき、または<em class="replaceable"><code>string</code></em>が空の時で、この場合<code class="literal">split-string</code>は最後の空マッチを探しません。
+</p><pre class="screen">(split-string "aooob" "o*")
+     ⇒ ("" "a" "" "b" "")
+(split-string "ooaboo" "o*")
+     ⇒ ("" "" "a" "b" "")
+(split-string "" "")
+     ⇒ ("")
+</pre><p>しかし、<em class="replaceable"><code>separators</code></em>が空文字列にマッチできるとき、通常は<em class="replaceable"><code>omit-nulls</code></em>は<code class="literal">t</code>にすれば、前の3つの例の不明瞭さは、ほとんど発生しません:
+</p><pre class="screen">(split-string "Soup is good food" "o*" t)
+     ⇒ ("S" "u" "p" " " "i" "s" " " "g" "d" " " "f" "d")
+(split-string "Nice doggy!" "" t)
+     ⇒ ("N" "i" "c" "e" " " "d" "o" "g" "g" "y" "!")
+(split-string "" "" t)
+     ⇒ nil
+</pre><p>空でないマッチより空のマッチを優先するような、一部の“非貪欲(non-greedy)”な値を<em class="replaceable"><code>separators</code></em>に指定することにより、幾分奇妙(しかし予見可能)な振る舞いが発生する場合があります。繰り返しますが、そのような値は実際にはまれです:
+</p><pre class="screen">(split-string "ooo" "o*" t)
+     ⇒ nil
+(split-string "ooo" "\\|o+" t)
+     ⇒ ("o" "o" "o")
+</pre><p>オプションの引数<em class="replaceable"><code>trim</code></em>が非<code class="literal">nil</code>の場合、その値は各部分文字列の最初と最後からトリムするテキストにマッチする正規表現を指定します。トリムにより、その部分文字列が空になるような場合、それは空文字列として扱われます。
+</p><p>文字列を分割して、<code class="literal">call-process</code>や<code class="literal">start-process</code>に適した、個々のコマンドライン引数のリストにする必要がある場合は、<a class="link" href="ch37s02.html" title="Shell Arguments">split-string-and-unquote</a>を参照してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm50301904" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">split-string-default-separators</code></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">split-string</code>の<em class="replaceable"><code>separators</code></em>にたいするデフォルト値です。通常の値は、<code class="literal">"[
+\f\t\n\r\v]+"</code>です。
+</p></blockquote></div></div></body></html>

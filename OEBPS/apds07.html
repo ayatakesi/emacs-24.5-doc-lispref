@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Tips on Writing Comments</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Comment-Tips"/>Tips on Writing Comments</h1></div></div></div><a id="idm84473168" class="indexterm"/><p>コメントにたいして、以下の慣習を推奨します:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">;</code>’
+</span></dt><dd><p>1つのセミコロン‘<code class="literal">;</code>’で始まるコメントは、すべてソースコードの右側の同じ列に揃えられる。そのようなコメントは通常、その行のコードがどのように処理を行うかを説明する。たとえば:
+</p><pre class="screen">(setq base-version-list                 ; There was a base
+      (assoc (substring fn 0 start-vn)  ; version to which
+             file-version-assoc-list))  ; this looks like
+                                        ; a subversion.
+</pre></dd><dt><span class="term">‘<code class="literal">;;</code>’
+</span></dt><dd><p>2つのセミコロン‘<code class="literal">;;</code>’で始まるコメントは、コードと同じインデントレベルで揃えられる。そのようなコメントは通常、その後の行の目的や、その箇所でのプログラムの状態を説明する。たとえば:
+</p><pre class="screen">(prog1 (setq auto-fill-function
+             …
+             …
+  ;; Update mode line.
+  (force-mode-line-update)))
+</pre><p>わたしたちは、通常は関数の外側のコメントにも2つのセミコロンを使用する。
+</p><pre class="screen">;; This Lisp code is run in Emacs when it is to operate as
+;; a server for other processes.
+</pre><p>関数がドキュメント文字列をもたなければ、かわりにその関数の直前にその関数が何を行うかと、正しく呼び出す方法を説明する、2つのセミコロンのコメントをもつべきである。各引数の意味と、引数で可能な値をその関数が解釈する方法を、しっかり説明すること。しかし、そのようなコメントはドキュメント文字列に変換するほうが、はるかに優れている。
+</p></dd><dt><span class="term">‘<code class="literal">;;;</code>’
+</span></dt><dd><p>3つのセミコロン‘<code class="literal">;;;</code>’デ始まるコメントは、左マージンから始まる。わたしたちは、Outlineマイナーモードの“heading(ヘッダー)”とみなされるべきコメントに、それらを使用している。デフォルトでは、少なくとも(後に1つの空白文字と非空白文字が続く)3つのセミコロンはheadingとみなし、2つ以下のセミコロンで始まるものはheadingとみなさない。歴史的に、3つのセミコロンのコメントは関数内での行のコメントアウトに使用されてきたが、この使用は推奨しない。
+</p><p>関数全体をコメントアウトするときは、2つのセミコロンを使用する。
+</p></dd><dt><span class="term">‘<code class="literal">;;;;</code>’
+</span></dt><dd><p>4つのセミコロン‘<code class="literal">;;;;</code>’で始まるコメントは左マージンに揃えられ、プログラムのメジャーセクションのheadingに使用される。たとえば:
+</p><pre class="screen">;;;; The kill ring
+</pre></dd></dl></div><p>一般的に言うと、コマンド<strong class="userinput"><code>M-;</code></strong>
+(<code class="literal">comment-dwim</code>)は、適切なタイプのコメントを自動的に開始するか、セミコロンの数に応じて、既存のコメントを正しい位置にインデントします。section “Manipulating Comments” in <em class="citetitle">The GNU Emacs Manual</em>を参照してください。
+</p></div></body></html>

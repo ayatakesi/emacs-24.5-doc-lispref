@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Prefix Command Arguments</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Prefix-Command-Arguments"/>Prefix Command Arguments</h1></div></div></div><a id="idm59504592" class="indexterm"/><a id="idm59491536" class="indexterm"/><a id="idm59490768" class="indexterm"/><p>ほとんどのEmacsコマンドは<em class="firstterm">プレフィクス引数(prefix
+argument)</em>を使用できます。プレフィクス引数はコマンド自身の前に数字を指定するものです(プレフィクス引数とプレフィクスキーを混同しないように)。プレフィクス引数は常に値により表され、<code class="literal">nil</code>のときはカレントでプレフィクス引数が存在しないことを意味します。すべてのコマンドはプレフィクス引数を使用するか、あるいは無視します。
+</p><p>プレフィクス引数には2つの表現があります。それは<em class="firstterm">raw(生の、加工していない、原料のままの、未加工の)</em>と<em class="firstterm">数字(numeric)</em>です。エディターコマンドループは内部的にraw表現を使用し、Lisp変数もその情報を格納するのにこれを使用しますが、コマンドはどちらかの表現を要求できます。
+</p><p>以下は利用できるrawプレフィクス引数の値です:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><code class="literal">nil</code>はプレフィクス引数がないことを意味する。これの数値的な値は1だが、多くのコマンドは<code class="literal">nil</code>と整数1を区別する。
+</p></li><li class="listitem"><p>整数はそれ自身を意味する。
+</p></li><li class="listitem"><p>整数の要素を1つもつリスト。プレフィクス引数のこの形式は、1つまたは数字無しの連続する<strong class="userinput"><code>C-u</code></strong>の結果である。数値的な値はリスト内の整数だが、そのようなリストと単独の整数を区別するコマンドがいくつかある。
+</p></li><li class="listitem"><p>シンボル<code class="literal">-</code>。これは後に数字をともなわない<strong class="userinput"><code>M--</code></strong>か<strong class="userinput"><code>C-u
+-</code></strong>がタイプされたことを示す。数値的に等価な値は−1だが、整数の−1をシンボルの<code class="literal">-</code>を区別するコマンドがいくつかある。
+</p></li></ul></div><p>以下の関数をさまざまなプレフィクスで呼び出して、これらの可能なプレフィクスを説明しましょう:
+</p><pre class="screen">(defun display-prefix (arg)
+  "rawプレフィクス引数の値を表示する。"
+  (interactive "P")
+  (message "%s" arg))
+</pre><p>以下はさまざまなrawプレフィクス引数で<code class="literal">display-prefix</code>を呼び出した結果です:
+</p><pre class="screen">        M-x display-prefix  ⊣ nil
+
+C-u     M-x display-prefix  ⊣ (4)
+
+C-u C-u M-x display-prefix  ⊣ (16)
+
+C-u 3   M-x display-prefix  ⊣ 3
+
+M-3     M-x display-prefix  ⊣ 3      ; (<code class="literal">C-u 3</code>と同じ)
+
+C-u -   M-x display-prefix  ⊣ -
+
+M--     M-x display-prefix  ⊣ -      ; (<code class="literal">C-u -</code>と同じ)
+
+C-u - 7 M-x display-prefix  ⊣ -7
+
+M-- 7   M-x display-prefix  ⊣ -7     ; (<code class="literal">C-u -7</code>と同じ)
+</pre><p>Emacsにはプレフィクス引数を格納するための2つの変数<code class="literal">prefix-arg</code>と<code class="literal">current-prefix-arg</code>があります。他のコマンドにたいしてプレフィクス引数をセットアップする<code class="literal">universal-argument</code>のようなコマンドは、プレフィクス引数を<code class="literal">prefix-arg</code>内に格納します。対照的に<code class="literal">current-prefix-arg</code>はカレントコマンドにプレフィクス引数を引き渡すので、これらの変数をセットしても将来のコマンドにたいするプレフィクス引数に効果はありません。
+</p><p>コマンドは通常は<code class="literal">interactive</code>内で、プレフィクス引数にたいしてrawと数値のどちらの表現を使用するかを指定します(<a class="link" href="ch21s02.html#Using-Interactive" title="Using interactive">Using
+Interactive</a>を参照)。そのかわりに関数は変数<code class="literal">current-prefix-arg</code>内のプレフィクス引数の値を直接調べるかもしれませんが、これは明確さで劣ります。
+</p><pre class="synopsis"><a id="idm59472080" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">prefix-numeric-value</code> <em class="replaceable"><code>arg</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>arg</code></em>の有効なrawプレフィクス引数の数値的な意味をリターンする。引数はシンボル、数字、またはリストかもしれない。これが<code class="literal">nil</code>の場合は、値1がリターンsare,<code class="literal">-</code>の場合は−1がリターンされる。これが数字の場合は、その数字がリターンされる。リスト(数字であるべき)の場合は、そのリストのCARがリターンされる。
+</p></blockquote></div><pre class="synopsis"><a id="idm59467472" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">current-prefix-arg</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は<span class="emphasis"><em>カレント</em></span>のコマンドにたいするrawプレフィクス引数を保持する。コマンドはこの変数を直接調べるかもしれないが、この変数にたいするアクセスには通常は<code class="literal">(interactive
+"P")</code>を使用する。
+</p></blockquote></div><pre class="synopsis"><a id="idm59463888" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">prefix-arg</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は<span class="emphasis"><em>次</em></span>の編集コマンドにたいするrawプレフィクス引数である。後続のコマンドにたいしてプレフィクス引数を指定する<code class="literal">universal-argument</code>のようなコマンドは、この変数をセットすることにより機能する。
+</p></blockquote></div><pre class="synopsis"><a id="idm59460304" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">last-prefix-arg</code></pre><div class="blockquote"><blockquote class="blockquote"><p>rawプレフィクス引数の値は、前のコマンドにより使用された値である。
+</p></blockquote></div><p>以下のコマンドは、後続のコマンドにたいしてプレフィクス引数をセットアップするために存在します。これらを他の用途で呼び出さないでください。
+</p><pre class="synopsis"><a id="idm59457232" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">universal-argument</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは入力を読み取り。後続のコマンドにたいするプレフィクス引数を指定する。何をしているかわかっているのでなければ、このコマンドを自分で呼び出してはならない。
+</p></blockquote></div><pre class="synopsis"><a id="idm59454416" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">digit-argument</code> <em class="replaceable"><code>arg</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは、後続のコマンドにたいしてプレフィクス引数を追加する。引数<em class="replaceable"><code>arg</code></em>はこのコマンドの前のrawプレフィクス引数であり、これはプレフィクス引数を更新するために使用される。何をしているかわかっているのでなければ、このコマンドを自分で呼び出してはならない。
+</p></blockquote></div><pre class="synopsis"><a id="idm59450832" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">negative-argument</code> <em class="replaceable"><code>arg</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このコマンドは、次のコマンドにたいして数引数を追加する。引数<em class="replaceable"><code>arg</code></em>はこのコマンドの前のrawプレフィクス引数であり、この値に負の符号が付されて新しいプレフィクス引数を構築する。何をしているかわかっているのでなければ、このコマンドを自分で呼び出してはならない。
+</p></blockquote></div></div></body></html>

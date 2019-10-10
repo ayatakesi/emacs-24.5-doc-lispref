@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Menu Keymaps</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Menu-Keymaps"/>Menu Keymaps</h1></div></div></div><a id="idm62379216" class="indexterm"/><p>キーマップは、キーボードキーやマウスボタンにたいするバインディング定義と同様に、メニューとして操作することができます。メニューは、通常はマウスにより操作されますが、キーボードでも機能させことができます。次の入力イベントにたいしてメニューキーマップがアクティブな場合は、キーボードメニュー機能がアクティブになります。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Defining-Menus"/>Defining Menus</h2></div></div></div><a id="idm62377168" class="indexterm"/><a id="idm62376400" class="indexterm"/><a id="idm62375632" class="indexterm"/><a id="idm62374864" class="indexterm"/><p>キーマップが<em class="firstterm">overallプロンプト文字列(overall prompt
+string)</em>をもつ場合、そのキーマップはメニューとして動作します。overallプロンプト文字列とは、キーマップの要素として表される文字列です(<a class="link" href="ch22s03.html" title="Format of Keymaps">Format
+of
+Keymaps</a>を参照)。この文字列には、メニューコマンドの目的を記述します。Emacsは、(もしあれば)メニュー表示に使用されるツールキットに応じ、メニュータイトルとしてoverallメニュー文字列を表示します<a href="#ftn.idm62372944" class="footnote" id="idm62372944"><sup class="footnote">[12]</sup></a>。キーボードメニューもoverallプロンプト文字列を表示します。
+</p><p>プロンプト文字列をもつキーマップを構築するもっとも簡単な方法は、<code class="literal">make-keymap</code>、<code class="literal">make-sparse-keymap</code>(<a class="link" href="ch22s04.html" title="Creating Keymaps">Creating
+Keymaps</a>を参照)、<code class="literal">define-prefix-command</code>(<a class="link" href="ch22s06.html#Definition-of-define_002dprefix_002dcommand">Definition of
+define-prefix-command</a>を参照)を呼び出すときに引数で文字列を指定する方法です。キーマップをメニューとして操作したくない場合は、これらの関数にたいしてプロンプト文字列を指定しないでください。
+</p><pre class="synopsis"><a id="idm62369104" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">keymap-prompt</code> <em class="replaceable"><code>keymap</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>keymap</code></em>のoverallプロンプト文字列を、もしなければ<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><p>メニューのアイテムは、そのキーマップ内のバインディングです。各バインディングはイベント型と定義を関連付けますが、イベント型はメニューの外見に何の意味ももちません(通常は、イベント型としてキーボードが生成できない擬似イベントのシンボルをメニューアイテムのバインディングに使用する)。メニュー全体は、これらのイベントにたいするキーマップ内のバインディングから生成されます。
+</p><p>メニュー内のアイテムの順序は、キーマップ内のバインディングの順序と同じです。<code class="literal">define-key</code>は新たなバインディングを先頭に置くので、メニューアイテムの順序が重要な場合は、メニューの最後から先頭へメニューアイテムを定義する必要があります。既存のメニューにアイテムを追加するときは、<code class="literal">define-key-after</code>を使用してメニュー内の位置を指定できます(<a class="link" href="ch22s17.html#Modifying-Menus" title="Modifying Menus">Modifying
+Menus</a>を参照)。
+</p><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="Simple-Menu-Items"/>Simple Menu Items</h3></div></div></div><p>メニューアイテムを定義する単純(かつ初歩的)な方法は、何らかのイベント型(何のイベント型かは問題にならない)を以下のようにバインドすることです:
+</p><pre class="screen">(<em class="replaceable"><code>item-string</code></em> . <em class="replaceable"><code>real-binding</code></em>)
+</pre><p>CARの<em class="replaceable"><code>item-string</code></em>は、メニュー内で表示される文字列です。これは短いほうがよく、1から3の単語が望ましいでしょう。この文字列は、対応するコマンドの動作を説明します。すべてのグラフィカルツールキットが非<acronym class="acronym">ASCII</acronym>テキストを表示できる訳ではないことに注意してください(キーボードメニューとGTK+ツールキットの大部分では機能するだろう)。
+</p><p>以下のように、ヘルプ文字列と呼ばれる2つ目の文字列を与えることもできます:
+</p><pre class="screen">(<em class="replaceable"><code>item-string</code></em> <em class="replaceable"><code>help</code></em> . <em class="replaceable"><code>real-binding</code></em>)
+</pre><p><em class="replaceable"><code>help</code></em>は、マウスがそのアイテム上にあるときに、<code class="literal">help-echo</code>テキストプロパティ(<a class="link" href="ch32s19.html#Help-display">Help
+display</a>を参照)と同じ方法で表示される“help-echo”文字列を指定します。
+</p><p><code class="literal">define-key</code>に関する限り、<em class="replaceable"><code>item-string</code></em>と<em class="replaceable"><code>help-string</code></em>は、そのイベントのバインディングの一部です。しかし、<code class="literal">lookup-key</code>は単に<em class="replaceable"><code>real-binding</code></em>だけをリターンし、そのキーの実行には<em class="replaceable"><code>real-binding</code></em>だけが使用されます。
+</p><p><em class="replaceable"><code>real-binding</code></em>が<code class="literal">nil</code>の場合、メニューに<em class="replaceable"><code>item-string</code></em>は表示されまづが、選択できなくなります。
+</p><p><em class="replaceable"><code>real-binding</code></em>がシンボルで、<code class="literal">menu-enable</code>プロパティが非<code class="literal">nil</code>の場合、そのプロパティはメニューアイテムが有効か無効かを制御する式です。メニュー表示にキーマップが使用されるたびに、Emacsはその式を評価して、式の値が非<code class="literal">nil</code>の場合だけ、そのメニューのメニューアイテムを有効にします。メニューアイテム無効なとき、そのアイテムは“fuzzy”形式で表示され、選択できなくなります。
+</p><p>メニューバーはメニューを調べる際に、どのアイテムが有効なのか再計算しません。これは、Xツールキットが事前にメニュー全体を要求するからです。メニューバーの再計算を強制するには、<code class="literal">force-mode-line-update</code>を呼び出してください(<a class="link" href="ch23s04.html" title="Mode Line Format">Mode
+Line Format</a>を参照)。
+</p></div><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="Extended-Menu-Items"/>Extended Menu Items</h3></div></div></div><a id="idm62330064" class="indexterm"/><a id="idm62329296" class="indexterm"/><p>メニューアイテムの拡張フォーマットは、単純なフォーマットに比べて、より柔軟かつ明快です。拡張フォーマットでは、メニューアイテムにバインドのイベント型に、シンボル<code class="literal">menu-item</code>で始まるシンボルのリストを指定します。選択できない文字列にたいしては、以下のようなバインディングになります:
+</p><pre class="screen">(menu-item <em class="replaceable"><code>item-name</code></em>)
+</pre><p>2つ以上のダッシュで始まる文字列は、リストのセパレーターを指定します。<a class="link" href="ch22s17.html#Menu-Separators" title="Menu Separators">Menu Separators</a>を参照してください。
+</p><p>選択可能な実際のメニューアイテムを定義するには、以下のような拡張フォーマットでバインドします:
+</p><pre class="screen">(menu-item <em class="replaceable"><code>item-name</code></em> <em class="replaceable"><code>real-binding</code></em>
+    . <em class="replaceable"><code>item-property-list</code></em>)
+</pre><p>ここで、<em class="replaceable"><code>item-name</code></em>はメニューアイテム文字列を評価する式です。つまり、文字列は底数である必要はありません。3つ目の引数<em class="replaceable"><code>real-binding</code></em>は、実行するコマンドです。リストの最後の要素<em class="replaceable"><code>item-property-list</code></em>は、プロパティリストの形式をもつ、その他の情報を含みます。
+</p><p>以下は、サポートされるプロパティのテーブルです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">:enable <em class="replaceable"><code>form</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>form</code></em>の評価結果は、そのアイテムを有効にするかどうかを決定する(非<code class="literal">nil</code>の場合は有効)。アイテムが無効な場合は、実際にクリックできない。
+</p></dd><dt><span class="term"><code class="literal">:visible <em class="replaceable"><code>form</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>form</code></em>の評価結果は、そのアイテムを実際にメニューに表示するかどうかを決定する(非<code class="literal">nil</code>の場合は表示)。アイテムが非表示の場合は、そのアイテムが定義されていないかのようにメニューが表示される。
+</p></dd><dt><span class="term"><code class="literal">:help <em class="replaceable"><code>help</code></em></code>
+</span></dt><dd><p>このプロパティ<em class="replaceable"><code>help</code></em>の値は、そのアイテム上にマウスがある間表示する“help-echo”文字列を指定する。この文字列は、<code class="literal">help-echo</code>テキストプロパティ(<a class="link" href="ch32s19.html#Help-display">Help
+display</a>を参照)と同じ方法で表示される。これは、テキストやoverlayにたいする<code class="literal">help-echo</code>プロパティと異なり、文字列定数でなければならないことに注意されたい。
+</p></dd><dt><span class="term"><code class="literal">:button (<em class="replaceable"><code>type</code></em> . <em class="replaceable"><code>selected</code></em>)</code>
+</span></dt><dd><p>このプロパティは、ラジオボタンおよびトグルボタンを定義する手段を提供する。CARの<em class="replaceable"><code>type</code></em>は、<code class="literal">:toggle</code>か<code class="literal">:radio</code>のいずれかを指定する。CDRの<em class="replaceable"><code>selected</code></em>はフォームで、評価結果によりそのボタンがカレントで選択されているかどうかを指定する。
+</p><p><em class="firstterm">トグル(toggle)</em>は、<em class="replaceable"><code>selected</code></em>の値に応じて“on”か“off”のいずれかがラベルされるメニューアイテムである。コマンド自身は、<em class="replaceable"><code>selected</code></em>が<code class="literal">nil</code>なら<code class="literal">t</code>に、<code class="literal">t</code>なら<code class="literal">nil</code>に<em class="replaceable"><code>selected</code></em>を切り替える(toggle)こと。以下は、<code class="literal">debug-on-error</code>フラグが定義されているときに、メニューアイテムをトグルする方法の例である:
+</p><pre class="screen">(menu-item "Debug on Error" toggle-debug-on-error
+           :button (:toggle
+                    . (and (boundp 'debug-on-error)
+                           debug-on-error)))
+</pre><p>これは、<code class="literal">toggle-debug-on-error</code>が変数<code class="literal">debug-on-error</code>をトグルするコマンドとして定義されていることにより機能する。
+</p><p><em class="firstterm">ラジオボタン</em>とは、メニューアイテムのグループであり、常にただ1つのメニューアイテムだけが“選択される(selected)”。そのためには、どのメニューアイテムが選択されているかを示す変数が存在する必要がある。グループ内の各ラジオボタンにたいする<em class="replaceable"><code>selected</code></em>フォームは、そのボタンを選択するために、その変数が正しい値をもつかどうかをチェックする。そして、ボタンのクリックにより変数をセットして、クリックされたボタンが選択される。
+</p></dd><dt><span class="term"><code class="literal">:key-sequence <em class="replaceable"><code>key-sequence</code></em></code>
+</span></dt><dd><p>このプロパティは、そのメニューアイテムにより呼び出されるのと同じコマンドにバインドされるかもしれないキーシーケンスを指定する。正しいキーシーケンスを指定した場合は、メニュー表示の準備がより高速になる。
+</p><p>間違ったキーシーケンスを指定した場合は、何の効果もない。Emacsは、メニュー内の<em class="replaceable"><code>key-sequence</code></em>を表示する前に、実際にその<em class="replaceable"><code>key-sequence</code></em>がそのメニューアイテムと等価なのか検証する。
+</p></dd><dt><span class="term"><code class="literal">:key-sequence nil</code>
+</span></dt><dd><p>このプロパティは、そのメニューアイテムには等価なキーバインディングが通常は存在しないことを示す。このプロパティを使用することにより、Emacsはそのメニューアイテムにたいして等価なキーボード入力をキーマップから検索する必要がなくなるので、メニュー表示の準備時間が短縮される。
+</p><p>しかし、ユーザーがそのアイテムの定義をキーシーケンスにリバインドした場合、Emacsは<code class="literal">:keys</code>プロパティを無視して、結局は等価なキーボード入力を見つけ出す。
+</p></dd><dt><span class="term"><code class="literal">:keys <em class="replaceable"><code>string</code></em></code>
+</span></dt><dd><p>このプロパティは、そのメニューにたいする等価なキーボード入力として表示される文字列<em class="replaceable"><code>string</code></em>を指定する。<em class="replaceable"><code>string</code></em>内では、ドキュメント構成‘<code class="literal">\\[...]</code>’を使用できる。
+</p></dd><dt><span class="term"><code class="literal">:filter <em class="replaceable"><code>filter-fn</code></em></code>
+</span></dt><dd><p>このプロパティは、メニューアイテムを直接計算する手段を提供する。このプロパティの値<em class="replaceable"><code>filter-fn</code></em>は、引数が1つの関数で、呼び出し時の引数は<em class="replaceable"><code>real-binding</code></em>である。この関数は、かわりに使用するバインディングをリターンするべきである。
+</p><p>Emacsは、メニューデータ構造を再表示、または操作する任意のタイミングでこの関数を呼び出し得るので、いつ呼び出されても安全なように関数を記述すべきである。
+</p></dd></dl></div></div><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="Menu-Separators"/>Menu Separators</h3></div></div></div><a id="idm62286160" class="indexterm"/><p>メニューセパレーターは、テキストを表示するかわりに、水平ラインでメニューをサブパーツに分割する、メニューアイテムの一種です。メニューキーマップ内で、セパレーターは以下のように見えます:
+</p><pre class="screen">(menu-item <em class="replaceable"><code>separator-type</code></em>)
+</pre><p>ここで、<em class="replaceable"><code>separator-type</code></em>は2つ以上のダッシュで始まる文字列です。
+</p><p>もっとも単純なケースでは、ダッシュだけで<em class="replaceable"><code>separator-type</code></em>が構成されます。これはデフォルトのセパレーターを指定します(互換性のため、<code class="literal">""</code>と<code class="literal">-</code>もセパレーターとみなされる)。
+</p><p><em class="replaceable"><code>separator-type</code></em>にたいする他の特定の値は、異なるスタイルのセパレーターを指定します。以下はそれらのテーブルです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">"--no-line"</code>
+, </span><span class="term"><code class="literal">"--space"</code>
+</span></dt><dd><p>実際のラインではない、余分な垂直スペース。
+</p></dd><dt><span class="term"><code class="literal">"--single-line"</code>
+</span></dt><dd><p>メニューのforegroundカラーの一重ライン。
+</p></dd><dt><span class="term"><code class="literal">"--double-line"</code>
+</span></dt><dd><p>メニューのforegroundカラーの二重ライン。
+</p></dd><dt><span class="term"><code class="literal">"--single-dashed-line"</code>
+</span></dt><dd><p>メニューのforegroundカラーの一重ダッシュライン。
+</p></dd><dt><span class="term"><code class="literal">"--double-dashed-line"</code>
+</span></dt><dd><p>メニューのforegroundカラーの二重ダッシュライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-etched-in"</code>
+</span></dt><dd><p>3Dの窪んだ外観(3D sunken appearance)をもつ一重ライン。これはダッシュだけで構成されるセパレーターに使用されるデフォルトである。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-etched-out"</code>
+</span></dt><dd><p>3Dの浮き上がった外観(3D raised appearance)をもつ一重ライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-etched-in-dash"</code>
+</span></dt><dd><p>3Dの窪んだ外観(3D sunken appearance)をもつ一重ダッシュライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-etched-out-dash"</code>
+</span></dt><dd><p>3Dの浮き上がった外観(3D raised appearance)をもつ一重ダッシュライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-double-etched-in"</code>
+</span></dt><dd><p>3Dの窪んだ外観をもつ二重ライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-double-etched-out"</code>
+</span></dt><dd><p>3Dの浮き上がった外観をもつ二重ライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-double-etched-in-dash"</code>
+</span></dt><dd><p>3Dの窪んだ外観をもつ二重ダッシュライン。
+</p></dd><dt><span class="term"><code class="literal">"--shadow-double-etched-out-dash"</code>
+</span></dt><dd><p>3Dの浮き上がった外観をもつ二重ダッシュライン。
+</p></dd></dl></div><p>2連ダッシュの後にコロンを追加して、1連ダッシュの後の単語の先頭の文字を大文字にすることにより、別のスタイルで名前を与えることもできます。つまり、<code class="literal">"--:singleLine"</code>は<code class="literal">"--single-line"</code>と等価です。
+</p><p>メニューセパレーターにたいして<code class="literal">:enable</code>や<code class="literal">:visible</code>のようなキーワードを指定するために、長い形式を使用できます。
+</p><p><code class="literal">(menu-item <em class="replaceable"><code>separator-type</code></em> nil . <em class="replaceable"><code>item-property-list</code></em>)</code>
+</p><p>たとえば:
+</p><pre class="screen">(menu-item "--" nil :visible (boundp 'foo))
+</pre><p>いくつかのシステムおよびディスプレイツールキットは、これらすべてのセパレータータイプを実際に処理しません。サポートされないタイプのセパレーターを使用した場合、メニューはサポートされている似た種別のセパレーターを表示します。
+</p></div><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="Alias-Menu-Items"/>Alias Menu Items</h3></div></div></div><p>“同じ”コマンドを使用するが、有効条件が異なるメニューアイテムを作成すると便利な場合が時折あります。Emacsでこれを行う最善の方法は、拡張メニューアイテム(extended
+menu
+item)です。この機能が存在する以前は、エイリアスコマンドを定義して、それらをメニューアイテムで使用することによりこれを行っていました。以下は、<code class="literal">read-only-mode</code>にたいする2つのエイリアスを作成して、それらに異なる有効条件を与える例です:
+</p><pre class="screen">(defalias 'make-read-only 'read-only-mode)
+(put 'make-read-only 'menu-enable '(not buffer-read-only))
+(defalias 'make-writable 'read-only-mode)
+(put 'make-writable 'menu-enable 'buffer-read-only)
+</pre><p>メニュー内でエイリアスを使用するときは、エイリアスではなく“実際”のコマンド名にたいする等価なキーバインディングを表示するのが便利な場合が多々あります(エイリアスはメニュー自身を除きキーバインディングを通常はもたない)。これを要求するには、エイリアスシンボルに<code class="literal">menu-alias</code>プロパティに非<code class="literal">nil</code>を与えます。したがって、
+</p><pre class="screen">(put 'make-read-only 'menu-alias t)
+(put 'make-writable 'menu-alias t)
+</pre><p>は、<code class="literal">make-read-only</code>と<code class="literal">make-writable</code>にたいするメニューアイテムに、<code class="literal">read-only-mode</code>のキーバインディングを表示します。
+</p></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Mouse-Menus"/>Menus and the Mouse</h2></div></div></div><p>メニューキーマップがメニューを生成する通常の方法は、それをプレフィクスキーの定義とすることです。(Lispプログラムは明示的にメニューをポップアップして、ユーザーの選択を受け取ることができる。<a class="link" href="ch29s15.html" title="Pop-Up Menus">Pop-Up
+Menus</a>を参照のこと。)
+</p><p>プレフィクスキーがマウスイベントで終わる場合、ユーザーがマウスで選択できるように、Emacsは可視なメニューをポップアップすることによりメニューキーマップを処理します。ユーザーがメニューアイテムをクリックしたときは、そのメニューアイテムによりもたらされるバインディングの文字、またはシンボルが何であれ、イベントが生成されます(メニューが複数レベルをもつ場合やメニューバー由来の場合、メニューアイテムは1連のイベントを生成するかもしれない)。
+</p><p>メニューのトリガーにbutton-downイベントを使用するのが最善な場合もしばしばあります。その場合、ユーザーはマウスボタンをリリースすることにより、メニューアイテムを選択できます。
+</p><a id="idm62236240" class="indexterm"/><p>メニューキーマップがネストされたキーマップにたいするバインディングを含む場合、そのネストされたキーマップは<em class="firstterm">サブメニュー(submenu)</em>を指定します。それにはネストされたキーマップのアイテム文字列によりラベル付けされたメニューアイテムがあり、そのアイテムをクリックすることにより、指定されたサブメニューが自動的にポップアップされます。特別な例外として、メニューキーマップが単一のネストされたキーマップを含み、それ以外のメニューアイテムを含まない場合、そのメニューはネストされたキーマップの内容を、サブメニューとしてではなく、直接メニューに表示します。
+</p><p>しかし、XツールキットのサポートなしでEmacsをコンパイルした場合、またはテキスト端末の場合、サブメニューはサポートされません。ネストされたキーマップはメニューアイテムとして表示されますが、それをクリックしても、サブメニューは自動的にポップアップされません。サブメニューの効果を模倣したい場合は、ネストされたキーマップに‘<code class="literal">@</code>’で始まるアイテム文字列を与えることにより、これを行うことができます。これにより、Emacsは別個の<em class="firstterm">メニューペイン(menu
+pane)</em>を使用してネストされたキーマップを表示します。‘<code class="literal">@</code>’の後の残りのアイテム文字列は、そのペインのラベルです。XツールキットのサポートなしでEmacsをコンパイルした場合、またはメニューがテキスト端末で表示されている場合、メニューペインは使用されません。この場合、アイテム文字列の先頭の‘<code class="literal">@</code>’は、メニューラベル表示時には省略され、他に効果はありません。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Keyboard-Menus"/>Menus and the Keyboard</h2></div></div></div><p>キーボードイベント(文字かファンクションキー)で終わるプレフィクスキーがメニューキーマップであるような定義をもつとき、そのキーマップはキーボードメニューのように動作します。ユーザーは、キーボードでメニューアイテムを選択して、次のイベントを指定します。
+</p><p>Emacsは、エコーエリアにキーボードメニュー、そのマップのoverallプロンプト文字列、その後に候補(そのマップのバインディングのアイテム文字列)を表示します。そのバインディングを一度に全部表示できない場合、ユーザーは<span class="keycap"><strong>SPC</strong></span>をタイプして、候補の次の行を確認できます。連続して<span class="keycap"><strong>SPC</strong></span>を使用するとメニューの最後に達し、その後は先頭へ巡回します。(変数<code class="literal">menu-prompt-more-char</code>はこのために使用する文字を指定する。デフォルトは<span class="keycap"><strong>SPC</strong></span>。)
+</p><p>ユーザーがメニューから望ましい候補を見つけたら、バインディングがその候補であるような、対応する文字をタイプする必要があります。
+</p><pre class="synopsis"><a id="idm62227920" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">menu-prompt-more-char</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、メニューの次の行を確認するために使用する文字を指定する。初期値は32で、これは<span class="keycap"><strong>SPC</strong></span>のコードである。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Menu-Example"/>Menu Example</h2></div></div></div><a id="idm62223952" class="indexterm"/><p>以下は、メニューキーマップを定義する、完全な例です。これは、メニューバー内の‘<code class="literal">Edit</code>’メニューにサブメニュー‘<code class="literal">Replace</code>’を定義して、その定義内で拡張メニューフォーマット(<a class="link" href="ch22s17.html#Extended-Menu-Items" title="Extended Menu Items">Extended
+Menu Items</a>を参照)を使用します。例ではまずキーマップを作成して、それに名前をつけます:
+</p><pre class="screen">(defvar menu-bar-replace-menu (make-sparse-keymap "Replace"))
+</pre><p>次にメニューアイテムを定義します:
+</p><pre class="screen">(define-key menu-bar-replace-menu [tags-repl-continue]
+  '(menu-item "Continue Replace" tags-loop-continue
+              :help "Continue last tags replace operation"))
+(define-key menu-bar-replace-menu [tags-repl]
+  '(menu-item "Replace in tagged files" tags-query-replace
+              :help "Interactively replace a regexp in all tagged files"))
+(define-key menu-bar-replace-menu [separator-replace-tags]
+  '(menu-item "--"))
+;; …
+</pre><p>バインディングがそのシンボルのために“作成された”ことに注意してください。これらのシンボルは、定義されるキーシーケンス内の角カッコ内に記述されます。このシンボルはコマンド名と同じときもあれば、異なることもあります。これらのシンボルは“ファンクションキー”として扱われますが、これらはキーボード上の実際のファンクションキーではありません。これらはメニュー自体の機能に影響しませんが、ユーザーがメニューから選択したときにエコーエリアに“エコー”され、<code class="literal">where-is</code>と<code class="literal">apropos</code>の出力に現れます。
+</p><p>この例のメニューは、マウスによる使用を意図しています。もしキーボードの使用を意図したメニュー、つまりキーボードイベントで終了するキーシーケンスにバインドされたメニューの場合、メニューアイテムはキーボードでタイプできる文字、または“実際”のファンクションキーにバインドされるべきです。
+</p><p>定義が<code class="literal">("--")</code>のバインディングは、セパレーターラインです。実際のメニューアイテムと同様、セパレーターはキーシンボルをもち、この例では<code class="literal">separator-replace-tags</code>です。1つのメニューが2つのセパレーターをもつ場合、それらは2つの異なるキーシンボルをもたなければなりません。
+</p><p>以下では、親メニュー内のアイテムとしてこのメニューがどのように表示されるかを記述しています:
+</p><pre class="screen">(define-key menu-bar-edit-menu [replace]
+  (list 'menu-item "Replace" menu-bar-replace-menu))
+</pre><p>これは、シンボル<code class="literal">menu-bar-replace-menu</code>自体ではなく、変数<code class="literal">menu-bar-replace-menu</code>の値であるサブメニューキーマップを組み込むことに注意してください。<code class="literal">menu-bar-replace-menu</code>はコマンドではないので、親メニューアイテムにそのシンボルを使用するのは無意味です。
+</p><p>同じreplaceメニューをマウスクリックに割り当てたい場合は、以下のようにこれを行うことができます:
+</p><pre class="screen">(define-key global-map [C-S-down-mouse-1]
+   menu-bar-replace-menu)
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Menu-Bar"/>The Menu Bar</h2></div></div></div><a id="idm62199376" class="indexterm"/><p>Emacsは通常、各フレームの最上部に<em class="firstterm">メニューバー(menu bar)</em>を表示します。section “Menu Bars” in <em class="citetitle">The
+GNU Emacs
+Manual</em>を参照してください。メニューバーのアイテムは、アクティブキーマップ内で定義される偽りの“ファンクションキー”<code class="literal">menu-bar</code>のサブコマンドです。
+</p><p>メニューバーにアイテムを追加するには、自分で偽りの“ファンクションキー”(これを<em class="replaceable"><code>key</code></em>と呼ぶことにしましょう)を創作して、キーシーケンス<code class="literal">[menu-bar
+<em class="replaceable"><code>key</code></em>]</code>にたいするキーバインディングを作成します。ほとんどの場合において、そのバインディングはメニューキーマップなので、メニューバーアイテム上でボタンを押下すると、他のメニューに導かれます。
+</p><p>メニューバーにたいして同じ“ファンクションキー”を定義するアクティブなキーマップが1つ以上存在するとき、そのアイテムは1回だけ出現します。ユーザーがメニューバーのそのアイテムをクリックした場合、そのアイテムのすべてのサブコマンド—
+グローバルサブコマンド、ローカルサブコマンド、マイナーモードサブコマンドが組み合わされた単一のメニューを表示します。
+</p><p>変数<code class="literal">overriding-local-map</code>は通常、メニューバーのコンテンツを決定する際は無視されます。つまり、メニューバーは<code class="literal">overriding-local-map</code>が<code class="literal">nil</code>の場合にアクティブになるであろうキーマップから計算されます。<a class="link" href="ch22s07.html" title="Active Keymaps">Active
+Keymaps</a>を参照してください。
+</p><p>以下は、メニューバーのアイテムをセットアップする例です:
+</p><pre class="screen">;; (プロンプト文字列とともに)メニューキーマップを作成して
+;; それをメニューバーアイテムの定義にする
+(define-key global-map [menu-bar words]
+  (cons "Words" (make-sparse-keymap "Words")))
+</pre><pre class="screen">
+</pre><pre class="screen">;; メニュー内に具体的なサブコマンドを定義する
+(define-key global-map
+  [menu-bar words forward]
+  '("Forward word" . forward-word))
+</pre><pre class="screen">(define-key global-map
+  [menu-bar words backward]
+  '("Backward word" . backward-word))
+</pre><p>ローカルキーマップは、グローバルキーマップにより作成されたメニューバーアイテムにたいして、同じ偽ファンクションキーを<code class="literal">undefined</code>にリバインドしてキャンセルすることができます。たとえば、以下はDiredが‘<code class="literal">Edit</code>’メニューバーアイテムを抑制する方法です:
+</p><pre class="screen">(define-key dired-mode-map [menu-bar edit] 'undefined)
+</pre><p>ここで、<code class="literal">edit</code>は‘<code class="literal">Edit</code>’メニューバーアイテムにたいしてグローバルキーマップにより使用される偽ファンクションキーです。グローバルメニューバーアイテムを抑制する主な理由は、モード特有のアイテムのためのスペースを確保するためです。
+</p><pre class="synopsis"><a id="idm62186448" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">menu-bar-final-items</code></pre><div class="blockquote"><blockquote class="blockquote"><p>通常メニューバーナーグローバルアイテムの後にローカルマップにより定義されるアイテムを表示する。
+</p><p>この変数は、通常の順番による位置ではなく、メニューの最後に表示するアイテムのための偽ファンクションキーのリストを保持する。デフォルト値は<code class="literal">(help-menu)</code>である。したがって、‘<code class="literal">Help</code>’メニューアイテムはメニューバーの最後、ローカルメニューアイテムの後に表示される。
+</p></blockquote></div><pre class="synopsis"><a id="idm62182352" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">menu-bar-update-hook</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このノーマルフックは、メニューバーの再表示の前に、メニューバーのコンテンツを更新するための再表示により実行される。コンテンツを変化させる必要があるメニューの更新に使用できる。このフックは頻繁に実行されるので、フックが呼び出す関数は、通常の場合は長い時間を要さないことを確実にするよう助言する。
+</p></blockquote></div><p>Emacsは、すべてのメニューバーアイテムの隣に、(もしそのようなキーバインディングが存在するなら)同じコマンドを実行するキーバインディングを表示します。これは、キーバインディングを知らないユーザーにたいして便利なヒントを与える役目をもちます。コマンドが複数のバインディングをもつ場合、通常Emacsは最初に見つけたバインディングを表示します。コマンドのシンボルプロパティ<code class="literal">:advertised-binding</code>に割り当てることにより、特定のキーバインディングを指定できます。<a class="link" href="ch24s03.html" title="Substituting Key Bindings in Documentation">Keys
+in Documentation</a>を参照してください。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Tool-Bar"/>Tool bars</h2></div></div></div><a id="idm62173392" class="indexterm"/><p><em class="firstterm">ツールバー(tool bar)</em>とは、フレームの最上部、メニューバー直下にある、クリック可能なアイコンの行のことです。section “Tool
+Bars” in <em class="citetitle">The GNU Emacs
+Manual</em>を参照してください。Emacsは通常、グラフィカルなディスプレイ上でツールバーを表示します。
+</p><p>各フレームでは、ツールバーに何行分の高さを割り当てるかを、フレームパラメーター<code class="literal">tool-bar-lines</code>が制御します。値0は、ツールバーを抑制します。値が非0で、<code class="literal">auto-resize-tool-bars</code>が非<code class="literal">nil</code>の場合、指定されたコンテンツを維持するのに必要な分、ツールバーは拡大縮小されます。値が<code class="literal">grow-only</code>の場合、ツールバーは自動的に拡大されますが、自動的に縮小はされません。
+</p><p>ツールバーのコンテンツは、(メニューバーが制御されるのと似た方法により)<code class="literal">tool-bar</code>と呼ばれる偽りの“ファンクションキー”に割り当てられたメニューキーマップにより制御されます。したがって、以下のように<code class="literal">define-key</code>を使用して、ツールバーアイテムを定義します。
+</p><pre class="screen">(define-key global-map [tool-bar <em class="replaceable"><code>key</code></em>] <em class="replaceable"><code>item</code></em>)
+</pre><p>ここで<em class="replaceable"><code>key</code></em>は、そのアイテムを他のアイテムと区別する偽“ファンクションキー”で、<em class="replaceable"><code>item</code></em>はそのアイテムを表示する方法とアイテムの振る舞いを示すメニューアイテムキーバインディングです(<a class="link" href="ch22s17.html#Extended-Menu-Items" title="Extended Menu Items">Extended
+Menu Items</a>を参照)。
+</p><p>メニューキーマップの通常のプロパティ<code class="literal">:visible</code>、<code class="literal">:enable</code>、<code class="literal">:button</code>、<code class="literal">:filter</code>はツールバーバインディングでも役に立ち、いずれのプロパティも通常通りの意味をもちます。アイテム内の<em class="replaceable"><code>real-binding</code></em>は、キーマップではなくコマンドでなければなりません。別の言い方をすると、これはツールバーアイコンをプレフィクスキーとして定義するようには機能しないということです。
+</p><p><code class="literal">:help</code>プロパティは、そのアイテム上にマウスがある間表示する、“help-echo”文字列を指定します。これは、テキストプロパティ<code class="literal">help-echo</code>と同じ方法で表示されます(<a class="link" href="ch32s19.html#Help-display">Help
+display</a>を参照)。
+</p><p>これらに加えて、<code class="literal">:image</code>プロパティも使用するべきでしょう。これは、ツールバー内にイメージを表示するには、このプロパティを使用します。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">:image <em class="replaceable"><code>image</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>images</code></em>は単一イメージ様式(single image specification)、または4ベクターイメージ様式(vector of
+four image specifications)で指定する。4ベクターを使用する場合、状況に応じてそれらのうち1つが使用される:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">item 0
+</span></dt><dd><p>アイテムが有効かつ選択されているとき使用される。
+</p></dd><dt><span class="term">item 1
+</span></dt><dd><p>アイテムが有効かつ未選択のとき使用される。
+</p></dd><dt><span class="term">item 2
+</span></dt><dd><p>アイテムが無効かつ選択されているとき使用される。
+</p></dd><dt><span class="term">item 3
+</span></dt><dd><p>アイテムが無効かつ未選択のとき使用される。
+</p></dd></dl></div></dd></dl></div><p>GTK+およびNSバージョンのEmacsは、無効、および/または未選択のイメージをitem0から自動的に計算するので、item1からitem3は無視されます。
+</p><p><em class="replaceable"><code>image</code></em>が単一イメージ様式の場合、Emacsはそのイメージにエッジ検出アルゴリズム(edge-detection
+algorithm)を適用することにより、ツールバーの無効な状態のボタンを描画します。
+</p><p><code class="literal">:rtl</code>プロパティには、右から左に記述する言語のためのイメージ候補を指定します。現在のところ、これをサポートするのはGTK+バージョンのEmacsだけです。
+</p><p>メニューバーと同様、ツールバーはセパレーター(<a class="link" href="ch22s17.html#Menu-Separators" title="Menu Separators">Menu
+Separators</a>を参照)を表示できます。ツールバーのセパレーターは水平ラインではなく垂直ラインであり、1つのスタイルだけがサポートされます。これらは、ツールバーキーマップ内では<code class="literal">(menu-item
+"--")</code>エントリーで表されます。ツールバーのセパレーターでは、<code class="literal">:visible</code>のようなプロパティはサポートされません。GTK+とNextstepのツールバーでは、セパレーターはネイティブに描画されます。それ以外では、セパレーターは垂直ラインイメージを使用して描画されます。
+</p><p>デフォルトツールバーは、コマンドシンボルの<code class="literal">mode-class</code>プロパティに<code class="literal">special</code>をもつメジャーモードにたいしては、編集に特化したアイテムは表示されないよう定義されています(<a class="link" href="ch23s02.html#Major-Mode-Conventions" title="Major Mode Conventions">Major
+Mode Conventions</a>を参照)。メジャーモードは、ローカルマップ内でバインディング<code class="literal">[tool-bar
+<em class="replaceable"><code>foo</code></em>]</code>によって、グローバルバーにアイテムを追加するかもしれません。デフォルトツールバーの多くを適宜流用するのができないかもしれないため、デフォルトツールバーを完全に置き換えることは、いくつかのメジャーモードにとっては意味があります。デフォルトバインディングで<code class="literal">tool-bar-map</code>を通じてインダイレクトすることにより、これを簡単に行うことができます。
+</p><pre class="synopsis"><a id="idm62134352" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">tool-bar-map</code></pre><div class="blockquote"><blockquote class="blockquote"><p>デフォルトでは、グローバルマップは<code class="literal">[tool-bar]</code>を以下のようにバインドする:
+</p><pre class="screen">(global-set-key [tool-bar]
+                `(menu-item ,(purecopy "tool bar") ignore
+                            :filter tool-bar-make-keymap))
+</pre><p>関数<code class="literal">tool-bar-make-keymap</code>は、変数<code class="literal">tool-bar-map</code>の値より、順に実際のツールバーマップをダイナミックに継承する。したがって、通常はそのマップを変更することにより、デフォルト(グローバル)ツールバーを調整すべきである。Infoモードのようないくつかのメジャーモードは、<code class="literal">tool-bar-map</code>をバッファーローカルにして、それに異なるキーマップをセットすることにより、グローバルツールバーを完全に置き換える。
+</p></blockquote></div><p>以下のような、ツールバーアイテムを定義するのに便利な関数があります。
+</p><pre class="synopsis"><a id="idm62128336" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">tool-bar-add-item</code> <em class="replaceable"><code>icon</code></em> <em class="replaceable"><code>def</code></em> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>props</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">tool-bar-map</code>を変更することにより、ツールバーにアイテムを追加する。使用するイメージは<em class="replaceable"><code>icon</code></em>により定義され、これは<code class="literal">find-image</code>に配置されたXPM、XBM、PBMのイメージファイルの拡張子を除いたファイル名(basename)である。たとえばカラーディスプレイ上では、値に‘<code class="literal">"exit"</code>’を与えると<code class="filename">exit.xpm</code>、<code class="filename">exit.pbm</code>、<code class="filename">exit.xbm</code>の順に検索されるだろう。モノクロディスプレイでは、検索は‘<code class="literal">.pbm</code>’、‘<code class="literal">.xbm</code>’、‘<code class="literal">.xpm</code>’の順になる。使用するバインディングはコマンド<em class="replaceable"><code>def</code></em>で、<em class="replaceable"><code>key</code></em>はプレフィクスキーマップ内の偽ファンクションキーである。残りの引数<em class="replaceable"><code>props</code></em>は、メニューアイテム仕様に追加する、追加のプロパティリスト要素である。
+</p><p>あるローカルマップ内にアイテムを定義するためには、この関数呼び出しの周囲の<code class="literal">let</code>で<code class="literal">tool-bar-map</code>をバインドする:
+</p><pre class="screen">(defvar foo-tool-bar-map
+  (let ((tool-bar-map (make-sparse-keymap)))
+    (tool-bar-add-item …)
+    …
+    tool-bar-map))
+</pre></blockquote></div><pre class="synopsis"><a id="idm62115664" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">tool-bar-add-item-from-menu</code> <em class="replaceable"><code>command</code></em> <em class="replaceable"><code>icon</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>map</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>props</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、既存のメニューバインディングと矛盾しないツールバーアイテムの定義に有用である。<em class="replaceable"><code>command</code></em>のバインディングは<em class="replaceable"><code>map</code></em>(デフォルトは<code class="literal">global-map</code>)内よりルックアップ(lookup:
+照合)され、<em class="replaceable"><code>icon</code></em>にたいするイメージ仕様は<code class="literal">tool-bar-add-item</code>と同じ方法で見つけ出される。結果のバインディングは<code class="literal">tool-bar-map</code>に配されるので、この関数の使用はグローバルツールバーアイテムに限定される。
+</p><p><em class="replaceable"><code>map</code></em>には、<code class="literal">[menu-bar]</code>にバインドされた適切なキーマップが含まれていなければならない。残りの引数<em class="replaceable"><code>props</code></em>は、メニューアイテム仕様に追加する、追加のプロパティリスト要素である。
+</p></blockquote></div><pre class="synopsis"><a id="idm62106192" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">tool-bar-local-item-from-menu</code> <em class="replaceable"><code>command</code></em> <em class="replaceable"><code>icon</code></em> <em class="replaceable"><code>in-map</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>from-map</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>props</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、非グローバルツールバーアイテムの作成に使用される。<em class="replaceable"><code>in-map</code></em>に定義を作成するローカルマップを指定する以外は、<code class="literal">tool-bar-add-item-from-menu</code>と同じように使用する。引数<em class="replaceable"><code>from-map</code></em>は、<code class="literal">tool-bar-add-item-from-menu</code>の<em class="replaceable"><code>map</code></em>と同様である。
+</p></blockquote></div><pre class="synopsis"><a id="idm62098512" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">auto-resize-tool-bars</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、定義されたすべてのツールバーアイテムを表示するために、ツールバーは自動的にリサイズ —
+ただし、そのフレーム高さの1/4を超えてリサイズされることはない。
+</p><p>値が<code class="literal">grow-only</code>の場合、ツールバーは自動的に拡張されるが、自動的に縮小はされない。ツールバーを縮小するために、ユーザーは<strong class="userinput"><code>C-l</code></strong>をエンターしてフレームを再描画する必要がある。
+</p><p>GTK、またはNextstepとともにEmacsがビルドされた場合、ツールバーが表示できるのは1行だけであり、この変数は効果がない。
+</p></blockquote></div><pre class="synopsis"><a id="idm62093520" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">auto-raise-tool-bar-buttons</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、ツールバーアイテムの上をマウスが通過したとき、浮き上がった形式(raised form)で表示される。
+</p></blockquote></div><pre class="synopsis"><a id="idm62090320" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">tool-bar-button-margin</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、ツールバーアイテムの周囲に追加する余白(extra margin)を指定する。値はピクセル数を整数で指定し、デフォルトは4である。
+</p></blockquote></div><pre class="synopsis"><a id="idm62083536" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">tool-bar-button-relief</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、ツールバーアイテムの影(shadow)を指定する。値はピクセル数を整数で指定し、デフォルトは1である。
+</p></blockquote></div><pre class="synopsis"><a id="idm62080848" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">tool-bar-border</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、ツールバーエリアの下に描画するボーダー高さを指定する。値が整数の場合は、高さのピクセル数である。値が<code class="literal">internal-border-width</code>(デフォルト)か<code class="literal">border-width</code>のいずれの場合、ツールバーのボーダー高さは、そのフレームの対応するパラメーターとなる。
+</p></blockquote></div><p>シフト、メタ等の修飾キーを押下した状態でのツールバーアイテムのクリックにたいして、特別な意味を付与できます。偽りのファンクションキーを通じて、元のアイテムに関連する追加アイテムをセットアップすることにより、これを行うことができます。より具体的には、追加アイテムは、元のアイテムの命名に使用されたのと同じ偽ファンクションキーの修飾されたバージョンを使用するべきです。
+</p><p>つまり、元のアイテムが以下のように定義されている場合、
+</p><pre class="screen">(define-key global-map [tool-bar shell]
+  '(menu-item "Shell" shell
+              :image (image :type xpm :file "shell.xpm")))
+</pre><p>シフト修飾とともに同じツールバーイメージをクリックしたときは、以下のような方法で定義することができます:
+</p><pre class="screen">(define-key global-map [tool-bar S-shell] 'some-command)
+</pre><p>ファンクションキーにたいして修飾を追加する方法についての詳細な情報は、<a class="link" href="ch21s07.html#Function-Keys" title="Function Keys">Function Keys</a>を参照してください。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Modifying-Menus"/>Modifying Menus</h2></div></div></div><a id="idm62073296" class="indexterm"/><p>既存のメニューに新たなアイテムを挿入するときは、そのメニューの既存のアイテムの中の特定の位置にアイテムを追加したいと思うかもしれません。<code class="literal">define-key</code>を使用してアイテムを追加した場合は通常、そのアイテムはメニューの先頭に追加されます。メニュー内の他の位置にアイテムを追加するには、<code class="literal">define-key-after</code>を使用します:
+</p><pre class="synopsis"><a id="idm62070864" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">define-key-after</code> <em class="replaceable"><code>map</code></em> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>binding</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>after</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">define-key</code>と同じように、<em class="replaceable"><code>map</code></em>内に<em class="replaceable"><code>key</code></em>にたいする値<em class="replaceable"><code>binding</code></em>のバインディングを定義するが、<em class="replaceable"><code>map</code></em>内でそのバインディングの位置は、イベント<em class="replaceable"><code>after</code></em>にたいするバインディングの後になる。引数<em class="replaceable"><code>key</code></em>は長さ1
+— 1要素だけのベクターか文字列にすべきである。しかし<em class="replaceable"><code>after</code></em>は単一のイベント型 —
+シーケンスではないシンボルか文字にすべきである。新たなバインディングは、<em class="replaceable"><code>after</code></em>にたいするバインディングの後に追加される。<em class="replaceable"><code>after</code></em>が<code class="literal">t</code>、または省略された場合、新たなバインディングはそのキーマップの最後に追加される。しかし、新たなバインディングは、すべての継承されたキーマップの前に追加される。
+</p><p>以下に例を示す:
+</p><pre class="screen">(define-key-after my-menu [drink]
+  '("Drink" . drink-command) 'eat)
+</pre><p>これは、偽ファンクションキー<span class="keycap"><strong>DRINK</strong></span>にたいするバインディングを作成して、<span class="keycap"><strong>EAT</strong></span>にたいするバインディングの直後に追加する。
+</p><p>以下に、Shellモードの‘<code class="literal">Signals</code>’メニュー内のアイテム<code class="literal">break</code>の後に、‘<code class="literal">Work</code>’と呼ばれるアイテムを追加する方法を示す:
+</p><pre class="screen">(define-key-after
+  (lookup-key shell-mode-map [menu-bar signals])
+  [work] '("Work" . work-command) 'break)
+</pre></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Easy-Menu"/>Easy Menu</h2></div></div></div><p>以下のマクロは、ポップアップメニュー、および/またはメニューバーメニューを定義する便利な方法を提供します。
+</p><pre class="synopsis"><a id="idm62051408" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">easy-menu-define</code> <em class="replaceable"><code>symbol</code></em> <em class="replaceable"><code>maps</code></em> <em class="replaceable"><code>doc</code></em> <em class="replaceable"><code>menu</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは、<em class="replaceable"><code>menu</code></em>により与えるコンテンツのポップアップメニュー、および/またはメニューバーサブメニューを定義する。
+</p><p><em class="replaceable"><code>symbol</code></em>が非<code class="literal">nil</code>の場合、それはシンボルである。その場合、このマクロはドキュメント文字列<em class="replaceable"><code>doc</code></em>をもつ、メニューをポップアップ(<a class="link" href="ch29s15.html" title="Pop-Up Menus">Pop-Up
+Menus</a>を参照)する関数として<em class="replaceable"><code>symbol</code></em>をを定義する。<em class="replaceable"><code>symbol</code></em>はクォートされるべきではない。
+</p><p><em class="replaceable"><code>symbol</code></em>の値とは関係なく、<em class="replaceable"><code>maps</code></em>がキーマップの場合、メニューはメニューバーのトップレベルのメニュー(<a class="link" href="ch22s17.html#Menu-Bar" title="The Menu Bar">Menu
+Bar</a>を参照)として<em class="replaceable"><code>maps</code></em>に追加される。これにはキーマップのリストも指定でき、その場合メニューはそれらのキーマップに個別に追加される。
+</p><p><em class="replaceable"><code>menu</code></em>の最初の要素は文字列でなければならず、それはメニューラベルの役割をもつ。値には、以下のキーワード/引数ペアーが任意の個数続くかもしれない:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">:filter <em class="replaceable"><code>function</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>function</code></em>は1つの引数(他のメニューアイテムのリスト)で呼び出される関数でなければならず、メニュー内に表示される実際のアイテムをリターンする。
+</p></dd><dt><span class="term"><code class="literal">:visible <em class="replaceable"><code>include</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>include</code></em>には式を指定する。その式が<code class="literal">nil</code>に評価された場合、メニューは不可視になる。<code class="literal">:included</code>は、<code class="literal">:visible</code>にたいするエイリアスである。
+</p></dd><dt><span class="term"><code class="literal">:active <em class="replaceable"><code>enable</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>enable</code></em>は式を。指定する。その式が<code class="literal">nil</code>に評価された場合、メニューは選択不可になる。<code class="literal">:enable</code>は、<code class="literal">:active</code>にたいするエイリアスである。
+</p></dd></dl></div><p><em class="replaceable"><code>menu</code></em>内の残りの要素は、メニューアイテムである。
+</p><p>メニューアイテムには、3要素のベクター<code class="literal">[<em class="replaceable"><code>name</code></em> <em class="replaceable"><code>callback</code></em>
+<em class="replaceable"><code>enable</code></em>]</code>を指定できる。ここで<em class="replaceable"><code>name</code></em>はメニューアイテム名(文字列)、<em class="replaceable"><code>callback</code></em>はアイテム選択時に実行するコマンド、または評価される式である。<em class="replaceable"><code>enable</code></em>は式であり、<code class="literal">nil</code>に評価された場合、そのアイテムにたいする選択は無効になる。
+</p><p>かわりに、メニューアイテムは以下の形式をもつかもしれない:
+</p><pre class="screen">   [ <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>callback</code></em> [ <em class="replaceable"><code>keyword</code></em> <em class="replaceable"><code>arg</code></em> ]... ]
+</pre><p>ここで<em class="replaceable"><code>name</code></em>と<em class="replaceable"><code>callback</code></em>は上記と同じ意味をもち、オプションの<em class="replaceable"><code>keyword</code></em>と<em class="replaceable"><code>arg</code></em>の各ペアーは、以下のいずれかである:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">:keys <em class="replaceable"><code>keys</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>keys</code></em>は、メニューアイテムにたいする等価なキーボード入力(文字列)である。等価なキーボード入力は自動的に計算されるので、通常は必要ない。<em class="replaceable"><code>keys</code></em>は、表示される前に<code class="literal">substitute-command-keys</code>により展開される(<a class="link" href="ch24s03.html" title="Substituting Key Bindings in Documentation">Keys
+in Documentation</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">:key-sequence <em class="replaceable"><code>keys</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>keys</code></em>は、最初にメニューを表示されるかをする際、Emacsを高速化するヒントになる。等価なキーボード入力のないことが既知の場合は、<code class="literal">nil</code>を指定すべきである。それ以外では、メニューアイテムにたいする等価なキーボード入力を指定する文字列、またはベクターを指定すべきである。
+</p></dd><dt><span class="term"><code class="literal">:active <em class="replaceable"><code>enable</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>enable</code></em>には式を指定する。その式が<code class="literal">nil</code>に評価された場合、アイテムは選択不可になる。<em class="replaceable"><code>enable</code></em>は、<code class="literal">:active</code>にたいするエイリアスである。
+</p></dd><dt><span class="term"><code class="literal">:visible <em class="replaceable"><code>include</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>include</code></em>には式を指定する。その式が<code class="literal">nil</code>に評価された場合、アイテムは不可視になる。<code class="literal">:included</code>は、<code class="literal">:visible</code>にたいするエイリアスである。
+</p></dd><dt><span class="term"><code class="literal">:label <em class="replaceable"><code>form</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>form</code></em>は、メニューアイテムのラベル(デフォルトは<em class="replaceable"><code>name</code></em>)の役目をもつ値を取得するために表示される式である。
+</p></dd><dt><span class="term"><code class="literal">:suffix <em class="replaceable"><code>form</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>form</code></em>は、動的に評価される式であり、値はメニューエントリーのラベルに結合される。
+</p></dd><dt><span class="term"><code class="literal">:style <em class="replaceable"><code>style</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>style</code></em>は、メニューアイテムの型を記述するシンボルであり、<code class="literal">toggle</code>(チェックボックス)、<code class="literal">radio</code>(ラジオボタン)、またはそれ以外(通常のメニューアイテムであることを意味する)のいずれかである。
+</p></dd><dt><span class="term"><code class="literal">:selected <em class="replaceable"><code>selected</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>selected</code></em>には式を指定し、その式の値が非<code class="literal">nil</code>のときはチェックボックス、またはラジオボタンが選択状態になる。
+</p></dd><dt><span class="term"><code class="literal">:help <em class="replaceable"><code>help</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>help</code></em>は、メニューアイテムを説明する文字列である。
+</p></dd></dl></div><p>かわりに、メニューアイテムに文字列を指定できる。その場合、文字列は選択不可なテキストとしてメニューに表示される。ダッシュから構成される文字列は、セパレーターとして表示される(<a class="link" href="ch22s17.html#Menu-Separators" title="Menu Separators">Menu
+Separators</a>を参照)
+</p><p>かわりに、メニューアイテムに<em class="replaceable"><code>menu</code></em>と同じフォーマットのリストを指定できる。これはサブメニューとなる。
+</p></blockquote></div><p>以下は、<code class="literal">easy-menu-define</code>を使用して、<a class="link" href="ch22s17.html#Menu-Bar" title="The Menu Bar">Menu Bar</a>内で定義したメニューと同等なメニューを定義する例である:
+</p><pre class="screen">(easy-menu-define words-menu global-map
+  "単語単位コマンドにたいするメニュー"
+  '("Words"
+     ["Forward word" forward-word]
+     ["Backward word" backward-word]))
+</pre></div><div class="footnotes"><br/><hr/><div id="ftn.idm62372944" class="footnote"><p><a href="#idm62372944" class="para"><sup class="para">[12] </sup></a>これはテキスト端末ののような、ツールキットを使用しないメニューにたいして要求されます。</p></div></div></div></body></html>

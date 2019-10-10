@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Evaluation During Compilation</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Eval-During-Compile"/>Evaluation During Compilation</h1></div></div></div><a id="idm55742416" class="indexterm"/><p>これらの機能により、プログラムのコンパイル中に評価されるコードを記述できます。
+</p><pre class="synopsis"><a id="idm55740880" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">eval-and-compile</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このフォームは、それを含むコードがコンパイルされるとき、および(コンパイルされているかいないかに関わらず)実行されるときの両方で、<em class="replaceable"><code>body</code></em>が評価されるようにマークします。
+</p><p><em class="replaceable"><code>body</code></em>を別のファイルに配し、そのファイルを<code class="literal">require</code>で参照すれば、同様の結果が得られます。これは<em class="replaceable"><code>body</code></em>が大きいとき望ましい方法です。事実上、<code class="literal">require</code>は自動的に<code class="literal">eval-and-compile</code>され、そのパッケージはコンパイル時と実行時の両方でロードされます。
+</p><p><code class="literal">autoload</code>も実際は<code class="literal">eval-and-compile</code>されます。これはコンパイル時に認識されるので、そのような関数の使用により警告“not
+known to be defined”は生成されません。
+</p><p>ほとんどの<code class="literal">eval-and-compile</code>の使用は、完全に妥当であると言えます。
+</p><p>あるマクロがマクロの結果を構築するためのヘルパー関数をもち、そのマクロがそのパッケージにたいしてローカルと外部の両方で使用される場合には、コンパイル時と後の実行時にそのヘルパー関数を取得するために、<code class="literal">eval-and-compile</code>を使用すべきです。
+</p><p>関数がプログラム的に(<code class="literal">fset</code>で)定義されている場合には、それがコンパイル時、同様に実行時に行われるように使用でき、それらの関数への呼び出しはチェックされます(“not
+known to be defined”の警告は抑えられます)。
+</p></blockquote></div><pre class="synopsis"><a id="idm55722320" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">eval-when-compile</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このフォームは、<em class="replaceable"><code>body</code></em>がコンパイル時に評価され、コンパイルされたプログラムがロードされるときは評価されないようにマークします。コンパイラーによる評価の結果は、コンパイル済みのプログラム内の定数となります。ソースファイルをコンパイルではなくロードした場合、<em class="replaceable"><code>body</code></em>は通常どおり評価されます。
+</p><a id="idm55718352" class="indexterm"/><p>生成するために何らかの計算が必要な定数がある場合、<code class="literal">eval-when-compile</code>はコンパイル時にそれを行なうことができます。たとえば、
+</p><pre class="programlisting">(defvar my-regexp
+  (eval-when-compile (regexp-opt '("aaa" "aba" "abb"))))
+</pre><a id="idm55716176" class="indexterm"/><p>他のパッケージを使用しているが、そのパッケージのマクロ(バイトコンパイラーはそれらを展開します)だけが必要な場合、それらを実行せずにコンパイル用にロードさせるために<code class="literal">eval-when-compile</code>を使用できます。たとえば、
+</p><pre class="programlisting">(eval-when-compile
+  (require 'my-macro-package))
+</pre><p>これらの事項は、マクロおよび<code class="literal">defsubst</code>関数がローカルに定義され、そのファイル内だけで使用されることを要求します。これらは、そのファイルのコンパイルに必要ですが、コンパイル済みファイルの実行には、ほとんどの場合必要ありません。たとえば、
+</p><pre class="programlisting">(eval-when-compile
+  (unless (fboundp 'some-new-thing)
+    (defmacro 'some-new-thing ()
+      (compatibility code))))
+</pre><p>これは大抵他のバージョンのEmacsとの互換性にたいする保証だけのためのコードにたいして有用です。
+</p><p><span class="bold"><strong>Common Lispに関する注意:</strong></span> トップレベルでは、<code class="literal">eval-when-compile</code>はCommon
+Lispのイディオム<code class="literal">(eval-when (compile eval)
+…)</code>に類似しています。トップレベル以外では、Common
+Lispのリーダーマクロ‘<code class="literal">#.</code>’(ただし解釈時を除く)が、<code class="literal">eval-when-compile</code>と近いことを行います。
+</p></blockquote></div></div></body></html>

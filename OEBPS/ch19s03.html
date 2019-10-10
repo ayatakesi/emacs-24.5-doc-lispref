@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Input Functions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Input-Functions"/>Input Functions</h1></div></div></div><p>このセクションでは、読み取りに関係のあるLisp関数と変数について説明します。
+</p><p>以下の関数で、<em class="replaceable"><code>stream</code></em>は入力ストリーム(前のセクションを参照)を意味します。<em class="replaceable"><code>stream</code></em>が<code class="literal">nil</code>、または省略された場合のデフォルト値は<code class="literal">standard-input</code>です。
+</p><a id="idm58511184" class="indexterm"/><p>読み取りにおいて終端されていないリスト、ベクター、文字列に遭遇した場合は、<code class="literal">end-of-file</code>がシグナルされます。
+</p><pre class="synopsis"><a id="idm58509264" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>stream</code></em>からテキスト表現されたLisp式を1つ読み取り、Lispオブジェクトとしてリターンする。これは基本的なLisp入力関数である。
+</p></blockquote></div><pre class="synopsis"><a id="idm58505296" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">read-from-string</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm58501584" class="indexterm"/><p>この関数は<em class="replaceable"><code>string</code></em>内のテキストから、最初のテキスト表現されたLisp式を読み取る。リターン値はCARがその式で、CDRが次に読み取られるその文字列内の残りの文字(読み取られていない最初の文字)の位置を与える整数であるようなコンスセルである。
+</p><p><em class="replaceable"><code>start</code></em>が与えられた場合は、文字列内のインデックス<em class="replaceable"><code>start</code></em>(最初の文字はインデックス0)から読み取りが開始される。<em class="replaceable"><code>end</code></em>を指定した場合は、残りの文字列が存在しないかのごとく、そのインデックスの直前で読み取りがストップされる。
+</p><p>たとえば:
+</p><pre class="screen">(read-from-string "(setq x 55) (setq y 5)")
+     ⇒ ((setq x 55) . 11)
+</pre><pre class="screen">(read-from-string "\"A short string\"")
+     ⇒ ("A short string" . 16)
+</pre><pre class="screen">
+</pre><pre class="screen">;; Read starting at the first character.
+(read-from-string "(list 112)" 0)
+     ⇒ ((list 112) . 10)
+</pre><pre class="screen">;; Read starting at the second character.
+(read-from-string "(list 112)" 1)
+     ⇒ (list . 5)
+</pre><pre class="screen">;; Read starting at the seventh character,
+;;   and stopping at the ninth.
+(read-from-string "(list 112)" 6 8)
+     ⇒ (11 . 8)
+</pre></blockquote></div><pre class="synopsis"><a id="idm58495184" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">standard-input</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数はデフォルト入力ストリーム(引数<em class="replaceable"><code>stream</code></em>が<code class="literal">nil</code>のとき<code class="literal">read</code>が使用するストリーム)を保持する。デフォルトは<code class="literal">t</code>で、これはミニバッファーを使用することを意味する。
+</p></blockquote></div><pre class="synopsis"><a id="idm58486480" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">read-circle</code></pre><div class="blockquote"><blockquote class="blockquote"><p>非<code class="literal">nil</code>の場合、この変数は循環構造(circular structure)および共有構造(shared
+structures)の読み取りを有効にする。<a class="link" href="ch03s05.html" title="Read Syntax for Circular Objects">Circular Objects</a>を参照。デフォルト値は<code class="literal">t</code>。
+</p></blockquote></div></div></body></html>

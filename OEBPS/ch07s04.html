@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Vectors</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Vectors"/>Vectors</h1></div></div></div><a id="idm48816976" class="indexterm"/><p><em class="firstterm">ベクター(vector)</em>とは、任意のLispオブジェクトを要素にもつことができる、一般用途のための配列です(対照的に、文字列の要素は文字だけです<a class="link" href="ch05.html" title="Chapter 4. Strings and Characters">Strings
+and Characters</a>を参照してください)。Emacsではベクターは、キーシーケンス(<a class="link" href="ch22.html#Key-Sequences" title="Key Sequences">Key
+Sequences</a>を参照してください)、シンボル検索用のテーブル(<a class="link" href="ch09s03.html" title="Creating and Interning Symbols">Creating
+Symbols</a>を参照してください)、バイトコンパイルされた関数表現の一部(<a class="link" href="ch17.html" title="Chapter 16. Byte Compilation">Byte
+Compilation</a>を参照してください)など、多くの目的で使用されます。
+</p><p>他の配列と同様、ベクターは０基準のインデックスづけを使用し、1番目の要素はインデックス0になります。
+</p><p>ベクターは、角カッコ(square
+brackets)で囲まれた要素としてプリントされます。したがって、シンボル<code class="literal">a</code>、<code class="literal">b</code>、<code class="literal">a</code>を要素にもつベクターは、<code class="literal">[a
+b a]</code>とプリントされます。Lisp入力として、同じ方法でベクターを記述できます。
+</p><p>文字列や数値と同様に、ベクターは定数として評価され、評価された結果は同じベクターになります。ベクターの要素は評価も確認もされません。<a class="link" href="ch10s02.html#Self_002dEvaluating-Forms" title="Self-Evaluating Forms">Self-Evaluating
+Forms</a>を参照してください。
+</p><p>以下はこれらの原理を表す例です:
+</p><pre class="screen">(setq avector [1 two '(three) "four" [five]])
+     ⇒ [1 two (quote (three)) "four" [five]]
+(eval avector)
+     ⇒ [1 two (quote (three)) "four" [five]]
+(eq avector (eval avector))
+     ⇒ t
+</pre></div></body></html>

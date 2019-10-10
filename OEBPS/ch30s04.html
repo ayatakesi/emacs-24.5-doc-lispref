@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Narrowing</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Narrowing"/>Narrowing</h1></div></div></div><a id="idm73320912" class="indexterm"/><a id="idm73320144" class="indexterm"/><a id="idm73298896" class="indexterm"/><p><em class="firstterm">ナローイング(narrowing)</em>とは、Emacs編集コマンドがアドレス指定可能なテキストを、あるバッファー内の制限された文字範囲に限定することを意味します。アドレス可能なテキストは、そのバッファーの<em class="firstterm">アクセス可能範囲(accessible
+portion)</em>と呼ばれます。
+</p><p>ナローイングは2つのバッファー位置により指定され、それがアクセス可能範囲の開始と終了になります。ほとんどの編集コマンドおよびプリミティブにたいし、これらの位置はそれぞれそのバッファーの先頭と終端に置き換えられます。ナローイングが効果をもつ間、アクセス可能範囲外のテキストは表示されず、その外部にポイントを移動することはできません。ナローイングは実際のバッファー位置(<a class="link" href="ch30.html#Point" title="Point">Point</a>を参照)を変更しないことに注意してください。ほとんどの関数は、アクセス可能範囲外のテキストにたいする操作を受け付けません。
+</p><p>バッファーを保存するコマンドは、ナローイングの影響を受けません。どんなナローイングであろうと、それらはバッファー全体を保存します。
+</p><p>単一バッファー内に、タイプが大きく異なるテキストを複数表示する必要がある場合は、<a class="link" href="ch27s12.html" title="Swapping Text Between Two Buffers">Swapping
+Text</a>で説明する代替機能の使用を考慮してみてください。
+</p><pre class="synopsis"><a id="idm73274064" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">narrow-to-region</code> <em class="replaceable"><code>start</code></em> <em class="replaceable"><code>end</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、アクセス可能範囲の開始と終了に、カレントバッファーの<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>をセットする。どちらの引数も、文字位置で指定すること。
+</p><p>インタラクティブな呼び出しでは、<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>はカレントリージョン(ポイントとマークで、小さいほうが前者)にセットされる。
+</p></blockquote></div><pre class="synopsis"><a id="idm73268560" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">narrow-to-page</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>move-count</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントページだけを含むように、カレントバッファーのアクセス可能範囲をセットする。1つ目のオプション引数<em class="replaceable"><code>move-count</code></em>が非<code class="literal">nil</code>の場合は、<em class="replaceable"><code>move-count</code></em>で前方または後方へ移動後に、1ページにナローすることを意味する。変数<code class="literal">page-delimiter</code>は、ページの開始と終了の位置を指定する(<a class="link" href="ch34s08.html" title="Standard Regular Expressions Used in Editing">Standard
+Regexps</a>を参照)。
+</p><p>インタラクティブな呼び出しでは、<em class="replaceable"><code>move-count</code></em>には数プレフィクス引数がセットされる。
+</p></blockquote></div><pre class="synopsis"><a id="idm73261904" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">widen</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm73259728" class="indexterm"/><p>この関数は、カレントバッファーにたいするすべてのナローイングをキャンセルする。これは<em class="firstterm">ワイドニング(widening)</em>と呼ばれる。これは、以下の式と等価である:
+</p><pre class="screen">(narrow-to-region 1 (1+ (buffer-size)))
+</pre></blockquote></div><pre class="synopsis"><a id="idm73257296" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">buffer-narrowed-p</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、そのバッファーがナローされていれば非<code class="literal">nil</code>、それ以外は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm73253456" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">save-restriction</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、アクセス可能範囲のカレントのバインドを保存して<em class="replaceable"><code>body</code></em>を評価し、以前に有効だったナローイング(またはナローイングのない状態)と同じ状態になるよう最後に保存されたバインドをリストアする。ナローイングの状態は、<code class="literal">throw</code>またはエラーを通じたアブノーマルexit(<a class="link" href="ch11s05.html" title="Nonlocal Exits">Nonlocal
+Exits</a>を参照)イベント内においても、リストアされる。したがって、この構成は一時的にバッファーをナローする明快な手段である。
+</p><p><code class="literal">save-restriction</code>がリターンする値は、<em class="replaceable"><code>body</code></em>内の最後のフォームのリターン値、または<em class="replaceable"><code>body</code></em>フォームが与えられなければ<code class="literal">nil</code>である。
+</p><p><span class="bold"><strong>注意:</strong></span> <code class="literal">save-restriction</code>使用時は間違いを起こしやすい。これを試みる前にここでの説明全体を通読すること。
+</p><p><em class="replaceable"><code>body</code></em>がカレントバッファーを変更する場合でも、<code class="literal">save-restriction</code>は依然として元のバッファー(その制限が保存されたバッファー)上の制限をリストアするが、カレントバッファー自体はリストアしない。
+</p><p><code class="literal">save-restriction</code>は、ポイントとマークを<span class="emphasis"><em>リストアしない</em></span>。これを行うには<code class="literal">save-excursion</code>を使用する。<code class="literal">save-restriction</code>と<code class="literal">save-excursion</code>の両方を共に使用するなら、始め(外側)に<code class="literal">save-excursion</code>を記述すること。それ以外では、一時的なナローイング影響下で古いポイント値がリストアされる。古いポイント値が一時的なナローイング境界外なら、それを実際にリストアするのは失敗するだろう。
+</p><p>以下は、<code class="literal">save-restriction</code>の正しい使い方の簡単な例である:
+</p><pre class="screen">---------- Buffer: foo ----------
+This is the contents of foo
+This is the contents of foo
+This is the contents of foo★
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(save-excursion
+  (save-restriction
+    (goto-char 1)
+    (forward-line 2)
+    (narrow-to-region 1 (point))
+    (goto-char (point-min))
+    (replace-string "foo" "bar")))
+
+---------- Buffer: foo ----------
+This is the contents of bar
+This is the contents of bar
+This is the contents of foo★
+---------- Buffer: foo ----------
+</pre></blockquote></div></div></body></html>

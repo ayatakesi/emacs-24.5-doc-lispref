@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Profiling</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Profiling"/>Profiling</h1></div></div></div><a id="idm58636496" class="indexterm"/><a id="idm58635728" class="indexterm"/><a id="idm58634960" class="indexterm"/><p>プログラムは正常に機能しているものの、より高速にまたは効率的に実行させたい場合にまず行うべきは、そのプログラムがリソースをどのように使用するか知るために、コードを<em class="firstterm">プロファイル(profile)</em>することです。ある特定の関数の実行が、実行時間のうち無視できない割り合いを占めるようなら、その部分を最適化する方法を探すことを開始できます。
+</p><p>Emacsには、このためのビルトインサポートがあります。プロファイリングを開始するには、<strong class="userinput"><code>M-x
+profiler-start</code></strong>をタイプします。プロファイルはプロセッサー使用(processor usage)、メモリー使用(memory
+usage)、またはその両方を選択できます。何らかの処理を行った後に<strong class="userinput"><code>M-x
+profiler-report</code></strong>とタイプすると、プロファイルに選択した各リソースがsummaryバッファーに表示されます。reportバッファーの名前には、そのレポートが生成された時刻が含まれるので、前の結果を消去せずに後で他のレポートを生成できます。プロファイリングが終了したら、<strong class="userinput"><code>M-x
+profiler-stop</code></strong>とタイプしてください(プロファイリングに関連したオーバーヘッドが少しあるからです)。
+</p><p>profiler
+reportバッファーでは、各行に呼び出された関数と、その後にプロファイリングが開始されてから使用したリソース(プロセッサーまたはメモリー)の絶対時間とパーセンテージ時間が表示されます。左側にシンボル‘<code class="literal">+</code>’のある行では<span class="keycap"><strong>RET</strong></span>をタイプして行を展開して、高位レベルの関数に呼び出された関数を確認できます。もう一度<span class="keycap"><strong>RET</strong></span>をタイプすると、元の状態へと行が折り畳まれます。
+</p><p><strong class="userinput"><code>j</code></strong>または<strong class="userinput"><code>mouse-2</code></strong>を押下すると、関数の定義にジャンプします。<strong class="userinput"><code>d</code></strong>を押下すると、関数のドキュメントを閲覧できます。<strong class="userinput"><code>C-x
+C-w</code></strong>を使用して、プロファイルをファイルに保存できます。<strong class="userinput"><code>=</code></strong>を使用すれば、2つのプロファイルを比較することができます。
+</p><a id="idm58626256" class="indexterm"/><a id="idm58625232" class="indexterm"/><p><code class="filename">elp</code>ライブラリーは、別のアプローチを提案します。使い方は<code class="filename">elp.el</code>を参照してください。
+</p><a id="idm58623184" class="indexterm"/><a id="idm58622160" class="indexterm"/><p><code class="filename">benchmark</code>ライブラリーを使用して、Emacs
+Lispフォームのスピードwpy個別にチェックできます。<code class="filename">benchmark.el</code>内の関数<code class="literal">benchmark-run</code>、および<code class="literal">benchmark-run-compiled</code>を参照してください。
+</p><a id="idm58618704" class="indexterm"/><p><span class="command"><strong>configure</strong></span>のオプションに<code class="option">--enable-profiling</code>を使用してビルドすることにより、EmacsをCコードのレベルでプロファイルすることができます。こうしてビルドされたEmacsは、Emacsをexitするときに<span class="command"><strong>gprof</strong></span>ユーティリティを使用して検証できるファイル<code class="filename">gmon.out</code>を生成します。この機能は主にEmacsのデバッグに有用です。このEmacsは、実行状態から上述の<strong class="userinput"><code>M-x
+profiler-…</code></strong>コマンドによりLispレベルで実際にストップします。
+
+
+
+
+
+
+
+
+
+
+</p></div></body></html>

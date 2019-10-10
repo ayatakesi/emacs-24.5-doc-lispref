@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Scanning Keymaps</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Scanning-Keymaps"/>Scanning Keymaps</h1></div></div></div><a id="idm62463440" class="indexterm"/><a id="idm62462672" class="indexterm"/><p>このセクションでは、すべてのカレントキーマップをスキャンして、ヘルプ情報をプリントするために使用される関数を説明します。
+</p><pre class="synopsis"><a id="idm62461264" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">accessible-keymaps</code> <em class="replaceable"><code>keymap</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prefix</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、(0個以上のプレフィクスキーを通じて)<em class="replaceable"><code>keymap</code></em>から到達可能な、すべてのキーマップのリストをリターンする。リターン値は<code class="literal">(<em class="replaceable"><code>key</code></em>
+.
+<em class="replaceable"><code>map</code></em>)</code>のような形式の要素をもつ連想配列(alist)である。ここで、<em class="replaceable"><code>key</code></em>は<em class="replaceable"><code>keymap</code></em>内での定義が<em class="replaceable"><code>map</code></em>であるようなプレフィクスキーである。
+</p><p>alistの要素は、<em class="replaceable"><code>key</code></em>の長さにたいして昇順にソートされている。1つ目の要素は、常に<code class="literal">([] .
+<em class="replaceable"><code>keymap</code></em>)</code>である。これは、指定されたキーマップがイベントなしのプレフィクスにより、自分自身からアクセス可能だからである。
+</p><p><em class="replaceable"><code>prefix</code></em>が与えられた場合、それはプレフィクスキーシーケンスである。その場合には、<em class="replaceable"><code>prefix</code></em>で始まるプレフィクスキーをもつサブマップだけが<code class="literal">accessible-keymaps</code>に含まれる。これらの要素の意味は、<code class="literal">(accessible-keymaps)</code>の値の場合と同様であり、いくつかの要素が省略されている点だけが異なる。
+</p><p>以下の例では、リターンされるalistにより、‘<code class="literal">^[</code>’と表示されるキー<span class="keycap"><strong>ESC</strong></span>がプレフィクスキーであり、その定義がsparseキーマップ<code class="literal">(keymap
+(83 . center-paragraph)  (115 . foo))</code>であること示される。
+</p><pre class="screen">(accessible-keymaps (current-local-map))
+⇒(([] keymap
+      (27 keymap   ; 以降<span class="keycap"><strong>ESC</strong></span>にたいするこのキーマップが繰り返されることに注意
+          (83 . center-paragraph)
+          (115 . center-line))
+      (9 . tab-to-tab-stop))
+</pre><pre class="screen">
+</pre><pre class="screen">   ("^[" keymap
+    (83 . center-paragraph)
+    (115 . foo)))
+</pre><p>また以下の例では、<strong class="userinput"><code>C-h</code></strong>は<code class="literal">(keymap (118
+.
+describe-variable)…)</code>で始まるsparseキーマップを使用するプレフィクスキーである。他のプレフィクス<strong class="userinput"><code>C-x
+4</code></strong>は、変数<code class="literal">ctl-x-4-map</code>の値でもあるキーマップを使用する。イベント<code class="literal">mode-line</code>は、ウィンドウの特別な箇所でのマウスイベントにたいするプレフィクスとして使用される、いくつかのダミーイベントのうちの1つである。
+</p><pre class="screen">(accessible-keymaps (current-global-map))
+⇒ (([] keymap [set-mark-command beginning-of-line …
+                   delete-backward-char])
+</pre><pre class="screen">    ("^H" keymap (118 . describe-variable) …
+     (8 . help-for-help))
+</pre><pre class="screen">    ("^X" keymap [x-flush-mouse-queue …
+     backward-kill-sentence])
+</pre><pre class="screen">    ("^[" keymap [mark-sexp backward-sexp …
+     backward-kill-word])
+</pre><pre class="screen">    ("^X4" keymap (15 . display-buffer) …)
+</pre><pre class="screen">    ([mode-line] keymap
+     (S-mouse-2 . mouse-split-window-horizontally) …))
+</pre><p>これらは実際に目にするであろうキーマップのすべてではない。
+</p></blockquote></div><pre class="synopsis"><a id="idm62441168" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">map-keymap</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>keymap</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>関数<code class="literal">map-keymap</code>は、<em class="replaceable"><code>keymap</code></em>内のバインディングそれぞれにたいして1回<em class="replaceable"><code>function</code></em>を呼び出す。呼び出す際の引数はイベント型と、そのバインディングの値の2つである。<em class="replaceable"><code>keymap</code></em>に親キーマップがある場合は、その親キーマップのバインディングも含まれる。これは再帰的に機能する。つまり、その親キーマップ自身が親キーマップをもつ場合は、それのバインディングも含まれる、といった具合である。
+</p><p>これは、キーマップ内のすべてのバインディングを検証する、もっとも明快な方法である。
+</p></blockquote></div><pre class="synopsis"><a id="idm62435280" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">where-is-internal</code> <em class="replaceable"><code>command</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>keymap</code></em> <em class="replaceable"><code>firstonly</code></em> <em class="replaceable"><code>noindirect</code></em> <em class="replaceable"><code>no-remap</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">where-is</code>コマンド(section “Help” in <em class="citetitle">The GNU Emacs
+Manual</em>を参照)により使用されるサブルーチンである。これは、キーマップのセット内で<em class="replaceable"><code>command</code></em>にバインドされる、(任意の長さの)キーシーケンスすべてのリストをリターンする。
+</p><p>引数<em class="replaceable"><code>command</code></em>には、任意のオブジェクトを指定できる。このオブジェクトは、すべてのキーマップエントリーにたいし、<code class="literal">eq</code>を使用して比較される。
+</p><p><em class="replaceable"><code>keymap</code></em>が<code class="literal">nil</code>の場合、<code class="literal">overriding-local-map</code>の値とは無関係に(<code class="literal">overriding-local-map</code>の値が<code class="literal">nil</code>であると装い)、カレントアクティブキーマップをマップとして使用する。<em class="replaceable"><code>keymap</code></em>がキーマップの場合は、<em class="replaceable"><code>keymap</code></em>とグローバルキーマップが検索されるマップとなる。<em class="replaceable"><code>keymap</code></em>がキーマップのリストの場合は、それらのキーマップだけが検索される。
+</p><p><em class="replaceable"><code>keymap</code></em>にたいする式としては、通常は<code class="literal">overriding-local-map</code>を使用するのが最善である。その場合、<code class="literal">where-is-internal</code>は正にアクティブなキーマップを検索する。グローバルマップだけを検索するには、<em class="replaceable"><code>keymap</code></em>の値に<code class="literal">(keymap)</code>(空のキーマップ)を渡せばよい。
+</p><p><em class="replaceable"><code>firstonly</code></em>が<code class="literal">non-ascii</code>の場合、値はすべての可能なキーシーケンスのリストではなく、最初に見つかったキーシーケンスを表す単一のベクターとなる。<em class="replaceable"><code>firstonly</code></em>が<code class="literal">t</code>の場合、値は最初のキーシーケンスだが、全体が<acronym class="acronym">ASCII</acronym>文字(またはメタ修飾された<acronym class="acronym">ASCII</acronym>文字)で構成されるキーシーケンスが、他のすべてのキーシーケンスに優先され、リターン値がメニューバインディングになることは決してない。
+</p><p><em class="replaceable"><code>noindirect</code></em>が非<code class="literal">nil</code>の場合、<code class="literal">where-is-internal</code>はインダイレクトキーマップ(indirect
+keymap: 間接キーマップ)のバインディングを追跡しない。これにより、インダイレクト定義自体にたいして検索が可能になる。
+</p><p>5つ目の引数<em class="replaceable"><code>no-remap</code></em>は、この関数がコマンドリマッピング(<a class="link" href="ch22s13.html" title="Remapping Commands">Remapping
+Commands</a>を参照)を扱う方法を決定する。興味深いケースが2つある:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">コマンド<em class="replaceable"><code>other-command</code></em>が<em class="replaceable"><code>command</code></em>にリマップされる場合:
+</span></dt><dd><p><em class="replaceable"><code>no-remap</code></em>が<code class="literal">nil</code>の場合は、<em class="replaceable"><code>other-command</code></em>にたいするバインディングを探して、<em class="replaceable"><code>command</code></em>にたいするバインディングであるかのようにそれらを扱う。<em class="replaceable"><code>no-remap</code></em>が非<code class="literal">nil</code>の場合は、それらのバインディングを探すかわりに、利用可能なキーシーケンスリストに、ベクター<code class="literal">[remap
+<em class="replaceable"><code>other-command</code></em>]</code>を含める。
+</p></dd><dt><span class="term">If <em class="replaceable"><code>command</code></em> is remapped to <em class="replaceable"><code>other-command</code></em>:
+</span></dt><dd><p><em class="replaceable"><code>no-remap</code></em>が<code class="literal">nil</code>の場合は、<em class="replaceable"><code>command</code></em>ではなく<em class="replaceable"><code>other-command</code></em>にたいするバインディングをリターンする。<em class="replaceable"><code>no-remap</code></em>が非<code class="literal">nil</code>の場合は、リマップされていることを無視して、<em class="replaceable"><code>command</code></em>にたいするバインディングをリターンする。
+</p></dd></dl></div></blockquote></div><pre class="synopsis"><a id="idm62393296" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">describe-bindings</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prefix</code></em> <em class="replaceable"><code>buffer-or-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、すべてのカレントキーバインディングのリストを作成して、<code class="filename">*Help*</code>という名前のバッファーにそれを表示する。テキストはモードごとにグループ化され、順番はマイナーモード、メジャーモード、グローバルバインディングの順である。
+</p><p><em class="replaceable"><code>prefix</code></em>が非<code class="literal">nil</code>の場合、それはプレフィクスキーである。その場合、リストに含まれるのは<em class="replaceable"><code>prefix</code></em>で始まるキーだけになる。
+</p><p>複数の連続する<acronym class="acronym">ASCII</acronym>コードが同じ定義をもつとき、それらは‘<code class="literal"><em class="replaceable"><code>firstchar</code></em>..<em class="replaceable"><code>lastchar</code></em></code>’のようにまとめて表示される。この場合、それがどの文字に該当するかを理解するためには、その<acronym class="acronym">ASCII</acronym>コードを知っている必要がある。たとえば、デフォルトグローバルマップでは、文字‘<code class="literal"><span class="keycap"><strong>SPC</strong></span>
+..
+~</code>’は1行で記述される。<span class="keycap"><strong>SPC</strong></span>は<acronym class="acronym">ASCII</acronym>の32，<strong class="userinput"><code>~</code></strong>は<acronym class="acronym">ASCII</acronym>の126で、その間のすべての文字には、通常のプリント文字(アルファベット文字、数字、句読点など)が含まれる。これらの文字はすべて、<code class="literal">self-insert-command</code>にバインドされる。
+</p><p><em class="replaceable"><code>buffer-or-name</code></em>が非<code class="literal">nil</code>の場合、それはバッファー、またはバッファー名である。その場合、<code class="literal">describe-bindings</code>はカレントバッファーのかわりに、そのバッファーのバインディングをリストする。
+</p></blockquote></div></div></body></html>

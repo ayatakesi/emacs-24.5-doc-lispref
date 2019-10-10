@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>File Names</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="File-Names"/>File Names</h1></div></div></div><a id="idm66962512" class="indexterm"/><p>ファイルは一般的に名前で参照され、Emacsでも他と同様です。Emacsでは、ファイル名は文字列で表現されます。ファイルを操作する関数はすべて、ファイル名引数に文字列を期待します。
+</p><p>ファイル自体の操作に加えて、Emacs
+Lispプログラムでファイル名を処理する必要(ファイル名の一部を取得して、関連するファイル名構築にその一部を使用する等)がしばしばあります。このセクションでは、ファイル名を扱う方法を説明します。
+</p><p>このセクションの関数は実際にファイルにアクセスする訳ではないので、既存のファイルやディレクトリーを参照しないファイル名を処理できます。
+</p><a id="idm66960592" class="indexterm"/><a id="idm66959824" class="indexterm"/><a id="idm66959056" class="indexterm"/><a id="idm66958288" class="indexterm"/><p>MS-DOSおよびMS-Windowsでは、これらの関数は(実際にファイルを操作する関数と同様)、MS-DOSおよびMS-Windowsのファイル名構文を受け入れます。この構文はUnix構文のようにバックスラッシュでコンポーネントを区切りますが、これらの関数は常にUnix構文をリターンします。これにより、Unix構文でファイル名を指定するLispプログラムが、変更なしですべてのシステムで正しく機能することが可能になるのです。<a href="#ftn.idm66957264" class="footnote" id="idm66957264"><sup class="footnote">[13]</sup></a>
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="File-Name-Components"/>File Name Components</h2></div></div></div><a id="idm66954704" class="indexterm"/><a id="idm66953936" class="indexterm"/><a id="idm66953168" class="indexterm"/><p>オペレーティングシステムは、ファイルをディレクトリーにグループ化します。あるファイルを指定するためには、ディレクトリーと、そのディレクトリー内でのファイルの名前を指定しなければなりません。それゆえ、Emacsはファイル名を<em class="firstterm">ディレクトリー名</em>パートと<em class="firstterm">非ディレクトリー</em>(または<em class="firstterm">ディレクトリー内ファイル名</em>)パートという、2つの主要パートから判断します。どちらのパートも空の場合があり得ます。これら2つのパートを結合することにより、元のファイル名が再作成されます。
+</p><p>ほとんどのシステムでは、最後のスラッシュ(MS-DOSおよびMS-Windowsではバックスラッシュも許される)までのすべてがディレクトリーパートです。残りが非ディレクトリーパートです。
+</p><p>ある目的のために、非ディレクトリーパートはさらに正式名称(the name
+proper)と<em class="firstterm">バージョン番号</em>に細分されます。ほとんどのシステムでは、名前にバージョン番号をもつのは、バックアップファイルだけです。
+</p><pre class="synopsis"><a id="idm66949456" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-directory</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>のディレクトリーパートをディレクトリー名(<a class="link" href="ch25s08.html#Directory-Names" title="Directory Names">Directory
+Names</a>を参照)としてリターンする。<em class="replaceable"><code>filename</code></em>がディレクトリーパートを含まない場合は、<code class="literal">nil</code>をリターンする。
+</p><p>GNUおよびUnixシステムでは、この関数がリターンする文字列は常にスラッシュで終わる。MS-DOSでは、コロンで終わることもあり得る。
+</p><pre class="screen">(file-name-directory "lewis/foo")  ; Unixの例
+     ⇒ "lewis/"
+</pre><pre class="screen">(file-name-directory "foo")        ; Unixの例
+     ⇒ nil
+</pre></blockquote></div><pre class="synopsis"><a id="idm66942928" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-nondirectory</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>の非ディレクトリーパートをリターンする。
+</p><pre class="screen">(file-name-nondirectory "lewis/foo")
+     ⇒ "foo"
+</pre><pre class="screen">(file-name-nondirectory "foo")
+     ⇒ "foo"
+</pre><pre class="screen">(file-name-nondirectory "lewis/")
+     ⇒ ""
+</pre></blockquote></div><pre class="synopsis"><a id="idm66938064" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-sans-versions</code> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>keep-backup-version</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、任意のファイルバージョン番号、バックアップバージョン番号、末尾のチルダを取り除いて<em class="replaceable"><code>filename</code></em>をリターンする。
+</p><p><em class="replaceable"><code>keep-backup-version</code></em>が非<code class="literal">nil</code>の場合は、ファイルシステムなどが理解するような真のファイルバージョン番号は破棄されるが、バックアップバージョン番号は保持される。
+</p><pre class="screen">(file-name-sans-versions "~rms/foo.~1~")
+     ⇒ "~rms/foo"
+</pre><pre class="screen">(file-name-sans-versions "~rms/foo~")
+     ⇒ "~rms/foo"
+</pre><pre class="screen">(file-name-sans-versions "~rms/foo")
+     ⇒ "~rms/foo"
+</pre></blockquote></div><pre class="synopsis"><a id="idm66930896" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-extension</code> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>period</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>からもしあればすべてのバージョン番号とバックアップ番号を取り除いた後、終端の“拡張子(extension)”をリターンする。ファイル名の拡張子とは、最後の名前コンポーネント(からすべてのバージョン番号とバックアップ番号を取り去った後)の最後の‘<code class="literal">.</code>’に後続するパートである。
+</p><p>この関数は、<code class="filename">foo</code>のような拡張子のないファイル名にたいしては、<code class="literal">nil</code>をリターンする。<code class="filename">foo.</code>のようなnull拡張子にたいしては、<code class="literal">""</code>をリターンする。ファイル名の最終コンポーネントが‘<code class="literal">.</code>’で始まる場合、その‘<code class="literal">.</code>’は拡張子の開始とはみなされない。したがって、<code class="filename">.emacs</code>の拡張子は‘<code class="literal">.emacs</code>’ではなく<code class="literal">nil</code>である。
+</p><p><em class="replaceable"><code>period</code></em>が非<code class="literal">nil</code>の場合、拡張子を区切るピリオドもリターン値に含まれるようにななる。その場合、もし<em class="replaceable"><code>filename</code></em>が拡張子をもたないなら、リターン値は<code class="literal">""</code>である。
+</p></blockquote></div><pre class="synopsis"><a id="idm66918864" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-sans-extension</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、もしあれば<em class="replaceable"><code>filename</code></em>から拡張子を除いてリターンする。もしバージョン番号またはバックアップ番号があるなら、ファイルが拡張子をもつ場合のみ、それを削除する。たとえば、
+</p><pre class="screen">(file-name-sans-extension "foo.lose.c")
+     ⇒ "foo.lose"
+(file-name-sans-extension "big.hack/foo")
+     ⇒ "big.hack/foo"
+(file-name-sans-extension "/my/home/.emacs")
+     ⇒ "/my/home/.emacs"
+(file-name-sans-extension "/my/home/.emacs.el")
+     ⇒ "/my/home/.emacs"
+(file-name-sans-extension "~/foo.el.~3~")
+     ⇒ "~/foo"
+(file-name-sans-extension "~/foo.~3~")
+     ⇒ "~/foo.~3~"
+</pre><p>最後の2つの例の‘<code class="literal">.~3~</code>’は、拡張子ではなくバックアップ番号であることに注意。
+</p></blockquote></div><pre class="synopsis"><a id="idm66913872" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-base</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<code class="literal">file-name-sans-extension</code>と<code class="literal">file-name-nondirectory</code>を組み合わせたものである。たとえば、
+</p><pre class="screen">(file-name-base "/my/home/foo.c")
+    ⇒ "foo"
+</pre><p><em class="replaceable"><code>filename</code></em>引数のデフォルトは、<code class="literal">buffer-file-name</code>である。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Relative-File-Names"/>Absolute and Relative File Names</h2></div></div></div><a id="idm66894544" class="indexterm"/><a id="idm66893776" class="indexterm"/><p>ファイルシステム内のすべてのディレクトリーは、ルートディレクトリーから開始されるツリーを形成します。このツリーのルートから開始されるすべてのディレクトリー名により、ファイル名を指定でき、それを<em class="firstterm">絶対(absolute)</em>ファイル名と呼びます。デフォルトディレクトリーからの相対的なツリー中の位置でファイルを指定するこでき、それは<em class="firstterm">相対(relative)</em>ファイル名と呼ばれます。UnixおよびGNU/Linuxでは、絶対ファイル名は‘<code class="literal">/</code>’または‘<code class="literal">~</code>’で始まり、相対ファイル名は違います(<a class="link" href="ch25s08.html#abbreviate_002dfile_002dname">abbreviate-file-name</a>を参照)。MS-DOSおよびMS-Windowsでは、絶対ファイル名はスラッシュ、バックスラッシュ、またはドライブ指定‘<code class="literal"><em class="replaceable"><code>x</code></em>:/</code>’で始まります。ここで<em class="replaceable"><code>x</code></em>は<em class="firstterm">ドライブ文字(drive
+letter)</em>です。
+</p><pre class="synopsis"><a id="idm66876240" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-absolute-p</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>が絶対ファイル名の場合は<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をリターンする。
+</p><pre class="screen">(file-name-absolute-p "~rms/foo")
+     ⇒ t
+</pre><pre class="screen">(file-name-absolute-p "rms/foo")
+     ⇒ nil
+</pre><pre class="screen">(file-name-absolute-p "/user/rms/foo")
+     ⇒ t
+</pre></blockquote></div><p>相対ファイル名が与えられた場合は、<code class="literal">expand-file-name</code>を使用して、それを絶対ファイル名に変換できます(<a class="link" href="ch25s08.html#File-Name-Expansion" title="Functions that Expand Filenames">File
+Name Expansion</a>を参照)。この関数は、絶対ファイル名を相対ファイル名に変換します:
+</p><pre class="synopsis"><a id="idm66864848" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-relative-name</code> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>directory</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>directory</code></em>(絶対ディレクトリー名またはディレクトリーファイル名)から相対的な結果となると仮定して、<em class="replaceable"><code>filename</code></em>と等価な相対ファイル名のリターンを試みる。<em class="replaceable"><code>directory</code></em>が省略、または<code class="literal">nil</code>の場合、カレントバッファーのデフォルトディレクトリーがデフォルトとなる。
+</p><p>絶対ファイル名がデバイス名で始まるオペレーティングシステムが、いくつか存在する。そのようなシステムでは、2つの異なるデバイス名から開始される<em class="replaceable"><code>filename</code></em>は、<em class="replaceable"><code>directory</code></em>にもとづく等価な相対ファイル名をもたない。この場合、<code class="literal">file-relative-name</code>は絶対形式で<em class="replaceable"><code>filename</code></em>をリターンする。
+</p><pre class="screen">(file-relative-name "/foo/bar" "/foo/")
+     ⇒ "bar"
+(file-relative-name "/foo/bar" "/hack/")
+     ⇒ "../foo/bar"
+</pre></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Directory-Names"/>Directory Names</h2></div></div></div><a id="idm66851792" class="indexterm"/><a id="idm66851024" class="indexterm"/><p><em class="firstterm">ディレクトリー名(directory
+name)</em>とは、ディレクトリーの名前のことです。ディレクトリーは実際にはファイルの一種なので、ファイル名をもちます。これはディレクトリー名と関連がありますが、同一ではありません(これは、Unixの通常の用語とは異なる)。同じ実体にたいするこれら2つの異なる名前は、構文的な変換により関連付けられます。GNUおよびUnixシステムでは、ことは単純です。ディレクトリー名はスラッシュで終わり、ファイルとしてのディレクトリーの名前には、そのスラッシュがありません。MS-DOSでは、この関連付けはより複雑です。
+</p><p>ディレクトリー名と、ファイルとしてのディレクトリーの名前の違いは、些細ですが重要です。Emacsの変数、または関数の引数を記述する際、それがディレクトリー名であるとしており、ディレクトリーのファイル名は許されません。<code class="literal">file-name-directory</code>が文字列をリターンするときは、常にディレクトリー名です。
+</p><p>以下の2つの関数は、ディレクトリー名とファイル名の間で変換を行います。これらの関数は、‘<code class="literal">$HOME</code>’のような環境変数や、‘<code class="literal">~</code>’、‘<code class="literal">.</code>’、‘<code class="literal">..</code>’などの構文にたいして、特別なことは何も行いません。
+</p><pre class="synopsis"><a id="idm66846032" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-as-directory</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、オペレーティングシステムがディレクトリーの名前と解釈する形式で、<em class="replaceable"><code>filename</code></em>を表す文字列をリターンする。ほとんどのシステムでは、(もし終端にそれがなければ)これは文字列にスラッシュを追加することを意味する。
+</p><pre class="screen">(file-name-as-directory "~rms/lewis")
+     ⇒ "~rms/lewis/"
+</pre></blockquote></div><pre class="synopsis"><a id="idm66841680" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">directory-file-name</code> <em class="replaceable"><code>dirname</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、オペレーティングシステムがファイルの名前と解釈する形式で、<em class="replaceable"><code>dirname</code></em>を表す文字列をリターンする。ほとんどのシステムでは、これは文字列から最後のスラッシュ(またはバックスラッシュ)を削除することを意味する。
+</p><pre class="screen">(directory-file-name "~lewis/")
+     ⇒ "~lewis"
+</pre></blockquote></div><p>ディレクトリーにたいしては、<code class="literal">concat</code>を使用して相対ファイルと組み合わせることができます:
+</p><pre class="screen">(concat <em class="replaceable"><code>dirname</code></em> <em class="replaceable"><code>relfile</code></em>)
+</pre><p>これを行う前に、ファイル名が相対的であるか確認してください。絶対ファイル名を使用した場合、結果は構文的に不正になるか、間違ったファイルを参照する可能性があります。
+</p><p>ディレクトリーファイル名作成にこのような組み合わせを使用したい場合は、最初に<code class="literal">file-name-as-directory</code>を使用して、それをディレクトリー名に変換しなければなりません:
+</p><pre class="screen">(concat (file-name-as-directory <em class="replaceable"><code>dirfile</code></em>) <em class="replaceable"><code>relfile</code></em>)
+</pre><p>以下のような、手動によるスラッシュの結合を試みてはなりません
+</p><pre class="screen">;;; 間違い!
+(concat <em class="replaceable"><code>dirfile</code></em> "/" <em class="replaceable"><code>relfile</code></em>)
+</pre><p>なぜなら、これには可搬性がないからです。常に<code class="literal">file-name-as-directory</code>を使用してください。
+</p><p>ディレクトリー名をディレクトリーの省略名に変換するには、以下の関数を使用します:
+</p><a id="idm66829904" class="indexterm"/><a id="idm66829136" class="indexterm"/><pre class="synopsis"><a id="idm66828112" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">abbreviate-file-name</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="abbreviate_002dfile_002dname"/><p>この関数は、<em class="replaceable"><code>filename</code></em>の省略された形式をリターンする。これは<code class="literal">directory-abbrev-alist</code>(see section “File Aliases” in <em class="citetitle">The GNU Emacs
+Manual</em>)で指定される省略形を適用した後、引数のファイル名がユーザーのホームディレクトリー、またはそのサブディレクトリーにある場合は、それを‘<code class="literal">~</code>’に置き換える。ホームディレクトリーがルートディレクトリーの場合、多くのシステムでは結果が短縮されないので、‘<code class="literal">~</code>’で置き換えない。
+</p><p>これは名前の一部であるような省略形さえも認識するので、ディレクトリー名とファイル名にも使用できる。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="File-Name-Expansion"/>Functions that Expand Filenames</h2></div></div></div><a id="idm66821200" class="indexterm"/><p>ファイル名の<em class="firstterm">展開(expanding)</em>とは、相対ファイル名を絶対ファイル名に変換することを意味します。これはデフォルトディレクトリーから相対的に行われるため、展開されるファイル名と同様、デフォルトディレクトリーも指定しなければなりません。これは<code class="filename">~/</code>のような省略形
+(<a class="link" href="ch25s08.html#abbreviate_002dfile_002dname">abbreviate-file-name</a>を参照)、
+の展開、および<code class="filename">./</code>や<code class="filename"><em class="replaceable"><code>name</code></em>/../</code>のような冗長さの排除も行います。
+も展開します。
+</p><pre class="synopsis"><a id="idm66817104" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">expand-file-name</code> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>directory</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>を絶対ファイル名に変換する。<em class="replaceable"><code>directory</code></em>が与えられた場合、<em class="replaceable"><code>filename</code></em>が相対的なら、それは開始点となるデフォルトディレクトリーになる(<em class="replaceable"><code>directory</code></em>の値は、それ自体が絶対ディレクトリー名、またはディレクトリーファイル名であるべきで、それは‘<code class="literal">~</code>’で始まるかもしれない)。それ以外では、カレントバッファーの<code class="literal">default-directory</code>の値が使用される。たとえば:
+</p><pre class="screen">(expand-file-name "foo")
+     ⇒ "/xcssun/users/rms/lewis/foo"
+</pre><pre class="screen">(expand-file-name "../foo")
+     ⇒ "/xcssun/users/rms/foo"
+</pre><pre class="screen">(expand-file-name "foo" "/usr/spool/")
+     ⇒ "/usr/spool/foo"
+</pre><p>結合されたファイル名の最初のスラッシュの前が‘<code class="literal">~</code>’の場合は、環境変数<code class="envar">HOME</code>(通常はユーザーのホームディレクトリー)の値に展開される。最初のスラッシュの前が‘<code class="literal">~<em class="replaceable"><code>user</code></em></code>’で、かつ<em class="replaceable"><code>user</code></em>が有効なログイン名の場合は、<em class="replaceable"><code>user</code></em>のホームディレクトリーに展開される。
+</p><p>‘<code class="literal">.</code>’または‘<code class="literal">..</code>’を含むファイル名は、正規化形式に簡略化される:
+</p><pre class="screen">(expand-file-name "bar/../foo")
+     ⇒ "/xcssun/users/rms/lewis/foo"
+</pre><p>出力に‘<code class="literal">..</code>’コンポーネントが残り得る場合もある:
+</p><pre class="screen">(expand-file-name "../home" "/")
+     ⇒ "/../home"
+</pre><p>これは、ルートディレクトリー<code class="filename">/</code>の上位の“スーパールート(superroot)”という概念をもつファイルシステムのためのものである。その他のファイルシステムでは、<code class="filename">/../</code>は<code class="filename">/</code>とまったく同じに解釈される。
+</p><p><code class="literal">expand-file-name</code>は環境変数を展開<span class="emphasis"><em>しない</em></span>ことに注意。<code class="literal">substitute-in-file-name</code>だけが、それを行う。
+</p><pre class="screen">(expand-file-name "$HOME/foo")
+     ⇒ "/xcssun/users/rms/lewis/$HOME/foo"
+</pre><p><code class="literal">expand-file-name</code>は、あらゆる階層においてシンボリックリンクをフォローしないことにも注意。これは‘<code class="literal">..</code>’の扱いが<code class="literal">file-truename</code>と<code class="literal">expand-file-name</code>で異なることに起因する。‘<code class="literal">/tmp/bar</code>’がディレクトリー‘<code class="literal">/tmp/foo/bar</code>’にたいするシンボリックリンクであると仮定すると:
+</p><pre class="screen">(file-truename "/tmp/bar/../myfile")
+     ⇒ "/tmp/foo/myfile"
+</pre><pre class="screen">(expand-file-name "/tmp/bar/../myfile")
+     ⇒ "/tmp/myfile"
+</pre><p>直接間接を問わず、事前に<code class="literal">expand-file-name</code>を呼び出さずに‘<code class="literal">..</code>’に先行するシンボリックリンクをフォローする必要があるかもしれない場合は、それを呼び出さずに確実に<code class="literal">file-truename</code>を呼び出すべきである。<a class="link" href="ch25s06.html#Truenames" title="Truenames">Truenames</a>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm66788048" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">default-directory</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数の値は、カレントバッファーにたいするデフォルトディレクトリーである。これは絶対ディレクトリー名であること。これは‘<code class="literal">~</code>’で始まるかもしれない。この変数は、すべてのバッファーにおいてバッファーローカルである。
+</p><p>2つ目の引数が<code class="literal">nil</code>の場合、<code class="literal">expand-file-name</code>はデフォルトディレクトリーを使用する。
+</p><p>値は常にスラッシュで終わる文字列である。
+</p><pre class="screen">default-directory
+     ⇒ "/user/lewis/manual/"
+</pre></blockquote></div><pre class="synopsis"><a id="idm66770256" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">substitute-in-file-name</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="Definition-of-substitute_002din_002dfile_002dname"/><p>この関数は、<em class="replaceable"><code>filename</code></em>内で参照される環境変数を、環境変数の値に置き換える。標準的なUnixシェル構文にしたがい、
+‘<code class="literal">$</code>’は環境変数値置き換えのプレフィックスである。入力に‘<code class="literal">$$</code>’が含まれる場合、それ‘<code class="literal">$</code>’に置き換えられる。これにより、ユーザーが‘<code class="literal">$</code>’を“クォート”する手段が与えられる。
+</p><p>環境変数名は‘<code class="literal">$</code>’の後に続く一連の英数字(アンダースコアを含む)である。‘<code class="literal">$</code>’の後続文字が、‘<code class="literal">{</code>’の場合はマッチする‘<code class="literal">}</code>’までのすべてが変数名である。
+</p><p><code class="literal">substitute-in-file-name</code>により生成された出力で<code class="literal">substitute-in-file-name</code>を呼び出すと、不正な結果となる傾向がある。たとえば、単一の‘<code class="literal">$</code>’をクォートするための‘<code class="literal">$$</code>’の使用は正しく機能しないだろうし、環境変数値の中の‘<code class="literal">$</code>’は再帰的な置換を導くだろう。したがって、この関数を呼び出して、出力をこの関数に渡すプログラムは、その後の不正な結果を防ぐために、すべての‘<code class="literal">$</code>’文字を二重化する必要がある。
+</p><p>以下では、ユーザーのホームディレクトリー名を保持する環境変数<code class="envar">HOME</code>は、値‘<code class="literal">/xcssun/users/rms</code>’をもつとする。
+</p><pre class="screen">(substitute-in-file-name "$HOME/foo")
+     ⇒ "/xcssun/users/rms/foo"
+</pre><p>置き換え後は、‘<code class="literal">/</code>’の直後に‘<code class="literal">~</code>’や別の‘<code class="literal">/</code>’が出現した場合、この関数は、‘<code class="literal">/</code>’の前にあるすべてを無視する。
+</p><pre class="screen">(substitute-in-file-name "bar/~/foo")
+     ⇒ "~/foo"
+</pre><pre class="screen">(substitute-in-file-name "/usr/local/$HOME/foo")
+     ⇒ "/xcssun/users/rms/foo"
+     ;; <code class="filename">/usr/local/</code>は破棄された
+</pre></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Unique-File-Names"/>Generating Unique File Names</h2></div></div></div><a id="idm66751568" class="indexterm"/><a id="idm66750800" class="indexterm"/><p>一時ファイルに書き込む必要があるプログラムが、いくつかあります。以下は、そのようなファイルを構築する、便利な方法です:
+</p><pre class="screen">(make-temp-file <em class="replaceable"><code>name-of-application</code></em>)
+</pre><p><code class="literal">make-temp-file</code>の役目は、2人の異なるユーザー、またはジョブが、完全に一致する名前のファイルの使用を防ぐことです。
+</p><pre class="synopsis"><a id="idm66747728" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-temp-file</code> <em class="replaceable"><code>prefix</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>dir-flag</code></em> <em class="replaceable"><code>suffix</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、一時ファイルを作成して、その名前をリターンする。Emacsは、Emacsの各ジョブごとに異なるランダムないくつかの文字を<em class="replaceable"><code>prefix</code></em>に追加することにより、一時ファイルの名前を作成する。結果として新たに空のファイルが作成されることが保障される。MS-DOSでは、8+3のファイル名制限に適合するよう、文字列<em class="replaceable"><code>string</code></em>は切り詰められる可能性がある。<em class="replaceable"><code>prefix</code></em>が相対ファイル名の場合、それは<code class="literal">temporary-file-directory</code>にたいして展開される。
+</p><pre class="screen">(make-temp-file "foo")
+     ⇒ "/tmp/foo232J6v"
+</pre><p><code class="literal">make-temp-file</code>がリターンした際、一時ファイルは空で作成される。この時点で、そのファイルに意図するコンテンツを書き込むべきである。
+</p><p><em class="replaceable"><code>dir-flag</code></em>が<code class="literal">nil</code>の場合、<code class="literal">make-temp-file</code>は空のファイルのかわりに、空のディレクトリーを作成する。これはディレクトリー名ではなく、ディレクトリーのファイル名をリターンする。<a class="link" href="ch25s08.html#Directory-Names" title="Directory Names">Directory
+Names</a>を参照のこと。
+</p><p><em class="replaceable"><code>suffix</code></em>が非<code class="literal">nil</code>の場合、<code class="literal">make-temp-file</code>はそれをファイル名の最後に追加する。
+</p><p>同じEmacs内で実行される異なるライブラリー間での競合を防ぐために、<code class="literal">make-temp-file</code>を使用する各Lispプログラムがプログラム自身の<em class="replaceable"><code>prefix</code></em>を使用するべきである。<em class="replaceable"><code>prefix</code></em>の最後に追加される数字は、異なるEmacsジョブ内で実行される、同じアプリケーションを区別する。追加される文字により、同一のEmacsジョブ内でも、多数の名前を区別することが可能になる。
+</p></blockquote></div><p>一時ファイル用のデフォルトディレクトリーは、変数<code class="literal">temporary-file-directory</code>により制御されます。この変数により、すべての一時ファイルにたいして、ユーザーがディレクトリーを指定する、一貫した方法が与えられます。<code class="literal">small-temporary-file-directory</code>が非<code class="literal">nil</code>の場合は、かわりにそれを使うプログラムもいくつかあります。これを使う場合は、<code class="literal">make-temp-file</code>を呼び出す前に、正しいディレクトリーにたいしてプレフィックスを展開するべきです。
+</p><pre class="synopsis"><a id="idm66732240" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">temporary-file-directory</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm66730192" class="indexterm"/><a id="idm66729168" class="indexterm"/><a id="idm66728144" class="indexterm"/><p>この変数は、一時ファイル作成用のディレクトリー名を指定する。値はディレクトリー名であるべきだが、もし値がディレクトリーのファイル名(<a class="link" href="ch25s08.html#Directory-Names" title="Directory Names">Directory
+Names</a>を参照)ならば、Lispプログラムがかわりに対処すればよい。<code class="literal">expand-file-name</code>の2つ目の引数としてその値を使用するのは、それを達成するよい方法である。
+</p><p>デフォルト値は、オペレーティングシステムにたいして適切な方法により決定される。これは環境変数<code class="envar">TMPDIR</code>、<code class="envar">TMP</code>、<code class="envar">TEMP</code>にもとづき、これらの変数が定義されていなければ、システム依存の名前にフォールバックする。
+</p><p>一時ファイルの作成に<code class="literal">make-temp-file</code>を使用しない場合でも、一時ファイルを置くディレクトリーを判断するために、依然としてこの変数を使用するべきである。しかし、一時ファイルが小さくなることを求める場合は、<code class="literal">small-temporary-file-directory</code>が非<code class="literal">nil</code>ならば、それを使用するべきである。
+</p></blockquote></div><pre class="synopsis"><a id="idm66722000" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">small-temporary-file-directory</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、小さいかもしれない特定の一時ファイル作成用のディレクトリー名を指定する。
+</p><p>小さくなるかもしれない一時ファイルに書き込みたい場合は、以下のようにディレクトリーを計算するべきである:
+</p><pre class="screen">(make-temp-file
+  (expand-file-name <em class="replaceable"><code>prefix</code></em>
+                    (or small-temporary-file-directory
+                        temporary-file-directory)))
+</pre></blockquote></div><pre class="synopsis"><a id="idm66717904" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-temp-name</code> <em class="replaceable"><code>base-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、一意なファイル名として使用できる文字列を生成する。この名前は<em class="replaceable"><code>base-name</code></em>で始まり、それに各Emacsジョブごとに異なる、複数のランダムな文字を追加したものである。これは<code class="literal">make-temp-file</code>と似ているが、(i)名前だけを作成し、ファイルは作成しない、(ii)<em class="replaceable"><code>base-name</code></em>は絶対ファイル名であること、という点が異なる(MS-DOSシステムでは、8+3ファイル名制限に適合するよう、<em class="replaceable"><code>base-name</code></em>が切り詰められる)。
+</p><p><span class="bold"><strong>警告:</strong></span> この関数を使用するべきではない。かわりに<code class="literal">make-temp-file</code>を使用すること!
+この関数は、競合状態の影響を受けやすい。<code class="literal">make-temp-name</code>呼び出しと一時ファイル作成のタイムラグは、セキュリティーホールとなる場合があるかもしれない。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="File-Name-Completion"/>File Name Completion</h2></div></div></div><a id="idm66710352" class="indexterm"/><a id="idm66709584" class="indexterm"/><p>このセクションでは、ファイル名を補完するための、低レベルサブルーチンについて説明します。より高レベルの関数については、<a class="link" href="ch20s06.html#Reading-File-Names" title="Reading File Names">Reading File
+Names</a>を参照してください。
+</p><pre class="synopsis"><a id="idm66707664" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-all-completions</code> <em class="replaceable"><code>partial-filename</code></em> <em class="replaceable"><code>directory</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ディレクトリー<em class="replaceable"><code>directory</code></em>内で、<em class="replaceable"><code>partial-filename</code></em>で始まる名前のファイルにたいして、すべての補完可能なリストをリターンする。補完の順番はそのディレクトリー内でのファイル順序であり、これは予測不能で何の情報ももたない。
+</p><p>引数<em class="replaceable"><code>partial-filename</code></em>は非ディレクトリーパートを含むファイル名でなければならず、スラッシュ(いくつかのシステムではバックスラッシュ)が含まれていてはならない。<em class="replaceable"><code>directory</code></em>が絶対ディレクトリーでない場合は、<em class="replaceable"><code>directory</code></em>の前にカレントバッファーのデフォルトディレクトリーが追加される。
+</p><p>以下の例では、<code class="filename">~rms/lewis</code>がカレントデフォルトディレクトリーで、名前が‘<code class="literal">f</code>’で始まる5つのファイル<code class="filename">foo</code>、<code class="filename">file~</code>、<code class="filename">file.c</code>、<code class="filename">file.c.~1~</code>、<code class="filename">file.c.~2~</code>があるものとする:
+</p><pre class="screen">(file-name-all-completions "f" "")
+     ⇒ ("foo" "file~" "file.c.~2~"
+                "file.c.~1~" "file.c")
+</pre><pre class="screen">
+</pre><pre class="screen">(file-name-all-completions "fo" "")
+     ⇒ ("foo")
+</pre></blockquote></div><pre class="synopsis"><a id="idm66684112" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-name-completion</code> <em class="replaceable"><code>filename</code></em> <em class="replaceable"><code>directory</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>predicate</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ディレクトリー<em class="replaceable"><code>directory</code></em>内で、ファイル名<em class="replaceable"><code>filename</code></em>を補完する。これはディレクトリー<em class="replaceable"><code>directory</code></em>内で、<em class="replaceable"><code>filename</code></em>で始まるすべてのファイル名にたいして、最長の共通プレフィックスをリターンする。<em class="replaceable"><code>predicate</code></em>が非<code class="literal">nil</code>の場合は、この関数を1引数で呼び出して絶対ファイル名に展開後、<em class="replaceable"><code>predicate</code></em>を満足しない補完候補を無視する。
+</p><p>マッチが1つだけ存在し、かつ<em class="replaceable"><code>filename</code></em>が正確にそれにマッチする場合、関数は<code class="literal">t</code>をリターンする。関数は、ディレクトリー<em class="replaceable"><code>directory</code></em>が<em class="replaceable"><code>filename</code></em>で始まる名前のファイルを含まない場合は、<code class="literal">nil</code>をリターンする。
+</p><p>以下の例では、<code class="filename">~rms/lewis</code>がカレントデフォルトディレクトリーで、名前が‘<code class="literal">f</code>’で始まる5つのファイル<code class="filename">foo</code>、<code class="filename">file~</code>、<code class="filename">file.c</code>、<code class="filename">file.c.~1~</code>、<code class="filename">file.c.~2~</code>があるものとする:
+</p><pre class="screen">(file-name-completion "fi" "")
+     ⇒ "file"
+</pre><pre class="screen">
+</pre><pre class="screen">(file-name-completion "file.c.~1" "")
+     ⇒ "file.c.~1~"
+</pre><pre class="screen">
+</pre><pre class="screen">(file-name-completion "file.c.~1~" "")
+     ⇒ t
+</pre><pre class="screen">
+</pre><pre class="screen">(file-name-completion "file.c.~3" "")
+     ⇒ nil
+</pre></blockquote></div><pre class="synopsis"><a id="idm66663376" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">completion-ignored-extensions</code></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">file-name-completion</code>は通常、このリスト内の任意の文字列で終わるファイル名を無視する。すべての可能な補完がこれらのサフィックスのいずれか1つで終わるときは、それらを無視しない。この変数は、<code class="literal">file-name-all-completions</code>に影響しない。
+</p><p>典型的な値は、以下のようになる:
+</p><pre class="screen">completion-ignored-extensions
+     ⇒ (".o" ".elc" "~" ".dvi")
+</pre><p><code class="literal">completion-ignored-extensions</code>のある要素がスラッシュ‘<code class="literal">/</code>’で終わる場合、それはディレクトリーを示す。スラッシュで<span class="emphasis"><em>終わらない</em></span>要素がディレクトリーにマッチすることは決してない。したがって、上記の値は<code class="filename">foo.elc</code>という名前のディレクトリーを除外しないだろう。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Standard-File-Names"/>Standard File Names</h2></div></div></div><p>Emacs
+Lispプログラムが特定の用途のために標準的なファイル名を指定する必要がある場合があります。典型的には、カレントユーザーにより指定された設定データを保持する場合がそうです。そのようなファイルは通常、<code class="literal">user-emacs-directory</code>により指定されるディレクトリーに置かれ、デフォルトでは<code class="filename">~/.emacs.d</code>です(<a class="link" href="ch39.html#Init-File" title="The Init File">Init
+File</a>を参照)。たとえば、abbrev(abbreviation:
+省略形)の定義は、デフォルトでは<code class="filename">~/.emacs.d/abbrev_defs</code>に格納されます。このようなファイル名を指定するには、関数<code class="literal">locate-user-emacs-file</code>を使用するのが、もっとも簡単な方法です。
+</p><pre class="synopsis"><a id="idm66652752" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">locate-user-emacs-file</code> <em class="replaceable"><code>base-name</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>old-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、Emacs特有の設定ファイル、またはデータファイルにたいする絶対ファイル名をリターンする。引数<code class="filename">base-name</code>は、ソファイル名であること。リターン値は、<code class="literal">user-emacs-directory</code>で指定されるディレクトリー内の絶対ファイル名である。このディレクトリーが存在しない場合、この関数はディレクトリーを作成する。
+</p><p>オプション引数<em class="replaceable"><code>old-name</code></em>が非<code class="literal">nil</code>の場合、それはユーザーのホームディレクトリー内のファイル<code class="filename">~/<em class="replaceable"><code>old-name</code></em></code>を指定する。そのようなファイルが存在する場合、リターン値は<em class="replaceable"><code>base-name</code></em>で指定されるファイルではなく、そのファイルの絶対ファイル名となる。これは、Emacsパッケージが後方互換を提供するために使用されることを意図した引数である。たとえば、<code class="literal">user-emacs-directory</code>導入前、abbrevファイルは<code class="filename">~/.abbrev_defs</code>に置かれていた。以下は、<code class="literal">abbrev-file-name</code>の定義である:
+</p><pre class="screen">(defcustom abbrev-file-name
+  (locate-user-emacs-file "abbrev_defs" ".abbrev_defs")
+  "Default name of file from which to read abbrevs."
+  …
+  :type 'file)
+</pre></blockquote></div><p>ファイル名の標準化のための低レベル関数は<code class="literal">convert-standard-filename</code>で、これはサブルーチンとして<code class="literal">locate-user-emacs-file</code>により使用される。
+</p><pre class="synopsis"><a id="idm66625488" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">convert-standard-filename</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>にもとづき、カレントオペレーティングシステムの慣習に適合するファイル名をリターンする。
+</p><p>GNUおよびUnixシステムでは、これは単に<em class="replaceable"><code>filename</code></em>をリターンする。その他のオペレーティングシステムでは、システム固有のファイル名規約にしたがうだろう。たとえばMS-DOSでは、この関数はMS-DOSファイル名制限にしたがうよう、先頭の‘<code class="literal">.</code>’を‘<code class="literal">_</code>’に変換したり、‘<code class="literal">.</code>’の後続の文字を3文字に切り詰める等、さまざまな変更を行う。
+</p><p>この関数でGNUおよびUnixシステムの慣習に適合する名前を指定して、それを<code class="literal">convert-standard-filename</code>に渡すのが推奨される使用方法である。
+</p></blockquote></div></div><div class="footnotes"><br/><hr/><div id="ftn.idm66957264" class="footnote"><p><a href="#idm66957264" class="para"><sup class="para">[13] </sup></a>MS-WindowsバージョンのEmacsはCygwin環境用にコンパイルされており、2つのファイル名構文の変換に、<code class="literal">cygwin-convert-file-name-to-windows</code>と<code class="literal">cygwin-convert-file-name-from-windows</code>を使用できます。</p></div></div></div></body></html>

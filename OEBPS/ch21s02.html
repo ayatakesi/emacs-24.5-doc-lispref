@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Defining Commands</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Defining-Commands"/>Defining Commands</h1></div></div></div><a id="idm56880976" class="indexterm"/><a id="idm56880208" class="indexterm"/><a id="idm56879440" class="indexterm"/><a id="idm56878672" class="indexterm"/><p>スペシャルフォーム<code class="literal">interactive</code>はLisp関数をコマンドに変えます。<code class="literal">interactive</code>フォームは関数ボディーのトップレベルに置かなければならず、通常はボディー内の最初のフォームとして記述されます。これはラムダ式(<a class="link" href="ch13s02.html" title="Lambda Expressions">Lambda
+Expressions</a>を参照)と<code class="literal">defun</code>(<a class="link" href="ch13s04.html" title="Defining Functions">Defining
+Functions</a>を参照)の両方を受け入れます。このフォームは、その関数が実際に実行される間は何も行いません。このフォームの存在はフラグとしての役割りをもち、Emacsコマンドループにたいしてその関数がインタラクティブに呼び出せることを告げます。<code class="literal">interactive</code>フォームの引数は、インタラクティブな呼び出しが引数を読み取る方法を指定します。
+</p><a id="idm56874320" class="indexterm"/><p><code class="literal">interactive</code>フォームのかわりに、関数シンボルの<code class="literal">interactive-form</code>プロパティで指定されることもあります。このプロパティが非<code class="literal">nil</code>値の場合、関数ボディー内の<code class="literal">interactive</code>フォームより優先されます。この機能はほとんど使用されません。
+</p><a id="idm56858576" class="indexterm"/><p>インタラクティブに呼び出されることだけを意図していて、決してLispから直接呼び出されない関数が時折あります。この場合は、その関数の<code class="literal">interactive-only</code>プロパティに非<code class="literal">nil</code>を与えます。これにより、そのコマンドがLispから呼び出された場合に、バイトコンパイラーが警告を発します。このプロパティの値には、文字列、<code class="literal">t</code>、または任意のシンボルを指定できます。文字列の場合、それはバイトコンパイラーによる警告内で直接使用されます(最初は大文字でなくピリオドで終端される文字列。たとえば“use
+… instead.”)。シンボルの場合、それはLispコード内で使用されるかわりの関数です。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Using-Interactive"/>Using <code class="literal">interactive</code></h2></div></div></div><a id="idm56854224" class="indexterm"/><a id="idm56853456" class="indexterm"/><p>このセクションでは、Lisp関数をインタラクティブに呼び出し可能なコマンドにする<code class="literal">interactive</code>フォームの記述方法と、コマンドの<code class="literal">interactive</code>フォームの検証方法について説明します。
+</p><pre class="synopsis"><a id="idm56850896" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">interactive</code> <em class="replaceable"><code>arg-descriptor</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは関数がコマンドであり、したがって(<strong class="userinput"><code>M-x</code></strong>を通じて、またはそのコマンドにバインドされたキーシーケンスのエンターすることにより)インタラクティブに呼び出されるかもしれないことを宣言する。引数<em class="replaceable"><code>arg-descriptor</code></em>は、そのコマンドがインタラクティブに呼び出されたときに引数を計算する方法を宣言する。
+</p><p>コマンドは他の関数と同じようにLisp関数から呼び出されるかもしれないが、その場合呼び出し側は引数を提供し、<em class="replaceable"><code>arg-descriptor</code></em>は効果をもたない。
+</p><a id="idm56846160" class="indexterm"/><p><code class="literal">interactive</code>フォームは関数ボディー内のトップレベルに置くか、関数シンボルの<code class="literal">interactive-form</code>プロパティ((<a class="link" href="ch09s04.html" title="Symbol Properties">Symbol
+Properties</a>)を参照)になければならない。これはコマンドループが関数を呼び出す前にinteractiveフォームを調べることにより効果をもつ(<a class="link" href="ch21s03.html" title="Interactive Call">Interactive
+Call</a>を参照)。一度関数が呼び出されると関数ボディー内のすべてのフォームが実行される。このときボディー内に<code class="literal">interactive</code>フォームが出現しても、そのフォームは引数の評価さえされず、単に<code class="literal">nil</code>をリターンする。
+</p><p>慣例により、<code class="literal">interactive</code>フォームは関数ボディー内の最初のトップレベルフォームとするべきである。<code class="literal">interactive</code>フォームがシンボルの<code class="literal">interactive-form</code>プロパティと関数ボディーの両方に存在する場合は、前者が優先される。<code class="literal">interactive-form</code>フォームは既存の関数にinteractiveフォームを追加したり、その関数を再定義することなく引数をインタラクティブに処理する方法を変更するために使用できる。
+</p></blockquote></div><p>引数<em class="replaceable"><code>arg-descriptor</code></em>には3つの可能性があります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>省略、または<code class="literal">nil</code>の場合、コマンドは引数なしで呼び出される。コマンドが1つ以上の引数を要求する場合は、すぐにエラーとなる。
+</p></li><li class="listitem"><p>文字列の場合、その文字列の内容は改行で区切られた要素シーケンスであり、1つの要素が1つの引数に対応する<a href="#ftn.idm56836944" class="footnote" id="idm56836944"><sup class="footnote">[10]</sup></a>。各要素はコード文字(<a class="link" href="ch21s02.html#Interactive-Codes" title="Code Characters for interactive">Interactive
+Codes</a>を参照)と、オプションでその後のプロンプト(ある文字はコード文字として使用され、コード文字としては無視されるものもある)により構成される。以下は例である:
+</p><pre class="screen">(interactive "P\nbFrobnicate buffer: ")
+</pre><p>コード文字‘<code class="literal">P</code>’はそのコマンドの1つ目の引数をrawコマンドプレフィクス(<a class="link" href="ch21s12.html" title="Prefix Command Arguments">Prefix Command
+Arguments</a>を参照)にセットする。‘<code class="literal">bFrobnicate buffer: </code>’は、ユーザーに‘<code class="literal">Frobnicate
+buffer: </code>’のプロンプトを示して既存のバッファーの名前の入力を促し、これは2つ目かつ最後の引数になる。
+</p><p>プロンプト文字列には、プロンプト内の前の引数(1つ目の引数から始まる)の値を含めるために‘<code class="literal">%</code>’を使用できる。これは<code class="literal">format</code>(<a class="link" href="ch05s07.html" title="Formatting Strings">Formatting
+Strings</a>を参照)を使用して行われる。たとえば、以下は既存のバッファーの名前を読み取り、その後にそのバッファーに与える新たな名前を読み取る例である:
+</p><pre class="screen">(interactive "bBuffer to rename: \nsRename buffer %s to: ")
+</pre><a id="idm56830416" class="indexterm"/><a id="idm56828752" class="indexterm"/><p>文字列の先頭‘<code class="literal">*</code>’がある場合、そのバッファーが読み取り専用の場合にエラーがシグナルされる。
+</p><a id="idm56827088" class="indexterm"/><p>文字列の先頭が‘<code class="literal">@</code>’で、そのコマンドの呼び出しに使用されたキーシーケンスに何らかのマウスイベントが含まれる場合は、そのコマンドを実行する前に、それらのうち最初のイベントに結びつくウィンドウが選択される。
+</p><a id="idm60969680" class="indexterm"/><a id="idm60968016" class="indexterm"/><p>文字列の先頭が‘<code class="literal">^</code>’で、そのコマンドが<em class="firstterm">シフト転換(shift-translation)</em>を通じて呼び出された場合は、そのコマンドを実行する前に、マークをセットして一時的にリージョンをアクティブにするか、すでにアクティブなリージョンを拡張する。コマンドがシフト転換なしで呼び出されて、リージョンが一時的にアクティブな場合は、コマンドを実行する前に、そのリージョンを非アクティブにする。シフト転換は<code class="literal">shift-select-mode</code>により、ユーザーレベルで制御される。section “Shift
+Selection” in <em class="citetitle">The GNU Emacs Manual</em>を参照のこと。
+</p><p>‘<code class="literal">*</code>’、‘<code class="literal">@</code>’、<code class="literal">^</code>はともに使用でき、その場合は順序に意味はない。実際の引数の読み取りは残りのプロンプト文字列(‘<code class="literal">*</code>’、‘<code class="literal">@</code>’、<code class="literal">^</code>以外の最初の文字以降)により制御される。
+</p></li><li class="listitem"><p>文字列ではないLisp式の場合は、そのコマンドに渡す引数リストを取得するために評価されるフォームである。このフォームは通常、ユーザーから入力を読み取るためにさまざまな関数を呼び出し、それにはほとんどの場合はミニバッファー(<a class="link" href="ch20.html" title="Chapter 19. Minibuffers">Minibuffers</a>を参照)を通じてか、キーボードから直接読み取りを行う(<a class="link" href="ch21s08.html" title="Reading Input">Reading
+Input</a>を参照)。
+</p><p>引数値としてポイントやマークを提供するのも一般的だが、何かを行い<span class="emphasis"><em>かつ</em></span>(ミニバッファー使用の有無に関わらず)入力を読み取る場合は、読み取りの前にポイント値またはマーク値の整数を確実に取得しておくこと。カレントバッファーはサブプロセスの出力を受信するかもしれず、コマンドが入力を待つ間にサブプロセス出力が到着した場合、ポイントおよびマークの再配置が起こり得る。
+</p><p>以下は行っては<span class="emphasis"><em>いけない</em></span>例である:
+</p><pre class="screen">(interactive
+ (list (region-beginning) (region-end)
+       (read-string "Foo: " nil 'my-history)))
+</pre><p>これにたいし、以下はキーボード入力を読み取った後にポイントとマークを調べることにより、上記の問題を避ける例である:
+</p><pre class="screen">(interactive
+ (let ((string (read-string "Foo: " nil 'my-history)))
+   (list (region-beginning) (region-end) string)))
+</pre><p><span class="bold"><strong>警告:</strong></span>
+引数値にはプリントや読み取りが不可能なデータ型を含めるべきではない。いくつかの機能は後続のセッションに読み込ませるために<code class="literal">command-history</code>をファイルに保存する。コマンドの引数に‘<code class="literal">#&lt;…&gt;</code>’構文を使用してプリントされるデータ型が含まれる場合、それらの機能は動作しないだろう。
+</p><p>しかしこれには少数の例外がある。<code class="literal">(point)</code>、<code class="literal">(mark)</code>、<code class="literal">(region-beginning)</code>、<code class="literal">(region-end)</code>などの一連の式に限定して使用するのに問題はない。なぜならEmacsはこれらを特別に認識して、コマンドヒストリー内に(値ではなく)その式を配すからである。記述した式がこれらの例外に含まれるかどうか確認するには、コマンドを実行した後に<code class="literal">(car
+command-history)</code>を調べればよい。
+</p></li></ul></div><a id="idm60947664" class="indexterm"/><pre class="synopsis"><a id="idm60946128" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">interactive-form</code> <em class="replaceable"><code>function</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>function</code></em>の<code class="literal">interactive</code>フォームをリターンする。<em class="replaceable"><code>function</code></em>がインタラクティブに呼び出し可能な関数(<a class="link" href="ch21s03.html" title="Interactive Call">Interactive
+Call</a>を参照)の場合、値はそのコマンドの引数を計算する方法を指定する<code class="literal">interactive</code>フォーム(<code class="literal">(interactive
+<em class="replaceable"><code>spec</code></em>)</code>)である。それ以外では値は<code class="literal">nil</code>である。<em class="replaceable"><code>function</code></em>がシンボルの場合は、そのシンボルの関数定義が使用される。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Interactive-Codes"/>Code Characters for <code class="literal">interactive</code></h2></div></div></div><a id="idm60921296" class="indexterm"/><a id="idm60920528" class="indexterm"/><a id="idm60919760" class="indexterm"/><a id="idm60918992" class="indexterm"/><p>ここで説明されているコード文字には、以下で定義されるいくつかのキーワードが含まれています:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><span class="bold"><strong>Completion</strong></span>
+</span></dt><dd><a id="idm60916816" class="indexterm"/><p>補完を提供する。<span class="keycap"><strong>TAB</strong></span>、<span class="keycap"><strong>SPC</strong></span>、<span class="keycap"><strong>RET</strong></span>は<code class="literal">completing-read</code>(<a class="link" href="ch20s06.html" title="Completion">Completion</a>を参照)を使用して引数を読み取り、名前の補完を行う。<strong class="userinput"><code>?</code></strong>で利用可能な補完リストを表示する。
+</p></dd><dt><span class="term"><span class="bold"><strong>Existing</strong></span>
+</span></dt><dd><p>既存オブジェクトの名前を要求する。無効な名前は受け付けられない。カレント入力が有効でない場合、ミニバッファーをexitするコマンドはexitしない。
+</p></dd><dt><span class="term"><span class="bold"><strong>Default</strong></span>
+</span></dt><dd><a id="idm60910416" class="indexterm"/><p>ユーザーがテキストを何もエンターしなかった場合は、ある種のデフォルト値が使用される。デフォルトはコード文字に依存する。
+</p></dd><dt><span class="term"><span class="bold"><strong>No I/O</strong></span>
+</span></dt><dd><p>このコード文字は入力を読み取らずに引数を計算する。したがってプロンプト文字列を使用せず、与えられたプロンプト文字列は無視される。
+</p><p>たとえこのコード文字がプロンプト文字列を使用しなくても、これが文字列内で最後のコード文字でない場合は、その後に改行を付けなければならない。
+</p></dd><dt><span class="term"><span class="bold"><strong>Prompt</strong></span>
+</span></dt><dd><p>コード文字の直後にプロンプトが続く。プロンプトの終端は文字列の終端、または改行。
+</p></dd><dt><span class="term"><span class="bold"><strong>Special</strong></span>
+</span></dt><dd><p>このコード文字はインタラクティブ文字列の先頭にあるときのみ意味があり、プロンプトおよび改行を要求しない。単一の独立した文字である。
+</p></dd></dl></div><a id="idm60904912" class="indexterm"/><p>以下は<code class="literal">interactive</code>とともに使用されるコード文字です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">*</code>’
+</span></dt><dd><p>カレントバッファーが読み取り専用の場合はエラーをシグナルする。[Special]
+</p></dd><dt><span class="term">‘<code class="literal">@</code>’
+</span></dt><dd><p>このコマンドを呼び出したキーシーケンス内の最初のマウスイベントに関連するウィンドウを選択する。[Special]
+</p></dd><dt><span class="term">‘<code class="literal">^</code>’
+</span></dt><dd><p>シフト転換を通じてコマンドが呼び出された場合はコマンドを実行する前に、マークをセットして一時的にリージョンをアクティブにするか、すでにリージョンがアクティブな場合はリージョンを拡張する。シフト転換を通じずにコマンドが呼び出され、リージョンが一時的にアクティブな場合は、コマンドを実行する前にそのリージョンを非アクティブにする。[Special]
+</p></dd><dt><span class="term">‘<code class="literal">a</code>’
+</span></dt><dd><p>関数名(たとえば<code class="literal">fboundp</code>を満足するシンボル)。[Existing]、[Completion]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">b</code>’
+</span></dt><dd><p>既存バッファーの名前。
+The name of an existing buffer.
+デフォルトではカレントバッファー(<a class="link" href="ch27.html" title="Chapter 26. Buffers">Buffers</a>を参照)の名前を使用する。[Existing]、[Completion]、[Default]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">B</code>’
+</span></dt><dd><p>バッファー名。そのバッファーが存在する必要はない。デフォルトではカレントバッファーではなくもっとも最近使用されたバッファーの名前を使用する。[Completion]、[Default]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">c</code>’
+</span></dt><dd><p>文字。カーソルはエコーエリアに移動しない。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">C</code>’
+</span></dt><dd><p>コマンド名(たとえば<code class="literal">commandp</code>を満足するシンボル)。[Existing]、[Completion]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">d</code>’
+</span></dt><dd><a id="idm60889168" class="indexterm"/><p>ポイント位置の整数(<a class="link" href="ch30.html#Point" title="Point">Point</a>を参照)。[No I/O]
+</p></dd><dt><span class="term">‘<code class="literal">D</code>’
+</span></dt><dd><p>ディレクトリー名。デフォルトはカレントバッファーのカレントのデフォルトディレクトリー<code class="literal">default-directory</code>(<a class="link" href="ch25s08.html#File-Name-Expansion" title="Functions that Expand Filenames">File
+Name Expansion</a>を参照)。[Existing]、[Completion]、[Default]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">e</code>’
+</span></dt><dd><p>そのコマンドを呼び出したキーシーケンス内の1つ目、または2つ目の非キーボードイベント。より正確には、‘<code class="literal">e</code>’はリストとしてイベントを取得するので、リスト内のデータを調べることができる。<a class="link" href="ch21s07.html" title="Input Events">Input
+Events</a>を参照のこと。[No I/O]
+</p><p>‘<code class="literal">e</code>’はマウスイベント、および特別なシステムイベント(<a class="link" href="ch21s07.html#Misc-Events" title="Miscellaneous System Events">Misc
+Events</a>を参照)にたいして使用する。コマンドが受け取るイベントリストは、そのイベントに依存する。<a class="link" href="ch21s07.html" title="Input Events">Input
+Events</a>ではそれぞれのイベントのリスト形式を、対応するサブセクションでそれぞれ説明しているので、参照のこと。
+</p><p>1つのコマンドのinteractive仕様の中で、‘<code class="literal">e</code>’を複数回使用できる。そのコマンドを呼び出したキーシーケンスがイベント<em class="replaceable"><code>n</code></em>(リスト)をもつ場合は、‘<code class="literal">e</code>’の<em class="replaceable"><code>n</code></em>番目がそのイベントを提供する。関数キーや<acronym class="acronym">ASCII</acronym>文字のようなリスト以外のイベントは、‘<code class="literal">e</code>’に関連するイベントとしてカウントされない。
+</p></dd><dt><span class="term">‘<code class="literal">f</code>’
+</span></dt><dd><p>既存ファイルのファイル名(<a class="link" href="ch25s08.html" title="File Names">File
+Names</a>を参照)。デフォルトのディレクトリーは<code class="literal">default-directory</code>。[Existing]、[Completion]、[Default]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">F</code>’
+</span></dt><dd><p>ファイル名。ファイルが存在している必要はない。[Completion]、[Default]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">G</code>’
+</span></dt><dd><p>ファイル名。ファイルが存在している必要はない。ユーザーがディレクトリー名だけをエンターした場合、値はそのディレクトリー名となり、そのディレクトリー名にファイル名は追加されない。[Completion]、[Default]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">i</code>’
+</span></dt><dd><p>無関係な引数。このコード文字は引数値として常に<code class="literal">nil</code>を与える。[No I/O]
+</p></dd><dt><span class="term">‘<code class="literal">k</code>’
+</span></dt><dd><p>キーシーケンス(<a class="link" href="ch22.html#Key-Sequences" title="Key Sequences">Key
+Sequences</a>を参照)。これはカレントキーマップ内でコマンド(または未定義のコマンド)が見つかるまで、イベントを読み取り続ける。キーシーケンス引数は文字列、またはベクターで表される。カーソルはエコーエリアに移動しない。[Prompt]
+</p><p>‘<code class="literal">k</code>’が(マウスの)down-eventで終わるキーシーケンスを読み取った場合は、後続の(マウスの)up-eventも読み取り、それを捨てる。コード文字‘<code class="literal">U</code>’により、up-eventへのアクセスを得ることができる。
+</p><p>この種の入力は、<code class="literal">describe-key</code>や<code class="literal">global-set-key</code>のようなコマンドにより使用される。
+</p></dd><dt><span class="term">‘<code class="literal">K</code>’
+</span></dt><dd><p>キーシーケンス。その定義は変更されることを意図している。これは‘<code class="literal">k</code>’と同じように機能するが、キーシーケンス内の最後の入力イベントにたいして、通常(必要なら)使用される未定義キーから定義済みキーへの変換を抑制する。
+</p></dd><dt><span class="term">‘<code class="literal">m</code>’
+</span></dt><dd><a id="idm60862544" class="indexterm"/><p>マーク位置の整数。[No I/O]
+</p></dd><dt><span class="term">‘<code class="literal">M</code>’
+</span></dt><dd><p>任意のテキスト。ミニバッファー内でカレントバッファーの入力メソッド(section “Input Methods” in <em class="citetitle">The GNU Emacs
+Manual</em>を参照)を使用して読み取りを行い、それを文字列でリターンする。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">n</code>’
+</span></dt><dd><p>数字。ミニバッファーで読み取られる。入力が数字でない場合、ユーザーは再試行する必要がある。‘<code class="literal">n</code>’は決してプレフィクス引数を使用しない。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">N</code>’
+</span></dt><dd><p>数引数(numeric prefix
+argument)。ただしプレフィクス引数がない場合は、<strong class="userinput"><code>n</code></strong>のように数字を読み取る。値は常に数字。<a class="link" href="ch21s12.html" title="Prefix Command Arguments">Prefix Command
+Arguments</a>を参照のこと。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">p</code>’
+</span></dt><dd><a id="idm60854224" class="indexterm"/><p>数引数()これは小文字の‘<code class="literal">p</code>’であることに注意)。[No I/O]
+</p></dd><dt><span class="term">‘<code class="literal">P</code>’
+</span></dt><dd><a id="idm60851536" class="indexterm"/><p>rawプレフィクス引数(これは大文字の‘<code class="literal">P</code>’であることに注意)。[No I/O]
+</p></dd><dt><span class="term">‘<code class="literal">r</code>’
+</span></dt><dd><a id="idm60848848" class="indexterm"/><p>2つの数引数(ポイントとマーク)。小さいほうが先。これは1つではなく連続する2つの引数を指定する唯一のコード文字である。[No I/O]
+</p></dd><dt><span class="term">‘<code class="literal">s</code>’
+</span></dt><dd><p>任意のテキスト。ミニバッファー内で読み取りを行い文字列としてリターンする(<a class="link" href="ch20s02.html" title="Reading Text Strings with the Minibuffer">Text from
+Minibuffer</a>を参照)。<strong class="userinput"><code>C-j</code></strong>か<span class="keycap"><strong>RET</strong></span>で入力を終端する(これらの文字を入力に含めるために<strong class="userinput"><code>C-q</code></strong>が使用されるかもしれない)。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">S</code>’
+</span></dt><dd><p>インターン済みのシンボル。名前はミニバッファー内で読み取られる。<strong class="userinput"><code>C-j</code></strong>か<span class="keycap"><strong>RET</strong></span>で入力を終端する。ここでは、その他の通常はシンボルを終端する文字(たとえば空白文字、丸カッコ、角カッコ)では終端されない。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">U</code>’
+</span></dt><dd><p>キーシーケンス、または<code class="literal">nil</code>。‘<code class="literal">k</code>’(または‘<code class="literal">K</code>’)が読み取った後に、(もしあれば)捨てられる(マウスの)up-eventを取得するために、引数‘<code class="literal">k</code>’(または‘<code class="literal">K</code>’)の後で使用され得る。捨てられたup-eventが存在しない場合、‘<code class="literal">U</code>’は引数として<code class="literal">nil</code>を提供する。[No
+I/O]
+</p></dd><dt><span class="term">‘<code class="literal">v</code>’
+</span></dt><dd><p>ユーザーオプションとして宣言された変数(たとえば述語<code class="literal">custom-variable-p</code>を満足する)。これは<code class="literal">read-variable</code>を使用して変数を読み取る。<a class="link" href="ch20s06.html#Definition-of-read_002dvariable">Definition
+of read-variable</a>を参照のこと。[Existing]、[Completion]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">x</code>’
+</span></dt><dd><p>Lispオブジェクト。そのオブジェクトの入力構文により指定され、<strong class="userinput"><code>C-j</code></strong>か<span class="keycap"><strong>RET</strong></span>で終端される。オブジェクトは評価されない。<a class="link" href="ch20s03.html" title="Reading Lisp Objects with the Minibuffer">Object
+from Minibuffer</a>を参照のこと。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">X</code>’
+</span></dt><dd><a id="idm58310864" class="indexterm"/><p>Lispフォームの値。‘<code class="literal">X</code>’は‘<code class="literal">x</code>’のように読み取りを行いフォームを評価して、その値がコマンドの引数になる。[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">z</code>’
+</span></dt><dd><p>コーディングシステム名(シンボル)。ユーザーがnull入力をエンターした場合、引数値は<code class="literal">nil</code>になる。<a class="link" href="ch33s10.html" title="Coding Systems">Coding
+Systems</a>を参照のこと。[Completion]、[Existing]、[Prompt]
+</p></dd><dt><span class="term">‘<code class="literal">Z</code>’
+</span></dt><dd><p>コマンドにプレフィクス引数がある場合はコーディングシステム名。プレフィクス引数がない場合、‘<code class="literal">Z</code>’は引数値として<code class="literal">nil</code>を提供する。[Completion]、[Existing]、[Prompt]
+</p></dd></dl></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Interactive-Examples"/>Examples of Using <code class="literal">interactive</code></h2></div></div></div><a id="idm60813136" class="indexterm"/><a id="idm60811984" class="indexterm"/><p>以下に<code class="literal">interactive</code>の例をいくつか挙げます:
+</p><pre class="screen">(defun foo1 ()              ; <code class="literal">foo1</code>は1つの引数をとり
+    (interactive)           ;   単に2単語分前に移動する。
+    (forward-word 2))
+     ⇒ foo1
+</pre><pre class="screen">
+</pre><pre class="screen">(defun foo2 (n)             ; <code class="literal">foo2</code>は引数を1つとる
+    (interactive "^p")      ;   引数は数引数
+                            ; <code class="literal">shift-select-mode</code>では、
+                            ;   リージョンをアクティブにするか、拡張する
+    (forward-word (* 2 n)))
+     ⇒ foo2
+</pre><pre class="screen">
+</pre><pre class="screen">(defun foo3 (n)             ; <code class="literal">foo3</code>は引数を1つとる
+    (interactive "nCount:") ;   引数はミニバッファーで読み取られる
+    (forward-word (* 2 n)))
+     ⇒ foo3
+</pre><pre class="screen">
+</pre><pre class="screen">(defun three-b (b1 b2 b3)
+  "Select three existing buffers.
+Put them into three windows, selecting the last one."
+</pre><pre class="screen">    (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
+    (delete-other-windows)
+    (split-window (selected-window) 8)
+    (switch-to-buffer b1)
+    (other-window 1)
+    (split-window (selected-window) 8)
+    (switch-to-buffer b2)
+    (other-window 1)
+    (switch-to-buffer b3))
+     ⇒ three-b
+</pre><pre class="screen">(three-b "*scratch*" "declarations.texi" "*mail*")
+     ⇒ nil
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Generic-Commands"/>Select among Command Alternatives</h2></div></div></div><a id="idm60803280" class="indexterm"/><a id="idm60802512" class="indexterm"/><p>マクロ<code class="literal">define-alternatives</code>は<em class="firstterm">ジェネリックコマンド(generic
+command)</em>を定義するために使用できます。これらはユーザーの選択により複数の候補から選択可能なinteractive関数の実装です。
+</p><pre class="synopsis"><a id="idm60800208" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">define-alternatives</code> <em class="replaceable"><code>command</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>customizations</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>新たなコマンド<em class="replaceable"><code>command</code></em>(シンボル)を定義する。
+</p><p>最初にユーザーが<strong class="userinput"><code>M-x <em class="replaceable"><code>command</code></em>
+<span class="keycap"><strong>RET</strong></span></code></strong>を実行したとき、Emacsはコマンドが使用する実際のフォームにたいして確認を求め、その選択をカスタム変数として記録する。プレフィクス引数を使用すると、候補選択のプロセスを繰り返す。
+</p><p>変数<code class="literal"><em class="replaceable"><code>command</code></em>-alternatives</code>には、<em class="replaceable"><code>command</code></em>の実装候補がalistで含まれる。この変数がセットされるまで、<code class="literal">define-alternatives</code>は効果をもたない。
+</p><p><em class="replaceable"><code>customizations</code></em>が非<code class="literal">nil</code>の場合は、<code class="literal">defcustom</code>キーワード(典型的には<code class="literal">:group</code>および<code class="literal">:version</code>)と、<code class="literal"><em class="replaceable"><code>command</code></em>-alternatives</code>の宣言に追加する値により構成される候補である。
+</p></blockquote></div></div><div class="footnotes"><br/><hr/><div id="ftn.idm56836944" class="footnote"><p><a href="#idm56836944" class="para"><sup class="para">[10] </sup></a>いくつかの要素は実際に2つの引数を提供します。</p></div></div></div></body></html>

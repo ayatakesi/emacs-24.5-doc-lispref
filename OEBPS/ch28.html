@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 27. Windows</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Windows"/>Chapter 27. Windows</h1></div></div></div><p>このチャプターでは、Emacsのウィンドウに関連する関数と変数について説明します。Emacsが利用可能なスクリーン領域にウィンドウが割り当てられる方法については、<a class="link" href="ch29.html" title="Chapter 28. Frames">Frames</a>を参照してください。ウィンドウ内にテキストが表示される方法についての情報は、<a class="link" href="ch38.html" title="Chapter 37. Emacs Display">Display</a>を参照してください。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Basic-Windows"/>Basic Concepts of Emacs Windows</h1></div></div></div><a id="idm69319760" class="indexterm"/><p><em class="firstterm">ウィンドウ(window)</em>とは、任意のバッファーを表示するために使用される、スクリーンの領域です。Emacs
+Lispでは、ウィンドウはスペシャルLispオブジェクトとして表現されます。
+</p><a id="idm69318352" class="indexterm"/><p>ウィンドウは、フレームへとグループ化されます(<a class="link" href="ch29.html" title="Chapter 28. Frames">Frames</a>を参照)。それぞれのフレームは、最低でも1つのウィンドウを含みます。ユーザーは、複数のバッファーを1度に閲覧するために、それを複数のオーバーラップしないウィンドウに分割することができます。Lispプログラムは、さまざまな目的にたいして、複数のウィンドウを使用できます。たとえばRmailでは、1つのウィンドウでメッセージタイトル、もう一方のウィンドウで選択したメッセージのコンテンツを閲覧できます。
+</p><a id="idm69316688" class="indexterm"/><a id="idm69315920" class="indexterm"/><p>Emacsは、グラフィカルなデスクトップ環境や、X Window
+Systemのようなウィンドウシステムとは異なる意味で、“ウィンドウ(window)”という単語を使用します。EmacsがX上で実行されているときは、XのグラフィカルなXウィンドウは、Emacsでの(1つ以上のEmacsウィンドウを含んだ)フレームになります。Emacsがテキスト端末上で実行されているときは、フレームが端末スクリーン全体を占有します。
+</p><a id="idm69314768" class="indexterm"/><p>Xのウィンドウとは異なり、Emacsのウィンドウは<em class="firstterm">タイル表示(tiled)</em>され、フレームの領域内でオーバーラップされることは決してありません。あるウィンドウが作成、リサイズ、削除されるとき、変更されたウィンドウスペースの変更は各ウィンドウの調整により取得・譲与されるので、そのフレームの総領域に変化はありません。
+</p><pre class="synopsis"><a id="idm69312848" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">windowp</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>がウィンドウ(バッファーの表示有無に関わらず)なら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><a id="idm69308496" class="indexterm"/><p><em class="firstterm">生きたウィンドウ(live window)</em>とは、あるフレーム内で実際にバッファーを表示しているウィンドウのことです。
+</p><pre class="synopsis"><a id="idm69306704" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-live-p</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>が生きたウィンドウなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をリターンする。生きたウィンドウとは、バッファーを表示するウィンドウのこと。
+</p></blockquote></div><a id="idm69302224" class="indexterm"/><p>各フレーム内のウィンドウは、<em class="firstterm">ウィンドウツリー(window tree)</em>内へと組織化されます。<a class="link" href="ch28s02.html" title="Windows and Frames">Windows and
+Frames</a>を参照してください。それぞれのウィンドウツリーのリーフノード(leaf
+nodes)は、実際にバッファーを表示している生きたウィンドウです。ウィンドウツリーの内部ノード(internal
+node)は<em class="firstterm">内部ウィンドウ(internal windows)</em>と呼ばれ、これらは生きたウィンドウではありません。
+</p><a id="idm69299792" class="indexterm"/><p><em class="firstterm">有効なウィンドウ(valid
+window)</em>とは、生きたウィンドウか、内部ウィンドウのいずれかです。有効なウィンドウにたいしては、それを<em class="firstterm">削除(delete)</em>、すなわちそのウィンドウのフレームから削除することができます(<a class="link" href="ch28s06.html" title="Deleting Windows">Deleting
+Windows</a>を参照)。その場合、それは有効なウィンドウではなくなりますが、それを表すLispオブジェクトは依然として他のLispオブジェクトから参照されたままかもしれません。削除されたウィンドウは、保存されたウィンドウ設定(window
+configuration)をリストアすることにより、再び有効になるかもしれません(<a class="link" href="ch28s24.html" title="Window Configurations">Window Configurations</a>を参照)。
+</p><p><code class="literal">window-valid-p</code>により、削除されたウィンドウから有効なウィンドウを区別できます。
+</p><pre class="synopsis"><a id="idm69295952" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-valid-p</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>が生きたウィンドウ、またはウィンドウツリー内の内部ウィンドウの場合は、<code class="literal">t</code>をリターンする。それ以外(<em class="replaceable"><code>object</code></em>が削除されたウィンドウの場合も含む)は、<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><a id="idm69291216" class="indexterm"/><a id="idm69290448" class="indexterm"/><p>それぞれのフレーム内において、常にただ1つのEmacsウィンドウが<em class="firstterm">そのフレームで選択されている(selected within the
+frame)</em>もとして指定されます。選択されたフレームにたいしては、そのウィンドウは<em class="firstterm">選択されたウィンドウ(selected
+window)</em>と呼ばれます。選択されたウィンドウは、編集のほとんどが行われるウィンドウであり、選択されたウィンドウに表示されるカーソルがあるウィンドウです(<a class="link" href="ch29s03.html#Cursor-Parameters" title="Cursor Parameters">Cursor
+Parameters</a>を参照)。選択されたウィンドウのバッファーは通常は、<code class="literal">set-buffer</code>が使用された場合を除き、カレントバッファーでもあります(<a class="link" href="ch27s02.html" title="The Current Buffer">Current
+Buffer</a>を参照)。選択されていないフレームでは、そのフレームが選択されたときは、そのフレームで選択されていたウィンドウが選択されたウィンドウになります。<a class="link" href="ch28s08.html" title="Selecting Windows">Selecting
+Windows</a>を参照してください。
+</p><pre class="synopsis"><a id="idm69286224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">selected-window</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、選択されたウィンドウをリターンする(これは常に生きたウィンドウである)。
+</p></blockquote></div></div></div></body></html>

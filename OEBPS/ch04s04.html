@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Comparison of Numbers</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Comparison-of-Numbers"/>Comparison of Numbers</h1></div></div></div><a id="idm46566224" class="indexterm"/><a id="idm46565456" class="indexterm"/><p>数が数値的に等しいかテストするためには、<code class="literal">eq</code>ではなく、通常は<code class="literal">=</code>を使用するべきです。同じ数値をもつ、多くの浮動小数オブジェクトが存在するかもしれません。これらを比較するのに<code class="literal">eq</code>を使用する場合、これは2つの値が同じオブジェクトかどうかをテストすることになります。対照的に、<code class="literal">=</code>はオブジェクトの数値的な値だけを比較します。
+</p><p>Emacs
+Lispでは、それぞれの整数はは、一意なLispオブジェクトです。したがって、整数に関しては、<code class="literal">eq</code>は<code class="literal">=</code>と同じです。未知の整数の値を比較するのに、<code class="literal">eq</code>を使用するのが便利な場合があります。なぜなら未知の値が数字でない場合でも、<code class="literal">eq</code>はエラーを報告しません。対照的に、引数が数でもマーカーでもない場合、<code class="literal">=</code>はエラーをシグナルします。しかし、整数の比較においてさえ、使用できる場合は<code class="literal">=</code>を使用するのが、よいプログラミング習慣です。
+</p><p>数の比較において、2つの数が同じデータ型(どちらも整数、またはどちらも浮動小数)で、同じ値の場合は等しい数として扱う、<code class="literal">equal</code>のほうが便利なときもあります。対照的に、<code class="literal">=</code>は、整数と浮動小数点数を等しい数と扱うことができます。<a class="link" href="ch03s07.html" title="Equality Predicates">Equality
+Predicates</a>を参照してください。
+</p><p>他の欠点もあります。浮動小数演算は正確ではないので、浮動小数値を比較するのが悪いアイデアのときが、しばしばあります。通常は、近似的に等しいことをテストするほうがよいでしょう。以下はこれを行なう関数です:
+</p><pre class="screen">(defvar fuzz-factor 1.0e-6)
+(defun approx-equal (x y)
+  (or (= x y)
+      (&lt; (/ (abs (- x y))
+            (max (abs x) (abs y)))
+         fuzz-factor)))
+</pre><a id="idm46555984" class="indexterm"/><div class="blockquote"><blockquote class="blockquote"><p><span class="bold"><strong>Common Lispに関する注意: </strong></span>Common
+Lispは複数ワード整数を実装していて、2つの別の整数オブジェクトが、同じ数値的な値をもつことができるので、Common
+Lispでの数の比較は、常に<code class="literal">=</code>が要求されます。Emacs
+Lispの整数は範囲が制限されているため、与えられた値に対応する整数オブジェクトは、1つだけです。
+</p></blockquote></div><pre class="synopsis"><a id="idm46553168" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">=</code> <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>number-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、すべての引数が数値的に等しいかどうかをテストして、もしそうなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46535888" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">eql</code> <em class="replaceable"><code>value1</code></em> <em class="replaceable"><code>value2</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">eq</code>と同様に振る舞いますが、引数が両方とも数のときは例外です。これは数を型と数値的な値により比較するので、<code class="literal">(eql
+1.0 1)</code>は<code class="literal">nil</code>をreturnしますが、<code class="literal">(eql 1.0 1.0)</code>と<code class="literal">(eql 1
+1)</code>は<code class="literal">t</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46529232" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">/=</code> <em class="replaceable"><code>number-or-marker1</code></em> <em class="replaceable"><code>number-or-marker2</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は引数が数値的に等しいかどうかをテストして、もし異なる場合は<code class="literal">t</code>、等しい場合は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46524624" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">&lt;</code>  <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>number-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、各引数がそれぞれ、その後の引数より小さいかどうかをテストして、もしそうなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46519632" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">&lt;=</code> <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>number-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、各引数がそれぞれ、その後の引数以下かどうかをテストして、もしそうなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46514512" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">&gt;</code> <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>number-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、各引数がそれぞれ、その後の引数より大きいかどうかをテストして、もしそうなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46509520" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">&gt;=</code> <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>number-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、各引数がそれぞれ、その後の引数以上かどうかをテストして、もしそうなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><pre class="synopsis"><a id="idm46504400" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">max</code> <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>numbers-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は引数の最大をreturnします。引数のどれかが浮動小数の場合は、たとえ最大が整数であっても、浮動小数として値がreturnされます。
+</p><pre class="screen">(max 20)
+     ⇒ 20
+(max 1 2.5)
+     ⇒ 2.5
+(max 1 3 2.5)
+     ⇒ 3.0
+</pre></blockquote></div><pre class="synopsis"><a id="idm46499792" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">min</code> <em class="replaceable"><code>number-or-marker</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>numbers-or-markers</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は引数の最小をreturnします。引数のどれかが浮動小数の場合は、たとえ最小が整数であっても、浮動小数として値がreturnされます。
+</p><pre class="screen">(min -4 1)
+     ⇒ -4
+</pre></blockquote></div><pre class="synopsis"><a id="idm40482384" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">abs</code> <em class="replaceable"><code>number</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>number</code></em>の絶対値をreturnします。
+</p></blockquote></div></div></body></html>

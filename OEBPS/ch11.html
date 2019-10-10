@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 10. Control Structures</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Control-Structures"/>Chapter 10. Control Structures</h1></div></div></div><a id="idm51772240" class="indexterm"/><a id="idm51771472" class="indexterm"/><p>Lispプログラムは、一連の<em class="firstterm">式(expressions)</em>、あるいは<em class="firstterm">フォーム(forms)</em>(<a class="link" href="ch10s02.html" title="Kinds of Forms">Forms</a>を参照してください)により形成されます。これらのフォームの実行順は、それらを<em class="firstterm">制御構造(control
+structures)</em>で囲むことにより制御します。制御構造とは、その制御構造が含むフォームをいつ、どのような条件で、何回実行するかを制御する、スペシャルフォームです。
+</p><a id="idm51768528" class="indexterm"/><p>もっとも単純な実行順は、1番目は<em class="replaceable"><code>a</code></em>、2番目は<em class="replaceable"><code>b</code></em>、...という、シーケンシャル実行(sequential execution:
+順番に実行)です。これは、関数のbody内の連続する複数のフォームや、Lispコードのファイル内のトップレベルを記述したときに発生します —
+つまり、フォームは記述した順に実行されます。わたしたちはこれを<em class="firstterm">テキスト順(textual
+order)</em>と呼びます。たとえば、関数のbodyが2つのフォーム<em class="replaceable"><code>a</code></em>と<em class="replaceable"><code>b</code></em>から構成される場合、関数の評価は、最初に<em class="replaceable"><code>a</code></em>を評価し、次に<em class="replaceable"><code>b</code></em>を評価します。<em class="replaceable"><code>b</code></em>を評価した結果が、その関数の値となります。
+</p><p>明示的に制御構造を使用することにより、シーケンシャルではない順番での実行が可能になります。
+</p><p>Emacs
+Lispは、他の様々な順序づけ、条件、繰り返し、(制御された)ジャンプを含む、複数の種類の制御構造を提供し、以下ではそれらすべてを記述します。ビルトインの制御構造は、制御構造のサブフォームが評価される必要がなかったり、順番に評価される必要がないので、スペシャルフォームです。独自の制御構造を構築するためにマクロを使用することができます(<a class="link" href="ch14.html" title="Chapter 13. Macros">Macros</a>を参照してください)。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Sequencing"/>Sequencing</h1></div></div></div><a id="idm51762128" class="indexterm"/><a id="idm51761360" class="indexterm"/><p>フォームが出現する順番に評価するのは、あるフォームから別のフォームに制御を渡す、もっとも一般的な制御です。関数のbodyのような、あるコンテキストにおいては、自動的にこれが行なわれます。他の場所では、これを行なうために制御構造を使用しなければなりません。Lispで一単純な制御構造は、<code class="literal">progn</code>です。
+</p><p>スペシャルフォーム<code class="literal">progn</code>は、以下のようなものです:
+</p><pre class="screen">(progn <em class="replaceable"><code>a</code></em> <em class="replaceable"><code>b</code></em> <em class="replaceable"><code>c</code></em> …)
+</pre><p>これは、順番に<em class="replaceable"><code>a</code></em>、<em class="replaceable"><code>b</code></em>、<em class="replaceable"><code>c</code></em>、...を実行するよう指定します。これらは<code class="literal">progn</code>フォームの<em class="firstterm">body</em>と呼ばれます。body内の最後のフォームの値が、<code class="literal">progn</code>全体の値になります。<code class="literal">(progn)</code>は<code class="literal">nil</code>をreturnします。
+</p><a id="idm51753168" class="indexterm"/><p>初期のLispでは、<code class="literal">progn</code>は、連続で複数のフォームを実行して最後のフォームの値を使用する、唯一の方法でした。しかしプログラマーは、関数のbodyの、(その時点では)1つのフォームだけが許される場所で、<code class="literal">progn</code>を使用する必要が多いことに気づきました。そのため、関数のbodyを“暗黙の<code class="literal">progn</code>”にして、<code class="literal">progn</code>のbodyのように複数のフォームを記述出きるようにしました。他の多くの制御構造も、同様に暗黙の<code class="literal">progn</code>を含みます。結果として、昔ほど<code class="literal">progn</code>は多用されなくなりました。現在では、<code class="literal">progn</code>が必要になるのは、<code class="literal">unwind-protect</code>、<code class="literal">and</code>、<code class="literal">or</code>、<code class="literal">if</code>の<em class="replaceable"><code>then</code></em>パートの中がほとんどです。
+</p><pre class="synopsis"><a id="idm51745360" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">progn</code> <em class="replaceable"><code>forms</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、<em class="replaceable"><code>forms</code></em>のすべてをテキスト順に評価して、のフォームの結果をreturnします。
+</p><pre class="screen">(progn (print "The first form")
+       (print "The second form")
+       (print "The third form"))
+     ⊣ "The first form"
+     ⊣ "The second form"
+     ⊣ "The third form"
+⇒ "The third form"
+</pre></blockquote></div><p>他の2つの構成は、一連のフォームを同様に評価しますが、異なる値をreturnします:
+</p><pre class="synopsis"><a id="idm51740624" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">prog1</code> <em class="replaceable"><code>form1</code></em> <em class="replaceable"><code>forms</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、<em class="replaceable"><code>form1</code></em>と<em class="replaceable"><code>forms</code></em>のすべてをテキスト順に評価して、<em class="replaceable"><code>form1</code></em>の結果をreturnします。
+</p><pre class="screen">(prog1 (print "The first form")
+       (print "The second form")
+       (print "The third form"))
+     ⊣ "The first form"
+     ⊣ "The second form"
+     ⊣ "The third form"
+⇒ "The first form"
+</pre><p>以下の例は、変数<code class="literal">x</code>のリストから1番目の要素を削除して、削除した1番目の要素の値をreturnします:
+</p><pre class="screen">(prog1 (car x) (setq x (cdr x)))
+</pre></blockquote></div><pre class="synopsis"><a id="idm51729616" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">prog2</code> <em class="replaceable"><code>form1</code></em> <em class="replaceable"><code>form2</code></em> <em class="replaceable"><code>forms</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このスペシャルフォームは、<em class="replaceable"><code>form1</code></em>、<em class="replaceable"><code>form2</code></em>、その後の<em class="replaceable"><code>forms</code></em>のすべてをテキスト順で評価して、<em class="replaceable"><code>form2</code></em>の結果をreturnします。
+</p><pre class="screen">(prog2 (print "The first form")
+       (print "The second form")
+       (print "The third form"))
+     ⊣ "The first form"
+     ⊣ "The second form"
+     ⊣ "The third form"
+⇒ "The second form"
+</pre></blockquote></div></div></div></body></html>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Font Lock Mode</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Font-Lock-Mode"/>Font Lock Mode</h1></div></div></div><a id="idm64920400" class="indexterm"/><p><em class="firstterm">Font Lockモード</em>とは、バッファーの特定の部分にたいして、それらの構文的役割(syntactic
+role)にもとづき、自動的に<code class="literal">face</code>プロパティをアタッチする、バッファーローカルなマイナーモードです。このモードがバッファーをパースする方法は、そのメジャーモードに依存します。ほとんどのメジャーモードは、どのコンテキストでどのフェイスを使用するかにたいして、構文的条件(syntactic
+criteria)を定義します。このセクションでは、特定のメジャーモードにたいして、Font Lockをカスタマイズする方法を説明します。
+</p><p>Font Lockモードは、2つの方法によりハイライトするテキストを探します。それは構文テーブル(syntax
+table)にもとづく構文解析と、(通常は正規表現にたいする)検索です。最初に構文的フォント表示(syntactic
+fontification)が発生します。これはコメントと文字列定数を見つけて、それらをハイライトします。検索ベースのフォント表示が発生するのは、2番目です。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Font-Lock-Basics"/>Font Lock Basics</h2></div></div></div><p>Font
+Lockモードがテキストをハイライトする方法を制御する変数が、いくつかあります。しかし、メジャーモードは、これらの変数を直接セットするべきではありません。かわりに、メジャーモードはバッファーローカル変数として、<code class="literal">font-lock-defaults</code>をセットするべきです。Font
+Lockモードが有効なときは、他のすべての変数をセットするために、この変数に割り当てられた値が使用されます。
+</p><pre class="synopsis"><a id="idm64916048" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-defaults</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、そのモード内のテキストをフォント表示する方法を指定するために、メジャーモードによりセットされる。この変数は、セットした際に自動的にバッファーローカルになる。変数の値が<code class="literal">nil</code>の場合、Font
+Lockモードはハイライトを行わず、バッファー内のテキストに明示的にフェイスを割り当てるために、‘<code class="literal">Faces</code>’メニュー(メニューバーの‘<code class="literal">Edit</code>’の下の‘<code class="literal">Text
+Properties</code>’)を使用できる。
+</p><p>非<code class="literal">nil</code>の場合、値は以下のようであること:
+</p><pre class="screen">(<em class="replaceable"><code>keywords</code></em> [<em class="replaceable"><code>keywords-only</code></em> [<em class="replaceable"><code>case-fold</code></em>
+ [<em class="replaceable"><code>syntax-alist</code></em> [<em class="replaceable"><code>syntax-begin</code></em> <em class="replaceable"><code>other-vars</code></em>…]]]])
+</pre><p>1つ目の要素<em class="replaceable"><code>keywords</code></em>は、検索ベースのフォント表示を制御する<code class="literal">font-lock-keywords</code>の値を、間接的に指定する。値にはシンボル、変数、または<code class="literal">font-lock-keywords</code>にたいして使用するリストが値であるような関数を指定できる。また、それぞれのシンボルがフォント表示の可能なレベルであるような、いくつかのシンボルからなるリストも指定できる。この場合、1つ目のシンボルはフォント表示の‘<code class="literal">モードデフォルト(mode
+default)</code>’レベル、次のシンボルはフォント表示のレベル1、その次はレベル2、のようになる。通常、‘<code class="literal">モードデフォルト</code>’レベルはレベル1と等しい。これは、<code class="literal">font-lock-maximum-decoration</code>が<code class="literal">nil</code>値をもつとき使用される。<a class="link" href="ch23s06.html#Levels-of-Font-Lock" title="Levels of Font Lock">Levels
+of Font Lock</a>を参照のこと。
+</p><p>2つ目の要素<em class="replaceable"><code>keywords-only</code></em>は、変数<code class="literal">font-lock-keywords-only</code>の値を指定する。これが省略、または<code class="literal">nil</code>の場合は、(文字列とコメントの)構文的フォント表示も行われる。非<code class="literal">nil</code>の場合は、構文的フォント表示は行われない。<a class="link" href="ch23s06.html#Syntactic-Font-Lock" title="Syntactic Font Lock">Syntactic
+Font Lock</a>を参照のこと。
+</p><p>3つ目の要素<em class="replaceable"><code>case-fold</code></em>は、<code class="literal">font-lock-keywords-case-fold-search</code>の値を指定する。非<code class="literal">nil</code>の場合、検索ベースフォント表示の間、Font
+Lockモードは大文字小文字の違いを無視する。
+</p><p>4つ目の要素<em class="replaceable"><code>syntax-alist</code></em>が非<code class="literal">nil</code>の場合、それは<code class="literal">(<em class="replaceable"><code>char-or-string</code></em>
+.
+<em class="replaceable"><code>string</code></em>)</code>という形式のコンスセルのリストであること。これらは、構文的フォント表示にたいする構文テーブルのセットアップに使用される。結果となる構文テーブルは、<code class="literal">font-lock-syntax-table</code>に格納される。<em class="replaceable"><code>syntax-alist</code></em>が省略、または<code class="literal">nil</code>の場合、構文的フォント表示は<code class="literal">syntax-table</code>関数によりリターンされる構文テーブルを使用する。<a class="link" href="ch35s03.html" title="Syntax Table Functions">Syntax
+Table Functions</a>を参照のこと。
+</p><p>5つ目の要素<em class="replaceable"><code>syntax-begin</code></em>は、<code class="literal">font-lock-beginning-of-syntax-function</code>の値を指定する。この変数は<code class="literal">nil</code>にセットして、かわりに<code class="literal">syntax-begin-function</code>の使用を推奨する。
+</p><p>(もしあれば)残りすべての要素は、まとめて<em class="replaceable"><code>other-vars</code></em>と呼ばれる。これらの要素はすべて、<code class="literal">(<em class="replaceable"><code>variable</code></em>
+.
+<em class="replaceable"><code>value</code></em>)</code>という形式をもつべきである。これは、<em class="replaceable"><code>variable</code></em>をバッファーローカルにしてから、それに<em class="replaceable"><code>value</code></em>をセットすることを意味する。これら<em class="replaceable"><code>other-vars</code></em>を使用して、最初の5つの要素による制御とは別に、フォント表示に影響する他の変数をセットできる。<a class="link" href="ch23s06.html#Other-Font-Lock-Variables" title="Other Font Lock Variables">Other
+Font Lock Variables</a>を参照のこと。
+</p></blockquote></div><p>モードが<code class="literal">font-lock-face</code>プロパティ追加により明示的にテキストをフォント表示する場合は、自動的なフォント表示すべてをオフにするために、<code class="literal">font-lock-defaults</code>に<code class="literal">(nil
+t)</code>を指定できます。しかし、これは必須ではありません。<code class="literal">font-lock-face</code>を使用して何かをフォント表示して、それ以外の部分のテキストを自動的にフォント表示するようにセットアップするのは可能です。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Search_002dbased-Fontification"/>Search-based Fontification</h2></div></div></div><p>検索ベースフォント表示を直接制御する変数は、<code class="literal">font-lock-keywords</code>です。この変数は通常、<code class="literal">font-lock-defaults</code>内の要素<em class="replaceable"><code>keywords</code></em>を通じて指定されます。
+</p><pre class="synopsis"><a id="idm64853456" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-keywords</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、ハイライトするキーワードのリストである。Lispプログラムは、この変数を直接セッすべきでない。通常は、<code class="literal">font-lock-defaults</code>内の要素<em class="replaceable"><code>keywords</code></em>を使用して、Font
+Lockモードが自動的に値をセットする。この値は、関数<code class="literal">font-lock-add-keywords</code>および<code class="literal">font-lock-remove-keywords</code>を使用して、変更されることもあり得る(<a class="link" href="ch23s06.html#Customizing-Keywords" title="Customizing Search-Based Fontification">Customizing
+Keywords</a>を参照)。
+</p></blockquote></div><p><code class="literal">font-lock-keywords</code>の各要素は、特定のケースに該当するテキストを見つける方法、およびそれらをハイライトする方法を指定します。Font
+Lockモードは、<code class="literal">font-lock-keywords</code>の要素をちくじ処理してマッチを探して、すべてのマッチを処理します。通常は、テキストの一部はすでに一度はフォント表示されており、同じテキスト内で連続するマッチによるこれをオーバーライドはできません。しかし、<em class="replaceable"><code>subexp-highlighter</code></em>の要素<em class="replaceable"><code>override</code></em>を使用して、異なる挙動を指定できます。
+</p><p><code class="literal">font-lock-keywords</code>の各要素は、以下の形式のいずれかをもつべきです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal"><em class="replaceable"><code>regexp</code></em></code>
+</span></dt><dd><p><code class="literal">font-lock-keyword-face</code>を使用して、<em class="replaceable"><code>regexp</code></em>にたいするすべてのマッチをハイライトする。たとえば、
+</p><pre class="screen">;; <code class="literal">font-lock-keyword-face</code>を使用して
+;; 単語‘<code class="literal">foo</code>’をハイライトする
+"\\&lt;foo\\&gt;"
+</pre><p>これらの正規表現を作成するときは、慎重に行うこと。下手に記述されたパターンにより、スピードが劇的に低下し得る!
+関数<code class="literal">regexp-opt</code>(<a class="link" href="ch34s03.html#Regexp-Functions" title="Regular Expression Functions">Regexp
+Functions</a>を参照)は、いくつかのキーワードとマッチするために最適な正規表現の計算に有用である。
+</p></dd><dt><span class="term"><code class="literal"><em class="replaceable"><code>function</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>function</code></em>を呼び出すことによりテキストを探し、<code class="literal">font-lock-keyword-face</code>を使用して見つかったマッチをハイライトする。
+</p><p><em class="replaceable"><code>function</code></em>は、呼び出される際に1つの引数(検索のリミット)を受け取る。検索はポイント位置から開始し、そのリミットを超えた検索は行うべきではない。これは、検索が成功した場合は非<code class="literal">nil</code>をリターンして、見つかったマッチを表すマッチデータをセットすべきである。<code class="literal">nil</code>のリターンは、検索の失敗を示す。
+</p><p>フォント表示は、前の呼び出しでポイントが残された位置から、同じリミットを用いて<em class="replaceable"><code>function</code></em>を呼び出し、<em class="replaceable"><code>function</code></em>が失敗するまで<em class="replaceable"><code>function</code></em>を繰り返し呼び出すだろう。検索が失敗しても、何らかの特別な方法により、<em class="replaceable"><code>function</code></em>がポイントをリセットする必要はない。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>matcher</code></em> . <em class="replaceable"><code>subexp</code></em>)</code>
+</span></dt><dd><p>この種の要素では、<em class="replaceable"><code>matcher</code></em>は上述のregexpかfunctionのいずれかである。CDRの<em class="replaceable"><code>subexp</code></em>は、(<em class="replaceable"><code>matcher</code></em>がマッチするテキスト全体のかわりに)<em class="replaceable"><code>matcher</code></em>のどの部分式(subexpression)がハイライトされるべきかを指定する。
+</p><pre class="screen">;; <code class="literal">font-lock-keyword-face</code>Hを使用して
+;; ‘<code class="literal">bar</code>’が‘<code class="literal">fubar</code>’の一部のときに
+;; ハイライトする
+("fu\\(bar\\)" . 1)
+</pre><p>正規表現<em class="replaceable"><code>matcher</code></em>の生成に<code class="literal">regexp-opt</code>を使用する場合は、<em class="replaceable"><code>subexp</code></em>にたいする値の計算に<code class="literal">regexp-opt-depth</code>(<a class="link" href="ch34s03.html#Regexp-Functions" title="Regular Expression Functions">Regexp
+Functions</a>を参照)を使用できる。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>matcher</code></em> . <em class="replaceable"><code>facespec</code></em>)</code>
+</span></dt><dd><p>この種の要素では、<em class="replaceable"><code>facespec</code></em>の値がハイライトに使用するフェイスを指定する。もっともシンプルな例では、<em class="replaceable"><code>facespec</code></em>は値がフェイス名であるようなはLisp変数(シンボル)である。
+</p><pre class="screen">;; <code class="literal">fubar-face</code>の値のフェイスを使用して
+;; ‘<code class="literal">fubar</code>’をハイライトする
+("fubar" . fubar-face)
+</pre><p>しかし、<em class="replaceable"><code>facespec</code></em>は以下のような形式のリストに評価されてもよい:
+</p><pre class="screen">(face <em class="replaceable"><code>face</code></em> <em class="replaceable"><code>prop1</code></em> <em class="replaceable"><code>val1</code></em> <em class="replaceable"><code>prop2</code></em> <em class="replaceable"><code>val2</code></em>…)
+</pre><p>これは、マッチしたテキストにフェイス<em class="replaceable"><code>face</code></em>を指定し、さまざまなテキストプロパティをputする。これを行う場合は、この方法により<code class="literal">font-lock-extra-managed-props</code>に値をセットする、他のテキストプロパティ名を確実に追加すること。そうすれば、それらのプロパティが妥当性を失ったとき、それらのプロパティもクリアーされるだろう。これらのプロパティをクリアーする関数を、変数<code class="literal">font-lock-unfontify-region-function</code>にセットすることもできる。<a class="link" href="ch23s06.html#Other-Font-Lock-Variables" title="Other Font Lock Variables">Other
+Font Lock Variables</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>matcher</code></em> . <em class="replaceable"><code>subexp-highlighter</code></em>)</code>
+</span></dt><dd><p>この種の要素では、<em class="replaceable"><code>subexp-highlighter</code></em>は<em class="replaceable"><code>matcher</code></em>により見つかったマッチをハイライトする方法を指定するリストである。これは、以下の形式をもつ。
+</p><pre class="screen">(<em class="replaceable"><code>subexp</code></em> <em class="replaceable"><code>facespec</code></em> [<em class="replaceable"><code>override</code></em> [<em class="replaceable"><code>laxmatch</code></em>]])
+</pre><p>CARの<em class="replaceable"><code>subexp</code></em>は、マッチのどの部分式をフォント表示するかを指定する整数である(0はマッチしたテキスト全体を意味する)。これの2つ目の要素<em class="replaceable"><code>facespec</code></em>は、上述したような値がフェイスを指定するような式である。
+</p><p><em class="replaceable"><code>subexp-highlighter</code></em>内の残りの値<em class="replaceable"><code>override</code></em>と<em class="replaceable"><code>laxmatch</code></em>は、オプションのフラグである。<em class="replaceable"><code>override</code></em>が<code class="literal">t</code>の場合、この要素は前の<code class="literal">font-lock-keywords</code>の要素により作成された既存のフォント表示をオーバーライドできる。値が<code class="literal">keep</code>の場合は、すでに他の要素によりフォント表示されていない文字がフォント表示される。値が<code class="literal">prepend</code>の場合は、<em class="replaceable"><code>facespec</code></em>により指定されたフェイスが、<code class="literal">font-lock-face</code>プロパティの先頭に追加される。値が<code class="literal">append</code>の場合は、そのフェイスが<code class="literal">font-lock-face</code>プロパティの最後に追加される。
+</p><p><em class="replaceable"><code>laxmatch</code></em>が非<code class="literal">nil</code>の場合、それは<em class="replaceable"><code>matcher</code></em>内で番号付けされた部分式<em class="replaceable"><code>subexp</code></em>が存在しなくても、エラーにならないことを意味する。当然、番号付けされた部分式<em class="replaceable"><code>subexp</code></em>のフォント表示は発生しない。しかし、他の部分式(と他のregexp)のフォント表示は継続されるだろう。<em class="replaceable"><code>laxmatch</code></em>が<code class="literal">nil</code>で、指定された部分式が存在しない場合は、エラーがシグナルされて検索ベースのフォント表示は終了する。
+</p><p>以下はこのタイプの要素と、それが何を行うかの例である:
+</p><pre class="screen">;; <code class="literal">foo-bar-face</code>を使用して、たとえハイライト済みでも
+;; ‘<code class="literal">foo</code>’と‘<code class="literal">bar</code>’をハイライトする
+;; <code class="literal">foo-bar-face</code>は値がフェイスであるような変数であること
+("foo\\|bar" 0 foo-bar-face t)
+
+;; <code class="literal">fubar-face</code>の値のフェイスを使用して
+;; 関数<code class="literal">fubar-match</code>が見つけた各マッチの
+;; 最初の部分式をハイライトする
+(fubar-match 1 fubar-face)
+</pre></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>matcher</code></em> . <em class="replaceable"><code>anchored-highlighter</code></em>)</code>
+</span></dt><dd><p>この種の要素では、<em class="replaceable"><code>anchored-highlighter</code></em>は<em class="replaceable"><code>matcher</code></em>が見つけたマッチに後続するテキストをハイライトする方法を指定する。つまり、<em class="replaceable"><code>matcher</code></em>が見つけたマッチは、<em class="replaceable"><code>anchored-highlighter</code></em>により指定されるその先の検索にたいする、アンカー(anchor)として機能する。<em class="replaceable"><code>anchored-highlighter</code></em>は、以下の形式のリストである:
+</p><pre class="screen">(<em class="replaceable"><code>anchored-matcher</code></em> <em class="replaceable"><code>pre-form</code></em> <em class="replaceable"><code>post-form</code></em>
+                        <em class="replaceable"><code>subexp-highlighters</code></em>…)
+</pre><p>ここで、<em class="replaceable"><code>anchored-matcher</code></em>は<em class="replaceable"><code>matcher</code></em>と同様、正規表現か関数である。<em class="replaceable"><code>matcher</code></em>にたいするマッチを見つけた後に、ポイントはそのマッチの終端に移動する。そこで、Font
+Lockはフォーム<em class="replaceable"><code>pre-form</code></em>を評価する。それから<em class="replaceable"><code>anchored-matcher</code></em>にたいするマッチを検索し、<em class="replaceable"><code>subexp-highlighters</code></em>を使用して、それらのマッチをハイライトする。<em class="replaceable"><code>subexp-highlighter</code></em>については上記を参照のこと。最後にFont
+Lockは<em class="replaceable"><code>post-form</code></em>を評価する。
+</p><p>フォーム<em class="replaceable"><code>pre-form</code></em>および<em class="replaceable"><code>post-form</code></em>は、<em class="replaceable"><code>anchored-matcher</code></em>使用時の事前の初期化、事後のクリーンアップに使用され得る。通常、<em class="replaceable"><code>pre-form</code></em>は<em class="replaceable"><code>anchored-matcher</code></em>を開始する前に、<em class="replaceable"><code>matcher</code></em>のマッチに関連する何らかの位置にポイントを移動するために使用される。<em class="replaceable"><code>post-form</code></em>は、<em class="replaceable"><code>matcher</code></em>を再開する前に、ポイントを戻すために使用されるかもしれない。
+</p><p><em class="replaceable"><code>pre-form</code></em>を評価した後、Font
+Lockはその行の終端の先にたいして、<em class="replaceable"><code>anchored-matcher</code></em>の検索を行わない。しかし、<em class="replaceable"><code>pre-form</code></em>が<em class="replaceable"><code>pre-form</code></em>評価後のポイント位置より大きいバッファー位置をリターンした場合には、かわりに<em class="replaceable"><code>pre-form</code></em>によりリターンされた位置が検索リミットとして使用される。一般的に、その行の終端より大きい位置をリターンするのは、よいアイデアではない。別の言い方をすると、<em class="replaceable"><code>anchored-matcher</code></em>検索は複数行にわたる(span
+lines)べきではないと言えよう。
+</p><p>たとえば、
+</p><pre class="screen">;; <code class="literal">item-face</code>の値を使用して
+;; 単語‘<code class="literal">anchor</code>’に(同一行内で)
+;; 後続する単語‘<code class="literal">item</code>’をハイライトする
+("\\&lt;anchor\\&gt;" "\\&lt;item\\&gt;" nil nil (0 item-face))
+</pre><p>ここで、<em class="replaceable"><code>pre-form</code></em>と<em class="replaceable"><code>post-form</code></em>は<code class="literal">nil</code>である。したがって、‘<code class="literal">item</code>’にたいする検索は‘<code class="literal">anchor</code>’にたいするマッチの終端から開始され、後続する‘<code class="literal">anchor</code>’インスタンスにたいする検索は、‘<code class="literal">item</code>’にたいする検索が終了した位置から再開される。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>matcher</code></em> <em class="replaceable"><code>highlighters</code></em>…)</code>
+</span></dt><dd><p>この種の要素は、単一の<em class="replaceable"><code>matcher</code></em>にたいして、複数の<em class="replaceable"><code>highlighter</code></em>リストを指定する。<em class="replaceable"><code>highlighter</code></em>リストには、上述した<em class="replaceable"><code>subexp-highlighter</code></em>、または<em class="replaceable"><code>anchored-highlighter</code></em>のいずれかを指定できる。
+</p><p>たとえば、
+</p><pre class="screen">;; <code class="literal">anchor-face</code>の値内に現れる単語‘<code class="literal">anchor</code>’、
+;; および、(同じ行の)後続の<code class="literal">item-face</code>の
+;;  値内に現れる単語‘<code class="literal">item</code>’をハイライトする
+("\\&lt;anchor\\&gt;" (0 anchor-face)
+                ("\\&lt;item\\&gt;" nil nil (0 item-face)))
+</pre></dd><dt><span class="term"><code class="literal">(eval . <em class="replaceable"><code>form</code></em>)</code>
+</span></dt><dd><p>ここで<em class="replaceable"><code>form</code></em>は、バッファー内でこの<code class="literal">font-lock-keywords</code>の値が最初に使用されるときに評価される式である。この値は、上述のこのテーブルで説明した、いずれかの形式をもつべきである。
+</p></dd></dl></div><p><span class="bold"><strong>警告:</strong></span>
+複数行にわたるテキストにたいするマッチさせるために、<code class="literal">font-lock-keywords</code>の要素をデザインしてはならない。これは確実に機能するとは言えない。詳細は、<a class="link" href="ch23s06.html#Multiline-Font-Lock" title="Multiline Font Lock Constructs">Multiline
+Font Lock</a>を参照のこと。
+</p><p>検索ベースのフォント表示が大文字小文字を区別すべきかどうかを告げる<code class="literal">font-lock-keywords-case-fold-search</code>の値を指定するために、<code class="literal">font-lock-defaults</code>内で<em class="replaceable"><code>case-fold</code></em>を使用できる。
+</p><pre class="synopsis"><a id="idm64741200" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-keywords-case-fold-search</code></pre><div class="blockquote"><blockquote class="blockquote"><p>非<code class="literal">nil</code>は、<code class="literal">font-lock-keywords</code>のための正規表現マッチングが、大文字小文字を区別すべきではないことを意味する。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Customizing-Keywords"/>Customizing Search-Based Fontification</h2></div></div></div><p>メジャーモードにたいして検索ベースフォント表示ルールを追加するために<code class="literal">font-lock-add-keywords</code>、削除には<code class="literal">font-lock-remove-keywords</code>を使用することができます。
+</p><pre class="synopsis"><a id="idm64734928" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">font-lock-add-keywords</code> <em class="replaceable"><code>mode</code></em> <em class="replaceable"><code>keywords</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>how</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントバッファー、またはメジャーモード<em class="replaceable"><code>mode</code></em>にたいして、ハイライトする<em class="replaceable"><code>keywords</code></em>を追加する。引数<em class="replaceable"><code>keywords</code></em>は、変数<code class="literal">font-lock-keywords</code>と同じ形式のリストであること。
+</p><p><em class="replaceable"><code>mode</code></em>が、<code class="literal">c-mode</code>のような、あるメジャーモードのコマンド名であるようなシンボルの場合には、その<em class="replaceable"><code>mode</code></em>内でFont
+Lockモードを有効にすることにより、<em class="replaceable"><code>keywords</code></em>が<code class="literal">font-lock-keywords</code>に追加される効果がある。非<code class="literal">nil</code>値の<em class="replaceable"><code>mode</code></em>による呼び出しは、<code class="filename">~/.emacs</code>ファイル内でのみ正しい。
+</p><p><em class="replaceable"><code>mode</code></em>が<code class="literal">nil</code>の場合、この関数はカレントバッファーの<code class="literal">font-lock-keywords</code>に<em class="replaceable"><code>keywords</code></em>を追加する。この方法での<code class="literal">font-lock-add-keywords</code>呼び出しは、通常はモードフック関数内で使用される。
+</p><p>デフォルトでは、<em class="replaceable"><code>keywords</code></em>は<code class="literal">font-lock-keywords</code>の先頭に追加される。オプション引数<em class="replaceable"><code>how</code></em>が<code class="literal">set</code>の場合、それらは<code class="literal">font-lock-keywords</code>の値の置換に使用される。<em class="replaceable"><code>how</code></em>がそれ以外の非<code class="literal">nil</code>値の場合、これらは<code class="literal">font-lock-keywords</code>の最後に追加される。
+</p><p>追加のハイライトパターンの使用を可能にする、特別なサポートを提供するモードがいくつかある。それらの例については、変数<code class="literal">c-font-lock-extra-types</code>、<code class="literal">c++-font-lock-extra-types</code>、<code class="literal">java-font-lock-extra-types</code>を参照のこと。
+</p><p><span class="bold"><strong>警告:</strong></span>
+メジャーモードコマンドは、モードフックを除き、いかなる状況においても、直接間接を問わず<code class="literal">font-lock-add-keywords</code>を呼び出してはならない(これを行うと、いくつかのマイナーモードは不正な振る舞いを起こしかねない)。メジャーモードコマンドは、<code class="literal">font-lock-keywords</code>をセットすることにより、検索ベースフォント表示のルールをセットアップすべきである。
+</p></blockquote></div><pre class="synopsis"><a id="idm64714448" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">font-lock-remove-keywords</code> <em class="replaceable"><code>mode</code></em> <em class="replaceable"><code>keywords</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントバッファー、またはメジャーモード<em class="replaceable"><code>mode</code></em>にたいして、<code class="literal">font-lock-keywords</code>から<em class="replaceable"><code>keywords</code></em>を削除する。<code class="literal">font-lock-add-keywords</code>の場合と同様、<em class="replaceable"><code>mode</code></em>はメジャーモードコマンド名か<code class="literal">nil</code>であること。<code class="literal">font-lock-add-keywords</code>にたいするすべての制約と条件は、この関数にも適用される。
+</p></blockquote></div><p>たとえば、以下はCモードに2つのフォント表示パターンを追加するコードの例である。フォント表示の1つは、たとえコメント内であろうとも単語‘<code class="literal">FIXME</code>’をフォント表示し、もう1つは‘<code class="literal">and</code>’、‘<code class="literal">or</code>’、‘<code class="literal">not</code>’をキーワードとしてフォント表示する。
+</p><pre class="screen">(font-lock-add-keywords 'c-mode
+ '(("\\&lt;\\(FIXME\\):" 1 font-lock-warning-face prepend)
+   ("\\&lt;\\(and\\|or\\|not\\)\\&gt;" . font-lock-keyword-face)))
+</pre><p>この例は、正にCモードだけに効果がある。Cモード、<span class="emphasis"><em>および</em></span>その派生モードにたいして同じパターンを追加するには、かわりに以下を行う:
+</p><pre class="screen">(add-hook 'c-mode-hook
+ (lambda ()
+  (font-lock-add-keywords nil
+   '(("\\&lt;\\(FIXME\\):" 1 font-lock-warning-face prepend)
+     ("\\&lt;\\(and\\|or\\|not\\)\\&gt;" .
+      font-lock-keyword-face)))))
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Other-Font-Lock-Variables"/>Other Font Lock Variables</h2></div></div></div><p>このセクションでは、<code class="literal">font-lock-defaults</code>内の<em class="replaceable"><code>other-vars</code></em>を用いて、メジャーモードがセットできる追加の変数について説明します(<a class="link" href="ch23s06.html#Font-Lock-Basics" title="Font Lock Basics">Font
+Lock Basics</a>を参照)。
+</p><pre class="synopsis"><a id="idm64696400" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-mark-block-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、それはコマンド<strong class="userinput"><code>M-o
+M-o</code></strong>(<code class="literal">font-lock-fontify-block</code>)で再フォント表示するテキスト範囲を選択するために、引数なしで呼び出される関数であること。
+</p><p>この関数は、結果を報告するために、選択されたテキスト範囲にリージョンを配すべきである。正しい結果を与えるのに十分、かつ再フォント表示が低速にならない程度のテキスト範囲を選択するのがよい。プログラミングのモードにたいしては<code class="literal">mark-defun</code>、テキストを扱うモードにたいしては<code class="literal">mark-paragraph</code>が典型的な値である。
+</p></blockquote></div><pre class="synopsis"><a id="idm64678480" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-extra-managed-props</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、(<code class="literal">font-lock-face</code>以外の)Font
+Lockにより管理される追加プロパティを指定する。これらの追加プロパティは、通常は<code class="literal">font-lock-face</code>プロパティだけを管理する、<code class="literal">font-lock-default-unfontify-region</code>により使用される。他のプロパティも同様にFont
+Lockに管理させたい場合は、このリストに追加するのと同じように、<code class="literal">font-lock-keywords</code>内の<em class="replaceable"><code>facespec</code></em>内でもこれらを指定しなければならない。<a class="link" href="ch23s06.html#Search_002dbased-Fontification" title="Search-based Fontification">Search-based
+Fontification</a>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm64672848" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-fontify-buffer-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>そのバッファーをフォント表示するために使用する関数。デフォルト値は<code class="literal">font-lock-default-fontify-buffer</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm64669648" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-unfontify-buffer-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>そのバッファーを非フォント表示するために使用する関数。デフォルト値は<code class="literal">font-lock-default-unfontify-buffer</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm64666448" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-fontify-region-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>リージョンをフォント表示するための関数。この関数は、リージョンの開始と終了の2つを引数にとり、オプションで3つ目の引数<em class="replaceable"><code>verbose</code></em>をとるべきである。<em class="replaceable"><code>verbose</code></em>が非<code class="literal">nil</code>の場合、その関数はステータスメッセージをプリントすべきである。デフォルト値は<code class="literal">font-lock-default-fontify-region</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm64661840" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-unfontify-region-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>リージョンを非フォント表示するための関数。この関数は、リージョンの開始と終了の2つを引数にとるべきである。デフォルト値は<code class="literal">font-lock-default-unfontify-region</code>。
+</p></blockquote></div><pre class="synopsis"><a id="idm64658640" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">jit-lock-register</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>contextual</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントバッファーの一部をフォント表示/非表示する必要がある任意のタイミングで、Font
+LockモードがLisp関数<em class="replaceable"><code>function</code></em>を実行することを宣言する。これは、デフォルトのフォント表示関数が呼び出される前に、フォント表示/非表示するリージョンを指定する2つの引数<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>で<em class="replaceable"><code>function</code></em>を呼び出す。
+</p><p>オプション引数<em class="replaceable"><code>contextual</code></em>が非<code class="literal">nil</code>の場合は、行が更新されたときに限らず、そのバッファーの構文的に関連する部分を常にフォント表示するよう、Font
+Lockモードに強制する。この引数は、通常は省略できる。
+</p></blockquote></div><pre class="synopsis"><a id="idm64651856" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">jit-lock-unregister</code> <em class="replaceable"><code>function</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>以前に<code class="literal">jit-lock-register</code>を使用して、フォント表示関数として<em class="replaceable"><code>function</code></em>を登録した場合は、その関数を未登録にする。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Levels-of-Font-Lock"/>Levels of Font Lock</h2></div></div></div><p>フォント表示にたいして3つの異なるレベルを提供するモードが、いくつかあります。<code class="literal">font-lock-defaults</code>内の<em class="replaceable"><code>keywords</code></em>にたいしてシンボルのリストを使用することにより、複数のレベルを定義できます。このリストのシンボルはそれぞれ、フォント表示の1レベルを指定します。これらのレベルの選択は、通常は<code class="literal">font-lock-maximum-decoration</code>をセットすることにより、ユーザーの責任で行われます(section “Font
+Lock” in <em class="citetitle">the GNU Emacs
+Manual</em>を参照)。選択されたレベルのシンボルの値は、<code class="literal">font-lock-keywords</code>の初期化に使用されます。
+</p><p>フォント表示レベルの定義方法に関する慣習を以下に挙げます:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>レベル1:
+関数宣言、(includeやimportのような)ファイルディレクティブ、文字列、コメントをハイライトする。これは、もっとも重要かつトップレベルのコンポーネントだけをフォント表示すれば高速になるという発想である。
+</p></li><li class="listitem"><p>レベル2:
+レベル1に加えて、すべての言語のキーワード(キーワードと同様に作用する型名を含む)、および名前付き定数値をハイライトする。これは、(構文的、または意味的な)すべてのキーワードは適切にフォント表示されるべきという発想である。
+</p></li><li class="listitem"><p>レベル3: レベル2に加えて、関数内で定義されるシンボル、変数宣言、およびすべてのビルトイン関数名にたいして、それがどこに出現しようとハイライトする。
+</p></li></ul></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Precalculated-Fontification"/>Precalculated Fontification</h2></div></div></div><p><code class="literal">list-buffers</code>や<code class="literal">occur</code>のようないくつかのメジャーモードは、バッファーのテキストをプログラム的に構築します。これらにたいしてFont
+Lockモードをサポートするには、そのバッファーにテキストを挿入するタイミングで、テキストのフェイスを指定するのが、もっとも簡単な方法です。
+</p><p>これは、スペシャルテキストプロパティ<code class="literal">font-lock-face</code>(<a class="link" href="ch32s19.html#Special-Properties" title="Properties with Special Meanings">Special
+Properties</a>を参照)により、テキスト内にフェイスを指定することにより行われます。Font
+Lockモードが有効になったとき、このプロパティは<code class="literal">face</code>と同じように、表示を制御します。Font
+Lockモードが無効になると、<code class="literal">font-lock-face</code>は表示に効果をもちません。
+</p><p>モードが、通常のFont
+Lockメカニズムとともに、あるテキストにたいして<code class="literal">font-lock-face</code>を使用しても問題はありません。しかし、そのモードが通常のFont
+Lockメカニズムを使用しない場合は、変数<code class="literal">font-lock-face</code>をセットするべきではありません。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Faces-for-Font-Lock"/>Faces for Font Lock</h2></div></div></div><a id="idm64634960" class="indexterm"/><a id="idm64634192" class="indexterm"/><p>Font
+Lockモードは、ハイライトに任意のフェイスを使用できますが、Emacsは、特にFontLockがテキストのハイライトに使用するいくつかのフェイスを定義しています。これらの<em class="firstterm">Font
+Lockフェイス(Font Lock
+faces)</em>を、以下にリストします。これらのフェイスは、FontLockモードの外部における構文的なハイライトでメジャーモードが使用することもできます(<a class="link" href="ch23s02.html#Major-Mode-Conventions" title="Major Mode Conventions">Major
+Mode Conventions</a>を参照)。
+</p><p>以下の各シンボルは、フェイス名であり、かつデフォルト値がシンボル自身であるような変数でもあります。つまり、<code class="literal">font-lock-comment-face</code>のデフォルト値は<code class="literal">font-lock-comment-face</code>です。
+</p><p>リストは、そのフェイスの典型的な使い方の説明とともに、“重要性”が大きい順にソートされています。あるモードの構文的カテゴリーが、以下の使い方の説明にうまく適合しない場合、この並び順をガイドとして使用することにより、フェイスを割り当てることができるでしょう。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">font-lock-warning-face</code>
+</span></dt><dd><a id="idm64629328" class="indexterm"/><p>Emacs
+Lispの‘<code class="literal">;;;###autoload</code>’、Cの‘<code class="literal">#error</code>’のような、特有な構文、またはその他のテキスト意味を大きく変更する構文にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-function-name-face</code>
+</span></dt><dd><a id="idm64626256" class="indexterm"/><p>定義、または宣言される関数の名前にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-variable-name-face</code>
+</span></dt><dd><a id="idm64624208" class="indexterm"/><p>定義、または宣言される変数の名前にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-keyword-face</code>
+</span></dt><dd><a id="idm64622160" class="indexterm"/><p>Cの‘<code class="literal">for</code>’や‘<code class="literal">if</code>’のように、特別な構文的意味をもつキーワードにたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-comment-face</code>
+</span></dt><dd><a id="idm64619088" class="indexterm"/><p>コメントにたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-comment-delimiter-face</code>
+</span></dt><dd><a id="idm64617040" class="indexterm"/><p>Cの‘<code class="literal">/*</code>’と‘<code class="literal">*/</code>’のような、コメント区切りにたいして使用される。ほとんどの端末では、このフェイスは<code class="literal">font-lock-comment-face</code>を継承する。
+</p></dd><dt><span class="term"><code class="literal">font-lock-type-face</code>
+</span></dt><dd><a id="idm64613456" class="indexterm"/><p>ユーザー定義データ型にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-constant-face</code>
+</span></dt><dd><a id="idm64611408" class="indexterm"/><p>Cの‘<code class="literal">NULL</code>’のような、定数の名前にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-builtin-face</code>
+</span></dt><dd><a id="idm64608848" class="indexterm"/><p>ビルトイン関数の名前にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-preprocessor-face</code>
+</span></dt><dd><a id="idm64606800" class="indexterm"/><p>プロセッサーコマンドにたいして使用される。デフォルトでは、<code class="literal">font-lock-builtin-face</code>を継承する。
+</p></dd><dt><span class="term"><code class="literal">font-lock-string-face</code>
+</span></dt><dd><a id="idm64604240" class="indexterm"/><p>文字列定数にたいして使用される。
+</p></dd><dt><span class="term"><code class="literal">font-lock-doc-face</code>
+</span></dt><dd><a id="idm64589904" class="indexterm"/><p>コード内のドキュメント文字列にたいして使用される。デフォルトでは、<code class="literal">font-lock-string-face</code>を継承する。
+</p></dd><dt><span class="term"><code class="literal">font-lock-negation-char-face</code>
+</span></dt><dd><a id="idm64587344" class="indexterm"/><p>見逃されやすい否定文字にたいして使用される。
+</p></dd></dl></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Syntactic-Font-Lock"/>Syntactic Font Lock</h2></div></div></div><a id="idm64585168" class="indexterm"/><p>構文的フォント表示(syntactic
+fontification)は、構文的に関連性のあるテキストを探してハイライトするために、構文テーブル(syntax table:
+<a class="link" href="ch35.html" title="Chapter 34. Syntax Tables">Syntax
+Tables</a>を参照)を使用します。有効な場合は、検索ベースフォント表示に先立ち実行されます。以下で説明する変数<code class="literal">font-lock-syntactic-face-function</code>,は、どの構文的構造をハイライトするかを決定します。構文的フォント表示に影響を与える変数が、いくつかあります。<code class="literal">font-lock-defaults</code>のために、それらをセットするべきです(<a class="link" href="ch23s06.html#Font-Lock-Basics" title="Font Lock Basics">Font
+Lock Basics</a>を参照)。
+</p><p>Font
+Lockモードが一連のテキストにたいして構文的フォント表示を処理するときは、常に<code class="literal">syntax-propertize-function</code>で指定される関数を最初に呼び出します。メジャーモードは、特別なケースでは<code class="literal">syntax-table</code>テキストプロパティを適用してバッファーの構文テーブルをオーバーライドするために、これを使用することができます。<a class="link" href="ch35s04.html" title="Syntax Properties">Syntax
+Properties</a>を参照してください。
+</p><pre class="synopsis"><a id="idm64579792" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-keywords-only</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値が非<code class="literal">nil</code>の場合、Font
+Lockは構文的フォント表示を行わず、<code class="literal">font-lock-keywords</code>にもとづく検索ベースフォント表示だけを行う。これは通常、<code class="literal">font-lock-defaults</code>内の<em class="replaceable"><code>keywords-only</code></em>要素にもとづき、Font
+Lockモードによりセットされる。
+</p></blockquote></div><pre class="synopsis"><a id="idm64575184" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-syntax-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、コメントと文字列のフォント表示に使用するための構文テーブルを保持する。これは通常、<code class="literal">font-lock-defaults</code>内の<em class="replaceable"><code>syntax-alist</code></em>要素にもとづき、Font
+Lockモードによりセットされる。この値が<code class="literal">nil</code>の場合、構文的フォント表示は、バッファーの構文テーブル(関数<code class="literal">syntax-table</code>がリターンする構文テーブル。see <a class="link" href="ch35s03.html" title="Syntax Table Functions">Syntax
+Table Functions</a>を参照)を使用する。
+</p></blockquote></div><pre class="synopsis"><a id="idm64570064" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-beginning-of-syntax-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、それは構文的に“トップレベル”で、かつ文字列やコメントの外部であるような位置に戻すようにポイントを移動する関数であること。この値は通常、<code class="literal">font-lock-defaults</code>内の<em class="replaceable"><code>other-vars</code></em>要素を通じてセットされる。これが<code class="literal">nil</code>の場合、Font
+Lockはコメント、文字列、sexpの外部に戻って移動するために<code class="literal">syntax-begin-function</code>を使用する(<a class="link" href="ch35s06.html#Position-Parse" title="Finding the Parse State for a Position">Position
+Parse</a>を参照)。
+</p><p>この変数は、半ば時代遅れであり、通常はかわりに<code class="literal">syntax-begin-function</code>をセットすることを推奨する。これの用途の1つは、たとえば異なる種類の文字列やコメントを異なるようにハイライトする等、構文的フォント表示の振る舞いの調整する場合である。
+</p><p>指定された関数は、引数なしで呼び出される。この関数は、周囲の構文的ブロックの先頭にポイントを残すべきである。典型的な値は<code class="literal">beginning-of-line</code>(行頭が構文的ブロック外部であることが既知の場合に使用)、プログラミングのモードにたいしては<code class="literal">beginning-of-defun</code>、テキストを扱うモードにたいしては<code class="literal">backward-paragraph</code>が使用される。
+</p></blockquote></div><pre class="synopsis"><a id="idm64557520" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-syntactic-face-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、それは与えられた構文的要素にどのフェイスを使用するかを決定する関数であること。この値は通常、<code class="literal">font-lock-defaults</code>内の<em class="replaceable"><code>other-vars</code></em>要素を通じてセットされる。
+</p><p>この関数は1つの引数で呼び出され、<code class="literal">parse-partial-sexp</code>がリターンするポイントの状態をパースして、フェイスをリターンすべきである。コメントにたいしては<code class="literal">font-lock-comment-face</code>、文字列にたいしては<code class="literal">font-lock-string-face</code>が、リターンされるデフォルト値である(<a class="link" href="ch23s06.html#Faces-for-Font-Lock" title="Faces for Font Lock">Faces
+for Font Lock</a>を参照)。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Multiline-Font-Lock"/>Multiline Font Lock Constructs</h2></div></div></div><a id="idm64537936" class="indexterm"/><p>通常は、<code class="literal">font-lock-keywords</code>の要素は複数行にわたるマッチを行うべきではありません。それらの動作に信頼性はありません。なぜなら、Font
+Lockは通常はバッファーのごく一部をスキャンするので、そのスキャンが開始される行境界をまたがる複数行構造を見逃しかねないからです(スキャンは通常、行頭から開始される)。
+</p><p>ある要素にたいして、複数行構造にたいするマッチを正しく機能させるには、2つの観点があります。それは<span class="emphasis"><em>識別(identification)</em></span>の補正と、<span class="emphasis"><em>再ハイライト(rehighlighting)</em></span>の補正です。1つ目は、Font
+Lockがすべての複数行構造を探すことを意味します。2つ目は、複数行構造が変更されたとき、たとえば以前は複数行構造の一部だったテキストが、複数行構造から除外されたときに、関連するすべてのテキストをFont
+Lockに正しく再ハイライトさせることを意味します。これら2つの観点は密接に関連しており、一方を機能させることがもう一方を機能させるようなことが多々あります。しかし、信頼性のある結果を得るためには、これら2つの観点双方にたいして、明示的に注意しなければなりません。
+</p><p>複数行構造の識別を確実に補正するには、3つの方法があります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>スキャンされるテキストが複数行構造の途中で開始、または終了することがないように<span class="emphasis"><em>識別</em></span>を行いスキャンを拡張する関数を、<code class="literal">font-lock-extend-region-functions</code>に追加する。
+</p></li><li class="listitem"><p>同様に、スキャンされるテキストが複数行構造の途中で開始、または終了することがないようスキャンを拡張するために、<code class="literal">font-lock-fontify-region-function</code>フックを使用する。
+</p></li><li class="listitem"><p>複数行構造がバッファーに挿入されたとき(または挿入後、Font
+Lockがハイライトを試みる前の任意のタイミングで)、何らかの方法によりそれを正しく認識して、Font
+Lockが複数行構造の途中で開始、または終了しないよう指示する<code class="literal">font-lock-multiline</code>でそれをマークする。
+</p></li></ul></div><p>複数行構造の再ハイライトを行うには、3つの方法があります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>その構造にたいして、正しく<code class="literal">font-lock-multiline</code>を配する。これにより、その構造の一部が変更された場合は、構造全体が再ハイライトされるだろう。あるケースにおいては、それを参照する<code class="literal">font-lock-multiline</code>変数をセットすることにより、これを自動的に行うことができる。
+</p></li><li class="listitem"><p><code class="literal">jit-lock-contextually</code>を確実にセットして、それが行う処理に委ねる。これにより、実際の変更に続いて構造の一部だけが、若干の遅延の後に再ハイライトされるだろう。これは、複数行構造のさまざまな箇所のハイライトが、後続行のテキストに依存しない場合のみ機能する。<code class="literal">jit-lock-contextually</code>はデフォルトでアクティブなので、これは魅力的な解決策になり得る。
+</p></li><li class="listitem"><p>その構造上に、正しく<code class="literal">jit-lock-defer-multiline</code>を配する。これは、<code class="literal">jit-lock-contextually</code>が使用された場合のみ機能し、再ハイライト前に同様の遅延を伴うが、<code class="literal">font-lock-multiline</code>のように後続行に依存する箇所のハイライトも処理する。
+</p></li></ul></div><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="Font-Lock-Multiline"/>Font Lock Multiline</h3></div></div></div><p>複数行構造のFont
+Lockを確実に再ハイライトする方法の1つは、それらをテキストプロパティ<code class="literal">font-lock-multiline</code>にputする方法です。複数行構造の一部であるようなテキストにたいしては、このプロパティが存在し、値が非<code class="literal">nil</code>であるべきです。
+</p><p>Font
+Lockがテキスト範囲をハイライトしようとする際は、それらが<code class="literal">font-lock-multiline</code>プロパティでマークされたテキストにならないように、まず必要に応じて範囲の境界を拡張します。それから、その範囲のすべての<code class="literal">font-lock-multiline</code>を削除して、ハイライトします。ハイライト指定(大抵は<code class="literal">font-lock-keywords</code>)は、適宜このプロパティを毎回再インストールしなければなりません。
+</p><p><span class="bold"><strong>警告:</strong></span>
+ハイライトが低速になるので、大きなテキスト範囲にたいして<code class="literal">font-lock-multiline</code>を使用してはならない。
+</p><pre class="synopsis"><a id="idm64499664" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-multiline</code></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">font-lock-multiline</code>変数が<code class="literal">t</code>にセットされている場合、Font
+Lockは自動的に複数行構造にたいして<code class="literal">font-lock-multiline</code>プロパティの追加を試みる。しかし、これによりFont
+Lockが幾分遅くなるので、普遍的解ではない。これは、何らかの複数行構造を見逃したり、必要なものより多く、または少なくプロパティをセットするかもしれない。
+</p><p><em class="replaceable"><code>matcher</code></em>が関数であるような要素は、たとえ少量のサブパート(subpart)だけがハイライトされるような場合でも、submatch
+0(訳注:正規表現の後方参照においてsubmatch
+0はマッチした文字列全体を指す)が関連する複数行構造全体を確実に網羅するようにすべきである。単に手動で<code class="literal">font-lock-multiline</code>を追加するのが容易な場合も多々ある。
+</p></blockquote></div><p><code class="literal">font-lock-multiline</code>プロパティは、正しい再フォント表示を確実に行うことを意図しています。これは、新たな複数行構造を自動的に認識しません。Font
+Lockの処理を要するものにたいする認識は、一度に処理を行うのに十分な大きさのchunkにたいして行われます。これは多くの場合にアクシデントにより発生し得るかもしれないので、複数行構造が不可解に機能するような印象を与えるかもしれません。変数<code class="literal">font-lock-multiline</code>を非<code class="literal">nil</code>にセットした場合、発見されたこれらの構造にたいするハイライトは、変数をセットした後は正しく更新されるので、さらにこの印象が強くなるでしょう。しかし、これは信頼性をもって機能しません。
+</p><p>信頼性を保ち複数行構造を見つけるためには、Font
+Lockが調べる前にテキストの<code class="literal">font-lock-multiline</code>プロパティを手動で配すか、<code class="literal">font-lock-fontify-region-function</code>を使用しなければなりません。
+</p></div><div class="sect3"><div class="titlepage"><div><div><h3 class="title"><a id="Region-to-Refontify"/>Region to Fontify after a Buffer Change</h3></div></div></div><p>バッファーが変更されたとき、Font
+Lockが再フォント表示するリージョンは、デフォルトではその変更に関連する、最小の行全体からなるシーケンスです。これはほとんどの場合は良好に機能しますが、うまく機能しないとき(たとえば、その変更がそれより前の行のテキストの構文的な意味を変更してしまうとき)もあります。
+</p><p>以下の変数をセットすることにより、再フォント表示するリージョンを拡張(または縮小さえ)することができます:
+</p><pre class="synopsis"><a id="idm64489424" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">font-lock-extend-after-change-region-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数は<code class="literal">nil</code>、またはFont
+Lockモードにたいしてスキャンしてフォント表示すべきリージョンを決定するために呼び出される関数である。
+</p><p>この関数には、標準的な<em class="replaceable"><code>beg</code></em>と<em class="replaceable"><code>end</code></em>、および<code class="literal">after-change-functions</code>の<em class="replaceable"><code>old-len</code></em>(<a class="link" href="ch32s28.html" title="Change Hooks">Change
+Hooks</a>を参照)という、3つのパラメーターが渡される。この関数はフォント表示するリージョンのバッファー位置の開始と終了(この順で)からなるコンスセル、または<code class="literal">nil</code>(標準的な方法でリージョンを選択することを意味する)のいずれかをリターンすべきである。この関数は、ポイント位置、match-data、カレントのナローイングを保つ必要がある。これがリターンするリージョンは、行の途中で開始、または終了するかもしれない。
+</p><p>この関数はバッファーを変更するたびに呼び出されるので、有意に高速であること。
+</p></blockquote></div></div></div></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Functions for Key Lookup</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Functions-for-Key-Lookup"/>Functions for Key Lookup</h1></div></div></div><p>以下は、キールックアップに関連する関数および変数です。
+</p><pre class="synopsis"><a id="idm62865872" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">lookup-key</code> <em class="replaceable"><code>keymap</code></em> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>accept-defaults</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>keymap</code></em>内の<em class="replaceable"><code>key</code></em>の定義をリターンする。このチャプターで説明されている、キーをルックアップする他のすべての関数が<code class="literal">lookup-key</code>を使用する。以下は例である:
+</p><pre class="screen">(lookup-key (current-global-map) "\C-x\C-f")
+    ⇒ find-file
+</pre><pre class="screen">(lookup-key (current-global-map) (kbd "C-x C-f"))
+    ⇒ find-file
+</pre><pre class="screen">(lookup-key (current-global-map) "\C-x\C-f12345")
+    ⇒ 2
+</pre><p>文字列、またはベクターの<em class="replaceable"><code>key</code></em>が、<em class="replaceable"><code>keymap</code></em>内で指定されるプレフィクスキーとして有効なキーシーケンスでない場合、それは最後に余計なイベントをもつ、単一のキーシーケンスに適合しない、“長過ぎる”キーのはずである。その場合のリターン値は数となり、この数はコンプリートキーを構成する<em class="replaceable"><code>key</code></em>の前にあるイベントの数である。
+</p><p><em class="replaceable"><code>accept-defaults</code></em>が非<code class="literal">nil</code>の場合、<code class="literal">lookup-key</code>は<em class="replaceable"><code>key</code></em>内の特定のイベントにたいするバインディングと同様に、デフォルトバインディングも考慮する。それ以外では、<code class="literal">lookup-key</code>は特定の<em class="replaceable"><code>key</code></em>のシーケンスにたいするバインディングだけを報告し、明示的に指定したとき以外はデフォルトバインディングを無視する。(これを行うには、<em class="replaceable"><code>key</code></em>の要素として<code class="literal">t</code>を与える。<a class="link" href="ch22s03.html" title="Format of Keymaps">Format
+of Keymaps</a>を参照のこと。)
+</p><p><em class="replaceable"><code>key</code></em>がメタ文字(ファンクションキーではない)を含む場合その文字は暗黙に<code class="literal">meta-prefix-char</code>の値と対応する非メタ文字からなる、2文字シーケンスに置き換えられる。したがって、以下に1つ目の例は、2つ目の例に変換されて処理される。
+</p><pre class="screen">(lookup-key (current-global-map) "\M-f")
+    ⇒ forward-word
+</pre><pre class="screen">(lookup-key (current-global-map) "\ef")
+    ⇒ forward-word
+</pre><p><code class="literal">read-key-sequence</code>とは異なり、この関数は指定されたイベントの情報を破棄する変更(<a class="link" href="ch21s08.html#Key-Sequence-Input" title="Key Sequence Input">Key Sequence
+Input</a>を参照)を行わない。特に、この関数はアルファベット文字を小文字に変更せず、ドラッグイベントをクリックイベントに変更しない。
+</p></blockquote></div><pre class="synopsis"><a id="idm62829008" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">undefined</code></pre><div class="blockquote"><blockquote class="blockquote"><p>キーを未定義にするために、キーマップ内で使用される。これは<code class="literal">ding</code>を呼び出すが、エラーを起こさない。
+</p></blockquote></div><pre class="synopsis"><a id="idm62825680" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">local-key-binding</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>accept-defaults</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントのローカルキーマップ内の、<em class="replaceable"><code>key</code></em>にたいするバインディングをリターンする。カレントのローカルキーマップ内で未定義の場合は、<code class="literal">nil</code>をリターンする。
+</p><p>引数<em class="replaceable"><code>accept-defaults</code></em>は、<code class="literal">lookup-key</code>(上記)と同じように、デフォルトバインディングのチェックを制御する。
+</p></blockquote></div><pre class="synopsis"><a id="idm62819280" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">global-key-binding</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>accept-defaults</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントのグローバルキーマップ内で、コマンド<em class="replaceable"><code>key</code></em>にたいするバインディングをリターンする。カレントのグローバルキーマップ内で未定義の場合は、<code class="literal">nil</code>をリターンする。
+</p><p>引数<em class="replaceable"><code>accept-defaults</code></em>は、<code class="literal">lookup-key</code>(上記)と同じように、デフォルトバインディングのチェックを制御する。
+</p></blockquote></div><pre class="synopsis"><a id="idm62812624" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">minor-mode-key-binding</code> <em class="replaceable"><code>key</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>accept-defaults</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、アクティブなマイナーモードの<em class="replaceable"><code>key</code></em>のバインディングを、リストでリターンする。より正確には、この関数は<code class="literal">(<em class="replaceable"><code>modename</code></em>
+.
+<em class="replaceable"><code>binding</code></em>)</code>のとうなペアーのalistをリターンする。ここで<em class="replaceable"><code>modename</code></em>なそのマイナーモードを有効にする変数、<em class="replaceable"><code>binding</code></em>はそのモードでの<em class="replaceable"><code>key</code></em>のバインディングである。<em class="replaceable"><code>key</code></em>がマイナーモードバインディングをみたない場合、値は<code class="literal">nil</code>である。
+</p><p>最初に見つかったバインディングがプレフィクス定義(キーマップ、またはキーマップとして定義されたシンボル)でない場合は、他のマイナーモード由来のすべての後続するバインディングは、完全にshadowされるため省略される。同様に、このリストはプレフィクスバインディングに後続する非プレフィクスバインディングは省略される。
+</p><p>引数<em class="replaceable"><code>accept-defaults</code></em>は、<code class="literal">lookup-key</code>(上記)と同じように、デフォルトバインディングのチェックを制御する。
+</p></blockquote></div><pre class="synopsis"><a id="idm62803280" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">meta-prefix-char</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm62801232" class="indexterm"/><p>この変数はメタ/プレフィクス文字コードである。これはメタ文字をキーマップ内でルックアップできるように、2文字シーケンスに変換する。有用な結果を得るために、値はプレフィクスイベント(<a class="link" href="ch22s06.html" title="Prefix Keys">Prefix
+Keys</a>を参照)であること。デフォルト値は27で、これは<span class="keycap"><strong>ESC</strong></span>にたいする<acronym class="acronym">ASCII</acronym>コードである。
+</p><p><code class="literal">meta-prefix-char</code>の値が27であるような限り、キールックアップは通常<code class="literal">backward-word</code>コマンドとして定義される<strong class="userinput"><code>M-b</code></strong>を、<strong class="userinput"><code><span class="keycap"><strong>ESC</strong></span>
+b</code></strong>に変換する。しかし、<code class="literal">meta-prefix-char</code>を24(<strong class="userinput"><code>C-x</code></strong>のコード)にセットした場合、Emacsは<strong class="userinput"><code>M-b</code></strong>を<strong class="userinput"><code>C-x
+b</code></strong>に変換するだろうが、これの標準のバインディングは<code class="literal">switch-to-buffer</code>コマンドである。以下に何が起こるかを示す(実際にこれを行ってはならない!):
+</p><pre class="screen">meta-prefix-char                    ; デフォルト値
+     ⇒ 27
+</pre><pre class="screen">(key-binding "\M-b")
+     ⇒ backward-word
+</pre><pre class="screen">?\C-x                               ; 文字.の
+     ⇒ 24                          ; プリント表現
+</pre><pre class="screen">(setq meta-prefix-char 24)
+     ⇒ 24
+</pre><pre class="screen">(key-binding "\M-b")
+     ⇒ switch-to-buffer            ; 今や<strong class="userinput"><code>M-b</code></strong>をタイプすると
+                                    ;   <strong class="userinput"><code>C-x b</code></strong>をタイプしたようになる
+
+(setq meta-prefix-char 27)          ; 混乱を避ける!
+     ⇒ 27                          ; デフォルト値をリストア!
+</pre><p>この単一イベントから２イベントへの変換は文字にたいしてのみ発生し、他の種類の入力イベントには発生しない。したがって、ファンクションキー<strong class="userinput"><code>M-<span class="keycap"><strong>F1</strong></span></code></strong>は<strong class="userinput"><code><span class="keycap"><strong>ESC</strong></span>
+<span class="keycap"><strong>F1</strong></span></code></strong>に変換されない。
+</p></blockquote></div></div></body></html>

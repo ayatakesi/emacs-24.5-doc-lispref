@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Syntax Properties</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Syntax-Properties"/>Syntax Properties</h1></div></div></div><a id="idm76162128" class="indexterm"/><p>ある言語の構文を指定するのに構文テーブルが十分に柔軟でないときは、
+バッファー内に出現する特定の文字にたいして、テキストプロパティ<code class="literal">syntax-table</code>を適用することにより、構文テーブルをオーバーライドできます。テキストプロパティを適用する方法については、<a class="link" href="ch32s19.html" title="Text Properties">Text
+Properties</a>を参照してください。
+</p><p>以下はテキストプロパティ<code class="literal">syntax-table</code>の有効な値です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>syntax-table</code></em>
+</span></dt><dd><p>プロパティの値が構文テーブルなら、根底となるテキスト文字の構文を決定するカレントバッファーの構文テーブルのかわりに、そのテーブルが使用される。
+</p></dd><dt><span class="term"><code class="literal">(<em class="replaceable"><code>syntax-code</code></em> . <em class="replaceable"><code>matching-char</code></em>)</code>
+</span></dt><dd><p>この形式のコンスセルは、根底となるテキスト文字の構文クラスを直接指定する、raw構文テーブル(<a class="link" href="ch35s07.html" title="Syntax Table Internals">Syntax Table
+Internals</a>を参照)である。
+</p></dd><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>このプロパティが<code class="literal">nil</code>なら、その文字の構文はカレント構文テーブルにより通常の方法で決定される。
+</p></dd></dl></div><pre class="synopsis"><a id="idm76153168" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">parse-sexp-lookup-properties</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これが非<code class="literal">nil</code>なら、<code class="literal">forward-sexp</code>のような構文をスキャンする関数は、syntax-tableテキストプロパティに注意を払い、それ以外ならカレント構文テーブルだけを使用する。
+</p></blockquote></div><pre class="synopsis"><a id="idm76149456" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">syntax-propertize-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>なら、特定のテキスト範囲にたいして<code class="literal">syntax-table</code>プロパティを適用する関数を格納するべきである。これは、モードに適した方法で<code class="literal">syntax-table</code>プロパティを適用する関数をインストールするために、メジャーモードに使用されることを意図している。
+</p><p>この関数は<code class="literal">syntax-ppss</code>(<a class="link" href="ch35s06.html#Position-Parse" title="Finding the Parse State for a Position">Position Parse</a>を参照)、および構文フォント表示化(<a class="link" href="ch23s06.html#Syntactic-Font-Lock" title="Syntactic Font Lock">Syntactic
+Font Lock</a>を参照)の間にFont
+Lockモードにより呼び出される。これは作用すべきテキスト部分の開始<em class="replaceable"><code>start</code></em>と終了<em class="replaceable"><code>end</code></em>という、2つの引数で呼び出される。これは<em class="replaceable"><code>end</code></em>の前の任意の位置で、<code class="literal">syntax-ppss</code>を呼び出すことが許されている。しかし<code class="literal">syntax-ppss-flush-cache</code>を呼び出すべきではなく、そのため、ある位置で<code class="literal">syntax-ppss</code>を呼び出して、後からバッファー内の前の位置を変更することは許されていない。
+</p></blockquote></div><pre class="synopsis"><a id="idm76140368" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">syntax-propertize-extend-region-functions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このアブノーマルフックは<code class="literal">syntax-propertize-function</code>呼び出しに先立ち、構文解析コードにより実行される。これは<code class="literal">syntax-propertize-function</code>に渡すための、安全なバッファーの開始および終了位置を見つける助けをする役割をもつ。たとえばメジャーモードは、複数行の構文構成を識別して、境界が複数行の中間にならないよう、このフックに関数を追加できる。
+</p><p>このフック内の各関数は、引数<em class="replaceable"><code>start</code></em>と<em class="replaceable"><code>end</code></em>を受け取ること。これは2つのバッファー位置を調整するコンスセル<code class="literal">(<em class="replaceable"><code>new-start</code></em>
+.
+<em class="replaceable"><code>new-end</code></em>)</code>、調整が必要なければ<code class="literal">nil</code>をリターンするべきである。フック関数は、それらすべてが<code class="literal">nil</code>をリターンするまで、順番に繰り返し実行される。
+</p></blockquote></div></div></body></html>

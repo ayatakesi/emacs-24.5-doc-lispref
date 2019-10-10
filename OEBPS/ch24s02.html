@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Access to Documentation Strings</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Accessing-Documentation"/>Access to Documentation Strings</h1></div></div></div><a id="idm64108752" class="indexterm"/><pre class="synopsis"><a id="idm64095440" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">documentation-property</code> <em class="replaceable"><code>symbol</code></em> <em class="replaceable"><code>property</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>verbatim</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、プロパティ<em class="replaceable"><code>property</code></em>配下の<em class="replaceable"><code>symbol</code></em>のプロパティリスト内に記録されたドキュメント文字列をリターンする。ほとんどの場合、これは<em class="replaceable"><code>property</code></em>を<code class="literal">variable-documentation</code>にして、変数のドキュメント文字列の照会に使用される。しかし、カスタマイゼーショングループのような、他の種類のドキュメント照会にも使用できる(が、関数のドキュメントには、以下の<code class="literal">documentation</code>関数を使用する)。
+</p><p>そのプロパティの値が<code class="filename">DOC</code>ファイルやバイトコンパイル済みファイルに格納されたドキュメント文字列を参照する場合、この関数はその文字列を照会して、それをリターンする。
+</p><p>プロパティの値が<code class="literal">nil</code>や文字列以外で、ファイル内のテキストも参照しない場合は、文字列を取得するLisp式として評価される。
+</p><p>最終的に、この関数はキーバインディングを置換するために、文字列を<code class="literal">substitute-command-keys</code>に引き渡す(<a class="link" href="ch24s03.html" title="Substituting Key Bindings in Documentation">Keys
+in Documentation</a>を参照)。<em class="replaceable"><code>verbatim</code></em>が非<code class="literal">nil</code>の場合、このステップはスキップされる。
+</p><pre class="screen">(documentation-property 'command-line-processed
+   'variable-documentation)
+     ⇒ "Non-nil once command line has been processed"
+</pre><pre class="screen">(symbol-plist 'command-line-processed)
+     ⇒ (variable-documentation 188902)
+</pre><pre class="screen">(documentation-property 'emacs 'group-documentation)
+     ⇒ "Customization of the One True Editor."
+</pre></blockquote></div><pre class="synopsis"><a id="idm64083408" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">documentation</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>verbatim</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>function</code></em>のドキュメント文字列をリターンする。この関数はマクロ、名前付きキーボードマクロ、およびスペシャルフォームも通常の関数と同様に処理する。
+</p><p><em class="replaceable"><code>function</code></em>がシンボルの場合は、そのシンボルの<code class="literal">function-documentation</code>プロパティを最初に調べる。それが非<code class="literal">nil</code>値をもつなら、その値(プロパティの値が文字列以外の場合は、それを評価した値)がドキュメントとなる。
+</p><p><em class="replaceable"><code>function</code></em>がシンボル以外、あるいは<code class="literal">function-documentation</code>プロパティをもたない場合、<code class="literal">documentation</code>は必要ならファイルを読み込んで、実際の関数定義のドキュメント文字列を抽出する。
+</p><p>最後に、<em class="replaceable"><code>verbatim</code></em>が<code class="literal">nil</code>なら、この関数は<code class="literal">substitute-command-keys</code>を呼び出す。結果はリターンするための文字列である。
+</p><p><code class="literal">documentation</code>関数は、<em class="replaceable"><code>function</code></em>が関数定義をもたない場合は、<code class="literal">void-function</code>エラーをシグナルする。しかし、関数定義がドキュメントをもたない場合は問題ない。その場合、<code class="literal">documentation</code>は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm64071120" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">face-documentation</code> <em class="replaceable"><code>face</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>face</code></em>のドキュメント文字列をフェイスとしてリターンする。
+</p></blockquote></div><p>以下は、<code class="literal">documentation</code>と<code class="literal">documentation-property</code>を使用した例で、いくつかのシンボルのドキュメント文字列を<code class="filename">*Help*</code>バッファー内に表示します。
+</p><a id="describe_002dsymbols-example"/><pre class="screen">(defun describe-symbols (pattern)
+  "PATTERNにマッチするEmacs Lispシンボルを説明する。
+名前にPATTERNをもつすべてのシンボルの説明が
+`*Help*'バッファーに表示される。"
+  (interactive "sDescribe symbols matching: ")
+  (let ((describe-func
+         (function
+          (lambda (s)
+</pre><pre class="screen">            ;; シンボルの説明をプリントする
+            (if (fboundp s)             ; これは関数
+                (princ
+                 (format "%s\t%s\n%s\n\n" s
+                   (if (commandp s)
+                       (let ((keys (where-is-internal s)))
+                         (if keys
+                             (concat
+                              "Keys: "
+                              (mapconcat 'key-description
+                                         keys " "))
+                           "Keys: none"))
+                     "Function")
+</pre><pre class="screen">                   (or (documentation s)
+                       "not documented"))))
+
+            (if (boundp s)              ; これは変数
+</pre><pre class="screen">                (princ
+                 (format "%s\t%s\n%s\n\n" s
+                   (if (custom-variable-p s)
+                       "Option " "Variable")
+</pre><pre class="screen">                   (or (documentation-property
+                         s 'variable-documentation)
+                       "not documented")))))))
+        sym-list)
+</pre><pre class="screen">
+</pre><pre class="screen">    ;; PATTERNにマッチするシンボルのリストを構築
+    (mapatoms (function
+               (lambda (sym)
+                 (if (string-match pattern (symbol-name sym))
+                     (setq sym-list (cons sym sym-list))))))
+</pre><pre class="screen">
+</pre><pre class="screen">    ;; データを表示
+    (help-setup-xref (list 'describe-symbols pattern) (interactive-p))
+    (with-help-window (help-buffer)
+      (mapcar describe-func (sort sym-list 'string&lt;)))))
+</pre><p><code class="literal">describe-symbols</code>関数は<code class="literal">apropos</code>のように機能しますが、より多くの情報を提供します。
+</p><pre class="screen">(describe-symbols "goal")
+
+---------- Buffer: *Help* ----------
+goal-column     Option
+Semipermanent goal column for vertical motion, as set by …
+</pre><pre class="screen">
+
+
+</pre><pre class="screen">set-goal-column Keys: C-x C-n
+Set the current horizontal position as a goal for C-n and C-p.
+</pre><pre class="screen">
+</pre><pre class="screen">Those commands will move to this position in the line moved to
+rather than trying to keep the same horizontal position.
+With a non-nil argument, clears out the goal column
+so that C-n and C-p resume vertical motion.
+The goal column is stored in the variable `goal-column'.
+</pre><pre class="screen">
+</pre><pre class="screen">temporary-goal-column   Variable
+Current goal column for vertical motion.
+It is the column where point was
+at the start of current run of vertical motion commands.
+When the `track-eol' feature is doing its job, the value is 9999.
+---------- Buffer: *Help* ----------
+</pre><a id="Definition-of-Snarf_002ddocumentation"/><pre class="synopsis"><a id="idm64048720" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">Snarf-documentation</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、Emacsビルド時の実行可能なEmacsダンプ直前に使用される。これは、ファイル<em class="replaceable"><code>filename</code></em>内に格納されたドキュメント文字列の位置を探して、メモリー上の関数定義および変数のプロパティリスト内にそれらの位置を記録する。<a class="link" href="ape.html#Building-Emacs" title="Building Emacs">Building
+Emacs</a>を参照のこと。
+</p><p>Emacsは、<code class="filename">emacs/etc</code>ディレクトリーから、ファイル<em class="replaceable"><code>filename</code></em>を読み込む。その後、ダンプされたEmacs実行時に、ディレクトリー<code class="literal">doc-directory</code>内の同じファイルを照会する。<em class="replaceable"><code>filename</code></em>は通常<code class="literal">"DOC"</code>である。
+</p></blockquote></div><pre class="synopsis"><a id="idm64041808" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">doc-directory</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、ビルトインおよび事前ロードされた関数および変数のドキュメント文字列を含む、ファイル<code class="literal">"DOC"</code>があるべきディレクトリーの名前を保持する。
+</p><p>ほとんどの場合、これは<code class="literal">data-directory</code>と同一である。実際にインストールしたEmacsではなく、EmacswpeyビルドしたディレクトリーからEmacsを実行したときは、異なるかもしれない。<a class="link" href="ch24s05.html#Definition-of-data_002ddirectory">Definition
+of data-directory</a>を参照のこと。
+</p></blockquote></div></div></body></html>

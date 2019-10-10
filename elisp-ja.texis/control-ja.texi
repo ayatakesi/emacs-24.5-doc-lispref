@@ -1,0 +1,1048 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990-1995, 1998-1999, 2001-2015 Free Software
+@c Foundation, Inc.
+@c See the file elisp.texi for copying conditions.
+@node Control Structures
+@chapter Control Structures
+@cindex special forms for control structures
+@cindex control structures
+
+  Lispプログラムは、一連の@dfn{式(expressions)}、あるいは@dfn{フォーム(forms)}(@ref{Forms}を参照してください)により形成されます。これらのフォームの実行順は、それらを@dfn{制御構造(control
+structures)}で囲むことにより制御します。制御構造とは、その制御構造が含むフォームをいつ、どのような条件で、何回実行するかを制御する、スペシャルフォームです。
+
+@cindex textual order
+  もっとも単純な実行順は、1番目は@var{a}、2番目は@var{b}、...という、シーケンシャル実行(sequential execution:
+順番に実行)です。これは、関数のbody内の連続する複数のフォームや、Lispコードのファイル内のトップレベルを記述したときに発生します ---
+つまり、フォームは記述した順に実行されます。わたしたちはこれを@dfn{テキスト順(textual
+order)}と呼びます。たとえば、関数のbodyが2つのフォーム@var{a}と@var{b}から構成される場合、関数の評価は、最初に@var{a}を評価し、次に@var{b}を評価します。@var{b}を評価した結果が、その関数の値となります。
+
+  明示的に制御構造を使用することにより、シーケンシャルではない順番での実行が可能になります。
+
+  Emacs
+Lispは、他の様々な順序づけ、条件、繰り返し、(制御された)ジャンプを含む、複数の種類の制御構造を提供し、以下ではそれらすべてを記述します。ビルトインの制御構造は、制御構造のサブフォームが評価される必要がなかったり、順番に評価される必要がないので、スペシャルフォームです。独自の制御構造を構築するためにマクロを使用することができます(@ref{Macros}を参照してください)。
+
+@menu
+* Sequencing::               テキスト順の評価。
+* Conditionals::             @code{if}、@code{cond}、@code{when}、@code{unless}。
+* Combining Conditions::     @code{and}、@code{or}、@code{not}。
+* Iteration::                @code{while}ループ。
+* Nonlocal Exits::           シーケンスの外へジャンプ。
+@end menu
+
+@node Sequencing
+@section Sequencing
+@cindex sequencing
+@cindex sequential execution
+
+  フォームが出現する順番に評価するのは、あるフォームから別のフォームに制御を渡す、もっとも一般的な制御です。関数のbodyのような、あるコンテキストにおいては、自動的にこれが行なわれます。他の場所では、これを行なうために制御構造を使用しなければなりません。Lispで一単純な制御構造は、@code{progn}です。
+
+  スペシャルフォーム@code{progn}は、以下のようなものです:
+
+@example
+@group
+(progn @var{a} @var{b} @var{c} @dots{})
+@end group
+@end example
+
+@noindent
+これは、順番に@var{a}、@var{b}、@var{c}、...を実行するよう指定します。これらは@code{progn}フォームの@dfn{body}と呼ばれます。body内の最後のフォームの値が、@code{progn}全体の値になります。@code{(progn)}は@code{nil}をreturnします。
+
+@cindex implicit @code{progn}
+  初期のLispでは、@code{progn}は、連続で複数のフォームを実行して最後のフォームの値を使用する、唯一の方法でした。しかしプログラマーは、関数のbodyの、(その時点では)1つのフォームだけが許される場所で、@code{progn}を使用する必要が多いことに気づきました。そのため、関数のbodyを``暗黙の@code{progn}''にして、@code{progn}のbodyのように複数のフォームを記述出きるようにしました。他の多くの制御構造も、同様に暗黙の@code{progn}を含みます。結果として、昔ほど@code{progn}は多用されなくなりました。現在では、@code{progn}が必要になるのは、@code{unwind-protect}、@code{and}、@code{or}、@code{if}の@var{then}パートの中がほとんどです。
+
+@defspec progn forms@dots{}
+このスペシャルフォームは、@var{forms}のすべてをテキスト順に評価して、のフォームの結果をreturnします。
+
+@example
+@group
+(progn (print "The first form")
+       (print "The second form")
+       (print "The third form"))
+     @print{} "The first form"
+     @print{} "The second form"
+     @print{} "The third form"
+@result{} "The third form"
+@end group
+@end example
+@end defspec
+
+  他の2つの構成は、一連のフォームを同様に評価しますが、異なる値をreturnします:
+
+@defspec prog1 form1 forms@dots{}
+このスペシャルフォームは、@var{form1}と@var{forms}のすべてをテキスト順に評価して、@var{form1}の結果をreturnします。
+
+@example
+@group
+(prog1 (print "The first form")
+       (print "The second form")
+       (print "The third form"))
+     @print{} "The first form"
+     @print{} "The second form"
+     @print{} "The third form"
+@result{} "The first form"
+@end group
+@end example
+
+以下の例は、変数@code{x}のリストから1番目の要素を削除して、削除した1番目の要素の値をreturnします:
+
+@example
+(prog1 (car x) (setq x (cdr x)))
+@end example
+@end defspec
+
+@defspec prog2 form1 form2 forms@dots{}
+このスペシャルフォームは、@var{form1}、@var{form2}、その後の@var{forms}のすべてをテキスト順で評価して、@var{form2}の結果をreturnします。
+
+@example
+@group
+(prog2 (print "The first form")
+       (print "The second form")
+       (print "The third form"))
+     @print{} "The first form"
+     @print{} "The second form"
+     @print{} "The third form"
+@result{} "The second form"
+@end group
+@end example
+@end defspec
+
+@node Conditionals
+@section Conditionals
+@cindex conditional evaluation
+
+  条件による制御構造は、候補の中から選択を行ないます。Emacs
+Lispは4つの条件フォームをもちます。@code{if}は他の言語のものとほとんど同じです。@code{when}と@code{unless}は、@code{if}の変種です。@code{cond}は一般化されたcase命令です。
+
+@defspec if condition then-form else-forms@dots{}
+@code{if}は、@var{condition}の値にもとづいて、@var{then-form}と@var{else-forms}を選択します。評価された@var{condition}が非@code{nil}の場合は、@var{then-form}が評価されて、その結果がreturnされます。それ以外は、@var{else-forms}がテキスト順に評価されて、最後のフォームの値がreturnされます(@code{if}の@var{else}パートは、暗黙の@code{progn}の例です。@ref{Sequencing}を参照してください)。
+
+@var{condition}の値が@code{nil}で、@var{else-forms}が与えられない場合、@code{if}は@code{nil}をreturnします。
+
+選択されなかったブランチは決して評価されない --- 無視される ---
+ので、@code{if}はスペシャルフォームです。したがって、以下の例では@code{print}は呼び出されることはないので、@code{true}はプリントされません。
+
+@example
+@group
+(if nil
+    (print 'true)
+  'very-false)
+@result{} very-false
+@end group
+@end example
+@end defspec
+
+@defmac when condition then-forms@dots{}
+これは、@var{else-forms}がなく、複数の@var{then-forms}があるかもしれない、@code{if}の変種です。特に、
+
+@example
+(when @var{condition} @var{a} @var{b} @var{c})
+@end example
+
+@noindent
+は以下と完全に等価です
+
+@example
+(if @var{condition} (progn @var{a} @var{b} @var{c}) nil)
+@end example
+@end defmac
+
+@defmac unless condition forms@dots{}
+これは@var{then-form}がない、@code{if}の変種です:
+
+@example
+(unless @var{condition} @var{a} @var{b} @var{c})
+@end example
+
+@noindent
+は以下と完全に等価です
+
+@example
+(if @var{condition} nil
+   @var{a} @var{b} @var{c})
+@end example
+@end defmac
+
+@defspec cond clause@dots{}
+@code{cond}は、任意の数の候補から選択を行ないます。@code{cond}内の各@var{clause}は、リストでなければなりません。このリストの@sc{car}は@var{condition}で、(もしあれば)残りの要素は@var{body-forms}です。したがって、条項は以下のようになります:
+
+@example
+(@var{condition} @var{body-forms}@dots{})
+@end example
+
+@code{cond}は、各条項の@var{condition}を評価することにより、テキスト順で条項を試験します。@var{condition}の値が非@code{nil}の場合、その条項は``成り立ち''ます。その後、@code{cond}は、その条項の@var{body-forms}を評価して、@var{body-forms}の最後の値をreturnします。残りの条項は無視されます。
+
+@var{condition}の値が@code{nil}の場合、その条項は``成り立たず''、@code{cond}は次の条項に移動して、その条項の@var{condition}を試験します。
+
+以下のようなものも、条項になります:
+
+@example
+(@var{condition})
+@end example
+
+@noindent
+@var{condition}がテストされたときに非@code{nil}なら、@code{cond}フォームは@var{condition}の値をreturnします。
+
+すべての@var{condition}が@code{nil}に評価された場合 ---
+つまりすべての条項が不成立の場合、@code{cond}は@code{nil}をreturnします。
+
+以下の例は4つの条項をもち、@code{x}の値が数字か、文字列化、バッファーか、シンボルかをテストします:
+
+@example
+@group
+(cond ((numberp x) x)
+      ((stringp x) x)
+      ((bufferp x)
+       (setq temporary-hack x) ; @r{1つの条項に}
+       (buffer-name x))        ; @r{複数bodyフォーム。}
+      ((symbolp x) (symbol-value x)))
+@end group
+@end example
+
+前の条項が不成立のとき、最後の条項を実行したいときがよくあります。これを行なうには、@code{(t
+@var{body-forms})}のように、@var{condition}の最後の条項に@code{t}を使用します。フォーム@code{t}は@code{t}に評価され、決して@code{nil}にならないので、この条項が不成立になることはなく、最終的に@code{cond}はこの条項に到達します。たとえば:
+
+@example
+@group
+(setq a 5)
+(cond ((eq a 'hack) 'foo)
+      (t "default"))
+@result{} "default"
+@end group
+@end example
+
+@noindent
+この@code{cond}式は、@code{a}の値が@code{hack}の場合は@code{foo}、それ以外は文字列@code{"default"}をreturnします。
+@end defspec
+
+任意の条件構成は、@code{cond}か@code{if}で表すことができます。したがって、どちらを選択するかは、スタイルの問題です、たとえば:
+
+@example
+@group
+(if @var{a} @var{b} @var{c})
+@equiv{}
+(cond (@var{a} @var{b}) (t @var{c}))
+@end group
+@end example
+
+@menu
+* Pattern matching case statement::  
+@end menu
+
+@node Pattern matching case statement
+@subsection Pattern matching case statement
+@cindex pcase
+@cindex pattern matching
+
+特定の値を、可能なさまざまの場合にたいして比較するには、マクロ@code{pcase}が便利です。これは以下のフォームをとります:
+
+@example
+(pcase @var{exp} @var{branch}1 @var{branch}2 @var{branch}3 @dots{})
+@end example
+
+各@var{branch}は、@code{(@var{upattern} @var{body-forms}@dots{})}というフォームです。
+
+これは最初に@var{exp}を評価してから、どの@var{branch}を使用するか、その値を各@var{upattern}と比較して、その後で対応する@var{body-forms}実行します。一般的なのは、少数の異なる定数値を区別するために使用される場合です:
+
+@example
+(pcase (get-return-code x)
+  (`success       (message "Done!"))
+  (`would-block   (message "Sorry, can't do it now"))
+  (`read-only     (message "The shmliblick is read-only"))
+  (`access-denied (message "You do not have the needed rights"))
+  (code           (message "Unknown return code %S" code)))
+@end example
+
+最後の条項の@code{code}は、@code{(get-return-code x)}からreturnされた値にバインドされる変数です。
+
+もっと複雑な例として、以下のような小さな式言語のための単純なインタープリターを示します(この例ではレキシカルバインディングが必要なことに注意してください):
+
+@example
+(defun evaluate (exp env)
+  (pcase exp
+    (`(add ,x ,y)       (+ (evaluate x env) (evaluate y env)))
+    (`(call ,fun ,arg)  (funcall (evaluate fun env) (evaluate arg env)))
+    (`(fn ,arg ,body)   (lambda (val)
+                          (evaluate body (cons (cons arg val) env))))
+    ((pred numberp)     exp)
+    ((pred symbolp)     (cdr (assq exp env)))
+    (_                  (error "Unknown expression %S" exp))))
+@end example
+
+@code{`(add ,x
+,y)}は、@code{exp}がシンボル@code{add}で始まる3要素のリストかチェックして、その後2番目と3番目の要素を抽出し、それらを変数@code{x}と@code{y}にバインドするパターンです。@code{(pred
+numberp)}は@code{exp}が数字かを単にチェックし、@code{_}はすべてのものにマッチするcatch-allパターンです。
+
+以下に、いくつかの例を評価した結果とともに示します:
+
+@example
+(evaluate '(add 1 2) nil)                 ;=> 3
+(evaluate '(add x y) '((x . 1) (y . 2)))  ;=> 3
+(evaluate '(call (fn x (add 1 x)) 2) nil) ;=> 3
+(evaluate '(sub 1 2) nil)                 ;=> error
+@end example
+
+@code{pcase}に関係する2種類のパターンがあり、それらは@emph{U-patterns}、@emph{Q-patterns}と呼ばれます。上述の@var{upattern}はU-patternsで、以下の形式をもつことができます:
+
+@table @code
+@item `@var{qpattern}
+これは、もっとも一般的なパターンの1つです。このパターンの意図は、バッククォートマクロの模倣です。このパターンは、バッククォート式により構築されるような値にマッチします。わたしたちが行なうのは値の構築ではなくパターンマッチングなので、非クォートは式をどこに挿入するか示すのではなく、かわりにその位置で値にマッチすべき1つのU-patternを指定します。
+
+より具体的には、Q-patternは以下のフォームをもつことができます:
+@table @code
+@item (@var{qpattern1} . @var{qpattern2})
+このパターンは、@code{car}が@var{qpattern1}、@code{cdr}が@var{pattern2}にマッチする、任意のコンスセルにマッチします。
+@item @var{atom}
+このパターンは、@var{atom}に@code{equal}な任意のアトムにマッチします。
+@item ,@var{upattern}
+このパターンは、@var{upattern}にマッチする任意のオブジェクトにマッチします。
+@end table
+
+@item @var{symbol}
+U-pattern内の単なるシンボルはすべてにマッチし、さらにマッチした値にそのシンボルをバインドするので、@var{body-forms}や皇族のパターンから、それを参照することができます。
+@item _
+このパターン --- いわゆる@emph{don't care}パターン ---
+はシンボルパターンと同様、すべてのものにマッチしますが、シンボルパターンとは異なり、変数へのバインドを行ないません。
+@item (pred @var{pred})
+このパターンは、マッチされるオブジェクトで関数@var{pred}が呼び出したとき、非@code{nil}をreturnするものにマッチします。
+@item (or @var{upattern1} @var{upattern2}@dots{})
+このパターンは、引数のパターンから最初に成立したパターンにマッチします。すべての引数パターンは、同じ変数にバインドされるべきです。
+@item (and @var{upattern1} @var{upattern2}@dots{})
+このパターンは、すべての引数パターンが成立したときだけマッチします。
+@item (guard @var{exp})
+このパターンは調べられるオブジェクトを無視して、@var{exp}が非@code{nil}に評価されたときは成立、それ以外は不成立となります。これは通常、@code{and}パターンの内部で使用されます。たとえば、@code{(and
+x (guard (< x 10)))}は10より小さい任意の数字にマッチして、それを変数@code{x}にバインドします。
+@end table
+
+@node Combining Conditions
+@section Constructs for Combining Conditions
+@cindex combining conditions
+
+  このセクションは、複雑な条件を表現するために、@code{if}や@code{cond}とともによく使用される3つの構成を記述します。@code{and}と@code{or}の構成は、ある種の複数条件の構成として、個別に使用することもできます。
+
+@defun not condition
+この関数は、@var{condition}が偽であることをテストします。この関数は@var{condition}が@code{nil}の場合は@code{t}、それ以外は@code{nil}をreturnします。関数@code{not}は@code{null}と等価で、わたしたちは空のリストをテストする場合は、@code{null}の使用を推奨します。
+@end defun
+
+@defspec and conditions@dots{}
+スペシャルフォーム@code{and}は、すべての@var{conditions}が真かどうかをテストします。この関数は、@var{conditions}を記述された順に1つずつ評価することにより機能します。
+
+ある@var{conditions}が@code{nil}に評価された場合、残りの@var{conditions}に関係なく、@code{and}は@code{nil}をreturnしなければなりません。この場合、@code{and}は即座に@code{nil}をreturnし、残りの@var{conditions}は無視されます。
+
+すべての@var{conditions}が非@code{nil}の場合、それらの最後の値が@code{and}フォームの値になります。@var{conditions}のない単独の@code{(and)}は、@code{t}をreturnします。なぜなら、すべての@var{conditions}が非@code{nil}となるので(考えてみてください。そうでないのはどれですか?)、これは適切です。
+
+以下に例を示します。1番目の条件は整数1をretuenし、これは@code{nil}ではありません。同様に2番目の条件は整数2をreturnし、これも@code{nil}ではありません。3番目の条件は@code{nil}なので、のこりの条件が評価されることは決してありません。
+
+@example
+@group
+(and (print 1) (print 2) nil (print 3))
+     @print{} 1
+     @print{} 2
+@result{} nil
+@end group
+@end example
+
+以下は、@code{and}を使用した、より現実的な例です:
+
+@example
+@group
+(if (and (consp foo) (eq (car foo) 'x))
+    (message "foo is a list starting with x"))
+@end group
+@end example
+
+@noindent
+@code{(consp foo)}が@code{nil}をreturnした場合、@code{(car
+foo)}は実行されないので、エラーにならないことに注意してください。
+
+@code{if}か@code{cond}のどちらかを使用して、@code{and}式を記述することもできます。以下はその方法です:
+
+@example
+@group
+(and @var{arg1} @var{arg2} @var{arg3})
+@equiv{}
+(if @var{arg1} (if @var{arg2} @var{arg3}))
+@equiv{}
+(cond (@var{arg1} (cond (@var{arg2} @var{arg3}))))
+@end group
+@end example
+@end defspec
+
+@defspec or conditions@dots{}
+スペシャルフォーム@code{or}は、少なくとも1つの@var{conditions}が真かどうかをテストします。この関数は、すべての@var{conditions}を1つずつ、記述された順に評価することにより機能します。
+
+ある@var{conditions}が非@code{nil}値に評価された場合、@code{or}の結果は非@code{nil}でなければなりません。この場合、@code{or}は即座にreturnし、残りの@var{conditions}は無視されます。この関数がreturnする値は、非@code{nil}値に評価された条件の値そのものです。
+
+すべての@var{conditions}が@code{nil}になった場合、@code{or}式は@code{nil}をreturnします。@var{conditions}のない単独の@code{(or)}は、@code{nil}をreturnします。なぜなら、すべての@var{conditions}が@code{nil}になるので(考えてみてください。そうでないのはどれですか?)、これは適切です。
+
+たとえば、この式は@code{x}が@code{nil}または整数0かどうかをテストします:
+
+@example
+(or (eq x nil) (eq x 0))
+@end example
+
+@code{and}構成と同様に、@code{or}を@code{cond}に置き換えて記述することができます。たとえば:
+
+@example
+@group
+(or @var{arg1} @var{arg2} @var{arg3})
+@equiv{}
+(cond (@var{arg1})
+      (@var{arg2})
+      (@var{arg3}))
+@end group
+@end example
+
+ほとんどの場合、@code{or}を@code{if}に置き換えて記述できますが、完全ではありません:
+
+@example
+@group
+(if @var{arg1} @var{arg1}
+  (if @var{arg2} @var{arg2}
+    @var{arg3}))
+@end group
+@end example
+
+@noindent
+これは完全に同一ではありません。なぜなら@var{arg1}または@var{arg2}を2回評価するかもしれないからです。対照的に、@code{(or
+@var{arg1} @var{arg2} @var{arg3})}は2回以上引数を評価することは、決してありません。
+@end defspec
+
+@node Iteration
+@section Iteration
+@cindex iteration
+@cindex recursion
+
+  繰り返し(iteration)とは、プログラムの一部を繰り返し実行することを意味します。たとえば、リストの各要素、または0から@var{n}の整数にたいして、1度ずつ繰り返し何らかの計算をおこないたいとしましょうEmacs
+Lispでは、スペシャルフォーム@code{while}でこれを行なうことができます:
+
+@defspec while condition forms@dots{}
+@code{while}は、最初に@var{condition}を評価します。結果が非@code{nil}の場合は、@var{forms}をテキスト順に評価します。その後@var{condition}を再評価して、結果が非@code{nil}の場合、再度@var{forms}を評価します。この処理は、@var{condition}が@code{nil}に評価されるまで繰り返されます。
+
+繰り返し回数に制限はありません。このループは、@var{condition}が@code{nil}に評価されるか、エラーとなるか、@code{throw}で抜け出す(@ref{Nonlocal
+Exits}を参照してください)まで計測されるでしょう
+
+@code{while}フォームの値は、常に@code{nil}です。
+
+@example
+@group
+(setq num 0)
+     @result{} 0
+@end group
+@group
+(while (< num 4)
+  (princ (format "Iteration %d." num))
+  (setq num (1+ num)))
+     @print{} Iteration 0.
+     @print{} Iteration 1.
+     @print{} Iteration 2.
+     @print{} Iteration 3.
+     @result{} nil
+@end group
+@end example
+
+各繰り返しごとに何かを実行して、その後も終了テストを行なう``repeat...until''ループを記述するには、以下のように@code{while}の1番目の引数として、bodyの後に終了テストを記述して、それを@code{progn}の中に配します:
+
+@example
+@group
+(while (progn
+         (forward-line 1)
+         (not (looking-at "^$"))))
+@end group
+@end example
+
+@noindent
+これは1行前方に移動して、空行に達するまで行単位の移動を継続します。独特なのは、@code{while}がbodyをもたず、終了テスト(これはポイント移動の実処理も行ないます)だけという点です。
+@end defspec
+
+  マクロ@code{dolist}および@code{dotimes}は、2つの一般的な種類のループを記述する、便利な方法を提供します。
+
+@defmac dolist (var list [result]) body@dots{}
+この構成は、@var{list}の各要素にたいして1度@var{body}を実行し、カレント要素をローカルに保持するように、変数@var{var}にバインドします。その後、@var{result}を評価した値、または@var{result}が省略された場合は@code{nil}をreturnします。たとえば、以下は@code{reverse}関数を定義するために、@code{dolist}を使用する方法の例です:
+
+@example
+(defun reverse (list)
+  (let (value)
+    (dolist (elt list value)
+      (setq value (cons elt value)))))
+@end example
+@end defmac
+
+@defmac dotimes (var count [result]) body@dots{}
+この構成は、0以上@var{count}未満の各整数にたいして1度@var{body}を実行し、その繰り返しでの整数を、変数@var{var}にバインドします。その後、@var{result}の値、または@var{result}が省略された場合は@code{nil}をreturnします。以下は、@code{dotimes}を使用して、何らかの処理を100回行なう例です:
+
+@example
+(dotimes (i 100)
+  (insert "I will not obey absurd orders\n"))
+@end example
+@end defmac
+
+@node Nonlocal Exits
+@section Nonlocal Exits
+@cindex nonlocal exits
+
+  @dfn{非ローカル脱出(nonlocal exit)}とは、プログラム内のある位置から、別の離れた位置へ、制御を移します。Emacs
+Lispでは、エラーの結果として非ローカル脱出が発生することがあります。明示的な制御の下で非ローカル脱出を使用することもできます。非ローカル脱出は、脱出しようとしている構成により作成された、すべての変数バインディングのバインドを外します。
+
+@menu
+* Catch and Throw::          プログラム自身の目的による非ローカル脱出。
+* Examples of Catch::        このような非ローカル脱出が記述される方法を示します。
+* Errors::                   エラーがシグナル・処理される方法。
+* Cleanups::                 エラーが発生した場合のクリーンアップフォーム実行のアレンジ。
+@end menu
+
+@node Catch and Throw
+@subsection Explicit Nonlocal Exits: @code{catch} and @code{throw}
+
+  ほとんどの制御構造は、そのコンストラクト自身内部の制御フローだけに影響します。関数@code{throw}は、通常のプログラム実行でのこのルールの例外です。これは、リクエストにより非ローカル脱出を行ないます(他にも例外はありますが、それらはエラー処理だけのものです)。@code{throw}は@code{catch}の内部で試用され、@code{catch}に制御を戻します。たとえば:
+
+@example
+@group
+(defun foo-outer ()
+  (catch 'foo
+    (foo-inner)))
+
+(defun foo-inner ()
+  @dots{}
+  (if x
+      (throw 'foo t))
+  @dots{})
+@end group
+@end example
+
+@noindent
+@code{throw}フォームが実行された場合は、対応する@code{catch}に制御を移し、@code{catch}は即座にreturnします。@code{throw}の後のコードは実行されません。@code{throw}の2番目の引数は、@code{catch}のreturn値として使用されます。
+
+  関数@code{throw}は、1番目の引数にもとづいて、それにマッチする@code{catch}を探します。@code{throw}は、1番目の引数が、@code{throw}で指定されたものと@code{eq}な@code{catch}を検索します。複数の該当する@code{catch}がある場合、最内のものが優先されます。したがって、上記の例では@code{throw}が@code{foo}を指定し、@code{foo-outer}内の@code{catch}が同じシンボルを指定しているので、(この間に他のマッチする@code{catch}は存在しないと仮定すると)@code{catch}が該当します。
+
+  @code{throw}の実行により、マッチする@code{catch}までのすべてのリスプ構成(関数呼び出しを含む)を脱出します。この方法により@code{let}や関数呼び出しのようなバインディング構成を脱出する場合、これらの構成を正常にexitしたときのように、そのバインディングは解かれます(@ref{Local
+Variables}を参照してください)。同様に@code{throw}は、@code{save-excursion}(@ref{Excursions}を参照してください)により保存されたバッファーと位置を復元します。@code{throw}が、スペシャルフォーム@code{unwind-protect}を脱出した場合、@code{unwind-protect}により設定されたいくつかのクリーンアップも実行します。
+
+  ジャンプ先となる@code{catch}内にレキシカル(局所的)である必要はありません。@code{throw}は、@code{catch}内で呼び出された別の関数から、同じようにに呼び出すことができます。@code{throw}が行なわれたのが、順序的に、@code{catch}に入った後でexitする前である限り、その@code{throw}は@code{catch}にアクセスできます。エディターのコマンドループから戻る@code{exit-recursive-edit}のようなコマンドで、@code{throw}が使用されるのは、これが理由です。
+
+@cindex CL note---only @code{throw} in Emacs
+@quotation
+@b{Common Lispに関する注意: }Common
+Lispを含む、他のほとんどのバージョンのLispは、非シーケンシャルに制御を移す、いくつかの方法 ---
+たとえば@code{return}、@code{return-from}、@code{go} --- をもちます。Emacs
+Lispの場合は、@code{throw}だけです。@file{cl-lib}ライブラリーは、これらのうちいくつかを提供します。@ref{Blocks
+and Exits,,,cl,Common Lisp Extensions}を参照してください。
+@end quotation
+
+@defspec catch tag body@dots{}
+@cindex tag on run time stack
+@code{catch}は、@code{throw}関数にたいするreturn位置を確立します。return位置は@var{tag}により、そのような他のreturn位置と区別されます。@var{tag}は、@code{nil}以外の任意のLispオブジェクトです。引数@var{tag}はreturn位置が確立される前に、通常どおり評価されます。
+
+return位置が効果をもつことにより、@code{catch}は@var{body}のフォームをテキスト順に評価します。フォームが(エラーは非ローカル脱出なしで)通常に実行された場合、bodyの最後のフォームの値が、@code{catch}からreturnされます。
+
+@var{body}の実効の間に@code{throw}が実行された場合、@var{tag}と同じ値を指定すると、@code{catch}フォームは即座にexitします。returnされる値は、それが何であれ、@code{throw}の2番目の引数に指定された値です。
+@end defspec
+
+@defun throw tag value
+@code{throw}の目的は、以前に@code{catch}により確立されたreturn位置に戻ることです。引数@var{tag}は、既存のさまざまなreturn位置からrturn位置を選択するために使用されます。複数のreturn位置が@var{tag}にマッチする場合、最内のものが使用されます。
+
+引数@var{value}は、@code{catch}からreturnされる値として使用されます。
+
+@kindex no-catch
+タグ@var{tag}のreturn位置が存在しない場合、データ@code{(@var{tag}
+@var{value})}とともに、@code{no-catch}エラーがシグナルされます。
+@end defun
+
+@node Examples of Catch
+@subsection Examples of @code{catch} and @code{throw}
+
+  2重にネストされたループから脱出する1つの方法は、@code{catch}と@code{throw}を使うことです(ほとんどの言語では、これは``goto''により行なわれるでしょう)。ここでは、@var{i}と@var{j}を、0から9に変化させて@code{(foo
+@var{i} @var{j})}を計算します:
+
+@example
+@group
+(defun search-foo ()
+  (catch 'loop
+    (let ((i 0))
+      (while (< i 10)
+        (let ((j 0))
+          (while (< j 10)
+            (if (foo i j)
+                (throw 'loop (list i j)))
+            (setq j (1+ j))))
+        (setq i (1+ i))))))
+@end group
+@end example
+
+@noindent
+@code{foo}が非@code{nil}をreturnした場合、即座に処理を止めて、@var{i}と@var{j}のリストをreturnしています。@code{foo}が常に@code{nil}をreturnする場合、@code{catch}は通常どおりreturnし、その値は@code{while}の結果である@code{nil}となります。
+
+  以下では、2つのreturn位置を1度に表す、微妙に異なるトリッキーな例を2つ示します。最初に、同じタグ@code{hack}にたいする2つのreturn位置があります:
+
+@example
+@group
+(defun catch2 (tag)
+  (catch tag
+    (throw 'hack 'yes)))
+@result{} catch2
+@end group
+
+@group
+(catch 'hack
+  (print (catch2 'hack))
+  'no)
+@print{} yes
+@result{} no
+@end group
+@end example
+
+@noindent
+どちらのreturn位置も@code{throw}にマッチするタグをもつので、内側のもの、つまり@code{catch2}で確立されたものにgotoします。したがって@code{catch2}は通常どおり値@code{yes}をreturnするので、その値がプリントされます。最後に外側の@code{catch}の2番目のbody、つまり@code{'no}が評価されて、外側の@code{catch}からそれがreturnされます。
+
+  ここで、@code{catch2}に与える引数を変更してみます:
+
+@example
+@group
+(catch 'hack
+  (print (catch2 'quux))
+  'no)
+@result{} yes
+@end group
+@end example
+
+@noindent
+この場合も2つのreturn位置がありますが、今回は外側だけがタグ@code{hack}をもち、内側のものは、かわりにタグ@code{quux}をもちます。したがって、@code{throw}により、外側の@code{catch}が値@code{yes}をreturnします。関数@code{print}が呼び出されることはなく、bodyのフォーム@code{'no}も決して評価されません。
+
+@node Errors
+@subsection Errors
+@cindex errors
+
+  Emacs
+Lispが、何らかの理由により評価できないようなフォームの評価を試みた場合には、@dfn{エラー(error)}が@dfn{シグナル(signal)}されます。
+
+  エラーがシグナルされた場合、エラーメッセージの表示とカレントこまんどの実行の終了が、Emacsデフォルトの反応です。たとえばバッファーの最後で@kbd{C-f}とタイプしたときのように、ほとんどの場合、これは正しい反応です。
+
+  複雑なプログラムでは、単なる終了が望ましくない場合もあるでしょう。たとえば、そのプログラムはデータ構造に一時的に変更を行なっていたり、プログラム終了前に削除すべき一時バッファーを作成しているかもしれません。このような場合、エラー時に評価される@dfn{クリーンアップ式(cleanup
+expressions)}を設定するために、@code{unwind-protect}を使用するでしょう(@ref{Cleanups}を参照してください)。サブルーチン内のエラーにもかかわらずに、プログラムの実行を継続したいときがあるかもしれません。この場合、エラー時のリカバリーを制御するための@dfn{エラーハンドラー(error
+handlers)}を設定するために、@code{condition-case}を使用するでしょう。
+
+  エラーハンドリングを使用せずに、プログラムの一部から別の部分へ制御を移すためには、@code{catch}と@code{throw}を使用します。@ref{Catch
+and Throw}を参照してください。
+
+@menu
+* Signaling Errors::         エラーを報告する方法。
+* Processing of Errors::     エラーを報告するときEmacsが何を行なうか。
+* Handling Errors::          エラーをトラップして実行を継続する方法。
+* Error Symbols::            エラートラッピングのために、エラーをクラス分けする方法。
+@end menu
+
+@node Signaling Errors
+@subsubsection How to Signal an Error
+@cindex signaling errors
+
+   エラーの@dfn{シグナリング(signaling)}とは、エラーの処理を開始することを意味します。エラー処理は通常、実行中のプログラムのすべて、または一部をアボート(abort)して、エラーをハンドルするためにセットアップされた位置にreturnします。ここでは、エラーをシグナルする方法を記述します。
+
+  ほとんどのエラーは、たとえば、整数にたいして@sc{car}を求めたり、バッファーの最後で1文字前方に移動したときなどのように、他の目的のために呼び出したLisp基本関数の中で、``自動的''にシグナルされます。関数@code{error}と@code{signal}で、明示的にエラーをシグナルすることもできます。
+
+  ユーザーが@kbd{C-g}をタイプしたときに発生するquitは、エラーとは判断されませんが、ほとんどはエラーと同様に扱われます。@ref{Quitting}を参照してください。
+
+  すべてのエラーメッセージはそれぞれ、何らかのエラーメッセージを指定します。そのメッセージは、何が悪いのか(``File does not
+exist'')、物事がどうしてそうあるべきではない(``File must exist'')かを示すべきです。Emacs
+Lispの監修では、エラーメッセージは大文字で開始され、句読点で終わるべきではありません。
+
+@defun error format-string &rest args
+この関数は、@var{format-string}と@var{args}にたいして、@code{format}(@ref{Formatting
+Strings}を参照してください)を適用することにより構築されたエラーメッセージとともに、エラーをシグナルします。
+
+以下は、@code{error}を使用する典型的な例です:
+
+@example
+@group
+(error "That is an error -- try something else")
+     @error{} That is an error -- try something else
+@end group
+
+@group
+(error "You have committed %d errors" 10)
+     @error{} You have committed 10 errors
+@end group
+@end example
+
+2つの引数 --- エラーシンボル@code{error}と、@code{format}によりreturnされる文字列を含むリスト ---
+で@code{signal}を呼び出すことにより、@code{error}は機能します。
+
+@strong{警告: }エラーメッセージとして固定の文字列を使用したい場合、単に@code{(error
+@var{string})}とは記述しないでください。もし@var{string}が@samp{%}を含む場合、それはフォーマット指定子(format
+specifier)として解釈されてしまうので、望む結果は得られません。かわりに、@code{(error "%s"
+@var{string})}を使用してください。
+@end defun
+
+@defun signal error-symbol data
+@anchor{Definition of signal}
+この関数は、@var{error-symbol}により命名されるエラーをシグナルします。引数@var{data}は、エラーの状況に関連する追加のLispオブジェクトのリストです。
+
+引数@var{error-symbol}は、@dfn{エラーシンボル(error symbol)} ---
+@code{define-error}により定義されYたシンボル --- でなければなりません。これはEmacs
+Lispが異なる種類のエラーをクラス分けする方法です。エラーシンボル(error symbol)、エラーコンディション(error
+condition)、コンディション名(condition name)の説明については、@ref{Error Symbols}を参照してください。
+
+エラーが処理されない場合、エラーメッセージをプリントするために2つの引数が使用されます。このエラーメッセージは通常、@var{error-symbol}の@code{error-message}プロパティーにより提供されます。@var{data}が非@code{nil}の場合、その後にコロンと、@var{data}の評価されていない要素を、カンマで区切ったリストが続きます。@code{error}が発生した場合、エラーメッセージは、@var{data}の@sc{car}(文字列でなければなりません)です。@code{file-error}のサブカテゴリーは、特別に処理されます。
+
+@var{data}内のオブジェクトの数と重要性は、@var{error-symbol}に依存します。たとえば、@code{wrong-type-argument}エラーでは、リスト内には2つのオブジェクト
+--- 期待する型を記述する述語と、その型への適合に失敗したオブジェクト --- であるべきです。
+
+エラーを処理する任意のエラーハンドラーにたいして、@var{error-symbol}と@var{data}の両方を利用できます。@code{condition-case}は、ローカル変数を@code{(@var{error-symbol}
+.@: @var{data})}というフォームでバインドします(@ref{Handling Errors}を参照してください)。
+
+@c (though in older Emacs versions it sometimes could).
+関数@code{signal}は、決してreturnしません。
+
+@example
+@group
+(signal 'wrong-number-of-arguments '(x y))
+     @error{} Wrong number of arguments: x, y
+@end group
+
+@group
+(signal 'no-such-error '("My unknown error condition"))
+     @error{} peculiar error: "My unknown error condition"
+@end group
+@end example
+@end defun
+
+@cindex user errors, signaling
+@defun user-error format-string &rest args
+この関数は、@code{error}とまったく同じように振る舞いますが、@code{error}ではなく、@code{user-error}というエラーシンボルを使用します。名前が示唆するように、このエラーはコード自身のエラーではなく、ユーザーパートのエラーの報告を意図しています。たとえば、Infoの閲覧履歴の開始を超えて履歴を遡るためにコマンド@code{Info-history-back}
+(@kbd{l})を使用した場合、Emacsは@code{user-error}をシグナルします。このようなエラーでは、たとえ@code{debug-on-error}が非@code{nil}であっても、デバッガーへのエントリーは発生しません。@ref{Error
+Debugging}を参照してください。
+@end defun
+
+@cindex CL note---no continuable errors
+@quotation
+@b{Common Lispに関する注意: }Emacs Lispには、Common Lispのような継続可能なエラーのような概念は存在しません。
+@end quotation
+
+@node Processing of Errors
+@subsubsection How Emacs Processes Errors
+@cindex processing of errors
+
+エラーがシグナルされたとき、@code{signal}は、そのエラーにたいするアクティブな@dfn{ハンドラー(handler)}を検索します。ハンドラーとは、Lispプログラムの一部でエラーが発生したときに実行するよう意図された、Lisp式のシーケンスです。そのエラーが適切なハンドラーをもつ場合、そのハンドラーが実行され、そのハンドラーの後から実行が再開されます。ハンドラーは、そのハンドラーが設定された@code{condition-case}の環境内で実行されます。@code{condition-case}内のすべての関数呼び出しはすでに終了しているので、ハンドラーがそれらにreturnすることはありません。
+
+そのエラーにたいする適切なハンドラーが存在しない場合は、カレントコマンドを終了して、エディターのコマンドループに制御をreturnします(コマンドループは、すべての種類のエラーにたいする暗黙のハンドラーをもちます)。コマンドループのハンドラーは、エラーメッセージをプリントするために、エラーシンボルと、関連付けられたデータを使用します。変数@code{command-error-function}を使用して、これが行なわれる方法を制御できます:
+
+@defvar command-error-function
+この変数は、もし非@code{nil}の場合はEmacsのコマンドループに制御をreturnしたエラーの処理に使用する関数を指定します。この関数は3つの引数をとります。1つ目は@var{data}で、@code{condition-case}が自身の変数にバインドするのと同じフォームです。2つ目は@var{context}で、これはエラーが発生した状況を記述する文字列、または@code{nil}（よくある）です。3つ目は@var{caller}で、これはエラーをシグナルした基本関数を呼び出したLisp関数です。
+@end defvar
+
+@cindex @code{debug-on-error} use
+明示的なハンドラーのないエラーは、Lispデバッガーを呼び出すかもしれません。変数@code{debug-on-error} (@ref{Error
+Debugging}を参照してください)が非@code{nil}の場合、デバッガーが有効です。エラーハンドラーとは異なり、デバッガーはそのエラーの環境内で実行されるので、エラー時の変数の値を正確に調べることができます。
+
+@node Handling Errors
+@subsubsection Writing Code to Handle Errors
+@cindex error handler
+@cindex handling errors
+
+  エラーをシグナルすることによる通常の効果は、実行されていたコマンドを終了して、Emacsエディターのコマンドループに即座にreturnすることです。スペシャルフォーム@code{condition-case}を使用して、エラーハンドラーを設定することにより、プログラム内の一部で発生するエラーのをトラップを調整することができます。以下は単純な例です:
+
+@example
+@group
+(condition-case nil
+    (delete-file filename)
+  (error nil))
+@end group
+@end example
+
+@noindent
+これは、@var{filename}という名前のファイルを削除して、任意のエラーをcatchして、エラーが発生した場合は@code{nil}を参照してください(このような単純なケースでは、マクロ@code{ignore-errors}を使用することもできます。以下を参照してください)。
+
+  @code{condition-case}構成は、@code{insert-file-contents}呼び出しでのファイルオープンの失敗のような、予想できるエラーをトラップするために多用されます。@code{condition-case}構成は、ユーザーからの読み取った式を評価するプログラムのような、完全に予測できないエラーのトラップにも使用されます。
+
+  @code{condition-case}の2番目の引数は、@dfn{保護されたフォーム(protected
+form)}と呼ばれます(上記の例では、保護されたフォームは、@code{delete-file}の呼び出しです)。このフォームの実行が開始されると、エラーハンドラーは効果をもち、このフォームがreturnすると不活性になります。その間のすべてにおいて、エラーハンドラーは効果をもちます。特に、このフォームで呼び出された関数、およびそのサブルーチンなどを実行する間、エラーハンドラーは効果をもちます。厳密にいうと、保護されたフォーム自身ではなく、保護されたフォームにより呼び出されたLisp基本関数(@code{signal}と@code{error}を含む)だけがシグナルされるというのは、よいことです。
+
+  保護されたフォームの後の引数はハンドラーです。各ハンドラーは、どのエラーを処理するかを指定する、1つ以上の@dfn{コンディション名(condition
+names)}(シンボル)をリストします。エラーがシグナルされたとき、エラーシンボルはコンディション名のリストも定義します。エラーが共通の条件名をもつ場合、そのハンドラーはそのエラーに適用されます。上記の例では、1つのハンドラーがあり、それはすべてのエラーをカバーする条件名@code{error}を指定しています。
+
+  適切なハンドラーの検索は、もっとも最近に設定されたハンドラーから開始して、設定されたすべてのハンドラーをチェックします。したがって、ネストされた@code{condition-case}フォームに同じエラー処理がある場合、内側のハンドラーがそれを処理します。
+
+  何らかの@code{condition-case}によりエラーが処理された場合、@code{debug-on-error}でエラーによりデバッガーが呼び出されるようにしていても、通常はデバッガーの実行が抑制されます。
+
+  @code{condition-case}により補足されるようなエラーをデバッグできるようにしたい場合は、変数@code{debug-on-signal}に非@code{nil}値をセットします。以下のようにコンディションの中に@code{debug}を記述することにより、最初にデバッガーを実行するような、特定のハンドラーを指定することもできます:
+
+@example
+@group
+(condition-case nil
+    (delete-file filename)
+  ((debug error) nil))
+@end group
+@end example
+
+@noindent
+ここでの@code{debug}の効果は、デバッガー呼び出しを抑制する@code{condition-case}を防ぐことだけです。@code{debug-on-error}およびその他のフィルタリングメカニズムがデバッガーを呼び出すように指定されているときだけ、エラーによりデバッガーが呼び出されます。@ref{Error
+Debugging}を参照してください。
+
+@defmac condition-case-unless-debug var protected-form handlers@dots{}
+マクロ@code{condition-case-unless-debug}は、そのようなフォームのデバッギングを処理する、別の方法を提供します。このマクロは、変数@code{debug-on-error}が@code{nil}の場合、つまり任意のエラーを処理しないようなケース以外は、@code{condition-case}とまったく同様に振る舞います。
+@end defmac
+
+  特定のハンドラーがそのエラーを処理するとEmacsが判断すると、Emacsは制御をそのハンドラーにreturnします。これを行うために、Emacsはそのとき脱出しつつあるバインディング構成により作成されたすべての変数のバインドを解き、そのとき脱出しつつあるすべての@code{unwind-protect}フォームを実行します。制御がそのハンドラーに達すると、そのハンドラーのbodyが通常どおり実行されます。
+
+  そのハンドラーのbodyを実行した後、@code{condition-case}フォームから実行がreturnされます。保護されたフォームは、そのハンドラーの実行の前に完全にexitしているので、そのハンドラーはそのエラーの位置から実行を再開することはできず、その保護されたフォーム内で作られた変数のバインディングを調べることもできません。ハンドラーが行なえることは、クリーンアップと、処理を進行させることだけです。
+
+  エラーのシグナルとハンドルには、@code{throw}と@code{catch}(@ref{Catch and
+Throw})に類似する点がいくつかありますが、これらは完全に別の機能です。エラーは@code{catch}でキャッチできず、@code{throw}をエラーハンドラーで処理することはできません(しかし対応する@code{catch}が存在しないときに@code{throw}を仕様することによりシグナルされるエラーは、処理できます)。
+
+@defspec condition-case var protected-form handlers@dots{}
+このスペシャルフォームは、@var{protected-form}の実行を囲い込むエラーハンドラー@var{handlers}を確立します。エラーなしで@var{protected-form}が実行された場合、returnされる値は@code{condition-case}フォームの値になります。この場合、@code{condition-case}は効果をもちません。@var{protected-form}の間にエラーが発生した場合、@code{condition-case}は違いをもちます。
+
+それぞれの@var{handlers}は、@code{(@var{conditions}
+@var{body}@dots{})}というフォームのリストです。ここで@var{conditions}は、ハンドルされるエラーコンディション名、またはそのハンドラーの前にデバッガーを実行するためのコンディション名(@code{debug}を含みます)です。@var{body}は、このハンドラーがエラーを処理するときに実行される、1つ以上のLisp式です。
+
+@example
+@group
+(error nil)
+
+(arith-error (message "Division by zero"))
+
+((arith-error file-error)
+ (message
+  "Either division by zero or failure to open a file"))
+@end group
+@end example
+
+発生するエラーはそれぞれ、それが何の種類のエラーかを記述する@dfn{エラーシンボル(error
+symbol)}をもち、これはコンディション名のリストも記述します(@ref{Error
+Symbols}を参照してください)。Emacsは、1つ以上のコンディション名を指定するハンドラーにたいして、すべてのアクティブな@code{condition-case}フォームを検索します。@code{condition-case}の最内のマッチは、そのエラーを処理します。この@code{condition-case}では、最初に適合したハンドラーが、そのエラーを処理します。
+
+ハンドラーのbodyを実行した後、@code{condition-case}は通常どおりreturnし、ハンドラーのbodyの最後の値を、ハンドラー全体の値として使用します。
+
+@cindex error description
+引数@var{var}は変数です。@var{protected-form}を実行するとき、@code{condition-case}はこの変数をバインドせず、エラーを処理するときだけバインドします。その場合は、@var{var}を@dfn{エラー記述(error
+description)}にバインドします。これはエラーの詳細を与えるリストです。このエラー記述は、@code{(@var{error-symbol}
+.
+@var{data})}というフォームをもちます。ハンドラーは、何を行なうか決定するために、このリストを参照することができます。たとえば、ファイルオープンの失敗にたいするエラーの場合、ファイル名が@var{data}(エラー記述の3番目の要素)の2番目の要素になります。
+
+@var{var}が@code{nil}の場合、それはバインドされた変数がないことを意味します。この場合、エラーシンボルおよび関連するデータは、そのハンドラーでは利用できません。
+
+@cindex rethrow a signal
+より外側のレベルのハンドラーにcatchさせるために、@code{condition-case}によりcatchされたシグナルを再度throwする必要がある場合もあります。以下はこれを行なう方法です:
+
+@example
+  (signal (car err) (cdr err))
+@end example
+
+@noindent
+ここで@code{err}はエラー記述変数(error description
+variable)で、@code{condition-case}の1番目の引数は、再throwしたいエラーコンディションです。@ref{Definition
+of signal}を参照してください。
+@end defspec
+
+@defun error-message-string error-descriptor
+この関数は、与えられたエラー記述子(error
+descriptor)にたいするエラーメッセージ文字列をreturnします。これは、そのエラーにたいする通常のエラーメッセージをプリントすることにより、エラーを処理したい場合に有用です。@ref{Definition
+of signal}を参照してください。
+@end defun
+
+@cindex @code{arith-error} example
+以下は、0除算の結果によるエラーを処理するために、@code{condition-case}を使用する例です。このハンドラーは、(beepなしで)エラーメッセージを表示して、非常に大きい数をreturnします。
+
+@example
+@group
+(defun safe-divide (dividend divisor)
+  (condition-case err
+      ;; @r{保護されたフォーム。}
+      (/ dividend divisor)
+@end group
+@group
+    ;; @r{ハンドラー。}
+    (arith-error                        ; @r{Condition.}
+     ;; @r{このエラーにたいする、通常のメッセージを表示する。}
+     (message "%s" (error-message-string err))
+     1000000)))
+@result{} safe-divide
+@end group
+
+@group
+(safe-divide 5 0)
+     @print{} Arithmetic error: (arith-error)
+@result{} 1000000
+@end group
+@end example
+
+@noindent
+このハンドラーはコンディション名@code{arith-error}を指定するので、division-by-zero(0除算)エラーだけを処理します。他の種類のエラーは(この@code{condition-case}によっては)、処理されません。したがって:
+
+@example
+@group
+(safe-divide nil 3)
+     @error{} Wrong type argument: number-or-marker-p, nil
+@end group
+@end example
+
+  以下は、@code{error}によるエラーを含む、すべての種類のエラーをcatchする@code{condition-case}です:
+
+@example
+@group
+(setq baz 34)
+     @result{} 34
+@end group
+
+@group
+(condition-case err
+    (if (eq baz 35)
+        t
+      ;; @r{関数@code{error}の呼び出し}
+      (error "Rats!  The variable %s was %s, not 35" 'baz baz))
+  ;; @r{フォームではないハンドラー。}
+  (error (princ (format "The error was: %s" err))
+         2))
+@print{} The error was: (error "Rats!  The variable baz was 34, not 35")
+@result{} 2
+@end group
+@end example
+
+@defmac ignore-errors body@dots{}
+これは、その実行中に発生する任意のエラーを無視して、@var{body}の実行を構築します。その実行にエラーがなかった場合、@code{ignore-errors}は@var{body}内の最後のフォームの値をreturnし、それ以外は@code{nil}をreturnします。
+
+以下は、このセクションの最初の例を、@code{ignore-errors}を使用して記述する例です:
+
+@example
+@group
+  (ignore-errors
+   (delete-file filename))
+@end group
+@end example
+@end defmac
+
+@defmac with-demoted-errors format body@dots{}
+このマクロは、いわば@code{ignore-errors}の穏やかなバージョンです。これはエラーを完全に抑止するのではなく、エラーをメッセージに変換します。これはメッセージのフォーマットに、文字列@var{format}を使用します。@var{format}は、@code{"Error:
+%S"}のように、単一の@samp{%}シーケンスを含むべきです。エラーをシグナルすると予測されないが、もし発生した場合は堅牢であるべきようなコードの周囲に、@code{with-demoted-errors}を使用します。このマクロは、@code{condition-case}ではなく、@code{condition-case-unless-debug}を使用することに注意してください。
+@end defmac
+
+@node Error Symbols
+@subsubsection Error Symbols and Condition Names
+@cindex error symbol
+@cindex error name
+@cindex condition name
+@cindex user-defined error
+@kindex error-conditions
+@kindex define-error
+
+  エラーをシグナルするとき、想定するエラーの種類を指定するために、@dfn{エラーシンボル(error
+symbol)}を指定します。エラーはそれぞれ、それをカテゴリー分けするために、ただ1つのエラーシンボルをもちます。これはEmacs
+Lisp言語で定義されるエラーの、もっとも良い分類方法です。
+
+  これら狭義の分類は、@dfn{エラー条件(error
+conditions)}と呼ばれる、より広義のクラス階層にグループ化され、それらは@dfn{コンディション名(condition
+names)}により識別されます。そのようなもっとも狭義なクラスは、エラーシンボル自体に属します。つまり各エラーシンボルは、コンディション名でもあるのです。すべての種類のエラー(@code{quit}を除く)を引き受けるコンディション名@code{error}に至る、より広義のクラスにたいするコンディション名も存在します。したがって、各エラーは1つ以上のコンディション名をもちます。つまり、@code{error}、@code{error}とは区別されるエラーシンボル、もしかしたらその中間に分類されるものかもしれません。
+
+@defun define-error name message &optional parent
+  シンボルをエラーシンボルとするために、シンボルは親コンディションをとる@code{define-error}で定義されなければなりません。この親は、この種のエラーが属するコンディションを定義します。親の推移的な集合は、常にそのエラーシンボルと、シンボル@code{error}を含みます。quitはエラーと判断されないので、@code{quit}の親の集合は、単なる@code{(quit)}です。
+@end defun
+
+@cindex peculiar error
+  親のコンディションに加えて、エラーシンボルは@var{メッセージ(message)}をもち、これは処理されないエラーがシグナルされたときプリントされる文字列です。そのメッセージが有効でない場合、エラーメッセージ@samp{peculiar
+error}が使用されます。@ref{Definition of signal}を参照してください。
+
+内部的には、親の集合はエラーシンボルの@code{error-conditions}プロパティーに格納され、メッセージはエラーシンボルの@code{error-message}プロパティーに格納されます。
+
+  以下は、新しいエラーシンボル@code{new-error}を定義する例です:
+
+@example
+@group
+(define-error 'new-error "A new error" 'my-own-errors)
+@end group
+@end example
+
+@noindent
+このエラーは複数のコンディション名 ---
+もっとも狭義の分類@code{new-error}、より広義の分類を想定する@code{my-own-errors}、および@code{my-own-errors}のコンディションすべてを含む@code{error}で、これはすべての中でもっとも広義なものです。
+
+  エラー文字列は大文字で開始されるべきですが、ピリオドで終了すべきではありません。これはEmacsの他の部分との整合性のためです。
+
+  もちろんEmacs自身が@code{new-error}をシグナルすることはありません。あなたのコード内で明示的に@code{signal}(@ref{Definition
+of signal}を参照してください)を呼び出すことにより、これを行なうことができるのです。
+
+@example
+@group
+(signal 'new-error '(x y))
+     @error{} A new error: x, y
+@end group
+@end example
+
+  このエラーは、エラーの任意のコンディション名により処理することができます。以下の例は、@code{new-error}とクラス@code{my-own-errors}内の他の任意のエラーを処理します:
+
+@example
+@group
+(condition-case foo
+    (bar nil t)
+  (my-own-errors nil))
+@end group
+@end example
+
+  エラーが分類される有効な方法は、コンディション名による方法で、その名前はハンドラーのエラーのマッチに使用されます。エラーシンボルは、意図されたエラーメッセージと、コンディション名のリストを指定する便利な方法であるという役割だけです。1つのエラーシンボルではなく、コンディション名のリストを@code{signal}に与えるのは、面倒でしょう。
+
+  対照的に、コンディション名を伴わずにエラーシンボルだけを使用した場合、それは@code{condition-case}の効果を著しく減少させるでしょう。コンディション名は、エラーハンドラーを記述するとき、一般性のさまざまなレベルにおいて、エラーをカテゴリー分けすることを可能にします。エラーシンボルを単独で使用することは、もっとも狭義なレベルの分類を除くすべてを捨てることです。
+
+  主要なエラーシンボルと、それらのコンディションについては、@ref{Standard Errors}を参照してください。
+
+@node Cleanups
+@subsection Cleaning Up from Nonlocal Exits
+@cindex nonlocal exits, cleaning up
+
+  @code{unwind-protect}構成は、データ構造を一時的に不整合な状態に置くときは、重要です。これはエラーやthrouのイベントにより、再びデータを整合された状態にすることができます(バッファー内容の変更だけに使用される、他のクリーンアップ構成は、アトミックな変更グループです。@ref{Atomic
+Changes}を参照してください)。
+
+@defspec unwind-protect body-form cleanup-forms@dots{}
+@cindex cleanup forms
+@cindex protected forms
+@cindex error cleanup
+@cindex unwinding
+@code{unwind-protect}は、制御が@var{body-form}を離れる場合に、@var{cleanup-forms}が評価されるという保証の下、なにが起こった可に関わらず、@var{body-form}を実行します。@var{body-form}は通常どおり完了するかもしれず、@code{unwind-protect}の外で@code{throw}が実行されたり、エラーが発生するかもしれませんが、@var{cleanup-forms}は評価されます。
+
+@var{body-form}が正常に終了した場合、@code{unwind-protect}は@var{cleanup-forms}を評価した後で、@var{body-form}の値をreturnします。@var{body-form}が終了しなかった場合、@code{unwind-protect}は通常の意味における値は、returnしません。
+
+@code{unwind-protect}により保護されるのは、@var{body-form}だけです。@var{cleanup-forms}自体の任意のフォームが、(@code{throw}またはエラーにより)非ローカルにexitした場合、@code{unwind-protect}は残りのフォームが評価されることを保証@emph{しません}。@var{cleanup-forms}の中の1つが失敗することが問題となる場合は、そのフォームの周囲に他の@code{unwind-protect}を配して保護します。
+
+現在アクティブな@code{unwind-protect}フォーム数と、ローカルの変数バインディング数の和は、@code{max-specpdl-size}(@ref{Definition
+of max-specpdl-size,, Local Variables}を参照してください)により制限されます。
+@end defspec
+
+  たとえば、以下は一時的な使用のために不可視のバッファーを作成して、終了する前に確実にそのバッファーをkillする例です:
+
+@example
+@group
+(let ((buffer (get-buffer-create " *temp*")))
+  (with-current-buffer buffer
+    (unwind-protect
+        @var{body-form}
+      (kill-buffer buffer))))
+@end group
+@end example
+
+@noindent
+@code{(kill-buffer
+(current-buffer))}のように記述して、変数@code{buffer}を使用せずに、同様のことを行えると思うかもしれません。しかし上の例は、別のバッファーにスイッチしたときに@var{body-form}でエラーが発生した場合、より安全なのです(一時的なバッファーをkillするとき、そのバッファーがカレントとなることを確実にするために、かわりに@var{body-form}の周囲に@code{save-current-buffer}を記述することもできます)。
+
+  Emacsには、上のコードとおおよそ等しいコードに展開される、@code{with-temp-buffer}という標準マクロが含まれます(@ref{Definition
+of with-temp-buffer,, Current
+Buffer}を参照してください)。このマニュアル中で定義されるいくつかのマクロは、この方法で@code{unwind-protect}を使用します。
+
+@findex ftp-login
+  以下は、FTPパッケージ由来の、実際の例です。これは、リモートマシンへの接続の確立を試みるために、プロセス(@ref{Processes}を参照してください)を作成します。関数@code{ftp-login}は、関数のライター(writer)が予想できないことによる多くの問題から非常に影響を受けるので、失敗イベントでプロセスの削除を保証するフォームで保護されています。そうしないと、Emacsは無用なサブプロセスで一杯になってしまうでしょう。
+
+@example
+@group
+(let ((win nil))
+  (unwind-protect
+      (progn
+        (setq process (ftp-setup-buffer host file))
+        (if (setq win (ftp-login process host user password))
+            (message "Logged in")
+          (error "Ftp login failed")))
+    (or win (and process (delete-process process)))))
+@end group
+@end example
+
+  この例には小さなバグがあります。ユーザーがquitするために@kbd{C-g}とタイプした場合、関数@code{ftp-setup-buffer}がreturnした後、即座にquitが発生しますが、それは変数@code{process}がセットされる前なので、そのプロセスはkillされないでしょう。このバグを簡単に訂正する方法はありませんが、少なくともこれは非常に稀なことだと言えます。

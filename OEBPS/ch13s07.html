@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Anonymous Functions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Anonymous-Functions"/>Anonymous Functions</h1></div></div></div><a id="idm53832912" class="indexterm"/><p>関数は通常、<code class="literal">defun</code>により定義され、同時に名前が与えられますが、明示的にラムダ式を使う — <em class="firstterm">無名関数(anonymous
+function)</em>のほうが便利なときもあります。無名関数は、名前つき関数が有効な場所なら、どこでも有効です。無名関数は変数や関数の引数に割り当てられることがよくあります。たとえば、ある関数をリストの各要素に適用する<code class="literal">mapcar</code>の<em class="replaceable"><code>function</code></em>引数に渡すかもしれません(<a class="link" href="ch13s06.html" title="Mapping Functions">Mapping
+Functions</a>を参照してください)。現実的な例は、<a class="link" href="ch24s02.html#describe_002dsymbols-example">describe-symbols example</a>を参照してください。
+</p><p>無名関数として使用するためのラムダ式を定義するとき、原則的にはリストを構築する任意の手法を使用できます。しかし通常は、マクロ<code class="literal">lambda</code>、スペシャルフォーム<code class="literal">function</code>、または入力構文<code class="literal">#'</code>を使用するべきです。
+</p><pre class="synopsis"><a id="idm53826768" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">lambda</code> <em class="replaceable"><code>args</code></em> [<em class="replaceable"><code>doc</code></em>] [<em class="replaceable"><code>interactive</code></em>] <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは引数リスト<em class="replaceable"><code>args</code></em>、(もしあれば)ドキュメント文字列<em class="replaceable"><code>doc</code></em>、(もしあれば)インタラクティブ指定<em class="replaceable"><code>interactive</code></em>、および<em class="replaceable"><code>body</code></em>で与えられるbodyフォームをもつ無名関数をreturnします。
+</p><p>実際にはこのマクロは<code class="literal">lambda</code>フォームを“自己クォート(self-quoting)”します。つまりCARが<code class="literal">lambda</code>であるようなフォームは、そのフォーム自身を得ます。
+</p><pre class="screen">(lambda (x) (* x x))
+     ⇒ (lambda (x) (* x x))
+</pre><p><code class="literal">lambda</code>フォームは別に、1つの効果をもちます。このマクロは、<code class="literal">function</code>(以下参照)をサブルーチンとして使用することにより、Emacs評価機能(Emacs
+evaluator)とバイトコンパイラーに、その引数が関数であることを告げます。
+</p></blockquote></div><pre class="synopsis"><a id="idm53817424" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">function</code> <em class="replaceable"><code>function-object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm53814864" class="indexterm"/><p>このスペシャルフォームは、評価を行わずに、<em class="replaceable"><code>function-object</code></em>をreturnします。この点では、<code class="literal">quote</code>(<a class="link" href="ch10s03.html" title="Quoting">Quoting</a>を参照してください)と似ています。しかし<code class="literal">quote</code>とは異なり、Emacs評価機能とバイトコンパイラーに、これを関数として使用する意図を告げる役割をもちます。<em class="replaceable"><code>function-object</code></em>が有効なラムダ式と仮定すると、これは２つの効果をもちます:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>そのコードがバイトコンパイルされているとき、<em class="replaceable"><code>function-object</code></em>はバイトコード関数オブジェクトにコンパイルされます(<a class="link" href="ch17.html" title="Chapter 16. Byte Compilation">Byte
+Compilation</a>を参照してください)。
+</p></li><li class="listitem"><p>レキシカルバインドが有効な場合、<em class="replaceable"><code>function-object</code></em>はクロージャーに変換されます。<a class="link" href="ch13s09.html" title="Closures">Closures</a>を参照してください。
+</p></li></ul></div></blockquote></div><a id="idm53796176" class="indexterm"/><p>入力構文<code class="literal">#'</code>は、<code class="literal">function</code>の使用の略記です。以下のフォームは等価です:
+</p><pre class="screen">(lambda (x) (* x x))
+(function (lambda (x) (* x x)))
+#'(lambda (x) (* x x))
+</pre><p>以下の例では、3つ目の引数に関数をとる、<code class="literal">change-property</code>関数を定義し、その後の<code class="literal">change-property</code>で、無名関数を渡してこれを使用しています:
+</p><pre class="screen">(defun change-property (symbol prop function)
+  (let ((value (get symbol prop)))
+    (put symbol prop (funcall function value))))
+</pre><pre class="screen">
+</pre><pre class="screen">(defun double-property (symbol prop)
+  (change-property symbol prop (lambda (x) (* 2 x))))
+</pre><p><code class="literal">lambda</code>フォームをクォートしていないことに注意してください。
+</p><p>上記のコードをコンパイルした場合は、無名関数もコンパイルされます。リストをクォートすることにより無名関数を構築した場合、コンパイルはされません。
+</p><pre class="screen">(defun double-property (symbol prop)
+  (change-property symbol prop '(lambda (x) (* 2 x))))
+</pre><p>この場合、無名関数はコンパイルされたコード内のラムダ式に保持されます。バイトコンパイラーは、<code class="literal">change-property</code>が関数としての使用を意図していることを知ることができないので、たとえこの関数が関数のように見えるとしても、このリストが関数であると決め込むことはできません。
+</p></div></body></html>

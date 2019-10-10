@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Key Lookup</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Key-Lookup"/>Key Lookup</h1></div></div></div><a id="idm60265808" class="indexterm"/><a id="idm62919248" class="indexterm"/><p><em class="firstterm">キールックアップ(key lookup:
+キー照合)</em>とは、与えられたキーマップからキーシーケンスのバインディングを見つけ出すことです。そのバインディングの使用や実行は、キールックアップの一部ではありません。
+</p><p>キールックアップは、キーシーケンス内の各イベントのイベント型だけを使用し、そのイベントの残りは無視します。実際のところ、キールックアップに使用されるキーシーケンスは、マウスイベントをイベント全体(リスト)のかわりにイベント型のみ(シンボル)を用いるでしょう。<a class="link" href="ch21s07.html" title="Input Events">Input
+Events</a>を参照してください。そのような“キーシーケンス”は、<code class="literal">command-execute</code>による実行には不十分ですが、キーのルックアップやリバインドには十分です。
+</p><p>キーシーケンスが複数イベントから構成されるとき、キールックアップはイベントを順に処理します。最初のイベントのバインディングが見つかったとき、それはキーマップでなければなりません。そのキーマップ内で2つ目のイベントを見つけ出し、そのキーシーケンス内のすべてのイベントが消費されるまで、このプロセスを続けます(故に、最後のイベントにたいして見つかったイベントはキーマップかどうかわからない)。したがって、キールックアッププロセスは、キーマップ内で単一イベントを見つけ出す、よりシンプルなプロセスで定義されます。これが行なわれる方法は、キーマップ内でそのイベントに関連するオブジェクトの型に依存します。
+</p><p>キーマップ内のイベント型ルックアップによる値発見を説明するために、<em class="firstterm">キーマップエントリー(keymap
+entry)</em>という用語を導入しましょう。(これにはメニューアイテムにたいするキーマップ内のアイテム文字列や、他の余計な要素は含まれません。なぜなら、<code class="literal">lookup-key</code>や他のキーマップルックアップ関数が、リターン値にそれらを含まないからです。)
+任意のLispオブジェクトがキーマップエントリーとしてキーマップに格納されるかもしれませんが、すべてがキールックアップに意味をもつわけではありません。以下のテーブルは、キーマップエントリーで重要な型です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><a id="idm62913744" class="indexterm"/><p><code class="literal">nil</code>は、それまでにルックアップに使用されたイベントが、未定義キーを形成することを意味する。最終的にキーマップがイベント型を調べるのに失敗して、デフォルトバインディングも存在しないときは、そのイベント型のバインディングが<code class="literal">nil</code>であるのと同じである。
+</p></dd><dt><span class="term"><em class="replaceable"><code>command</code></em>
+</span></dt><dd><a id="idm62910544" class="indexterm"/><p>それまでにルックアップに使用されたイベントがコンプリートキーを形成し、そのバインディングは<em class="replaceable"><code>command</code></em>である。<a class="link" href="ch13.html#What-Is-a-Function" title="What Is a Function?">What Is a
+Function</a>を参照のこと。
+</p></dd><dt><span class="term"><em class="replaceable"><code>array</code></em>
+</span></dt><dd><a id="idm62907728" class="indexterm"/><p>array(文字列かベクター)は、キーボードマクロである。それまでにルックアップに使用されたイベントはコンプリートキーを形成し、そのバインディングはarrayである。詳細は<a class="link" href="ch21s16.html" title="Keyboard Macros">Keyboard
+Macros</a>を参照のこと。
+</p></dd><dt><span class="term"><em class="replaceable"><code>keymap</code></em>
+</span></dt><dd><a id="idm62905296" class="indexterm"/><p>それまでにルックアップに使用されたイベントはプレフィクスキーを形成する。そのキーシーケンスの次のイベントは、<em class="replaceable"><code>keymap</code></em>内でルックアップされる。
+</p></dd><dt><span class="term"><em class="replaceable"><code>list</code></em>
+</span></dt><dd><a id="idm62890704" class="indexterm"/><p>listの意味は、そのリストが何を含んでいるかに依存する:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><em class="replaceable"><code>list</code></em>のCARがシンボル<code class="literal">keymap</code>の場合、そのリストはキーマップであり、キーマップとして扱われる(上記参照)。
+</p></li><li class="listitem"><a id="idm62888016" class="indexterm"/><p><em class="replaceable"><code>list</code></em>のCARが<code class="literal">lambda</code>の場合、そのリストはラムダ式である。これは関数とみなされ、そのように扱われる(上記参照)。キーバインディングとして正しく実行されるために、この関数はコマンドでなければならず、<code class="literal">interactive</code>指定をもたなければならない。<a class="link" href="ch21s02.html" title="Defining Commands">Defining
+Commands</a>を参照のこと。
+</p></li><li class="listitem"><p><em class="replaceable"><code>list</code></em>のCARがキーマップでCDRがイベント型の場合、これは<em class="firstterm">インダイレクトエントリー(indirect
+entry: 間接エントリー)</em>である:
+</p><pre class="screen">(<em class="replaceable"><code>othermap</code></em> . <em class="replaceable"><code>othertype</code></em>)
+</pre><p>キールックアップはインダイレクトエントリーに遭遇したときは、かわりに<em class="replaceable"><code>othermap</code></em>内で<em class="replaceable"><code>othertype</code></em>のバインディングをルックアップして、それを使用する。
+</p><p>この機能により、あるキーを他のキーにたいするalistとして定義することが可能になる。たとえば、CARが<code class="literal">esc-map</code>と呼ばれるキーマップで、CDRが32(<span class="keycap"><strong>SPC</strong></span>のコード)の場合は、“それが何であろうと<strong class="userinput"><code>Meta-<span class="keycap"><strong>SPC</strong></span></code></strong>のグローバルバインディングを使用する”ことを意味する。
+</p></li></ul></div></dd><dt><span class="term"><em class="replaceable"><code>symbol</code></em>
+</span></dt><dd><a id="idm62877904" class="indexterm"/><p><em class="replaceable"><code>symbol</code></em>の関数定義が<em class="replaceable"><code>symbol</code></em>のかわりに使用される。もし関数定義もシンボルの場合は、任意の回数このプロセスが繰り返される。これは最終的にキーマップであるようなオブジェクト、コマンド、またはキーボードマクロに行き着くはずである。それがキーマップかコマンドの場合はリストも許されるが、シンボルを通じて見つけ出された場合、インダイレクトエントリーは理解されない。
+</p><p>キーマップおよびキーボードマクロ(文字列かベクター)は有効な関数ではないので、関数定義にキーマップ、文字列、ベクターをもつシンボルは、関数としては無効であることに注意されたい。しかし、キーバインディングとしては有効である。その定義がキーボードマクロの場合、そのシンボルは<code class="literal">command-execute</code>(<a class="link" href="ch21s03.html" title="Interactive Call">Interactive
+Call</a>を参照)の引数としても有効である。
+</p><a id="idm62874704" class="indexterm"/><p>シンボル<code class="literal">undefined</code>は特記するに値する。これはそのキーを未定義として扱うことを意味する。厳密に言うと、そのキーは定義されているが、そのバインディングがコマンド<code class="literal">undefined</code>なのである。しかし、このコマンドは未定義キーにたいして自動的に行われるのと同じことを行う。これは(<code class="literal">ding</code>を呼び出して)bellを鳴らすが、エラーはシグナルしない。
+</p><a id="idm62871632" class="indexterm"/><p><code class="literal">undefined</code>は、グローバルキーバインディングをオーバーライドして、そのキーをローカルに“未定義”にするために使用される。<code class="literal">nil</code>にローカルにバインドしても、グローバルバインディングをオーバーライドしないであろうから、これを行うのに失敗するだろう。
+</p></dd><dt><span class="term"><em class="replaceable"><code>anything else</code></em>
+</span></dt><dd><p>オブジェクトの他の型が見つかった場合、それまでにルックアップで使用されたイベントはコンプリートキーを形成し、そのオブジェクトがバインディングになるが、そのバインディングはコマンドとして実行不可能である。
+</p></dd></dl></div><p>要約すると、キーマップエントリーはキーマップ、コマンド、キーボードマクロ、あるいはそれらに導出されるシンボル、インダイレクトエントリー、あるいは<code class="literal">nil</code>のいずれかです。
+</p></div></body></html>

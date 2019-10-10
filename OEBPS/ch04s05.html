@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Numeric Conversions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Numeric-Conversions"/>Numeric Conversions</h1></div></div></div><a id="idm40478032" class="indexterm"/><a id="idm40477264" class="indexterm"/><a id="idm40476496" class="indexterm"/><p>整数を浮動少数に変換するには、関数<code class="literal">float</code>を使用します。
+</p><pre class="synopsis"><a id="idm40474576" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">float</code> <em class="replaceable"><code>number</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは浮動小数に変換された<em class="replaceable"><code>number</code></em>をreturnします。すでに<em class="replaceable"><code>number</code></em>が浮動小数の場合、<code class="literal">float</code>はそれを変更せずにreturnします。
+</p></blockquote></div><p>浮動小数点数を整数に変換する関数が4つあります。これらは浮動小数点数を丸める方法がことなります。これらはすべて引数<em class="replaceable"><code>number</code></em>と、オプション引数として<em class="replaceable"><code>divisor</code></em>を受け取ります。引数は両方とも整数または浮動小数点数です。<em class="replaceable"><code>divisor</code></em>が<code class="literal">nil</code>のこともあります。<em class="replaceable"><code>divisor</code></em>が<code class="literal">nil</code>または省略された場合、これらの関数は<em class="replaceable"><code>number</code></em>を整数に変換するか、それが既に整数の場合は変更せずにreturnします。<em class="replaceable"><code>divisor</code></em>が非<code class="literal">nil</code>の場合、これらの関数は<em class="replaceable"><code>number</code></em>を<em class="replaceable"><code>divisor</code></em>で除してから、その結果を整数に変換します。<em class="replaceable"><code>divisor</code></em>が(整数か浮動小数かに関わらず)0の場合、Emacsは<code class="literal">arith-error</code>エラーをシグナルします。
+</p><pre class="synopsis"><a id="idm40464208" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">truncate</code> <em class="replaceable"><code>number</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>divisor</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは0に向かって丸めることにより整数に変換した<em class="replaceable"><code>number</code></em>をreturnします。
+</p><pre class="screen">(truncate 1.2)
+     ⇒ 1
+(truncate 1.7)
+     ⇒ 1
+(truncate -1.2)
+     ⇒ -1
+(truncate -1.7)
+     ⇒ -1
+</pre></blockquote></div><pre class="synopsis"><a id="idm40459344" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">floor</code> <em class="replaceable"><code>number</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>divisor</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、下方(負の無限大に向かって)に丸めることにより整数に変換した<em class="replaceable"><code>number</code></em>をreturnします。
+</p><p><em class="replaceable"><code>divisor</code></em>が指定された場合、<code class="literal">mod</code>に相当する種類の除算演算を使用して、下方に丸めを行ないます。
+</p><pre class="screen">(floor 1.2)
+     ⇒ 1
+(floor 1.7)
+     ⇒ 1
+(floor -1.2)
+     ⇒ -2
+(floor -1.7)
+     ⇒ -2
+(floor 5.99 3)
+     ⇒ 1
+</pre></blockquote></div><pre class="synopsis"><a id="idm40453328" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">ceiling</code> <em class="replaceable"><code>number</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>divisor</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、上方(正の無限大に向かって)に丸めることにより整数に変換した<em class="replaceable"><code>number</code></em>をreturnします。
+</p><pre class="screen">(ceiling 1.2)
+     ⇒ 2
+(ceiling 1.7)
+     ⇒ 2
+(ceiling -1.2)
+     ⇒ -1
+(ceiling -1.7)
+     ⇒ -1
+</pre></blockquote></div><pre class="synopsis"><a id="idm40448464" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">round</code> <em class="replaceable"><code>number</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>divisor</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、もっとも近い整数に向かって丸めることにより整数に変換した<em class="replaceable"><code>number</code></em>をreturnします。2つの整数から等距離にある値の丸めでは、偶数の整数をreturnします。
+</p><pre class="screen">(round 1.2)
+     ⇒ 1
+(round 1.7)
+     ⇒ 2
+(round -1.2)
+     ⇒ -1
+(round -1.7)
+     ⇒ -2
+</pre></blockquote></div></div></body></html>

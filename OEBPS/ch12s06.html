@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Tips for Defining Variables Robustly</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Tips-for-Defining"/>Tips for Defining Variables Robustly</h1></div></div></div><p>値が関数(または関数のリスト)であるような変数を定義するとき、変数の名前の最後に‘<code class="literal">-function</code>’(または‘<code class="literal">-functions</code>’)を使います。
+</p><p>他にも、変数名に関する慣習があります。以下はその完全なリストです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">‘<code class="literal">…-hook</code>’
+</span></dt><dd><p>変数はノーマルフックです(<a class="link" href="ch23.html#Hooks" title="Hooks">Hooks</a>を参照してください)。
+</p></dd><dt><span class="term">‘<code class="literal">…-function</code>’
+</span></dt><dd><p>値は関数です。
+</p></dd><dt><span class="term">‘<code class="literal">…-functions</code>’
+</span></dt><dd><p>値は関数のリストです。
+</p></dd><dt><span class="term">‘<code class="literal">…-form</code>’
+</span></dt><dd><p>値はフォーム(式)です。
+</p></dd><dt><span class="term">‘<code class="literal">…-forms</code>’
+</span></dt><dd><p>値はフォーム(式)のリストです。
+</p></dd><dt><span class="term">‘<code class="literal">…-predicate</code>’
+</span></dt><dd><p>値は述語(predicate) — 1つの引数をとる関数 —
+で、引数が“正しい(good)”"場合は非<code class="literal">nil</code>、“正しくない(bad)”場合は<code class="literal">nil</code>をreturnします。
+</p></dd><dt><span class="term">‘<code class="literal">…-flag</code>’
+</span></dt><dd><p><code class="literal">nil</code>か、そうでないかだけが意味をもつような値です。そのような変数は結局、やがては多くの値をもつことが多いので、この慣習を強く推奨はしません。
+</p></dd><dt><span class="term">‘<code class="literal">…-program</code>’
+</span></dt><dd><p>値はプログラム名です。
+</p></dd><dt><span class="term">‘<code class="literal">…-command</code>’
+</span></dt><dd><p>値は完全なシェルコマンドです。
+</p></dd><dt><span class="term">‘<code class="literal">…-switches</code>’
+</span></dt><dd><p>値はコマンドにたいして指定するオプションです。
+</p></dd></dl></div><p>変数を定義するときは、その変数を“安全(safe)”とマークすべきか、それとも“危険(risky)”とマークすべきかを常に考慮してください。<a class="link" href="ch12s11.html" title="File Local Variables">File
+Local Variables</a>を参照してください。
+</p><p>複雑な値を保持する変数(バインディングをもつkeymapなど)を定義、または初期化するとき、以下のように値の計算をすべて<code class="literal">defvar</code>の中に配置するのが最良です:
+</p><pre class="screen">(defvar my-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-a" 'my-command)
+    …
+    map)
+  <em class="replaceable"><code>docstring</code></em>)
+</pre><p>この方法にはいくつかの利点があります。1つ目は、ファールをロード中にユーザーが中断した場合、変数はまだ初期化されていないか、初期化されているかのどちらかで、その中間ということはありません。まだ初期化されていない場合、ファイルをリロードすれば正しく初期化されます。2つ目は、1度初期化された変数は、ファイルをリロードしても変更されないことです。コンテンツの一部を変更(たとえばキーのリバインド)するフックをユーザーが実行した場合などに、これは重要です。3つ目は、<strong class="userinput"><code>C-M-x</code></strong>で<code class="literal">defvar</code>を評価すると、そのマップは完全に再初期化されることです。
+</p><p><code class="literal">defvar</code>フォーム内に多すぎるコードを配置することには不利な点が1つあります。ドキュメント文字列が変数の名前から離れた場所に配置されることです。これを避ける安全な方法は以下の方法です:
+</p><pre class="screen">(defvar my-mode-map nil
+  <em class="replaceable"><code>docstring</code></em>)
+(unless my-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-a" 'my-command)
+    …
+    (setq my-mode-map map)))
+</pre><p>これは初期化を<code class="literal">defvar</code>の内側に配置した場合とまったく同じ利点をもちますが、変数を再度初期化したい場合は、各フォームにたいして1回ずつ、2度<strong class="userinput"><code>C-M-x</code></strong>をタイプしなければならない点が異なります。
+</p></div></body></html>

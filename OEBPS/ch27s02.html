@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>The Current Buffer</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Current-Buffer"/>The Current Buffer</h1></div></div></div><a id="idm65790288" class="indexterm"/><a id="idm65789520" class="indexterm"/><a id="idm65788752" class="indexterm"/><p>一般的に、1つのEmacsセッション内には、多くのバッファーが存在します。常に、それらのうちの1つが<em class="firstterm">カレントバッファー(current
+buffer)</em>に指定され、ます。カレントバッファーとは、ほとんどの編集が行われるバッファーのことです。テキストを調べたり変更するプリミティブのほとんどは、暗黙的にカレントバッファーにたいして処理を行います(<a class="link" href="ch32.html" title="Chapter 31. Text">Text</a>を参照)。
+</p><p>通常は、選択されたウィンドウ内に表示されるバッファーがカレントバッファーですが、常にそうではありません。Lispプログラムは、バッファーのコンテンツを処理するために、スクリーン上に表示されているものを変更することなく、任意のバッファーを一時的にカレントに指定できます。カレントバッファーの指定にたいしてもっとも基本的な関数は、<code class="literal">set-buffer</code>です。
+</p><pre class="synopsis"><a id="idm65785552" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">current-buffer</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、カレントバッファーをリターンする関数。
+</p><pre class="screen">(current-buffer)
+     ⇒ #&lt;buffer buffers.texi&gt;
+</pre></blockquote></div><pre class="synopsis"><a id="idm65782224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-buffer</code> <em class="replaceable"><code>buffer-or-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>buffer-or-name</code></em>をカレントバッファーにする。<em class="replaceable"><code>buffer-or-name</code></em>は既存のバッファー、または既存のバッファーの名前でなければならない。リターン値は、カレントになったバッファーである。
+</p><p>この関数は、そのバッファーをどのウィンドウにも表示しないので、必然的にユーザーはそのバッファーを見ることはできない。しかし、Lispプログラムはその後、そのバッファーにたいして処理を行うことになるだろう。
+</p></blockquote></div><p>編集コマンドがエディターコマンドループにリターンする際、Emacsは選択されたウィンドウ内に表示されているバッファーにたいして、自動的に<code class="literal">set-buffer</code>を呼び出します。これは混乱を防ぐためで、これにより、Emacsがコマンドを読み取るときに、カーソルのあるバッファーが、コマンドを適用されるバッファーになるのが保証されます(<a class="link" href="ch21.html" title="Chapter 20. Command Loop">Command
+Loop</a>を参照)。したがって、異なるバッファーを指示して切り替える場合に、<code class="literal">set-buffer</code>を使用するべきではありません。これを行うためには、<a class="link" href="ch28s11.html" title="Switching to a Buffer in a Window">Switching
+Buffers</a>で説明されているカを使用してください。
+</p><p>Lisp関数を記述する際は、処理後にカレントバッファーをリストアするために、コマンドループのこの振る舞いに<span class="emphasis"><em>依存しないでください</em></span>。編集コマンドは、コマンドループだけではなく、他のプログラムからLisp関数としても呼び出されます。呼び出し側にとっては、そのサブルーチンがカレントだったバッファーを変更しないほうが便利です(もちろん、それがサブルーチンの目的でない場合ですが)。
+</p><p>他のバッファーにたいして一時的に処理を行うには、<code class="literal">save-current-buffer</code>フォーム内に<code class="literal">set-buffer</code>を置きます。以下の例は、コマンド<code class="literal">append-to-buffer</code>の簡略版です:
+</p><pre class="screen">(defun append-to-buffer (buffer start end)
+  "リージョンのテキストをBUFFERに追加する"
+  (interactive "BAppend to buffer: \nr")
+  (let ((oldbuf (current-buffer)))
+    (save-current-buffer
+      (set-buffer (get-buffer-create buffer))
+      (insert-buffer-substring oldbuf start end))))
+</pre><p>ここでは、カレントバッファーを記録するためにローカル変数にバインドしてから、後で<code class="literal">save-current-buffer</code>がそれを再びカレントにするよう、取り計らっています。次に、<code class="literal">set-buffer</code>が指定されたバッファーをカレントにして、<code class="literal">insert-buffer-substring</code>が元のバッファーの文字列を、指定された(今はカレントの)バッファーにコピーします。
+</p><p>かわりに、<code class="literal">with-current-buffer</code>マクロを使用することもできます:
+</p><pre class="screen">(defun append-to-buffer (buffer start end)
+  "BUFFERにリージョンのテキストを追加する"
+  (interactive "BAppend to buffer: \nr")
+  (let ((oldbuf (current-buffer)))
+    (with-current-buffer (get-buffer-create buffer)
+      (insert-buffer-substring oldbuf start end))))
+</pre><p>どちらの場合でも、追加されるバッファーが偶然他のウィンドウに表示されていた場合には、次回の再表示でそのテキストがどのように変更されたか表示されるでしょう。どのウィンドウにも表示されていない場合には、スクリーン上で即座に変更を目にすることはありません。コマンドはバッファーを一時的にカレントにしますが、そのことがバッファーの表示を誘因する訳ではありません。
+</p><p>バッファーローカルバインディングをもつ変数にたいして、(<code class="literal">let</code>や関数引数などで)ローカルバインディングを作成する場合は、そのローカルバインディングのスコープの最初と最後で、同じバッファーがカレントとなることを確認してください。そうしないと、あるバッファーではバインドして、他のバッファーではバインドされないことになるかもしれません!
+</p><p><code class="literal">set-buffer</code>の使用において、カレントバッファーが戻ることに依存しないでください。なぜなら、間違ったバッファーがカレントのときにquitが発生した場合、その処理は行われないでしょう。たとえば上記の例に倣うと、以下は間違ったやり方です:
+</p><pre class="screen">  (let ((oldbuf (current-buffer)))
+    (set-buffer (get-buffer-create buffer))
+    (insert-buffer-substring oldbuf start end)
+    (set-buffer oldbuf))
+</pre><p>例で示したように<code class="literal">save-current-buffer</code>、または<code class="literal">with-current-buffer</code>を使用すれば、quitや<code class="literal">throw</code>を、通常の評価と同様に処理できます。
+</p><pre class="synopsis"><a id="idm65764176" class="indexterm"/><span class="category"><span class="bold"><strong>Special Form</strong></span>:</span> <code class="function">save-current-buffer</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>スペシャルフォーム<code class="literal">save-current-buffer</code>は、カレントバッファーの識別を保存して、<em class="replaceable"><code>body</code></em>フォームを評価し、最後にそのバッファーをカレントにリストアする。リターン値は、<em class="replaceable"><code>body</code></em>内の最後のフォームの値である。<code class="literal">throw</code>やエラーを通じた異常exitの場合でも、カレントバッファーはリストアされる(<a class="link" href="ch11s05.html" title="Nonlocal Exits">Nonlocal
+Exits</a>を参照)。
+</p><p>カレントとして使用されていたバッファーが、<code class="literal">save-current-buffer</code>によるexit時にkillされていた場合は、それが再びカレントとなることは当然ない。かわりに、exit直前にカレントバッファーが何であれ、それがカレントになる。
+</p></blockquote></div><pre class="synopsis"><a id="idm65745104" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">with-current-buffer</code> <em class="replaceable"><code>buffer-or-name</code></em> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">with-current-buffer</code>マクロは、カレントバッファーの識別を保存して、<em class="replaceable"><code>buffer-or-name</code></em>をカレントにし、<em class="replaceable"><code>body</code></em>フォームを評価して、最後にカレントバッファーをリストアする。<em class="replaceable"><code>buffer-or-name</code></em>には既存のバッファー、または既存のバッファー名を指定しなければならない。
+</p><p>リターン値は、<em class="replaceable"><code>body</code></em>内の最後のフォームの値である。<code class="literal">throw</code>やエラーを通じた異常exitの場合でも、カレントバッファーはリストアされる(<a class="link" href="ch11s05.html" title="Nonlocal Exits">Nonlocal
+Exits</a>を参照)。
+</p></blockquote></div><pre class="synopsis"><a id="idm65737936" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">with-temp-buffer</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="Definition-of-with_002dtemp_002dbuffer"/><p><code class="literal">with-temp-buffer</code>マクロは、一時的なバッファーをカレントバッファーとして、<em class="replaceable"><code>body</code></em>フォームを評価する。これはカレントバッファーの識別を保存して、一時的なバッファーを作成、それをカレントとして、<em class="replaceable"><code>body</code></em>フォームを評価し、一時バッファーをkillする間に、以前のカレントバッファーをリストアする。
+デフォルトでは、このマクロにより作成されたバッファー内のアンドゥ情報(<a class="link" href="ch32s09.html" title="Undo">Undo</a>を参照)は記録されない(が、必要なら<em class="replaceable"><code>body</code></em>でそれを有効にできる)。
+</p><p>リターン値は、<em class="replaceable"><code>body</code></em>内の最後のフォームの値である。最後のフォームとして<code class="literal">(buffer-string)</code>を使用することにより、一時バッファーのコンテンツをリターンできる。
+</p><p><code class="literal">throw</code>やエラーを通じた異常exitの場合でも、カレントバッファーはリストアされる(<a class="link" href="ch11s05.html" title="Nonlocal Exits">Nonlocal Exits</a>を参照)。
+</p><p><a class="link" href="ch25s04.html#Definition-of-with_002dtemp_002dfile">Writing to
+Files</a>の<code class="literal">with-temp-file</code>も参照されたい。
+</p></blockquote></div></div></body></html>

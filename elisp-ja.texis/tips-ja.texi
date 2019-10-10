@@ -1,0 +1,719 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990-1993, 1995, 1998-1999, 2001-2015 Free Software
+@c Foundation, Inc.
+@c See the file elisp.texi for copying conditions.
+@node Tips
+@appendix Tips and Conventions
+@cindex tips for writing Lisp
+@cindex standards of coding style
+@cindex coding standards
+
+  このチャプターででは、Emacs Lispの追加機能については説明しません。かわりに、以前のチャプターで説明した機能を効果的に使う方法と、Emacs
+Lispプログラマーがしたがうべき慣習を説明します。
+
+  以降で説明する慣習のいくつかは、Lispファイルのvisit時にコマンド@kbd{M-x checkdoc
+RET}を実行することにより、自動的にチェックできます。これはすべての監修はチェックできませんし、与えられた警告すべてが必ずしも問題に対応する訳ではありませんが、それらすべてを検証することには価値があります。
+
+@menu
+* Coding Conventions::       明快で堅牢なプログラムにたいする慣習。
+* Key Binding Conventions::  どのキーをどのプログラムにバインドすべきか。
+* Programming Tips::         Emacsコードを円滑にEmacsに適合させる。
+* Compilation Tips::         コンパイル済みコードの実行を高速にする。
+* Warning Tips::             コンパイラー警告をオフにする。
+* Documentation Tips::       読みやすいドキュメント文字列の記述。
+* Comment Tips::             コメント記述の慣習。
+* Library Headers::          ライブラリーパッケージにたいする標準的なヘッダー。
+@end menu
+
+@node Coding Conventions
+@section Emacs Lisp Coding Conventions
+
+@cindex coding conventions in Emacs Lisp
+  以下は、幅広いユーザーを意図したEmacs Lispコードを記述する際にしたがうべき慣習です:
+
+@itemize @bullet
+@item
+単なるパッケージのロードが、Emacsの編集の挙動を変更すねきではない。コマンドと、その機能を有効または無効にするコマンド、またはそれの呼び出しが含まれる。
+
+この慣習は、カスタム定義を含むすべてのファイルに必須である。そのようなファイルを、この慣習にしたがうために修正するのが、非互換の変更を要求するなら、構うことはないから、非互換の修正を行うこと。先送りにしてはならない。
+
+@item
+他のLispプログラムと区別するための、短い単語を選択すること。あなたのプログラム内のグローバルなシンボルすべて、すなわち変数、定数、関数の名前はその選択したプレフィクスで始まること。そのプレフィクスと名前の残りの部分は、ハイフン@samp{-}で区切る。Emacs
+Lisp内のすべてのグローバル変数は同じネームスペース、関数はすべて別のネームスペースを共有するので、これの実践は名前の競合を回避する@footnote{Common
+Lispスタイルのパッケージシステムの恩恵は、そのコストを上回るとは考えられない。}。他のパッケージから使用されることを意図しない場合には、プレフィクス名前を2つのハイフンで区切ること。
+
+ユーザーの使用を意図したコマンド名では、何らかの単語がそのパッケージ名のプレフィクスの前にあると便利なことがある。関数や変数等を定義する構成は、それらが@samp{defun}や@samp{defvar}で始まればより良く機能するので、名前内でそれらの後に名前プレフィクスを置くこと。
+
+この勧告は、@code{copy-list}のようなEmacs
+Lisp内のプリミティブではなく、伝統的なLispプリミティブにさえ適用される。信じようと信じまいと、@code{copy-list}を定義する尤もらしい方法は複数あるのだ。安全第一である。かわりに@code{foo-copy-list}や@code{mylib-copy-list}のような名前を生成するために、あなたの名前プレフィクスを追加しよう。
+
+@code{twiddle-files}のような特定の名前でEmacsに追加されるべきと考えている関数を記述する場合には、プログラム内でそれを名前で呼び出さないこと。プログラム内ではそれを@code{mylib-twiddle-files}で呼び出して、わたしたちがそれをEmacsに追加するため提案メールを、@samp{bug-gnu-emacs@@gnu.org}に送信すること。もし追加することになったそのとき、わたしたちは十分容易にその名前を変更できるだろう。
+
+1つのプレフィクスで十分でなければ、それらに意味があるかぎり、あなたんパッケージは2つまたは3つの一般的なプレフィクス候補を使用できる。
+
+@item
+個々のLispファイルすべての終端に、@code{provide}呼出を配置すること。@ref{Named Features}を参照されたい。
+
+@item
+事前に他の特定のLispプログラムのロードを要するファイルは、そのファイル先頭のコメントでそのように告げるべきである。また、それらが確実にロードされるよう、@code{require}を使用すること。@ref{Named
+Features}を参照されたい。
+
+@item
+ファイル@var{foo}が、別のファイル@var{bar}内で定義されたマクロを使用するが、@var{bar}内の他の関数や変数を何も使用しない場合には、@var{foo}に以下の式を含めるべきである:
+
+@example
+(eval-when-compile (require '@var{bar}))
+@end example
+
+@noindent
+これは、@var{foo}のバイトコンパイル直前に@var{bar}をロードするようEmacsに告げるので、そのマクロはコンパイル中は利用可能になる。@code{eval-when-compile}の使用により、コンパイル済みバージョンの@var{foo}が@emph{中古}なら、@var{bar}のロードを避けられる。これはファイル内の、最初のマクロ呼び出しの前に呼び出すこと。@ref{Compiling
+Macros}を参照されたい。
+
+@item
+実行時、それらが本当に必要でなければ、追加ライブラリーのロードを避けること。あなたのファイルが、単に他のいくつかのライブラリーなしでは機能しないなら、単にトップレベルでそのライブラリーを@code{require}して、それを使って行うこと。しかしあなたのファイルが、いくつかの独立した機能を含み、それらの1つか2つだけが余分なライブラリーを要するなら、トップレベルではなく関連する関数内部に、@code{require}を配置することを考慮すること。または必要時に余分のライブラリーをロードするために、@code{autoload}ステートメントを使用すること。この方法では、あなたのファイルの該当部分を使用しない人は、余分なライブラリーをロードする必要がなくなる。
+
+@item
+Common
+Lisp拡張が必要なら、古い@code{cl}ライブラリーではなく、@code{cl-lib}ライブラリーを使うこと。@code{cl}ライブラリーは、クリーンなネームスペースを使用しない(定義が@samp{cl-}で始まらない)。パッケージが実行時に@code{cl}をロードする場合、そのパッケージを使用しないユーザーにたいして、名前の衝突を起こすかもしれない。
+
+@code{(eval-when-compile (require
+'cl))}で、@emph{コンパイル時}に@code{cl}を使用するのは問題ない。コンパイラーはバイトコードを生成する前にマクロを展開するので、@code{cl}内のマクロを使用するには十分である。ただしこの場合でも、現代的な@code{cl-lib}を使用したほうが良い。
+
+@item
+メジャーモードを定義する際には、メジャーモードの慣習にしたがってほしい。@ref{Major Mode Conventions}を参照されたい。
+
+@item
+マイナーモードを定義する際には、マイナーモードの慣習にしたがってほしい。@ref{Minor Mode Conventions}を参照されたい。
+
+@item
+ある関数の目的が、特定の条件の真偽を告げることであるなら、(述語である``predicate''を意味する)@samp{p}で終わる名前を与えること。その名前が1単語なら単に@samp{p}を追加し、複数単語なら@samp{-p}を追加する。例は@code{framep}や@code{frame-live-p}。
+
+@item
+ある変数の目的が、単一の関数の格納にあるなら、@samp{-function}で終わる名前を与えること。ある変数の目的が、関数のリストの格納にあるなら(たとえばその変数がフックなら)、フックの命名規約にしたがってほしい。@ref{Hooks}を参照されたい。
+
+@item
+@cindex unloading packages, preparing for
+そのファイルをロードすることにより、フックに関数が追加されるなら、@code{@var{feature}-unload-hook}という関数を定義すること。ここで@var{feature}は、そのパッケージが提供する機能の名前で、そのような変更をアンドゥするためのフックにする。そのファイルのアンロードに@code{unload-feature}を使用することにより、この関数が実行されるようになる。@ref{Unloading}を参照のこと。
+
+@item
+Emacsのプリミティブにエイリアスを定義するのは、悪いアイデアである。通常は、かわりに標準の名前を使用すること。エイリアスが有用になるかもしれないケースは、後方互換性や可搬性を向上させる場合である。
+
+@item
+パッケージで、別のバージョンのEmacsにたいする互換性のためにエイリアスや新たな関数の定義が必要なら、別のバージョンにあるそのままの名前ではなく、そのパッケージのプレフィクスを名前に付加すること。以下は、そのような互換性問題を多く提供するGnusでの例である。
+
+@example
+(defalias 'gnus-point-at-bol
+  (if (fboundp 'point-at-bol)
+      'point-at-bol
+    'line-beginning-position))
+@end example
+
+@item
+Emacsのプリミティブの再定義やadviseは悪いアイデアである。これは特定のプログラムには正しいことを行うが、結果として他のプロラムが破壊されるかもしれない。
+
+@item
+同様に、あるLispパッケージで別のLispパッケージ内の関数にadviseするのも悪いアイデアである。
+
+@item
+ライブラリやパッケージでの@code{eval-after-load}の使用を避けること(@ref{Hooks for
+Loading}を参照)。この機能は個人的なカスタマイズを意図している。Lispプログラム内でこれを使用すると、別のLisp内ではそれが見えず、その挙動を変更するため不明瞭になる。これは、別のパッケージ内の関数へのadviseに似て、デバッグの障害になる。
+
+@item
+Emacsの標準的な関数やライブラリープログラムの何かをファイルが置換するなら、そのファイル冒頭の主要コメントで、どの関数が置換されるか、および置換によりオリジナルと挙動がどのように異なるかを告げること。
+
+@item
+関数や変数を定義するコンストラクターは、関数ではなくマクロであるべきで、その名前は@samp{define-}で始まること。そのマクロは、定義される名前を1つ目の引数で受け取ること。これは自動的に定義を探す、種々のツールを助けることになる。マクロ自身の中でその名前を構築するのは、それらのツールを混乱させるので避けること。
+
+@item
+別のいくつかのシステムでは、@samp{*}が先頭や終端にある変数名を選択する慣習がある。Emacs
+Lispではその慣習を使用しないので、あなたのプログラム内でそれを使用しないでほしい。(Emacsでは特別な目的をもつバッファーだけに、そのような名前を使用する)。すべてのライブラリーが同じ慣習を使用するなら、人はEmacsがより整合性があることを見い出すだろう。
+
+@item
+Emacs LispソースファイルのデフォルトのファイルコーディングシステムはUTFである(@ref{Text
+Representations}を参照)。あなたのプログラムがUTF-8@emph{以外}の文字を含むような稀なケースでは、ソースファイル内の@samp{-*-}行かローカル変数リスト内で、適切なコーディングシステムを指定するべきである。@ref{File
+Variables, , Local Variables in Files, emacs, The GNU Emacs Manual}を参照されたい。
+
+@item
+デフォルトのインデントパラメーターで、ファイルをインデントすること。
+
+@item
+自分で行に閉カッコを配置するのを習慣としてはならない。Lispプログラマーは、これに当惑させられる。
+
+@item
+コピーを配布する場合は著作権表示と複製許可表示を配してほしい。@ref{Library Headers}を参照されたい。
+
+@end itemize
+
+@node Key Binding Conventions
+@section Key Binding Conventions
+@cindex key binding, conventions for
+
+@itemize @bullet
+@item
+@cindex mouse-2
+@cindex references, following
+Dired、Info、Compilation、Occurなどの多くのメジャーモードでは、@dfn{ハイパーリンク}を含むを読み取り専用テキストとして処理するようデザインされている。そのようなメジャーモードは、リンクをフォローするよう@kbd{mouse-2}と@key{RET}を再定義すること。そのリンクが@code{mouse-1-click-follows-link}にしたがうよう、@code{follow-link}条件もセットアップすること。@ref{Clickable
+Text}を参照されたい。そのようなクリック可能リンクを実装する簡便な手法については、@ref{Buttons}を参照されたい。
+
+@item
+@cindex reserved keys
+@cindex keys, reserved
+Lispプログラム内のキーとして、@kbd{C-c
+@var{letter}}を定義してはならない。@kbd{C-c}とアルファベット(大文字と小文字の両方)からなるシーケンスは、ユーザー用に予約済みである。これらはユーザー用に、@strong{唯一}予約されたシーケンスなので、それを阻害してはならない。
+
+すべてのメジャーモードがこの慣習を尊重するよう変更するには、多大な作業を要する。この慣習を捨て去れば、そのような作業は不要になり、ユーザーは不便になるだろう。この慣習を遵守してほしい。
+
+@item
+修飾キーなしの@key{F5}から@key{F9}までのファンクションキーも、ユーザー定義用に予約済みである。
+
+@item
+後にコントロールキーか数字が続く@kbd{C-c}シーケンスは、メジャーモード用に予約済みである。
+
+@item
+後に@kbd{@{}、@kbd{@}}、@kbd{<}、@kbd{>}、
+@kbd{:}、@kbd{;}が続く@kbd{C-c}シーケンスも、メジャーモード用に予約済みである。
+
+@item
+後に他の区切り文字が続く@kbd{C-c}シーケンスは、マイナーモードに割り当てられている。メジャーモード内でのそれらの使用は絶対禁止ではないが、もしそれを行えばそのメジャーモードがマイナーモードにより、時々シャドーされるかもしれない。
+
+@item
+後にプレフィクス文字(@kbd{C-c}を含む)が続く@kbd{C-h}をバインドしてはならない。@kbd{C-h}をバインドしなければ、そのプレフィクス文字をもつサブコマンドをリストするためのヘルプ文字として、それが自動的に利用可能になる。
+
+@item
+別の@key{ESC}が後に続く場合を除き、@key{ESC}で終わるキーシーケンスをバインドしてはならない(つまり@kbd{@key{ESC}
+@key{ESC}}で終わるキーシーケンスのバインドはOK)。
+
+このルールの理由は、任意のンテキストでの非プレフィクスであるような@key{ESC}のバインディングは、そのコンテキストにおいてファンクションキーとなるようなエスケープシーケンスの認識を阻害するからである。
+
+@item
+同様に、@key{C-g}は一般的にはキーシーケンスのキャンセルに使用されるので、@key{C-g}で終わるキーシーケンスをバインドしてはならない。
+
+@item
+一時的なモードや、ユーザーが出入り可能な状態のような動作はすべて、エスケープ手段として@kbd{@key{ESC}
+@key{ESC}}か@kbd{@key{ESC} @key{ESC} @key{ESC}}を定義すること。
+
+通常のEmacsコマンドを受け入れる状態、より一般的には後にファンクションキーか矢印キーが続く@key{ESC}内のような状態は潜在的な意味をもつので、@kbd{@key{ESC}
+@key{ESC}}を定義してはならない。なぜならそれは、@key{ESC}の後のエスケープシーケンスの認識を阻害するからである。これらの状態においては、エスケープ手段として@kbd{@key{ESC}
+@key{ESC} @key{ESC}}を定義すること。それ以外なら、かわりに@kbd{@key{ESC} @key{ESC}}を定義すること。
+@end itemize
+
+@node Programming Tips
+@section Emacs Programming Tips
+@cindex programming conventions
+
+  以下の慣習にしたがうことにより実行時、あなたのプログラムがよりEmacsに適合するようになります。
+
+@itemize @bullet
+@item
+プログラム内で@code{next-line}や@code{previous-line}を使用してはならない。ほとんど常に、@code{forward-line}のほうがより簡便で、より予測可能かつ堅牢である。@ref{Text
+Lines}を参照のこと。
+
+@item
+あなたのプログラム内で、マークのセットが意図した機能でないなら、マークをセットする関数を呼び出してはならない。マークはユーザーレベルの機能なので、ユーザーの益となる値を提供する場合を除き、マークの変更は間違っている。@ref{The
+Mark}を参照のこと。
+
+得に、以下の関数は使用しないこと:
+
+@itemize @bullet
+@item
+@code{beginning-of-buffer}、@code{end-of-buffer}
+@item
+@code{replace-string}、@code{replace-regexp}
+@item
+@code{insert-file}、@code{insert-buffer}
+@end itemize
+
+インタラクティブなユーザーを意図した別の機能がないのにポイントの移動、特定の文字列の置換、またはファイルやバッファーのコンテンツを挿入したいだけなら、単純な1、2行のLispコードでそれらの関数を置き換えられる。
+
+@item
+ベクターを使用する特別な理由がある場合を除き、ベクターではなくリストを使用すること。Lispでは、ベクターよりリストを操作する機能のほうが多く、リストを処理するほうが通常は簡便である。
+
+要素の挿入や削除がなく(これはリストだけで可能)、ある程度のサイズがあって、(先頭か末尾から検索しない)ランダムアクセスがあるテーブルでは、ベクターが有利である。
+
+@item
+エコーエリア内にメッセージを表示する推奨方法は、@code{princ}ではなく@code{message}関数である。@ref{The Echo
+Area}を参照のこと。
+
+@item
+エラーコンディションに遭遇したときは、関数@code{error}(または@code{signal})を呼び出すこと。関数@code{error}はリターンしない。@ref{Signaling
+Errors}を参照のこと。
+
+エラーの報告に@code{message}、@code{throw}、@code{sleep-for}、@code{beep}を使用しないこと。
+
+@item
+エラーメッセージは大文字で始まり、ピリオドで終わらないこと。
+
+@item
+ミニバッファー内で@code{yes-or-no-p}か@code{y-or-n-p}で答えを求める質問を行う場合には、大文字で始めて@samp{?
+}で終わること。
+
+@item
+ミニバッファーのプロンプトでデフォルト値を示すときは、カッコ内に単語@samp{default}を配すること。これは以下のようになる:
+
+@example
+Enter the answer (default 42):
+@end example
+
+@item
+@code{interactive}で引数リストを生成するLisp式を使用する場合には、リージョンまたはポジションの引数にたいして、``正しい''デフォルト値を生成しようと試みではならない。それらの引数が指定されていなければ、かわりに@code{nil}を提供して、引数が@code{nil}のときに関数のbodyでデフォルト値を計算すること。たとえば以下のように記述する:
+
+@example
+(defun foo (pos)
+  (interactive
+   (list (if @var{specified} @var{specified-pos})))
+  (unless pos (setq pos @var{default-pos}))
+  ...)
+@end example
+
+@noindent
+以下のようにはしないよう:
+
+@example
+(defun foo (pos)
+  (interactive
+   (list (if @var{specified} @var{specified-pos}
+             @var{default-pos})))
+  ...)
+@end example
+
+@noindent
+これは、そのコマンドを繰り返す場合に、そのときの状況にもとづいてデフォルト値が再計算されるからである。
+
+interactiveの@samp{d}、@samp{m}、@samp{r}指定を使用する際、これらはコマンドを繰り返すときの引数値の再計算にたいして特別な段取りを行うので、このような注意事項を採用する必要はない。
+
+@item
+実行に長時間を要する多くのコマンドは、開始時に@samp{Operating...}、完了時に@samp{Operating...done}のような、何らかのメッセージを表示すること。これらのメッセージのスタイルは、@samp{...}の周囲に@emph{スペース}を置かず、@samp{done}の後に@emph{ピリオド}を置かないよう、一定に保ってほしい。そのようなメッセージを生成する簡便な方法は、@ref{Progress}を参照のこと。
+
+@item
+再帰編集の使用を避けること。かわりにRmailの@kbd{e}コマンドが行うように、元のローカルキーマップに戻るよう定義したコマンドを含む、新たなローカルキーマップを使用する。または単に別のバッファーにスイッチして、ユーザーが自身で戻れるようにすること。@ref{Recursive
+Editing}を参照っされたい。
+@end itemize
+
+@node Compilation Tips
+@section Tips for Making Compiled Code Fast
+@cindex execution speed
+@cindex speedups
+
+  以下は、バイトコンパイル済みLispプログラムの実行速度を改善する方法です。
+
+@itemize @bullet
+@item
+その時間がどこで消費されているか見つかるために、プログラムのプロファイルを行う。@ref{Profiling}を参照のこと。
+
+@item
+可能なら常に再帰ではなく繰り返しを使用する。Emacs
+Lispでは、コンパイル済み関数が別のコンパイル済み関数を呼び出すときでさえ、関数呼び出しは低速である
+
+@item
+プリミティブのリスト検索関数@code{memq}、@code{member}、@code{assq}、@code{assoc}は明示的な繰り返しより更に高速である。これらの検索プリミティブを使用できるように、データ構造を再配置することにも価値が有り得る。
+
+@item
+特定のビルトイン関数は、通常の関数呼び出しの必要を回避するよう、バイトコンパイル済みコードでは特別に扱われる。別の候補案のかわりにこれらの関数を使用するのは、良いアイデアである。コンパイラーにより特別に扱われる関数かどうかを確認するには、それの@code{byte-compile}プロパティを調べればよい。そのプロパティが非@code{nil}なら、その関数は特別に扱われる。
+
+たとえば以下を入力すると、@code{aref}が特別にコンパイルされえることが示される(@ref{Array Functions}を参照):
+
+@example
+@group
+(get 'aref 'byte-compile)
+     @result{} byte-compile-two-args
+@end group
+@end example
+
+@noindent
+この場合(および他の多くの場合)、最初に@code{byte-compile}プロパティを定義する、@file{bytecomp}ライブラリーをロードしなければならない。
+
+@item
+プログラム内で実行時間のある程度を占める小さい関数を呼び出すなら、その関数をinlineにする。これにより、関数呼び出しのオーバーヘッドがなくなる。関数のinline化はプログラム変更の自由度を減少させるので、ユーザーがスピードを気にするに足るほど低速であり、inline化により顕著に速度が改善されるのでなければ、これを行ってはならない。@ref{Inline
+Functions}を参照のこと。
+@end itemize
+
+@node Warning Tips
+@section Tips for Avoiding Compiler Warnings
+@cindex byte compiler warnings, how to avoid
+
+@itemize @bullet
+@item
+以下のように、ダミーの@code{defvar}定義を追加して、未定義のフリー変数に関する、コンパイラーの警告の回避を試みる:
+
+@example
+(defvar foo)
+@end example
+
+このような定義は、そのファイル内での変数@code{foo}の使用にたいして、コンパイラーが警告すないようにする以外、影響はない。
+
+@item
+同様に@code{declare-function}ステートメントを使用して、@emph{定義されるこが既知}の未定義関数に関する、コンパイラーの警告の回避を試みる(@ref{Declaring
+Functions}を参照)。
+
+@item
+特定のファイルから多くの関数と変数を使用する場合には、それらに関するコンパイラー警告を回避するために、そのパッケージに@code{require}を追加できる。たとえば、
+
+@example
+(eval-when-compile
+  (require 'foo))
+@end example
+
+@item
+ある関数内で変数をバインドして、別の関数内でそれを使用またはセットする場合、その変数が定義をもたなければ、その別関数に関してコンパイラーは警告を行う。しかしその変数が短い名前をもつ場合、Lispパッケージは短い変数名を定義するべきではないので、定義の追加により不明瞭になるかもしれない。行うべき正しい方法は、パッケージ内の他の関数や変数に使用されている名前プレフィクスで始まるよう、その変数をリネームすることである。
+
+@item
+警告を回避する最後の手段は、通常なら間違いであるが、その使用法では間違いではないと解っている何かを行う際には、それを@code{with-no-warnings}の内側に置くこと。@ref{Compiler
+Errors}を参照されたい。
+@end itemize
+
+@node Documentation Tips
+@section Tips for Documentation Strings
+@cindex documentation strings, conventions and tips
+
+@findex checkdoc-minor-mode
+  以下は、ドキュメント文字列記述に関するいくつかのヒントと慣習です。コマンド@kbd{M-x
+checkdoc-minor-mode}を実行すれば、これらの慣習の多くをチェックできます。
+
+@itemize @bullet
+@item
+ユーザーが理解することを意図したすべての関数、コマン、変数はドキュント文字列をもつこと。
+
+@item
+Lispプログラムの内部的な変数とサブルーチンは、同様にドキュメント文字列をもつことができる。ドキュメント文字列は、実行中のEmacs内で非常に僅かなスペースしか占めない。
+
+@item
+80列スクリーンのEmacsウィンドウに適合するように、ドキュメント文字列をフォーマットすること。ほとんどの行を60文字以下に短くするのは、良いアイデアである。最初の行は67文字以下にすること。さもないと@code{apropos}の出力で見栄えが悪くなる。
+
+@vindex emacs-lisp-docstring-fill-column
+見栄えがよくなるなら、そのテキストをフィルできる。Emacs
+Lispモードは、@code{emacs-lisp-docstring-fill-column}で指定された幅に、ドキュメント文字列をフィルする。しかし、ドキュメント文字列の行ブレークを注意深く調整すれば、ドキュメント文字列の可読性をより向上できることがある。ドキュメント文字列が長い場合には、セクション間に空行を使用すること。
+
+@item
+ドキュンメント文字列の最初の行は、それ自身が要約となるような、1つか2つの完全なセンテンスから成り立つこと。@kbd{M-x
+apropos}は最初の行だけを表示するので、その行のコンテンツが自身で完結していなければ、結果の見栄えは悪くなる。特に、最初の行は大文字で始めて、ピリオで終わること。
+
+関数では最初の行は``その関数は何を行うのか?''、変数にたいしては最初の行は``その値は何を意味するのか?''という問いに簡略に答えること。
+
+ドキュメント文字列を1行に制限しないこと。その関数や変数の使用法の詳細を説明する必要に応じて、その分の行数を使用すること。テキストの残りの部分にたいしても、完全なセンテンスを使用してほしい。
+
+@item
+ユーザーが無効化されたコマンドの使用を試みる際、Emacsはそれのドキュメント文字列の最初のパラグラフ(最初の空行までのすべて)だけを表示する。もし望むならえ、その表示をより有用になるよう、最初の空行の前に何の情報を含めるか選択できる。
+
+@item
+最初の行では、その関数のすべての重要な引数と、関数呼び出しで記述される順に、それらに言及すること。その関数が多くの引数をもつなら、最初の行でそれらすべてに言及するのは不可能である。この場合、もっとも重要な引数を含む、最初の引数数個について最初の行で言及すること。
+
+@item
+ある関数のドキュメント文字列がその関数の引数の値に言及する際には、引数を大文字にした名前が引数の値であるかのように使用すること。つまり関数@code{eval}のドキュメント文字列では、最初の引数の名前が@code{form}なので、@samp{FORM}で参照する:
+
+@example
+Evaluate FORM and return its value.
+@end example
+
+同様に、リストやベクターをサブユニットへの分解で、それらのいくつかを異なるように示すような際には、メタ構文変数(metasyntactic
+variables)を大文字で記述すること。以下の例の@samp{KEY}と@samp{VALUE}は、これの実践例である:
+
+@example
+The argument TABLE should be an alist whose elements
+have the form (KEY . VALUE).  Here, KEY is ...
+@end example
+
+@item
+ドキュメント文字列内でLispシンボルに言及する際は、大文字小文字を絶対に変更しないこと。そのシンボルの名前が@code{foo}なら、``Foo''ではなく``foo''である(``Foo''は違うシンボルだ)。
+
+これは、関数の引数の値の記述ポリシーと反するように見えるかもしれないが、矛盾は実際には存在しない。引数の@emph{value}は、その関数が値の保持に使用する@emph{symbol}と同じではない。
+
+これによりセンテンス先頭に小文字を置くことになり、それが煩しいなら、センテンス開始がシンボルにならないようそのセンテンスを書き換えること。
+
+@item
+ドキュメント文字列の開始と終了は空白文字を使用しないこと。
+
+@item
+ソースコード内の後続行のテキストが、最初の行と揃うとうに、ドキュメント文字列の後続行を@strong{インデントしてはならない}。これはソースコードでは見栄えがよいが、ユーザーがドキュメトを閲覧する際は奇妙な見栄えになる。開始のダブルクォーテーションの前のインデントは、その文字列の一部には含まれないことを忘れないこと!
+
+@anchor{Docstring hyperlinks}
+@item
+@iftex
+ドキュメント文字列がLispシンボルを参照する際には、たとえば@samp{`lambda'}のように、それがプリントされるとき(通常は小文字を意味する)のように、前後をシングルクォーテーションで括るとともに、記述すること。2つ例外はある。@code{t}と@code{nil}はシングルクォーテーションを記述しない。
+@end iftex
+@ifnottex
+ドキュメント文字列がLispシンボルを参照する際には、たとえば@samp{lambda}のように、それがプリントされるとき(通常は小文字を意味する)のように、前後をシングルクォーテーションで括るとともに、記述すること。2つ例外はある。@code{t}と@code{nil}はシングルクォーテーションを記述しない(このマニュアルでは、すべてのシンボルをシングルクォーテーションで括り、異なる慣習を使用している)。
+@end ifnottex
+
+@cindex hyperlinks in documentation strings
+Helpモードは、シングルクォーテーションの内部のシンボル名がドキュメント文字列で使用されている際、それが関数と変数のいずれかの定義をもつ婆には、自動的にハイパーリンクを作成する。これらの機能を使用するのに、何か特別なことを行う必要はない。しかしあるシンボルが関数と変数の両方の定義をもち、れらの一方だけを参照したい場合にには、そのシンボル名の直前に@samp{variable}、@samp{option}、@samp{function}、@samp{command}の単語のいずれかを記述して、それを指定できる(これらの指示語の識別では大文字小文字に差はない)。たとえば以下を記述すると
+
+@example
+This function sets the variable `buffer-file-name'.
+@end example
+
+@noindent
+これのハイパーリンクは@code{buffer-file-name}の変数のドキュメントだけを参照し、関数のドキュメントは参照しない。
+
+あるシンボルが関数、および/または変数の定義をもつが、ドキュメントしているシンボルの使用とそれらが無関係なら、すべてのハイパーリンク作成を防ぐために、そのシンボル名の前に単語@samp{symbol}か@samp{program}を記述できる。たとえば、
+
+@example
+If the argument KIND-OF-RESULT is the symbol `list',
+this function returns a list of all the objects
+that satisfy the criterion.
+@end example
+
+@noindent
+これは、ここでは無関係な関数@code{list}のドキュメントに、ハイパーリンクを作成しない。
+
+通常、変数ドキュメントがない変数には、ハイパーリンクは作成されない。そのような変数の前に単語@samp{variable}と@samp{option}のいずれかを記述すれば、ハイパーリンクの作成を強制できる。
+
+フェイスにたいするハイパーリンクは、そのフェイスの前か後に単語@samp{face}があれば作成される。この場合には、たとえそのシンボルが変数や関数として定義されていても、フェイスのドキュメントだけが表示される。
+
+Infoドキュメントにハイパーリンクを作成するには、@samp{info node}、@samp{Info node}、@samp{info
+anchor}、@samp{Info
+anchor}のいずれかの後に、シングルクォーテーション内にInfoのノード(かアンカー)を記述する。このInfoファイル名のデフォルトは@samp{emacs}である。たとえば、
+
+@smallexample
+See Info node `Font Lock' and Info node `(elisp)Font Lock Basics'.
+@end smallexample
+
+最後にURLのハイパーリンクを作成するには、@samp{URL}の後にシングルクォーテーションで括ったURLを記述する。たとえば、
+
+@smallexample
+The home page for the GNU project has more information (see URL
+`http://www.gnu.org/').
+@end smallexample
+
+@item
+ドキュメント文字列内に直接キーシーケンスを記述しないこと。かわりに、それらを表すために@samp{\\[@dots{}]}構造を使用すること。たとえば@samp{C-f}と記述するかわりに、@samp{\\[forward-char]}と記述する。Emacsがドキュメント文字列を表示する際には、何であれカレントで@code{forward-char}にバインドされたキーに置き換える(これは通常は@samp{C-f}だが、そのユーザーがキーバインディングを移動していれば、何か他の文字かもしれない)。@ref{Keys
+in Documentation}を参照のこと。
+
+@item
+メジャーモードのドキュメント文字列では、グローバルマップではなく、そのモードのローカルマップを参照したいだろう。したがって、どのキーマップを使用するか指定するために、ドキュメント文字列内で一度@samp{\\<@dots{}>}構造を使用する。最初に@samp{\\[@dots{}]}を使用する前にこれを行うこと。@samp{\\<@dots{}>}の内部のテキストは、そのメジャーモードにたいするローカルキーマップを含む変数名であること。
+
+ドキュメント文字列の表示が低速になるので、非常に多数回の@samp{\\[@dots{}]}の使用は実用的ではない。メジャーモードのもっとも重要なコマンドの記述にこれを使用し、そのモードの残りのキーマップの表示には@samp{\\@{@dots{}@}}を使用する。
+
+@item
+一貫性を保つために,関数のドキュメント文字列の最初のセンテンス内の動詞は、命令形で表すこと。たとえば``Return the cons of A and
+B.@:''か、好みによっては``Returns the cons of A and
+B@.''を使用する。通常は、最初のパラグラフの残りの部分にたいして、同様に行っても見栄えがよい。各センテンスが叙実的で適切な主題をもつなら、後続のパラグラフの見栄えはよくなる。
+
+@item
+yes-or-no述語であるような関数のドキュメント文字列は、何が``真''を構成するか明示的に示すために、``Return t
+if''のような単語で始まるべきである。単語``return''は、小文字の``t''で開始される、幾分紛らわしい可能性のあるセンテンスを避ける。
+
+@item
+ドキュメント文字列内の開カッコで始まる行は、以下のように開カッコの前にバックスラッシュを記述する:
+
+@example
+The argument FOO can be either a number
+\(a buffer position) or a string (a file name).
+@end example
+
+これはその開カッコがdefunの開始として扱われることを防ぐ(@ref{Defuns,, Defuns, emacs, The GNU Emacs
+Manual}を参照)。
+
+@item
+ドキュメント文字列は受動態ではなく能動態、未来形ではなく現在形で記述すること。たとえば、``A list containing A and B will
+be returned.''ではなく、``Return a list containing A and B.@:''と記述すること。
+
+@item
+不必要な``cause''(および同等の単語)の使用を避けること。``Cause Emacs to display text in
+boldface''ではなく、単に``Display text in boldface''と記述すること。
+
+@item
+多くの人にとってなじみがなく、それをtypoと間違えるであろうから、``iff''(``if and only
+if''を意味する数学用語)の使用を避けること。ほとんどの場合、その意味は単なる``if''で明快である。それ以外では、その意味を伝える代替えフレーズを探すよう試みること。
+
+@item
+特定のモードや状況でのみコマンドに意味がある際には、ドキュメント文字列内でそれに言及すること。たとえば@code{dired-find-file}のドキュメントは:
+
+@example
+In Dired, visit the file or directory named on this line.
+@end example
+
+@item
+ユーザーがセットしたいと望むかもしれないオプションを表す変数を定義する際には、@code{defcustom}を使用すること。@ref{Defining
+Variables}を参照されたい。
+
+@item
+yes-or-noフレアグであるような変数のドキュメント文字列は、すべての非@code{nil}値が等価であることを明確にし、@code{nil}と非@code{nil}が何を意味するかを明示的に示すために、``Non-nil
+means''のような単語で始めること。
+@end itemize
+
+@node Comment Tips
+@section Tips on Writing Comments
+@cindex comments, Lisp convention for
+
+  コメントにたいして、以下の慣習を推奨します:
+
+@table @samp
+@item ;
+1つのセミコロン@samp{;}で始まるコメントは、すべてソースコードの右側の同じ列に揃えられる。そのようなコメントは通常、その行のコードがどのように処理を行うかを説明する。たとえば:
+
+@smallexample
+@group
+(setq base-version-list                 ; There was a base
+      (assoc (substring fn 0 start-vn)  ; version to which
+             file-version-assoc-list))  ; this looks like
+                                        ; a subversion.
+@end group
+@end smallexample
+
+@item ;;
+2つのセミコロン@samp{;;}で始まるコメントは、コードと同じインデントレベルで揃えられる。そのようなコメントは通常、その後の行の目的や、その箇所でのプログラムの状態を説明する。たとえば:
+
+@smallexample
+@group
+(prog1 (setq auto-fill-function
+             @dots{}
+             @dots{}
+  ;; Update mode line.
+  (force-mode-line-update)))
+@end group
+@end smallexample
+
+わたしたちは、通常は関数の外側のコメントにも2つのセミコロンを使用する。
+
+@smallexample
+@group
+;; This Lisp code is run in Emacs when it is to operate as
+;; a server for other processes.
+@end group
+@end smallexample
+
+関数がドキュメント文字列をもたなければ、かわりにその関数の直前にその関数が何を行うかと、正しく呼び出す方法を説明する、2つのセミコロンのコメントをもつべきである。各引数の意味と、引数で可能な値をその関数が解釈する方法を、しっかり説明すること。しかし、そのようなコメントはドキュメント文字列に変換するほうが、はるかに優れている。
+
+@item ;;;
+3つのセミコロン@samp{;;;}デ始まるコメントは、左マージンから始まる。わたしたちは、Outlineマイナーモードの``heading(ヘッダー)''とみなされるべきコメントに、それらを使用している。デフォルトでは、少なくとも(後に1つの空白文字と非空白文字が続く)3つのセミコロンはheadingとみなし、2つ以下のセミコロンで始まるものはheadingとみなさない。歴史的に、3つのセミコロンのコメントは関数内での行のコメントアウトに使用されてきたが、この使用は推奨しない。
+
+関数全体をコメントアウトするときは、2つのセミコロンを使用する。
+
+@item ;;;;
+4つのセミコロン@samp{;;;;}で始まるコメントは左マージンに揃えられ、プログラムのメジャーセクションのheadingに使用される。たとえば:
+
+@smallexample
+;;;; The kill ring
+@end smallexample
+@end table
+
+@noindent
+一般的に言うと、コマンド@kbd{M-;}
+(@code{comment-dwim})は、適切なタイプのコメントを自動的に開始するか、セミコロンの数に応じて、既存のコメントを正しい位置にインデントします。@ref{Comments,,
+Manipulating Comments, emacs, The GNU Emacs Manual}を参照してください。
+
+@node Library Headers
+@section Conventional Headers for Emacs Libraries
+@cindex header comments
+@cindex library header comments
+
+  Emacsには、セクションに分割して、それの記述者のような情報を与えるために、Lispライブラリー内で特別なコメントを使用する慣習があります。それらのアイテムにたいして標準的なフォーマットを使用すれば、ツール(や人)か関連する情報を抽出するのが簡単になります。このセクションでは、以下の例を出発点にこれらの慣習を説明します。
+
+@smallexample
+@group
+;;; foo.el --- Support for the Foo programming language
+
+;; Copyright (C) 2010-2015 Your Name
+@end group
+
+;; Author: Your Name <yourname@@example.com>
+;; Maintainer: Someone Else <someone@@example.com>
+;; Created: 14 Jul 2010
+@group
+;; Keywords: languages
+;; Homepage: http://example.com/foo
+
+;; This file is not part of GNU Emacs.
+
+;; This file is free software@dots{}
+@dots{}
+;; along with this file.  If not, see <http://www.gnu.org/licenses/>.
+@end group
+@end smallexample
+
+  一番最初の行は、以下のフォーマットをもつべきです:
+
+@example
+;;; @var{filename} --- @var{description}
+@end example
+
+@noindent
+この説明は1行に収まる必要があります。そのファイルに@samp{-*-}指定が必要なら、@var{description}の後に配置してください。これにより最初の行が長くなりすぎるようなら、そのファイル終端でLocal
+Variablesセクションを使用してください。
+
+  著作権表示には、(あなたがそのファイルを記述したなら)通常はあなたの名前をリストします。あなたの作業の著作権を主張する雇用者がいる場合には、かわりに彼らをリストする必要があるかもしれません。Emacsディストリビューションにあなたのファイルが受け入れられていなければ、著作権者がFree
+Software Foundation(またはそのファイルがGNU
+Emacsの一部)だと告げないでください。著作権とライセンス通知の形式に関するより詳細な情報は、@uref{http://www.gnu.org/licenses/gpl-howto.html,
+the guide on the GNU website}を参照してください。
+
+  著作権表示の後は、それぞれが@samp{;; @var{header-name}:}で始まる、複数の@dfn{ヘッダーコメント(header
+comment)}を記述します。以下は、慣習的に利用できる@var{header-name}のテーブルです:
+
+@table @samp
+@item Author
+この行は、その少なくともライブラリーの主要な作者の、名前とemailアドレスを示す。複数の作者がいる場合は、前に@code{;;}とタブか少なくとも2つのスペースがある継続行で、彼らをリストする。わたしたちは、@samp{<@dots{}>}という形式で連絡用emailアドレスを含めることを推奨する。たとえば:
+
+@smallexample
+@group
+;; Author: Your Name <yourname@@example.com>
+;;      Someone Else <someone@@example.com>
+;;      Another Person <another@@example.com>
+@end group
+@end smallexample
+
+@item Maintainer
+このヘッダーは、Authorヘッダーと同じフォーマットである。これは、現在そのファイルを保守(バグレポートへの応答等)をする人(か人々)をリストする。
+
+Maintainerの行がなければ、Authorフィールドの人(人々)が、Maintainerとみなされる。Emacs内のいくつかのファイルは、Maintainerに@samp{FSF}を使用している。これは、そのファイルにたいしてオリジナル作者がもはや責任をもっておらず、Emacsの一部として保守されていることを意味する。
+
+@item Created
+このオプションの行は、そのファイルのオリジナルの作成日付を与えるもので、歴史的な興味のためだけにある。
+
+@item Version
+個々のLispプログラムにたいしてバージョン番号を記録したいなら、この行に配置する。Emacsとともに配布されたLispファイルは、Emacsのバージョン番号自体が同じ役割を果たすので、一般的には@samp{Version}ヘッダーをもたない。複数ファイルのコレクションを配布する場合には、各ファイルではなく、主となるファイルにバージョンを記述することを推奨する。
+
+@item Keywords
+この行は、ヘルプコマンド@code{finder-by-keyword}にたいするキーワードをリストする。意味のあるキーワードのリストを確認するために、このコマンドを使用してほしい。
+
+このフィールドは、トピックでパッケージを探す人が、あなたのパッケージを見つける手段となる。キーワードを分割するには、スペースとカンマの両方を使用できる。
+
+人はしばしばこのフィールドを、単にFinder(訳注:
+@code{finder-by-keyword}がオープンするバッファー)に関連したキーワードではなく、そのパッケージを説明する任意のキーワードを記述する箇所だとみなすのは不運なことである。
+
+@item Homepage
+この行は、そのライブラリーのホームページを示す。
+
+@item Package-Version
+@samp{Version}がパッケージマネージャーによる使用に適切でなければ、パッケージは@samp{Package-Version}を定義できる。かわりにこれが使用される。これは@samp{Version}がRCSや@code{version-to-list}でパース不能な何かであるようなら、これが手軽である。@ref{Packaging
+Basics}を参照のこと。
+
+@item Package-Requires
+これが存在する場合には、カレントパッケージが正しく動作するために依存するパッケージを示す。@ref{Packaging
+Basics}を参照のこと。これは(パッケージの完全なセットがダウンロードされることを確実にするために)ダウンロード時と、(すべての依存パッケージがあるときだけパッケージがアクティブになることを確実にするために)アクティブ化の両方で、パッケージマネージャーにより使用される。
+
+これのフォーマットは、リストのリストである。サブリストそれぞれの@code{car}は、パッケージの名前(シンボル)、@code{cadr}は許容できる最小のバージョン番号(文字列)。たとえば:
+
+@smallexample
+;; Package-Requires: ((gnus "1.0") (bubbles "2.7.2"))
+@end smallexample
+
+パッケージのコードは自動的に、実行中のEmacsのカレントのバージョン番号をもつ、@samp{emacs}という名前のパッケージを定義する。これは、パッケージが要求するEmacsの最小のバージョンに使用できる。
+@end table
+
+  ほぼすべてのLispライブラリーは、@samp{Author}と@samp{Keywords}のヘッダーコメント行をもつべきです。適切なら、他のものを使用してください。ヘッダー行内で、別のヘッダー行の名前も使用できます。これらは標準的な意味をもたないので、害になることを行うことはできません。
+
+  わたしたちは、ライブラリーファイルのコンテンツを分割するために、追加の提携コメントを使用します。これらは空行で他のものと分離されている必要があります。以下はそれらのテーブルです:
+
+@cindex commentary, in a Lisp library
+@table @samp
+@item ;;; Commentary:
+これは、そのライブラリーが機能する方法を説明する、概論コメントを開始する。これは複製許諾の直後にあり@samp{Change
+Log}、@samp{History}、@samp{Code}のコメント行で終端されていること。このテキストはFinderパッケージで使用されるので、そのコンテキスト内で有意であること。
+
+@item ;;; Change Log:
+これは、時間とともにそのファイルに加えられた、オプションの変更ロクを開始する。このセクションに過剰な情報を配してはならない。(Emacsが行うように)バージョンコントロールシステムの詳細ログや、個別の@file{ChangeLog}ファイルに留めるほうがよい。@samp{History}は、@samp{Change
+Log}の代替えである。
+
+@item ;;; Code:
+これは、そのプログラムの実際のコードを開始する。
+
+@item ;;; @var{filename} ends here
+これは@dfn{フッター行(footer
+line)}である。これはそのファイルの終端にある。これの目的は、フッター行の欠落から、人がファイルの切り詰められたバージョンを検知することを可能にする。
+@end table

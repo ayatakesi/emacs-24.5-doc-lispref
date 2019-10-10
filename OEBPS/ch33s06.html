@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Character Properties</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Character-Properties"/>Character Properties</h1></div></div></div><a id="idm74360400" class="indexterm"/><p><em class="firstterm">文字プロパティ(character
+property</em>とは、その文字の振る舞いと、テキストが処理および表示される間どのように処理されるべきかを指定する、名前つきの文字属性です。したがって文字プロパティは、その文字の意味を指定するための重要な一部です。
+</p><p>全体として、Emacsは自身の文字プロパティ実装においてはUnicode標準にしたがいます。特にEmacsは<a class="ulink" href="http://www.unicode.org/reports/tr23/">Unicode Character Property
+Model</a>をサポートしており、Emacs文字プロパティデータベースはUnicode文字データベース(<acronym class="acronym">UCD</acronym>: Unicode
+Character
+Database)から派生したものです。Unicode文字プロパティとその意味についての詳細な説明は、<a class="ulink" href="http://www.unicode.org/versions/Unicode6.2.0/ch04.pdf">Character Properties chapter of the Unicode
+Standard</a>を参照してください。このセクションでは、あなたがすでにUnicode標準の該当する章に親しんでいて、その知識をEmacs
+Lispプログラムに適用したいものと仮定します。
+</p><p>Emacsでは、各プロパティは名前をもつシンボルであり、そのシンボルは利用可能な値セットをもち、値の型はプロパティに依存します。ある文字が特定のプロパティをもたなければ、その値は<code class="literal">nil</code>になります。一般的なルールとして、Emacsでの文字プロパティ名は、対応するUnicodeプロパティ名を小文字にして、文字‘<code class="literal">_</code>’をダッシュ文字‘<code class="literal">-</code>’で置き換えることにより生成されます。たとえば<code class="literal">Canonical_Combining_Class</code>は<code class="literal">canonical-combining-class</code>となります。しかし簡単に使用できるように、名前を短くすることもあります。
+</p><a id="idm74353744" class="indexterm"/><p><acronym class="acronym">UCD</acronym>によりいくつかのコードポイントは<em class="firstterm">未割り当て(unassigned)</em>のまま残されており、それらに対応する文字はありません。Unicode標準は、そのようなコードポイントのプロパティにたいしてデフォルト値を定義しています。それらについては、以下の各プロパティごとに注記しています。
+</p><p>以下は、Emacsが関知するすべての文字プロパティにたいする、値タイプの完全なリストです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">name</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Name</code>に対応する。値はラテン大文字のAからZ、数字、スペース、ハイフン‘<code class="literal">-</code>’の文字から構成される文字列である。未割り当てのコードポイントにたいする値は<code class="literal">nil</code>。
+</p><a id="idm74348496" class="indexterm"/></dd><dt><span class="term"><code class="literal">general-category</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">General_Category</code>に対応する。値は、その文字の分類をアルファベット2文字に略したものを名前としてもつようなシンボルである。未割り当てのコードポイントにたいする値は<code class="literal">Cn</code>。
+</p></dd><dt><span class="term"><code class="literal">canonical-combining-class</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Canonical_Combining_Class</code>に対応する。値は整数。未割り当てのコードポイントにたいする値は0。
+</p><a id="idm74343632" class="indexterm"/></dd><dt><span class="term"><code class="literal">bidi-class</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Bidi_Class</code>に対応する。値は、その文字のUnicode<em class="firstterm">方向タイプ(directional
+type)</em>が名前であるようなシンボル。Emacsは表示のために双方向テキストを並び替える際に、このプロパティを使用する(<a class="link" href="ch38s24.html" title="Bidirectional Display">Bidirectional
+Display</a>を参照)。未割り当てのコードポイントにたいする値は、そのコードポイントが属するコードブロックに依存する。未割り当てのコードポイントのほとんどは<code class="literal">L</code>(強い左方向)だが、<code class="literal">AL</code>(
+Arabic letter: アラビア文字)や<code class="literal">R</code>(強い右方向)を受け取るコースポイントもいくつかある。
+</p></dd><dt><span class="term"><code class="literal">decomposition</code>
+</span></dt><dd><p>Unicodeプロパティの<code class="literal">Decomposition_Type</code>と<code class="literal">Decomposition_Value</code>に対応する。値は、最初の要素が<code class="literal">small</code>のような互換性のあるフォーマットタグ(compatibility
+formatting
+tag)であるかもしれないリストである<a href="#ftn.idm74335952" class="footnote" id="idm74335952"><sup class="footnote">[16]</sup></a>。他の要素は、その文字の互換性のある分割シーケンス(compatibility
+decomposition sequence)を与える文字です。未割り当てのコードポイントにたいする値は、その文字自身。
+</p></dd><dt><span class="term"><code class="literal">decimal-digit-value</code>
+</span></dt><dd><p><code class="literal">Numeric_Type</code>が‘<code class="literal">Decimal</code>’であるような文字Unicodeプロパティ<code class="literal">Numeric_Value</code>に対応する。値は整数。未割り当てのコードポイントにたいする値は、<acronym class="acronym">NaN(“not-a-number”:
+数字ではない)</acronym>を意味する<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">digit-value</code>
+</span></dt><dd><p><code class="literal">Numeric_Type</code>が‘<code class="literal">Digit</code>’であるような文字の、Unicodeプロパティ<code class="literal">Numeric_Value</code>に対応する。値は整数。このような文字には、互換性のある添字や上付き数字が含まれ、値は対応する数字である。未割り当てのコードポイントにたいする値は、<acronym class="acronym">NaN</acronym>を意味する<code class="literal">nil</code>である。
+</p></dd><dt><span class="term"><code class="literal">numeric-value</code>
+</span></dt><dd><p><code class="literal">Numeric_Type</code>が‘<code class="literal">Numeric</code>’であるような文字の、Unicodeプロパティ<code class="literal">Numeric_Value</code>に対応する。このプロパティの値は数字。このプロパティをもつ文字の例には分数、添字、上付き数字、ローマ数字、通貨分数(訳注:
+原文は“currency
+numerators”でベンガル語の分数値用の歴史的な記号を指すと思われる)、丸数字が含まれる。たとえば、文字<code class="literal">U+2155</code>(VULGAR
+FRACTION ONE FIFTH:
+(訳注)スラッシュで分子と分母を区切った表記による5分の1のこと)にたいするこのプロパティの値は<code class="literal">0.2</code>。未割り当てのコードポイントにたいする値は、<acronym class="acronym">NaN</acronym>を意味する<code class="literal">nil</code>。
+</p><a id="idm74322000" class="indexterm"/></dd><dt><span class="term"><code class="literal">mirrored</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Bidi_Mirrored</code>に対応する。このプロパティの値は、<code class="literal">Y</code>または<code class="literal">N</code>いずれかのシンボル。未割り当てのコードポイントにたいする値は<code class="literal">N</code>。
+</p></dd><dt><span class="term"><code class="literal">mirroring</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Bidi_Mirroring_Glyph</code>に対応する。このプロパティの値は、そのグリフ(glyph)がその文字のグリフの鏡像(mirror
+image)を表すような文字、定義済みの鏡像グリフがなければ<code class="literal">nil</code>である。<code class="literal">mirrored</code>プロパティが<code class="literal">N</code>であるようなすべての文字の<code class="literal">mirroring</code>プロパティは<code class="literal">nil</code>である。しかし<code class="literal">mirrored</code>プロパティが<code class="literal">Y</code>の文字でも、鏡像をもつ適切な文字がないという理由により、<code class="literal">mirroring</code>が<code class="literal">nil</code>の文字もある。Emacsは適切な際は、鏡像を表示するためにこのプロパティを使用する(<a class="link" href="ch38s24.html" title="Bidirectional Display">Bidirectional
+Display</a>を参照)。未割り当てのコードポイントにたいする値は<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">old-name</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Unicode_1_Name</code>に対応する。値は文字列。未割り当てのコードポイント、およびこのプロパティにたいする値をもたない文字では、値は<code class="literal">nil</code>である。
+</p></dd><dt><span class="term"><code class="literal">iso-10646-comment</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">ISO_Comment</code>に対応する。値は文字列。未割り当てのコードポイントの値は空文字列。
+</p></dd><dt><span class="term"><code class="literal">uppercase</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Simple_Uppercase_Mapping</code>に対応する。このプロパティの値は、単一の文字。未割り当てのコードポイントの値は<code class="literal">nil</code>で、これはその文字自身を意味する。
+</p></dd><dt><span class="term"><code class="literal">lowercase</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Simple_Lowercase_Mapping</code>に対応する。このプロパティの値は、単一の文字。未割り当てのコードポイントの値は<code class="literal">nil</code>で、これはその文字自身を意味する。
+</p></dd><dt><span class="term"><code class="literal">titlecase</code>
+</span></dt><dd><p>Unicodeプロパティ<code class="literal">Simple_Titlecase_Mapping</code>に対応する。<em class="firstterm">タイトルケース(title
+case)</em>とは、単語の最初の文字を大文字にする必要がある際に使用される、文字の特別な形式のこと。このプロパティの値は、単一の文字。未割り当てのコードポイントにたいする値は<code class="literal">nil</code>で、これはその文字自身を意味する。
+</p></dd></dl></div><pre class="synopsis"><a id="idm74286160" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">get-char-code-property</code> <em class="replaceable"><code>char</code></em> <em class="replaceable"><code>propname</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>char</code></em>のプロパティ<em class="replaceable"><code>propname</code></em>の値をリターンする。
+</p><pre class="screen">(get-char-code-property ?\s 'general-category)
+     ⇒ Zs
+</pre><pre class="screen">(get-char-code-property ?1 'general-category)
+     ⇒ Nd
+</pre><pre class="screen">;; subscript 4
+(get-char-code-property ?\u2084 'digit-value)
+     ⇒ 4
+</pre><pre class="screen">;; one fifth
+(get-char-code-property ?\u2155 'numeric-value)
+     ⇒ 0.2
+</pre><pre class="screen">;; Roman IV
+(get-char-code-property ?\u2163 'numeric-value)
+     ⇒ 4
+</pre></blockquote></div><pre class="synopsis"><a id="idm74279760" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-code-property-description</code> <em class="replaceable"><code>prop</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はプロパティ<em class="replaceable"><code>prop</code></em>の<em class="replaceable"><code>value</code></em>の説明文字列(description
+string)、<em class="replaceable"><code>value</code></em>が説明をもたなければ<code class="literal">nil</code>をリターンする。
+</p><pre class="screen">(char-code-property-description 'general-category 'Zs)
+     ⇒ "Separator, Space"
+</pre><pre class="screen">(char-code-property-description 'general-category 'Nd)
+     ⇒ "Number, Decimal Digit"
+</pre><pre class="screen">(char-code-property-description 'numeric-value '1/5)
+     ⇒ nil
+</pre></blockquote></div><pre class="synopsis"><a id="idm74272848" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">put-char-code-property</code> <em class="replaceable"><code>char</code></em> <em class="replaceable"><code>propname</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、文字<em class="replaceable"><code>char</code></em>のプロパティ<em class="replaceable"><code>propname</code></em>の値として、<em class="replaceable"><code>value</code></em>を格納する。
+</p></blockquote></div><pre class="synopsis"><a id="idm74267728" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">unicode-category-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、それぞれの文字にたいして、そのUnicodeプロパティ<code class="literal">General_Category</code>をシンボルとして指定する、文字テーブルである(<a class="link" href="ch07s06.html" title="Char-Tables">Char-Tables</a>を参照)。
+</p></blockquote></div><pre class="synopsis"><a id="idm74264016" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">char-script-table</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm74261968" class="indexterm"/><p>この変数の値は、それぞれの文字がシンボルを指定するような文字テーブルである。シンボルの名前は、Unicodeコードスペースからスクリプト固有ブロックへのUnicode標準分類にしたがった、その文字が属するスクリプトである。この文字テーブルは余分のスロットを１つもち、値はすべてのスクリプトシンボルのリストである。
+</p></blockquote></div><pre class="synopsis"><a id="idm74260560" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">char-width-table</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、、それぞれの文字がスクリーン上で占めるであろう幅を列単位で指定する、文字テーブルである。
+</p></blockquote></div><pre class="synopsis"><a id="idm74257872" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">printable-chars</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、それぞれの文字にたいして、それがプリント可能かどうかを指定する、文字テーブルである。すなわち、<code class="literal">(aref
+printable-chars char)</code>を評価した結果が<code class="literal">t</code>ならプリント可で、<code class="literal">nil</code>なら不可である。
+</p></blockquote></div><div class="footnotes"><br/><hr/><div id="ftn.idm74335952" class="footnote"><p><a href="#idm74335952" class="para"><sup class="para">[16] </sup></a>Unicode仕様ではこれらのタグ名を‘<code class="literal">&lt;..&gt;</code>’カッコ内に記述しますが、Emacsでのタグ名にはカッコは含まれません。Unicodeでの‘<code class="literal">&lt;small&gt;</code>’指定は、Emacsでは‘<code class="literal">small</code>’となります。</p></div></div></div></body></html>

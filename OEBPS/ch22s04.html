@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Creating Keymaps</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Creating-Keymaps"/>Creating Keymaps</h1></div></div></div><a id="idm59149520" class="indexterm"/><p>以下はキーマップを作成する関数です。
+</p><pre class="synopsis"><a id="idm59148112" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-sparse-keymap</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はエントリーをもたない新たなsparseキーマップを作成して、それをリターンする(sparseキーマップは、あなたが通常望む類のキーマップのこと)。<code class="literal">make-keymap</code>とは異なり、新たなキーマップは文字テーブルを含まず、何のイベントもバインドしない。
+</p><pre class="screen">(make-sparse-keymap)
+    ⇒ (keymap)
+</pre><p><em class="replaceable"><code>prompt</code></em>を指定した場合、それはキーマップにたいするoverallプロンプト文字列になる。これはメニューキーマップ(<a class="link" href="ch22s17.html#Defining-Menus" title="Defining Menus">Defining
+Menus</a>を参照)にたいしてのみ指定すべきである。overallプロンプト文字列をともなうキーマップがアクティブな場合は、次の入力イベントのルックアップにたいしてマウスメニューとキーボードメニューを常に提示する。これはコマンドループにたいして毎回キーボードメニューを提示するので、overallプロンプト文字列をメインマップ、メジャーモードマップ、マイナーモードマップに指定しないこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm59142224" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-keymap</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>prompt</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、新たなfullキーマップを作成して、それをリターンする。このキーマップは修飾されないすべての文字にたいするスロットをもつ文字テーブル(<a class="link" href="ch07s06.html" title="Char-Tables">Char-Tables</a>を参照)を含む。この新たなキーマップは、初期状態ではすべての文字、およびその他の種類のイベントが<code class="literal">nil</code>にバインドされている。引数<em class="replaceable"><code>prompt</code></em>は、<code class="literal">make-sparse-keymap</code>のようにプロンプト文字列を指定する。
+</p><pre class="screen">(make-keymap)
+    ⇒ (keymap #^[nil nil keymap nil nil nil …])
+</pre><p>fullキーマップは、多くのスロットを保持するときはsparseキーマップより効果的であり、少ししかスロットを保持しないときはsparseキーマップのほうが適している。
+</p></blockquote></div><pre class="synopsis"><a id="idm59135312" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">copy-keymap</code> <em class="replaceable"><code>keymap</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>keymap</code></em>のコピーをリターンする。<em class="replaceable"><code>keymap</code></em>内でバインディングとして直接出現するすべてのキーマップも、すべてのレベルまで再帰的にコピーされる。しかし、ある文字の定義が関数定義にキーマップをもつ関数のときは、再帰的なコピーは行われず、新たにコピーされたキーマップには同じシンボルがコピーされる。
+</p><pre class="screen">(setq map (copy-keymap (current-local-map)))
+⇒ (keymap
+</pre><pre class="screen">     ;; (これはメタ文字を実装する)
+     (27 keymap
+         (83 . center-paragraph)
+         (115 . center-line))
+     (9 . tab-to-tab-stop))
+</pre><pre class="screen">
+</pre><pre class="screen">(eq map (current-local-map))
+    ⇒ nil
+</pre><pre class="screen">(equal map (current-local-map))
+    ⇒ t
+</pre></blockquote></div></div></body></html>

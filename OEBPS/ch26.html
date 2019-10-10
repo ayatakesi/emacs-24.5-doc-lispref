@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 25. Backups and Auto-Saving</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Backups-and-Auto_002dSaving"/>Chapter 25. Backups and Auto-Saving</h1></div></div></div><a id="idm66168400" class="indexterm"/><p>バックアップファイルおよびauto-save(自動保存)ファイルは、Emacsがクラッシュ、またはユーザー自身のエラーからユーザーの保護を試みるための、2つの手段です。自動保存(auto-saving)は、カレントの編集セッション開始以降のテキストを保存します。一方バックアップファイルは、カレントセッションの前のファイルコンテンツを保存します。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Backup-Files"/>Backup Files</h1></div></div></div><a id="idm66154064" class="indexterm"/><p><em class="firstterm">バックアップファイル(backup
+file)</em>とは、編集中ファイルの古いコンテンツのコピーです。Emacsは、visitされているファイルにバッファーを最初に保存するとき、バックアップファイルを作成します。したがって、バックアップファイルには通常、カレント編集セッションの前にあったような、ファイルのコンテンツが含まれています。バックアップファイルのコンテンツには、通常は一度存在したバックアップファイルが変更されずに残ります。
+</p><p>バックアップは通常、visitされているファイルを新たな名前にリネームすることにより作成されます。オプションで、バックアップファイルがvisitされているファイルをコピーすることにより作成されるように指定できます。この選択により、複数の名前をもつファイルのときに、違いが生じます。また、編集中のファイルの所有者が元のオーナーのままか、それとも編集ユーザーになるかにも、影響し得ます。
+</p><p>デフォルトでは、Emacsは編集中のファイルごとに、単一のバックアップファイルを作成します。かわりに、番号付きバックアップ(numbered
+backup)を要求することもできます。その場合は、新たなバックアップファイルそれぞれが、新たな名前を得ます。必要なくなったときは古い番号付きバックアップを削除したり、Emacsがそれらを自動的に削除することもできます。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Making-Backups"/>Making Backup Files</h2></div></div></div><a id="idm66142800" class="indexterm"/><pre class="synopsis"><a id="idm66141776" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">backup-buffer</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、もしそれが適切であれば、カレントバッファーにvisitされているファイルのバックアップを作成する。これは、最初のバッファー保存を行う前に、<code class="literal">save-buffer</code>により呼び出される。
+</p><p>リネームによりバックアップが作成された場合、リターン値は(<em class="replaceable"><code>modes</code></em> <em class="replaceable"><code>extra-alist</code></em>
+<em class="replaceable"><code>backupname</code></em>)という形式のコンスセルである。ここで<em class="replaceable"><code>modes</code></em>は、<code class="literal">file-modes</code>(<a class="link" href="ch25s06.html#Testing-Accessibility" title="Testing Accessibility">Testing
+Accessibility</a>を参照)でリターンされるような元ファイルのモードビット、<em class="replaceable"><code>extra-alist</code></em>は<code class="literal">file-extended-attributes</code>(<a class="link" href="ch25s06.html#Extended-Attributes" title="Extended File Attributes">Extended
+Attributes</a>を参照)によりリターンされるような元ファイルの拡張属性を示すalist、そして<em class="replaceable"><code>backupname</code></em>はバックアップの名前である。
+</p><p>他のすべての場合(コピーによりバックアップが作成された、またはバックアップが作成されなかった)、この関数は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm66132816" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">buffer-backed-up</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数は、そのバッファーのファイルがバッファーによりバックアップされたかどうかを明示する。非<code class="literal">nil</code>の場合、バックアップファイルは書き込み済みであり、それ以外では、(バックアップが有効なら)次回保存時にファイルはバックアップされる。この変数は永続的にローカルであり、<code class="literal">kill-all-local-variables</code>はそれを変更しない。
+</p></blockquote></div><pre class="synopsis"><a id="idm66129104" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">make-backup-files</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、バックアップファイルを作成するかどうかを決定する。非<code class="literal">nil</code>の場合、Emacsは初回保存時にすべてのファイルのバックアップを作成する
+— ただし<code class="literal">backup-inhibited</code>が<code class="literal">nil</code>の場合(以下参照)。
+</p><p>以下の例は、Rmailバッファーだけで変数<code class="literal">make-backup-files</code>を変更して、それ以外では変更しない方法を示す。この変数を<code class="literal">nil</code>にセットすると、Emacsはそれらのファイルのバックアップ作成をストップし、それはディスク容量の消費を節約するだろう(あなたは、このコードをinitファイルに配置したいと思うかもしれない)。
+</p><pre class="screen">(add-hook 'rmail-mode-hook
+          (lambda () (setq-local make-backup-files nil)))
+</pre></blockquote></div><pre class="synopsis"><a id="idm66122960" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">backup-enable-predicate</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、あるファイルがバックアップファイルをもつべきかどうかを決定する、特定の機会に呼び出される関数である。関数は、判断すべき絶対ファイル名という、1つの引数を受け取る。この関数が<code class="literal">nil</code>をリターンした場合、そのファイルにたいするバックアップは無効になる。それ以外では、このセクション内の他の変数がバックアップ作成の是非と方法を指定する。
+</p><a id="idm66120016" class="indexterm"/><p>デフォルト値は<code class="literal">normal-backup-enable-predicate</code>で、これは<code class="literal">temporary-file-directory</code>と<code class="literal">small-temporary-file-directory</code>内のファイルをチェックする。
+</p></blockquote></div><pre class="synopsis"><a id="idm66117072" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">backup-inhibited</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、バックアップは抑止される。これは、visitされているファイル名にたいする<code class="literal">backup-enable-predicate</code>のテスト結果を記録する。さらに、visitされているファイルにたいするバックアップ抑止にもとづくその他機構によっても、使用され得る。たとえば、VCはバージョンコントロールシステムに管理されるファイルのバックアップを防ぐために、この変数を非<code class="literal">nil</code>にセットする。
+</p><p>これは永続的にローカルなので、メジャーモード変更により値は失われない。メジャーモードはこの変数ではなく、かわりに<code class="literal">make-backup-files</code>をセットするべきである。
+</p></blockquote></div><pre class="synopsis"><a id="idm66107728" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">backup-directory-alist</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、ファイル名パターンとバックアップディレクトリー名のalistである。各要素は以下の形式をもつ
+</p><pre class="screen">(<em class="replaceable"><code>regexp</code></em> . <em class="replaceable"><code>directory</code></em>)
+</pre><p>名前が<em class="replaceable"><code>regexp</code></em>にマッチするファイルのバックアップが、<em class="replaceable"><code>directory</code></em>内に作成されるだろう。<em class="replaceable"><code>directory</code></em>には相対ディレクトリー、または絶対ディレクトリーを指定できる。絶対ディレクトリーの場合は、マッチするすべてのファイルが同じディレクトリー内にバックアップされる。このディレクトリー内でのファイル名は、クラッシュを避けるために、バックアップされるファイルの完全名のすべてのディレクトリー区切りは、‘<code class="literal">!</code>’に変更される。結果の名前を切り詰めるファイルシステムでは、これは正しく機能しないだろう。
+</p><p>すべてのバックアップが単一のディレクトリーで行われる一般的なケースでは、alistは‘<code class="literal">"."</code>’と適切なディレクトリーからなるペアーの、単一の要素を含むべきである。
+</p><p>この変数が<code class="literal">nil</code>(デフォルト)、またはファイル名のマッチに失敗した場合、バックアップは元のファイルのディレクトリーに作成される。
+</p><p>長いファイル名のないMS-DOSファイルシステムでは、この変数は常に無視される。
+</p></blockquote></div><pre class="synopsis"><a id="idm66099664" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">make-backup-file-name-function</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、バックアップファイル名を作成する関数である。関数<code class="literal">make-backup-file-name</code>は、これを呼び出す。<a class="link" href="ch26.html#Backup-Names" title="Naming Backup Files">Naming Backup Files</a>を参照のこと。
+</p><p>特定のファイルにたいして特別なことを行うために、これをバッファーローカルにすることもできる。変更する場合は、<code class="literal">backup-file-name-p</code>と<code class="literal">file-name-sans-versions</code>も変更する必要があるかもしれない。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Rename-or-Copy"/>Backup by Renaming or by Copying?</h2></div></div></div><a id="idm66093776" class="indexterm"/><p>Emacsがバックアップファイルを作成できる、2つの方法があります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>Emacsは元のファイルをリネームすることができ、それがバックアップファイルになる。その後、バッファーの保存は新たなファイルに書き込まれる。この手順後、元ファイルの他のすべての名前(ハードリンク)はバックアップファイルを参照することになる。新たなファイルの所有者は編集を行っているユーザーになり、グループはそのディレクトリー内でそのユーザーが新たなファイルを書き込んだときのデフォルトのグループになる。
+</p></li><li class="listitem"><p>Emacsは元のファイルをバックアップファイルにコピーでき、新たな内容はその後、元のファイルに上書きされる。この手順後、元のファイルの他のすべての名前(ハードリンク)は、そのファイルの(更新された)カレントバージョンを参照し続ける。ファイルの所有者とグループは変更されない。
+</p></li></ul></div><p>デフォルトは、1つ目の方法のリネームです。
+</p><p>変数<code class="literal">backup-by-copying</code>が非<code class="literal">nil</code>の場合、それは2つ目の方法、つまり元のファイルをコピーして、新たなバッファー内容で上書きすることを意味します。変数<code class="literal">file-precious-flag</code>が非<code class="literal">nil</code>の場合にも、(メイン機能の副作用として)この効果があります。<a class="link" href="ch25s02.html" title="Saving Buffers">Saving
+Buffers</a>を参照してください。
+</p><pre class="synopsis"><a id="idm66087888" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">backup-by-copying</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、Emacsは常にコピーによりバックアップファイルを作成する。デフォルトは<code class="literal">nil</code>。
+</p></blockquote></div><p>以下の3つの変数が非<code class="literal">nil</code>の際は、ある特定のケースに2つ目の方法が使用されます。その特定のケースに該当しないファイルの処理に影響はありません。
+</p><pre class="synopsis"><a id="idm66083280" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">backup-by-copying-when-linked</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、Emacsは複数名(ハードリンク)をもつファイルにたいして、コピーによりバックアップを作成する。デフォルトは<code class="literal">nil</code>。
+</p><p><code class="literal">backup-by-copying</code>が非<code class="literal">nil</code>の場合は常にコピーによりバックアップが作成されるので、この変数は<code class="literal">backup-by-copying</code>が<code class="literal">nil</code>のときだけ意味がある。
+</p></blockquote></div><pre class="synopsis"><a id="idm66077264" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">backup-by-copying-when-mismatch</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>(デフォルト)の場合、リネームによりファイルの所有者、またはグループが変更されるケースでは、Emacsはコピーによりバックアップを作成する。
+</p><p>リネームによりファイルの所有者、またはグループが変更されない場合、値は効果をもたない。つまり、そのディレクトリーで新たに作成されるファイルにたいするデフォルトのグループに属するユーザーにより所有されるファイルが該当する。
+</p><p><code class="literal">backup-by-copying</code>が非<code class="literal">nil</code>の場合は常にコピーによりバックアップが作成されるので、この変数は<code class="literal">backup-by-copying</code>が<code class="literal">nil</code>のときだけ意味がある。
+</p></blockquote></div><pre class="synopsis"><a id="idm66071376" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">backup-by-copying-when-privileged-mismatch</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、特定のユーザーID値(具体的には、特定の値以下のID数値)にたいしてのみ、<code class="literal">backup-by-copying-when-mismatch</code>と同じように振る舞うことを指定する。変数には、その数値をセットする。
+</p><p>したがって、ファイル所有者の変更を防ぐ必要がある際は、<code class="literal">backup-by-copying-when-privileged-mismatch</code>を0にセットすれば、スーパーユーザーだけがコピーによるバックアップを行うことができる。
+</p><p>デフォルトは200。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Numbered-Backups"/>Making and Deleting Numbered Backup Files</h2></div></div></div><a id="idm66053328" class="indexterm"/><p>ファイルの名前が<code class="filename">foo</code>の場合、番号付きバックアップのバージョン名は<code class="filename">foo.~<em class="replaceable"><code>v</code></em>~</code>となります。<em class="replaceable"><code>v</code></em>は<code class="filename">foo.~1~</code>、<code class="filename">foo.~2~</code>、<code class="filename">foo.~3~</code>、…、<code class="filename">foo.~259~</code>のように、さまざまな整数です。
+</p><pre class="synopsis"><a id="idm66048080" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">version-control</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、単一の非番号付きバックアップファイルを作成するか、それとも複数の番号付きバックアップを作成するかを制御する。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>visitされたファイルが番号付きバックアップの場合は番号付きバックアップを作成し、それ以外は作成しない。これがデフォルトである。
+</p></dd><dt><span class="term"><code class="literal">never</code>
+</span></dt><dd><p>番号付きバックアップを作成しない。
+</p></dd><dt><span class="term"><em class="replaceable"><code>anything else</code></em>
+</span></dt><dd><p>番号付きバックアップを作成する。
+</p></dd></dl></div></blockquote></div><p>番号付きバックアップを使用することにより、バックアップのバージョン番号は最終的には非常に大きな番号になるので、それらを削除しなければなりません。Emacsはこれを自動で行うことができ、ユーザーに削除するか確認することもできます。
+</p><pre class="synopsis"><a id="idm66041168" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">kept-new-versions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、新たな番号付きバックアップが作成された際に保持すべき、もっとも新しいバージョンの個数である。新たに作成されたバックアップもカウントされる。デフォルトは2。
+</p></blockquote></div><pre class="synopsis"><a id="idm66038480" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">kept-old-versions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、新たな番号付きバックアップが作成された際に保持すべき、もっとも古いバージョンの個数である。デフォルトは2。
+</p></blockquote></div><p>番号が1、2、3、5、7のバックアップがあり、かつこれらの変数が値2をもつ場合は、番号が1と2のバックアップは古いバージョンとして保持され、番号が5と7のバックアップは新しいバージョンとして保持される。そして、番号が3のバックアップは、余分なバックアップとなる。関数<code class="literal">find-backup-file-name</code>(<a class="link" href="ch26.html#Backup-Names" title="Naming Backup Files">Backup
+Names</a>を参照)は、どのバージョンのバックアップを削除するかを決定する役目を負うが、この関数自身がバックアップを削除する訳ではない。
+</p><pre class="synopsis"><a id="idm66034384" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">delete-old-versions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が<code class="literal">t</code>の場合は、ファイルの保存により、余分なバージョンのバックアップは、暗黙里に削除される。<code class="literal">nil</code>の場合は、余分なバックアップの削除前に確認を求めることを意味し、それ以外では、余分なバックアップは削除されない。
+</p></blockquote></div><pre class="synopsis"><a id="idm66030672" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">dired-kept-versions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、Dired内のコマンド<strong class="userinput"><code>.</code></strong>(ピリオド。<code class="literal">dired-clean-directory</code>)で、もっとも新しいバージョンのバックアップをいくつ保持するかを指定する。これは、新たにバックアップファイルを作成する際に、<code class="literal">kept-new-versions</code>を指定するのと同等である。デフォルトは2。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Backup-Names"/>Naming Backup Files</h2></div></div></div><a id="idm66025680" class="indexterm"/><p>このセクションでは、主にバックアップファイルの命名規則を再定義してカスタマイズできる関数を記載します。これらの1つを変更した場合は、おそらく残りも変更する必要があります。
+</p><pre class="synopsis"><a id="idm66024272" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">backup-file-name-p</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>がバックアップファイルとして利用可能ならば、非<code class="literal">nil</code>値をリターンする。これは名前のチェックだけを行い、<em class="replaceable"><code>filename</code></em>という名前のファイルが存在するかどうかはチェックしない。
+</p><pre class="screen">(backup-file-name-p "foo")
+     ⇒ nil
+</pre><pre class="screen">(backup-file-name-p "foo~")
+     ⇒ 3
+</pre><p>この関数の標準的な定義は、以下のようになる:
+</p><pre class="screen">(defun backup-file-name-p (file)
+  "FILEがバックアップファイルなら\
+(番号付きか否かに関わらず)非nilをリターンする"
+  (string-match "~\\'" file))
+</pre><p>このように、ファイル名が‘<code class="literal">~</code>’で終わる場合、この関数は非<code class="literal">nil</code>値をリターンする(ドキュメント文字列を分割するために、1行目でバックスラッシュを使用しているが、これはドキュメント文字列内で単一行を生成する)。
+</p><p>この単純な式は、カスタマイズのための再定義を簡便にするために、個々の関数内に配されている。
+</p></blockquote></div><pre class="synopsis"><a id="idm66012112" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-backup-file-name</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ファイル<em class="replaceable"><code>filename</code></em>の非番号付きバックアップファイル名として使用される文字列をリターンする。Unixでは、これは単に<em class="replaceable"><code>filename</code></em>にチルダを追加する。
+</p><p>ほとんどのオペレーティングシステムでは、この関数の標準的な定義は以下のようになる:
+</p><pre class="screen">(defun make-backup-file-name (file)
+  "FILEにたいして非番号付きバックアップファイル名を作成する"
+  (concat file "~"))
+</pre><p>この関数を再定義することにより、バックアップファイルの命名規則を変更できる。以下は、チルダの追加に加えて、先頭に‘<code class="literal">.</code>’を追加するよう、<code class="literal">make-backup-file-name</code>を再定義する例である:
+</p><pre class="screen">(defun make-backup-file-name (filename)
+  (expand-file-name
+    (concat "." (file-name-nondirectory filename) "~")
+    (file-name-directory filename)))
+</pre><pre class="screen">
+</pre><pre class="screen">(make-backup-file-name "backups.texi")
+     ⇒ ".backups.texi~"
+</pre><p>Diredコマンドのいくつかを含むEmacsの一部では、バックアップファイル名が‘<code class="literal">~</code>’で終わると仮定している。この規則にしたがわない場合、深刻な問題とはならないだろうが、それらのコマンドが若干好ましくない結果をもたらすかもしれない。
+</p></blockquote></div><pre class="synopsis"><a id="idm65999312" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">find-backup-file-name</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>の新たなバックアップファイル用のファイル名を計算する。これは、特定の既存バックアップファイルにたいする削除の提案も行うかもしれない。<code class="literal">find-backup-file-name</code>は、CARが新たなバックアップファイル名で、CDRが削除を提案するバックアップファイルのリストであるようなリストをリターンする。値には<code class="literal">nil</code>も指定でき、これはバックアップが作成されないことを意味する。
+</p><p><code class="literal">kept-old-versions</code>および<code class="literal">kept-new-versions</code>の2つの変数は、どのバージョンのバックアップを保持するべきかを決定する。この関数は、値のCDRから該当するバージョンを除外することにより、それらを保持する。<a class="link" href="ch26.html#Numbered-Backups" title="Making and Deleting Numbered Backup Files">Numbered
+Backups</a>を参照のこと。
+</p><p>以下の例の値は、新しいバックアップファイルに使用する名前が<code class="filename">~rms/foo.~5~</code>で、<code class="filename">~rms/foo.~3~</code>は呼び出し側が今削除を検討するべき“余分”なバージョンであることを示している。
+</p><pre class="screen">(find-backup-file-name "~rms/foo")
+     ⇒ ("~rms/foo.~5~" "~rms/foo.~3~")
+</pre></blockquote></div><pre class="synopsis"><a id="idm65990608" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">file-newest-backup</code> <em class="replaceable"><code>filename</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>filename</code></em>にたいするもっとも最近のバックアップファイル名、バックアップファイルがない場合は<code class="literal">nil</code>をリターンする。
+</p><p>ファイル比較関数のいくつかは、自動的にもっとも最近のバックアップを比較できるように、この関数を使用している。
+</p></blockquote></div></div></div></div></body></html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Network Servers</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Network-Servers"/>Network Servers</h1></div></div></div><a id="idm78525520" class="indexterm"/><p><code class="literal">:server
+t</code>で<code class="literal">make-network-process</code>を呼び出すことによりサーバーが作成されます(<a class="link" href="ch37s17.html#Network-Processes" title="make-network-process">Network
+Processes</a>を参照)。そのサーバーは、クライアントからの接続リクエストをlistenするでしょう。クライアントの接続リクエストをaccept(受け入れる)する際は、以下のようなパラメーターで、それ自体がプロセスオブジェクトであるようなネットワーク接続を作成します。
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>その接続のプロセス名は、サーバープロセスの<em class="replaceable"><code>name</code></em>と、クライアント識別文字列を結合して構築される。IPv4接続にたいするクライアント識別文字列は、アドレスとポート番号を表す、‘<code class="literal">&lt;<em class="replaceable"><code>a</code></em>.<em class="replaceable"><code>b</code></em>.<em class="replaceable"><code>c</code></em>.<em class="replaceable"><code>d</code></em>:<em class="replaceable"><code>p</code></em>&gt;</code>’のような文字列である。それ以外なら、‘<code class="literal">&lt;<em class="replaceable"><code>nnn</code></em>&gt;</code>’のようにカッコで囲まれた一意な数字である。この数字は、そのEmacsセッション内のそれぞれの接続にたいして一意である。
+</p></li><li class="listitem"><p>サーバーが非デフォルトのフィルターをもつ場合、その接続プロセスは別個にプロセスバッファーを取得しない。それ以外なら、Emacsはその目的のために新たにバッファーを作成する。サーバーのバッファー名またはプロセス名にクライアント識別文字列に結合したものがバッファー名になる。
+</p><p>サーバーのプロセスバッファーの値が直接使用されることは決してないが、log関数はそれを取得して、そこにテキストを挿入することにより、接続のログを記録するために使用することができる。
+</p></li><li class="listitem"><p>通信タイプ(communication
+type)、プロセスフィルター、およびセンチネルはそれぞれ、サーバーのものから継承される。サーバーが直接フィルターとセンチネルを使用することは決してない。それらの唯一の目的は、サーバーへの接続を初期化することである。
+</p></li><li class="listitem"><p>その接続のプロセスコンタクト情報は、クライアントのアドレス情報(通常はIPアドレスとポート番号)に応じてセットされる。この情報は、<code class="literal">process-contact</code>のキーワード<code class="literal">:host</code>、<code class="literal">:service</code>、<code class="literal">:remote</code>に関連付けられる。
+</p></li><li class="listitem"><p>その接続のローカルアドレスは、それが使用するポート番号に応じてセットアップされる。
+</p></li><li class="listitem"><p>クライアントプロセスのplistは、サーバーのplistからインストールされる。
+</p></li></ul></div></div></body></html>

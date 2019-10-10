@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Distinguish Interactive Calls</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Distinguish-Interactive"/>Distinguish Interactive Calls</h1></div></div></div><a id="idm60704080" class="indexterm"/><a id="idm60703312" class="indexterm"/><p>interactive呼び出しのときは、コマンドが(エコーエリア内の情報メッセージなどのような)視覚的な追加フィードバックを表示すべきときがあります。これを行うためには、3つの方法があります。その関数が<code class="literal">call-interactively</code>を使用して呼び出されたかどうかテストするには、オプション引数<code class="literal">print-message</code>を与えるとともに、interactive呼び出しで非<code class="literal">nil</code>となるように<code class="literal">interactive</code>仕様を使うのが推奨される方法です。以下は例です:
+</p><pre class="screen">(defun foo (&amp;optional print-message)
+  (interactive "p")
+  (when print-message
+    (message "foo")))
+</pre><p>数プレフィクス引数は決して<code class="literal">nil</code>にならないので、わたしたちは<code class="literal">"p"</code>を使用します。この方法で定義された関数は、キーボードマクロから呼び出されたときにメッセージを表示します。
+</p><p>追加引数による上記の手法は、呼び出し側に“この呼び出しをinteractiveとして扱うように”伝えることができるので、通常は最善です。しかし、<code class="literal">called-interactively-p</code>.をテストすることにより、これを行うこともできます。
+</p><pre class="synopsis"><a id="idm60697040" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">called-interactively-p</code> <em class="replaceable"><code>kind</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、呼び出された関数が<code class="literal">call-interactively</code>を使用して呼び出された場合は<code class="literal">t</code>をリターンする。
+</p><p>引数<em class="replaceable"><code>kind</code></em>はシンボル<code class="literal">interactive</code>かシンボル<code class="literal">any</code>のどちらかである。これが<code class="literal">interactive</code>の場合、<code class="literal">called-interactively-p</code>はユーザーから直接呼び出しが行われたとき
+—
+たとえば関数呼び出しにバインドされたキーシーケンスをユーザーがタイプした場合がそれに該当するが、ユーザーがその関数を呼び出すキーボードマクロ(<a class="link" href="ch21s16.html" title="Keyboard Macros">Keyboard
+Macros</a>を参照)を実行中した場合は<span class="emphasis"><em>該当しない</em></span> —
+だけ<code class="literal">t</code>をリターンする<em class="replaceable"><code>kind</code></em>が<code class="literal">any</code>の場合、<code class="literal">called-interactively-p</code>はキーボードマクロを含む任意の種類のinteractive呼び出しにたいして<code class="literal">t</code>をリターンする。
+</p><p>疑わしい場合は<code class="literal">any</code>を使用すること。<code class="literal">interactive</code>の使用が正しいと解っているのは、関数が実行中に役に立つメッセージを表示するかどうか判断が必要な場合だけである。
+</p><p>Lisp評価(または<code class="literal">apply</code>や<code class="literal">funcall</code>))を通じて呼び出された、または場合、関数は決してインタラクティブに呼び出されたとは判断されない。
+</p></blockquote></div><p>以下は<code class="literal">called-interactively-p</code>を使用する例である:
+</p><pre class="screen">(defun foo ()
+  (interactive)
+  (when (called-interactively-p 'any)
+    (message "Interactive!")
+    'foo-called-interactively))
+</pre><pre class="screen">
+</pre><pre class="screen">;; <strong class="userinput"><code>M-x foo</code></strong>とタイプする
+     ⊣ Interactive!
+</pre><pre class="screen">
+</pre><pre class="screen">(foo)
+     ⇒ nil
+</pre><p>以下は<code class="literal">called-interactively-p</code>の直接呼び出しと間接呼び出しを比較した例である。
+</p><pre class="screen">(defun bar ()
+  (interactive)
+  (message "%s" (list (foo) (called-interactively-p 'any))))
+</pre><pre class="screen">
+</pre><pre class="screen">;; <strong class="userinput"><code>M-x bar</code></strong>とタイプする
+     ⊣ (nil t)
+</pre></div></body></html>

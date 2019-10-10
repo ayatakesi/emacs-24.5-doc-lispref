@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Conversion of Characters and Strings</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="String-Conversion"/>Conversion of Characters and Strings</h1></div></div></div><a id="idm50142544" class="indexterm"/><p>このセクションでは文字、文字列、整数の間で変換を行なう関数を説明します。<code class="literal">format</code> (<a class="link" href="ch05s07.html" title="Formatting Strings">Formatting
+Strings</a>を参照してください)、および<code class="literal">prin1-to-string</code> (<a class="link" href="ch19s05.html" title="Output Functions">Output
+Functions</a>を参照してください)も、Lispオブジェクトを文字列に変換できます。<code class="literal">read-from-string</code>
+(<a class="link" href="ch19s03.html" title="Input Functions">Input
+Functions</a>を参照してください)は、Lispオブジェクトの文字列表現を、オブジェクトに“変換”できます。関数<code class="literal">string-to-multibyte</code>および<code class="literal">string-to-unibyte</code>は、テキスト表現を文字列に変換します(<a class="link" href="ch33s03.html" title="Converting Text Representations">Converting
+Representations</a>を参照してください)。
+</p><p>テキスト文字と一般的なインプットイベントにたいするテキスト説明を生成する関数(<code class="literal">single-key-description</code>および<code class="literal">text-char-description</code>)については、<a class="link" href="ch24.html" title="Chapter 23. Documentation">Documentation</a>を参照してください。これらの関数は主にヘルプメッセージを作成するために使用されます。
+</p><pre class="synopsis"><a id="idm50134352" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">number-to-string</code> <em class="replaceable"><code>number</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm50131792" class="indexterm"/><a id="idm50131024" class="indexterm"/><p>この関数は<em class="replaceable"><code>number</code></em>の10進プリント表現からなる文字列をreturnします。引数が負の場合、return値はマイナス記号から開始されます。
+</p><pre class="screen">(number-to-string 256)
+     ⇒ "256"
+</pre><pre class="screen">(number-to-string -23)
+     ⇒ "-23"
+</pre><pre class="screen">(number-to-string -23.5)
+     ⇒ "-23.5"
+</pre><a id="idm50128208" class="indexterm"/><p><code class="literal">int-to-string</code>は、この関数にたいする半ば廃れた(semi-obsolete)エイリアスです。
+</p><p><a class="link" href="ch05s07.html" title="Formatting Strings">Formatting Strings</a>の関数<code class="literal">format</code>も参照してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm50125136" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">string-to-number</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>base</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm50121808" class="indexterm"/><p>この関数は<em class="replaceable"><code>string</code></em>内の文字の数値的な値をreturnします。<em class="replaceable"><code>base</code></em>が非<code class="literal">nil</code>の場合、値は2以上16以下でなければならず、整数はその基数に変換されます。<em class="replaceable"><code>base</code></em>が<code class="literal">nil</code>の場合、基数に10が使用されます。浮動少数の変換は基数が10のときだけ機能します。わたしたちは浮動小数点数にたいして他の基数を実装していません。なえならこれには多くの作業が必要で、その割にその機能が有用には思えないからです。<em class="replaceable"><code>string</code></em>が整数のように見えるが、その値がLispの整数に収まらないほど大きな値の場合、<code class="literal">string-to-number</code>は浮動小数の結果をreturnします。
+</p><p>解析では<em class="replaceable"><code>string</code></em>の先頭にあるスペースとタブはスキップして、それから与えられた基数で数字として解釈できるところまで<em class="replaceable"><code>string</code></em>を読み取ります(スペースとタブだけではなく、先頭にある他の空白文字を無視するシステムもあります)。<em class="replaceable"><code>string</code></em>を数字として解釈できない場合、この関数は0をreturnします。
+</p><pre class="screen">(string-to-number "256")
+     ⇒ 256
+(string-to-number "25 is a perfect square.")
+     ⇒ 25
+(string-to-number "X256")
+     ⇒ 0
+(string-to-number "-4.5")
+     ⇒ -4.5
+(string-to-number "1e5")
+     ⇒ 100000.0
+</pre><a id="idm50115536" class="indexterm"/><p><code class="literal">string-to-int</code>は、この関数にたいする半ば廃れたエイリアスです。
+</p></blockquote></div><pre class="synopsis"><a id="idm50113744" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">char-to-string</code> <em class="replaceable"><code>character</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm50111184" class="indexterm"/><p>この関数は、1つの文字<em class="replaceable"><code>character</code></em>を含む新しい文字列をreturnします。関数<code class="literal">string</code>のほうがより一般的なので、この関数は半ば廃れています。<a class="link" href="ch05s03.html" title="Creating Strings">Creating
+Strings</a>を参照してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm50108368" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">string-to-char</code> <em class="replaceable"><code>string</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>string</code></em>の最初の文字をreturnします。これはほとんど<code class="literal">(aref string
+0)</code>と同じで、例外は文字列が空のときに0をreturnすることです(文字列の最初の文字が<acronym class="acronym">ASCII</acronym>コード0のヌル文字のときも、0をreturnします)。この関数は、残すのに充分なほど有用と思えない場合、将来削除されるかもしれません。
+</p></blockquote></div><p>以下は、文字列へ／からの変換に使用できる、その他の関数です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">concat</code>
+</span></dt><dd><p>この関数はベクターまたはリストから文字列に変換します。<a class="link" href="ch05s03.html" title="Creating Strings">Creating Strings</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">vconcat</code>
+</span></dt><dd><p>この関数は文字列をベクターに変換します。<a class="link" href="ch07s05.html" title="Functions for Vectors">Vector Functions</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">append</code>
+</span></dt><dd><p>この関数は文字列をリストに変換します。<a class="link" href="ch06s04.html" title="Building Cons Cells and Lists">Building Lists</a>を参照してください。
+</p></dd><dt><span class="term"><code class="literal">byte-to-string</code>
+</span></dt><dd><p>この関数は文字データのバイトをユニバイト文字列に変換します。<a class="link" href="ch33s03.html" title="Converting Text Representations">Converting Representations</a>を参照してください。
+</p></dd></dl></div></div></body></html>

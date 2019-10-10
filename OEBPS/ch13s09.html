@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Closures</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Closures"/>Closures</h1></div></div></div><p><a class="link" href="ch12s09.html" title="Scoping Rules for Variable Bindings">Variable
+Scoping</a>で説明したように、Emacsはオプションで変数のレキシカルバインディングを有効にできます。レキシカルバインディングが有効な場合、あなたが(たとえば<code class="literal">defun</code>などで)作成した任意の名前つき関数、同様に<code class="literal">lambda</code>マクロ、<code class="literal">function</code>スペシャルフォーム、<code class="literal">#'</code>構文を使用して作成した任意の無名関数(<a class="link" href="ch13s07.html" title="Anonymous Functions">Anonymous
+Functions</a>を参照してください)は、自動的に<em class="firstterm">クロージャー(closure)</em>に変換されます。
+</p><a id="idm53744592" class="indexterm"/><p>クロージャーとは、その関数が定ぎされたどときに存在したレキシカル環境の記録もあわせもつ関数です。クロージャーが呼び出されたとき、定義内のレキシカル変数の参照には、その保持されたレキシカル環境を使用されます。他のすべての点では、クロージャーは通常の関数と同様に振る舞います。特に、クロージャーは通常の関数と同じ方法で呼び出すことができます。
+</p><p>クロージャー使用する例は、<a class="link" href="ch12s09.html#Lexical-Binding" title="Lexical Binding">Lexical Binding</a>を参照してください。
+</p><p>現在のところ、Emacs
+Lispのクロージャーオブジェクトは、1つ目の要素にシンボル<code class="literal">closure</code>をもつリストとして表現されます。そのリストは2つ目の要素としてレキシカル環境を表し、残りの要素で引数リストとbodyフォームを表します:
+</p><pre class="screen">;; レキシカルバインディングが有効。
+(lambda (x) (* x x))
+     ⇒ (closure (t) (x) (* x x))
+</pre><p>しかし実際には、クロージャーの内部構造は、内部的な実装の詳細と判断される残りのLisp界を“晒け出す”ものだと言えます。この理由により、クロージャーオブジェクトの構造を直接調べたり変更することは推奨しません。
+</p></div></body></html>

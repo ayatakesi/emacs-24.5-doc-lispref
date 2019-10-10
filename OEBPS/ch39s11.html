@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Idle Timers</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Idle-Timers"/>Idle Timers</h1></div></div></div><a id="idm85620816" class="indexterm"/><p>以下は、Emacsの特定の期間アイドル時に実行するタイマーをセットアップする方法です。それらをセットアップする方法とは別とすると、アイドルタイマーは通常のタイマーと同様に機能します。
+</p><pre class="synopsis"><a id="idm85619408" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">run-with-idle-timer</code> <em class="replaceable"><code>secs</code></em> <em class="replaceable"><code>repeat</code></em> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>Emacsの次回<em class="replaceable"><code>secs</code></em>秒間アイドル時に実行するタイマーをセットアップする。<em class="replaceable"><code>secs</code></em>の値には数値、または<code class="literal">current-idle-time</code>がリターンするタイプの値を指定できる。
+</p><p><em class="replaceable"><code>repeat</code></em>が<code class="literal">nil</code>なら、充分長い間Emacsがアイドルになった初回1会だけ、そのタイマーは実行される。大抵は<em class="replaceable"><code>repeat</code></em>が非<code class="literal">nil</code>の場合で、そのときはEmacsが<em class="replaceable"><code>secs</code></em>秒間アイドルになったときに、<span class="emphasis"><em>毎回</em></span>そのタイマーが実行される。
+</p><p>関数<code class="literal">run-with-idle-timer</code>は、<code class="literal">cancel-timer</code>呼び出し時に使用できる、タイマー値をリターンする。
+</p></blockquote></div><a id="idm85597008" class="indexterm"/><p>ユーザー入力の待機時にEmacsは<em class="firstterm">アイドル(idle)</em>となり、ユーザーが何らかの入力を与えるまでアイドルのままとなります。あるタイマーを5秒間のアイドルにセットすると、Emacsが最初に約5秒間アイドルになったとき、そのタイマーが実行されます。たとえ<em class="replaceable"><code>repeat</code></em>が非<code class="literal">nil</code>でも、Emacsがアイドルであり続けるかぎり、そのタイマーが再実行されることはありません。アイドル期間は増加を続け、再び5秒に現象することはないからです。
+</p><p>アイドル時に、Emacsはガーベージコレクションや自動保存、サブプロセスからのデータ処理など、さまざまなことを行うことができます。しかし、これらの幕間劇がアイドルのクロックを0にリセットすることはないので、アイドルタイマーと干渉することはありません。600秒にセットされたアイドルタイマーは、たとえその10分間にサブプロセスの出力が何回到達しても、たとえガーベージコレクションや自動保存が行われても、ユーザーコマンドが最後に終了してから10分経過後に実行されるでしょう。
+</p><p>ユーザーが入力を与えると、その入力の実行の間、Emacsは非アイドルになります。それから再びアイドルとなり、繰り返すようにセットアップされたすべてのアイドルタイマーは、1つずつ異なる時刻に実行されるでしょう。
+</p><p>実行ごとに特定の量を処理するループを含んだり、<code class="literal">(input-pending-p)</code>が非<code class="literal">nil</code>のときにexitするアイドルタイマー関数を記述しないでください。このアプローチはとても自然に見えますが、2つの問題があります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>すべてのプロセスの出力をブロックする(Emacsは待機時のみプロセス出力を受け入れるため)。
+</p></li><li class="listitem"><p>その時刻の間に実行されるべきすべてのアイドルタイマーをブロックする。
+</p></li></ul></div><p>同様に、<em class="replaceable"><code>secs</code></em>引数がカレントのアイドル期間以下となるような、別のアイドルタイマー(同じアイドルタイマーも含む)をセットアップするアイドルタイマー関数を記述しないでください。そのようなタイマーはほとんど即座に実行され、Emacsが次回アイドルになるのを待機するかわりに、再現なく継続して実行されるでしょう。以下で説明するように、カレントのアイドル期間を適切に増加させて再スケジュールするのが、正しいアプローチです。
+</p><pre class="synopsis"><a id="idm85590096" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">current-idle-time</code></pre><div class="blockquote"><blockquote class="blockquote"><p>Emacsがアイドルなら、この関数は<code class="literal">current-time</code>で使用するのと同じ4つの整数リストのフォーマット<code class="literal">(<em class="replaceable"><code>sec-high</code></em>
+<em class="replaceable"><code>sec-low</code></em> <em class="replaceable"><code>microsec</code></em>
+<em class="replaceable"><code>picosec</code></em>)</code>で、Emacsがアイドルとなった期間をリターンする(<a class="link" href="ch39s05.html" title="Time of Day">Time of Day</a>を参照)。
+</p><p>Emacsがアイドルでなければ、<code class="literal">current-idle-time</code>は<code class="literal">nil</code>をリターンする。これはEmacsがアイドルかどうかテストする手軽な方法である。
+</p></blockquote></div><p><code class="literal">current-idle-time</code>の主な用途は、アイドルタイマー関数が少し“休憩”したいときです。そのアイドルタイマー関数は、さらに数秒アイドル後に、同じ関数を再呼び出しするために、別のタイマーをセットアップできます。以下はその例です:
+</p><pre class="screen">(defvar my-resume-timer nil
+  "Timer for `my-timer-function' to reschedule itself, or nil.")
+
+(defun my-timer-function ()
+  ;; <code class="literal">my-resume-timer</code>アクティブの間にユーザーがコマンドをタイプ
+  ;; したら、次回この関数はそれのメインアイドルタイマーから呼び出され
+  ;; <code class="literal">my-resume-timer</code>を非アクティブにする
+  (when my-resume-timer
+    (cancel-timer my-resume-timer))
+  ...<em class="replaceable"><code>do the work for a while</code></em>...
+  (when <em class="replaceable"><code>taking-a-break</code></em>
+    (setq my-resume-timer
+          (run-with-idle-timer
+            ;; カレント値より大きいアイドル
+            ;; 期間<em class="replaceable"><code>break-length</code></em>を計算
+            (time-add (current-idle-time)
+                      (seconds-to-time <em class="replaceable"><code>break-length</code></em>))
+            nil
+            'my-timer-function))))
+</pre></div></body></html>

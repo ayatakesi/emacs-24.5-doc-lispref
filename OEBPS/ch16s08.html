@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Which File Defined a Certain Symbol</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Where-Defined"/>Which File Defined a Certain Symbol</h1></div></div></div><a id="idm55978704" class="indexterm"/><a id="idm55977936" class="indexterm"/><pre class="synopsis"><a id="idm55960528" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">symbol-file</code> <em class="replaceable"><code>symbol</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>type</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>symbol</code></em>を定義しているファイルの名前をリターンします。<em class="replaceable"><code>type</code></em>が<code class="literal">nil</code>の場合は、どのようなタイプの定義も受け入れられます。<em class="replaceable"><code>type</code></em>が<code class="literal">defun</code>の場合は関数定義、<code class="literal">defvar</code>は変数定義、<code class="literal">defface</code>はフェイス定義だけを指定します。
+</p><p>値は通常、絶対ファイル名です。定義がどのファイルにも関係しないときは、<code class="literal">nil</code>になることもあります。<em class="replaceable"><code>symbol</code></em>がオートロード関数を指定する場合、値が拡張子なしの相対ファイル名になることもあります。
+</p></blockquote></div><p><code class="literal">symbol-file</code>は変数<code class="literal">load-history</code>.&lt;の値にもとづいています。
+</p><pre class="synopsis"><a id="idm55946704" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">load-history</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は、ロードされたライブラリーファイルの名前を、それらが定義する関数と変数の名前、およびそれらがプロバイドまたはリクワイアするフィーチャに関連付けるalistです。
+</p><p>このalist内の各要素は、1つのロード済みライブラリー(スタートアップ時にプリロードされたライブラリーを含む)を記述します。要素はCARがライブラリーの絶対ファイル名(文字列)のリストです。残りのリスト要素は、以下の形式です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal"><em class="replaceable"><code>var</code></em></code>
+</span></dt><dd><p>シンボル<em class="replaceable"><code>var</code></em>が変数として定義された。
+</p></dd><dt><span class="term"><code class="literal">(defun . <em class="replaceable"><code>fun</code></em>)</code>
+</span></dt><dd><p>関数<em class="replaceable"><code>fun</code></em>が定義された。
+</p></dd><dt><span class="term"><code class="literal">(t . <em class="replaceable"><code>fun</code></em>)</code>
+</span></dt><dd><p>関数<em class="replaceable"><code>fun</code></em>は、このライブラリーがそれを関数として再定義する前はオートロードとして定義されていた。後続の要素は常に<code class="literal">(defun
+. <em class="replaceable"><code>fun</code></em>)</code>で、これは<em class="replaceable"><code>fun</code></em>を関数として定義する。
+</p></dd><dt><span class="term"><code class="literal">(autoload . <em class="replaceable"><code>fun</code></em>)</code>
+</span></dt><dd><p>関数<em class="replaceable"><code>fun</code></em>はオートロードとして定義された。
+</p></dd><dt><span class="term"><code class="literal">(defface . <em class="replaceable"><code>face</code></em>)</code>
+</span></dt><dd><p>フェイス<em class="replaceable"><code>face</code></em>が定義された。
+</p></dd><dt><span class="term"><code class="literal">(require . <em class="replaceable"><code>feature</code></em>)</code>
+</span></dt><dd><p>フィーチャ<em class="replaceable"><code>feature</code></em>がリクワイアされた。
+</p></dd><dt><span class="term"><code class="literal">(provide . <em class="replaceable"><code>feature</code></em>)</code>
+</span></dt><dd><p>フィーチャ<em class="replaceable"><code>feature</code></em>がプロバイドされた。
+</p></dd></dl></div><p><code class="literal">load-history</code>の値には、CARが<code class="literal">nil</code>の要素が1つ含まれるかもしれません。この要素は、ファイルをvisitしていないバッファーでの<code class="literal">eval-buffer</code>で作成された定義を記述します。
+</p></blockquote></div><p>コマンド<code class="literal">eval-region</code>は<code class="literal">load-history</code>を更新しますが、要素を置き換えずに、visitされているファイルの要素にたいして定義されたシンボルを追加します。<a class="link" href="ch10s05.html" title="Eval">Eval</a>を参照してください。
+</p></div></body></html>

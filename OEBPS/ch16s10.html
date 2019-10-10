@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Hooks for Loading</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Hooks-for-Loading"/>Hooks for Loading</h1></div></div></div><a id="idm55893328" class="indexterm"/><a id="idm55892560" class="indexterm"/><p>変数<code class="literal">after-load-functions</code>を使用することにより、Emacsがライブラリーをロードするたびにコードを実行させることができます:
+</p><pre class="synopsis"><a id="idm55890640" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">after-load-functions</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このアブノーマルフック(abnormal
+hook)は、ファイルをロードした後に実行されます。フック内の各関数は1つの引数(ロードされたファイルの絶対ファイル名)で呼び出されます。
+</p></blockquote></div><p><span class="emphasis"><em>特定</em></span>のライブラリーがロードされた後にコードを実行したい場合は、マクロ<code class="literal">with-eval-after-load</code>を使用します:
+</p><pre class="synopsis"><a id="idm55886800" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">with-eval-after-load</code> <em class="replaceable"><code>library</code></em> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは<em class="replaceable"><code>library</code></em>がロードされるたびに、ファイル<em class="replaceable"><code>library</code></em>のロードの最後で<em class="replaceable"><code>body</code></em>が評価されるよう準備します。<em class="replaceable"><code>library</code></em>がすでにロード済みの場合は、即座に<em class="replaceable"><code>body</code></em>を評価します。
+</p><p>ファイル名<em class="replaceable"><code>library</code></em>にディレクトリーや拡張子を与える必要はありません。通常は以下のようにファイル名だけを与えます:
+</p><pre class="screen">(with-eval-after-load "edebug" (def-edebug-spec c-point t))
+</pre><p>どのファイルが評価をトリガーできるか制限するには、ディレクトリーか拡張子、またはしの両方を<em class="replaceable"><code>library</code></em>に含めます。実際のファイル名(たとえばすべてのシンボリックリンク名は除外される)が、与えられた名前すべてにマッチするファイルだけが、マッチします。以下の例では、どこかのディレクトリー<code class="literal">..../foo/bar</code>にある<code class="filename">my_inst.elc</code>や<code class="filename">my_inst.elc.gz</code>は評価をトリガーしますが、<code class="filename">my_inst.el</code>は異なります。:
+</p><pre class="screen">(with-eval-after-load "foo/bar/my_inst.elc" …)
+</pre><p><em class="replaceable"><code>library</code></em>はフィーチャ(たとえばシンボル)でもよく、その場合<code class="literal">(provide
+<em class="replaceable"><code>library</code></em>)</code>を呼び出す任意のファイルの最後に<em class="replaceable"><code>body</code></em>が評価されます。
+</p><p><em class="replaceable"><code>body</code></em>内のエラーはロードをアンドゥしませんが、<em class="replaceable"><code>body</code></em>の残りの実行を妨げます。
+</p></blockquote></div><p>上手く設計されたLispプログラムは通常、<code class="literal">eval-after-load</code>を使用するべきではありません。(外部からの使用を意図した)他のライブラリーで定義された変数を調べたりセットする必要がある場合、それは即座に行うことができます
+−−−
+そのライブラリーがロードされるのを待つ必要はありません。そのライブラリーで定義された関数を呼び出す必要がある場合は、そのライブラリーをロードすべきで、それには<code class="literal">require</code>(<a class="link" href="ch16s07.html" title="Features">Named
+Features</a>を参照)が適しています。
+
+
+
+
+
+
+
+
+
+</p></div></body></html>

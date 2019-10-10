@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Waiting for Elapsed Time or Input</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Waiting"/>Waiting for Elapsed Time or Input</h1></div></div></div><a id="idm59642960" class="indexterm"/><p>待機関数(wait
+function)は特定の時間が経過するか、入力があるまで待機するようにデザインされています。たとえば、計算の途中でユーザーがディスプレイを閲覧できるように一時停止したいときがあるかもしれません。<code class="literal">sit-for</code>は一時停止して画面を更新、<code class="literal">sleep-for</code>は画面を更新せずに一時停止して、入力が到着したら即座にリターンします。
+</p><pre class="synopsis"><a id="idm59640528" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">sit-for</code> <em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>nodisp</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、(ユーザーからの保留中入力がない場合は)再描画を行ってから、<em class="replaceable"><code>seconds</code></em>秒、または入力が利用可能になるまで待機する。<code class="literal">sit-for</code>の通常の目的は、ディスプレイしたテキストをユーザーが読み取る時間を与えるためである。入力が何も到着せず(<a class="link" href="ch21s08.html#Event-Input-Misc" title="Miscellaneous Event Input Features">Event
+Input Misc</a>を参照)、時間をフルに待機した場合は<code class="literal">t</code>、それ以外は<code class="literal">nil</code>が値となる。
+</p><p>引数<em class="replaceable"><code>seconds</code></em>は整数である必要はない。浮動小数点数の場合、<code class="literal">sit-for</code>は秒の少数点数を待機する。整数の秒だけをサポートするいくつかのシステムでは、<em class="replaceable"><code>seconds</code></em>は切り捨てられる。
+</p><p>保留中の入力が存在しない場合、式<code class="literal">(sit-for
+0)</code>は遅延なしに再描画をリクエストする<code class="literal">(redisplay)</code>と等価である。<a class="link" href="ch38s02.html" title="Forcing Redisplay">Forcing Redisplay</a>を参照のこと。
+</p><p><em class="replaceable"><code>nodisp</code></em>が非<code class="literal">nil</code>の場合<code class="literal">sit-for</code>は再描画を行わないが、それでも入力が利用可能になると(またはタイムアウト時間が経過すると)即座にリターンする。
+</p><p>バッチモード(<a class="link" href="ch39s16.html" title="Batch Mode">Batch
+Mode</a>を参照)では、たとえ標準入力ディスクリプタからの入力でも割り込みできまい。これは以下で説明する<code class="literal">sleep-for</code>でも同じである。
+</p><p><code class="literal">(sit-for <em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>millisec</code></em>
+<em class="replaceable"><code>nodisp</code></em>)</code>のように、3つの引数で<code class="literal">sit-for</code>を呼び出すことも可能だが時代遅れだと考えられている。
+</p></blockquote></div><pre class="synopsis"><a id="idm59596240" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">sleep-for</code> <em class="replaceable"><code>seconds</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>millisec</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は表示を更新せず、単に<em class="replaceable"><code>seconds</code></em>秒間一時停止する。これは利用可能な入力に注意を払わない。この関数は<code class="literal">nil</code>をリターンする。
+</p><p>引数<em class="replaceable"><code>seconds</code></em>は整数である必要はない。浮動小数点数の場合、<code class="literal">sleep-for</code>は秒の少数点数を待機する。整数の秒だけをサポートするいくつかのシステムでは、<em class="replaceable"><code>seconds</code></em>は切り捨てられる。
+</p><p>オプション引数<em class="replaceable"><code>millisec</code></em>はミリ秒単位で追加の待機期間を指定する。これは<em class="replaceable"><code>seconds</code></em>で指定された期間に追加される。システムが小数点の秒数をサポートしない場合、非0の<em class="replaceable"><code>millisec</code></em>を指定するとエラーとなる。
+</p><p>遅延を保証したい場合は<code class="literal">sleep-for</code>を使用する。
+</p></blockquote></div><p>現在時刻を取得する関数については、<a class="link" href="ch39s05.html" title="Time of Day">Time of Day</a>を参照してください。
+</p></div></body></html>

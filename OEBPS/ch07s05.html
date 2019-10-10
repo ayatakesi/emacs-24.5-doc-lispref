@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Functions for Vectors</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Vector-Functions"/>Functions for Vectors</h1></div></div></div><p>ベクターに関連した関数をいくつか示します:
+</p><pre class="synopsis"><a id="idm48807248" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">vectorp</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>がベクターの場合は、<code class="literal">t</code>をreturnします。
+</p><pre class="screen">(vectorp [a])
+     ⇒ t
+(vectorp "asdf")
+     ⇒ nil
+</pre></blockquote></div><pre class="synopsis"><a id="idm48802640" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">vector</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>objects</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、引数<em class="replaceable"><code>objects</code></em>を要素にもつベクターを作成してreturnします。
+</p><pre class="screen">(vector 'foo 23 [bar baz] "rats")
+     ⇒ [foo 23 [bar baz] "rats"]
+(vector)
+     ⇒ []
+</pre></blockquote></div><pre class="synopsis"><a id="idm48798160" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-vector</code> <em class="replaceable"><code>length</code></em> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>object</code></em>に初期化された<em class="replaceable"><code>length</code></em>個の要素からなる、新しいベクターをreturnします。
+</p><pre class="screen">(setq sleepy (make-vector 9 'Z))
+     ⇒ [Z Z Z Z Z Z Z Z Z]
+</pre></blockquote></div><pre class="synopsis"><a id="idm48793296" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">vconcat</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>sequences</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm48790352" class="indexterm"/><p>この関数は、<em class="replaceable"><code>sequences</code></em>のすべての要素を含む、新しいベクターをreturnします。引数<em class="replaceable"><code>sequences</code></em>は真リスト、ベクター、文字列、ブールベクターです。<em class="replaceable"><code>sequences</code></em>が与えられない場合、空のベクターがreturnされます。
+</p><p>値は空のベクター、または任意の既存のベクターと<code class="literal">eq</code>ではない、新しい空ではないベクターのどちらかです。
+</p><pre class="screen">(setq a (vconcat '(A B C) '(D E F)))
+     ⇒ [A B C D E F]
+(eq a (vconcat a))
+     ⇒ nil
+</pre><pre class="screen">(vconcat)
+     ⇒ []
+(vconcat [A B C] "aa" '(foo (6 7)))
+     ⇒ [A B C 97 97 foo (6 7)]
+</pre><p><code class="literal">vconcat</code>関数は、引数としてバイトコード関数オブジェクトもとることができます。これは、バイトコード関数オブジェクトの内容全体にアクセスするのを容易にするための、特別な機能です。<a class="link" href="ch17s07.html" title="Byte-Code Function Objects">Byte-Code
+Objects</a>を参照してください。
+</p><p>結合を行なう他の関数については、<a class="link" href="ch13s06.html" title="Mapping Functions">Mapping Functions</a>の<code class="literal">mapconcat</code>、<a class="link" href="ch05s03.html" title="Creating Strings">Creating
+Strings</a>の<code class="literal">concat</code>、<a class="link" href="ch06s04.html" title="Building Cons Cells and Lists">Building Lists</a>の<code class="literal">append</code>を参照してください。
+</p></blockquote></div><p><code class="literal">append</code>関数は、ベクターを同じ要素をもつリストに変換する方法も提供します:
+</p><pre class="screen">(setq avector [1 two (quote (three)) "four" [five]])
+     ⇒ [1 two (quote (three)) "four" [five]]
+(append avector nil)
+     ⇒ (1 two (quote (three)) "four" [five])
+</pre></div></body></html>

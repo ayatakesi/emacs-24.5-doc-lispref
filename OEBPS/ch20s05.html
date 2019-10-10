@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Initial Input</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Initial-Input"/>Initial Input</h1></div></div></div><p>ミニバッファー入力にたいする関数のいくつかには、<em class="replaceable"><code>initial</code></em>と呼ばれる引数があります。これは通常のように空の状態で開始されるのではなく、特定のテキストとともにミニバッファーが開始されることを指定しますが、ほとんどの場合において推奨されない機能です。
+</p><p><em class="replaceable"><code>initial</code></em>が文字列の場合、ミニバッファーはその文字列のテキストを含む状態で開始され、ユーザーがそのテキストの編集を開始するとき、ポイントはテキストの終端にあります。ユーザーがミニバッファーをexitするために単に<span class="keycap"><strong>RET</strong></span>をタイプした場合には、この入力文字列の初期値をリターン値だと判断します。
+</p><p><span class="bold"><strong><em class="replaceable"><code>initial</code></em>にたいして非<code class="literal">nil</code>値の使用には反対します。</strong></span>なぜなら初期入力は強要的なインターフェイスだからです。ユーザーにたいして有用なデフォルト入力を提案するためには、ヒストリーリストやデフォルト値の提供のほうが、より便利です。
+</p><p>しかし<em class="replaceable"><code>initial</code></em>引数にたいして文字列を指定すべき状況が1つだけあります。それは、<em class="replaceable"><code>history</code></em>引数にコンスセルを指定したときです。<a class="link" href="ch20s04.html" title="Minibuffer History">Minibuffer
+History</a>を参照してください。
+</p><p><em class="replaceable"><code>initial</code></em>は<code class="literal">(<em class="replaceable"><code>string</code></em>
+.
+<em class="replaceable"><code>position</code></em>)</code>という形式をとることもできます。これは<em class="replaceable"><code>string</code></em>をミニバッファーに挿入するが、その文字列のテキスト中の<em class="replaceable"><code>position</code></em>にポイントを配するという意味です。
+</p><p>歴史的な経緯により、<em class="replaceable"><code>position</code></em>は異なる関数において実装が統一されていません。<code class="literal">completing-read</code>では<em class="replaceable"><code>position</code></em>の値は0基準です。つまり、値0は文字列の先頭で、1は最初の文字の次、...を意味します。しかし<code class="literal">read-minibuffer</code>、およびこの引数をサポートする補完を行わない他のミニバッファー入力関数では、1は文字列の先頭、2は最初の文字の次、...を意味します。
+</p><p><em class="replaceable"><code>initial</code></em>の値としてのコンスセルの使用は、推奨されません。
+</p></div></body></html>

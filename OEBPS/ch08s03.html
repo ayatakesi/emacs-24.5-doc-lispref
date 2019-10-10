@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Defining Hash Comparisons</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Defining-Hash"/>Defining Hash Comparisons</h1></div></div></div><a id="idm52532048" class="indexterm"/><a id="idm52531280" class="indexterm"/><p><code class="literal">define-hash-table-test</code>により、キーを照合する新しい方法を定義できます。この機能を使用するには、ハッシュテーブルの動作方法と、<em class="firstterm">ハッシュコード(hash
+code)</em>の意味を理解する必要があります。
+</p><p>概念的にはハッシュテーブルを、1つの連想を保持できるスロットがたくさんある巨大な配列として考えることができます。キーを照合するには、まず<code class="literal">gethash</code>が、キーから整数のハッシュコード(hash
+code)を計算します。配列内のインデックスを生成するために、<code class="literal">gethash</code>は、配列の長さにより、この整数のmoduloを得ます。それからキーが見つかったかどうか確認するために、そのスロット、もし必要なら近くのスロットを探します。
+</p><p>したがってキー照合の新しい方法を定義するためには、キーからハッシュコードを計算する関数と、2つのキーを直接比較する関数の両方が必要です。
+</p><pre class="synopsis"><a id="idm52515024" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">define-hash-table-test</code> <em class="replaceable"><code>name</code></em> <em class="replaceable"><code>test-fn</code></em> <em class="replaceable"><code>hash-fn</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>name</code></em>という名前の、新たなハッシュテーブルテストを定義します。
+</p><p>この方法で<em class="replaceable"><code>name</code></em>を定義した後では、<code class="literal">make-hash-table</code>の引数<em class="replaceable"><code>test</code></em>にこれを使用することができます。それを行なう場合、そのハッシュテーブルはキー値の比較に<em class="replaceable"><code>test-fn</code></em>、キー値から“ハッシュコード”を計算するために<em class="replaceable"><code>hash-fn</code></em>を使用することになります。
+</p><p>関数<em class="replaceable"><code>test-fn</code></em>は2つの引数(2つのキー)をとり、それらが“同一”と判断されたときは非<code class="literal">nil</code>をreturnします。
+</p><p>関数<em class="replaceable"><code>hash-fn</code></em>は1つの引数(キー)をとり、そのキーの“ハッシュコード”(整数)をreturnします。よい結果を得るために、この関数は負の整数を含む整数の全範囲を、ハッシュコードに使用するべきです。
+</p><p>指定された関数は、プロパティー<code class="literal">hash-table-test</code>の配下の、<em class="replaceable"><code>name</code></em>というプロパティーリストに格納されます。そのプロパティーの値形式は、<code class="literal">(<em class="replaceable"><code>test-fn</code></em>
+<em class="replaceable"><code>hash-fn</code></em>)</code>です。
+</p></blockquote></div><pre class="synopsis"><a id="idm52503504" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">sxhash</code> <em class="replaceable"><code>obj</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、Lispオブジェクト<em class="replaceable"><code>obj</code></em>にたいするハッシュコードをreturnします。return値は、<em class="replaceable"><code>obj</code></em>と、それが指す別のLispオブジェクトの内容を表す整数です。
+</p><p>2つのオブジェクト<em class="replaceable"><code>obj1</code></em>と<em class="replaceable"><code>obj2</code></em>がequalの場合、<code class="literal">(sxhash
+<em class="replaceable"><code>obj1</code></em>)</code>と<code class="literal">(sxhash <em class="replaceable"><code>obj2</code></em>)</code>は同じ整数になります。
+</p><p>2つのオブジェクトがequalでない場合、通常は<code class="literal">sxhash</code>がreturnする値は異なりますが、常に異なるとは限りません。稀にですが(運次第)、<code class="literal">sxhash</code>が同じ結果を与える、2つの異なって見えるオブジェクトに遭遇するかもしれません。
+</p></blockquote></div><p>以下は、大の字小文字を区別しない、文字列のキーをもつハッシュテーブルを作成する例です。
+</p><pre class="screen">(defun case-fold-string= (a b)
+  (eq t (compare-strings a nil nil b nil nil t)))
+(defun case-fold-string-hash (a)
+  (sxhash (upcase a)))
+
+(define-hash-table-test 'case-fold
+  'case-fold-string= 'case-fold-string-hash)
+
+(make-hash-table :test 'case-fold)
+</pre><p>以下は、事前に定義されたテスト値<code class="literal">equal</code>と等価なテストを行なうハッシュテーブルを定義できるという例です。キーは任意のLispオブジェクトで、equalに見えるオブジェクトは、同じキーと判断されます。
+</p><pre class="screen">(define-hash-table-test 'contents-hash 'equal 'sxhash)
+
+(make-hash-table :test 'contents-hash)
+</pre></div></body></html>

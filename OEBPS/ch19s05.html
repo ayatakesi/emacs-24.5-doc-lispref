@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Output Functions</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Output-Functions"/>Output Functions</h1></div></div></div><p>このセクションでは、オブジェクトをオブジェクトのプリント表現に変換してLispオブジェクトをプリントするLisp関数を説明します。
+</p><a id="idm58444624" class="indexterm"/><a id="idm58443344" class="indexterm"/><a id="idm58429776" class="indexterm"/><a id="idm58429008" class="indexterm"/><p>Emacsプリント関数には、正しく読み取れるように必要なとき出力にクォート文字を追加するものがあります。使用されるクォート文字は‘<code class="literal">"</code>’と‘<code class="literal">\</code>’です。これらは文字列をシンボルと区別するとともに、文字列およびシンボル内の区切り文字が読み取り時に区切り文字として扱われることを防ぎます。完全な詳細は<a class="link" href="ch03.html#Printed-Representation" title="Printed Representation and Read Syntax">Printed
+Representation</a>を参照してください。クォートするかしないかは、プリント関数の選択により指定できます。
+</p><p>そのテキストがLispに読み戻す場合、同様にLispプログラマーにLispオブジェクトを明解に説明するのが目的の場合は、曖昧さを避けるためにクォート文字をプリントするべきです。しかし、プログラマー以外の人間にたいして出力の見栄えを良くするのが目的なら、通常はクォートなしでプリントしたほうがよいでしょう。
+</p><p>Lispオブジェクトは自己参照ができます。通常の方法で自己参照オブジェクトをプリントするにはテキストが無限に必要で、その試みにより無限再帰が発生する恐れがあります。Emacsはそのような再帰を検知して、すでにプリントされたオブジェクトを再帰的にプリントするかわりに、‘<code class="literal">#<em class="replaceable"><code>level</code></em></code>’をプリントします。たとえば以下は、カレントのプリント処理において、レベル0のオブジェクトを再帰的に参照することを示しています:
+</p><pre class="screen">(setq foo (list nil))
+     ⇒ (nil)
+(setcar foo foo)
+     ⇒ (#0)
+</pre><p>以下の関数では、<em class="replaceable"><code>stream</code></em>は出力ストリームを意味します。(出力ストリームの説明は、前のセクションを参照してください。)
+<em class="replaceable"><code>stream</code></em>が<code class="literal">nil</code>、または省略された場合のデフォルトは、<code class="literal">standard-output</code>の値になります。
+</p><pre class="synopsis"><a id="idm58417616" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">print</code> <em class="replaceable"><code>object</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm58414288" class="indexterm"/><p><code class="literal">print</code>関数は、プリントを行うための便利な方法である。この関数は<em class="replaceable"><code>object</code></em>の前後に改行を付与して、<em class="replaceable"><code>object</code></em>のプリント表現を<em class="replaceable"><code>stream</code></em>にプリントする。クォート文字が使用される。<code class="literal">print</code>は<em class="replaceable"><code>object</code></em>をリターンする。たとえば:
+</p><pre class="screen">(progn (print 'The\ cat\ in)
+       (print "the hat")
+       (print " came back"))
+     ⊣
+     ⊣ The\ cat\ in
+     ⊣
+     ⊣ "the hat"
+     ⊣
+     ⊣ " came back"
+     ⇒ " came back"
+</pre></blockquote></div><pre class="synopsis"><a id="idm58409936" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">prin1</code> <em class="replaceable"><code>object</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>object</code></em>のプリント表現を<em class="replaceable"><code>stream</code></em>に出力する。この関数は<code class="literal">print</code>のように出力を分割するための改行をプリントしないが、<code class="literal">print</code>のようにクォート文字を使用する。<em class="replaceable"><code>object</code></em>をリターンする。
+</p><pre class="screen">(progn (prin1 'The\ cat\ in)
+       (prin1 "the hat")
+       (prin1 " came back"))
+     ⊣ The\ cat\ in"the hat"" came back"
+     ⇒ " came back"
+</pre></blockquote></div><pre class="synopsis"><a id="idm58403280" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">princ</code> <em class="replaceable"><code>object</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>object</code></em>のプリント表現を<em class="replaceable"><code>stream</code></em>に出力する。<em class="replaceable"><code>object</code></em>をリターンする。
+</p><p>この関数は<code class="literal">read</code>ではなく人間が読める出力を生成することを意図しているので、クォート文字を挿入せず、文字列のコンテンツの前後にダブルクォート文字を配さない。呼び出しの間に間隔を何も出力しない。
+</p><pre class="screen">(progn
+  (princ 'The\ cat)
+  (princ " in the \"hat\""))
+     ⊣ The cat in the "hat"
+     ⇒ " in the \"hat\""
+</pre></blockquote></div><pre class="synopsis"><a id="idm58396752" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">terpri</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm58393808" class="indexterm"/><p>この関数は<em class="replaceable"><code>stream</code></em>に改行を出力する。名前の由来は、“terminate print”である。
+</p></blockquote></div><pre class="synopsis"><a id="idm58392016" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">write-char</code> <em class="replaceable"><code>character</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>character</code></em>を<em class="replaceable"><code>stream</code></em>に出力する。<em class="replaceable"><code>character</code></em>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm58386896" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">prin1-to-string</code> <em class="replaceable"><code>object</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>noescape</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm58383568" class="indexterm"/><p>この関数は、同じ引数で<code class="literal">prin1</code>がプリントするテキストを含む文字列をリターンする。
+</p><pre class="screen">(prin1-to-string 'foo)
+     ⇒ "foo"
+</pre><pre class="screen">(prin1-to-string (mark-marker))
+     ⇒ "#&lt;marker at 2773 in strings.texi&gt;"
+</pre><p><em class="replaceable"><code>noescape</code></em>が非<code class="literal">nil</code>の場合は、出力中のクォート文字の使用を抑制する。(この引数は、Emacsバージョン19以降でサポートされた。)
+</p><pre class="screen">(prin1-to-string "foo")
+     ⇒ "\"foo\""
+</pre><pre class="screen">(prin1-to-string "foo" t)
+     ⇒ "foo"
+</pre><p>Lispオブジェクトのプリント表現を文字列として取得する別の手段については、<a class="link" href="ch05s07.html" title="Formatting Strings">Formatting
+Strings</a>の<code class="literal">format</code>を参照のこと。
+</p></blockquote></div><pre class="synopsis"><a id="idm58373200" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">with-output-to-string</code> <em class="replaceable"><code>body</code></em><em class="replaceable"><code>…</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは出力を文字列に送るよう<code class="literal">standard-output</code>をセットアップして、フォーム<em class="replaceable"><code>body</code></em>を実行する。その文字列がリターンされる。
+</p><p>たとえばカレントバッファー名が‘<code class="literal">foo</code>’の場合、
+</p><pre class="screen">(with-output-to-string
+  (princ "The buffer is ")
+  (princ (buffer-name)))
+</pre><p>は<code class="literal">"The buffer is foo"</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm58366544" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">pp</code> <em class="replaceable"><code>object</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>stream</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">prin1</code>と同じように<em class="replaceable"><code>object</code></em>を<em class="replaceable"><code>stream</code></em>に出力するが、より“優雅(pretty)”な方法でこれを行う。すなわち、この関数は人間がより読みやすいようにオブジェクトのインデントとパディングを行う。
+</p></blockquote></div></div></body></html>

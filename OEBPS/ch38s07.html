@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Selective Display</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Selective-Display"/>Selective Display</h1></div></div></div><p><em class="firstterm">選択的表示(selective display)</em>とは、スクリーン上で特定の行を隠蔽する、関連する機能ペアーを指します。
+</p><a id="idm81608144" class="indexterm"/><p>1つ目の変種は明示的な選択的表示で、これはLispプログラム内で使用するようにデザインされています。これはテキスト変更により、どの行を隠すかを制御します。この種の隠蔽は現在では時代遅れです。かわりに<code class="literal">invisible</code>プロパティで同じ効果を得ることができます(<a class="link" href="ch38s06.html" title="Invisible Text">Invisible
+Text</a>を参照)。
+</p><p>2つ目の変種は、インデントにもとづいて隠す行の選択を自動的に行います。この変種は、ユーザーレベルの機能としてデザインされています。
+</p><p>選択的表示を明示的に制御する方法では、改行(control-j)を復帰(control-m)に置換します。以前は行末に改行があった行は、これにより隠蔽されます。厳密に言うと、改行だけが行を分離できるので、これはもはや一時的には行ではなく、前の行の一部です。
+</p><p>選択的表示は編集コマンドに直接影響を与えません。たとえば<strong class="userinput"><code>C-f</code></strong>(<code class="literal">forward-char</code>)は、隠蔽された行へ気軽にポイントを移動します。しかし復帰文字による改行文字の置換は、いくつかの編集コマンドに影響を与えます。たとえば<code class="literal">next-line</code>は改行だけを検索するため、隠蔽された行をスキップします。選択的表示を使用するモードは、改行を考慮するコマンドを定義したり、テキストのどの部分を隠すか制御することもできます。
+</p><p>選択的表示されたバッファーをファイルに書き込む際には、control-mはすべて改行として出力されます。これはファイル内のテキストを読み取る際には、すべて問題なく隠蔽されずに表示されることを意味します。選択的表示は、Emacs内でだけ見られる効果です。
+</p><pre class="synopsis"><a id="idm81602640" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">selective-display</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数は、選択的表示を有効にする。これは行、または行の一部を隠すことができることを意味する。
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><code class="literal">selective-display</code>の値が<code class="literal">t</code>なら、文字control-mが隠蔽されたテキストの開始をマークする。control-mと、それに後続する行の残りは表示されない。これは明示的な選択的表示である。
+</p></li><li class="listitem"><p><code class="literal">selective-display</code>の値が正の整数なら、それより多くの列によるインデントで始まる行は表示されない。
+</p></li></ul></div><p>バッファーの一部が隠蔽されている際は、垂直移動コマンドはあたかもその部分を存在しないかのように処理して、1回の<code class="literal">next-line</code>コマンドで任意の行数の隠蔽された行をスキップできる。しかし(<code class="literal">forward-char</code>のような)文字移動コマンドは隠蔽された部分をスキップせず、(注意すれば)隠蔽された部分にたいしてテキストの挿入と削除が可能である。
+</p><p>以下の例では、<code class="literal">selective-display</code>の値の変更による、バッファー<code class="literal">foo</code>の<span class="emphasis"><em>外観表示</em></span>を示す。このバッファーの<span class="emphasis"><em>コンテンツ</em></span>は変更されない。
+</p><pre class="screen">(setq selective-display nil)
+     ⇒ nil
+
+---------- Buffer: foo ----------
+1 on this column
+ 2on this column
+  3n this column
+  3n this column
+ 2on this column
+1 on this column
+---------- Buffer: foo ----------
+</pre><pre class="screen">
+</pre><pre class="screen">(setq selective-display 2)
+     ⇒ 2
+
+---------- Buffer: foo ----------
+1 on this column
+ 2on this column
+ 2on this column
+1 on this column
+---------- Buffer: foo ----------
+</pre></blockquote></div><pre class="synopsis"><a id="idm81592528" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">selective-display-ellipses</code></pre><div class="blockquote"><blockquote class="blockquote"><p>このバッファーローカル変数が非<code class="literal">nil</code>なら、Emacsは隠蔽されたテキストを後にともなう行の終端に、‘<code class="literal">…</code>’を表示する。この例は、前の例からの継続である。
+</p><pre class="screen">(setq selective-display-ellipses t)
+     ⇒ t
+
+---------- Buffer: foo ----------
+1 on this column
+ 2on this column ...
+ 2on this column
+1 on this column
+---------- Buffer: foo ----------
+</pre><p>省略記号(‘<code class="literal">…</code>’)にたいして他のテキストを代替えするために、ディスプレイテーブルを使用できる。<a class="link" href="ch38s21.html#Display-Tables" title="Display Tables">Display
+Tables</a>を参照のこと。
+</p></blockquote></div></div></body></html>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Object Internals</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Object-Internals"/>Object Internals</h1></div></div></div><a id="idm88070352" class="indexterm"/><p>Emacs
+Lispは豊富なデータタイプのセットを提供します。コンスセル、整数、文字列のようにこれらのいくつかは、ほとんどすべてのLisp方言で一般的です。マーカやバッファーのようなそれ以外のものは、Lisp内でエディターコマンドを記述するための基本的サポートを提供するために、極めて特別で必要なものです。そのような種々のオブジェクトタイプを実装して、インタープリターのサブシステムとの間でオブジェクトを渡す効果的な方法を提供するに、Cデータ構造体セットとそれらすべてにたいするポインターを表す、<em class="firstterm">タグ付きポインター(tagged
+pointer)</em>と呼ばれる、特別なタイプが存在します。
+</p><p>Cでは、タグ付きポインターは、タイプ<code class="literal">Lisp_Object</code>のオブジェクトです。そのようなタイプの初期化された変数は、基本的なデータタイプである整数、シンボル、文字列、コンスセル、浮動小数点数、ベクター類似オブジェクトや、その他の雑多なオブジェクトのいずれかを、常に値として保持します。これらのデータタイプのそれぞれは、対応するタグ値をもちます。すべてのタグは<code class="literal">enum
+Lisp_Type</code>により列挙され、<code class="literal">Lisp_Object</code>の3ビットのビットフィールソに配置されます。残りのビットは、それ自身の値です。整数は即値(<em class="firstterm">値ビット</em>で直接表される)、他のすべてのオブジェクトは、ヒープに割り当てられた対応するオブジェクトへのCポインターで表されます。<code class="literal">Lisp_Object</code>のサイズはプラットフォームと設定に依存します。これは通常は背景プラットフォームのポインターと等しい(32ビットマシンなら32ビット、64ビットマシンなら64ビット)ですが、<code class="literal">Lisp_Object</code>が64ビットでも、すべてのポインターが32ビットのような特別な構成もあります。後者は<code class="literal">Lisp_Object</code>にたいして、64ビットの<code class="literal">long
+long</code>タイプを使用することにより、32ビットシステム上のLisp整数にたいする、値範囲の制限を乗り越えるためにデザインされたトリックです。
+</p><p>以下のCデータ構造体は、整数ではない基本的なデータタイプを表すために、<code class="filename">lisp.h</code>で定義されています:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">struct Lisp_Cons</code>
+</span></dt><dd><p>コンスセル。リストを構築するために使用されるオブジェクトである。
+</p></dd><dt><span class="term"><code class="literal">struct Lisp_String</code>
+</span></dt><dd><p>文字列。文字シーケンスを表す基本的オブジェクトである。
+</p></dd><dt><span class="term"><code class="literal">struct Lisp_Vector</code>
+</span></dt><dd><p>配列。インデックスによりアクセスできる、固定サイズのLispオブジェクトのセットである。
+</p></dd><dt><span class="term"><code class="literal">struct Lisp_Symbol</code>
+</span></dt><dd><p>シンボル。一般的に識別子として使用される一意な名前のエンティティである。
+</p></dd><dt><span class="term"><code class="literal">struct Lisp_Float</code>
+</span></dt><dd><p>Floating-point value.
+</p></dd><dt><span class="term"><code class="literal">union Lisp_Misc</code>
+</span></dt><dd><p>上記のいずれにも適合しない、雑多な種類のオブジェクト。
+</p></dd></dl></div><p>これらのタイプは、内部的タイプシステムの一級クラスの市民です。タグスペースは限られているので、他のすべてのタイプは<code class="literal">Lisp_Vectorlike</code>か<code class="literal">Lisp_Misc</code>のサブクラスです。サブタイプのベクターは<code class="literal">enum
+pvec_type</code>により列挙されておりウィンドウ、バッファー、フレーム、プロセスのようなほとんどすべての複雑なオブジェクトは、このカテゴリーに分類されます。マーカーとオーバーレイを含む残りのスペシャルタイプは、<code class="literal">enum
+Lisp_Misc_Type</code>により列挙されており、<code class="literal">Lisp_Misc</code>のサブタイプセットを形成します。
+</p><p><code class="literal">Lisp_Vectorlike</code>のいくつかのサブタイプを説明します。バッファーオブジェクトは、表示および編集を行うテキストを表します。ウィンドウはバッファーを表示したり、同一フレーム上で再帰的に他のウィンドウを配置するためのコンテナーに使用される、表示構造の一部です(Emacs
+Lispのウィンドウオブジェクトと、Xのようなユーザーインターフェースシステムに管理されるエンティティとしてのウィンドウを混同しないこと。Emacsの用語では後者はフレームと呼ばれる)。最後に、プロセスオブジェクトは、サブプロセスの管理に使用されます。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Buffer-Internals"/>Buffer Internals</h2></div></div></div><a id="idm88034512" class="indexterm"/><a id="idm88033744" class="indexterm"/><p>2つの構造体(<code class="filename">buffer.h</code>を参照)は、Cでバッファーを表すために使用されます。<code class="literal">buffer_text</code>構造体には、バッファーのテキストを記述するフィールドが含まれます。<code class="literal">buffer</code>構造体は他のフィールドを保持します。インダイレクトバッファーの場合には、2つ以上の<code class="literal">buffer</code>構造体が、同じ<code class="literal">buffer_text</code>構造体を参照します。
+</p><p>以下に<code class="literal">struct buffer_text</code>内のフィールドをいくつか示します:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">beg</code>
+</span></dt><dd><p>バッファーコンテンツのアドレス。
+</p></dd><dt><span class="term"><code class="literal">gpt</code>
+, </span><span class="term"><code class="literal">gpt_byte</code>
+</span></dt><dd><p>バッファーのギャップの文字位置とバイト位置。<a class="link" href="ch27s13.html" title="The Buffer Gap">Buffer Gap</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">z</code>
+, </span><span class="term"><code class="literal">z_byte</code>
+</span></dt><dd><p>バッファーテキストの終端の文字位置とバイト位置。
+</p></dd><dt><span class="term"><code class="literal">gap_size</code>
+</span></dt><dd><p>バッファーのギャップのサイズ。<a class="link" href="ch27s13.html" title="The Buffer Gap">Buffer Gap</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">modiff</code>
+, </span><span class="term"><code class="literal">save_modiff</code>
+, </span><span class="term"><code class="literal">chars_modiff</code>
+, </span><span class="term"><code class="literal">overlay_modiff</code>
+</span></dt><dd><p>これらのフィールドは、そのバッファーで行われた、バッファー変更イベントの数をカウントする。<code class="literal">modiff</code>はバッファー変更イベントのたびに増分され、それ以外では決して変化しない。<code class="literal">save_modiff</code>には、そのバッファーが最後にvisitまたは保存されたときの、<code class="literal">modiff</code>の値が含まれる。<code class="literal">chars_modiff</code>は、そのバッファー内の文字にたいする変更だけをカウントし、その他すべての種類の変更を無視する。<code class="literal">overlay_modiff</code>は、オーバーレイにたいする変更だけをカウントする。
+</p></dd><dt><span class="term"><code class="literal">beg_unchanged</code>
+, </span><span class="term"><code class="literal">end_unchanged</code>
+</span></dt><dd><p>最後の再表示完了以降に、未変更だと解っているテキストの、開始と終了の箇所での文字数。
+</p></dd><dt><span class="term"><code class="literal">unchanged_modified</code>
+, </span><span class="term"><code class="literal">overlay_unchanged_modified</code>
+</span></dt><dd><p>それぞれ、最後に再表示が完了した後の<code class="literal">modiff</code>と<code class="literal">overlay_modiff</code>の値。これらのカレント値が<code class="literal">modiff</code>や<code class="literal">overlay_modiff</code>とマッチしたら、それは<code class="literal">beg_unchanged</code>と<code class="literal">end_unchanged</code>に有用な情報が含まれないことを意味する。
+</p></dd><dt><span class="term"><code class="literal">markers</code>
+</span></dt><dd><p>このバッファーを参照するマーカー。これは実際には単一のマーカーであり、自身のマーカー“チェーン”内の一連の要素が、そのバッファー内のテキストを参照する他のマーカーになる。
+</p></dd><dt><span class="term"><code class="literal">intervals</code>
+</span></dt><dd><p>そのバッファーのテキストプロパティを記録する、インターバルツリー。
+</p></dd></dl></div><p><code class="literal">struct buffer</code>のいくつかのフィールドを以下に示します:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">header</code>
+</span></dt><dd><p>タイプ<code class="literal">struct vectorlike_header</code>のヘッダーは、すべてのベクター類似のオブジェクトに共通。
+</p></dd><dt><span class="term"><code class="literal">own_text</code>
+</span></dt><dd><p>構造体<code class="literal">struct
+buffer_text</code>は、通常はバッファーのコンテンツを保持する。インダイレクトバッファーでは、このフィールドは使用されない。
+</p></dd><dt><span class="term"><code class="literal">text</code>
+</span></dt><dd><p>そのバッファーの<code class="literal">buffer_text</code>構造体へのポインター。通常のバッファーでは、上述の<code class="literal">own_text</code>フィールドである。インダイレクトバッファーでは、そのベースバッファーの<code class="literal">own_text</code>フィールドになる。
+</p></dd><dt><span class="term"><code class="literal">next</code>
+</span></dt><dd><p>killされたバッファーを含むすべてのバッファーのチェーン内において、次のバッファーへのポインター。このチェーンは、killされたバッファーを正しく回収するために、割り当てとガーベージコレクションのためだけに使用される。
+</p></dd><dt><span class="term"><code class="literal">pt</code>
+, </span><span class="term"><code class="literal">pt_byte</code>
+</span></dt><dd><p>バッファー内のポイントの文字位置とバイト位置。
+</p></dd><dt><span class="term"><code class="literal">begv</code>
+, </span><span class="term"><code class="literal">begv_byte</code>
+</span></dt><dd><p>そのバッファー内のアクセス可能範囲の、先頭位置の文字位置とバイト位置。
+</p></dd><dt><span class="term"><code class="literal">zv</code>
+, </span><span class="term"><code class="literal">zv_byte</code>
+</span></dt><dd><p>そのバッファー内のアクセス可能範囲の、終端位置の文字位置とバイト位置。
+</p></dd><dt><span class="term"><code class="literal">base_buffer</code>
+</span></dt><dd><p>インダイレクトバッファーでは、これはベースバッファーのポイントである。通常のバッファーではnull。
+</p></dd><dt><span class="term"><code class="literal">local_flags</code>
+</span></dt><dd><p>このフィールドは、そのバッファー内でローカルな変数にたいして、それを示すフラグを含む。そのような変数はCコードでは<code class="literal">DEFVAR_PER_BUFFER</code>を使用して宣言され、それらのバッファーローカルなバインディングは、このバッファー構造体自身内のフィールドに格納される(これらのフィールドのいくつかは、このテーブル内で説明されておる)。
+</p></dd><dt><span class="term"><code class="literal">modtime</code>
+</span></dt><dd><p>visitされているファイルの変更時刻。これは、そのファイルの書き込みおよび読み込み時にセットされる。そのバッファーをファイルに書き込む前に、そのファイルがディスク上で変更されていないことを確認するために、このフィールドとそのファイルの変更時刻を比較する。<a class="link" href="ch27s05.html" title="Buffer Modification">Buffer
+Modification</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">auto_save_modified</code>
+</span></dt><dd><p>そのバッファーが最後に自動保存さらたときの時刻。
+</p></dd><dt><span class="term"><code class="literal">last_window_start</code>
+</span></dt><dd><p>そのバッファー最後にウィンドウに表示されたときの、の<code class="literal">window-start</code>位置。
+</p></dd><dt><span class="term"><code class="literal">clip_changed</code>
+</span></dt><dd><p>このフラグは、そのバッファーでのナローイングが変更されているかを示す。<a class="link" href="ch30s04.html" title="Narrowing">Narrowing</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">prevent_redisplay_optimizations_p</code>
+</span></dt><dd><p>このフラグは、そのバッファーの表示において、再表示最適化が使用されるべきではないことを示す。
+</p></dd><dt><span class="term"><code class="literal">overlay_center</code>
+</span></dt><dd><p>このフィールドは、カレントオーバーレイの中心位置を保持する。<a class="link" href="ch38s09.html#Managing-Overlays" title="Managing Overlays">Managing Overlays</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">overlays_before</code>
+, </span><span class="term"><code class="literal">overlays_after</code>
+</span></dt><dd><p>これらのフィールドは、カレントオーバーレイ中心、またはその前で終わるオーバーレイのリスト、およびカレントオーバーレイの後で終わるオーバーレイのリストである。<a class="link" href="ch38s09.html#Managing-Overlays" title="Managing Overlays">Managing
+Overlays</a>を参照のこと。<code class="literal">overlays_before</code>は終端位置の記述順に格納され、<code class="literal">overlays_after</code>は先頭位置増加順で格納される。
+</p></dd><dt><span class="term"><code class="literal">name</code>
+</span></dt><dd><p>そのバッファーを命名するLisp文字列。これは一意であることが保証されている。<a class="link" href="ch27s03.html" title="Buffer Names">Buffer Names</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">save_length</code>
+</span></dt><dd><p>そのバッファーがvisitしているファイルを、最後に読み込みまたは保存したときの長さ。インダイレクトバッファーは決して保存されることはないので、保存に関して、このフィールドとその他のフィールドは、<code class="literal">buffer_text</code>構造体で維持されない
+</p></dd><dt><span class="term"><code class="literal">directory</code>
+</span></dt><dd><p>相対ファイル名を展開するディレクトリー。これはバッファーローカル変数<code class="literal">default-directory</code>の値である(<a class="link" href="ch25s08.html#File-Name-Expansion" title="Functions that Expand Filenames">File
+Name Expansion</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">filename</code>
+</span></dt><dd><p>そのバッファーがvisitしているファイルの名前。これは、バッファーローカル変数<code class="literal">buffer-file-name</code>の値である(<a class="link" href="ch27s04.html" title="Buffer File Name">Buffer
+File Name</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">undo_list</code>
+, </span><span class="term"><code class="literal">backed_up</code>
+, </span><span class="term"><code class="literal">auto_save_file_name</code>
+, </span><span class="term"><code class="literal">auto_save_file_format</code>
+, </span><span class="term"><code class="literal">read_only</code>
+, </span><span class="term"><code class="literal">file_format</code>
+, </span><span class="term"><code class="literal">file_truename</code>
+, </span><span class="term"><code class="literal">invisibility_spec</code>
+, </span><span class="term"><code class="literal">display_count</code>
+, </span><span class="term"><code class="literal">display_time</code>
+</span></dt><dd><p>これらのフィールドは、自動的にバッファーローカル(<a class="link" href="ch12s10.html" title="Buffer-Local Variables">Buffer-Local
+Variables</a>を参照)になるLisp変数の値を格納する。これらに対応する変数は、名前に追加のプレフィクス<code class="literal">buffer-</code>がつき、アンダースコアがダッシュで置換される。たとえば<code class="literal">undo_list</code>は、<code class="literal">buffer-undo-list</code>の値を格納する。
+</p></dd><dt><span class="term"><code class="literal">mark</code>
+</span></dt><dd><p>そのバッファーにたいするマーク。マークはマーカーなので、リスト<code class="literal">markers</code>内にも含まれる。<a class="link" href="ch31s07.html" title="The Mark">The Mark</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">local_var_alist</code>
+</span></dt><dd><p>この連想リストは、そのバッファーのバッファーローカル変数のバインディングを記述する。これにはバッファーオブジェクト内に特別なスロットをもつ、ビルトインのバッファーローカルなバインディングは含まれない(このテーブルでは、それらのスロットは省略している)。<a class="link" href="ch12s10.html" title="Buffer-Local Variables">Buffer-Local
+Variables</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">major_mode</code>
+</span></dt><dd><p>そのバッファーのメジャーモードを命名するシンボル(例: <code class="literal">lisp-mode</code>)。
+</p></dd><dt><span class="term"><code class="literal">mode_name</code>
+</span></dt><dd><p>そのメジャーモードの愛称(例: <code class="literal">"Lisp"</code>)。
+</p></dd><dt><span class="term"><code class="literal">keymap</code>
+, </span><span class="term"><code class="literal">abbrev_table</code>
+, </span><span class="term"><code class="literal">syntax_table</code>
+, </span><span class="term"><code class="literal">category_table</code>
+, </span><span class="term"><code class="literal">display_table</code>
+</span></dt><dd><p>これらのフィールドは、そのバッファーのローカルキーマップ(<a class="link" href="ch22.html" title="Chapter 21. Keymaps">Keymaps</a>を参照)、abbrevテーブル(<a class="link" href="ch36.html#Abbrev-Tables" title="Abbrev Tables">Abbrev
+Tables</a>を参照)、構文テーブル(<a class="link" href="ch35.html" title="Chapter 34. Syntax Tables">Syntax
+Tables</a>を参照)、カテゴリーテーブル(<a class="link" href="ch35s08.html" title="Categories">Categories</a>を参照)、ディスプレーテーブル(<a class="link" href="ch38s21.html#Display-Tables" title="Display Tables">Display
+Tables</a>を参照)を格納する。
+</p></dd><dt><span class="term"><code class="literal">downcase_table</code>
+, </span><span class="term"><code class="literal">upcase_table</code>
+, </span><span class="term"><code class="literal">case_canon_table</code>
+</span></dt><dd><p>これらのフィールドはテキストを小文字、大文字、およびcase-fold検索でのテキストの正規化の変換テーブルを格納する。<a class="link" href="ch05s09.html" title="The Case Table">Case
+Tables</a>を参照のこと。
+</p></dd><dt><span class="term"><code class="literal">minor_modes</code>
+</span></dt><dd><p>そのバッファーのマイナーモードのalist。
+</p></dd><dt><span class="term"><code class="literal">pt_marker</code>
+, </span><span class="term"><code class="literal">begv_marker</code>
+, </span><span class="term"><code class="literal">zv_marker</code>
+</span></dt><dd><p>これらのフィールドはインダイレクトバッファー、またはインダイレクトバッファーのベースバッファーであるようなバッファーでのみ使用される。これらはそれぞれ、そのバッファーがカレントでないときに、そのバッファーにたいする<code class="literal">pt</code>、<code class="literal">begv</code>、<code class="literal">zv</code>を記録するマーカーを保持する。
+</p></dd><dt><span class="term"><code class="literal">mode_line_format</code>
+, </span><span class="term"><code class="literal">header_line_format</code>
+, </span><span class="term"><code class="literal">case_fold_search</code>
+, </span><span class="term"><code class="literal">tab_width</code>
+, </span><span class="term"><code class="literal">fill_column</code>
+, </span><span class="term"><code class="literal">left_margin</code>
+, </span><span class="term"><code class="literal">auto_fill_function</code>
+, </span><span class="term"><code class="literal">truncate_lines</code>
+, </span><span class="term"><code class="literal">word_wrap</code>
+, </span><span class="term"><code class="literal">ctl_arrow</code>
+, </span><span class="term"><code class="literal">bidi_display_reordering</code>
+, </span><span class="term"><code class="literal">bidi_paragraph_direction</code>
+, </span><span class="term"><code class="literal">selective_display</code>
+, </span><span class="term"><code class="literal">selective_display_ellipses</code>
+, </span><span class="term"><code class="literal">overwrite_mode</code>
+, </span><span class="term"><code class="literal">abbrev_mode</code>
+, </span><span class="term"><code class="literal">mark_active</code>
+, </span><span class="term"><code class="literal">enable_multibyte_characters</code>
+, </span><span class="term"><code class="literal">buffer_file_coding_system</code>
+, </span><span class="term"><code class="literal">cache_long_line_scans</code>
+, </span><span class="term"><code class="literal">point_before_scroll</code>
+, </span><span class="term"><code class="literal">left_fringe_width</code>
+, </span><span class="term"><code class="literal">right_fringe_width</code>
+, </span><span class="term"><code class="literal">fringes_outside_margins</code>
+, </span><span class="term"><code class="literal">scroll_bar_width</code>
+, </span><span class="term"><code class="literal">indicate_empty_lines</code>
+, </span><span class="term"><code class="literal">indicate_buffer_boundaries</code>
+, </span><span class="term"><code class="literal">fringe_indicator_alist</code>
+, </span><span class="term"><code class="literal">fringe_cursor_alist</code>
+, </span><span class="term"><code class="literal">scroll_up_aggressively</code>
+, </span><span class="term"><code class="literal">scroll_down_aggressively</code>
+, </span><span class="term"><code class="literal">cursor_type</code>
+, </span><span class="term"><code class="literal">cursor_in_non_selected_windows</code>
+</span></dt><dd><p>これらのフィールドは、自動的にバッファーローカル(<a class="link" href="ch12s10.html" title="Buffer-Local Variables">Buffer-Local
+Variables</a>を参照)になるLisp変数の値を格納する。これらに対応する変数は、名前のアンダースコアがダッシュで置換される。たとえば<code class="literal">mode_line_format</code>は、<code class="literal">mode-line-format</code>の値を格納する。
+</p></dd><dt><span class="term"><code class="literal">last_selected_window</code>
+</span></dt><dd><p>これは、最後に選択されていたときにそのバッファーを表示していたウィンドウ、またはそのウィンドウがすでにそのバッファーを表示していなければ<code class="literal">nil</code>である。
+</p></dd></dl></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Window-Internals"/>Window Internals</h2></div></div></div><a id="idm87880528" class="indexterm"/><a id="idm87879760" class="indexterm"/><p>ウィンドウのフィールドには、以下が含まれます(完全なリストは<code class="filename">window.h</code>の<code class="literal">struct window</code>を参照されたい):
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">frame</code>
+</span></dt><dd><p>そのウィンドウがあるフレーム。
+</p></dd><dt><span class="term"><code class="literal">mini_p</code>
+</span></dt><dd><p>そのウィンドウがミニバッファーウィンドウなら非<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">parent</code>
+</span></dt><dd><p>Emacsは内部的に、ウィンドウをツリーにアレンジする。ウィンドウの兄弟グループは、そのエリアがすべての兄弟を含むような親ウィンドウをもつ。このフィールドは、ウィンドウの親を指す。
+</p><p>親ウィンドウはバッファーを表示せず、子ウィンドウ形成を除き、表示では少ししか役割を果たさない。Emacs
+Lispプログラムでからは、通常は親ウィンドウへのアクセスがない。Emacs
+Lispプログラムでは、実際にバッファーを表示するツリーの子ノードのウィンドウにたいして操作を行う。
+</p></dd><dt><span class="term"><code class="literal">hchild</code>
+, </span><span class="term"><code class="literal">vchild</code>
+</span></dt><dd><p>これらのフィールドは、そのウィンドウの左端の子、上端の子を含む。子ウィンドウによりウィンドウが分割される場合は<code class="literal">hchild</code>、垂直に分割される場合は<code class="literal">vchild</code>が使用される。生きたウィンドウでは<code class="literal">hchild</code>、<code class="literal">vchild</code>、<code class="literal">buffer</code>のいずれか1つだけが非<code class="literal">nil</code>となる。
+</p></dd><dt><span class="term"><code class="literal">next</code>
+, </span><span class="term"><code class="literal">prev</code>
+</span></dt><dd><p>そのウィンドウの次の兄弟と、前の兄弟。自身のグループ内でそのウィンドウが右端か下端なら、<code class="literal">next</code>は<code class="literal">nil</code>。自身のグループ内でそのウィンドウが左端か上端なら、<code class="literal">prev</code>は<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">left_col</code>
+</span></dt><dd><p>そのウィンドウの左端を、そのフレームの最左列(列0)から相対的に数えた列数。
+</p></dd><dt><span class="term"><code class="literal">top_line</code>
+</span></dt><dd><p>そのウィンドウの上端を、そのフレームの最上行(行0)から相対的に数えた行数。
+</p></dd><dt><span class="term"><code class="literal">total_cols</code>
+, </span><span class="term"><code class="literal">total_lines</code>
+</span></dt><dd><p>列数と行数で数えた、そのウィンドウの幅と高さ。幅にはスクロールバーとフリンジ、および/または(もしあれば)ウィンドウ右側のセパレーターラインが含まれる。
+</p></dd><dt><span class="term"><code class="literal">buffer</code>
+</span></dt><dd><p>そのウィンドウが表示しているバッファー。
+</p></dd><dt><span class="term"><code class="literal">start</code>
+</span></dt><dd><p>そのウィンドウ内に表示されるバッファーで、ウィンドウに最初に表示される文字の位置を指すマーカー。
+</p></dd><dt><span class="term"><code class="literal">pointm</code>
+</span></dt><dd><a id="idm87855312" class="indexterm"/><p>これは、そのウィンドウが選択されているときの、カレントバッファーのポイント値。選択されていなければ、前の値が保たれる。
+</p></dd><dt><span class="term"><code class="literal">force_start</code>
+</span></dt><dd><p>このフラグが非<code class="literal">nil</code>なら、Lispプログラムによりそのウィンドウが明示的にスクロールされたことを示す。これはポイントがスクリーン外の場合の、次回再表示に影響を与える。影響とは、ポイント周辺のテキストを表示するためにウィンドウをスクロールするかわりに、スクリーン上にある位置にポイントを移動するというものである。
+</p></dd><dt><span class="term"><code class="literal">frozen_window_start_p</code>
+</span></dt><dd><p>このフィールドは再表示にたいして、たとえポイントが不可視になったとしても、そのウィンドウの<code class="literal">start</code>を変更するべきではないことを示すために、一時的に1にセットされる。
+</p></dd><dt><span class="term"><code class="literal">start_at_line_beg</code>
+</span></dt><dd><p>非<code class="literal">nil</code>は、<code class="literal">start</code>のカレント値が、そのウィンドウ選択時に先頭行だったことを意味する。
+</p></dd><dt><span class="term"><code class="literal">use_time</code>
+</span></dt><dd><p>これは、そのウィンドウが最後に選択された時刻である。関数<code class="literal">get-lru-window</code>はこの値を使用する。
+</p></dd><dt><span class="term"><code class="literal">sequence_number</code>
+</span></dt><dd><p>そのウィンドウ作成時に割り当てられた一意な番号。
+</p></dd><dt><span class="term"><code class="literal">last_modified</code>
+</span></dt><dd><p>前回のそのウィンドウの再表示完了時の、そのウィンドウのバッファーの<code class="literal">modiff</code>フィールド。
+</p></dd><dt><span class="term"><code class="literal">last_overlay_modified</code>
+</span></dt><dd><p>前回のそのウィンドウの再表示完了時の、そのウィンドウのバッファーの<code class="literal">overlay_modiff</code>フィールド。
+</p></dd><dt><span class="term"><code class="literal">last_point</code>
+</span></dt><dd><p>前回のそのウィンドウの再表示完了時の、そのウィンドウのバッファーのポイント値。
+</p></dd><dt><span class="term"><code class="literal">last_had_star</code>
+</span></dt><dd><p>非<code class="literal">nil</code>値は、そのウィンドウが最後に更新されたとき、そのウィンドウのバッファーが“変更”されたことを意味する。
+</p></dd><dt><span class="term"><code class="literal">vertical_scroll_bar</code>
+</span></dt><dd><p>そのウィンドウの垂直スクロールバー。
+</p></dd><dt><span class="term"><code class="literal">left_margin_cols</code>
+, </span><span class="term"><code class="literal">right_margin_cols</code>
+</span></dt><dd><p>そのウィンドウの、左マージンと右マージンの幅。値<code class="literal">nil</code>はマージンがないことを意味する。
+</p></dd><dt><span class="term"><code class="literal">left_fringe_width</code>
+, </span><span class="term"><code class="literal">right_fringe_width</code>
+</span></dt><dd><p>そのウィンドウの、左フリンジと右フリンジの幅。値<code class="literal">nil</code>と<code class="literal">t</code>は、フレームの値の使用を意味する。
+</p></dd><dt><span class="term"><code class="literal">fringes_outside_margins</code>
+</span></dt><dd><p>非<code class="literal">nil</code>値は、ディスプレーマージン外側のフリンジ、それ以外ならフリンジはマージンとテキストの間にあることを意味する。
+</p></dd><dt><span class="term"><code class="literal">window_end_pos</code>
+</span></dt><dd><p>これは<code class="literal">z</code>から、そのウィンドウのカレントマトリクス内の最後のグリフのバッファー位置を減じて算出される。この値は、<code class="literal">window_end_valid</code>が非<code class="literal">nil</code>のときだけ有効である。
+</p></dd><dt><span class="term"><code class="literal">window_end_bytepos</code>
+</span></dt><dd><p><code class="literal">window_end_pos</code>に対応するバイト位置。
+</p></dd><dt><span class="term"><code class="literal">window_end_vpos</code>
+</span></dt><dd><p><code class="literal">window_end_pos</code>を含む行の、ウィンドウに相対的な垂直位置。
+</p></dd><dt><span class="term"><code class="literal">window_end_valid</code>
+</span></dt><dd><p>このフィールドは、<code class="literal">window_end_pos</code>が真に有効なら、非<code class="literal">nil</code>値にセットされる。これは重要な再表示が先に割り込んだ場合には、<code class="literal">window_end_pos</code>を算出した表示がスクリーン上に出現しなくなるので<code class="literal">nil</code>となる。
+</p></dd><dt><span class="term"><code class="literal">cursor</code>
+</span></dt><dd><p>そのウィンドウ内でカーソルがどこにあるかを記述する構造体。
+</p></dd><dt><span class="term"><code class="literal">last_cursor</code>
+</span></dt><dd><p>完了した最後の表示での<code class="literal">cursor</code>の値。
+</p></dd><dt><span class="term"><code class="literal">phys_cursor</code>
+</span></dt><dd><p>そのウィンドウのカーソルが物理的にどこにあるかを記述する構造体。
+</p></dd><dt><span class="term"><code class="literal">phys_cursor_type</code>
+, </span><span class="term"><code class="literal">phys_cursor_height</code>
+, </span><span class="term"><code class="literal">phys_cursor_width</code>
+</span></dt><dd><p>そのウィンドウの最後の表示での、カーソルのタイプ、高さ、幅。
+</p></dd><dt><span class="term"><code class="literal">phys_cursor_on_p</code>
+</span></dt><dd><p>このフィールドは、カーソルが物理的にオンなら非0。
+</p></dd><dt><span class="term"><code class="literal">cursor_off_p</code>
+</span></dt><dd><p>非0はそのウィンドウのカーソルが、論理的にオフであることを意味する。これはカーソルの点滅に使用される。
+</p></dd><dt><span class="term"><code class="literal">last_cursor_off_p</code>
+</span></dt><dd><p>このフィールドは最後の再表示時の、<code class="literal">cursor_off_p</code>の値を含む。
+</p></dd><dt><span class="term"><code class="literal">must_be_updated_p</code>
+</span></dt><dd><p>これは、そのウィンドウを更新しなければならないとき、再表示の間1にセットされる。
+</p></dd><dt><span class="term"><code class="literal">hscroll</code>
+</span></dt><dd><p>これは、そのウィンドウ内の表示が左へ水平スクロールされている列数。通常これは0。
+</p></dd><dt><span class="term"><code class="literal">vscroll</code>
+</span></dt><dd><p>ピクセル単位での垂直スクロール量。通常これは0。
+</p></dd><dt><span class="term"><code class="literal">dedicated</code>
+</span></dt><dd><p>そのウィンドウがそれのバッファー専用(dedicated)なら、非<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">display_table</code>
+</span></dt><dd><p>そのウィンドウのディスプレーテーブル、それが何も指定されていなければ<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">update_mode_line</code>
+</span></dt><dd><p>非<code class="literal">nil</code>は、そのウィンドウのモードラインの更新が必要なことを意味する。
+</p></dd><dt><span class="term"><code class="literal">base_line_number</code>
+</span></dt><dd><p>そのバッファーの特定の位置の行番号か<code class="literal">nil</code>。これは、モードラインでポイントの行番号を表示するために使用される。
+</p></dd><dt><span class="term"><code class="literal">base_line_pos</code>
+</span></dt><dd><p>行番号が既知であるバッファー位置、それが知られていなければ<code class="literal">nil</code>。これがバッファーなら、そのウィンドウがバッファーを表示するかぎり、行番号は表示されない。
+</p></dd><dt><span class="term"><code class="literal">column_number_displayed</code>
+</span></dt><dd><p>そのウィンドウのモードラインに表示されているカレント列番号、列番号が表示されていなければ<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">current_matrix</code>
+, </span><span class="term"><code class="literal">desired_matrix</code>
+</span></dt><dd><p>そのウィンドウのカレント、および望まれる表示を記述するグリフ。
+</p></dd></dl></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Process-Internals"/>Process Internals</h2></div></div></div><a id="idm87778640" class="indexterm"/><a id="idm87777872" class="indexterm"/><p>プロセスのフィールドには以下が含まれます(完全なリストは、<code class="filename">process.h</code>の<code class="literal">struct
+Lisp_Process</code>の定義を参照されたい):
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">name</code>
+</span></dt><dd><p>プロセス名(文字列)。
+</p></dd><dt><span class="term"><code class="literal">command</code>
+</span></dt><dd><p>そのプロセスの開始に使用された、コマンド引数を含むリスト。ネットワークプロセスとシリアルプロセスでは、そのプロセスが実行中なら<code class="literal">nil</code>、停止していたら<code class="literal">t</code>。
+</p></dd><dt><span class="term"><code class="literal">filter</code>
+</span></dt><dd><p>そのプロセスから出力を受け取るために使用される関数。
+</p></dd><dt><span class="term"><code class="literal">sentinel</code>
+</span></dt><dd><p>そのプロセスの状態が変化したら常に呼び出される関数。
+</p></dd><dt><span class="term"><code class="literal">buffer</code>
+</span></dt><dd><p>そのプロセスに関連付けられたバッファー。
+</p></dd><dt><span class="term"><code class="literal">pid</code>
+</span></dt><dd><p>オペレーティングシステムのプロセス<acronym class="acronym">ID</acronym>(整数)。ネットワークプロセスやシリアルプロセスのような疑似プロセスでは、値0を使用する。
+</p></dd><dt><span class="term"><code class="literal">childp</code>
+</span></dt><dd><p>フラグで、もし実際に子プロセスなら<code class="literal">t</code>。ネットワークプロセスやシリアルプロセスでは、<code class="literal">make-network-process</code>または<code class="literal">make-serial-process</code>にもとづくplist。
+</p></dd><dt><span class="term"><code class="literal">mark</code>
+</span></dt><dd><p>そのプロセスからの出力から、バッファーに挿入された終端位置を示すマーカー。常にではないが、これはしばしばバッファー終端である。
+</p></dd><dt><span class="term"><code class="literal">kill_without_query</code>
+</span></dt><dd><p>これが非0なら、そのプロセス実行中にEmacsをkillしても、そのプロセスをkillすることにたいして確認を求めない。
+</p></dd><dt><span class="term"><code class="literal">raw_status</code>
+</span></dt><dd><p>システムコール<code class="literal">wait</code>がリターンする、rawプロセス状態。
+</p></dd><dt><span class="term"><code class="literal">status</code>
+</span></dt><dd><p><code class="literal">process-status</code>がリターンするようなプロセス状態。
+</p></dd><dt><span class="term"><code class="literal">tick</code>
+, </span><span class="term"><code class="literal">update_tick</code>
+</span></dt><dd><p>これら2つのフィールドが等しくないなら、センチネル実行またはプロセスバッファーへのメッセージ挿入により、そのプロセスの状態変更は報告される必要がある。
+</p></dd><dt><span class="term"><code class="literal">pty_flag</code>
+</span></dt><dd><p>そのサブプロセスがptyを使用して対話する場合は非<code class="literal">nil</code>。パイプを使用する場合には<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">infd</code>
+</span></dt><dd><p>そのプロセスからの入力にたいする、ファイルデゥクリプター。
+</p></dd><dt><span class="term"><code class="literal">outfd</code>
+</span></dt><dd><p>そのプロセスへの出力にたいする、ファイルデゥクリプター。
+</p></dd><dt><span class="term"><code class="literal">tty_name</code>
+</span></dt><dd><p>そのサブプロセスが使用する端末の名前、またはパイプを使用する場合は<code class="literal">nil</code>。
+</p></dd><dt><span class="term"><code class="literal">decode_coding_system</code>
+</span></dt><dd><p>そのプロセスからの入力のデコーディングにたいするコーディングシステム。
+</p></dd><dt><span class="term"><code class="literal">decoding_buf</code>
+</span></dt><dd><p>デコーディング用の作業バッファー。
+</p></dd><dt><span class="term"><code class="literal">decoding_carryover</code>
+</span></dt><dd><p>デコーディングでのキャリーオーバーのサイズ。
+</p></dd><dt><span class="term"><code class="literal">encode_coding_system</code>
+</span></dt><dd><p>そのプロセスからの出力のエンコーディングにたいするコーディングシステム。
+</p></dd><dt><span class="term"><code class="literal">encoding_buf</code>
+</span></dt><dd><p>エンコーディング用の作業バッファー。
+</p></dd><dt><span class="term"><code class="literal">inherit_coding_system_flag</code>
+</span></dt><dd><p>プロセス出力のデコードに使用されるコーディングシステムから、プロセスバッファーの<code class="literal">coding-system</code>をセットするフラグ。
+</p></dd><dt><span class="term"><code class="literal">type</code>
+</span></dt><dd><p>プロセスのタイプを示す<code class="literal">real</code>、<code class="literal">network</code>、<code class="literal">serial</code>いずれかのシンボル。
+</p></dd></dl></div></div></div></body></html>

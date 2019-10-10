@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Window Parameters</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Window-Parameters"/>Window Parameters</h1></div></div></div><a id="idm71292368" class="indexterm"/><p>このセクションでは、ウィンドウに追加の情報を関連付けるためにウィンドウパラメーターを使用する方法を説明します。
+</p><pre class="synopsis"><a id="idm71290960" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-parameter</code> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>parameter</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>の<em class="replaceable"><code>parameter</code></em>の値をリターンする。<em class="replaceable"><code>window</code></em>のデフォルトは、選択されたウィンドウである。<em class="replaceable"><code>window</code></em>に<em class="replaceable"><code>parameter</code></em>にたいするセッティングがない場合、この関数は<code class="literal">nil</code>をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm71284944" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-parameters</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>window</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>のすべてのパラメーターと、その値をリターンする。<em class="replaceable"><code>window</code></em>のデフォルトは、選択されたウィンドウである。リターン値は<code class="literal">nil</code>、または<code class="literal">(<em class="replaceable"><code>parameter</code></em>
+. <em class="replaceable"><code>value</code></em>)</code>という形式をもつ要素からなる連想リストである。
+</p></blockquote></div><pre class="synopsis"><a id="idm71278800" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-window-parameter</code> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>parameter</code></em> <em class="replaceable"><code>value</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>の<em class="replaceable"><code>parameter</code></em>の値に<em class="replaceable"><code>value</code></em>をセットして、<em class="replaceable"><code>value</code></em>をリターンする。<em class="replaceable"><code>window</code></em>のデフォルトは、選択されたウィンドウである。
+</p></blockquote></div><p>デフォルトでは、ウィンドウ構成(window configuration)やウィンドウ状態(states of
+windows)の保存とリストアを行う関数は、ウィンドウパラメーターについては関知しません(<a class="link" href="ch28s24.html" title="Window Configurations">Window
+Configurations</a>を参照)。これは、<code class="literal">save-window-excursion</code>のbody内でパラメーターの値を変更したときは、そのマクロのexit時に以前の値がリストアされないことを意味します。これはまた、以前に<code class="literal">window-state-get</code>で保存されたウィンドウ状態を<code class="literal">window-state-put</code>でリストアしたときは、クローンされたすべてのウィンドウのパラメーターが<code class="literal">nil</code>にリセットされることも意味します。以下の変数により、この標準の挙動をオーバーライドできます:
+</p><pre class="synopsis"><a id="idm71269968" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">window-persistent-parameters</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、<code class="literal">current-window-configuration</code>と<code class="literal">window-state-get</code>により保存され、<code class="literal">set-window-configuration</code>と<code class="literal">window-state-put</code>によりリストアされるパラメーターを指定するalistである。<a class="link" href="ch28s24.html" title="Window Configurations">Window
+Configurations</a>を参照のこと。
+</p><p>このalistの各エントリーのCARはパラメーターを指定するシンボルである。CDRは以下のいずれかであること:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>この値は、そのパラメーターが<code class="literal">window-state-get</code>と<code class="literal">current-window-configuration</code>のいずれによっても保存されていないことを意味する。
+</p></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><p>この値は、そのパラメーターが<code class="literal">current-window-configuration</code>、および(<em class="replaceable"><code>writable</code></em>引数が<code class="literal">nil</code>の場合は)<code class="literal">window-state-get</code>により保存されたことを意味する。
+</p></dd><dt><span class="term"><code class="literal">writable</code>
+</span></dt><dd><p>これは、そのパラメーターが無条件で<code class="literal">current-window-configuration</code>と<code class="literal">window-state-get</code>の両方により保存されたことを意味する。この値は、入力構文(read
+syntax)をもたないパラメーターに使用するべきではない。使用した場合、別のセッションで<code class="literal">window-state-put</code>を呼び出すと、<code class="literal">invalid-read-syntax</code>エラーで失敗するだろう。
+</p></dd></dl></div></blockquote></div><p>いくつかの関数(特に<code class="literal">delete-window</code>、<code class="literal">delete-other-windows</code>、<code class="literal">split-window</code>)は、<em class="replaceable"><code>window</code></em>引数にパラメーターセットをもつ場合は特別な挙動を示すかもしれません。以下の変数を非<code class="literal">nil</code>値にバインドすることにより、そのような特別な挙動をオーバーライドできます:
+</p><pre class="synopsis"><a id="idm71252432" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">ignore-window-parameters</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>の場合、いくつかの標準関数はウィンドウパラメーターを処理しない。現在のところ影響を受ける関数は<code class="literal">split-window</code>、<code class="literal">delete-window</code>、<code class="literal">delete-other-windows</code>、<code class="literal">other-window</code>である。
+</p><p>アプリケーションは、これらの関数の呼び出し周辺で、この変数を非<code class="literal">nil</code>にバインドできる。これを行った場合、そのアプリケーションはその関数のexit時に、関連するすべてのウィンドウのパラメーターを正しく割り当てる責任をもつ。
+</p></blockquote></div><p>以下のパラメーターは現在のところ、ウィンドウ管理コードにより使用されています:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">delete-window</code>
+</span></dt><dd><p>このパラメーターは、<code class="literal">delete-window</code>の実行に影響する(<a class="link" href="ch28s06.html" title="Deleting Windows">Deleting Windows</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">delete-other-windows</code>
+</span></dt><dd><p>このパラメーターは、<code class="literal">delete-other-windows</code>の実行に影響する(<a class="link" href="ch28s06.html" title="Deleting Windows">Deleting Windows</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">split-window</code>
+</span></dt><dd><p>このパラメーターは、<code class="literal">split-window</code>の実行に影響する(<a class="link" href="ch28s05.html" title="Splitting Windows">Splitting Windows</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">other-window</code>
+</span></dt><dd><p>このパラメーターは、<code class="literal">other-window</code>の実行に影響する(<a class="link" href="ch28s09.html" title="Cyclic Ordering of Windows">Cyclic Window Ordering</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">no-other-window</code>
+</span></dt><dd><p>このパラメーターは、そのウィンドウを<code class="literal">other-window</code>により選択不可とマークする(<a class="link" href="ch28s09.html" title="Cyclic Ordering of Windows">Cyclic Window
+Ordering</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">clone-of</code>
+</span></dt><dd><p>このパラメーターは、そのウィンドウがクローンされたことを指定する。これは<code class="literal">window-state-get</code>によりインストールされる(<a class="link" href="ch28s24.html" title="Window Configurations">Window
+Configurations</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">quit-restore</code>
+</span></dt><dd><p>このパラメーターは、バッファー表示関数によりインストールされ、<code class="literal">quit-restore-window</code>により参照される(<a class="link" href="ch28s17.html" title="Quitting Windows">Quitting
+Windows</a>を参照)。これは4つの要素を含む:
+</p><p>1つ目の要素は<code class="literal">window</code>(ウィンドウは<code class="literal">display-buffer</code>により特別に作られた)、<code class="literal">frame</code>(別のフレームが作られた)、<code class="literal">same</code>(ウィンドウは前と同じバッファーを表示する)、<code class="literal">other</code>(ウィンドウは前と異なるバッファーを表示する)のシンボルのいずれかである。
+</p><p>2つ目の要素はシンボル<code class="literal">window</code>、<code class="literal">frame</code>、または要素がそのウィンドウに前に表示されていたバッファー、そのときのウィンドウstart位置、ウィンドウポイント位置、ウィンドウの高さであるようなリストの、いずれかである。
+</p><p>3つ目の要素は、そのパラメーター作成時点に選択されていたウィンドウである。関数<code class="literal">quit-restore-window</code>は、その引数としてこのウィンドウが渡された際は、そのウィンドウの再選択を試みる。
+</p><p>4つ目の要素は、その表示がこのパラメーターの生成を引き起こしたバッファーである。<code class="literal">quit-restore-window</code>は、指定されたウィンドウがまだそのバッファーを表示している場合のみ、それを削除する。
+</p></dd></dl></div><p>追加のパラメーターとして、<code class="literal">window-atom</code>と<code class="literal">window-side</code>があります。これらは予約されており、アプリケーションが使用するべきではありません。
+</p></div></body></html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 7. Hash Tables</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Hash-Tables"/>Chapter 7. Hash Tables</h1></div></div></div><a id="idm48535888" class="indexterm"/><a id="idm48535120" class="indexterm"/><p>ハッシュテーブル(hash
+table)は、非常に高速なルックアップテーブルの一種で、キーを対応する値にマップするという点では、alist(<a class="link" href="ch06s08.html" title="Association Lists">Association
+Lists</a>を参照してください)に似ています。ハッシュテーブルは、以下の点でalistと異なります:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>ハッシュテーブルでのルックアップ(lookup: 照合)は、巨大なテーブルにたいして非常に高速です —
+実際のところ、ルックアップに必要な時間は、そのテーブルにいくつの要素が格納されているかとは、基本的に<span class="emphasis"><em>無関係</em></span>です。ハッシュテーブルには多少の一定なオーバーヘッドがあるので、小さいテーブル(数十の要素)では、alistのほうが高速でしょう。
+</p></li><li class="listitem"><p>ハッシュテーブル内の対応には、特定の順序はありません。
+</p></li><li class="listitem"><p>2つのalistが共通の末尾(tail)を共有する方法のように、2つのハッシュテーブル間で構造を共有する方法はありません。
+</p></li></ul></div><p>Emacs
+Lispは、それらを処理する一連の関数とともに、一般的な用途のハッシュテーブルデータ型を提供します。ハッシュテーブルは特別なプリント表現をもち、それは‘<code class="literal">#s</code>’と、その後にハッシュテーブルのプロパティーと内容お指定するリストが続きます。<a class="link" href="ch08.html#Creating-Hash" title="Creating Hash Tables">Creating
+Hash</a>を参照してください。(用語“ハッシュ表記(hash
+notation)”は、プリント表現の最初に‘<code class="literal">#</code>’を使用する、入力構文をもたないオブジェクトのことを指し、これは用語“ハッシュテーブル(hash
+table)”にたいしては使用されません。<a class="link" href="ch03.html#Printed-Representation" title="Printed Representation and Read Syntax">Printed Representation</a>を参照してください。)
+</p><p>obarray(オブジェクト配列)もハッシュテーブルの一種ですが、これらは異なる型のオブジェクトで、intern(インターン)されたシンボルを記録するためだけに使用されます(<a class="link" href="ch09s03.html" title="Creating and Interning Symbols">Creating
+Symbols</a>を参照してください)。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Creating-Hash"/>Creating Hash Tables</h1></div></div></div><a id="idm48498384" class="indexterm"/><p>ハッシュテーブルを作成する基本的な関数は、<code class="literal">make-hash-table</code>です。
+</p><pre class="synopsis"><a id="idm48484176" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-hash-table</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>keyword-args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、指定された引数に対応する、新しいハッシュテーブルを作成します。引数は、キーワード(特別に認識される独自のシンボル)と、それに対応する値を交互に指定することにより構成されます。
+</p><p><code class="literal">make-hash-table</code>では、いくつかのキーワードが意味をもちますが、実際に知る必要があるのは、<code class="literal">:test</code>と<code class="literal">:weakness</code>の2つだけです。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">:test <em class="replaceable"><code>test</code></em></code>
+</span></dt><dd><p>これは、このハッシュテーブルにたいしてキーを照合する方法を指定します。デフォルトは<code class="literal">eql</code>であり、他の代替としては<code class="literal">eq</code>や<code class="literal">equal</code>があります:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">eql</code>
+</span></dt><dd><p>キーが数字の場合、それらが<code class="literal">equal</code>であれば、つまり、それらの値が等しく、どちらも整数、あるいはどちらも浮動少数の場合は“同一”です。それ以外では、2つの別々のオブジェクトは、決して“同一”になりません。
+</p></dd><dt><span class="term"><code class="literal">eq</code>
+</span></dt><dd><p>2つの個別のLispオブジェクトはすべて、“別”のキーです。
+</p></dd><dt><span class="term"><code class="literal">equal</code>
+</span></dt><dd><p>2つの個別のLispオブジェクトにたいして、それらが<code class="literal">equal</code>の場合、“同一”のキーです。
+</p></dd></dl></div><p><em class="replaceable"><code>test</code></em>にたいして追加の選択肢を定義するために、<code class="literal">define-hash-table-test</code> (<a class="link" href="ch08s03.html" title="Defining Hash Comparisons">Defining
+Hash</a>を参照してください)を使用することができます。
+</p></dd><dt><span class="term"><code class="literal">:weakness <em class="replaceable"><code>weak</code></em></code>
+</span></dt><dd><p>ハッシュテーブルのweakness(強度)は、ハッシュテーブル内に存在するキーと値を、ガーベージコレクションから保護するかどうかを指定します。
+</p><p>値<em class="replaceable"><code>weak</code></em>は、<code class="literal">nil</code>、<code class="literal">key</code>、<code class="literal">value</code>、<code class="literal">key-or-value</code>、<code class="literal">key-and-value</code>、または<code class="literal">t</code>(<code class="literal">key-and-value</code>のエイリアス)のうちの1つを指定しなければなりません。<em class="replaceable"><code>weak</code></em>が<code class="literal">key</code>の場合、そのハッシュテーブルは、(キーが他の場所で参照されていなければ)ハッシュテーブルのキーがガーベージコレクトされるのを妨げません。ある特定のキーがガーベージコレクトされた場合、それに対応する連想は、ハッシュテーブルから削除されます。
+</p><p><em class="replaceable"><code>weak</code></em>が<code class="literal">value</code>の場合、そのハッシュテーブルは、(値が他の場所で参照されていなければ)ハッシュテーブルの値がガベージコレクトされるのを妨げません。あるP特定の値がガーベージコレクトされた場合、それに対応する連想は、ハッシュテーブルから削除されます。
+</p><p><em class="replaceable"><code>weak</code></em>が<code class="literal">key-and-value</code>(または<code class="literal">t</code>)の場合、その連想を保護するために、キーと値の両方が生きていなければなりません。したがって、そのハッシュテーブルは、キーと値のどちらかをガーベージコレクトから守ることはしません。キーか値のどちらか一方がガーベージコレクトされたら、その連想は削除されます。
+</p><p><em class="replaceable"><code>weak</code></em>が<code class="literal">key-or-value</code>の場合、キーか値のどちらか一方で、その連想を保護することができます。したがって、キーと値の両方がガベージコレクトされたときだけ(それがハッシュテーブル自体にたいする参照でなければ)、ハッシュテーブルからその連想が削除されます。
+</p><p><em class="replaceable"><code>weak</code></em>にたいするデフォルトは<code class="literal">nil</code>なので、ハッシュテーブルから参照されているキーと値のすべては、ガーベージコレクションから保護されます。
+</p></dd><dt><span class="term"><code class="literal">:size <em class="replaceable"><code>size</code></em></code>
+</span></dt><dd><p>これは、そのハッシュテーブルに連想を保管しようと計画している、連想の数にたいするヒントを指定します。数が概算で判っている場合、この方法でそれを指定することにより、処理を少し効率的にすることができます。小さすぎるサイズを指定した場合、そのハッシュテーブルは必要に応じて自動的に拡張子マスが、これを行なうには時間が余計にかかります。
+</p><p>デフォルトのサイズは65です。
+</p></dd><dt><span class="term"><code class="literal">:rehash-size <em class="replaceable"><code>rehash-size</code></em></code>
+</span></dt><dd><p>ハッシュテーブルに連想を追加するとき、そのテーブルが“一杯(full)”の場合、テーブルは自動的に拡張します。この値は、そのときどれだけハッシュテーブルを拡張するかを指定します。
+</p><p><em class="replaceable"><code>rehash-size</code></em>が整数の場合(それは正であるべきです)、通常のサイズに<em class="replaceable"><code>rehash-size</code></em>を加えることにより、ハッシュテーブルが拡張されます。<em class="replaceable"><code>rehash-size</code></em>が浮動小数の場合(1より大きい方がよい)は、古いサイズにその数を乗じることにより、ガッシュテーブルが拡張されます。
+</p><p>デフォルト値は1.5です。
+</p></dd><dt><span class="term"><code class="literal">:rehash-threshold <em class="replaceable"><code>threshold</code></em></code>
+</span></dt><dd><p>これは、ハッシュテーブルが“一杯(full)”(なのでもっと大きく拡張する必要がある)だと判断される基準を指定します。<em class="replaceable"><code>threshold</code></em>の値は、1以下の、正の浮動小数点数であるべきです。実際のエントリー数が、通常のサイズにたいする指定した割合を超えた場合、そのハッシュテーブルは“一杯”になります。<em class="replaceable"><code>threshold</code></em>のデフォルトは、0.8です。
+</p></dd></dl></div></blockquote></div><pre class="synopsis"><a id="idm48445264" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">makehash</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>test</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">make-hash-table</code>と同じですが、異なるスタイルの引数リストを指定します。引数<em class="replaceable"><code>test</code></em>は、キーを照合する方法を指定します。
+</p><p>この関数は時代遅れです。かわりに<code class="literal">make-hash-table</code>を使用してください。
+</p></blockquote></div><p>ハッシュテーブルのプリント表現を使用して、新しいハッシュテーブルを作成することもできます。指定されたハッシュテーブル内の各要素が、有効な入力構文(<a class="link" href="ch03.html#Printed-Representation" title="Printed Representation and Read Syntax">Printed
+Representation</a>を参照してください)をもっていれば、Lispリーダーをこのプリント表現を読み取ることができます。たとえば以下は、値<code class="literal">val1</code>(シンボル)と<code class="literal">300</code>(数字)に関連づけられた、キー<code class="literal">key1</code>と<code class="literal">key2</code>(両方ともシンボル)を、新しいハッシュテーブルを指定します。
+</p><pre class="screen">#s(hash-table size 30 data (key1 val1 key2 300))
+</pre><p>ハッシュテーブルのプリント表現は、‘<code class="literal">#s</code>’と、その後の‘<code class="literal">hash-table</code>’で始まるリストにより構成されます。このリストの残りの部分は、そのハッシュテーブルのプロパティーと初期内容を指定する、0個以上のプロパティーと値のペアで構成されるべきです。プロパティーと値は、そのまま読み取られます。有効なプロパティー名は、<code class="literal">size</code>、<code class="literal">test</code>、<code class="literal">weakness</code>、<code class="literal">rehash-size</code>、<code class="literal">rehash-threshold</code>、および<code class="literal">data</code>です。<code class="literal">data</code>プロパティーは、初期ないようにたいするキーと値のペアのリストであるべきです。他のプロパティーは、上記で説明した<code class="literal">make-hash-table</code>のキーワード(<code class="literal">:size</code>、<code class="literal">:test</code>など)と同じ意味をもちます。
+</p><p>バッファーやフレームのような、入力構文をもたないオブジェクトを含む初期内容をもつハッシュテーブルを指定できないことに注意してください。そのようなオブジェクトは、ハッシュテーブルが作成された後に追加します。
+</p></div></div></body></html>

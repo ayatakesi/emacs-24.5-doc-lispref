@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Variables with Restricted Values</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Variables-with-Restricted-Values"/>Variables with Restricted Values</h1></div></div></div><a id="idm54341840" class="indexterm"/><p>通常のLisp変数には、有効なLispオブジェクトである任意の値を割り当てることができます。しかし、LispではなくCで定義されたLisp変数もあります。これらの変数のほとんどは、<code class="literal">DEFVAR_LISP</code>を使用してCコードで定義されています。Lispで定義された変数と同様、これらは任意の値をとることができます。しかし、いくつかの変数は<code class="literal">DEFVAR_INT</code>や<code class="literal">DEFVAR_BOOL</code>を使用して定義されています。C実装の概要的な議論は、<a class="link" href="apes06.html#Defining-Lisp-variables-in-C">Writing Emacs
+Primitives</a>、特にタイプ<code class="literal">syms_of_<em class="replaceable"><code>filename</code></em></code>の関数の説明を参照してください。
+</p><p>タイプが<code class="literal">DEFVAR_BOOL</code>の変数は、値に<code class="literal">nil</code>か<code class="literal">t</code>しかとることができません。他の値の割り当てを試みると、<code class="literal">t</code>はセットされます:
+</p><pre class="screen">(let ((display-hourglass 5))
+  display-hourglass)
+     ⇒ t
+</pre><pre class="synopsis"><a id="idm54330448" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">byte-boolean-vars</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、タイプ<code class="literal">DEFVAR_BOOL</code>のすべての変数のリストを保持します。
+</p></blockquote></div><p>タイプが<code class="literal">DEFVAR_INT</code>の変数は、整数値だけをとることができます。他の値の割り当てを試みると、結果はエラーになります:
+</p><pre class="screen">(setq undo-limit 1000.0)
+error→ Wrong type argument: integerp, 1000.0
+</pre></div></body></html>

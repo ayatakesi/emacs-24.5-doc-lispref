@@ -1,0 +1,542 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990-1995, 1998-1999, 2001-2015 Free Software
+@c Foundation, Inc.
+@c See the file elisp.texi for copying conditions.
+@node Markers
+@chapter Markers
+@cindex markers
+
+  @dfn{マーカー(marker)}とは、あるバッファー内で取り囲んでいるテキストにたいして相対的な位置を指定するために使用されるオブジェクトです。テキストが挿入または削除されると常に、マーカーは自動的にそのバッファーの先頭からのオフセットを自動的に変更して、自身の左右にある文字の間に留まります。
+
+@menu
+* Overview of Markers::      マーカー構成要素と再配置方法。
+* Predicates on Markers::    オブジェクトがマーカーか否かのテスト。
+* Creating Markers::         空マーカーや特定箇所のマーカーの作成。
+* Information from Markers::  マーカーのバッファーや文字位置を探す。
+* Marker Insertion Types::   マーカーが指す位置への挿入時にマーカーを再配置する2つの方法。
+* Moving Markers::           新たなバッファーや位置にマーカーを移動する。
+* The Mark::                 マーカーによる"マーク"の実装方法。
+* The Region::               "リージョン"へのアクセス方法。
+@end menu
+
+@node Overview of Markers
+@section Overview of Markers
+
+  マーカーは、バッファーとそのバッファー内の位置を指定します。マーカーは、位置を要求する関数内において、位置を表すために整数と同じようにして使用することができます。その場合、そのマーカーのバッファーは、通常は無視されます。この方法で使用されるマーカーは通常、その関数が処理するバッファー内の位置を指しますが、それは完全にプログラマーの責任です。位置についての完全な説明は、@ref{Positions}を参照してください。
+
+  マーカーはマーカー位置(marker position)、マーカーバッファー(marker buffer)、挿入タイプ(insertion
+type)という3つの属性をもちます。マーカー位置は、そのバッファー内の位置としてのマーカーと、(その時点において)等しい整数です。しかし、マーカー位置はマーカー生存期間中に変化し得るものであり、頻繁に変化されます。バッファー内でのテキストの挿入や削除で、マーカーは再配置されます。マーカー前後の2文字以外の場所で挿入や削除がおこなわれても、マーカー位置はその2文字間に留まるというのが、このアイデアです。再配置により、マーカーと等価な整数は変更されます。
+
+@cindex marker relocation
+  マーカー位置周辺のテキストを削除することにより、そのマーカーは削除されたテキストの直前および直後にある文字の間に残されます。マーカー位置へのテキスト挿入では、マーカーは通常は新たなテキストの前か後のいずれかに置かれます。その挿入が@code{insert-before-markers}(@ref{Insertion}を参照)で行われたものでなければ、どちらに置かれるかはマーカーの@dfn{挿入タイプ}(@ref{Marker
+Insertion Types}を参照)に依存します。
+
+@cindex marker garbage collection
+  バッファーでの挿入と削除では、すべてのマーカーをチェックして、必要ならそれらを再配置しなければなりません。これは、多数のマーカーをもつバッファーでの処理を遅くします。それ以上マーカーが不必要なのが確信できる場合には、存在しない場所も指さないようにマーカーを設定することは、この理由によりよいアイデアといえるでしょう。それ以上アクセスされる可能性がないマーカーは、最終的には削除されます(@ref{Garbage
+Collection}を参照)。
+
+@cindex markers as numbers
+  マーカー位置にたいして算術演算を行うことは一般的なので、それらの演算子のほとんど(@code{+}や@code{-}を含む)が、引数としてマーカーに渡すことができます。そのような場合には、マーカーはカレント位置を意味します。
+
+以下ではマーカー渡す作成とセットを行い、ポイントをマーカーに移動しています:
+
+@example
+@group
+;; @r{最初はどこも指さない新たなマーカーを作成:}
+(setq m1 (make-marker))
+     @result{} #<marker in no buffer>
+@end group
+
+@group
+;; @r{カレントバッファーの99と100番目の}
+;;   @r{文字間を指すよう@code{m1}をセット:}
+(set-marker m1 100)
+     @result{} #<marker at 100 in markers.texi>
+@end group
+
+@group
+;; @r{ここでバッファー先頭に1文字挿入:}
+(goto-char (point-min))
+     @result{} 1
+(insert "Q")
+     @result{} nil
+@end group
+
+@group
+;; @r{@code{m1}は適切に更新された}
+m1
+     @result{} #<marker at 101 in markers.texi>
+@end group
+
+@group
+;; @r{同じ位置を指す2つのマーカーは}
+;;   @r{@code{equal}だが@code{eq}に非ず}
+(setq m2 (copy-marker m1))
+     @result{} #<marker at 101 in markers.texi>
+(eq m1 m2)
+     @result{} nil
+(equal m1 m2)
+     @result{} t
+@end group
+
+@group
+;; @r{マーカー使用終了時、存在しない場所を指すようセット}
+(set-marker m1 nil)
+     @result{} #<marker in no buffer>
+@end group
+@end example
+
+@node Predicates on Markers
+@section Predicates on Markers
+@cindex predicates for markers
+@cindex markers, predicates for
+
+  あるオブジェクトがマーカーなのか、それとも整数かマーカーのいずれかであるか確認するために、テストを行うことができます。後者のテストは、マーカーと整数の両方にたいして機能する算術関数において有用です。
+
+@defun markerp object
+この関数は、@var{object}がマーカーなら@code{nil}、それ以外は@code{t}をリターンする。多くの関数はマーカーか整数のいずれかを受け入れるだろうが、整数はマーカーと異なることに注意。
+@end defun
+
+@defun integer-or-marker-p object
+この関数は、@var{object}が整数またはマーカーなら@code{t}、それ以外は@code{nil}をリターンする。
+@end defun
+
+@defun number-or-marker-p object
+この関数は、@var{object}が数値(整数か浮動小数点数のいずれか)またはマーカーなら@code{t}、それ以外は@code{nil}をリターンする。
+@end defun
+
+@node Creating Markers
+@section Functions that Create Markers
+@cindex creating markers
+@cindex marker creation
+
+  マーカーを新たに作成する際は、存在しない場所、ポイントの現在位置、バッファーのアクセス可能範囲の先頭や終端、または別の与えられたマーカーと同じ箇所を指すようにすることができます。
+
+以下の4つの関数はすべて、挿入タイプ@code{nil}のマーカーをリターンします。@ref{Marker Insertion
+Types}を参照してください。
+
+@defun make-marker
+この関数は、どこも指さないマーカーを新たに作成してリターンする。
+
+@example
+@group
+(make-marker)
+     @result{} #<marker in no buffer>
+@end group
+@end example
+@end defun
+
+@defun point-marker
+この関数は、カレントバッファーのポイント現在位置を指すマーカーを新たに作成してリターンする。@xref{Point}を参照のこと。例は以下の@code{copy-marker}を参照されたい。
+@end defun
+
+@defun point-min-marker
+この関数は、バッファーのアクセス可能範囲の先頭を指すマーカーを新たに作成してリターンする。ナローイングが効力をもたなければ、これはバッファーの先頭になるだろう。@ref{Narrowing}を参照のこと。
+@end defun
+
+@defun point-max-marker
+この関数は、バッファーのアクセス可能範囲の終端を指すマーカーを新たに作成してリターンする。ナローイングが効力をもたなければ、これはバッファーの終端になるだろう。@ref{Narrowing}を参照のこと。
+
+以下に、このチャプターのテキストのソースファイルのバージョンを含むバッファーにたいして、この関数および@code{point-min-marker}を使用した例を示す。
+
+@example
+@group
+(point-min-marker)
+     @result{} #<marker at 1 in markers.texi>
+(point-max-marker)
+     @result{} #<marker at 24080 in markers.texi>
+@end group
+
+@group
+(narrow-to-region 100 200)
+     @result{} nil
+@end group
+@group
+(point-min-marker)
+     @result{} #<marker at 100 in markers.texi>
+@end group
+@group
+(point-max-marker)
+     @result{} #<marker at 200 in markers.texi>
+@end group
+@end example
+@end defun
+
+@defun copy-marker &optional marker-or-integer insertion-type
+引数としてマーカーを渡されると、@code{copy-marker}は@var{marker-or-integer}が行うようにして、同じバッファーの同じ位置を指すマーカーを新たに作成してリターンする。整数を渡された場合、@code{copy-marker}はカレントバッファーの位置@var{marker-or-integer}を指すマーカーを新たに作成してリターンする。
+
+新たなマーカーの挿入タイプは、引数@var{insertion-type}により指定される。@ref{Marker Insertion
+Types}を参照のこと。
+
+@c This behavior used to be documented until 2013/08.
+@ignore
+If passed an integer argument less than 1, @code{copy-marker} returns a
+new marker that points to the beginning of the current buffer.  If
+passed an integer argument greater than the length of the buffer,
+@code{copy-marker} returns a new marker that points to the end of the
+buffer.
+@end ignore
+
+@example
+@group
+(copy-marker 0)
+     @result{} #<marker at 1 in markers.texi>
+@end group
+
+@group
+(copy-marker 90000)
+     @result{} #<marker at 24080 in markers.texi>
+@end group
+@end example
+
+@var{marker}がマーカーと整数のいずれでもない場合は、エラーがシグナルされる。
+@end defun
+
+  2つのマーカーは、それらが同じバッファーの同じ位置、またはどちらも存在しない場所を指す場合は、(@code{eq}ではないものの)@code{equal}とみなされます。
+
+@example
+@group
+(setq p (point-marker))
+     @result{} #<marker at 2139 in markers.texi>
+@end group
+
+@group
+(setq q (copy-marker p))
+     @result{} #<marker at 2139 in markers.texi>
+@end group
+
+@group
+(eq p q)
+     @result{} nil
+@end group
+
+@group
+(equal p q)
+     @result{} t
+@end group
+@end example
+
+@node Information from Markers
+@section Information from Markers
+@cindex marker information
+
+  このセクションでは、マーカーオブジェクトの構成要素にアクセスする関数を説明します。
+
+@defun marker-position marker
+この関数は、@var{marker}が指す位置、または存在しない場所なら@code{nil}をリターンする。
+@end defun
+
+@defun marker-buffer marker
+この関数は、@var{marker}がその内部を指すバッファー、存在しない場所を指す場合は@code{nil}をリターンする。
+
+@c FIXME: The `buffer' argument of `set-marker' already defaults to
+@c the current buffer, why use `(current-buffer)' explicitly here?
+@example
+@group
+(setq m (make-marker))
+     @result{} #<marker in no buffer>
+@end group
+@group
+(marker-position m)
+     @result{} nil
+@end group
+@group
+(marker-buffer m)
+     @result{} nil
+@end group
+
+@group
+(set-marker m 3770 (current-buffer))
+     @result{} #<marker at 3770 in markers.texi>
+@end group
+@group
+(marker-buffer m)
+     @result{} #<buffer markers.texi>
+@end group
+@group
+(marker-position m)
+     @result{} 3770
+@end group
+@end example
+@end defun
+
+@node Marker Insertion Types
+@section Marker Insertion Types
+
+@cindex insertion type of a marker
+  マーカーが指す位置に直接テキストを挿入する際、そのマーカーを再配置するために利用可能な手段が2つあります。そのマーカーはは挿入されたテキストの前、あるいは後を指すことができます。マーカーの@dfn{挿入タイプ(insertion
+type)}を指定することにより、マーカーがどちらを行うか指定できます。@code{insert-before-markers}を使用する場合は、マーカーの挿入タイプを無視して、常にマーカーが挿入されたテキストの後を指すよう再配置されることに注意してください。
+
+@defun set-marker-insertion-type marker type
+この関数は、マーカー@var{marker}の挿入タイプを、@var{type}にセットする。@var{type}が@code{t}の場合、テキスト挿入時に@var{marker}はその位置まで進められるだろう。@var{type}が@code{nil}なら、テキスト挿入時に@var{marker}はそこまで進められない。
+@end defun
+
+@defun marker-insertion-type marker
+この関数は、@var{marker}のカレント挿入タイプを報告する。
+@end defun
+
+挿入タイプを指定するための引数を受け取らない、マーカーを作成する関数のほとんどは、挿入タイプ@code{nil}のマーカーを作成します。また、マークがもつデフォルトの挿入タイプも@code{nil}です。
+
+@node Moving Markers
+@section Moving Marker Positions
+@cindex moving markers
+@cindex marker, how to move position
+
+  このセクションでは、既存マーカーの位置を変更する方法について説明します。これを行う際は、そのマーカーがあなたのプログラム外部に使用されているかどうか、もし使用されているならマーカーを移動した結果どのような影響が生じるかを確実に理解する必要があります。さもないと、Emacsの他の部分で、混乱した出来事が発生するかもしれません。
+
+@defun set-marker marker position &optional buffer
+この関数は、@var{buffer}内で@var{marker}を@var{position}に移動する。@var{buffer}が与えられなかった場合のデフォルトは、カレントバッファーである。
+
+@c This behavior used to be documented until 2013/08.
+@ignore
+If @var{position} is less than 1, @code{set-marker} moves @var{marker}
+to the beginning of the buffer.  If @var{position} is greater than the
+size of the buffer (@pxref{Point}), @code{set-marker} moves marker to
+the end of the buffer.
+@end ignore
+@var{position}が@code{nil}、または存在しない場所を指すマーカーの場合、@var{marker}は存在しない場所を指すようにセットされる。
+
+リターン値は@var{marker}である。
+
+@example
+@group
+(setq m (point-marker))
+     @result{} #<marker at 4714 in markers.texi>
+@end group
+@group
+(set-marker m 55)
+     @result{} #<marker at 55 in markers.texi>
+@end group
+@group
+(setq b (get-buffer "foo"))
+     @result{} #<buffer foo>
+@end group
+@group
+(set-marker m 0 b)
+     @result{} #<marker at 1 in foo>
+@end group
+@end example
+@end defun
+
+@defun move-marker marker position &optional buffer
+これは@code{set-marker}の別名である。
+@end defun
+
+@node The Mark
+@section The Mark
+@cindex mark, the
+@c @cindex the mark?
+
+  バッファーはそれぞれ、@dfn{マーク(mark)}という、バッファー専用の特別なマーカーをもちますバッファーが新たに作成される際、すでにこのマーカーは存在していますが、どこも指していません。これは、そのバッファーにはまだマークが``存在しない''ことを意味します。それ以降のコマンドがマークをセットできます。
+
+  マークは、@code{kill-region}や@code{indent-rigidly}のような多くのコマンドにたいして、テキスト範囲をバインドするための位置を指定します。通常これらのコマンドは、ポイントとマークの間の、@dfn{リージョン(region)}と呼ばれるテキストに作用します。リージョンを操作するコマンドを記述する場合は、マークを直接調べず、かわりに@samp{r}指定とともに@code{interactive}を使用してください。このようにすれば、インタラクティブな呼び出しではコマンドの引数としてポイントとマークの値が提供され、かつ他のLispプログラムは引数を明示的に指定できます。@ref{Interactive
+Codes}を参照してください。
+
+  いくつかのコマンドは、その副作用(side-effect)としてマークをセットします。コマンドは、ユーザーがそれを使用する可能性がある場合のみマークをセットするべきであり、決してコマンドの内部的な目的にたいして使用してはなりません。たとえば@code{replace-regexp}コマンドは、何らかの置換を行う前にマークにポイントの値をセットしますが、その理由はこれによりユーザーが置換を終えた後、簡単にその位置に戻ることが可能になるからです。
+
+  一度バッファー内にマークが``存在''すれば、その存在は通常は決して消えることはありません。しかし、Transient
+Markモードが有効な場合、マークが@dfn{非アクティブ(inactive)}になることはあります。バッファーローカル変数@code{mark-active}が非@code{nil}なら、それはマークがアクティブであることを意味します。コマンドはマークを直接非アクティブにするために関数@code{deactivate-mark}を呼び出すことができ、変数@code{deactivate-mark}を非@code{nil}値にセットすることにより、エディターコマンドループ(editor
+command loop)にリターン時にマークの非アクティブ化を要求できます。
+
+  Transient
+Markモードが有効な場合、通常ならポイント近傍に適用される特定の編集コマンドは、マークがアクティブなときはかわりにリージョンに適用されます。これがTransient
+Markモードを使用する主な動機です(他にも、マークアクティブ時にはリージョンのハイライトが有効になるという理由もある。@ref{Display}を参照されたい)。
+
+@cindex mark ring
+  マークに加えて、バッファーはそれぞれ@dfn{マークリング(mark
+ring)}をもっています。これは、以前のマーク値を含むマーカーのリストです。編集コマンドがマークを変更する際、それらのコマンドは通常はマークの旧値をマークリングに保存するべきです。変数@code{mark-ring-max}は、マークリング内のエントリー最大数を指定します。リストがこの長さに達すると、最後の要素を削除して、新たな要素が追加されます。
+
+  これとは別にグローバルマークリング(global mark
+ring)がありますが、それは少数の特定のユーザーレベルコマンドでのみ使用され、Lispプログラムとは関連しないので、ここでは説明しません。
+
+@defun mark &optional force
+@cindex current buffer mark
+この関数は、カレントバッファーのマーク位置を整数でリターンする。そのバッファー内でそれまでマークがセットされていなければ@code{nil}をリターンする。
+
+Transient
+Markモードが有効、かつ@code{mark-even-if-inactive}が@code{nil}の場合、マークが非アクティブなら@code{mark}はエラーをシグナルする。しかし、@var{force}が非@code{nil}なら、@code{mark}はマークの非アクティブ性を無視して、何にせよマーク位置(か@code{nil})をリターンする。
+@end defun
+
+@defun mark-marker
+この関数は、カレントバッファーのマークを表すマーカーをリターンする。これはコピーではなく、内部的に使用されるマーカーである。したがって、このマーカー位置にたいする変更は、そのバッファーのマークに直接影響する。それが望む効果でなければ、これを行ってはならない。
+
+@example
+@group
+(setq m (mark-marker))
+     @result{} #<marker at 3420 in markers.texi>
+@end group
+@group
+(set-marker m 100)
+     @result{} #<marker at 100 in markers.texi>
+@end group
+@group
+(mark-marker)
+     @result{} #<marker at 100 in markers.texi>
+@end group
+@end example
+
+他のマーカー同様、このマーカーを任意のバッファー位置にセットできる。このマーカーに、これがマークする以外のバッファーを指すようにすると、完全に整合性があるものの、いささか奇妙な結果を得ることになるだろう。これを行わないことを、わたしたちは推奨する!
+@end defun
+
+@defun set-mark position
+この関数は、マークを@var{position}にセットして、そのマークをアクティブにする。マークの旧値はマークリングに@emph{pushされない}。
+
+@strong{注意:}
+マークが移動したことをユーザーに確認させ、かつ前のマーク位置が失われることを望む場合のみ、この関数を使用すること。通常は、マークセット時に古いマークは@code{mark-ring}にpushされるべきである。この理由により、ほとんどのアプリケーションは@code{set-mark}ではなく、@code{push-mark}および@code{pop-mark}を使用するべきである。
+
+Emacs
+Lispの初心者プログラマーは、誤った用途にマークの使用を試みがちである。ユーザーの利便のために位置を保存するのがマークである。編集コマンドは、マーク変更がコマンドのユーザーレベル機能の一部でない限り、マークを変更するべきではない(そして、そのような場合にはその効果をドキュメントするべきである)。Lispプログラムの内部的な使用のために位置を記憶するためには、マークをLisp変数に格納すること。たとえば:
+
+@example
+@group
+(let ((beg (point)))
+  (forward-line 1)
+  (delete-region beg (point)))
+@end group
+@end example
+@end defun
+
+@defun push-mark &optional position nomsg activate
+@c Doesn't seem relevant.
+@c @code{push-mark} returns @code{nil}.
+この関数は、カレントバッファーのマークを@var{position}にセットして、前のマークを@code{mark-ring}にpushする。@var{position}が@code{nil}の場合は、ポイントの値を使用する。
+
+関数@code{push-mark}は通常、マークをアクティブに@emph{しない}。アクティブにする場合は、引数@var{activate}に@code{t}を指定する。
+
+@var{nomsg}が@code{nil}なら、メッセージ@samp{Mark set}が表示される。
+@end defun
+
+@defun pop-mark
+@c
+@c Seems even less relevant.
+@c The return value is not meaningful.
+この関数は、@code{mark-ring}のトップ要素をpopして、そのマークをバッファーの実際のマークにする。これはバッファー内のポイントを移動せず、@code{mark-ring}が空なら何も行わない。これはマークを非アクティブ化する。
+@end defun
+
+@defopt transient-mark-mode
+この変数が非@code{nil}なら、Transient Markモードを有効にする。Transient
+Markモードでは、すべてのバッファー変更プリミティブが@code{deactivate-mark}をセットする。結果として、バッファーを変更するほとんどのコマンドも、マークを非アクティブにする。
+
+Transient
+Markモードが有効かつマークがアクティブの場合、通常はポイント近傍に適用されるコマンドの多くは、かわりにリージョンに適用される。そのようなコマンドは、リージョンを処理すべきかどうかをテストするために、関数@code{use-region-p}を使用するべきである。@ref{The
+Region}を参照のこと。
+
+Lispプログラムは、一時的にTransient
+Markモードを有効にするために、@code{transient-mark-mode}を@code{nil}でも@code{t}でもない値にセットできる。値が@code{lambda}なら、バッファー変更のような通常ならマークを非アクティブ化するような操作の後、Transient
+Markモードを自動的にオフに切り替える。値が@w{@code{(only
+. @var{oldval})}}なら、後続のコマンドがポイントを移動かつシフト変換(@ref{Key Sequence Input,
+shift-translation}を参照)されていない場合、あるいは通常はマークを非アクティブにするその他の操作の場合は、@code{transient-mark-mode}に値@var{oldval}をセットする。
+@end defopt
+
+@defopt mark-even-if-inactive
+これが非@code{nil}なら、LispプログラムおよびEmacsユーザーは、たとえ非アクティブでもマークを使用できる。このオプションは、Transient
+Markモードの動作に影響を及ぼす。このオプションが非@code{nil}なら、マークの非アクティブ化によりリージョンのハイライトはオフに切り替えられるが、マークを使用するコマンドは、あたかもマークがアクティブであるかのように振る舞う。
+@end defopt
+
+@defvar deactivate-mark
+エディターコマンドがこの変数を非@code{nil}にセットすると、エディターコマンドループはコマンドのリターン後に、(Transient
+Markモードが有効なら)マークを非アクティブにする。バッファーを変更するすべてのプリミティブは、コマンド終了時にマークを非アクティブにするために、@code{deactivate-mark}をセットする。
+
+コマンド終了時にマークを非アクティブにすることなくバッファーを変更するLispコードを記述するためには、変更を行うコードの周辺で@code{deactivate-mark}を@code{nil}にバインドすること。たとえば:
+
+@example
+(let (deactivate-mark)
+  (insert " "))
+@end example
+@end defvar
+
+@defun deactivate-mark &optional force
+Transient
+Markモードが有効、または@var{force}が非@code{nil}の場合、この関数はマークを非アクティブにしてノーマルフック@code{deactivate-mark-hook}を実行し、それ以外は何も行わない。
+@end defun
+
+@defvar mark-active
+この変数が非@code{nil}なら、マークはアクティブである。この変数は、それぞれのバッファーにたいして、常にローカルである。通常はポイント近傍を操作するコマンドが、かわりにリージョンを操作すべきかどうかを判断するために、この変数の値を@emph{使用してはならない}。その目的にたいしては、関数@code{use-region-p}を使用すること(@ref{The
+Region}を参照)。
+@end defvar
+
+@defvar activate-mark-hook
+@defvarx deactivate-mark-hook
+これらのノーマルフックは、マークがアクティブまたは非アクティブになった際に、順次実行される。マークがアクティブで、かつリージョンが変更された可能性があるなら、コマンドループの最後にフック@code{activate-mark-hook}も実行される。
+@ignore
+This piece of command_loop_1, run unless deactivating the mark:
+  if (current_buffer != prev_buffer || MODIFF != prev_modiff)
+    {
+      Lisp_Object hook = intern ("activate-mark-hook");
+      Frun_hooks (1, &hook);
+    }
+@end ignore
+@end defvar
+
+@defun handle-shift-selection
+この関数は、ポイント移動コマンドの``シフト選択(shift-selection)''の動作を実装する。@ref{Shift Selection,,,
+emacs, The GNU Emacs
+Manual}を参照のこと。これは、@code{interactive}指定に文字@samp{^}を含むコマンド呼び出し時は常に、そのコマンド自身を実行する前に、Emacsコマンドループにより自動的に呼び出される(@ref{Interactive
+Codes, ^}を参照)。
+
+@code{shift-select-mode}が非@code{nil}、かつカレントコマンドがシフト変換(@ref{Key Sequence
+Input,
+shift-translation}を参照)を通じて呼び出された場合、この関数はマークをセットして一時的にリージョンをアクティブにする(すでにこの方法によりリージョンが一時的にアクティブにされている場合を除く)。それ以外では、リージョンが一時的にアクティブにされていれば、マークを非アクティブにして、変数@code{transient-mark-mode}に前の値をリストアする。
+@end defun
+
+@defvar mark-ring
+このバッファーローカル変数の値は、もっとも最近のものが先頭となった、カレントバッファーの以前に保存されたマークのリストである。
+
+@example
+@group
+mark-ring
+@result{} (#<marker at 11050 in markers.texi>
+    #<marker at 10832 in markers.texi>
+    @dots{})
+@end group
+@end example
+@end defvar
+
+@defopt mark-ring-max
+この変数の値は、@code{mark-ring}の最大サイズである。これより多くのマークが@code{mark-ring}にpushされると、新たなマーク追加時に@code{push-mark}は古いマークを破棄する。
+@end defopt
+
+@c There is also global-mark-ring-max, but this chapter explicitly
+@c does not talk about the global mark.
+
+@node The Region
+@section The Region
+@c The index entry must be just ``region'' to make it the first hit
+@c when the user types ``i region RET'', because otherwise the Info
+@c reader will present substring matches in alphabetical order,
+@c putting this one near the end, with something utterly unrelated as
+@c the first hit.
+@cindex region
+
+  ポイントとマークの間のテキストは、@dfn{リージョン(region)}という名で知られています。さまざまな関数がポイントとマークで区切られたテキストを操作しますが、ここではリージョンそのものに特に関連する関数だけを説明します。
+
+以下の2つの関数は、マークが何処も指していなければエラーをシグナルします。Transient
+Markモードが有効、かつ@code{mark-even-if-inactive}が@code{nil}なら、マークが非アクティブな場合のエラーをシグナルします。
+
+@defun region-beginning
+この関数は、リージョンの先頭位置を、(整数として)リターンする。これは、ポイントかマークのいずれか小さいほうの位置である。
+@end defun
+
+@defun region-end
+この関数は、リージョンの終端位置を、(整数として)リターンする。これは、ポイントかマークのいずれか大きいほうの位置である。
+@end defun
+
+@c FIXME: Mention it in tips.texi?
+  リージョンにたいして操作を行うようにデザインされたコマンドがリージョンの先頭と終端を探すには、@code{region-beginning}および@code{region-end}を使用するかわりに、通常は@samp{r}指定とともに@code{interactive}を使用するべきです。これにより、他のLispプログラムが引数として明示的にリージョンの境界を指定できるようになります。@ref{Interactive
+Codes}を参照してください。。
+
+@defun use-region-p
+この関数は、Transient
+Markモードが有効でマークがアクティブであり、かつバッファー内に有効なリージョンがあれば@code{t}をリターンする。この関数は、マークアクティブ時にはポイント近傍のテキストのかわりにリージョンを操作するコマンドにより使用されることを意図している。
+
+@cindex empty region
+@vindex use-empty-active-region
+リージョンは、それが非0のサイズをもつか、あるいはユーザーオプション@code{use-empty-active-region}が非@code{nil}(デフォルトは@code{nil})なら有効である。関数@code{region-active-p}は@code{use-region-p}と同様だが、すべてのリージョンを有効とみなす。リージョンが空ならポイントにたいして操作を行うほうが適切な場合が多いため、ほとんどの場合は@code{region-active-p}を使用するべきではない。
+@end defun
+

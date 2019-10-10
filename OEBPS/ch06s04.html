@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Building Cons Cells and Lists</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Building-Lists"/>Building Cons Cells and Lists</h1></div></div></div><a id="idm49667408" class="indexterm"/><a id="idm49666640" class="indexterm"/><p>リストはLispの核にあるので、リストを構築する多くの関数があります。<code class="literal">cons</code>はリストを構築する基本的な関数です。しかしEmacsのソースコードでは、<code class="literal">cons</code>より<code class="literal">list</code>のほうが多く使用されているのは興味深いことです。
+</p><pre class="synopsis"><a id="idm49663696" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">cons</code> <em class="replaceable"><code>object1</code></em> <em class="replaceable"><code>object2</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、新しいリスト構造を構築するための、もっとも基本的な関数です。この関数は、<em class="replaceable"><code>object1</code></em>をCAR、<em class="replaceable"><code>object2</code></em>をCDRとする、新しいコンスセルを作成して、それから新しいコンスセルをreturnします。引数<em class="replaceable"><code>object1</code></em>と<em class="replaceable"><code>object2</code></em>は、任意のLispオブジェクトを指定できますが、ほとんどの場合、<em class="replaceable"><code>object2</code></em>はリストです。
+</p><pre class="screen">(cons 1 '(2))
+     ⇒ (1 2)
+</pre><pre class="screen">(cons 1 '())
+     ⇒ (1)
+</pre><pre class="screen">(cons 1 2)
+     ⇒ (1 . 2)
+</pre><a id="idm49644624" class="indexterm"/><p>リストの先頭に1つの要素を追加するために、<code class="literal">cons</code>がよく使用されます。これは、<em class="firstterm">リストに要素をコンスする</em>と言います。<a href="#ftn.idm49642704" class="footnote" id="idm49642704"><sup class="footnote">[2]</sup></a>たとえば:
+</p><pre class="screen">(setq list (cons newelt list))
+</pre><p>この例で使用されている<code class="literal">list</code>という名前の変数と、以下で説明する<code class="literal">list</code>という名前の関数は、競合しないことに注意してください。任意のシンボルは、両方の役割を果たすことができます。
+</p></blockquote></div><pre class="synopsis"><a id="idm49635408" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">list</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>objects</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>objects</code></em>を要素とするリストを作成します。結果となるリストは、常に<code class="literal">nil</code>終端されます。<em class="replaceable"><code>objects</code></em>を指定しない場合、空リストがreturnされます。
+</p><pre class="screen">(list 1 2 3 4 5)
+     ⇒ (1 2 3 4 5)
+</pre><pre class="screen">(list 1 2 '(3 4 5) 'foo)
+     ⇒ (1 2 (3 4 5) foo)
+</pre><pre class="screen">(list)
+     ⇒ nil
+</pre></blockquote></div><pre class="synopsis"><a id="idm49629264" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-list</code> <em class="replaceable"><code>length</code></em> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、各要素が<em class="replaceable"><code>object</code></em>の、<em class="replaceable"><code>length</code></em>個の要素からなるリストを作成します。<code class="literal">make-list</code>と<code class="literal">make-string</code>(<a class="link" href="ch05s03.html" title="Creating Strings">Creating
+Strings</a>を参照してください)を比較してみてください。
+</p><pre class="screen">(make-list 3 'pigs)
+     ⇒ (pigs pigs pigs)
+</pre><pre class="screen">(make-list 0 'pigs)
+     ⇒ nil
+</pre><pre class="screen">(setq l (make-list 3 '(a b)))
+     ⇒ ((a b) (a b) (a b))
+(eq (car l) (cadr l))
+     ⇒ t
+</pre></blockquote></div><pre class="synopsis"><a id="idm49622096" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">append</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>sequences</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm49619152" class="indexterm"/><p>この関数は、<em class="replaceable"><code>sequences</code></em>のすべての要素を服務リストをreturnします。<em class="replaceable"><code>sequences</code></em>には、リスト、ベクター、ブールベクター、文字列も指定できますが、通常は最後にリストを指定するべきです。最後の引数を除くすべての引数はコピーされるので、変更される引数はありません(コピーを行なわずにリストを結合する方法については、<a class="link" href="ch06s06.html#Rearrangement" title="Functions that Rearrange Lists">Rearrangement</a>の<code class="literal">nconc</code>を参照してください)。
+</p><p>より一般的には、<code class="literal">append</code>にたいする最後の引数は、任意のLispオブジェクトかもしれません。最後の引数は、コピーまたは変換されません。最後の引数は、新しいリストの最後のコンスセルのCDRになります。最後の引数もリストならば、このリストの要素は、実質的には結果リストの要素になります。最後の要素がリストでない場合、最後のCDRが(真リストで要求される)<code class="literal">nil</code>ではないので、結果はドットリストになります。
+</p></blockquote></div><p>以下は<code class="literal">append</code>を使用した例です:
+</p><pre class="screen">(setq trees '(pine oak))
+     ⇒ (pine oak)
+(setq more-trees (append '(maple birch) trees))
+     ⇒ (maple birch pine oak)
+</pre><pre class="screen">
+</pre><pre class="screen">trees
+     ⇒ (pine oak)
+more-trees
+     ⇒ (maple birch pine oak)
+</pre><pre class="screen">(eq trees (cdr (cdr more-trees)))
+     ⇒ t
+</pre><p><code class="literal">append</code>がどのように機能するか、ボックスダイアグラムで見ることができます。変数<code class="literal">trees</code>はリスト<code class="literal">(pine
+oak)</code>にセットされ、それから変数<code class="literal">more-trees</code>にリスト<code class="literal">(maple birch pine
+oak)</code>がセットされます。しかし変数<code class="literal">trees</code>は継続して元のリストを参照します:
+</p><pre class="screen">more-trees                trees
+|                           |
+|     --- ---      --- ---   -&gt; --- ---      --- ---
+ --&gt; |   |   |--&gt; |   |   |--&gt; |   |   |--&gt; |   |   |--&gt; nil
+      --- ---      --- ---      --- ---      --- ---
+       |            |            |            |
+       |            |            |            |
+        --&gt; maple    --&gt;birch     --&gt; pine     --&gt; oak
+</pre><p>空のシーケンスは、<code class="literal">append</code>によりreturnされる値に寄与しません。この結果、最後の引数に<code class="literal">nil</code>を指定すると、それより前の引数のコピーを強制することになります。
+</p><pre class="screen">trees
+     ⇒ (pine oak)
+</pre><pre class="screen">(setq wood (append trees nil))
+     ⇒ (pine oak)
+</pre><pre class="screen">wood
+     ⇒ (pine oak)
+</pre><pre class="screen">(eq wood trees)
+     ⇒ nil
+</pre><p>これは関数<code class="literal">copy-sequence</code>が導入される以前は、リストをコピーする通常の方法でした。<a class="link" href="ch07.html" title="Chapter 6. Sequences, Arrays, and Vectors">Sequences Arrays
+Vectors</a>を参照してください。
+</p><p>以下は、<code class="literal">append</code>の引数としてベクターと文字列を使用する例です:
+</p><pre class="screen">(append [a b] "cd" nil)
+     ⇒ (a b 99 100)
+</pre><p><code class="literal">apply</code> (<a class="link" href="ch13s05.html" title="Calling Functions">Calling
+Functions</a>を参照してください)の助けを借りることにより、リストのリストの中の、すべてのリストをappendできます。
+</p><pre class="screen">(apply 'append '((a b c) nil (x y z) nil))
+     ⇒ (a b c x y z)
+</pre><p><em class="replaceable"><code>sequences</code></em>が与えられない場合、<code class="literal">nil</code>がreturnされます:
+</p><pre class="screen">(append)
+     ⇒ nil
+</pre><p>以下は、最後の引数がリストでない場合の例です:
+</p><pre class="screen">(append '(x y) 'z)
+     ⇒ (x y . z)
+(append '(x y) [z])
+     ⇒ (x y . [z])
+</pre><p>2番目の例は、最後の引数はシーケンスですがリスとではない場合で、このシーケンスの要素は、結果リストの要素にはなりません。かわりに、最後の引数がリストでないときと同様、シーケンスが最後のCDRになります。
+</p><pre class="synopsis"><a id="idm49597392" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">reverse</code> <em class="replaceable"><code>list</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、要素は<em class="replaceable"><code>list</code></em>の要素ですが、順序が逆の新しいリストを作成します。元の引数<em class="replaceable"><code>list</code></em>は、変更<span class="emphasis"><em>されません</em></span>。
+</p><pre class="screen">(setq x '(1 2 3 4))
+     ⇒ (1 2 3 4)
+</pre><pre class="screen">(reverse x)
+     ⇒ (4 3 2 1)
+x
+     ⇒ (1 2 3 4)
+</pre></blockquote></div><pre class="synopsis"><a id="idm49592144" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">copy-tree</code> <em class="replaceable"><code>tree</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>vecp</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はツリー<code class="literal">tree</code>のコピーをreturnします。<em class="replaceable"><code>tree</code></em>がコンスセルの場合、同じCARとCDRをもつ新しいコンスセルを作成してから、同じ方法によりCARとCDRを再帰的にコピーします。
+</p><p>通常、<em class="replaceable"><code>tree</code></em>がコンスセル以外の場合、<code class="literal">copy-tree</code>は単に<em class="replaceable"><code>tree</code></em>をreturnします。しかし、<em class="replaceable"><code>vecp</code></em>が非<code class="literal">nil</code>の場合、この関数はベクターでもコピーします(そしてベクターの要素を再帰的に処理します)。
+</p></blockquote></div><pre class="synopsis"><a id="idm49584720" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">number-sequence</code> <em class="replaceable"><code>from</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>to</code></em> <em class="replaceable"><code>separation</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>これは、<em class="replaceable"><code>from</code></em>から<em class="replaceable"><code>separation</code></em>づつインクリメントして、<em class="replaceable"><code>to</code></em>の直前で終わる、数字のリストをreturnします。<em class="replaceable"><code>separation</code></em>には正または負の数を指定でき、デフォルトは1です。<em class="replaceable"><code>to</code></em>が<code class="literal">nil</code>、または数的に<em class="replaceable"><code>from</code></em>と等しい場合、値は1要素のリスト<code class="literal">(<em class="replaceable"><code>from</code></em>)</code>になります。<em class="replaceable"><code>separation</code></em>が正で<em class="replaceable"><code>to</code></em>が<em class="replaceable"><code>from</code></em>より小さい場合、または<em class="replaceable"><code>separation</code></em>が負で<em class="replaceable"><code>to</code></em>が<em class="replaceable"><code>from</code></em>より大きい場合、これらの引数は空のシーケンスを指示することになるので、値は<code class="literal">nil</code>になります。
+</p><p><em class="replaceable"><code>separation</code></em>が0で、<em class="replaceable"><code>to</code></em>が<code class="literal">nil</code>でもなく、数的に<em class="replaceable"><code>from</code></em>とも等しくない場合、これらの引数は無限シーケンスを指示することになるので、エラーがシグナルされます。
+</p><p>引数はすべて数字です。浮動少数の計算は正確ではないので、浮動少数の引数には用心する必要があります。たとえばマシンに依存して、<code class="literal">(number-sequence
+0.4 0.8 0.2)</code>が3要素のリストをreturnするのに、<code class="literal">(number-sequence 0.4 0.6
+0.2)</code>が1要素のリスト<code class="literal">(0.4)</code>をreturnすることがよく起こります。リストの<em class="replaceable"><code>n</code></em>番目の要素は、厳密に<code class="literal">(+
+<em class="replaceable"><code>from</code></em> (* <em class="replaceable"><code>n</code></em>
+<em class="replaceable"><code>separation</code></em>))</code>という式により計算されます。したがって、リストに確実に<em class="replaceable"><code>to</code></em>が含まれるようにするには、この式に適切な型の<em class="replaceable"><code>to</code></em>を渡すことができます。別の方法として、<em class="replaceable"><code>to</code></em>を少しだけ大きな値(<em class="replaceable"><code>separation</code></em>が負の場合は、少しだけ小さな値)に置き換えることもできます。
+</p><p>いくつか例を示します:
+</p><pre class="screen">(number-sequence 4 9)
+     ⇒ (4 5 6 7 8 9)
+(number-sequence 9 4 -1)
+     ⇒ (9 8 7 6 5 4)
+(number-sequence 9 4 -2)
+     ⇒ (9 7 5)
+(number-sequence 8)
+     ⇒ (8)
+(number-sequence 8 5)
+     ⇒ nil
+(number-sequence 5 8 -1)
+     ⇒ nil
+(number-sequence 1.5 6 2)
+     ⇒ (1.5 3.5 5.5)
+</pre></blockquote></div><div class="footnotes"><br/><hr/><div id="ftn.idm49642704" class="footnote"><p><a href="#idm49642704" class="para"><sup class="para">[2] </sup></a>リストの最後に要素を追加するための、これと完全に同等な方法はありません。<em class="replaceable"><code>listname</code></em>をコピーすることにより、新しいリストを作成してから、<em class="replaceable"><code>newelt</code></em>をそのリストの最後に追加する、<code class="literal">(append
+<em class="replaceable"><code>listname</code></em> (list
+<em class="replaceable"><code>newelt</code></em>))</code>を使用することができます。すべてのCDRを辿って、終端の<code class="literal">nil</code>を置き換える、<code class="literal">(nconc
+<em class="replaceable"><code>listname</code></em> (list
+<em class="replaceable"><code>newelt</code></em>))</code>を使用することもできます。コピーも変更も行なわずに、リストの先頭に要素を追加する<code class="literal">cons</code>と比較してみてください。</p></div></div></div></body></html>

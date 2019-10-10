@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Expansion of a Macro Call</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Expansion"/>Expansion of a Macro Call</h1></div></div></div><a id="idm53259984" class="indexterm"/><a id="idm53259216" class="indexterm"/><p>マクロ呼び出しは、関数の呼び出しと同じ外観をもち、マクロの名前で始まるリストで表されます。そのリストの残りの要素は、マクロの引数になります。
+</p><p>マクロ呼び出しの評価は、1つの重大な違いを除き、関数の評価と同じように開始されます。重要な違いとは、そのマクロの引数はマクロ呼び出し内で実際の式として現れます。これらの引数はマクロ定義に与えられる前には評価されません。対象的に、関数の引数は、その関数の呼び出しリストの要素を評価した結果です。
+</p><p>こうして得た引数を使用して、Lispは関数呼び出しのように、マクロ定義を呼び出します。マクロの引数変数はマクロ呼び出しの引数値にバインドされるか、a
+<code class="literal">&amp;rest</code>引数の場合は引数地のリストになります。そして、そのマクロのbodyが実行されて、関数bodyが行うように、マクロbodyの値をreturnsします。
+</p><p>マクロと関数の2つ目の重要な違いは、マクロのbodyからreturnされる値が、代替となるLisp式であることで、これはマクロの<em class="firstterm">展開(expansion)</em>としても知られます。Lispインタープリターは、マクロから展開形が戻されると、すぐにその展開形の評価を行います。
+</p><p>展開形は通常の方法で評価されるので、もしかしたらその展開形は他のマクロの呼び出しを含むかもしれません。一般的ではありませんが、もしかすると同じマクロを呼び出すかもしれません。
+</p><p>EmacsはコンパイルされていないLispファイルをロードするときに、マクロの展開を試みることに注意してください。これは常に利用可能ではありませんが、もし可能なら、それ以降の実行の速度を改善します。<a class="link" href="ch16.html#How-Programs-Do-Loading" title="How Programs Do Loading">How
+Programs Do Loading</a>を参照してください。
+</p><p><code class="literal">macroexpand</code>を呼び出すことにより、与えられたマクロ呼び出しにたいする展開形を確認することができます。
+</p><pre class="synopsis"><a id="idm53253712" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">macroexpand</code> <em class="replaceable"><code>form</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>environment</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm53250384" class="indexterm"/><p>この関数は、それがマクロ呼び出しの場合は、<em class="replaceable"><code>form</code></em>を展開します。結果が他のマクロ呼び出しの場合は、結果がマクロ呼び出しでなくなるまで、順番に展開を行います。これは<code class="literal">macroexpand</code>からreturnされる値になります。<em class="replaceable"><code>form</code></em>がマクロ呼び出しで開始されない場合、与えられた<em class="replaceable"><code>form</code></em>をそのままreturnします。
+</p><p><code class="literal">macroexpand</code>は、(たとえいくつかのiマクロ定義がそれを行っているとしても)<em class="replaceable"><code>form</code></em>の部分式(subexpression)を調べないことに注意してください。たとえ部分式自身がマクロ呼び出しの場合でも、<code class="literal">macroexpand</code>はそれらを展開しません。
+</p><p>関数<code class="literal">macroexpand</code>は、インライン関数の呼び出しを展開しません。なぜならインライン関数の呼び出しは、通常の関数呼び出しと比較して理解が難しい訳ではないので、通常はそれを行う必要がないからです。
+</p><p><em class="replaceable"><code>environment</code></em>が与えられた場合、それはそのとき定義されているマクロをシャドーするマクロのalistを指定します。バイトコンパイルはこの機能を使用します。
+</p><pre class="screen">(defmacro inc (var)
+    (list 'setq var (list '1+ var)))
+</pre><pre class="screen">
+</pre><pre class="screen">(macroexpand '(inc r))
+     ⇒ (setq r (1+ r))
+</pre><pre class="screen">
+</pre><pre class="screen">(defmacro inc2 (var1 var2)
+    (list 'progn (list 'inc var1) (list 'inc var2)))
+</pre><pre class="screen">
+</pre><pre class="screen">(macroexpand '(inc2 r s))
+     ⇒ (progn (inc r) (inc s))  ; ここでは<code class="literal">inc</code>は展開されない。
+</pre></blockquote></div><pre class="synopsis"><a id="idm53240784" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">macroexpand-all</code> <em class="replaceable"><code>form</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>environment</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">macroexpand-all</code>は<code class="literal">macroexpand</code>と同様、マクロを展開しますが、ドップレベルだけではなく、<em class="replaceable"><code>form</code></em>内のすべてのマクロを探して展開します。展開されたマクロがない場合、return値は、<em class="replaceable"><code>form</code></em>と<code class="literal">eq</code>になります。
+</p><p>上記<code class="literal">macroexpand</code>で使用した例を<code class="literal">macroexpand-all</code>に用いると、<code class="literal">macroexpand-all</code>が<code class="literal">inc</code>に埋め込まれた呼び出しの展開を<span class="emphasis"><em>行う</em></span>ことを確認できます:
+</p><pre class="screen">(macroexpand-all '(inc2 r s))
+     ⇒ (progn (setq r (1+ r)) (setq s (1+ s)))
+</pre></blockquote></div></div></body></html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Command History</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Command-History"/>Command History</h1></div></div></div><a id="idm59333456" class="indexterm"/><a id="idm59332688" class="indexterm"/><a id="idm59331920" class="indexterm"/><p>コマンドループは複雑なコマンドを手軽に繰り返せるように、実行された複雑なコマンドのヒストリー(history:
+履歴)を保持します。<em class="firstterm">複雑なコマンド(complex
+command)とは、ミニバッファーを使用してinteractive引数を読み取るコマンドです。</em>これには<strong class="userinput"><code>M-x</code></strong>コマンド、<strong class="userinput"><code>M-:</code></strong>コマンド、および<code class="literal">interactive</code>指定によりミニバッファーから引数を読み取る任意のコマンドが含まれます。コマンド自身の実行の間に明示的にミニバッファーを使用するものは、複雑なコマンドとは判断されません。
+</p><pre class="synopsis"><a id="idm59328592" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">command-history</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数の値は最近実行された複雑なコマンドのリストであり、それぞれが評価されるべきフォームとして表現される。このリストは編集セッションの間、すべての複雑なコマンドを蓄積するが、最大サイズ(<a class="link" href="ch20s04.html" title="Minibuffer History">Minibuffer
+History</a>を参照)に達したときは、もっとも古い要素が削除されて、新たな要素が追加される。
+</p><pre class="screen">command-history
+⇒ ((switch-to-buffer "chistory.texi")
+    (describe-key "^X^[")
+    (visit-tags-table "~/emacs/src/")
+    (find-tag "repeat-complex-command"))
+</pre></blockquote></div><p>実際には、このヒストリーリストはミニバッファーヒストリーの特殊ケースであり、それは要素が文字列ではなく式であることです。
+</p><p>以前のコマンドを編集したり再呼び出しするためのコマンドがいくつかあります。コマンド<code class="literal">repeat-complex-command</code>および<code class="literal">list-command-history</code>は、ユーザーマニュアルで説明されています(section “Repetition” in <em class="citetitle">The GNU Emacs Manual</em>を参照)。ミニバッファー内では、通常のミニバッファーヒストリーコマンドが理由できます。
+</p></div></body></html>

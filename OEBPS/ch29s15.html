@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Pop-Up Menus</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Pop_002dUp-Menus"/>Pop-Up Menus</h1></div></div></div><a id="idm70063312" class="indexterm"/><p>Lispプログラムはポップアップメニューを表示できるので、ユーザーはマウスで候補を選択できます。テキスト端末上では、マウスが利用不可なら、キーボードのモーションキー<strong class="userinput"><code>C-n</code></strong>、<strong class="userinput"><code>C-p</code></strong>、上矢印キー、下矢印キーで候補を選択できます。
+</p><pre class="synopsis"><a id="idm70060880" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">x-popup-menu</code> <em class="replaceable"><code>position</code></em> <em class="replaceable"><code>menu</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ポップアップメニューを表示して、ユーザーが何を選択したかの指標をリターンする。
+</p><p>引数<em class="replaceable"><code>position</code></em>は、メニュー左上隅をスクリーン上どこに置くか指定する。これはマウスボタンイベント(ユーザーがボタンを操作した位置にメニューを置くよう告げる)、または以下の形式のリストのいずれかである:
+</p><pre class="screen">((<em class="replaceable"><code>xoffset</code></em> <em class="replaceable"><code>yoffset</code></em>) <em class="replaceable"><code>window</code></em>)
+</pre><p>ここで、<em class="replaceable"><code>xoffset</code></em>と<em class="replaceable"><code>yoffset</code></em>は<em class="replaceable"><code>window</code></em>左上隅からピクセル単位で測られた座標である。<em class="replaceable"><code>window</code></em>はウィンドウ、またはフレームかもしれない。
+</p><p><em class="replaceable"><code>position</code></em>が<code class="literal">t</code>の場合、それはマウスのカレント位置の使用を意味する(テキスト端末上でマウスが利用不可ならフレーム左上隅)。<em class="replaceable"><code>position</code></em>が<code class="literal">nil</code>なら、それは実際にメニューをポップアップせずに、<em class="replaceable"><code>menu</code></em>内で指定されたキーマップと等価なキーバインディングを事前に計算することを意味する。
+</p><p>引数<em class="replaceable"><code>menu</code></em>は、メニュー内で何を表示するかを告げる。これはキーマップまたはキーマップのリストを指定できる(<a class="link" href="ch22s17.html" title="Menu Keymaps">Menu
+Keymaps</a>を参照)。この場合、リターン値はユーザー選択に対応するイベントのリストである。選択がサブメニュー内で発生した場合、このリストには複数の要素がある(<code class="literal">x-popup-menu</code>はそのイベントシーケンスにバインドされたコマンドを実際には実行しないことに注意)。テキスト端末、およびメニュータイトルをサポートするツールキットでは、<em class="replaceable"><code>menu</code></em>がキーマップならタイトルは<em class="replaceable"><code>menu</code></em>のプロンプト文字列、<em class="replaceable"><code>menu</code></em>がキーマップのリストなら最初のキーマップのプロンプト文字列から取得される(<a class="link" href="ch22s17.html#Defining-Menus" title="Defining Menus">Defining
+Menus</a>を参照)。
+</p><p>かわりに、<em class="replaceable"><code>menu</code></em>は以下の形式をもつこともできる:
+</p><pre class="screen">(<em class="replaceable"><code>title</code></em> <em class="replaceable"><code>pane1</code></em> <em class="replaceable"><code>pane2</code></em>...)
+</pre><p>ここで、それぞれのpaneは以下の形式のリストである
+</p><pre class="screen">(<em class="replaceable"><code>title</code></em> <em class="replaceable"><code>item1</code></em> <em class="replaceable"><code>item2</code></em>...)
+</pre><p>それぞれ<em class="replaceable"><code>item</code></em>は、コンスセル<code class="literal">(<em class="replaceable"><code>line</code></em>
+.
+<em class="replaceable"><code>value</code></em>)</code>であること。ここで<em class="replaceable"><code>line</code></em>は文字列、<em class="replaceable"><code>value</code></em>は<em class="replaceable"><code>line</code></em>が選択された場合にリターンされる値である。メニューキーマップと異なり、<code class="literal">nil</code>の<em class="replaceable"><code>value</code></em>は選択不可のメニューアイテムを作成しない。かわりに、それぞれの<em class="replaceable"><code>item</code></em>にコンスセルではなく文字列を指定できる。これは選択不可のメニューアイテムを作成する。
+</p><p>たとえば有効な選択からマウスを外してクリックしたり、<strong class="userinput"><code>C-g</code></strong>をタイプすることにより、有効な選択を行うことなくユーザーがメニューを取り除いた場合は、通常はquitして<code class="literal">x-popup-menu</code>はリターンしない。しかし、<em class="replaceable"><code>position</code></em>がマウスボタンイベント(ユーザーがマウスでメニューを呼び出したことを示す)なら、quitは起こらず<code class="literal">x-popup-menu</code>はリターンする。
+</p></blockquote></div><p><span class="bold"><strong>使用上の注意:
+</strong></span>メニューキーマップで定義したプレフィクスキー処理を行えるなら、メニューの表示に<code class="literal">x-popup-menu</code>を使用しないでください。メニューの実装にメニューキーマップを使用する場合は、<strong class="userinput"><code>C-h
+c</code></strong>および<strong class="userinput"><code>C-h
+a</code></strong>でメニュー内の個別アイテムの確認、およびそれらにたいするヘルプを提供できます。かわりに<code class="literal">x-popup-menu</code>を呼び出すコマンドを定義することによりメニューを実装した場合、ヘルプ機能はそのコマンド内部で何が起こっているか知ることができず、そのメニューアイテムのヘルプを何も与えられません。
+</p><p>マウス移動によりサブメニュー間を切り替えるメニューバーのメカニズムは、それが<code class="literal">x-popup-menu</code>を呼び出すか確認するために、コマンドの定義を見ることができません。したがって、<code class="literal">x-popup-menu</code>を使用してサブメニューの実装を試みた場合、それは統合された方式でメニューバーとともに機能しません。メニューバーのすべてのサブメニューは、親メニューのメニューキーマップにより実装され、決して<code class="literal">x-popup-menu</code>で実装されないのは、これが理由です。<a class="link" href="ch22s17.html#Menu-Bar" title="The Menu Bar">Menu
+Bar</a>を参照してください。
+</p><p>メニューバーのサブメニューのコンテンツを変化させたい場合にも、その実装には依然としてメニューキーマップを使用するべきです。コンテンツを変化させるためには、必要に応じてメニューキーマップのコンテンツを更新するために、フック関数を<code class="literal">menu-bar-update-hook</code>に追加してください。
+</p></div></body></html>

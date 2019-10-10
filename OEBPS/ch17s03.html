@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Documentation Strings and Compilation</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Docs-and-Compilation"/>Documentation Strings and Compilation</h1></div></div></div><a id="idm55783888" class="indexterm"/><p>Emacsがバイトコンパイルされたファイルから関数や変数をロードする際、通常はメモリー内にそれらのドキュメント文字列をロードしません。それぞれのドキュメント文字列は、必要なときだけバイトコンパイルされたファイルから“ダイナミック(dynamic:
+動的)”にロードされます。ドキュメント文字列の処理をスキップすることにより、メモリーが節約され、ロードが高速になります。
+</p><p>この機能には欠点があります。コンパイル済みのファイルを削除、移動、または(新しいバージョンのコンパイル等で)変更した場合、Emacsは前にロードされた関数や変数のドキュメント文字列にアクセスできなくなるでしょう。このような問題は通常、あなた自身がEmacsをビルドした場合に、そのLispファイルを編集、および/またはリコンパイルしたときだけ発生します。この問題は、リコンパイル後にそれぞれのファイルをリロードするだけで解決します。
+</p><p>バイトコンパイルされたファイルからのドキュメント文字列のダイナミックロードは、バイトコンパイルされたファイルごとに、コンパイル時に決定されます。これはオプション<code class="literal">byte-compile-dynamic-docstrings</code>により、無効にできます。
+</p><pre class="synopsis"><a id="idm55781200" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">byte-compile-dynamic-docstrings</code></pre><div class="blockquote"><blockquote class="blockquote"><p>これが非<code class="literal">nil</code>の場合、バイトコンパイラーはドキュメント文字列をダイナミックロードするようセットアップしたコンパイル済みファイルを生成します。
+</p><p>特定のファイルでダイナミックロード機能を無効にするには、以下のようにヘッダー行(section “Local
+Variables in Files” in <em class="citetitle">The GNU Emacs
+Manual</em>を参照)で、このオプションに<code class="literal">nil</code>をセットします。
+</p><pre class="screen">-*-byte-compile-dynamic-docstrings: nil;-*-
+</pre><p>これは主に、あるファイルを変更しようとしていて、そのファイルをすでにロード済みのEmacsセッションがファイルを変更した際にも正しく機能し続けることを望む場合に有用です。
+</p></blockquote></div><a id="idm55776080" class="indexterm"/><a id="idm55774544" class="indexterm"/><p>内部的には、ドキュメント文字列のダイナミックロードは、特殊なLispリーダー構成‘<code class="literal">#@<em class="replaceable"><code>count</code></em></code>’とともにコンパイル済みファイルに書き込むことにより達成されます。この構成は、次の<em class="replaceable"><code>count</code></em>文字をスキップします。さらに‘<code class="literal">#$</code>’構成も使用され、これは“このファイルの名前(文字列)”を意味します。これらの構成をLispソースファイル内で使用しないでください。これらは人間がファイルを読む際に明確であるようデザインされていません。
+</p></div></body></html>

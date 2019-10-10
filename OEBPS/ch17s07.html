@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Byte-Code Function Objects</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Byte_002dCode-Objects"/>Byte-Code Function Objects</h1></div></div></div><a id="idm55677904" class="indexterm"/><a id="idm55677136" class="indexterm"/><a id="idm55676368" class="indexterm"/><p>バイトコンパイルされた関数は、特別なデータ型、<em class="firstterm">バイトコード関数オブジェクト(byte-code function
+objects)</em>をもちます。関数呼び出しとしてそのようなオブジェクトが出現したとき、Emacsはそのバイトコードを実行するために、常にバイトコードインタープリターを使用します。
+</p><p>内部的には、バイトコード関数オブジェクトはベクターによく似ています。バイトコード関数オブジェクトの要素には、<code class="literal">aref</code>を通じてアクセスできます。バイトコード関数オブジェクトのプリント表現(printed
+representation)はベクターに似ていて、開き‘<code class="literal">[</code>’の前に‘<code class="literal">#</code>’が追加されます。バイト関数オブジェクトは少なくとも4つの要素をもたねばならず、要素数に上限はありません。しかし通常使用されるのは、最初の6要素です。これらは:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><em class="replaceable"><code>arglist</code></em>
+</span></dt><dd><p>シンボル引数のリスト。
+</p></dd><dt><span class="term"><em class="replaceable"><code>byte-code</code></em>
+</span></dt><dd><p>バイトコード命令を含む文字列。
+</p></dd><dt><span class="term"><em class="replaceable"><code>constants</code></em>
+</span></dt><dd><p>バイトコードにより参照されるLispオブジェクトのベクター。関数名と変数名に使用されるシンボルが含まれる。
+</p></dd><dt><span class="term"><em class="replaceable"><code>stacksize</code></em>
+</span></dt><dd><p>この関数が要するスタックの最大サイズ。
+</p></dd><dt><span class="term"><em class="replaceable"><code>docstring</code></em>
+</span></dt><dd><p>(もしあれば)ドキュメント文字列。それ以外は<code class="literal">nil</code>。ドキュメント文字列がファイルに格納されている場合、値は数字かリストかもしれない。本当のドキュメント文字列の取得には、関数<code class="literal">documentation</code>を使用する(<a class="link" href="ch24s02.html" title="Access to Documentation Strings">Accessing
+Documentation</a>を参照)。
+</p></dd><dt><span class="term"><em class="replaceable"><code>interactive</code></em>
+</span></dt><dd><p>(もしあれば)インタラクティブ仕様。文字列かLisp式。インタラクティブでない関数では<code class="literal">nil</code>。
+</p></dd></dl></div><p>以下は、バイトコード関数オブジェクトのプリント表現の例です。これはコマンド<code class="literal">backward-sexp</code>の定義です。
+</p><pre class="screen">#[(&amp;optional arg)
+  "^H\204^F^@\301^P\302^H[!\207"
+  [arg 1 forward-sexp]
+  2
+  254435
+  "^p"]
+</pre><p>バイトコードオブジェクトを作成する原始的な方法は、<code class="literal">make-byte-code</code>です:
+</p><pre class="synopsis"><a id="idm55661136" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-byte-code</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>elements</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>elements</code></em>を要素とするバイトコードオブジェクトを構築して、リターンします。
+</p></blockquote></div><p>あなた自身が要素を収集してバイトコード関数を構築しないでください。それらが矛盾する場合、その関数の呼び出しによりEmacsがクラッシュするかもしれません。これらのオブジェクトの作成は、常にバイトコンパイラーにまかせてください。バイトコンパイラーは、要素を矛盾なく構築します(願わくば)。
+</p></div></body></html>

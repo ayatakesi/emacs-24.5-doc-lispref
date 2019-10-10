@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Vertical Fractional Scrolling</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Vertical-Scrolling"/>Vertical Fractional Scrolling</h1></div></div></div><a id="idm67425744" class="indexterm"/><a id="idm67424976" class="indexterm"/><p><em class="firstterm">垂直フラクショナルスクロール(vertical fractional
+scrolling)</em>とは、指定された値を行に乗ずるることによりウィンドウ内のテキストを上下にシフトすることを意味します。ウィンドウはそれぞれ、決して0より小さくなることはない、<em class="firstterm">垂直スクロール位置(vertical
+scroll
+position)</em>という数値をもっています。これは、ウィンドウのコンテンツをどこから表示開始(raise)するかを指定します。ウィンドウのコンテンツの表示開始により、一般的には上端の何行かのすべて、または一部が表示されなくなり、他の何行かのすべて、または一部が下端に表示されるようになります。通常の値は0です。
+</p><p>垂直スクロール位置は、通常行の高さ(デフォルトフォントの高さ)の単位で数えられます。したがって、値が.5なら、それはウィンドウのコンテンツが、通常行の半分の高さで上にスクロールされていることを、3.3なら通常行の3倍を若干超える高さで上にスクロールされていることを意味します。
+</p><p>垂直スクロールが覆い隠す(cover)のがどれほどの行断片(fraction of a
+line)、あるいは行数かは、それらの行に何が含まれるかに依存します。3.3という値が高さが高い行やイメージの一部だけを画面外にスクロールできることもあれば、.5という値が非常に低い高さの行を画面外にスクロールできることもあります。
+</p><pre class="synopsis"><a id="idm67422160" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-vscroll</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>pixels-p</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>のカレントの垂直スクロール位置をリターンする。<em class="replaceable"><code>window</code></em>のデフォルトは、選択されたウィンドウである。<em class="replaceable"><code>pixels-p</code></em>が非<code class="literal">nil</code>の場合、リターン値は通常行高さ単位ではなく、ピクセル単位で測定される。
+</p><pre class="screen">(window-vscroll)
+     ⇒ 0
+</pre></blockquote></div><pre class="synopsis"><a id="idm67416016" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-window-vscroll</code> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>lines</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>pixels-p</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>の垂直スクロール位置を<em class="replaceable"><code>lines</code></em>にセットする。<em class="replaceable"><code>window</code></em>が<code class="literal">nil</code>なら、選択されたウィンドウが使用される。引数<em class="replaceable"><code>lines</code></em>は0または正であること。それ以外は0として扱われる。
+</p><p>実際の垂直スクロール位置は、常にピクセルの整数に対応しなければならないため、指定した値はそれに応じて丸められる。
+</p><p>こも丸め結果がリターン値となる。
+</p><pre class="screen">(set-window-vscroll (selected-window) 1.2)
+     ⇒ 1.13
+</pre><p><em class="replaceable"><code>pixels-p</code></em>が非<code class="literal">nil</code>の場合、<em class="replaceable"><code>lines</code></em>はピクセル数を指定する。この場合、リターン値は<em class="replaceable"><code>lines</code></em>である。
+</p></blockquote></div><pre class="synopsis"><a id="idm67406416" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">auto-window-vscroll</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>なら、関数<code class="literal">line-move</code>、<code class="literal">scroll-up</code>、<code class="literal">scroll-down</code>は、たとえば大きなイメージが存在する等でウィンドウ高さより高いディスプレイ行をスクロールするために、垂直スクロール位置を自動的に変更するだろう。
+</p></blockquote></div></div></body></html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 13. Macros</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Macros"/>Chapter 13. Macros</h1></div></div></div><a id="idm53280720" class="indexterm"/><p><em class="firstterm">マクロ(macros)</em>は、新たな制御構造や、他の言語機能の定義を可能にします。マクロは関数のように定義されますが、値の計算方法を指定するかわりに、値を計算する別のLisp式を計算する方法を指示します。わたしたちはこの式のことをマクロの<em class="firstterm">展開形(expansion)</em>と呼んでいます。
+</p><p>マクロは、関数が行うように引数の値を処理するのではなく、引数のために未評価の式を処理することにより、これを行うことができます。したがってマクロは、これらの引数式またはその一部をを含む式を構築することができます。
+</p><p>マクロを使用して通常の関数が行えることを行う場合、単にそれが速度面の理由ならば、かわりにインライン関数の使用を考慮してください。<a class="link" href="ch13s12.html" title="Inline Functions">Inline
+Functions</a>を参照してください。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Simple-Macro"/>A Simple Example of a Macro</h1></div></div></div><p>Cの<code class="literal">++</code>演算子のように、変数の値をインクリメントするためのLisp構造を定義したいとします。<code class="literal">(inc
+x)</code>のように記述すると、<code class="literal">(setq x (1+ x))</code>という効果を得たいとします。以下はこれを行うマクロ定義です:
+</p><a id="idm53274704" class="indexterm"/><pre class="screen">(defmacro inc (var)
+   (list 'setq var (list '1+ var)))
+</pre><p>これを<code class="literal">(inc x)</code>のように呼び出すと、引数<em class="replaceable"><code>var</code></em>はシンボル<code class="literal">x</code>になります —
+関数のときのように<code class="literal">x</code>の<span class="emphasis"><em>値</em></span>では<span class="emphasis"><em>ありません</em></span>。このマクロのbodyはこれを展開の構築に使用して、展開形は<code class="literal">(setq
+x (1+ x))</code>になります。マクロが1度この展開形をreturnすると。Lispはそれを評価するので、<code class="literal">x</code>はインクリメントされます。
+</p><pre class="synopsis"><a id="idm53264976" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">macrop</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この術後は、その引数がマクロかどうかテストして、もしマクロなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div></div></div></body></html>

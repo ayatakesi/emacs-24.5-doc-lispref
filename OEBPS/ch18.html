@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 17. Debugging Lisp Programs</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a id="Debugging"/>Chapter 17. Debugging Lisp Programs</h1></div></div></div><a id="idm55594192" class="indexterm"/><p>Emacs Lispプログラム内の問題を見つけて詳細に調べる方法が、いくつかあります。
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p>プログラム実行中に問題が発生した場合は、Lisp評価機能をサスペンドするためにビルトインのEmacs
+Lispデバッガを使用して、評価機能の内部状態の調査および/または変更を行なうことができます。
+</p></li><li class="listitem"><p>Emacs Lispにたいするソースレベルデバッガの、Edebugを使用できます。
+</p></li><li class="listitem"><p>文法的な問題によりLispがプログラムを読むことさえできない場合は、Lisp編集コマンドを使用して該当箇所を見つけることができます。
+</p></li><li class="listitem"><p>バイトコンパイラーがプログラムをコンパイルするとき、コンパイラーにより生成されるエラーメッセージと警告メッセージを調べることができます。<a class="link" href="ch17s06.html" title="Compiler Errors">Compiler
+Errors</a>を参照してください。
+</p></li><li class="listitem"><p>Testcoverパッケージを使用してプログラムのテストカバレッジを行なえます。
+</p></li><li class="listitem"><p>ERTパッケージを使用して、プログラムにたいするリグレッションテストを記述できます。section “the ERT manual” in <em class="citetitle">ERT: Emacs Lisp Regression Testing</em>を参照してください。
+</p></li><li class="listitem"><p>プログラムをプロファイルして、プログラムをより効果的にするためのヒントを取得できます。
+</p></li></ul></div><p>入出力の問題をデバックする便利なその他のツールに、ドリブルファイル(dribble file: <a class="link" href="ch39s12.html" title="Terminal Input">Terminal
+Input</a>を参照)と、<code class="literal">open-termscript</code>関数(<a class="link" href="ch39s13.html" title="Terminal Output">Terminal Output</a>)があります。
+</p><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Debugger"/>The Lisp Debugger</h1></div></div></div><a id="idm55581392" class="indexterm"/><a id="idm55580624" class="indexterm"/><a id="idm55579856" class="indexterm"/><p>普通の<em class="firstterm">Lispデバッガ</em>は、フォーム評価のサスペンド機能を提供します。評価がサスペンド(一般的には<em class="firstterm">break</em>の状態として知られる)されている間、実行時スタックを調べたり、ローカル変数やグローバル変数の値を調べたり変更することができます。breakは再帰編集(recursive
+edit)なので、Emacsの通常の編集機能が利用可能です。デバッガにエンターするようにプログラムを実行することさえ可能です。<a class="link" href="ch21s13.html" title="Recursive Editing">Recursive
+Editing</a>を参照してください。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Error-Debugging"/>Entering the Debugger on an Error</h2></div></div></div><a id="idm55576528" class="indexterm"/><a id="idm55575760" class="indexterm"/><p>デバッガに入る一番重要なタイミングは、Lispエラーが発生したときです。デバッガでは、エラーの直接原因を調査できます。
+</p><p>しかしデバッガへのエンターは、エラーによる通常の結末ではありません。多くのコマンドは不適切に呼び出されたときにLispエラーをシグナルするので、通常の編集の間にこれが発生するたびデバッガにエンターするのは、とても不便でしょう。したがって、エラーの際にデバッガにエンターしたい場合は、変数<code class="literal">debug-on-error</code>に非<code class="literal">nil</code>をセットします。(コマンド<code class="literal">toggle-debug-on-error</code>は、これを簡単に行う方法を提供します。)
+</p><pre class="synopsis"><a id="idm55572432" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">debug-on-error</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数はエラーがシグナルされ、それがハンドルされていないときに、デバッガが呼び出されるかどうかを決定します。<code class="literal">debug-on-error</code>が<code class="literal">t</code>の場合は、<code class="literal">debug-ignored-errors</code>(以下を参照)にリストされているエラーを除く、すべての種類のエラーがデバッガを呼び出します。<code class="literal">nil</code>の場合は、デバッガを呼び出しません。
+</p><p>値にはエラー条件(<a class="link" href="ch11s05.html#Signaling-Errors" title="How to Signal an Error">Signaling
+Errors</a>を参照)のリストも指定できます。その場合、このリスト内のエラー条件だけにより、デバッガが呼び出されます(<code class="literal">debug-ignored-errors</code>にもリストされているエラー条件は除外されます)。たとえば、<code class="literal">debug-on-error</code>をリスト<code class="literal">(void-variable)</code>にセットした場合には、値をもたない変数に関するエラーにたいしてだけデバッガが呼び出されます。
+</p><p><code class="literal">eval-expression-debug-on-error</code>がこの変数をオーバーライドする場合がいくつかあることに注意してください(以下を参照)。
+</p><p>この変数が非<code class="literal">nil</code>のとき、Emacsはプロセスフィルター関数と番兵(sentinel)の周囲にエラーハンドラーを作成しません。したがって、これらの関数内でのエラーは、デバッガを呼び出します。<a class="link" href="ch37.html" title="Chapter 36. Processes">Processes</a>を参照してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm55562960" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">debug-ignored-errors</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、<code class="literal">debug-on-error</code>の値に関わらず、デバッガにエンターすべきでないエラーを指定します。変数の値はエラー条件のシンボル、および/または正規表現のリストです。エラーがこれら条件シンボルのいずれか、またはエラーメッセージが正規表現のいずれかにマッチする場合、そのエラーはデバッガにエンターしません。
+</p><p>この変数の通常の値には<code class="literal">user-error</code>と、同様に編集中にしばしば発生するがLispプログラムのバグによるものはほとんどない、いくつかのエラーが含まれます。しかし、“ほとんどない”は“絶対ない”ではありません。あなたのプログラムがこのリストにマッチするエラーにより機能しない場合は、そのエラーをデバッグするために、このリストの変更を試みるのもよいでしょう。通常は<code class="literal">debug-ignored-errors</code>を<code class="literal">nil</code>にセットしておくのが、もっとも簡単な方法です。
+</p></blockquote></div><pre class="synopsis"><a id="idm55557840" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">eval-expression-debug-on-error</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が非<code class="literal">nil</code>値(デフォルト)の場合は、コマンド<code class="literal">eval-expression</code>の実行により、一時的に<code class="literal">debug-on-error</code>が<code class="literal">t</code>がバインドされます。section “Evaluating Emacs-Lisp Expressions” in <em class="citetitle">The GNU Emacs
+Manual</em>を参照してください。
+</p><p><code class="literal">eval-expression-debug-on-error</code>が<code class="literal">nil</code>の場合は、<code class="literal">eval-expression</code>の間も<code class="literal">debug-on-error</code>の値は変更されません。
+</p></blockquote></div><pre class="synopsis"><a id="idm55546320" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">debug-on-signal</code></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">condition-case</code>によりキャッチされたエラーは通常、決してデバッガを呼び出しません。<code class="literal">condition-case</code>は、デバッガがそのエラーをハンドルする前に、エラーをハンドルする機会を得ます。
+</p><p><code class="literal">debug-on-signal</code>を非<code class="literal">nil</code>値に変更した場合は、<code class="literal">condition-case</code>の存在如何に関わらず、すべてのエラーにおいてデバッガが最初に機会を得ます。(デバッガを呼び出すためには、依然としてそのエラーが<code class="literal">debug-on-error</code>と<code class="literal">debug-ignored-errors</code>で指定された条件を満たさなければなりません。)
+</p><p><span class="bold"><strong>警告:</strong></span>
+この変数を非<code class="literal">nil</code>にセットすると、芳しくない効果があるかもしれません。Emacsのさまざまな部分で処理の通常の過程としてエラーがキャッチされており、そのエラーが発生したことに気づかないことさえあるかもしれません。<code class="literal">condition-case</code>でラップされたコードをデバッグする必要がある場合は、<code class="literal">condition-case-unless-debug</code>(see <a class="link" href="ch11s05.html#Handling-Errors" title="Writing Code to Handle Errors">Handling
+Errors</a>を参照)の使用を考慮してください。
+</p></blockquote></div><pre class="synopsis"><a id="idm55536976" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">debug-on-event</code></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">debug-on-event</code>をスペシャルイベント(<a class="link" href="ch21s09.html" title="Special Events">Special
+Events</a>を参照)にセットした場合は、Emacsは<code class="literal">special-event-map</code>をバイパスして、このイベントを受け取ると即座にデバッガへのエンターを試みます。現在のところサポートされる値は、シグナル<code class="literal">SIGUSR1</code>および<code class="literal">SIGUSR2</code>に対応する値だけです(これがデフォルトです)。これは<code class="literal">inhibit-quit</code>がセットされていて、それ以外はEmacsが応答しない場合に有用かもしれません。
+</p></blockquote></div><a id="idm55519312" class="indexterm"/><pre class="synopsis"><a id="idm55506000" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">debug-on-message</code></pre><div class="blockquote"><blockquote class="blockquote"><p><code class="literal">debug-on-message</code>に正規表現をセットした場合には、それにマッチするメッセージがエコーエリアに表示されると、Emacsはデバッガにエンターします。たとえば、これは特定のメッセージの原因を探すのに有用かもしれません。
+</p></blockquote></div><p>initファイルロード中に発生したエラーをデバッグするには、オプション‘<code class="literal">--debug-init</code>’を使用します。これはinitファイルロードの間に<code class="literal">debug-on-error</code>を<code class="literal">t</code>にバインドして、通常はinitファイル内のエラーをキャッチする<code class="literal">condition-case</code>をバイパスします。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Infinite-Loops"/>Debugging Infinite Loops</h2></div></div></div><a id="idm55499728" class="indexterm"/><a id="idm55498960" class="indexterm"/><a id="idm55498192" class="indexterm"/><a id="idm55497424" class="indexterm"/><p>プログラムが無限にループしてリターンできないとき、最初の問題はそのループをいかに停止するかです。ほとんどのオペレーティングシステムでは、(<em class="firstterm">quit</em>させる)<strong class="userinput"><code>C-g</code></strong>でこれを行うことができます。<a class="link" href="ch21s11.html" title="Quitting">Quitting</a>を参照してください。
+</p><p>普通のquitでは、なぜそのプログラムがループしたかについての情報は与えられません。変数<code class="literal">debug-on-quit</code>に非<code class="literal">nil</code>をセットすることにより、より多くの情報を得ることができます。無限ループの途中でデバッガを実行すれば、デバッガからステップコマンドで先へ進むことができます。ループ全体をステップで追えば、問題を解決するために十分な情報が得られるでしょう。
+</p><p><strong class="userinput"><code>C-g</code></strong>によるquitはエラーとは判断されないので、<strong class="userinput"><code>C-g</code></strong>のハンドルに<code class="literal">debug-on-error</code>は効果がありません。同じように、<code class="literal">debug-on-quit</code>はエラーにたいして効果がありません。
+</p><pre class="synopsis"><a id="idm55490768" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">debug-on-quit</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、<code class="literal">quit</code>がシグナルされ、それがハンドルされていないときに、デバッガを呼び出すかどうかを決定します。<code class="literal">debug-on-quit</code>が非<code class="literal">nil</code>の場合は、quit(つまり<strong class="userinput"><code>C-g</code></strong>をタイプ)したときは常にデバッガが呼び出されます。<code class="literal">debug-on-quit</code>が<code class="literal">nil</code>(デフォルト)の場合は、quitしてもデバッガは呼び出されません。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Function-Debugging"/>Entering the Debugger on a Function Call</h2></div></div></div><a id="idm55484240" class="indexterm"/><a id="idm55483472" class="indexterm"/><p>プログラムの途中で発生する問題を調べるための有用なテクニックの1つは、特定の関数が呼び出されたときデバッガにエンターする方法です。問題が発生した関数にこれを行い、その関数をステップで追ったり、問題箇所の少し手前の関数呼び出しでこれを行い、その関数をステップオーバーしてその後をステップで追うことができます。
+</p><pre class="synopsis"><a id="idm55482064" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">debug-on-entry</code> <em class="replaceable"><code>function-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>function-name</code></em>が呼び出されるたびにデバッガの呼び出しを要求します。
+</p><p>Lispコードで定義された任意の関数およびマクロは、インタープリターに解釈されたコードかコンパイル済みのコードかに関わらず、エントリーにbreakをセットできます。その関数がコマンドの場合は、Lispから呼び出されたときと、インタラクティブに呼び出されたとき、デバッガにエンターします。(たとえばCで記述された)プリミティブ関数にも、この方法で<code class="literal">debug-on-entry</code>をセットできますが、そのプリミティブがLispコードから呼び出されたときだけ効果があります。<code class="literal">debug-on-entry</code>はスペシャルフォームにはセットできません。
+</p><p><code class="literal">debug-on-entry</code>がインタラクティブに呼び出されたときは、ミニバッファーで<em class="replaceable"><code>function-name</code></em>の入力を求めます。その関数がすでにエントリーでデバッガを呼び出すようにセットアップされていた場合、<code class="literal">debug-on-entry</code>は何も行いません。<code class="literal">debug-on-entry</code>は常に<em class="replaceable"><code>function-name</code></em>をリターンします。
+</p><p>以下は、この関数の使い方を説明するための例です:
+</p><pre class="screen">(defun fact (n)
+  (if (zerop n) 1
+      (* n (fact (1- n)))))
+     ⇒ fact
+</pre><pre class="screen">(debug-on-entry 'fact)
+     ⇒ fact
+</pre><pre class="screen">(fact 3)
+</pre><pre class="screen">
+</pre><pre class="screen">------ Buffer: *Backtrace* ------
+Debugger entered--entering a function:
+* fact(3)
+  eval((fact 3))
+  eval-last-sexp-1(nil)
+  eval-last-sexp(nil)
+  call-interactively(eval-last-sexp)
+------ Buffer: *Backtrace* ------
+</pre><pre class="screen">
+</pre></blockquote></div><pre class="synopsis"><a id="idm55471696" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">cancel-debug-on-entry</code> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>function-name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>function-name</code></em>にたいする<code class="literal">debug-on-entry</code>の効果をアンドゥします。インタラクティブに呼び出されたときは、ミニバッファーで<em class="replaceable"><code>function-name</code></em>の入力を求めます。<em class="replaceable"><code>function-name</code></em>が省略された、あるいは<code class="literal">nil</code>の場合は、すべての関数にたいするbreak-on-entryをキャンセルします。エントリー時にbreakするようセットアップされていない関数に<code class="literal">cancel-debug-on-entry</code>を呼び出したときは、何も行いません。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Explicit-Debug"/>Explicit Entry to the Debugger</h2></div></div></div><a id="idm55464528" class="indexterm"/><a id="idm55463760" class="indexterm"/><p>プログラム内の特定箇所に式<code class="literal">(debug)</code>を記述することにより、その箇所でデバッガが呼び出されるようにできます。これを行うにはソースファイルをvisitして、適切な箇所にテキスト‘<code class="literal">(debug)</code>’を挿入し、<strong class="userinput"><code>C-M-x</code></strong>(Lispモードでの<code class="literal">eval-defun</code>にたいするキーバインド)をタイプします。<span class="bold"><strong>警告:</strong></span>
+一時的なデバッグ目的のためにこれを行なう場合は、ファイルを保存する前に確実にアンドゥしてください!
+</p><p>‘<code class="literal">(debug)</code>’を挿入する箇所は、追加フォームが評価されることができ、その値を無視することができる箇所でなければなりません。(‘<code class="literal">(debug)</code>’の値が無視されない場合が、プログラムの実行が変更されてしまうでしょう!)
+一般的にもっとも適した箇所は、<code class="literal">progn</code>または暗黙的な<code class="literal">progn</code>(<a class="link" href="ch11.html#Sequencing" title="Sequencing">Sequencing</a>を参照)の内部です。
+</p><p>デバッグ命令を配したいソースコード中の正確な箇所がわからないが、特定のメッセージが表示されたときにバックトレースを表示したい場合は、意図するメッセージにマッチする正規表現を<code class="literal">debug-on-message</code>にセットできます。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Using-Debugger"/>Using the Debugger</h2></div></div></div><p>デバッガにエンターすると、その前に選択されていたウィンドウを1つのウィンドウに表示し、他のウィンドウに<code class="filename">*Backtrace*</code>という名前のバッファーを表示します。backtraceバッファーには、現在実行されているLisp関数の各レベルが1行ずつ含まれます。このバッファーの先頭は、デバッガが呼び出された理由を説明するメッセージ(デバッガがエラーにより呼び出された場合はエラーメッセージや関連するデータなど)です。
+</p><a id="idm55454288" class="indexterm"/><p>backtraceバッファーは読み取り専用で、文字キーにデバッガコマンドが定義されたDebuggerモードという特別なメジャーモードを使用します。通常のEmacs編集コマンドが利用できます。したがって、エラー時に編集されていたバッファーを調べるためにウィンドウを切り替えたり、バッファーを切り替えやファイルのvisit、その他一連の編集処理を行なうことができます。しかしデバッガは再帰編集レベル(<a class="link" href="ch21s13.html" title="Recursive Editing">Recursive
+Editing</a>を参照)にあり、編集が終わったらそれはbacktraceバッファーに戻って、(<strong class="userinput"><code>q</code></strong>コマンドで)デバッガをexitできます。デバッガをexitすることにより、再帰編集を抜け出し、backtraceバッファーはバリー(bury:
+覆い隠す)されます。(変数<code class="literal">debugger-bury-or-killw</code>をセットすることにより、backtraceバッファーで<strong class="userinput"><code>q</code></strong>コマンドが何を行うかをカスタマイズできます。たとえば、バッファーをバリーせずにkillしたい場合は、この変数を<code class="literal">kill</code>にセットします。他の値については、変数のドキュメントを調べてください。)
+</p><p>デバッガにエンターしたとき、<code class="literal">eval-expression-debug-on-error</code>に一致するように変数<code class="literal">debug-on-error</code>が一時的にセットされます。変数<code class="literal">eval-expression-debug-on-error</code>が非<code class="literal">nil</code>の場合、<code class="literal">debug-on-error</code>は一時的に<code class="literal">t</code>にセットされます。これは、デバッグセッション行っている間にさらにエラーが発生すると、(デフォルトでは)他のbacktraceがトリガーされることを意味します。これが望ましくない場合は、<code class="literal">debugger-mode-hook</code>内で<code class="literal">eval-expression-debug-on-error</code>を<code class="literal">nil</code>にセットするか、<code class="literal">debug-on-error</code>を<code class="literal">nil</code>にセットすることができます。
+</p><a id="idm55444560" class="indexterm"/><p>backtraceバッファーは、実行されている関数と、その関数の引数の値を示します。しのフレームを示す行にポイントを移動して、スタックフレームを指定することもできます。(スタックフレームとは、Lispインタープリターがある関数への特定の呼び出しを記録する場所のことです。)
+行ポイントがオンのフレームが、<em class="firstterm">カレントフレーム(current
+frame)</em>となります。デバッガコマンドのいくつかは、カレントフレームを処理します。ある行がスター(star)で始まる場合は、そのフレームをexitすることにより再びデバッガが呼び出されることを意味します。これは関数のリターン値を調べるとき有用です。
+</p><p>関数名にアンダーラインが引かれている場合は、デバッガがその関数のソースコードも位置を知っていることを意味します。その名前をマウスでクリックするか、そこに移動して<span class="keycap"><strong>RET</strong></span>をタイプして、ソースコードをvisitできます。
+</p><p>デバッガはデバッガ自身のスタックフレーム数を想定するため、バイトコンパイルされて実行されなければなりません。デバッガがインタープリターに解釈されて実行されているとき、これらの想定は正しくなくなります。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Debugger-Commands"/>Debugger Commands</h2></div></div></div><a id="idm55440720" class="indexterm"/><p>(Debuggerモードの)debuggerバッファーでは、通常のEmacsコマンドに加えて、特別なコマンドが提供されます。デバッガでもっとも重要な使い方をするのは、制御フローを見ることができるコードをステップ実行するコマンドです。デバッガはインタープリターにより解釈された制御構造のステップ実行はできますが、バイトコンパイル済みの関数ではできません。バイトコンパイル済み関数をステップ実行したい場合は、同じ関数の解釈された定義に置き換えてください。(これを行なうには、その関数のソースをvisitして、関数の定義で<strong class="userinput"><code>C-M-x</code></strong>とタイプしてください。)
+プリミティブ関数のステップ実行にLispデバッガは使用できません。
+</p><p>以下はDebuggerモードのコマンドのリストです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><strong class="userinput"><code>c</code></strong>
+</span></dt><dd><p>デバッガをexitして、実行を継続する。これはあたかもデバッガにエンターしなかったかのように(デバッガ内で行った変数値やデータ構造の変更などの副作用は除外される)、プログラムの実行を再開する。
+</p></dd><dt><span class="term"><strong class="userinput"><code>d</code></strong>
+</span></dt><dd><p>実行を継続するが、次にLisp関数が何か呼び出されたときはデバッガにエンターする。これにより、ある式の下位の式をステップ実行して、下位の式が計算する値や、行うことを確認できる。
+</p><p>デバッガにエンターした関数呼び出しにたいして、この方法で作成されたスタックフレームには自動的にフラグがつくので、そのフレームをexitすると再びデバッガが呼び出されます。このフラグは、<strong class="userinput"><code>u</code></strong>コマンドを使用してキャンセルできます。
+</p></dd><dt><span class="term"><strong class="userinput"><code>b</code></strong>
+</span></dt><dd><p>カレントフレームにフラグをつけるので、そのフレームをexitするときデバッガにエンターする。この方法でフラグがつけられたフレームは、backtraceバッファーでスターのマークがつく。
+</p></dd><dt><span class="term"><strong class="userinput"><code>u</code></strong>
+</span></dt><dd><p>カレントフレームをexitしたとき、デバッガにエンターしてはならない。これは、そのフレームの<strong class="userinput"><code>b</code></strong>コマンドをキャンセルする。目に見える効果としては、backtraceバッファーの行からスターが削除される。
+</p></dd><dt><span class="term"><strong class="userinput"><code>j</code></strong>
+</span></dt><dd><p><strong class="userinput"><code>b</code></strong>と同じようにカレントフレームにフラグをつける。その後、<strong class="userinput"><code>c</code></strong>のように実行を継続するが、<code class="literal">debug-on-entry</code>によりセットアップされたすべての関数にたいするbreak-on-entryを一時的に無効にする。
+</p></dd><dt><span class="term"><strong class="userinput"><code>e</code></strong>
+</span></dt><dd><p>ミニバッファーのLisp式を読み取り、(関連するlexical環境が適切なら)評価して、エコーエリアに値をプリントする。デバッガは特定の重要な変数とバッファーを処理の一部としてを変更する。<strong class="userinput"><code>e</code></strong>は一時的にデバッガの外部からそれらの値をリストアするので、それらを調べて変更できる。これによりデバッガはより透過的になる。対照的に、デバッガ内で<strong class="userinput"><code>M-:</code></strong>は特別なことを行わず、デバッガ内での変数の値を表示する。
+</p></dd><dt><span class="term"><strong class="userinput"><code>R</code></strong>
+</span></dt><dd><p><strong class="userinput"><code>e</code></strong>と同様だが、バッファー<code class="filename">*Debugger-record*</code>内の評価の結果も保存する。
+</p></dd><dt><span class="term"><strong class="userinput"><code>q</code></strong>
+</span></dt><dd><p>デバッグされているプログラムを終了し、Emacsコマンド実行のトップレベルにリターンする。
+</p><p><strong class="userinput"><code>C-g</code></strong>によりデバッガにエンターしたが、実際はデバッグではなくquitしたいときは、<strong class="userinput"><code>q</code></strong>コマンドを使用する。
+</p></dd><dt><span class="term"><strong class="userinput"><code>r</code></strong>
+</span></dt><dd><p>デバッガから値をリターンする。ミニバッファーで式を読み取り、それを評価することにより、値が計算される。
+</p><p><strong class="userinput"><code>d</code></strong>コマンドは、(<strong class="userinput"><code>b</code></strong>によるリクエスト、または<strong class="userinput"><code>d</code></strong>によるそのフレームへのエンターによる)Lisp呼び出しフレームからのexitでデバッガが呼び出されたときに有用です。<strong class="userinput"><code>r</code></strong>コマンドで指定された値は、そのフレームの値として使用されます。これは、<code class="literal">debug</code>を呼び出して、そのリターン値を使用するときも有用です。それ以外は、<strong class="userinput"><code>r</code></strong>は<strong class="userinput"><code>c</code></strong>と同じ効果をもｙい、指定されたリターン値は問題になりません。
+</p><p>エラーによりデバッガにエンターしたときは、<strong class="userinput"><code>r</code></strong>コマンドは使用できません。
+</p></dd><dt><span class="term"><strong class="userinput"><code>l</code></strong>
+</span></dt><dd><p>呼び出されたときにデバッガを呼び出す関数をリストします。これは、<code class="literal">debug-on-entry</code>によりエントリー時にbreakするようセットされた関数のリストです。
+</p></dd><dt><span class="term"><strong class="userinput"><code>v</code></strong>
+</span></dt><dd><p>カレントスタックフレームのローカル変数の表示を切り替えます。
+</p></dd></dl></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Invoking-the-Debugger"/>Invoking the Debugger</h2></div></div></div><a id="idm55399248" class="indexterm"/><p>以下では、デバッガを呼び出すために使用される関数<code class="literal">debug</code>の完全な詳細を説明します。
+</p><pre class="synopsis"><a id="idm55397328" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">debug</code> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>debugger-args</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、デバッガにエンターします。この関数は<code class="filename">*Backtrace*</code>(デバッガへの2回目以降の再帰エントリーでは<code class="filename">*Backtrace*&lt;2&gt;、...</code>)という名前のバッファーにバッファーを切り替えて、Lisp関数呼び出しについての情報を書き込みます。それから再帰編集にエンターして、Debuggerモードでbacktraceバッファーを表示します。
+</p><p>Debuggerモードのコマンド<strong class="userinput"><code>c</code></strong>、<strong class="userinput"><code>d</code></strong>、<strong class="userinput"><code>j</code></strong>、<strong class="userinput"><code>r</code></strong>は再帰編集をexitします。その後、<code class="literal">debug</code>は以前のバッファーに戻って、<code class="literal">debug</code>を呼び出したものが何であれ、そこにリターンします。これは関数<code class="literal">debug</code>が呼び出し元にリターン可能な唯一の方法です。
+</p><p><em class="replaceable"><code>debugger-args</code></em>を使用すると、<code class="literal">debug</code>は<code class="filename">*Backtrace*</code>の最上部に残りの引数を表示するもで、ユーザーがそれらを確認できます。以下で説明する場合を除き、これは、これらの引数を使用する<span class="emphasis"><em>唯一</em></span>の方法です。
+</p><p>しかし<code class="literal">debug</code>への1つ目の引数にたいする値は、特別な意味をもちます。(これらの値は通常、<code class="literal">debug</code>を呼び出すプログラマーではなく、Emacs内部でのみ使用されます。)
+以下はこれら特別な値のテーブルです:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">lambda</code>
+</span></dt><dd><a id="idm55384400" class="indexterm"/><p>1つ目の引数ga<code class="literal">lambda</code>の場合、それは<code class="literal">debug-on-next-call</code>が非<code class="literal">nil</code>のときに関数にエントリーしたことにより<code class="literal">debug</code>が呼び出されたことを意味する。デバッガはバッファーのトップのテキスト行に‘<code class="literal">Debugger
+entered--entering a function:</code>’と表示する。
+</p></dd><dt><span class="term"><code class="literal">debug</code>
+</span></dt><dd><p>1つ目の引数が<code class="literal">debug</code>の場合、それはエントリー時にデバッグされるようにセットされた関数にエントリーしたことにより<code class="literal">debug</code>が呼び出されたことを意味する。デバッガは<code class="literal">lambda</code>のときと同様、‘<code class="literal">Debugger
+entered--entering a
+function:</code>’を表示します。これはその関数のスタックフレームもマークするので、exit時にデバッガが呼び出される。
+</p></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><p>1つ目の引数が<code class="literal">t</code>の場合、それは<code class="literal">debug-on-next-call</code>が非<code class="literal">nil</code>のときに関数呼び出しの評価により<code class="literal">debug</code>が呼び出されたことを示す。デバッガはバッファーのトップの行に‘<code class="literal">Debugger
+entered--beginning evaluation of function call form:</code>’と表示する。
+</p></dd><dt><span class="term"><code class="literal">exit</code>
+</span></dt><dd><p>1つ目の引数が<code class="literal">exit</code>のときは、exit時にデバッガを呼び出すよう以前にマークされたスタックフレームをexitしたことを示す。この場合は、<code class="literal">debug</code>に与えられた2つ目の引数が、そのフレームからリターンされた値になる。デバッガはバッファーのトップの行に‘<code class="literal">Debugger
+entered--returning value:</code>’とリターンされた値を表示する。
+</p></dd><dt><span class="term"><code class="literal">error</code>
+</span></dt><dd><a id="idm55369424" class="indexterm"/><p>1つ目の引数が<code class="literal">error</code>のときは、ハンドルされていないエラーまたは<code class="literal">quit</code>がシグナルされてデバッガにエンターした場合で、デバッガは‘<code class="literal">Debugger
+entered--Lisp error:</code>’とその後にシグナルされたエラーおよび<code class="literal">signal</code>への引数を表示して、それを示す。たとえば、
+</p><pre class="screen">(let ((debug-on-error t))
+  (/ 1 0))
+</pre><pre class="screen">
+</pre><pre class="screen">------ Buffer: *Backtrace* ------
+Debugger entered--Lisp error: (arith-error)
+  /(1 0)
+...
+------ Buffer: *Backtrace* ------
+</pre><p>エラーがシグナルされた場合はおそらく、変数<code class="literal">debug-on-error</code>は非<code class="literal">nil</code>で、<code class="literal">quit</code>がシグナルされた場合はおそらく、変数<code class="literal">debug-on-quit</code>は非<code class="literal">nil</code>である。
+</p></dd><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>明示的にデバッガにエンターしたいときは、<em class="replaceable"><code>debugger-args</code></em>の1つ目の引数に<code class="literal">nil</code>を使用する。残りの<em class="replaceable"><code>debugger-args</code></em>は、バッファーのトップの行にプリントされる。メッセージ
+— たとえば<code class="literal">debug</code>が呼び出された条件を思い出すためのリマインダー — の表示にこの機能を使用できる。
+</p></dd></dl></div></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Internals-of-Debugger"/>Internals of the Debugger</h2></div></div></div><p>このセクションでは、デバッガ内部で使用される関数と変数について説明します。
+</p><pre class="synopsis"><a id="idm55356496" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">debugger</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数の値は、デバッガを呼び出す関数呼び出しです。値には任意個の引数をとる関数、より具体的には関数の名前でなければなりません。この関数は何らかのデバッガを呼び出すべきです。この変数のデフォルト値は<code class="literal">debug</code>です。
+</p><p>関数にたいしてLispが渡す1つ目の引数は、その関数がなぜ呼び出されたかを示します。引数の慣習は、<code class="literal">debug</code>(<a class="link" href="ch18.html#Invoking-the-Debugger" title="Invoking the Debugger">Invoking
+the Debugger</a>)に詳解されています。
+</p></blockquote></div><pre class="synopsis"><a id="idm55351888" class="indexterm"/><span class="category"><span class="bold"><strong>Command</strong></span>:</span> <code class="function">backtrace</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm55329232" class="indexterm"/><a id="idm55328464" class="indexterm"/><p>この関数は現在アクティブなLisp関数呼び出しのトレースをプリントします。この関数は<code class="literal">debug</code>が<code class="filename">*Backtrace*</code>バッファーに書き込む内容を得るために使用されます。どの関数呼び出しがアクティブか判断するためにスタックにアクセスしなければならないので、この関数はCで記述されています。リターン値は、常に<code class="literal">nil</code>です。
+</p><p>以下の例では、Lisp式で明示的に<code class="literal">backtrace</code>を呼び出しています。これはストリーム<code class="literal">standard-output</code>(この場合はバッファー‘<code class="literal">backtrace-output</code>’)にbacktraceをプリントします。
+</p><p>backtraceの各行は、1つの関数呼び出しを表します。関数の引数が既知の場合は行に値が表示され、まだ計算中の場合は行にその旨が示されます。スペシャルフォームの引数は無視されます。
+</p><pre class="screen">(with-output-to-temp-buffer "backtrace-output"
+  (let ((var 1))
+    (save-excursion
+      (setq var (eval '(progn
+                         (1+ var)
+                         (list 'testing (backtrace))))))))
+
+     ⇒ (testing nil)
+</pre><pre class="screen">
+</pre><pre class="screen">----------- Buffer: backtrace-output ------------
+  backtrace()
+  (list ...computing arguments...)
+</pre><pre class="screen">  (progn ...)
+  eval((progn (1+ var) (list (quote testing) (backtrace))))
+  (setq ...)
+  (save-excursion ...)
+  (let ...)
+  (with-output-to-temp-buffer ...)
+  eval((with-output-to-temp-buffer ...))
+  eval-last-sexp-1(nil)
+</pre><pre class="screen">  eval-last-sexp(nil)
+  call-interactively(eval-last-sexp)
+----------- Buffer: backtrace-output ------------
+</pre></blockquote></div><pre class="synopsis"><a id="idm55304656" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">debug-on-next-call</code></pre><div class="blockquote"><blockquote class="blockquote"><a id="idm55302608" class="indexterm"/><a id="idm55301456" class="indexterm"/><a id="idm55300304" class="indexterm"/><p>この変数が非<code class="literal">nil</code>の場合、それは次の<code class="literal">eval</code>、<code class="literal">apply</code>、<code class="literal">funcall</code>の前にデバッガを呼び出すよう指定します。デバッガへのエンターにより、<code class="literal">debug-on-next-call</code>は<code class="literal">nil</code>にセットされます。
+</p><p>デバッガの<strong class="userinput"><code>d</code></strong>コマンドは、この変数をセットすることにより機能します。
+</p></blockquote></div><pre class="synopsis"><a id="idm55294544" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">backtrace-debug</code> <em class="replaceable"><code>level</code></em> <em class="replaceable"><code>flag</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、そのスタックフレームの<em class="replaceable"><code>level</code></em>下位のスタックフレームのdebug-on-exitフラグに<em class="replaceable"><code>flag</code></em>に応じた値をセットします。<em class="replaceable"><code>flag</code></em>が非<code class="literal">nil</code>の場合は、後にそのフレームをexitするときデバッガにエンターします。そのフレームを通じた非ローカルexitでも、デバッガにエンターします。
+</p><p>この関数は、デバッガだけに使用されます。
+</p></blockquote></div><pre class="synopsis"><a id="idm55288912" class="indexterm"/><span class="category"><span class="bold"><strong>Variable</strong></span>:</span> <code class="varname">command-debug-status</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数はカレントのインタラクティブコマンドのデバッグ状態を記録します。コマンドがインタラクティブに呼び出されるたびに、この変数は<code class="literal">nil</code>にバインドされます。デバッガは、同じコマンドが呼び出されたときのデバッガ呼び出しに情報を残すために、この変数をセットできます。
+</p><p>普通のグローバル変数ではなくこの変数を使用する利点は、そのデータが後続のコマンド呼び出しに決して引き継がれないことです。
+</p></blockquote></div><pre class="synopsis"><a id="idm55285328" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">backtrace-frame</code> <em class="replaceable"><code>frame-number</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>関数<code class="literal">backtrace-frame</code>は、Lispデバッガ内での使用を意図しています。これは、<em class="replaceable"><code>frame-number</code></em>レベル下位のスタックフレームで、何の評価が行われているかに関する情報をリターンします。
+</p><p>そのフレームがまだ引数を評価していない場合、またはそのフレームがスペシャルフォームの場合、値は<code class="literal">(nil <em class="replaceable"><code>function</code></em>
+<em class="replaceable"><code>arg-forms</code></em>…)</code>です。
+</p><p>そのフレームが引数を評価して関数をすでに呼び出した場合、リターン値は<code class="literal">(t <em class="replaceable"><code>function</code></em>
+<em class="replaceable"><code>arg-values</code></em>…)</code>です。
+</p><p>リターン値の<em class="replaceable"><code>function</code></em>は何であれ評価されたリストのCARとして提供されます。マクロ呼び出しの場合は<code class="literal">lambda</code>式になります。その関数に<code class="literal">&amp;rest</code>引数がある場合は、リスト<em class="replaceable"><code>arg-values</code></em>の末尾に表されます。
+</p><p><em class="replaceable"><code>frame-number</code></em>が範囲外の場合、<code class="literal">backtrace-frame</code>は<code class="literal">nil</code>をリターンします。
+</p></blockquote></div></div></div></div></body></html>

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Packing and Unpacking Byte Arrays</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Byte-Packing"/>Packing and Unpacking Byte Arrays</h1></div></div></div><a id="idm78205520" class="indexterm"/><p>このセクションでは、通常はバイナリーのネットワークプロトコル用のバイト配列を、packおよびunpackする朴を説明します。以下の関数は、バイト配列とalistとの間で相互に変換を行います。バイト配列はユニバイト文字列、または整数ベクターとして表現することができます。一方alistはシンボルを固定サイズのオブジェクト、または再帰的な複alistのいずれかに関連付けます。このセクションで参照する関数を使用するためには、<code class="literal">bindat</code>ライブラリーをロードしてください。
+</p><a id="idm78203344" class="indexterm"/><a id="idm78202576" class="indexterm"/><a id="idm78201808" class="indexterm"/><a id="idm78201040" class="indexterm"/><p>バイト配列からネストされたalistへの変換は、逆方向への変換が<em class="firstterm">シリアライズ化(serializing)</em>、または<em class="firstterm">pack化(packing)</em>として呼ばれることから、<em class="firstterm">非シリアル化【deserializing)</em>、または<em class="firstterm">unpack化(unpacking)</em>として知られています。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Bindat-Spec"/>Describing Data Layout</h2></div></div></div><p>unpackとpackを制御するためには、<em class="firstterm">データレイアウト仕様(data layout
+specification)</em>を記述します。これは名前付きで、かつタイプ付けされた<em class="firstterm">フィールド(field)</em>を記述する、特別なネスト化リストです。これは、処理する各フィールドの長さ、およびそれをpackおよびunpackする方法を制御します。わたしたちは、名前が‘<code class="literal">-bindat-spec</code>’で終わる変数では、bindatの仕様を遵守します。この類の変数名は、自動的に“risky(危険)”だと認識されます。
+</p><a id="idm78195792" class="indexterm"/><a id="idm78195024" class="indexterm"/><a id="idm78194256" class="indexterm"/><a id="idm78193488" class="indexterm"/><p>フィールドの<em class="firstterm">タイプ(type)</em>は、そのフィールドが表すオブジェクトのサイズ(バイト単位)、およびそれがマルチバイトフィールドなら、そのフィールがバイトオーダーされる方法を記述します。可能なオーダーは“ビッグエンディアン(big
+endian。ネットワークバイトオーダーとも呼ばれる)”、および“リトルエンディアン(little
+endian)”の2つです。たとえば数字<code class="literal">#x23cd</code>(10進の9165)のビッグエンディアンは<code class="literal">#x23</code>
+<code class="literal">#xcd</code>の2バイト、リトルエンディアンは<code class="literal">#xcd</code> <code class="literal">#x23</code>になるでしょう。以下は可能なタイプの値です:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">u8</code>
+, </span><span class="term"><code class="literal">byte</code>
+</span></dt><dd><p>長さ1の符号なしタイプ。
+</p></dd><dt><span class="term"><code class="literal">u16</code>
+, </span><span class="term"><code class="literal">word</code>
+, </span><span class="term"><code class="literal">short</code>
+</span></dt><dd><p>長さ2の、ネットワークバイトオーダーによる符号なし整数。
+</p></dd><dt><span class="term"><code class="literal">u24</code>
+</span></dt><dd><p>長さ3の、ネットワークバイトオーダーによる符号なし整数。
+</p></dd><dt><span class="term"><code class="literal">u32</code>
+, </span><span class="term"><code class="literal">dword</code>
+, </span><span class="term"><code class="literal">long</code>
+</span></dt><dd><p>長さ4の、ネットワークバイトオーダーによる符号なし整数。注意: これらの値はEmacsの整数の実装に制限されるだろう。
+</p></dd><dt><span class="term"><code class="literal">u16r</code>
+, </span><span class="term"><code class="literal">u24r</code>
+, </span><span class="term"><code class="literal">u32r</code>
+</span></dt><dd><p>それぞれ長さ2、3、4のリトルエンディアンオーダーによる符号なし整数。
+</p></dd><dt><span class="term"><code class="literal">str <em class="replaceable"><code>len</code></em></code>
+</span></dt><dd><p>長さ<em class="replaceable"><code>len</code></em>の文字列。
+</p></dd><dt><span class="term"><code class="literal">strz <em class="replaceable"><code>len</code></em></code>
+</span></dt><dd><p>長さ<em class="replaceable"><code>len</code></em>の固定長フィールド内の、NUL終端された文字列。
+</p></dd><dt><span class="term"><code class="literal">vec <em class="replaceable"><code>len</code></em> [<em class="replaceable"><code>type</code></em>]</code>
+</span></dt><dd><p>タイプ<em class="replaceable"><code>type</code></em>(デフォルトはbyte)の<em class="replaceable"><code>len</code></em>要素のベクター。<em class="replaceable"><code>type</code></em>は上述した単純なタイプのいずれか、あるいは<code class="literal">(vec
+<em class="replaceable"><code>len</code></em> [<em class="replaceable"><code>type</code></em>])</code>という形式のリストによる別ベクターの指定である。
+</p></dd><dt><span class="term"><code class="literal">ip</code>
+</span></dt><dd><p>インターネット 」アドレスを表す、4つのbyteのベクター。たとえばlocalhostは<code class="literal">[127 0 0 1]</code>。
+</p></dd><dt><span class="term"><code class="literal">bits <em class="replaceable"><code>len</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>len</code></em>バイト内のセットされたビット位置のリスト。バイトはビッグエンディアンで、ビット位置は<code class="literal">8 * <em class="replaceable"><code>len</code></em>
+− 1</code>で始まり0で終わるよう番号が付与される。たとえば<code class="literal">bits 2</code>では、<code class="literal">#x28</code>
+<code class="literal">#x1c</code>は<code class="literal">(2 3 4 11 13)</code>、<code class="literal">#x1c</code> <code class="literal">#x28</code>は<code class="literal">(3 5 10 11
+12)</code>にunpackされる。
+</p></dd><dt><span class="term"><code class="literal">(eval <em class="replaceable"><code>form</code></em>)</code>
+</span></dt><dd><p><em class="replaceable"><code>form</code></em>は、フィールドがpackまたはunpackされた瞬間に評価されるLisp式。評価した結果は、上記にリストしたタイプ使用のいずれかであること。
+</p></dd></dl></div><p>固定長フィールドでは長さ<em class="replaceable"><code>len</code></em>が、フィールド内のバイト数を指定する整数として与えられます。
+</p><p>フィールド長が固定でない場合、通常は先行するフィールドの値に依存します。この場合、長さ<em class="replaceable"><code>len</code></em>は後述の<code class="literal">bindat-get-field</code>のフォーマット指定により<em class="firstterm">フィールド名(field
+name)</em>を指定するリスト<code class="literal">(<em class="replaceable"><code>name</code></em> ...)</code>、または式<code class="literal">(eval
+<em class="replaceable"><code>form</code></em>)</code>(<em class="replaceable"><code>form</code></em>はフィールド長を指定する整数に評価されること)のいずれかで与えることもできます。
+</p><p>フィールド仕様は一般的に<code class="literal">([<em class="replaceable"><code>name</code></em>]
+<em class="replaceable"><code>handler</code></em>)</code>という形式をもち、<em class="replaceable"><code>name</code></em>はオプションです。紛らわしくなるので、タイプ仕様(上述)やハンドラー仕様(後述)で意味をもつシンボルの名前は使用しないでください。<em class="replaceable"><code>name</code></em>はシンボルまたは式<code class="literal">(eval
+<em class="replaceable"><code>form</code></em>)</code>でもよく、この場合<em class="replaceable"><code>form</code></em>はシンボルに評価される必要があります。
+</p><p><em class="replaceable"><code>handler</code></em>はそのフィールドがpackまたはunpackされる方法を記述し、以下のいずれかを指定できます:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal"><em class="replaceable"><code>type</code></em></code>
+</span></dt><dd><p>タイプ仕様<em class="replaceable"><code>type</code></em>に応じてこのフィールドのunpack/packを行う。
+</p></dd><dt><span class="term"><code class="literal">eval <em class="replaceable"><code>form</code></em></code>
+</span></dt><dd><p>副作用のためだけにLisp式<em class="replaceable"><code>form</code></em>を評価する。フィールド名が指定された場合、値はそのフィールド名にバインドされる。
+</p></dd><dt><span class="term"><code class="literal">fill <em class="replaceable"><code>len</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>len</code></em>バイトをスキップする。pack化ではそれらを未変更のままとし、通常それらは0のままとなることを意味する。unpack化では、それらが無視されることを意味する。
+</p></dd><dt><span class="term"><code class="literal">align <em class="replaceable"><code>len</code></em></code>
+</span></dt><dd><p><em class="replaceable"><code>len</code></em>バイトの次の倍数にスキップする。
+</p></dd><dt><span class="term"><code class="literal">struct <em class="replaceable"><code>spec-name</code></em></code>
+</span></dt><dd><p>副仕様(sub-specification)として<em class="replaceable"><code>spec-name</code></em>を処理する。これは別の構造体内にネストされる構造体を記述する。
+</p></dd><dt><span class="term"><code class="literal">union <em class="replaceable"><code>form</code></em> (<em class="replaceable"><code>tag</code></em> <em class="replaceable"><code>spec</code></em>)…</code>
+</span></dt><dd><p>Lisp式<em class="replaceable"><code>form</code></em>を評価して、それにマッチする最初の<em class="replaceable"><code>tag</code></em>を探し、それに関連付けられたレイアウト仕様<em class="replaceable"><code>spec</code></em>を処理する。マッチングは以下の3つのいずれかで発生し得る:
+</p><div class="itemizedlist"><ul class="itemizedlist"><li class="listitem"><p><em class="replaceable"><code>tag</code></em>が<code class="literal">(eval
+<em class="replaceable"><code>expr</code></em>)</code>という形式をもつ場合、変数<code class="literal">tag</code>を動的に<em class="replaceable"><code>form</code></em>の値にバインドして、<em class="replaceable"><code>expr</code></em>を評価する。結果が非<code class="literal">nil</code>ならマッチを示す。
+</p></li><li class="listitem"><p><em class="replaceable"><code>tag</code></em>が<em class="replaceable"><code>form</code></em>の値と<code class="literal">equal</code>ならマッチ。
+</p></li><li class="listitem"><p><em class="replaceable"><code>tag</code></em>が<code class="literal">t</code>なら無条件にマッチ。
+</p></li></ul></div></dd><dt><span class="term"><code class="literal">repeat <em class="replaceable"><code>count</code></em> <em class="replaceable"><code>field-specs</code></em>…</code>
+</span></dt><dd><p><em class="replaceable"><code>field-specs</code></em>を順次、再帰的に処理した後、最初のものから繰り返して、すべての仕様全体を<em class="replaceable"><code>count</code></em>回処理する。<em class="replaceable"><code>count</code></em>はフィールド長と同じフォーマットを使用して与えられる。<code class="literal">eval</code>フォームが使用された場合は、1回だけ評価される。正しく処理されるには、<em class="replaceable"><code>field-specs</code></em>内の各仕様は名前を含まなければならない。
+</p></dd></dl></div><p>bindat仕様内で仕様される<code class="literal">(eval
+<em class="replaceable"><code>form</code></em>)</code>フォームでは、評価の間に<em class="replaceable"><code>form</code></em>はこれらの動的にバインドされた変数へのアクセスと更新が可能である。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">last</code>
+</span></dt><dd><p>最後に処理されたフィールドの値。
+</p></dd><dt><span class="term"><code class="literal">bindat-raw</code>
+</span></dt><dd><p>バイト配列のデータ。
+</p></dd><dt><span class="term"><code class="literal">bindat-idx</code>
+</span></dt><dd><p>unpack化/pack化にたいする、(<code class="literal">bindat-raw</code>での)カレントインデックス。
+</p></dd><dt><span class="term"><code class="literal">struct</code>
+</span></dt><dd><p>これまでにunpackされた構造化データ、またはpackされた構造体全体を含むalist。この構造体の特定のフィールドにアクセスするために、<code class="literal">bindat-get-field</code>を使用できる。
+</p></dd><dt><span class="term"><code class="literal">count</code>
+, </span><span class="term"><code class="literal">index</code>
+</span></dt><dd><p><code class="literal">repeat</code>ブロック内部では、これらは(<em class="replaceable"><code>count</code></em>パラメーターで指定された)繰り返しの最大回数、および(0から数えた)カレント繰り返し回数を含む。<code class="literal">count</code>を0にセットすることにより、カレントの繰り返し終了後に、最内繰り返しブロックを終了する。
+</p></dd></dl></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Bindat-Functions"/>Functions to Unpack and Pack Bytes</h2></div></div></div><p>以降のドキュメントでは、<em class="replaceable"><code>spec</code></em>はデータレイアウト仕様、<code class="literal">bindat-raw</code>はバイト配列、<em class="replaceable"><code>struct</code></em>はunpackされたフィールドデータを表すalistを参照します。
+</p><pre class="synopsis"><a id="idm78100048" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">bindat-unpack</code> <em class="replaceable"><code>spec</code></em> <em class="replaceable"><code>bindat-raw</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>bindat-idx</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はユニバイト文字列、またはバイト配列<code class="literal">bindat-raw</code>のデータを、<em class="replaceable"><code>spec</code></em>に▼応じてunpackする。これは通常はバイト配列の先頭からunpack化を開始するが、<em class="replaceable"><code>bindat-idx</code></em>が非<code class="literal">nil</code>なら、それはかわりに使用する0基準の開始位置を指定する。
+</p><p>値は、それぞれの要素がunpackされたフィールドを記述する、alistまたはネストされたalist。
+</p></blockquote></div><pre class="synopsis"><a id="idm78093136" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">bindat-get-field</code> <em class="replaceable"><code>struct</code></em> <em class="replaceable"><code>&amp;rest</code></em> <em class="replaceable"><code>name</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はネストされたalistである<em class="replaceable"><code>struct</code></em>から、フィールドのデータを選択する。<em class="replaceable"><code>struct</code></em>は通常、<code class="literal">bindat-unpack</code>がリターンしたもの。<em class="replaceable"><code>name</code></em>が単一の引数に対応する場合、それはトップレベルのフィールド値を抽出することを意味する。複数の<em class="replaceable"><code>name</code></em>引数は、副構造体を繰り返して照合することを指定する。整数の名前は、配列のインデックスとして動作する。
+</p><p>たとえば<em class="replaceable"><code>name</code></em>が<code class="literal">(a b 2
+c)</code>なら、それはフィールド<code class="literal">a</code>の副フィールド<code class="literal">b</code>の3番目の要素内のフィールド<code class="literal">c</code>(Cでは<code class="literal">struct.a.b[2].c</code>に相当)を意味する。
+</p></blockquote></div><p>packまたはunpackの処理をすることにより、メモリー内でデータ構造が変化しても、そのデータの全フィールド長の合計バイト数である、<em class="firstterm">トータル長(total
+length)</em>は保たれます。この値は一般的に仕様またはalist単独では、固有ではありません。そのかわり、これら両方の情報が、この計算に役立つのです。同様に、unpackされる文字列や配列の長さは、仕様の記述にしたがい、そのデータのトータル長より長くなるかもしれません。
+</p><pre class="synopsis"><a id="idm78083024" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">bindat-length</code> <em class="replaceable"><code>spec</code></em> <em class="replaceable"><code>struct</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<em class="replaceable"><code>struct</code></em>内のデータの、<em class="replaceable"><code>spec</code></em>に応じたトータル長をリターンする。
+</p></blockquote></div><pre class="synopsis"><a id="idm78078672" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">bindat-pack</code> <em class="replaceable"><code>spec</code></em> <em class="replaceable"><code>struct</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>bindat-raw</code></em> <em class="replaceable"><code>bindat-idx</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、alist
+<em class="replaceable"><code>struct</code></em>内のデータから、<em class="replaceable"><code>spec</code></em>に応じてpackされたバイト配列をリターンする。これは通常、先頭から充填された、新たなバイト配列を作成する。しかし<em class="replaceable"><code>bindat-raw</code></em>が非<code class="literal">nil</code>なら、それはpack先として事前に割り当てられたユニバイト文字列、またはベクターを指定する。<em class="replaceable"><code>bindat-idx</code></em>が非<code class="literal">nil</code>なら、それは<code class="literal">bindat-raw</code>へpackする開始オフセットを指定する。
+</p><p>事前に割り当てる際には、out-of-rangeエラーを避けるために、<code class="literal">(length
+<em class="replaceable"><code>bindat-raw</code></em>)</code>がトータル長またはそれ以上であることを確認すること。
+</p></blockquote></div><pre class="synopsis"><a id="idm78069584" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">bindat-ip-to-string</code> <em class="replaceable"><code>ip</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>インターネットアドレスのベクター<em class="replaceable"><code>ip</code></em>を、通常のドット表記による文字列に変換する。
+</p><pre class="screen">(bindat-ip-to-string [127 0 0 1])
+     ⇒ "127.0.0.1"
+</pre></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Bindat-Examples"/>Examples of Byte Unpacking and Packing</h2></div></div></div><p>以下は、バイトにたいしてunpackおよびpackを行う完全な例です:
+</p><pre class="programlisting">(require 'bindat)
+
+(defvar fcookie-index-spec
+  '((:version  u32)
+    (:count    u32)
+    (:longest  u32)
+    (:shortest u32)
+    (:flags    u32)
+    (:delim    u8)
+    (:ignored  fill 3)
+    (:offset   repeat (:count) (:foo u32)))
+  "fortuneクッキーのインデックスファイル内容")
+
+(defun fcookie (cookies &amp;optional index)
+  "ファイルCOOKIESからランダムなfortuneクッキーを表示する。
+オプションの第2引数INDEXは関連付けられるインデックス
+ファイル名を指定し、デフォルトは\"COOKIES.dat\"。
+バッファー\"*Fortune Cookie: BASENAME*\"内にクッキーを表示。
+BASENAMEはディレクトリー部分を除いたCOOKIES"
+  (interactive "fCookies file: ")
+  (let* ((info (with-temp-buffer
+                 (insert-file-contents-literally
+                  (or index (concat cookies ".dat")))
+                 (bindat-unpack fcookie-index-spec
+                                (buffer-string))))
+         (sel (random (bindat-get-field info :count)))
+         (beg (cdar (bindat-get-field info :offset sel)))
+         (end (or (cdar (bindat-get-field info
+                                          :offset (1+ sel)))
+                  (nth 7 (file-attributes cookies)))))
+    (switch-to-buffer
+     (get-buffer-create
+      (format "*Fortune Cookie: %s*"
+              (file-name-nondirectory cookies))))
+    (erase-buffer)
+    (insert-file-contents-literally
+     cookies nil beg (- end 3))))
+
+(defun fcookie-create-index (cookies &amp;optional index delim)
+  "ファイルCOOKIESをスキャンしてインデックスファイルに書き込む。
+オプション引数INDEXは、インデックスファイル名を指定。デフォルトは\"COOKIES.dat\"。
+オプション引数DELIMはユニバイト文字で、それがCOOKIES内
+のある行で見つかったら、その行はエントリー間の境界を示す。"
+  (interactive "fCookies file: ")
+  (setq delim (or delim ?%))
+  (let ((delim-line (format "\n%c\n" delim))
+        (count 0)
+        (max 0)
+        min p q len offsets)
+    (unless (= 3 (string-bytes delim-line))
+      (error "Delimiter cannot be represented in one byte"))
+    (with-temp-buffer
+      (insert-file-contents-literally cookies)
+      (while (and (setq p (point))
+                  (search-forward delim-line (point-max) t)
+                  (setq len (- (point) 3 p)))
+        (setq count (1+ count)
+              max (max max len)
+              min (min (or min max) len)
+              offsets (cons (1- p) offsets))))
+    (with-temp-buffer
+      (set-buffer-multibyte nil)
+      (insert
+       (bindat-pack
+        fcookie-index-spec
+        `((:version . 2)
+          (:count . ,count)
+          (:longest . ,max)
+          (:shortest . ,min)
+          (:flags . 0)
+          (:delim . ,delim)
+          (:offset . ,(mapcar (lambda (o)
+                                (list (cons :foo o)))
+                              (nreverse offsets))))))
+      (let ((coding-system-for-write 'raw-text-unix))
+        (write-file (or index (concat cookies ".dat")))))))
+</pre><p>以下は複雑な構造体を定義してunpackする例です。以下のようなCの構造体があるものとします:
+</p><pre class="screen">struct header {
+    unsigned long    dest_ip;
+    unsigned long    src_ip;
+    unsigned short   dest_port;
+    unsigned short   src_port;
+};
+
+struct data {
+    unsigned char    type;
+    unsigned char    opcode;
+    unsigned short   length;  /* ネットワークバイトオーダー */
+    unsigned char    id[8];   /* NUL終端文字列 */
+    unsigned char    data[/* (length + 3) &amp; ~3 */];
+};
+
+struct packet {
+    struct header    header;
+    unsigned long    counters[2];  /* リトルエンディアンオーダー */
+    unsigned char    items;
+    unsigned char    filler[3];
+    struct data      item[/* items */];
+
+};
+</pre><p>対応するデータレイアウト仕様が以下です:
+</p><pre class="programlisting">(setq header-spec
+      '((dest-ip   ip)
+        (src-ip    ip)
+        (dest-port u16)
+        (src-port  u16)))
+
+(setq data-spec
+      '((type      u8)
+        (opcode    u8)
+        (length    u16)  ; ネットワークバイトオーダー
+        (id        strz 8)
+        (data      vec (length))
+        (align     4)))
+
+(setq packet-spec
+      '((header    struct header-spec)
+        (counters  vec 2 u32r)   ; リトルエンディアンオーダー
+        (items     u8)
+        (fill      3)
+        (item      repeat (items)
+                   (struct data-spec))))
+</pre><p>バイナリーデータによる表現は:
+</p><pre class="programlisting">(setq binary-data
+      [ 192 168 1 100 192 168 1 101 01 28 21 32
+        160 134 1 0 5 1 0 0 2 0 0 0
+        2 3 0 5 ?A ?B ?C ?D ?E ?F 0 0 1 2 3 4 5 0 0 0
+        1 4 0 7 ?B ?C ?D ?E ?F ?G 0 0 6 7 8 9 10 11 12 0 ])
+</pre><p>対応するデコードされた構造体は:
+</p><pre class="programlisting">(setq decoded (bindat-unpack packet-spec binary-data))
+     ⇒
+((header
+  (dest-ip   . [192 168 1 100])
+  (src-ip    . [192 168 1 101])
+  (dest-port . 284)
+  (src-port  . 5408))
+ (counters . [100000 261])
+ (items . 2)
+ (item ((data . [1 2 3 4 5])
+        (id . "ABCDEF")
+        (length . 5)
+        (opcode . 3)
+        (type . 2))
+       ((data . [6 7 8 9 10 11 12])
+        (id . "BCDEFG")
+        (length . 7)
+        (opcode . 4)
+        (type . 1))))
+</pre><p>以下はこの構造体からデータを取得する例です:
+</p><pre class="programlisting">(bindat-get-field decoded 'item 1 'id)
+     ⇒ "BCDEFG"
+</pre></div></div></body></html>

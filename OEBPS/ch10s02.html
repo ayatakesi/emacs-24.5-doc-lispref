@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Kinds of Forms</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Forms"/>Kinds of Forms</h1></div></div></div><p>評価される事を意図したLispオブジェクトは、<em class="firstterm">フォーム(form)</em>または<em class="firstterm">式(expression)</em>)と呼ばれます。Emacsがフォームを評価する方法は、フォームのデータ型に依存します。Emacsは、3種の異なるフォーム
+— シンボル、リスト、および“その他すべての型” —
+を持ち、それらは評価される方法は異なります。このセクションでは、まず最初は自己評価フォームの“その他すべての型”から開始して、3つの種類をすべて1つずつ説明します。
+</p><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Self_002dEvaluating-Forms"/>Self-Evaluating Forms</h2></div></div></div><a id="idm52077392" class="indexterm"/><a id="idm52076624" class="indexterm"/><a id="idm52075856" class="indexterm"/><p><em class="firstterm">自己評価フォーム(self-evaluating
+form)</em>は、リストやシンボルではない、任意のフォームです。自己評価フォームは、フォーム自身を評価します。評価の結果は、評価されたのと同じオブジェクトです。したがって、数字の25は25に評価され、文字列<code class="literal">"foo"</code>は文字列<code class="literal">"foo"</code>に評価されます。同様に、ベクターの評価では、ベクターの要素の評価は起こりません
+— 内容が変更されずに同じベクターがreturnされます。
+</p><pre class="screen">'123               ; 評価されずに表示される数字。
+     ⇒ 123
+</pre><pre class="screen">123                ; 通常どおり評価され、同じものがreturnされる。
+     ⇒ 123
+</pre><pre class="screen">(eval '123)        ; “手動”による評価 — 同じものがreturnされる。
+     ⇒ 123
+</pre><pre class="screen">(eval (eval '123)) ; 2度評価しても何も変わらない。
+     ⇒ 123
+</pre><p>事項評価されるという事実による利点から、数字、文字、文字列、そしてベクターでさえ、Lispコード内で記述されるのは一般的です。しかし、入力構文がない型にたいしてこれを行なうのは極めて異例です。なぜなら、これらをテキスト的に記述する方法がないからです。Lispプログラムを使用して、これらの型を含むLisp式を構築するのは、可能です。以下は例です:
+</p><pre class="screen">;; バッファーオブジェクトを含む式を構築する。
+(setq print-exp (list 'print (current-buffer)))
+     ⇒ (print #&lt;buffer eval.texi&gt;)
+</pre><pre class="screen">;; それを評価する。
+(eval print-exp)
+     ⊣ #&lt;buffer eval.texi&gt;
+     ⇒ #&lt;buffer eval.texi&gt;
+</pre></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Symbol-Forms"/>Symbol Forms</h2></div></div></div><a id="idm52069456" class="indexterm"/><p>シンボルが評価されるときは、変数として扱われます。それが値をもつ場合、結果はその変数の値になります。そのシンボルが変数としての値をもたない場合、Lispインタープリターはエラーをシグナルします。変数の使用法についての情報は、<a class="link" href="ch12.html" title="Chapter 11. Variables">Variables</a>を参照してください。
+</p><p>以降の例では、<code class="literal">setq</code>でシンボルに値をセットしています。その後シンボルを評価してから、その値を<code class="literal">setq</code>に戻します。
+</p><pre class="screen">(setq a 123)
+     ⇒ 123
+</pre><pre class="screen">(eval 'a)
+     ⇒ 123
+</pre><pre class="screen">a
+     ⇒ 123
+</pre><p>シンボル<code class="literal">nil</code>と<code class="literal">t</code>は特別に扱われるので、<code class="literal">nil</code>の値は常に<code class="literal">nil</code>になり、<code class="literal">t</code>の値は常に<code class="literal">t</code>になります。これらに他の値をセットしたり、他の値にバインドすることはできません。したがって、この2つのシンボルは、(たとえ<code class="literal">eval</code>がそれらを他の任意のシンボルと同じように扱うとはいえ)自己評価フォームと同じように振る舞います。名前が‘<code class="literal">:</code>’で始まるシンボルも、同じ方法で自己評価されます。そして、(通常は)値を変更できない点も同じです。<a class="link" href="ch12s02.html" title="Variables that Never Change">Constant
+Variables</a>を参照してください。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Classifying-Lists"/>Classification of List Forms</h2></div></div></div><a id="idm52059088" class="indexterm"/><p>空ではないリストフォームは、関数呼び出し、マクロ呼び出し、スペシャルフォームのいずれかで、それは1番目の引数にしたがいます。これら3種のフォームは、以下で説明するように、異なる方法で評価されます。残りの要素は関数、マクロ、またはスペシャルフォームにたいする<em class="firstterm">引数(arguments)</em>を構成します。
+</p><p>空ではないリストを評価する最初のステップは、1番目の要素の確認です。この要素は単独で、そのリストがどの種類のフォームか、そして残りの引数をどのように処理するがを決定します。SchemeのようなLisp方言とは異なり、1番目の要素は評価されません。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Function-Indirection"/>Symbol Function Indirection</h2></div></div></div><a id="idm52056144" class="indexterm"/><a id="idm52055376" class="indexterm"/><a id="idm52054608" class="indexterm"/><p>リストの最初の要素がシンボルの場合、評価はそのシンボルの関数セルを調べて、元のシンボルの代わりに、関数セルの内容を使用します。その内容が他のシンボルの場合、シンボルではないものが得られるまで、このプロセスが繰り返されます。このプロセスを<em class="firstterm">シンボル関数インダイレクション(symbol
+function indirection:
+indirectionは間接の意)</em>と呼びます。シンボル関数インダイレクションについての情報は、<a class="link" href="ch13s03.html" title="Naming a Function">Function
+Names</a>を参照してください。
+</p><p>このプロセスの結果、シンボルの関数競るが同じシンボルを参照する場合、無限ループを起こす可能性があります。それ以外は、最終的には非シンボルにたどりつき、これは関数か、他の適切なオブジェクトであるはずです。
+</p><a id="idm52052176" class="indexterm"/><p>より正確に言うと、それはLisp関数(ラムダ式)、バイトコード関数、基本関数、Lispマクロ、スペシャルフォーム、またはオートロードオブジェクトであるべきです。これらの型のそれぞれについては、以降のセクションで説明します。これらの型以外のオブジェクトの場合、emacsは<code class="literal">invalid-function</code>エラーをシグナルします。
+</p><p>以下の例は、シンボルインダイレクションのプロセスを説明するものです。わたしたちは、シンボルの関数セルに関数をセットするのに<code class="literal">fset</code>、関数セルの内容(<a class="link" href="ch13s08.html" title="Accessing Function Cell Contents">Function
+Cells</a>を参照してください)を得るために<code class="literal">symbol-function</code>を使用します。具体的に言うと、<code class="literal">first</code>の関数セルにシンボル<code class="literal">car</code>を格納し、シンボル<code class="literal">first</code>を<code class="literal">erste</code>の関数セルに格納します。
+</p><pre class="screen">;; この関数セルのリンクを構築する:
+;;   -------------       -----        -------        -------
+;;  | #&lt;subr car&gt; | &lt;-- | car |  &lt;-- | first |  &lt;-- | erste |
+;;   -------------       -----        -------        -------
+</pre><pre class="screen">(symbol-function 'car)
+     ⇒ #&lt;subr car&gt;
+</pre><pre class="screen">(fset 'first 'car)
+     ⇒ car
+</pre><pre class="screen">(fset 'erste 'first)
+     ⇒ first
+</pre><pre class="screen">(erste '(1 2 3))   ; <code class="literal">erste</code>により参照される関数を呼び出す。
+     ⇒ 1
+</pre><p>対照的に、以下の例はシンボル関数インダイレクションを使用せずに関数を呼び出します。なぜなら、1番目の要素はシンボルではなく、無名Lisp関数(anonymous
+Lisp function)だからです。
+</p><pre class="screen">((lambda (arg) (erste arg))
+ '(1 2 3))
+     ⇒ 1
+</pre><p>関数自身を実行すると、その関数のbodyを評価します。これは、<code class="literal">erste</code>を呼び出すとき、シンボル関数インダイレクションが行なわれます。
+</p><p>このフォームが使用されるのは稀で、今では推奨されません。かわりに以下のように記述するべきです:
+</p><pre class="screen">(funcall (lambda (arg) (erste arg))
+         '(1 2 3))
+</pre><p>または単に
+</p><pre class="screen">(let ((arg '(1 2 3))) (erste arg))
+</pre><p>ビルトイン関数の<code class="literal">indirect-function</code>は、明示的にシンボル関数インダイレクションを処理するための、簡単な方法を提供します。
+</p><pre class="synopsis"><a id="idm52034896" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">indirect-function</code> <em class="replaceable"><code>function</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>noerror</code></em></pre><div class="blockquote"><blockquote class="blockquote"><a id="Definition-of-indirect_002dfunction"/><p>この関数は、<em class="replaceable"><code>function</code></em>が意味するものを、関数としてreturnします。<em class="replaceable"><code>function</code></em>がシンボルの場合は、<em class="replaceable"><code>function</code></em>の関数定義を探して、その値で最初からやり直します。<em class="replaceable"><code>function</code></em>がシンボルでない場合は、<em class="replaceable"><code>function</code></em>自身をreturnします。
+</p><p>この関数は、最後のシンボルがバインドされておらず、オプション引数<em class="replaceable"><code>noerror</code></em>が省略されているか<code class="literal">nil</code>の場合は、<code class="literal">void-function</code>エラーをシグナルします。それ以外は、<em class="replaceable"><code>noerror</code></em>が非<code class="literal">nil</code>の場合は、最後のシンボルがバインドされていなければ<code class="literal">nil</code>をreturnします。
+</p><p>特定のシンボル内にループがある場合、この関数は<code class="literal">cyclic-function-indirection</code>エラーをシグナルします。
+</p><p>以下は、Lispで<code class="literal">indirect-function</code>を定義できるという例です:
+</p><pre class="screen">(defun indirect-function (function)
+  (if (symbolp function)
+      (indirect-function (symbol-function function))
+    function))
+</pre></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Function-Forms"/>Evaluation of Function Forms</h2></div></div></div><a id="idm52010192" class="indexterm"/><a id="idm52009424" class="indexterm"/><p>リストの1番目の要素がLispの関数オブジェクト。バイトコードオブジェクト、基本関数オブジェクトと評価された場合、そのリストは<em class="firstterm">関数呼び出し(function
+call)</em>になります。たとえば、以下は関数<code class="literal">+</code>を呼び出します:
+</p><pre class="screen">(+ 1 x)
+</pre><p>関数呼び出しを評価する最初のステップは、そのリストの残りの要素を左から右に評価します。結果は引数の実際の値で、リストの各要素にたいして1つの値となります。次のステップは、関数<code class="literal">apply</code>(<a class="link" href="ch13s05.html" title="Calling Functions">Calling
+Functions</a>を参照してください)を使用して、引数のリストでその関数を呼び出します。関数がLispで記述されている場合、引数はその関数の引数変数にバインドするために使用されます。その後、関数body内のフォームが順番に評価され、listのbodyフォームの値は、関数呼び出しの値になります。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Macro-Forms"/>Lisp Macro Evaluation</h2></div></div></div><a id="idm52004432" class="indexterm"/><p>リストの最初の要素がマクロオブジェクトと評価された場合、そのリストは<em class="firstterm">マクロ呼び出し(macro
+call)</em>になります。マクロ呼び出しが評価されるとき、リストの残りの要素は、最初は評価され<span class="emphasis"><em>ません</em></span>。そのかわり、これらの要素自体が、マクロの引数に使用されます。そのマクロ定義は、これは元のフォームの場所で評価される、置き換えのフォームを計算します。これは、マクロの<em class="firstterm">展開(expansion)</em>と呼ばれます。展開した結果は、任意の種類のフォーム
+—
+自己評価定数、シンボル、リストになります。展開した結果自体がマクロ呼び出しの場合、結果が他の種類のフォームになるまで、繰り返し展開処理が行なわれます。
+</p><p>通常のマクロ展開は、その展開形を評価することにより終了します。しかし、他のプログラムもマクロ呼び出しを展開し、それらが展開形を評価するかもしれないし、評価しないかもしれないので、そのマクロ展開がすぐに、または最終的に評価される必要がない場合があります。
+</p><p>引き数式は通常、マクロ展開の計算の一部としては評価されませんが、展開の部分として現れるので、展開形が評価されるとき計算されます。
+</p><p>たとえば、以下のようなマクロ定義が与えられたとします:
+</p><pre class="screen">(defmacro cadr (x)
+  (list 'car (list 'cdr x)))
+</pre><p><code class="literal">(cadr (assq 'handler list))</code>のような式はマクロ呼び出しであり、展開形は以下のようになります:
+</p><pre class="screen">(car (cdr (assq 'handler list)))
+</pre><p>引数<code class="literal">(assq 'handler list)</code>が、展開形に含まれることに注意してください。
+</p><p>Emacs Lispマクロの完全な説明は、<a class="link" href="ch14.html" title="Chapter 13. Macros">Macros</a>を参照してください。
+</p></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Special-Forms"/>Special Forms</h2></div></div></div><a id="idm51996240" class="indexterm"/><a id="idm51991376" class="indexterm"/><p><em class="firstterm">スペシャルフォーム(special
+form)</em>は特別だとマークされた基本関数で、その引数のすべては評価されません。もっともスペシャルなフォームは、制御構造の定義や、変数バインディングの処理など、関数ではできないことを行ないます。
+</p><p>スペシャルフォームはそれぞれ、どの引数が評価されて、どの引数が評価されないかについて、独自のルールをもちます。特定の引数が評価されるかどうかは、他の引数を評価した結果に依存します。
+</p><p>式の最初のシンボルがスペシャルフォームの場合、その式はそのスペシャルフォームのルールにしたがう必要があります。それ以外では、Emacsの挙動は(たとえクラッシュしなくても)定義されていません。たとえば<code class="literal">((lambda
+(x) x . 3)
+4)</code>は、<code class="literal">lambda</code>で始まるサブ式を含みますが、これは適正な<code class="literal">lambda</code>式ではないので、Emacsはエラーをシグナルするか、3、または4、または<code class="literal">nil</code>、もしかしたら他の挙動を示すかもしれません。
+</p><pre class="synopsis"><a id="idm51986896" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">special-form-p</code> <em class="replaceable"><code>object</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この述語は、引数がスペシャルフォームかをテストし、スペシャルフォームなら<code class="literal">t</code>、それ以外は<code class="literal">nil</code>をreturnします。
+</p></blockquote></div><p>以下に、Emacs Lispのスペシャルフォームすべてと、それらがどこで説明されているかのリファレンスとともに、アルファベット順でリストします。
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">and</code>
+</span></dt><dd><p>see <a class="link" href="ch11s03.html" title="Constructs for Combining Conditions">Combining Conditions</a>
+</p></dd><dt><span class="term"><code class="literal">catch</code>
+</span></dt><dd><p>see <a class="link" href="ch11s05.html#Catch-and-Throw" title="Explicit Nonlocal Exits: catch and throw">Catch and Throw</a>
+</p></dd><dt><span class="term"><code class="literal">cond</code>
+</span></dt><dd><p>see <a class="link" href="ch11s02.html" title="Conditionals">Conditionals</a>
+</p></dd><dt><span class="term"><code class="literal">condition-case</code>
+</span></dt><dd><p>see <a class="link" href="ch11s05.html#Handling-Errors" title="Writing Code to Handle Errors">Handling Errors</a>
+</p></dd><dt><span class="term"><code class="literal">defconst</code>
+</span></dt><dd><p>see <a class="link" href="ch12s05.html" title="Defining Global Variables">Defining Variables</a>
+</p></dd><dt><span class="term"><code class="literal">defvar</code>
+</span></dt><dd><p>see <a class="link" href="ch12s05.html" title="Defining Global Variables">Defining Variables</a>
+</p></dd><dt><span class="term"><code class="literal">function</code>
+</span></dt><dd><p>see <a class="link" href="ch13s07.html" title="Anonymous Functions">Anonymous Functions</a>
+</p></dd><dt><span class="term"><code class="literal">if</code>
+</span></dt><dd><p>see <a class="link" href="ch11s02.html" title="Conditionals">Conditionals</a>
+</p></dd><dt><span class="term"><code class="literal">interactive</code>
+</span></dt><dd><p>see <a class="link" href="ch21s03.html" title="Interactive Call">Interactive Call</a>
+</p></dd><dt><span class="term"><code class="literal">lambda</code>
+</span></dt><dd><p>see <a class="link" href="ch13s02.html" title="Lambda Expressions">Lambda Expressions</a>
+</p></dd><dt><span class="term"><code class="literal">let</code>
+, </span><span class="term"><code class="literal">let*</code>
+</span></dt><dd><p>see <a class="link" href="ch12s03.html" title="Local Variables">Local Variables</a>
+</p></dd><dt><span class="term"><code class="literal">or</code>
+</span></dt><dd><p>see <a class="link" href="ch11s03.html" title="Constructs for Combining Conditions">Combining Conditions</a>
+</p></dd><dt><span class="term"><code class="literal">prog1</code>
+, </span><span class="term"><code class="literal">prog2</code>
+, </span><span class="term"><code class="literal">progn</code>
+</span></dt><dd><p>see <a class="link" href="ch11.html#Sequencing" title="Sequencing">Sequencing</a>
+</p></dd><dt><span class="term"><code class="literal">quote</code>
+</span></dt><dd><p>see <a class="link" href="ch10s03.html" title="Quoting">Quoting</a>
+</p></dd><dt><span class="term"><code class="literal">save-current-buffer</code>
+</span></dt><dd><p>see <a class="link" href="ch27s02.html" title="The Current Buffer">Current Buffer</a>
+</p></dd><dt><span class="term"><code class="literal">save-excursion</code>
+</span></dt><dd><p>see <a class="link" href="ch30s03.html" title="Excursions">Excursions</a>
+</p></dd><dt><span class="term"><code class="literal">save-restriction</code>
+</span></dt><dd><p>see <a class="link" href="ch30s04.html" title="Narrowing">Narrowing</a>
+</p></dd><dt><span class="term"><code class="literal">setq</code>
+</span></dt><dd><p>see <a class="link" href="ch12s08.html" title="Setting Variable Values">Setting Variables</a>
+</p></dd><dt><span class="term"><code class="literal">setq-default</code>
+</span></dt><dd><p>see <a class="link" href="ch12s10.html#Creating-Buffer_002dLocal" title="Creating and Deleting Buffer-Local Bindings">Creating Buffer-Local</a>
+</p></dd><dt><span class="term"><code class="literal">track-mouse</code>
+</span></dt><dd><p>see <a class="link" href="ch29s13.html" title="Mouse Tracking">Mouse Tracking</a>
+</p></dd><dt><span class="term"><code class="literal">unwind-protect</code>
+</span></dt><dd><p>see <a class="link" href="ch11s05.html" title="Nonlocal Exits">Nonlocal Exits</a>
+</p></dd><dt><span class="term"><code class="literal">while</code>
+</span></dt><dd><p>see <a class="link" href="ch11s04.html" title="Iteration">Iteration</a>
+</p></dd></dl></div><a id="idm51941072" class="indexterm"/><div class="blockquote"><blockquote class="blockquote"><p><span class="bold"><strong>Common Lispに関する注意: </strong></span>ここで、GNU Emacsのスペシャルフォームと、Common
+Lispのスペシャルフォームを比較してみます。<code class="literal">setq</code>、<code class="literal">if</code>、<code class="literal">catch</code>は、Emacs LispとCommon
+Lispの両方でスペシャルフォームです。<code class="literal">save-excursion</code>はEmacs Lispではスペシャルフォームですが、Common
+Lispには存在しません。<code class="literal">throw</code>はCommon
+Lispではスペシャルフォーム(なぜなら複数の値をthrowできなければならない)ですが、Emacs Lispでは(複数の値をもたない)関数です。
+</p></blockquote></div></div><div class="sect2"><div class="titlepage"><div><div><h2 class="title"><a id="Autoloading"/>Autoloading</h2></div></div></div><p><em class="firstterm">オートロード(autoload)</em>機能により、関数定義がだEmacsにロードされていない関数(またはマクロ)を呼び出すことができます。オートロードは、定義がどのファイルに含まれるかを指定します。オートロードオブジェクトがシンボルの関数定義にある場合、関数としてそのシンボルを呼び出すことにより、自動的に指定されたファイルがロードされます。その後、ファイルからロードされた実際の定義を呼び出します。シンボル内の関数定義としてオートロードオブジェクトをアレンジする方法は、<a class="link" href="ch16s05.html" title="Autoload">Autoload</a>で説明します。
+</p></div></div></body></html>

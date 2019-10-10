@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Variable Aliases</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Variable-Aliases"/>Variable Aliases</h1></div></div></div><a id="idm54382288" class="indexterm"/><a id="idm54381520" class="indexterm"/><p>シノニムとして2つの変数を作成するのが有用なときがあります。2つの変数は常に同じ値をもち、、どちらか一方を変更すると、もう一方も変更されます。変数の名前を変更
+— 古い名前はよく考慮して選択されたものではなかった、あるいは変数の意味が部分的に変更された等の理由で —
+するとき、互換性のために新しい名前の<span class="emphasis"><em>エイリアス(alias)</em></span>として古い名前を維持するのが有用なときがあるかもしれません。<code class="literal">defvaralias</code>により、これを行うことができます。
+</p><pre class="synopsis"><a id="idm54379216" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">defvaralias</code> <em class="replaceable"><code>new-alias</code></em> <em class="replaceable"><code>base-variable</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>docstring</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数はシンボル<em class="replaceable"><code>base-variable</code></em>のエイリアスとして、シンボル<em class="replaceable"><code>new-alias</code></em>を定義します。これは<em class="replaceable"><code>new-alias</code></em>から値を取得すると、<em class="replaceable"><code>base-variable</code></em>の値がreturnされ、<em class="replaceable"><code>new-alias</code></em>の値を変更すると、<em class="replaceable"><code>base-variable</code></em>の値が変更されることを意味します。エイリアスされた2つの変数名は、常に同じ値と同じバインディングを共有します。
+</p><p><em class="replaceable"><code>docstring</code></em>引数が非<code class="literal">nil</code>の場合、それは<em class="replaceable"><code>new-alias</code></em>のドキュメント文字列を指定します。それ以外では、エイリアスは(もしあれば)<em class="replaceable"><code>base-variable</code></em>と同じドキュメント文字列となります。ただし、それは<em class="replaceable"><code>base-variable</code></em>自体がエイリアスではない場合で、エイリアスの場合、<em class="replaceable"><code>new-alias</code></em>はエイリアスチェーンの最後の変数のドキュメント文字列になります。
+</p><p>この関数は<em class="replaceable"><code>base-variable</code></em>をreturnします。
+</p></blockquote></div><p>変数のエイリアスは、変数にたいする古い名前を新しい名前に置き換える、便利な方法です。<code class="literal">make-obsolete-variable</code>は古い名前を陳腐化(obsolete)していると宣言し。それが将来のある時点で削除されるかもしれないことを宣言します。
+</p><pre class="synopsis"><a id="idm54368080" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">make-obsolete-variable</code> <em class="replaceable"><code>obsolete-name</code></em> <em class="replaceable"><code>current-name</code></em> <em class="replaceable"><code>when</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>access-type</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、倍とコンパイラーに変数<em class="replaceable"><code>obsolete-name</code></em>が陳腐化していると警告させます。<em class="replaceable"><code>current-name</code></em>がシンボルの場合、それはこの変数の新たな名前です。その後、<em class="replaceable"><code>obsolete-name</code></em>のかわりに<em class="replaceable"><code>current-name</code></em>を使用するよう、警告メッセージを伝えます。<em class="replaceable"><code>current-name</code></em>が文字列の場合、これはメッセージで、置き換えられる変数はありません。<em class="replaceable"><code>when</code></em>は、その変数が最初に陳腐化するのがいつかを示す文字列です(通常はバージョン番号文字列)。
+</p><p>オプションの引数<em class="replaceable"><code>access-type</code></em>は、非<code class="literal">nil</code>の場合は陳腐化の警告を引き起こすアクセスの種類を指定します。<code class="literal">get</code>または<code class="literal">set</code>を指定できます。
+</p></blockquote></div><p>2つの変数シノニムを作成して、マクロ<code class="literal">define-obsolete-variable-alias</code>を使用することにより同時に1つが陳腐化していると宣言できます。
+</p><pre class="synopsis"><a id="idm54357840" class="indexterm"/><span class="category"><span class="bold"><strong>Macro</strong></span>:</span> <code class="function">define-obsolete-variable-alias</code> <em class="replaceable"><code>obsolete-name</code></em> <em class="replaceable"><code>current-name</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>when</code></em> <em class="replaceable"><code>docstring</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>このマクロは変数<em class="replaceable"><code>obsolete-name</code></em>が陳腐化しているとマークして、それを変数<em class="replaceable"><code>current-name</code></em>にたいするエイリアスにします。これは以下と等価です:
+</p><pre class="screen">(defvaralias <em class="replaceable"><code>obsolete-name</code></em> <em class="replaceable"><code>current-name</code></em> <em class="replaceable"><code>docstring</code></em>)
+(make-obsolete-variable <em class="replaceable"><code>obsolete-name</code></em> <em class="replaceable"><code>current-name</code></em> <em class="replaceable"><code>when</code></em>)
+</pre></blockquote></div><pre class="synopsis"><a id="idm54349520" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">indirect-variable</code> <em class="replaceable"><code>variable</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>variable</code></em>のエイリアスチェーンの最後の変数をreturnします。<em class="replaceable"><code>variable</code></em>がシンボルでない場合、または<em class="replaceable"><code>variable</code></em>がエイリアスとして定義されていない場合、この関数は<em class="replaceable"><code>variable</code></em>をreturnします。
+</p><p>この関数は、シンボルのチェーンがループしているときは、<code class="literal">cyclic-variable-indirection</code>エラーをシグナルします。
+</p></blockquote></div><pre class="screen">(defvaralias 'foo 'bar)
+(indirect-variable 'foo)
+     ⇒ bar
+(indirect-variable 'bar)
+     ⇒ bar
+(setq bar 2)
+bar
+     ⇒ 2
+</pre><pre class="screen">foo
+     ⇒ 2
+</pre><pre class="screen">(setq foo 0)
+bar
+     ⇒ 0
+foo
+     ⇒ 0
+</pre></div></body></html>

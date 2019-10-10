@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Shell Arguments</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Shell-Arguments"/>Shell Arguments</h1></div></div></div><a id="idm79519184" class="indexterm"/><a id="idm79518416" class="indexterm"/><p>Lispプログラムがshellを実行して、ユーザーが指定したファイル名を含むコマンドを与える必要がある場合が時折あります。これらのプログラムは、任意の有効なファイル名をサポート可能であるはずです。しかしshellは特定の文字を特別に扱い、それらの文字がファイル名に含まれていると、shellを混乱させるでしょう。これらの文字を処理するためには、関数<code class="literal">shell-quote-argument</code>を使用します。
+</p><pre class="synopsis"><a id="idm79516496" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">shell-quote-argument</code> <em class="replaceable"><code>argument</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、実際のコンテンツが<em class="replaceable"><code>argument</code></em>であるような引数を表す文字列を、shellの構文でリターンする。リターン値をshellコマンドに結合して、実行のためにそれをshellに渡すことにより、信頼性をもって機能するはずである。
+</p><p>この関数が正確に何を行うかは、オペレーティングシステムに依存する。この関数は、そのシステムの標準shellの構文で機能するようデザインされている。非標準のshellを使用する場合は、この関数を再定義する必要があるだろう。
+</p><pre class="screen">;; この例はGNUおよびUnixシステムでの挙動を示す
+(shell-quote-argument "foo &gt; bar")
+     ⇒ "foo\\ \\&gt;\\ bar"
+
+;; この例はMS-DOSおよびMS-Windowsでの挙動を示す
+(shell-quote-argument "foo &gt; bar")
+     ⇒ "\"foo &gt; bar\""
+</pre><p>以下は<code class="literal">shell-quote-argument</code>を使用して、shellコマンドを構築する例である:
+</p><pre class="screen">(concat "diff -c "
+        (shell-quote-argument oldfile)
+        " "
+        (shell-quote-argument newfile))
+</pre></blockquote></div><a id="idm79510864" class="indexterm"/><a id="idm79510096" class="indexterm"/><a id="idm79509328" class="indexterm"/><a id="idm79508176" class="indexterm"/><p>以下の2つの関数は、コマンドライン引数の文字列のリストを単一の文字列に結合したり、単一の文字列を個別のコマンドライン引数のリストへ分割するために有用です。これらの関数は主に、ミニバッファーでのユーザー入力であるLisp文字列を<code class="literal">call-process</code>や<code class="literal">start-process</code>に渡す文字列引数のリストへ変換したり、そのような引数のリストをミニバッファーやエコーエリアに表示するためのLisp文字列に変換することを意図しています。
+</p><pre class="synopsis"><a id="idm79505360" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">split-string-and-unquote</code> <em class="replaceable"><code>string</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>separators</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は<code class="literal">split-string</code>(see <a class="link" href="ch05s03.html" title="Creating Strings">Creating
+Strings</a>を参照)が行うように、正規表現<em class="replaceable"><code>separators</code></em>にたいするマッチで、<em class="replaceable"><code>string</code></em>を部分文字列に分割する。さらに加えて、その部分文字列からクォートを削除する。それから部分文字列のリストを作成して、それをリターンする。
+</p><p><em class="replaceable"><code>separators</code></em>が省略、または<code class="literal">nil</code>の場合のデフォルトは<code class="literal">"\\s-+"</code>で、これは空白文字構文(<a class="link" href="ch35s02.html#Syntax-Class-Table" title="Table of Syntax Classes">Syntax
+Class Table</a>を参照)をもつ1つ以上の文字にマッチする正規表現である。
+</p><p>この関数は、2つのタイプのクォートをサポートする。1つは文字列全体をダブルクォートで囲う<code class="literal">"…"</code>のようなクォートで、もう1つはバックスラッシュ‘<code class="literal">\</code>’によるエスケープで文字を個別にクォートするタイプである。後者はLisp文字列内でも使用されるので、この関数はそれらも同様に扱うことができる。
+</p></blockquote></div><pre class="synopsis"><a id="idm79496016" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">combine-and-quote-strings</code> <em class="replaceable"><code>list-of-strings</code></em> <em class="replaceable"><code>&amp;optional</code></em> <em class="replaceable"><code>separator</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>list-of-strings</code></em>の各文字を必要に応じてクォートして、単一の文字列に結合する。これはさらに各文字ペアーの間に、<em class="replaceable"><code>separator</code></em>文字列も挿入する。<em class="replaceable"><code>separator</code></em>が省略または<code class="literal">nil</code>の場合のデフォルトは<code class="literal">"
+"</code>。リターン値は、その結果の文字列である。
+</p><p><em class="replaceable"><code>list-of-strings</code></em>内のクォートを要する文字列には、部分文字列として<em class="replaceable"><code>separator</code></em>を含むものが該当する。文字列のクォートは、それをダブルクォートで<code class="literal">"…"</code>のように囲う。もっとも単純な例では、個別のコマンドライン引数からコマンドをコンス(cons)する場合は、埋め込まれたブランクを含む文字列はそれぞれクォートされるだろう。
+</p></blockquote></div></div></body></html>

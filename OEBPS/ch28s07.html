@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Recombining Windows</title><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"/></head><body><div class="sect1"><div class="titlepage"><div><div><h1 class="title"><a id="Recombining-Windows"/>Recombining Windows</h1></div></div></div><a id="idm68629840" class="indexterm"/><a id="idm68629072" class="indexterm"/><p>ウィンドウ<em class="replaceable"><code>W</code></em>の最後の兄弟を削除したときは、ウィンドウツリー内の親ウィンドウを<em class="replaceable"><code>W</code></em>を置き換えることにより、その親ウィンドウも削除されます。これは、新たなウィンドウコンビネーションを形成するために、<em class="replaceable"><code>W</code></em>がその親の兄弟たちと再結合されなければならないことを意味します。生きたウィンドウを削除することにより、必然的に2つの内部ウィンドウが削除されるかもしれない場合もあります。
+</p><pre class="screen">     ______________________________________
+    | ______  ____________________________ |
+    ||      || __________________________ ||
+    ||      ||| ___________  ___________ |||
+    ||      ||||           ||           ||||
+    ||      ||||____W6_____||_____W7____||||
+    ||      |||____________W4____________|||
+    ||      || __________________________ ||
+    ||      |||                          |||
+    ||      |||                          |||
+    ||      |||____________W5____________|||
+    ||__W2__||_____________W3_____________ |
+    |__________________W1__________________|
+
+</pre><p>この構成における<em class="replaceable"><code>W5</code></em>の削除は、通常は<em class="replaceable"><code>W3</code></em>と<em class="replaceable"><code>W4</code></em>の削除を引き起こします。残りの生きたウィンドウ<em class="replaceable"><code>W2</code></em>、<em class="replaceable"><code>W6</code></em>、<em class="replaceable"><code>W7</code></em>は親を<em class="replaceable"><code>W7</code></em>とする水平コンビネーションを形成するために再結合されます。
+</p><p>しかし、ときには<em class="replaceable"><code>W4</code></em>のような親ウィンドウを削除しないほうが合理的な場合もあります。特に、親ウィンドウが同じタイプのコンビネーション内に埋め込まれるコンビネーションを保護するために使用されるときは、それを削除するべきではありません。そのような埋め込みは、あるウィンドウを分割した後に続けて新たなウィンドウを削除する際、Emacsが関連するフレームで分割前にあったレイアウトを確実に再確立するために意味があります。
+</p><p>親が<em class="replaceable"><code>W1</code></em>であるような2つの生きたウィンドウ<em class="replaceable"><code>W2</code></em>と<em class="replaceable"><code>W3</code></em>を開始点とするシナリオを考えてみましょう。
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W3_________________||
+    |__________________W1__________________|
+
+</pre><p><em class="replaceable"><code>W2</code></em>を分割すると、以下のようにウィンドウ<em class="replaceable"><code>W4</code></em>が新たに作成されます。
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W4_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W3_________________||
+    |__________________W1__________________|
+
+</pre><p>ここでウィンドウを垂直方向に拡大すると、Emacsはもしそのようなウィンドウがあれば、下位の兄弟ウィンドウから対応するスペースを得ようと試みます。このシナリオでふぁ<em class="replaceable"><code>W4</code></em>の拡大により、<em class="replaceable"><code>W3</code></em>からスペースが奪われます。
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W4_________________||
+    | ____________________________________ |
+    ||_________________W3_________________||
+    |__________________W1__________________|
+
+</pre><p><em class="replaceable"><code>W4</code></em>を削除すると、前に<em class="replaceable"><code>W3</code></em>から奪ったスペースを含む、スペース全体が<em class="replaceable"><code>W2</code></em>に与えられるでしょう。
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||_________________W3_________________||
+    |__________________W1__________________|
+
+</pre><p>これは特に<em class="replaceable"><code>W4</code></em>が一時的にバッファーを表示するために使用されていて(<a class="link" href="ch38s08.html" title="Temporary Displays">Temporary
+Displays</a>を参照)、かつ初期のレイアウトで作業を継続したい場合は直感に反するかもしれません。
+</p><p>この振る舞いは、<em class="replaceable"><code>W2</code></em>を分割する際に、新たな親ウィンドウを作成することにより解決できます。
+</p><pre class="synopsis"><a id="idm68592336" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">window-combination-limit</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数は、ウィンドウ分割により新たに親ウィンドウを作成させるかどうかを制御する。以下の値が認識される:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term"><code class="literal">nil</code>
+</span></dt><dd><p>これは、既存のウィンドウコンビネーションと同じ方向で分割が発生した場合(これ以外の場合は、いずれにせよ内部ウィンドウが新たに作成される)は、既存の親ウィンドウが存在するならば、新たな生きたウィンドウがそれを共有できることを意味する。
+</p></dd><dt><span class="term"><code class="literal">window-size</code>
+</span></dt><dd><p>この場合、<code class="literal">display-buffer</code>は<em class="replaceable"><code>alist</code></em>引数内のエントリー<code class="literal">window-height</code>または<code class="literal">window-width</code>に親ウィンドウが渡されるなら、新たに親ウィンドウを作成する(<a class="link" href="ch28s13.html" title="Action Functions for display-buffer">Display
+Action Functions</a>を参照)。
+</p></dd><dt><span class="term"><code class="literal">temp-buffer</code>
+</span></dt><dd><p>この値は、一時的なバッファーを表示するウィンドウの分割に際し、新たに親ウィンドウを作成する。
+</p></dd><dt><span class="term"><code class="literal">display-buffer</code>
+</span></dt><dd><p>これは、<code class="literal">display-buffer</code>(<a class="link" href="ch28s12.html" title="Choosing a Window for Display">Choosing
+Window</a>を参照)がウィンドウを分割する際に、常に親ウィンドウを新たに作成することを意味する。
+</p></dd><dt><span class="term"><code class="literal">t</code>
+</span></dt><dd><p>この場合は、ウィンドウを分割する際、常に親ウィンドウが新たに作成される。したがって、この変数の値が常に<code class="literal">t</code>の場合は、すべてのウィンドウツリーｍ常に2分木(ルートウィンドウ以外のすべてのウィンドウが正確に1つの兄弟をもつようなツリー)になる。
+</p></dd></dl></div><p>デフォルトは<code class="literal">nil</code>で、これら以外の値は将来のために予約済みである。
+</p><p>この返信のセッティングの結果として<code class="literal">split-window</code>が新たに親ウィンドウを作成した場合は、新たに作成された内部ウィンドウにたいして<code class="literal">set-window-combination-limit</code>(以下参照)も呼び出す。これは、子ウィンドウが削除された際の、ウィンドウツリーの再配置に影響する(以下参照)。
+</p></blockquote></div><p><code class="literal">window-combination-limit</code>が<code class="literal">t</code>の場合、このシナリオの初期構成では以下のようになるでしょう:
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    || __________________________________ ||
+    |||                                  |||
+    |||________________W2________________|||
+    || __________________________________ ||
+    |||                                  |||
+    |||________________W4________________|||
+    ||_________________W5_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W3_________________||
+    |__________________W1__________________|
+
+</pre><p>子として<em class="replaceable"><code>W2</code></em>および新たな生きたウィンドウをもつ内部ウィンドウ<em class="replaceable"><code>W5</code></em>が新たに作成されます。ここで<em class="replaceable"><code>W2</code></em>は<em class="replaceable"><code>W4</code></em>の唯一の兄弟なので、<em class="replaceable"><code>W4</code></em>を拡大すると<em class="replaceable"><code>W3</code></em>は変更せずに、<em class="replaceable"><code>W2</code></em>を縮小しようと試みるでしょう。<em class="replaceable"><code>W5</code></em>は垂直コンビネーション<em class="replaceable"><code>W1</code></em>に埋め込まれた、2つのウィンドウからなる垂直コンビネーションを表すことに注意してください。
+</p><a id="idm68571216" class="indexterm"/><pre class="synopsis"><a id="idm68570192" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">set-window-combination-limit</code> <em class="replaceable"><code>window</code></em> <em class="replaceable"><code>limit</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、ウィンドウ<em class="replaceable"><code>window</code></em>の<em class="firstterm">コンビネーションリミット(combination limit:
+結合限界</em>を<em class="replaceable"><code>limit</code></em>にセットする。この値は、関数<code class="literal">window-combination-limit</code>を通じて取得できる。効果については以下を参照のこと。これは内部ウィンドウにたいしてのみ意味をもつことに注意されたい。<code class="literal">split-window</code>は、呼び出された際に変数<code class="literal">window-combination-limit</code>が<code class="literal">t</code>ならば、<code class="literal">t</code>を<em class="replaceable"><code>limit</code></em>として、この関数を呼び出す。
+</p></blockquote></div><pre class="synopsis"><a id="idm68562512" class="indexterm"/><span class="category"><span class="bold"><strong>Function</strong></span>:</span> <code class="function">window-combination-limit</code> <em class="replaceable"><code>window</code></em></pre><div class="blockquote"><blockquote class="blockquote"><p>この関数は、<em class="replaceable"><code>window</code></em>にたいするコンビネーションリミットをリターンする。
+</p><p>コンビネーションリミットは、内部ウィンドウにたいしてのみ意味をもつ。これが<code class="literal">nil</code>の場合は、Emacsはウィンドウ削除に応じて、兄弟同士で新たなウィンドウコンビネーションを形成することにより、<em class="replaceable"><code>window</code></em>の子ウィンドウをグループ化するために、<em class="replaceable"><code>window</code></em>の自動的な削除を許す。コンビネーションリミットが<code class="literal">t</code>の場合、<em class="replaceable"><code>window</code></em>の子ウィンドウは、その兄弟と自動的に再結合されることは決してない。
+</p><p>このセクションの冒頭で示した構成の場合、<em class="replaceable"><code>W4</code></em>(<em class="replaceable"><code>W6</code></em>と<em class="replaceable"><code>W7</code></em>の親ウィンドウ)のコンビネーションリミットは<code class="literal">t</code>なので、<code class="literal">t</code>を削除しても暗黙で<em class="replaceable"><code>W4</code></em>も削除されることはない。
+</p></blockquote></div><p>かわりに、同じ構成内の中の1つのウィンドウが分割または削除されたときは常に構成内のすべてのウィンドウをリサイズすることにより、上記で示した問題を避けることができます。これは、そのような操作にたいして、この方法以外では小さすぎるようなウィンドウの分割も可能にします。
+</p><pre class="synopsis"><a id="idm68553040" class="indexterm"/><span class="category"><span class="bold"><strong>User Option</strong></span>:</span> <code class="varname">window-combination-resize</code></pre><div class="blockquote"><blockquote class="blockquote"><p>この変数が<code class="literal">nil</code>の場合、<code class="literal">split-window</code>はウィンドウ(以下<em class="replaceable"><code>window</code></em>)自身と新たなウィンドウの両方にたいして、<em class="replaceable"><code>window</code></em>のスクリーンエリアが十分大きい場合のみ、<em class="replaceable"><code>window</code></em>を分割できる。
+</p><p>この変数が<code class="literal">t</code>の場合、<code class="literal">split-window</code>は新たなウィンドウに対応するため、<em class="replaceable"><code>window</code></em>と同じコンビネーション内の、すべてのウィンドウのリサイズを試みる。これは特に、<em class="replaceable"><code>window</code></em>が固定サイズウィンドウのときや、通常の分割には小さすぎるときも、<code class="literal">split-window</code>をが成功することを許す。さらに、続けて<em class="replaceable"><code>window</code></em>をリサイズ、または削除すると、そのコンビネーション内のその他すべてのウィンドウをリサイズする。
+</p><p>デフォルトは<code class="literal">nil</code>で、それ以外の値は、将来の使用のため予約済みである。この変数の値は、<code class="literal">window-combination-limit</code>が非<code class="literal">nil</code>の場合は無視される。
+</p></blockquote></div><p><code class="literal">window-combination-resize</code>の効果を説明するために、以下のフレームレイアウトを考えてください。
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W3_________________||
+    |__________________W1__________________|
+
+</pre><p><code class="literal">window-combination-resize</code>が<code class="literal">nil</code>の場合、ウィンドウ<em class="replaceable"><code>W3</code></em>を分割しても、<em class="replaceable"><code>W2</code></em>のサイズは変更されません:
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||_________________W3_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||_________________W4_________________||
+    |__________________W1__________________|
+
+</pre><p><code class="literal">window-combination-resize</code>が<code class="literal">t</code>の場合は、<em class="replaceable"><code>W3</code></em>を分割すると3つの生きたウィンドウすべてを、おおよそ同じ高さにします:
+</p><pre class="screen">     ______________________________________
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W2_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W3_________________||
+    | ____________________________________ |
+    ||                                    ||
+    ||                                    ||
+    ||_________________W4_________________||
+    |__________________W1__________________|
+
+</pre><p>生きたウィンドウ<em class="replaceable"><code>W2</code></em>、<em class="replaceable"><code>W3</code></em>、<em class="replaceable"><code>W4</code></em>のいずれを削除しても、削除されたウィンドウのスペースは、残りの2つの生きたウィンドウに相対的に分配されます。
+</p></div></body></html>
