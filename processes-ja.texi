@@ -1,0 +1,2151 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990-1995, 1998-1999, 2001-2015 Free Software
+@c Foundation, Inc.
+@c See the file elisp.texi for copying conditions.
+@node Processes
+@chapter Processes
+@cindex child process
+@cindex parent process
+@cindex subprocess
+@cindex process
+
+  オペレーティングシステムの用語では、@dfn{プロセス(process)}とはプログラムを実行できるスペースのことです。Emacsはプロセス内で実行されます。Emacs
+Lispプログラムは、別のプログラムをそれら自身のプロセス内で呼び出すことができます。これらは、@dfn{親プロセス(parent
+process)}であるEmacsプロセスの@dfn{サブプロセス(subprocesses)}、または@dfn{子プロセス(child
+processes)}と呼ばれます。
+
+  Emacsのサブプロセスは@dfn{同期(synchronous)}、または@dfn{非同期(asynchronous)}であり、それはそれらが作成された方法に依存します。同期サブプロセスを作成した際、Lispプログラムは実行を継続する前に、そのサブプロセスの終了を待機します。非同期サブプロセスを作成したときは、それをLispプログラムと並行して実行できます。この種のサブプロセスは、EmacsではLispオブジェクととして表現され、そのオブジェクトも``プロセス''と呼ばれています。Lispプログラムはサブプロセスとのやり取りや、サブプロセスの制御のために、このオブジェクトを使用できます。たとえばシグナル送信、ステータス情報の取得、プロセス出力の受信や、プロセスへ入力を送信することができます。
+
+@defun processp object
+この関数は、@var{object}がEmacsのサブプロセスを表すなら@code{t}、それ以外は@code{nil}をリターンする。
+@end defun
+
+  カレントEmacsセッションのサブプロセスに加えて、そのマシン上で実行中の他のプロセスにアクセスすることもできます。@ref{System
+Processes}を参照してください。
+
+@menu
+* Subprocess Creation::      サブプロセスを開始する関数。
+* Shell Arguments::          shellに渡すために引数をクォートする。
+* Synchronous Processes::    同期サブプロセス使用の詳細。
+* Asynchronous Processes::   非同期サブプロセスの起動。
+* Deleting Processes::       非同期サブプロセスの削除。
+* Process Information::      実行状態および他の属性へのアクセス。
+* Input to Processes::       非同期サブプロセスへの入力の送信。
+* Signals to Processes::     非同期サブプロセスの停止、継続、割り込み。
+* Output from Processes::    非同期サブプロセスからの出力の収集。
+* Sentinels::                プロセスの実行状態変更時に実行されるセンチネル。
+* Query Before Exit::        exitによりプロセスがkillされる場合に問い合わせるかどうか。
+* System Processes::         そのシステム上で実行中の別プロセスへのアクセス。
+* Transaction Queues::       サブプロセスとのトランザクションベースのコミュニケション。
+* Network::                  ネットワーク接続のopen。
+* Network Servers::          Emacsによるネット接続のacceptを可能にするネットワークサーバー。
+* Datagrams::                UDPネットワーク接続。
+* Low-Level Network::        接続およびサーバーを作成するための、より低レベルだがより汎用的な関数。
+* Misc Network::             ネット接続用の追加の関連関数。
+* Serial Ports::             シリアルポートでのやり取り。
+* Byte Packing::             bindatを使用したバイナリーデータのpackとunpack。
+@end menu
+
+@node Subprocess Creation
+@section Functions that Create Subprocesses
+@cindex create subprocess
+@cindex process creation
+
+  内部でプログラムを実行するサブプロセスを作成するために、3つのプリミティブが存在します。1つは@code{start-process}で、これは非同期プロセスを作成して、プロセスオブジェクトをリターンします(@ref{Asynchronous
+Processes}を参照)。他の2つは@code{call-process}と@code{call-process-region}で、これらは同期プロセスを作成して、プロセスオブジェクとをリターンしません(@ref{Synchronous
+Processes}を参照)。特定のタイプのプロセスを実行するために、これらのプリミティブを利用する、さまざまな高レベル関数が存在します。
+
+  同期プロセスと非同期プロセスについては、以降のセクションで説明します。この3つの関数はすべて類似した様式で呼び出されるので、ここでそれらに共通の引数について説明します。
+
+@cindex execute program
+@cindex @env{PATH} environment variable
+@cindex @env{HOME} environment variable
+  すべての場合において、その関数の@var{program}引数は、実行するプログラムを指定します。ファイルが見つからなかったり、実行できない場合は、エラーがシグナルされます。ファイル名が相対的な場合、検索するディレクトリーのリストは、変数@code{exec-path}に格納されています。Emacsは起動時、環境変数@env{PATH}の値にもとづいて、@code{exec-path}を初期化します。@code{exec-path}内では、標準的なファイル名構成要素@samp{~}、@samp{.}、@samp{..}は通常どおり解釈されますが、環境変数の置換(@samp{$HOME}等)は認識されません。それらの置換を行うには、@code{substitute-in-file-name}を使用してください(@ref{File
+Name Expansion}を参照)。このリスト内で@code{nil}は、@code{default-directory}を参照します。
+
+  プログラムの実行では、指定された名前にサフィックスの追加を試みることもできます:
+
+@defopt exec-suffixes
+この変数は、指定されたプログラムファイル名への追加を試みるための、サフィックス(文字列)のリストである。指定されたとおりの名前を試みたいなら、このリストに@code{""}を含めること。デフォルト値はシステムに依存する。
+@end defopt
+
+  @strong{注意してください:}
+引数@var{program}にはプログラム名だけが含まれ、コマンドライン引数を含めることはできない。これらを提供するために、以下で説明する別の引数@var{args}を使用しなければならない。
+
+  サブプロセス作成関数にはそれぞれ、@var{buffer-or-name}引数があります。これはプログラムの標準出力の行き先を指定します。これはバッファーかバッファー名であるべきです。バッファー名なら、もしそのバッファーがまだ作成されていなければ、そのバッファーを作成します。@code{nil}を指定することもでき、その場合はカスタム製のフィルター関数が出力を処理するのでなければ、出力を破棄するよう指示します(@ref{Filter
+Functions}、および@ref{Read and
+Print}を参照のこと)。通常は、出力がランダムに混在してしまうため、同一バッファーに複数プロセスの出力を送信するのは避けるべきです。同期プロセスにたいしては、バッファーのかわりにファイルに出力を送信できます。
+
+@cindex program arguments
+  これら3つのサブプロセス作成関数はすべて、@code{&rest}引数である@var{args}をもっています。@var{args}はすべて文字列でなければならず、それらは個別のコマンドライン引数として、@var{program}に与えられます。これらの文字列は指定されたプログラムに直接渡されるので、文字列内ではワイルドカード文字やその他のshell構成要素は特別な意味をもちません。
+
+@cindex environment variables, subprocesses
+  サブプロセスはその環境をEmacsから継承しますが、@code{process-environment}でそれをオーバーラードするよう指定することができます。@ref{System
+Environment}を参照してください。サブプロセスは自身のカレントディレクトリーを、@code{default-directory}の値から取得します。
+
+@defvar exec-directory
+@pindex movemail
+この変数の値は、GNU
+Emacsとともに配布され、Emacsにより呼び出されることを意図したプログラムを含むディレクトリーの名前(文字列)である。プログラム@code{movemail}はそのようなプログラムの例であり、Rmailはinboxから新しいメールを読み込むためにこのプログラムを使用する。
+@end defvar
+
+@defopt exec-path
+この変数の値は、サブプロセス内で実行するためのプログラムを検索するための、ディレクトリーのリストである。要素はそれぞれ、ディレクトリーの名前(文字列)、または@code{nil}のいずれかである。@code{nil}はデフォルトディレクトリー(@code{default-directory}の値)を意味する。
+@cindex program directories
+
+@code{exec-path}の値は、@var{program}引数が絶対ファイル名でないとき、@code{call-process}および@code{start-process}により使用される。
+
+一般的には、@code{exec-path}を直接変更するべきではない。かわりにEmacs起動前に、環境変数@env{PATH}が適切にセットされているか確認すること。@env{PATH}とは独立に@code{exec-path}の変更を試みると、混乱した結果へと導かれ得る。
+@end defopt
+
+@node Shell Arguments
+@section Shell Arguments
+@cindex arguments for shell commands
+@cindex shell command arguments
+
+  Lispプログラムがshellを実行して、ユーザーが指定したファイル名を含むコマンドを与える必要がある場合が時折あります。これらのプログラムは、任意の有効なファイル名をサポート可能であるはずです。しかしshellは特定の文字を特別に扱い、それらの文字がファイル名に含まれていると、shellを混乱させるでしょう。これらの文字を処理するためには、関数@code{shell-quote-argument}を使用します。
+
+@defun shell-quote-argument argument
+この関数は、実際のコンテンツが@var{argument}であるような引数を表す文字列を、shellの構文でリターンする。リターン値をshellコマンドに結合して、実行のためにそれをshellに渡すことにより、信頼性をもって機能するはずである。
+
+この関数が正確に何を行うかは、オペレーティングシステムに依存する。この関数は、そのシステムの標準shellの構文で機能するようデザインされている。非標準のshellを使用する場合は、この関数を再定義する必要があるだろう。
+
+@example
+;; @r{この例はGNUおよびUnixシステムでの挙動を示す}
+(shell-quote-argument "foo > bar")
+     @result{} "foo\\ \\>\\ bar"
+
+;; @r{この例はMS-DOSおよびMS-Windowsでの挙動を示す}
+(shell-quote-argument "foo > bar")
+     @result{} "\"foo > bar\""
+@end example
+
+以下は@code{shell-quote-argument}を使用して、shellコマンドを構築する例である:
+
+@example
+(concat "diff -c "
+        (shell-quote-argument oldfile)
+        " "
+        (shell-quote-argument newfile))
+@end example
+@end defun
+
+@cindex quoting and unquoting command-line arguments
+@cindex minibuffer input, and command-line arguments
+@cindex @code{call-process}, command-line arguments from minibuffer
+@cindex @code{start-process}, command-line arguments from minibuffer
+  以下の2つの関数は、コマンドライン引数の文字列のリストを単一の文字列に結合したり、単一の文字列を個別のコマンドライン引数のリストへ分割するために有用です。これらの関数は主に、ミニバッファーでのユーザー入力であるLisp文字列を@code{call-process}や@code{start-process}に渡す文字列引数のリストへ変換したり、そのような引数のリストをミニバッファーやエコーエリアに表示するためのLisp文字列に変換することを意図しています。
+
+@defun split-string-and-unquote string &optional separators
+この関数は@code{split-string}(@pxref{Creating
+Strings}を参照)が行うように、正規表現@var{separators}にたいするマッチで、@var{string}を部分文字列に分割する。さらに加えて、その部分文字列からクォートを削除する。それから部分文字列のリストを作成して、それをリターンする。
+
+@var{separators}が省略、または@code{nil}の場合のデフォルトは@code{"\\s-+"}で、これは空白文字構文(@ref{Syntax
+Class Table}を参照)をもつ1つ以上の文字にマッチする正規表現である。
+
+この関数は、2つのタイプのクォートをサポートする。1つは文字列全体をダブルクォートで囲う@code{"@dots{}"}のようなクォートで、もう1つはバックスラッシュ@samp{\}によるエスケープで文字を個別にクォートするタイプである。後者はLisp文字列内でも使用されるので、この関数はそれらも同様に扱うことができる。
+@end defun
+
+@defun combine-and-quote-strings list-of-strings &optional separator
+この関数は、@var{list-of-strings}の各文字を必要に応じてクォートして、単一の文字列に結合する。これはさらに各文字ペアーの間に、@var{separator}文字列も挿入する。@var{separator}が省略または@code{nil}の場合のデフォルトは@code{"
+"}。リターン値は、その結果の文字列である。
+
+@var{list-of-strings}内のクォートを要する文字列には、部分文字列として@var{separator}を含むものが該当する。文字列のクォートは、それをダブルクォートで@code{"@dots{}"}のように囲う。もっとも単純な例では、個別のコマンドライン引数からコマンドをコンス(cons)する場合は、埋め込まれたブランクを含む文字列はそれぞれクォートされるだろう。
+@end defun
+
+@node Synchronous Processes
+@section Creating a Synchronous Process
+@cindex synchronous subprocess
+
+  @dfn{同期プロセス(synchronous
+process)}の作成後、Emacsは継続の前にそのプロセスが終了するのを待機します。GNUやUnix@footnote{他のシステムでは、Emacsは@code{ls}のLispエミュレーションを使用します。@ref{Contents
+of
+Directories}を参照してください。}でのDiredの起動が、この例です。プロセスは同期的なので、Emacsがそれにたいして何か行おうと試みる前に、ディレクトリーのリスト全体がバッファーに到着します。
+
+  同期サブプロセス終了をEmacsが待機する間、ユーザーは@kbd{C-g}をタイプすることによりquitができます。最初のは@kbd{C-g}は@code{SIGINT}シグナルにより、サブプロセスのkillを試みます。しかしこれはquitする前に、実際にそのサブプロセスが終了されるまで待機します。その間にユーザーがさらに@kbd{C-g}をタイプすると、それは@code{SIGKILL}で即座にサブプロセスをkillしてquitします(別プロセスのkillが機能しないMS-DOSを除く)。@ref{Quitting}を参照してください。
+
+  同期サブプロセス関数は、プロセスがどのように終了したかの識別をリターンします。
+
+  同期サブプロセスからの出力は、ファイルからのテキスト読み込みと同じように、一般的にはコーディングシステムを使用してデコードされます。@code{call-process-region}によりサブプロセスに送信された入力は、ファイルへのテキスト書き込みと同じように、コーディングシステムを使用してエンコードされます。@ref{Coding
+Systems}を参照してください。
+
+@defun call-process program &optional infile destination display &rest args
+この関数は@var{program}を呼び出して、それが完了するまで待機する。
+
+サブプロセスのカレントワーキングディレクトリーは、@code{default-directory}である。
+
+新たなプロセスの標準入力は、@var{infile}が非@code{nil}ならファイル@code{nil}から、それ以外ならnullデバイスからとなる。引数@var{destination}は、プロセスの出力をどこに送るかを指定する。以下は可能な値である:
+
+@table @asis
+@item バッファー
+そのバッファーの、ポイントの前に出力を挿入する。これにはプロセスの、標準出力ストリームと標準エラーストリームの両方が含まれる。
+
+@item 文字列
+その名前のバッファーの、ポイントの前に出力を挿入する。
+
+@item @code{t}
+カレントバッファーの、ポイントの前に出力を挿入する。
+
+@item @code{nil}
+出力を破棄する。
+
+@item 0
+出力を破棄して、サブプロセス完了を待機することなく、即座に@code{nil}をリターンする。
+
+この場合、プロセスはEmacsと並列に実行可能なので、真に同期的ではない。しかしこの関数リターン後は、本質的にはすみやかにEmacsがサブプロセスを終了するという点から、これを同期的と考えることができる。
+
+MS-DOSは非同期サブプロセスをサポートせず、このオプションは機能しない。
+
+@item @code{(:file @var{file-name})}
+指定されたファイルに出力を送信し、ファイルが既に存在すれば上書きする。
+
+@item @code{(@var{real-destination} @var{error-destination})}
+標準出力ストリームを、標準エラーストリームと分けて保つ。通常の出力は@var{real-destination}の指定にしたがって扱い、エラー出力は@var{error-destination}にしたがって処分する。@var{error-destination}が@code{nil}ならエラー出力の破棄、@code{t}なら通常の出力と混合することを意味し、文字列ならそれはエラー出力をリダイレクトするファイルの名前である。
+
+エラー出力先に直接バッファーを指定することはできない。ただしエラー出力を一時ファイルに送信して、そのファイルをバッファーに挿入すれば、これを達成できる。
+@end table
+
+@var{display}が非@code{nil}なら、@code{call-process}は出力の挿入にしたがって、バッファーを再表示する(しかし出力のデコードに選択されたコーディングシステムが、実データからエンコーディングを推論することを意味する@code{undecided}の場合は、非@acronym{ASCII}に一度遭遇すると再表示が継続不能になることがある。これを修正するのが困難な根本的理由が存在する。@ref{Output
+from Processes}を参照されたい)。
+
+それ以外なら関数@code{call-process}は再表示を行わず、通常のイベントに由来するEmacsの再表示時だけ、スクリーン上で結果が可視になります。
+
+残りの引数@var{args}は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
+
+(待機するよう告げた場合)@code{call-process}がリターンする値は、プロセスが終了した理由を示します。この数字は、そのサブプロセスのexitステータスで0が成功、それ以外のすべての値は失敗を意味します。シグナルによりそのプロセスが終了された場合、@code{call-process}はそれを記述する文字列をリターンします。
+
+以下の例では、カレントバッファーは@samp{foo}です。
+
+@smallexample
+@group
+(call-process "pwd" nil t)
+     @result{} 0
+
+---------- Buffer: foo ----------
+/home/lewis/manual
+---------- Buffer: foo ----------
+@end group
+
+@group
+(call-process "grep" nil "bar" nil "lewis" "/etc/passwd")
+     @result{} 0
+
+---------- Buffer: bar ----------
+lewis:x:1001:1001:Bil Lewis,,,,:/home/lewis:/bin/bash
+
+---------- Buffer: bar ----------
+@end group
+@end smallexample
+
+以下は@code{call-process}の使用法の例で、このような使用例は@code{insert-directory}関数の定義内で見ることができます:
+
+@smallexample
+@group
+(call-process insert-directory-program nil t nil switches
+              (if full-directory-p
+                  (concat (file-name-as-directory file) ".")
+                file))
+@end group
+@end smallexample
+@end defun
+
+@defun process-file program &optional infile buffer display &rest args
+この関数は、別プロセス内でファイルを同期的に処理する。これは@code{call-process}と似ているが、サブプロセスのカレントワーキングディレクトリーを指定する、変数@code{default-directory}の値にもとづく、ファイルハンドラーを呼び出すかもしれない。
+
+引数は@code{call-process}の場合とほとんど同様の方法で処理されるが、以下の違いがある:
+
+引数@var{infile}、@var{buffer}、@var{display}の組み合わせと形式.をサポートしないファイルハンドラーがあるかもしれない。たとえば実際に渡された値とは無関係に、@var{display}が@code{nil}であるかのように振る舞うファイルハンドラーがいくつかある。他の例としては、@var{buffer}引数で標準出力とエラー出力を分離するのをサポートしないかもしれないファイルハンドラーがいくつか存在する。
+
+ファイルハンドラーが呼び出されると、1つ目の引数@var{program}にもとづき、実行するプログラムを決定する。たとえばリモートファイルにたいするハンドラーが呼び出されたと考えてみよ。その.場合、プログラムの検索に使用されるパスは、@code{exec-path}とは異なるかもしれない。
+
+2つ目の引数@var{infile}は、ファイルハンドラーを呼び出すかもしれない。そのファイルハンドラーは、@code{process-file}関数自身にたいして選択されたハンドラーと異なり得る(たとえば@code{default-directory}がリモートホスト上にあり、@var{infile}は別のリモートホスト上の場合があり得る。もしくは@code{default-directory}は普通だが、@var{infile}はリモートホスト上にあるかもしれない).
+
+@var{buffer}が@code{(@var{real-destination}
+@var{error-destination})}という形式のリストで、@var{error-destination}がファイルの名前なら、@var{infile}と同じ注意が適用される。
+
+残りの引数(@var{args})は、そのままプロセスに渡される。Emacsは、@var{args}内で与えられたファイル名の処理に関与しない。混乱を避けるためには、@var{args}内で絶対ファイル名を使用しないのが最善であり、@code{default-directory}からの相対ファイル名ですべてのファイルを指定するほうがよいだろう。関数@code{file-relative-name}は、そのような相対ファイル名の構築に有用である。
+@end defun
+
+@defvar process-file-side-effects
+この変数は、@code{process-file}呼び出しがリモートファイルを変更するかどうかを示す。
+
+この変数はデフォルトでは常に、@code{process-file}呼び出しがリモートホスト上の、任意のファイルを潜在的に変更し得ることを意味する@code{t}にセットされる。@code{nil}にセットされた際は、リモートファイル属性のキャッシュにしたがうことにより、ファイルハンドラーの挙動を最適化できる可能性がある。
+
+この変数は決して@code{setq}ではなく、常にletバインディングによってのみ変更されるべきである。
+@end defvar
+
+@defun call-process-region start end program &optional delete destination display &rest args
+この関数は@var{start}から@var{end}のテキストを、実行中のプロセス@var{program}に、標準入力として送信する。これは@var{delete}が非@code{nil}なら、送信したテキストを削除する。これは出力をカレントバッファーの入力箇所に挿入するために、@var{destination}を@code{t}に指定している際に有用である。
+
+引数@var{destination}と@var{display}は、サブロセスからの出力にたいして何を行うか、および出力の到着にともない表示を更新するかどうかを制御する。詳細は上述の、@code{call-process}の説明を参照されたい。@var{destination}が整数の0なら、@code{call-process-region}は出力を破棄して、サブプロセス完了を待機せずに、即座に@code{nil}をリターンする(これは非同期サブプロセスがサポートされる場合、つまりMS-DOS以外でのみ機能する)。
+
+残りの引数@var{args}は、そのプログラムにたいしてコマンドライン引数を指定する文字列です。
+
+@code{call-process-region}のリターン値は、@code{call-process}の場合と同じである。待機せずにリターンするよう指示した場合は@code{nil}、数字か文字列ならそれはサブプロセスが終了した方法を表す。
+
+以下の例では、バッファー@samp{foo}内の最初の5文字(単語@samp{input})を標準入力として、@code{call-process-region}を使用して@code{cat}ユーティリティを実行する。@code{cat}は自身の標準入力を、標準出力へコピーする。引数@var{destination}が@code{t}なので、その出力はカレントバッファーに挿入される。
+
+@smallexample
+@group
+---------- Buffer: foo ----------
+input@point{}
+---------- Buffer: foo ----------
+@end group
+
+@group
+(call-process-region 1 6 "cat" nil t)
+     @result{} 0
+
+---------- Buffer: foo ----------
+inputinput@point{}
+---------- Buffer: foo ----------
+@end group
+@end smallexample
+
+  たとえば@code{shell-command-on-region}コマンドは、以下のような方法で@code{call-process-region}を使用する:
+
+@smallexample
+@group
+(call-process-region
+ start end
+ shell-file-name      ; @r{プログラム名}
+ nil                  ; @r{リージョンを削除しない}
+ buffer               ; @r{出力を@code{buffer}に送信}
+ nil                  ; @r{出力中に再表示を行わない}
+ "-c" command)        ; @r{shellへの引数}
+@end group
+@end smallexample
+@c It actually uses shell-command-switch, but no need to mention that here.
+@end defun
+
+@defun call-process-shell-command command &optional infile destination display
+この関数はshellコマンド@var{command}を、非同期に実行する。引数は@code{call-process}の場合と同様に処理される。古い呼び出し規約は、@var{display}の後に任意個数の追加引数を許容し、これは@var{command}に結合される。これはまだサポートされるものの、使用しないことを強く推奨する。
+@end defun
+
+@defun process-file-shell-command command &optional infile destination display
+この関数は@code{call-process-shell-command}と同様だが、内部的に@code{process-file}を使用する点が異なる。@code{default-directory}に依存して、@var{command}はリモートホスト上でも実行可能である。古い呼び出し規約は、@var{display}の後に任意個数の追加引数を許容し、これは@var{command}に結合される。これはまだサポートされるものの、使用しないことを強く推奨する。
+@end defun
+
+@defun shell-command-to-string command
+この関数はshellコマンドとして@var{command}(文字列)を実行して、そのコマンドの出力を文字列としてリターンする。
+@end defun
+
+@c There is also shell-command-on-region, but that is more of a user
+@c command, not something to use in programs.
+
+@defun process-lines program &rest args
+この関数は@var{program}を実行して完了を待機し、出力を文字列のリストとしてリターンする。リスト内の各文字列は、プログラムのテキスト出力の1つの行を保持する。各行のEOL文字(行末文字)は取り除かれる。@var{program}の後の引数@var{args}は、そのプログラム実行に際し、コマンドライン引数を指定する文字列である。
+
+@var{program}が非0のexitステータスでexitした場合、この関数はエラーをシグナルする。
+
+この関数は@code{call-process}を呼び出すことにより機能し、プログラムの出力は@code{call-process}の場合と同じ方法でデコードされる。
+@end defun
+
+@node Asynchronous Processes
+@section Creating an Asynchronous Process
+@cindex asynchronous subprocess
+
+  このセクションでは、@dfn{非同期プロセス(asynchronous
+process)}を作成する方法について説明します。非同期プロセスは作成後、Emacsと並列して実行され、Emacsは以降のセクション(@ref{Input
+to Processes}および@ref{Output from
+Processes}を参照)で説明する関数を使用してプロセスとコミュニケーションができます。プロセスコミュニケーションは、部分的に非同期なだけであることに注意してください。Emacsは特定の関数を呼び出したときだけプロセスにデータを送信でき、Emacsは入力の待機中または一定の遅延時間の後にのみ、プロセスのデータを受け取ることができます。
+
+@cindex pty
+@cindex pipe
+  非同期プロセスは@dfn{pty(pseudo-terminal:
+疑似端末)}、または@dfn{pipe}の、いずれかを通じて制御されます。ptyかpipeの選択は、変数@code{process-connection-type}(以下参照)の値にもとづき、プロセス作成時に行われます。ptyは通常、Shellモード内のようにユーザーから可視なプロセスに適しています。それはpipeでは不可能な、そのプロセスおよびその子プロセスとの間でジョブ制御(@kbd{C-c}、@kbd{C-z}、...等)が可能だからです。プログラムの内部的な目的のために使用されるサブプロセスにたいしては、pipeのほうが適している場合が多々あります。それはpipeがより効率的であり、ptyが大量の文字(500byte前後)にたいして導入する迷入文字インジェクション(stray
+character
+injections)にたいして免疫があるのが理由です。さらに多くのしすてむではptyの合計数に制限があり、それを浪費するのは得策ではありません。
+
+@defun start-process name buffer-or-name program &rest args
+この関数は新たな非同期サブプロセスを作成して、その中でプログラム@var{program}の実行を開始する。これはLisp内で新たなサブプロセスを意味する、プロセスオブジェクトをリターンする。引数@var{name}は、そのプロセスオブジェクトにたいして、名前を指定する。その名前のプロセスがすでに存在する場合、(@samp{<1>}を追加することにより)一意になるよう、@var{name}を変更する。バッファー@var{buffer-or-name}は、そのプロセスに関連付けられたバッファーである。
+
+@var{program}が@code{nil}なら、Emacsは疑似端末(pty)を新たにオープンして、サブプロセスを新たに作成することなく、ptyの入力と出力を@var{buffer-or-name}に関連付ける。この場合、残りの引数@var{args}は無視される。
+
+残りの引数@var{args}は、サブプロセスにコマンドライン引数を指定する文字列である。
+
+以下の例では、1つ目のプロセスが開始して、100秒間実行(というよりはsleep)される。その間に2つ目のプロセスが開始して、一意性を保つために@samp{my-process<1>}という名前が与えられる。これは1つ目のプロセスが終了する前に、バッファー@samp{foo}の最後にディレクトリーのリストを挿入する。その後、2つ目のプロセスは終了して、その旨のメッセージがバッファーに挿入される。さらに遅れて1つ目のプロセスが終了して、バッファーに別のメッセージが挿入される。
+
+@smallexample
+@group
+(start-process "my-process" "foo" "sleep" "100")
+     @result{} #<process my-process>
+@end group
+
+@group
+(start-process "my-process" "foo" "ls" "-l" "/bin")
+     @result{} #<process my-process<1>>
+
+---------- Buffer: foo ----------
+total 8336
+-rwxr-xr-x 1 root root 971384 Mar 30 10:14 bash
+-rwxr-xr-x 1 root root 146920 Jul  5  2011 bsd-csh
+@dots{}
+-rwxr-xr-x 1 root root 696880 Feb 28 15:55 zsh4
+
+Process my-process<1> finished
+
+Process my-process finished
+---------- Buffer: foo ----------
+@end group
+@end smallexample
+@end defun
+
+@defun start-file-process name buffer-or-name program &rest args
+@code{start-process}と同様、この関数は非同期サブプロセスを開始して、その内部で@var{program}を実行して、そのプロセスオブジェクトをリターンする。
+
+@code{start-process}との違いは、この関数が@code{default-directory}の値にもとづいて、ファイルハンドラーを呼び出すかもしれないという点である。このハンドラーはローカルホスト上、あるいは@code{default-directory}に応じたリモートホスト上で、@var{program}を実行するべきである。後者の場合、@code{default-directory}のローカル部分は、そのプロセスのワーキングディレクトリーになる。
+
+この関数は@var{program}、または@var{program-args}にたいしてファイル名ハンドラーの呼び出しを試みない。
+
+そのファイルハンドラーの実装によっては、リターン結果のプロセスオブジェクトに@code{process-filter}または@code{process-sentinel}を適用することができないかもしれない。@ref{Filter
+Functions}および@ref{Sentinels}を参照されたい。
+
+@c FIXME  Can we find a better example (i.e., a more modern function
+@c that is actually documented).
+いくつかのファイルハンドラーは@code{start-file-process}をサポートしないかもしれない(たとえば@code{ange-ftp-hook-function}関数)。そのような場合、この関数は何も行わずに@code{nil}をリターンする。
+@end defun
+
+@defun start-process-shell-command name buffer-or-name command
+この関数は@code{start-process}と同様だが、指定されたコマンドの実行にshellを使用する点が異なる。引数@var{command}は、shellコマンド名である。変数@code{shell-file-name}は、どのshellを使用するかを指定する。
+
+@code{start-process}でプログラムを実行せずにshellを通じて実行することの要点は、引数内のワイルドカード展開のようなshell機能を利用可能にするためである。そのためにはコマンド内に任意のユーザー指定引数を含めるなら、任意の特別なshell文字が、shellでの特別な意味を@emph{もたない}ように、まず@code{shell-quote-argument}でそれらをクォートするべきである。@ref{Shell
+Arguments}を参照のこと。ユーザー入力にもとづいたコマンド実行時には、当然セキュリティ上の影響も考慮するべきである。
+@end defun
+
+@defun start-file-process-shell-command name buffer-or-name command
+この関数は@code{start-process-shell-command}と似ているが、内部的に@code{start-file-process}を使用する点が異なる。これにより、@code{default-directory}に応じてリモートホスト上でも、@var{command}を実行できる。
+@end defun
+
+@defvar process-connection-type
+この変数は、非同期サブプロセスと対話するために使用する、デバイスタイプを制御する。これが非@code{nil}の場合、利用可能ならpty、それ以外ならpipeが使用される。
+
+@code{process-connection-type}の値は、@code{start-process}の呼び出し時に効果を発揮する。そのため、@code{start-process}の呼び出し前後でこの変数をバインドすることにより、サブプロセスとやり取りする方法を指定できる。
+
+@smallexample
+@group
+(let ((process-connection-type nil))  ; @r{pipeを使用}
+  (start-process @dots{}))
+@end group
+@end smallexample
+
+与えられたサブプロセスが実際にはpipeとptyのどちらを取得したかを判断するには、関数@code{process-tty-name}を使用する(@ref{Process
+Information}を参照)。
+@end defvar
+
+@node Deleting Processes
+@section Deleting Processes
+@cindex deleting processes
+
+  @dfn{プロセス削除(deleting a
+process)}とは、Emacsをサブプロセスから即座に切断することです。プロセスは終了後に自動的に削除されますが、即座に削除される必要はありません。任意のタイミングで、明示的にプロセスを削除できます。終了したプロセスが自動的に削除される前に明示的に削除しても、それに害はありません。実行中のプロセスの削除は、プロセス(もしあれば子プロセスにも)を終了するためにシグナルを送信して、プロセスセンチネルを呼び出します。@ref{Sentinels}を参照してください。
+
+  プロセスが削除される際、そのプロセスオブジェクト自体は、それを参照する別のLispオブジェクトが存在する限り、継続し続けます。プロセスオブジェクトに作用するすべてのLispプリミティブはプロセスの削除を受け入れますが、I/Oを行ったりシグナルを送信するプリミティブは、エラーを報告するでしょう。プロセスマークは、通常はプロセスからの出力がバッファーに挿入される箇所である、以前と同じ箇所をポイントし続けます。
+
+@defopt delete-exited-processes
+この変数は、(@code{exit}呼び出しやシグナルにより)終了したプロセスの、自動的な削除を制御する。これが@code{nil}なら、ユーザーが@code{list-processes}を実行するまでプロセスは存在し続け、それ以外ならexit後に即座に削除される。
+@end defopt
+
+@defun delete-process process
+この関数は、@code{SIGKILL}シグナルでkillすることにより、プロセスを削除する。引数はプロセス、プロセスの名前、バッファー、バッファーの名前かもしれない(バッファーやバッファー名の場合は、@code{get-buffer-process}がリターンするプロセスを意味する)。実行中のプロセスに@code{delete-process}を呼び出すことにより、プロセスを終了してプロセス状態を更新して、即座にセンチネルを実行する。そのプロセスがすでに終了している場合、@code{delete-process}呼び出しはプロセス状態、または(遅かれ早かれ発生するであろう)プロセスセンチネルの実行に影響を与えない。
+
+@smallexample
+@group
+(delete-process "*shell*")
+     @result{} nil
+@end group
+@end smallexample
+@end defun
+
+@node Process Information
+@section Process Information
+@cindex process information
+
+  プロセスの状態に関する情報をリターンする関数がいくつかあり。
+
+@deffn Command list-processes &optional query-only buffer
+このコマンドは、すべての生きたプロセスのリストを表示する。加えてこれは最後に、状態が@samp{Exited}か@samp{Signaled}だったすべてのプロセスを削除する。このコマンドは@code{nil}をリターンする。
+
+プロセスは、メジャーモードがProcess Menuモードであるような、@file{*Process
+List*}という名前(オプション引数@var{buffer}で他の名前を指定していない場合)のバッファーに表示される。
+
+@var{query-only}が非@code{nil}なら、queryフラグが非@code{nil}のプロセスだけをリストする。@ref{Query
+Before Exit}を参照のこと。
+@end deffn
+
+@defun process-list
+この関数は、削除されていないすべてのプロセスのリストをリターンする。
+
+@smallexample
+@group
+(process-list)
+     @result{} (#<process display-time> #<process shell>)
+@end group
+@end smallexample
+@end defun
+
+@defun get-process name
+この関数は@var{name}(文字列)というプロセス、存在しなければ@code{nil}をリターンする。
+
+@smallexample
+@group
+(get-process "shell")
+     @result{} #<process shell>
+@end group
+@end smallexample
+@end defun
+
+@defun process-command process
+この関数は、@var{process}を開始するために実行されたコマンドをリターンする。これは文字列のリストで、1つ目の文字列は実行されたプログラム、残りの文字列はそのプログラムに与えられた引数である。
+
+@smallexample
+@group
+(process-command (get-process "shell"))
+     @result{} ("bash" "-i")
+@end group
+@end smallexample
+@end defun
+
+@defun process-contact process &optional key
+
+この関数は、ネットワークプロセスまたはシリアルプロセスがセットアップされた方法についての情報をリターンする。
+This function returns information about how a network or serial process was
+set up.
+@var{key}が@code{nil}なら、ネットワークプロセスにたいしては@code{(@var{hostname}
+@var{service})}、シリアルプロセスにたいしては@code{(@var{port}
+@var{speed})}をリターンする。普通の子プロセスにたいしては、この関数は常に@code{t}をリターンする。
+
+@var{key}が@code{t}なら、値はその接続、サーバー、またはシリアルポートについての完全な状態情報、すなわち@code{make-network-process}または@code{make-serial-process}内で指定されるキーワードと値のリストとなる。ただしいくつかの値については、指定した値のかわりに、カレント状態を表す値となる。
+
+ネットワークプロセスにたいしては、その値が含まれる(完全なリストについては、@code{make-network-process}を参照されたい)。
+
+@table @code
+@item :buffer
+値にはプロセスのバッファーが割り当てられる。
+@item :filter
+値にはプロセスのフィルター関数が割り当てられる。
+@item :sentinel
+値にはプロセスのセンチネル関数が割り当てられる。
+@item :remote
+接続にたいしては、内部的なフォーマットによる、リモートピアーのアドレス。
+@item :local
+内部的なフォーマットによる、ローカルアドレス。
+@item :service
+サーバーにおいては、@var{service}に@code{t}を指定した場合、この値は実際のポート番号。
+@end table
+
+@code{make-network-process}内で明示的に指定されていなくても、@code{:local}と@code{:remote}は値に含まれる。
+
+シリアルプロセスについては@code{make-serial-process}、キーのリストについては@code{serial-process-configure}を参照されたい。
+
+@var{key}がキーワードなら、この関数はそのキーワードに対応する値をリターンする。
+@end defun
+
+@defun process-id process
+この関数は、@var{process}の@acronym{PID}をリターンする。これは同じコンピューター上でカレント時に実行中の他のすべてのプロセスから、プロセス@var{process}を区別するための整数である。プロセスの@acronym{PID}は、そのプロセスの開始時にオペレーティングシステムのカーネルにより選択され、そのプロセスが存在する限り定数として保たれる。
+@end defun
+
+@defun process-name process
+この関数は@var{process}の名前を、文字列としてリターンする。
+@end defun
+
+@defun process-status process-name
+この関数は@var{process-name}の状態を、文字列としてリターンする。引数@var{process-name}はプロセス、バッファー、またはプロセス名(文字列)かもしれない。
+
+実際のサブプセスにたいして可能な値は:
+
+@table @code
+@item run
+実行中のプロセス。
+@item stop
+停止しているが継続可能なプロセス。
+@item exit
+exitしたプロセス。
+@item signal
+致命的なシグナルを受信したプロセス。
+@item open
+オープンされたネットワーク接続。
+@item closed
+クローズされたネットワーク接続。一度クローズされた接続は、たとえ同じ場所にたいして新たな接続をオープンすることができたとしても、再度オープンすることはできない。
+@item connect
+完了を待つ非ブロッキング接続。
+@item failed
+完了に失敗した非ブロッキング接続。
+@item listen
+listen中のネットワークサーバー。
+@item nil
+@var{process-name}が既存のプロセス名でない場合。
+@end table
+
+@smallexample
+@group
+(process-status (get-buffer "*shell*"))
+     @result{} run
+@end group
+@end smallexample
+
+ネットワーク接続にたいしては、@code{process-status}は@code{open}か@code{closed}のシンボルいずれかをリターンする。後者は相手側が接続をクローズしたか、Emacsが@code{delete-process}を行なったことを意味する。
+@end defun
+
+@defun process-live-p process
+この関数は、@var{process}がアクティブなら、非@code{nil}をリターンする。状態が@code{run}、@code{open}、@code{listen}、@code{connect}、@code{stop}のプロセスはアクティブとみなされる。
+@end defun
+
+@defun process-type process
+この関数はネットワーク接続またはサーバーにたいしてはシンボル@code{network}、シリアルポート接続にたいしては@code{serial}、実際のサブプロセスにたいしては@code{real}をリターンする。
+@end defun
+
+@defun process-exit-status process
+この関数は@var{process}のexitステータス、またはプロセスをkillしたシグナル番号をリターンする(いずれかであるかの判定には、@code{process-status}の結果を使用する)。@var{process}がまだ終了していなければ、値は0。
+@end defun
+
+@defun process-tty-name process
+この関数は@var{process}がEmacsとの対話に使用する端末名、端末のかわりにpipeを使用する場合は@code{nil}をリターンする(@ref{Asynchronous
+Processes}の@code{process-connection-type}を参照)。@var{process}がリモートホスト上で実行中のプログラムを表す場合は、プロセスの@code{remote-tty}プロパティとして、リモートホスト上でそのプログラムに使用される端末名が提供される。
+@end defun
+
+@defun process-coding-system process
+@anchor{Coding systems for a subprocess}
+この関数は、@var{process}からの出力のデコードに使用するコーディングシステム、@var{process}への入力のエンコードに使用するコーディングシステムを記述するコンスセル@code{(@var{decode}
+. @var{encode})}をリターンする(@ref{Coding Systems}を参照)。
+@end defun
+
+@defun set-process-coding-system process &optional decoding-system encoding-system
+この関数は、@var{process}にたいする後続の入出力に使用するコーディングシステムを指定する。これはサブプロセスの出力のデコードに@var{decoding-system}、入力のエンコードに@var{encoding-system}を使用するだろう。
+@end defun
+
+  すべてのプロセスには、そのプロセスに関連するさまざまな値を格納するために使用できる、プロパティリストもあります。
+
+@defun process-get process propname
+この関数は、@var{process}のプロパティ@var{propname}の値をリターンする。
+@end defun
+
+@defun process-put process propname value
+この関数は、@var{process}のプロパティ@var{propname}の値に@var{value}をセットする。
+@end defun
+
+@defun process-plist process
+この関数は、@var{process}のプロセスplistをリターンする。
+@end defun
+
+@defun set-process-plist process plist
+この関数は、@var{process}のプロセスplistに@var{plist}をセットする。
+@end defun
+
+@node Input to Processes
+@section Sending Input to Processes
+@cindex process input
+
+  非同期サブプロセスは、Emacsにより入力が送信されたときに入力を受信し、それはこのセクション内の関数で行われます。これを行うには入力を送信するプロセスと、送信するための入力データを指定しなければなりません。そのデータは、サブプロセスの``標準入力''として表れます。
+
+@c FIXME which?
+  オペレーティングシステムには、ptyのバッファーされた入力にたいして制限をもつものがいくつかあります。それらのシステムでは、Emacsは他の文字列の間に定期的かつ強制的に、@acronym{EOF}を送信します。ほとんどのプログラムにたいして、これらの@acronym{EOF}は無害です。
+
+  サブプロセスの入力は通常、テキストをファイルに書き込むときと同じように、サブプロセスが受信する前に、コーディングシステムを使用してエンコードされます。どのコーディングシステムを使用するかを指定するには、@code{set-process-coding-system}を使用できます(@ref{Process
+Information}を参照)。それ以外の場合、非@code{nil}なら@code{coding-system-for-write}がコーディングシステムとなり、さもなくばデフォルトのメカニズムがコーディングシステムを決定します(@ref{Default
+Coding Systems}を参照)。
+
+  入力バッファーが一杯のため、システムがプロセスからの入力を受け取ることができないことがあります。これが発生したときは、送信関数はしばらく待機して、サブプロセスの出力を受け取り、再度送信を試みます。これは保留となっている更なる入力を読み取り、バッファーに空きを作る機会をサブプロセスに与えます。これはフィルター、センチネル、タイマーの実行も可能にするので、コードを記述する際はそれを考慮してください。
+
+  以下の関数では、@var{process}引数はプロセス、プロセス名、またはバッファー、バッファー名(これは@code{get-buffer-process}で取得されるプロセスを意味する)。@code{nil}は、カレントバッファーのプロセスを意味します。
+
+@defun process-send-string process string
+この関数は@var{string}のコンテンツを、標準入力として@var{process}に送信する。たとえばファイルをリストするShellバッファーを作成するには:
+
+@smallexample
+@group
+(process-send-string "shell<1>" "ls\n")
+     @result{} nil
+@end group
+@end smallexample
+@end defun
+
+@defun process-send-region process start end
+この関数は@var{start}と@var{end}で定義されるリージョンのテキストを、標準入力として@var{process}に送信する。
+
+@var{start}と@var{end}が、カレントバッファー内の位置を示す整数かマーカーでなければ、エラーがシグナルされる(いずれかの大小は重要ではない)。
+@end defun
+
+@defun process-send-eof &optional process
+この関数は、@var{process}が入力内の@acronym{EOF}(end-of-file)を見ることを可能にする。@acronym{EOF}は、すべての送信済みテキストの後になる。この関数は@var{process}をリターンする。
+
+@smallexample
+@group
+(process-send-eof "shell")
+     @result{} "shell"
+@end group
+@end smallexample
+@end defun
+
+@defun process-running-child-p &optional process
+この関数は、@var{process}が自身の子プロセスに端末の制御を与えたかどうかを告げるだろう。値@code{t}はそれが真であるか、あるいはEmacsがそれを告げることができないことを意味し、@code{nil}はなら偽であることをEmacsは保証します。
+@end defun
+
+@node Signals to Processes
+@section Sending Signals to Processes
+@cindex process signals
+@cindex sending signals
+@cindex signals
+
+  サブプロセスへの@dfn{シグナル送信(sending a
+signal)}は、プロセスの活動に割り込む手段の1つです。異なる複数のシグナルがあり、それぞれが独自の意味をもっています。シグナルのセットとそれらの意味は、オペレーティングシステムにより定義されます。たとえばシグナル@code{SIGINT}は、ユーザーが@kbd{C-c}をタイプしたか、それに類似する何かが発生したことを意味します。
+
+  各シグナルは、サブプロセスに標準的な効果をもちます。ほとんどのシグナルはサブプロセスをkillしますが、かわりに実行を停止(あるいは再開)するものもいくつかあります。ほとんどのシグナルは、オプションでプログラムによりハンドル((処理)することができます。プログラムがそのシグナルをハンドルする場合、その影響についてわたしたちは一般的には何も言うことはできません。
+
+  このセクション内の関数を呼び出すことにより、明示的にシグナルを送信できます。Emacsも、特定のタイミングで自動的にシグナルを送信します。バッファーのkillにより、それに関連するプロセスには@code{SIGHUP}シグナルが送信され、Emacsのkillにより、残されたすべてのプロセスに@code{SIGHUP}シグナルが送信されます(@code{SIGHUP}は通常、ユーザーが``hung
+up the phone''、電話を切った、つまり接続を断ったことを示す)。
+
+  シグナル送信関数はそれぞれ@var{process}と@var{current-group}いう、2つのオプション引数を受け取ります。
+
+  引数@var{process}はプロセス、プロセス名、バッファー、バッファー名、または@code{nil}のいずれかでなければなりません。バッファーまたはバッファー名は、@code{get-buffer-process}を通じて得られるプロセスを意味します。@code{nil}は、カレントバッファーに関連付けられたプロセスを意味します。@var{process}がプロセスを識別しなければ、エラーがシグナルされます。
+
+  引数@var{current-group}は、Emacsのサブプロセスとしてジョブ制御shell(job-control
+shell)を実行中の場合に、異なる処理を行うためのフラグです。これが非@code{nil}なら、そのシグナルはEmacsがサブプロセスとの対話に使用する端末のカレントプロセスグループに送信されます。そのプロセスがジョブ制御shellなら、これはそのshellのカレントのsubジョブになります。@code{nil}なら、そのシグナルはEmacs自身のサブプロセスのプロセスグループに送信されます。そのプロセスがジョブ制御shellなら、それはshell自身になります。
+
+  サブプロセスとの対話にpipeが使用されている際は、オペレーティングシステムがpipeでの区別をサポートしないので、フラグ@var{current-group}に効果はありません。同じ理由により、pipeが使用されている場合は、ジョブ制御shellは機能しないでしょう。@ref{Asynchronous
+Processes}内の@code{process-connection-type}を参照してください。
+
+@defun interrupt-process &optional process current-group
+この関数は、シグナル@code{SIGINT}を送信することにより、プロセス@var{process}に割り込む。Emacs外部では、``interrupt
+character''(割り込み文字。通常いくつかのシステムでは@kbd{C-c}、それ以外のシステムでは@key{DEL})をタイプすることにより、このシグナルが送信される。引数@var{current-group}が非@code{nil}のときは、Emacsがサブプロセスと対話する端末上で``@kbd{C-c}がタイプされた''と考えることができる。
+@end defun
+
+@defun kill-process &optional process current-group
+この関数は、シグナル@code{SIGKILL}を送信することにより、プロセス@var{process}をkillする。このシグナルは即座にサブプロセスをkillして、サブプロセスでハンドルすることはできない。
+@end defun
+
+@defun quit-process &optional process current-group
+@c FIXME?  Never heard of C-b being used for this.  In readline, e.g.,
+@c bash, that is backward-word.
+この関数は、プロセス@var{process}にシグナル@code{SIGQUIT}を送信する。これはEmacs外部では``quit
+character''(通常は@kbd{C-b}か@kbd{C-\})により送信されるシグナルである。
+@end defun
+
+@defun stop-process &optional process current-group
+この関数は、シグナル@code{SIGTSTP}を送信することにより、プロセス@var{process}を停止する。実行の再開には、@code{continue-process}を使用する。
+
+ジョブ制御をもつシステム上のEmacs外部では、``stop
+character''(通常は@kbd{C-z})がこのシグナルを送信する。@var{current-group}が非@code{nil}なら、この関数をサブプロセスとの対話にEmacsが使用する端末上で``@kbd{C-z}がタイプされた''と考えることができる。
+@end defun
+
+@defun continue-process &optional process current-group
+この関数は、シグナル@code{SIGCONT}を送信することにより、プロセス@var{process}の実行を再開する。これは@var{process}が以前に停止されたものと推定する。
+@end defun
+
+@deffn Command signal-process process signal
+この関数は、プロセス@var{process}にシグナルを送信する。引数@var{signal}は、どのシグナルを送信するかを指定する。これは整数、または名前がシグナルであるようなシンボルであること。
+
+@var{process}引数にはシステムプロセス@acronym{ID}(整数)を指定できる。これによりEmacsの子プロセス以外のプロセスにシグナルを送信できる。@ref{System
+Processes}を参照のこと。
+@end deffn
+
+@node Output from Processes
+@section Receiving Output from Processes
+@cindex process output
+@cindex output from processes
+
+  サブプロセスが自身の標準出力に書き込んだ出力は、@dfn{フィルター関数(filter
+function)}と呼ばれる関数に渡されます。デフォルトのフィルター関数は単に出力をバッファーに挿入します。このバッファーを、そのプロセスに関連付けられたバッファーと呼びます(@ref{Process
+Buffers}を参照)。プロセスがバッファーをもたなければ、デフォルトフィルターは出力を破棄します。
+
+  サブプロセス終了時、Emacsは保留中の出力を読み取り、その後そのサブプロセスからの出力の読み取りを停止します。したがって、そのサブプロセスに生きた子プロセスがあり、まだ出力を生成するような場合、Emacsはその出力を受け取らないでしょう。
+
+  サブプロセスからの出力は、Emacsが待機している間、端末入力読み取り時(関数@code{waiting-for-user-input-p}、@ref{Waiting}の@code{sit-for}と@code{sleep-for}、および@ref{Accepting
+Output}の@code{accept-process-output}を参照されたい)のみ到着可能です。これは、並列プログラミングで普遍的に悩みの種である、タイミングエラーの問題を最小化します。たとえば、安全にプロセスを作成して、その後でのみプロセスのバッファーやフィルター関数を指定できます。その間にあるコードが待機するプリミティブを何も呼び出さなければ、完了するまで到着可能な出力はありません。
+
+@defvar process-adaptive-read-buffering
+いくつかのシステムでは、Emacsがサブプロセスの出力を読み取る際、出力データを非常に小さいブロックで読み取るため、結果として潜在的に非常に貧弱なパフォーマンスとなることがる。この挙動は、変数@code{process-adaptive-read-buffering}を非@code{nil}値(デフォルト)にセットして拡張することにより改善し得る。これにより、そのようなプロセスからの読み取りを自動的に遅延して、Emacsが読み取りを試みる前に、出力がより生成されるようになる。
+@end defvar
+
+  Emacsは通常、疑似端末(pseudo-TTY)内部でサブプロセスをspawnし、かつ疑似端末は出力チャンネルを1つしかもてないので、サブプロセスの標準出力ストリームと標準エラーストリームを区別するのは不可能です。それらのストリームの出力を区別して保ちたい場合は、たとえば適当なshellコマンドを使用して、いずれか1つをファイルにリダイレクトするべきです。
+
+@menu
+* Process Buffers::          デフォルトでは、出力はバッファーに送信される。
+* Filter Functions::         フィルター関数はプロセスからの出力を受け取る。
+* Decoding Output::          フィルターはユニバイトおよびマルチバイトの文字列を取得できる。
+* Accepting Output::         プロセスの出力到着まで待機する方法。
+@end menu
+
+@node Process Buffers
+@subsection Process Buffers
+
+  プロセスは@dfn{関連付けられたバッファー(associated
+buffer)}をもつことができます(通常はもつ)。これは普通のEmacsバッファーであり、2つの目的のために使用されます。1つはプロセスからの出力の格納、もう1つはプロセスをkillする時期を判断するためです。通常の習慣では、任意の与えられたバッファーにたいして関連付けられるプロセスは1つだけなので、処理対象のプロセスを識別するためにそのバッファーを使用することもできます。プロセス使用の多くはプロセスに送信する入力を編集するためにもこのバッファーを使用しますが、これはEmacs
+Lispに組み込まれてはいません。
+
+  デフォルトでは、プロセスの出力は関連付けられたバッファーに挿入されます(カスタムフィルター関数の定義により変更可能。@ref{Filter
+Functions}を参照されたい)。出力を挿入する位置は、@code{process-mark}により決定されます。これは正に挿入されたテキストの終端に、ポイントを更新します。通常、ただし常にではありませんが、@code{process-mark}はバッファーの終端になります。
+
+@findex process-kill-buffer-query-function
+  プロセスに関連付けられたバッファーをkillすることにより、そのプロセスもkillされます。そのプロセスの@code{process-query-on-exit-flag}が非@code{nil}なら、Emacsはまず確認を求めます(@ref{Query
+Before
+Exit}を参照)。この確認は関数@code{process-kill-buffer-query-function}により行われ、これは@code{kill-buffer-query-functions}から実行されます(@ref{Killing
+Buffers}を参照)。
+
+@defun process-buffer process
+この関数は、プロセス@var{process}の関連付けられたバッファーをリターンする。
+
+@smallexample
+@group
+(process-buffer (get-process "shell"))
+     @result{} #<buffer *shell*>
+@end group
+@end smallexample
+@end defun
+
+@defun process-mark process
+この関数は、@var{process}にたいするプロセスマーカーをリターンする。これはプロセスからの出力をどこに挿入するかを示すマーカーである。
+
+@var{process}バッファーをもたなければ、@code{process-mark}は存在しない場所を指すマーカーをリターンする。
+
+デフォルトフィルター関数は、プロセス出力の挿入場所の決定にこのマーカーを使用し、挿入したテキストの後にポイントを更新する。連続するバッチ出力が、連続して挿入されるのは、これが理由である。
+
+カスタムフィルター関数は、このマーカーを通常は同じ方式で使用するべきである。@code{process-mark}を使用するフィルター関数の例は、@ref{Process
+Filter Example}を参照のこと。
+
+ユーザーにプロセスバッファー内でプロセスに送信するための入力を期待する際は、プロセスマーカーは以前の出力から新たな入力を区別する。
+@end defun
+
+@defun set-process-buffer process buffer
+この関数は、@var{process}に関連付けられたバッファーに、@var{buffer}をセットする。@var{buffer}が@code{nil}なら、プロセスはバッファーに関連付けられない。
+@end defun
+
+@defun get-buffer-process buffer-or-name
+この関数は、@var{buffer-or-name}で指定されるバッファーに関連付けられた、削除されていないプロセスをリターンする。そのバッファーに複数のプロセスが関連付けられている場合、この関数はいずれか1つ(現在のところもっとも最近作成されたプロセスだが、これを当てにしないこと)を選択する。プロセスの削除(@code{delete-process}を参照)により、そのプロセスはこの関数がリターンするプロセスとしては不適格となる。
+
+同一のバッファーに複数のプロセスを関連付けるのは、通常は悪いアイデアである。
+
+@smallexample
+@group
+(get-buffer-process "*shell*")
+     @result{} #<process shell>
+@end group
+@end smallexample
+
+プロセスのバッファーをkillすることにより、@code{SIGHUP}シグナルでサブプロセスをkillして、プロセスを削除する(@ref{Signals
+to Processes}を参照)。
+@end defun
+
+@node Filter Functions
+@subsection Process Filter Functions
+@cindex filter function
+@cindex process filter
+
+  プロセスの@dfn{フィルター関数(filter
+function)}は、関連付けられたプロセスからの標準出力を受信します。そのプロセスの@emph{すべて}の出力は、そのフィルターに渡されます。デフォルトのフィルターは単に、プロセスバッファーに直接出力します。
+
+  サブプロセスからの出力は、Emacsが何かを待機している間だけ到着するので、フィルター関数はそのようなときだけ呼び出し可能です。Emacsは端末入力読み取り時(関数@code{waiting-for-user-input-p}、@ref{Waiting}の@code{sit-for}と@code{sleep-for}、および@ref{Accepting
+Output}の@code{accept-process-output}を参照されたい)に待機します。
+
+  フィルター関数は関連付けられたプロセス、およびそのプロセスから正に受信した出力である文字列という、2つの引数を受け取らなければなりません。関数はその後、出力にたいして何であれ、自由に行うことができます。
+
+@c Note this text is duplicated in the sentinels section.
+  quitは通常はフィルター関数内では抑制されます。さもないと、コマンドレベルでの@kbd{C-g}のタイプ、またはユーザーコマンドのquitは予測できません。フィルター関数内部でのquitを許可したければ、@code{inhibit-quit}を@code{nil}にバインドしてください。ほとんどの場合において、これを行う正しい方法はマクロ@code{with-local-quit}です。@ref{Quitting}を参照してください。
+
+  フィルター関数の実行中にエラーが発生した場合、フィルター開始時に実行中だったプログラムが何であれ実行を停止しないように、自動的にcatchされます。しかし@code{debug-on-error}が非@code{nil}なら、エラーはcatchされません。これにより、Lispデバッガーを使用したフィルター関数のデバッグが可能になります。@ref{Debugger}を参照してください。
+
+  多くのフィルター関数は時折(または常に)、デフォルトフィルターの動作を真似て、プロセスのバッファーにその出力を挿入します。そのようなフィルター関数は確実にカレントバッファーの保存と、(もし異なるなら)出力を挿入する前に正しいバッファーを選択して、その後に元のバッファーをリストアする必要があります。また、そのバッファーがまだ生きているか、プロセスマーカーを更新しているか、そしていくつかのケースにおいてはポイントの値を更新しているかもチェックするべきです。以下はこれらを行う方法です:
+
+@anchor{Process Filter Example}
+@smallexample
+@group
+(defun ordinary-insertion-filter (proc string)
+  (when (buffer-live-p (process-buffer proc))
+    (with-current-buffer (process-buffer proc)
+      (let ((moving (= (point) (process-mark proc))))
+@end group
+@group
+        (save-excursion
+          ;; @r{テキストを挿入してプロセスマーカーを進める}
+          (goto-char (process-mark proc))
+          (insert string)
+          (set-marker (process-mark proc) (point)))
+        (if moving (goto-char (process-mark proc)))))))
+@end group
+@end smallexample
+
+  新たなテキスト到着時にフィルターが強制的にプロセスバッファーを可視にするために、@code{with-current-buffer}構成の直前に以下のような行を挿入できます:
+
+@smallexample
+(display-buffer (process-buffer proc))
+@end smallexample
+
+  以前の位置に関わらず、新たな出力の終端にポイントを強制するには、変数@code{moving}を削除して、無条件で@code{goto-char}を呼び出してください。
+
+@ignore
+  In earlier Emacs versions, every filter function that did regular
+expression searching or matching had to explicitly save and restore the
+match data.  Now Emacs does this automatically for filter functions;
+they never need to do it explicitly.
+@end ignore
+  フィルター関数実行中、Emacsは自動的にマッチデータの保存とリストアを行うことに注意してください。@ref{Match Data}を参照してください。
+
+  フィルターへの出力は、任意のサイズのchunkで到着する可能性があります。同じ出力を連続して2回生成するプログラムは、一度に200文字を1回のバッチで送信して、次に40文字を5回のバッチで送信するかもしれません。フィルターが特定のテキスト文字列をサブプロセスの出力から探す場合は、それらの文字列が2回以上のバッチ出力を横断するケースに留意して処理してください。これを行うには、受信したテキストを一時的なバッファーに挿入してから、それを検索するのが1つの方法です。
+
+@defun set-process-filter process filter
+この関数は、@var{process}にフィルター関数@var{filter}を与える。@var{filter}が@code{nil}ならそのプロセスにたいして、プロセスバッファーにプロセス出力を挿入する、デフォルトフィルターを与える。
+@end defun
+
+@defun process-filter process
+この関数は、@var{process}のフィルター関数をリターンする。
+@end defun
+
+そのプロセスの出力を複数のフィルターに渡す必要がある場合は、既存のフィルターに新たなフィルターを組み合わせるために、@code{add-function}を使用できる。@ref{Advising
+Functions}を参照のこと。
+
+  以下は、フィルター関数の使用例である:
+
+@smallexample
+@group
+(defun keep-output (process output)
+   (setq kept (cons output kept)))
+     @result{} keep-output
+@end group
+@group
+(setq kept nil)
+     @result{} nil
+@end group
+@group
+(set-process-filter (get-process "shell") 'keep-output)
+     @result{} keep-output
+@end group
+@group
+(process-send-string "shell" "ls ~/other\n")
+     @result{} nil
+kept
+     @result{} ("lewis@@slug:$ "
+@end group
+@group
+"FINAL-W87-SHORT.MSS    backup.otl              kolstad.mss~
+address.txt             backup.psf              kolstad.psf
+backup.bib~             david.mss               resume-Dec-86.mss~
+backup.err              david.psf               resume-Dec.psf
+backup.mss              dland                   syllabus.mss
+"
+"#backups.mss#          backup.mss~             kolstad.mss
+")
+@end group
+@end smallexample
+
+@ignore @c The code in this example doesn't show the right way to do things.
+Here is another, more realistic example, which demonstrates how to use
+the process mark to do insertion in the same fashion as the default filter:
+
+@smallexample
+@group
+;; @r{Insert input in the buffer specified by @code{my-shell-buffer}}
+;;   @r{and make sure that buffer is shown in some window.}
+(defun my-process-filter (proc str)
+  (let ((cur (selected-window))
+        (pop-up-windows t))
+    (pop-to-buffer my-shell-buffer)
+@end group
+@group
+    (goto-char (point-max))
+    (insert str)
+    (set-marker (process-mark proc) (point-max))
+    (select-window cur)))
+@end group
+@end smallexample
+@end ignore
+
+@node Decoding Output
+@subsection Decoding Process Output
+@cindex decode process output
+
+  Emacsが直接マルチバイトバッファーにプロセス出力を書き込む際は、プロセス出力のコーディングシステムに応じて、出力をデコードします。コーディングシステムが@code{raw-text}か@code{no-conversion}なら、Emacsは@code{string-to-multibyte}を使用してユニバイト出力をマルチバイトに変換して、その結果のマルチバイトテキストを挿入します。
+
+  どのコーディングシステムを使用するかは、@code{set-process-coding-system}を使用して指定できます(@ref{Process
+Information}を参照)。それ以外では、@code{coding-system-for-read}が非@code{nil}ならそのコーディングシステム、@code{nil}ならデフォルトのメカニズムが使用されます(@ref{Default
+Coding
+Systems}を参照)。プロセスのテキスト出力にnullバイトが含まれる場合、Emacsはそれにたいしてデフォルトでは@code{no-conversion}を使用します。この挙動を制御する方法については、@ref{Lisp
+and Coding Systems, inhibit-null-byte-detection}を参照してください。
+
+  @strong{警告:}
+データからコーディングシステムを@code{undecided}のようなコーディングシステムは、非同期サブプロセスの出力にたいして完全な信頼性をもって機能しません。これはEmacsが、到着に応じて非同期サブプロセスの出力をバッチで処理する必要があるからです。Emacsは1つのバッチが到着するたびに正しいコーディングシステムを検出しなければならず、これは常には機能しません。したがって、可能であれば文字コード変換とEOL変換の両方を決定するコーディングシステム、つまり@code{latin-1-unix}、@code{undecided}、@code{latin-1}のようなコーディングシステムを指定してください。
+
+@c Let's keep the index entries that were there for
+@c set-process-filter-multibyte and process-filter-multibyte-p,
+@cindex filter multibyte flag, of process
+@cindex process filter multibyte flag
+  Emacsがプロセスフィルター関数を呼び出す際は、そのプロセスのフィルターのコーディングシステムに応じて、Emacsはプロセス出力をマルチバイト文字列、またはユニバイト文字列で提供します。Emacsはプロセス出力のコーディングシステムに応じて出力をデコードします。これは@code{binary}や@code{raw-text}のようなコーディングシステムを除き、通常はマルチバイト文字列を生成します。
+
+@node Accepting Output
+@subsection Accepting Output from Processes
+@cindex accept input from processes
+
+  非同期サブプロセスからの出力は通常、Emacsが時間の経過や端末入力のような、ある種の外部イベントを待機する間だけ到着します。特定のポイントで出力の到着を明示的に許可したり、あるいはプロセスからの出力が到着するまで待機することさえ、Lispプログラムでは有用な場合が時折あります。
+
+@defun accept-process-output &optional process seconds millisec just-this-one
+この関数はプロセスからの保留中の出力を、Emacsが読み取ることを許す。この出力は、プロセスのフィルター関数により与えられる。@var{process}が非@code{nil}なら、この関数は@var{process}から何らかの出力を受け取るまでリターンしない。
+
+引数@var{seconds}と@var{millisec}により、タイムアウトの長さを指定できる。前者は秒単位、後者はミリ秒単位でタイムアウトを指定する。この2つの秒数は、互いに足し合わせることによりタイムアウトを指定し、その秒数経過後はサブプロセスの出力の有無に関わらずリターンする。
+
+@var{seconds}に浮動小数点数を指定することにより、秒を少数点で指定できるので、引数@var{millisec}は時代遅れである(そして使用するべきではない)。@var{seconds}が0なら、この関数は保留中の出力が何であれ受け取り、待機しない。
+
+@c Emacs 22.1 feature
+@var{process}がプロセスで、引数@var{just-this-one}が非@code{nil}なら、そのプロセスからの出力だけが処理され、そのプロセスからの出力を受信するか、タイムアウトとなるまで、他のプロセスの出力は停止される。@var{just-this-one}が整数なら、タイマーの実行も抑制される。この機能は一般的には推奨されないが、音声合成のような特定のアプリケーションにとっては必要かもしれない。
+
+関数@code{accept-process-output}は、何らかの出力を取得したら非@code{nil}、出力の到着前にタイムアウトが到来したら@code{nil}をリターンする。
+@end defun
+
+@node Sentinels
+@section Sentinels: Detecting Process Status Changes
+@cindex process sentinel
+@cindex sentinel (of process)
+
+  @dfn{プロセスセンチネル(process sentinel:
+プロセス番兵)}とは、(Emacsにより送信されたか、そのプロセス自身の動作が原因で送信された)プロセスを終了、停止、継続するシグナルを含む、何らかの理由により関連付けられたプロセスの状態が変化した際は常に呼び出される関数のことです。プロセスがexitする際にも、プロセスセンチネルが呼び出されます。センチネルは、イベントが発生したプロセスと、イベントのタイプを記述する文字列という、2つの引数を受け取ります。
+
+  イベントを記述する文字列は、以下のいずれかのような外見をもちます:
+
+@c FIXME?  Also "killed\n" - see example below?
+@itemize @bullet
+@item
+@code{"finished\n"}.
+
+@item
+@code{"exited abnormally with code @var{exitcode}\n"}.
+
+@item
+@code{"@var{name-of-signal}\n"}.
+
+@item
+@code{"@var{name-of-signal} (core dumped)\n"}.
+@end itemize
+
+  センチネルは、Emacsが(端末入力や時間経過、またはプロセス出力を)待機している間だけ実行されます。これは、他のLispプログラムの途中のランダムな箇所で実行されるセンチネルが原因となる、タイミングエラーを無視します。プログラムはセンチネルが実行されるように、@code{sit-for}や@code{sleep-for}(@ref{Waiting}を参照)、または@code{accept-process-output}(@ref{Accepting
+Output}を参照)を呼び出すことにより待機することができます。Emacsはコマンドループが入力を読み取る際にも、センチネルの実行を許可します。@code{delete-process}は、実行中のプログラムを終了させる際に、センチネルを呼び出します。
+
+  Emacsは1つのプロセスのセンチネル呼び出しの理由のために複数のキューを保持しません。これはカレント状態と、変化があった事実だけを記録します。したがって非常に短い間隔で、連続して状態に2つの変化があった場合は、一度だけセンチネルが呼び出されます。しかしプロセスの終了は、常に正確に1回センチネルを実行するでしょう。これは終了後にプロセス状態が再び変更されることはないからです。
+
+  Emacsはプロセスセンチネル実行の前に、プロセスからの出力をチェックします。プロセス終了によりセンチネルが一度実行されると、そのプロセスから更なる出力は到着しません。
+
+  プロセスのバッファーに出力を書き込むセンチネルは、そのバッファーがまだ生きているかチェックするべきです。死んだバッファーへの挿入を試みた場合は、エラーとなるでしょう。そのバッファーがすでに死んでいれば、@code{(buffer-name
+(process-buffer @var{process}))}は@code{nil}をリターンします。
+
+@c Note this text is duplicated in the filter functions section.
+  quitは通常はセンチネル内では抑制されます。さもないと、コマンドレベルでの@kbd{C-g}のタイプ、またはユーザーコマンドのquitは予測できません。センチネル内部でのquitを許可したければ、@code{inhibit-quit}を@code{nil}にバインドしてください。ほとんどの場合において、これを行う正しい方法はマクロ@code{with-local-quit}です。@ref{Quitting}を参照してください。
+
+  センチネルの実行中にエラーが発生した場合、センチネル開始時に実行中だったプログラムが何であれ実行を停止しないように、自動的にcatchされます。しかし@code{debug-on-error}が非@code{nil}なら、エラーはcatchされません。これにより、Lispデバッガーを使用したセンチネルのデバッグが可能になります。@ref{Debugger}を参照してください。
+
+  センチネル実行中、センチネルが再帰的に実行されないよう、プロセスセンチネルは一時的に@code{nil}にセットされます。この理由により、センチネルが新たにセンチネルを指定することはできません。
+
+@ignore
+  In earlier Emacs versions, every sentinel that did regular expression
+searching or matching had to explicitly save and restore the match data.
+Now Emacs does this automatically for sentinels; they never need to do
+it explicitly.
+@end ignore
+ センチネル実行中、Emacsは自動的にマッチデータの保存とリストアを行うことに注意してください。@ref{Match Data}を参照してください。
+
+@defun set-process-sentinel process sentinel
+この関数は、@var{process}に関連付ける。@var{sentinel}が@code{nil}なら、そのプロセスはプロセス状態変更時にプロセスのバッファーにメッセージを挿入する、デフォルトのセンチネルをもつことになるだろう。
+
+プロセスセンチネルの変更は、即座に効果を発揮する。そのセンチネルが実行される予定だが、まだ呼び出されておらず、かつ新たなセンチネルを指定した場合、最終的なセンチネル呼び出しには、新たなセンチネルが使用されるだろう。
+
+@smallexample
+@group
+(defun msg-me (process event)
+   (princ
+     (format "Process: %s had the event `%s'" process event)))
+(set-process-sentinel (get-process "shell") 'msg-me)
+     @result{} msg-me
+@end group
+@group
+(kill-process (get-process "shell"))
+     @print{} Process: #<process shell> had the event `killed'
+     @result{} #<process shell>
+@end group
+@end smallexample
+@end defun
+
+@defun process-sentinel process
+この関数は、@var{process}のセンチネルをリターンする。
+@end defun
+
+あるプロセス状態の変化を複数のセンチネルに渡す必要がある場合は、既存のセンチネルと新たなセンチネルを組み合わせるために、@code{add-function}を使用できます。@ref{Advising
+Functions}を参照してください。
+
+@defun waiting-for-user-input-p
+この関数は、センチネルまたはフィルター関数の実行中、もしEmacsがセンチネルまたはフィルター関数呼び出し時にユーザーのキーボード入力を待機していたら非@code{nil}、そうでなければ@code{nil}をリターンする。
+@end defun
+
+@node Query Before Exit
+@section Querying Before Exit
+
+  Emacsがexitする際は、すべてのサブプロセスに@code{SIGHUP}を送信することにより、すべてのサブプロセスを終了します。それらのサブプロセスはさまざまな処理を行っているかもしれないので、Emacsは通常ユーザーにたいしてそれらを終了しても大丈夫か、確認を求めます。各プロセスはquery(問い合わせ)のためのフラグをもち、これが非@code{nil}なら、Emacsはプロセスをkillしてexitする前に確認を行うべきであることを示します。queryフラグにたいするデフォルトは@code{t}で、これは問い合わせを@emph{行う}ことを意味します。
+
+@defun process-query-on-exit-flag process
+これは、@var{process}のqueryフラグをリターンする。
+@end defun
+
+@defun set-process-query-on-exit-flag process flag
+この関数は、@var{process}のqueryフラグを@var{flag}にセットする。これは@var{flag}をリターンする。
+
+以下はshellプロセス上で、問い合わせを回避するために@code{set-process-query-on-exit-flag}を使用する例である:
+
+@smallexample
+@group
+(set-process-query-on-exit-flag (get-process "shell") nil)
+     @result{} nil
+@end group
+@end smallexample
+@end defun
+
+@node System Processes
+@section Accessing Other Processes
+@cindex system processes
+
+  カレントEmacsセッションのサブプロセスにたいするアクセスと操作に加えて、同一マシン上で実行中の他のプロセスにたいして、Emacs
+Lispプログラムがアクセスすることもできます。Emacsのサブプロセスと区別するために、わたしたちはこれらを@dfn{システムプロセス(system
+processes)}と呼んでいます。
+
+  Emacsは、システムプロセスへのアクセス用のプリミティブをいくつか提供します。これらのプリミティブは、すべてのプラットフォームではサポートされません。サポートしないシステムでは、これらのプリミティブは@code{nil}をリターンします。
+
+@defun list-system-processes
+この関数は、そのシステム上で実行中の、すべてのプロセスのリストをリターンする。各プロセスは、@acronym{PID}というOSから割り当てられた数値によるプロセスIDにより識別され、同一時に同一マシン上で実行中の他のプロセスと区別される。
+@end defun
+
+@defun process-attributes pid
+この関数は、プロセスID
+@var{pid}で指定されるプロセスにたいする、属性のalistをリターンする。このalist内の各属性は@code{(@var{key}
+.
+@var{value})}という形式で、@var{key}は属性を指定し、@var{value}はその属性の値である。この関数がリターン可能な、さまざまな属性にたいする@var{key}を、以下にリストした。これらすべての属性を、すべてのプラットフォームがサポートする訳ではない。ある属性がサポートされていなければ、その連想値はリターンされるalist内に出現しない。数値であるような値は整数か浮動小数点数のいずれかが可能で、それは値の大小に依存する。
+
+@table @code
+@item euid
+そのプロセスを呼び出したユーザーの、実効ユーザーID(effective user
+ID)。対応する@var{value}は数値。プロセスがカレントEmacsセッションを実行したユーザーと同じなら、値は@code{user-uid}がリターンする値と等しくなる(@ref{User
+Identification}を参照)。
+
+@item user
+そのプロセスの実効ユーザーIDに対応するユーザー名であるような文字列。
+
+@item egid
+実行ユーザーIDのグループIDであるような数値。
+
+@item group
+実効ユーザーのグループIDに対応するグループ名であるような文字列。
+
+@item comm
+そのプロセス内で実効したコマンドの名前。これは通常、先行するディレクトリーを除いた実行可能ファイル名を指定する文字列である。しかし、いくつかの特別なシステムプロセスは、実行可能ファイルまたはプログラムに対応しない文字列を報告する可能性がある。
+
+@item state
+そのプロセスの状態コード。これはそのプロセスのスケジューリング状態をエンコードする短い文字列である。以下は頻繁に目にするコードのリストである:
+
+@table @code
+@item "D"
+割り込み不可のsleep(通常はI/Oによる)
+@item "R"
+実行中
+@item "S"
+割り込み可能なsleep(何らかのイベント待ち)
+@item "T"
+たとえばジョブ制御シグナルにより停止された
+@item "Z"
+``zombie'': 終了したが親プロセスに回収されていないプロセス
+@end table
+
+@noindent
+可能な状態の完全なリストは、@command{ps}コマンドのman pageを参照されたい。
+
+@item ppid
+親プロセスのプロセスIDであるような数値。
+
+@item pgrp
+そのプロセスのプロセスグループIDであるような数値。
+
+@item sess
+そのプロセスのセッションID。これはそのプロセスの@dfn{セッションリーダー(session leader)}のプロセスIDであるような数値である。
+
+@item ttname
+そのプロセスの制御端末の名前であるような文字列。UnixおよびGNUシステムでは、これは通常は@file{/dev/pts65}のような、対応する端末デバイスのファイル名である。
+
+@item tpgid
+そのプロセスの端末を使用するフォアグラウンドプロセスグループの、プロセスグループIDであるような数値。
+
+@item minflt
+そのプロセス開始以降に発生したマイナーなページフォルト数(マイナーなページフォルトとはディスクからの読み込みを発生させないページフォルトのこと)。
+
+@item majflt
+そのプロセス開始以降に発生したメジャーなページフォルト数(メジャーなページフォルトとは、ディスクからの読み込みを要し、それ故にマイナーページフォルトより高価なページフォルトのこと)。
+
+@item cminflt
+@itemx cmajflt
+@code{minflt}と@code{majflt}と似ているが、与えられたプロセスのすべての子プロセスのページフォルト数を含む。
+
+@item utime
+アプリケーションのコード実行にたいして、ユーザーコンテキスト内でプロセスに消費された時間。対応する@var{value}は@w{@code{(@var{high}
+@var{low} @var{microsec}
+@var{picosec})}}というフォーマットで、これは関数@code{current-time}が使用するフォーマットと同じである(@ref{Time
+of Day, current-time})および@ref{File Attributes}の@code{file-attributes}を参照)。
+
+@item stime
+システムコールの処理にたいして、システム(kernel)コンテキスト内でプロセスに消費された時間。対応する@var{value}は@code{utime}と同じフォーマット。
+
+@item time
+@code{utime}と@code{stime}の和。対応する@var{value}は@code{utime}と同じフォーマット。
+
+@item cutime
+@itemx cstime
+@itemx ctime
+@code{utime}や@code{stime}と同様だが、与えられたプロセスのすべての子プロセスの時間が含まれる点が異なる。
+
+@item pri
+そのプロセスの数値的な優先度。
+
+@item nice
+そのプロセスの@dfn{nice値(nice value)}であるような数値(小さいnice値のプロセスがより優先的にスケジュールされる)。
+
+@item thcount
+そのプロセス内のスレッド数。
+
+@item start
+@code{file-attributes}および@code{current-time}が使用するのと同じフォーマット@code{(@var{high}
+@var{low} @var{microsec} @var{picosec})}による、そのプロセスが開始された時刻。
+
+@item etime
+@code{(@var{high} @var{low} @var{microsec}
+@var{picosec})}というフォーマットによる、そのプロセスが開始されてから経過した時間。
+
+@item vsize
+そのプロセスの仮想メモリーのKB単位でのサイズ。
+
+@item rss
+そのプロセスがマシンの物理メモリー内で占める@dfn{常駐セット(resident set)}のKB単位でのサイズ。
+
+@item pcpu
+プロセス開始以降に使用されたCPU時間のパーセンテージ。対応する@var{value}は0から100の間の浮動小数点数。
+
+@item pmem
+マシンにインストールされた物理メモリー合計のうち、そのプロセスの常駐セットのパーセンテージ。値は0から100の間の浮動小数点数。
+
+@item args
+そのプロセスが呼び出されたときのコマンドライン。これは個々のコマンドライン引数がブランクで区切られた文字列である。引数に埋め込まれた空白文字は、そのシステムに応じて適切にクォートされる。GNUおよびUnixではバックスラッシュ文字によるエスケープ、Windowsではダブルクォート文字で囲まれる。つまりこのコマンドライン文字列は、@code{shell-command}のようなプリミティブにより直接使用できる。
+@end table
+
+@end defun
+
+
+@node Transaction Queues
+@section Transaction Queues
+@cindex transaction queue
+
+@c That's not very informative.  What is a transaction, and when might
+@c I want to use one?
+トランザクションを用いてサブプロセスと対話するために、@dfn{トランザクションキュー(transaction
+queue)}を使用できます。まず@code{tq-create}を使用して、指定したプロセスと対話するためのトランザクションキューを作成します。それからトランザクションを送信するために、@code{tq-enqueue}を呼び出すことができます。
+
+@defun tq-create process
+この関数は、@var{process}と対話するトランザクションキューを作成してリターンする。引数@var{process}は、バイトストリームを送受信する能力をもつサブプロセスであること。これは子プロセス、または(おそらく別のマシン上の)サーバーへのTCP接続かもしれない。
+@end defun
+
+@defun tq-enqueue queue question regexp closure fn &optional delay-question
+この関数は、キュー@var{queue}にトランザクションを送信する。キューの指定は、対話するサブプロセスを指定する効果をもつ。
+
+引数@var{question}は、トランザクションを開始するために発信するメッセージである。引数@var{fn}は、それにたいする応答が返信された際に呼び出す関数である。これは@var{closure}と受信した応答という、2つの引数で呼び出される。
+
+引数@var{regexp}は応答全体の終端にマッチし、それより前にはマッチしない正規表現であること。これが応答の終わりを@code{tq-enqueue}が決定する方法である。
+
+引数@var{delay-question}が非@code{nil}なら、そのプロセスが以前に発信したすべてのメッセージへの返信が完了するまで、このメッセージの送信を遅延する。これは、いくつかのプロセスにたいしてより信頼性のある結果が生成される。
+@ignore
+
+@c Let's not mention it then.
+The return value of @code{tq-enqueue} itself is not meaningful.
+@end ignore
+@end defun
+
+@defun tq-close queue
+保留中のすべてのトランザクションの完了を待機して、トランザクションキュー@var{queue}をシャットダウンし、それから接続または子プロセスを終了する。
+@end defun
+
+トランザクションキューは、フィルター関数により実装されています。@ref{Filter Functions}を参照してください。
+
+@node Network
+@section Network Connections
+@cindex network connection
+@cindex TCP
+@cindex UDP
+
+  Emacs
+Lispプログラムは、同一マシンまたは他のマシン上の別プロセスにたいして、ストリーム(TCP)およびデータグラム(UDP)のネットワーク接続(@ref{Datagrams}を参照)をオープンできます。ネットワーク接続はLispにより、サブプロセスと同様に処理され、プロセスオブジェクトとして表されます。しかし対話を行うそのプロセスは、Emacsの子プロセスではなく、プロセス@acronym{ID}をもたず、それをkillしたりシグナルを送信することはできません。行うことができるのは、データの送信と受信だけです。@code{delete-process}は接続をクローズしますが、他端のプログラムをkillしません。そのプログラムは接続のクローズについて何を行うか、決定しなければなりません。
+
+  ネットワークサーバーを作成することにより、Lispプログラムは接続をlistenできます。ネットワークサーバーもある種のプロセスオブジェクトとして表されますが、ネットワーク接続とは異なり、ネットワークサーバーがデータ自体を転送することは決してありません。接続リクエストを受信したときは、それにたいして作成した接続を表す、新たなネットワーク接続を作成します(そのネットワーク接続はサーバーから、プロセスplistを含む特定の情報を継承する)。その後、ネットワークサーバーは更なる接続リクエストのlistenに戻ります。
+
+  ネットワーク接続およびサーバーは、キーワード/引数のペアーで構成される引数リストで@code{make-network-process}を呼び出すことにより作成されます。たとえば@code{:server
+t}はサーバープロセス、@code{:type 'datagram}はデータグラム接続を作成します。詳細は@ref{Low-Level
+Network}を参照してください。以下で説明する@code{open-network-stream}を使用することもできます。
+
+  異なるプロセスのタイプを区別するために、@code{process-type}関数はネットワーク接続またはサーバーにたいしてはシンボル@code{network}、シリアルポート接続は@code{serial}、実際のサブプロセスにたいしては@code{real}をリターンします。
+
+  ネットワーク接続にたいして、@code{process-status}関数は@code{open}、@code{closed}、@code{connect}、@code{failed}をリターンします。ネットワークサーバーにたいしては、状態は常に@code{listen}になります。実際のサブプロセスにたいしては、これらの値はリターンされません。@ref{Process
+Information}を参照してください。
+
+  @code{stop-process}と@code{continue-process}を呼び出すことにより、ネットワークプロセスの処理の停止と再開が可能です。サーバープロセスにたいする停止は、新たな接続の受け付けないことを意味します(サーバー再開時は5つまでの接続リクエストがキューされる。これがOSによる制限でなければこの制限は増やすことができる。@ref{Network
+Processes}の@code{make-network-process}の@code{:server}を参照されたい)。ネットワークストリーム接続にたいしては、停止は入力の処理を行わないことを意味します(到着するすべての入力は接続の再開まで待つ)。データグラム接続にたいしては、いくらかのパケットはキューされますが、入力は失われるかもしれません。ネットワーク接続またはサーバーが停止しているかどうかを判断するために、関数@code{process-command}を使用できます。これが非@code{nil}なら停止しています。
+
+@cindex network connection, encrypted
+@cindex encrypted network connections
+@cindex @acronym{TLS} network connections
+@cindex @acronym{STARTTLS} network connections
+ビルトインまたは外部のサポートを使用することにより、Emacsは暗号化されたネットワーク接続を作成できます。ビルトインのサポートはGnuTLSライブラリー(``TLS:
+Transport Layer Security'')を使用します。@uref{http://www.gnu.org/software/gnutls/,
+the GnuTLS project
+page}を参照してください。GnuTLSサポートつきでEmacsをコンパイルした場合は、関数@code{gnutls-available-p}が定義され、非@code{nil}をリターンします。詳細は@pxref{Top,,
+Overview, emacs-gnutls, The Emacs-GnuTLS
+manual}を参照してください。外部のサポートの場合は、@file{starttls.el}ライブラリーを使用します。これはシステム上に@command{gnutls-cli}のようなヘルパーユーティリティーのインストールを必要とします。@code{open-network-stream}関数は、何であれ利用可能なサポートを使用して、暗号化接続作成の詳細を透過的に処理できます。
+
+@defun open-network-stream name buffer host service &rest parameters
+この関数は、オプションで暗号つきでTCP接続をオープンして、その接続を表すプロセスオブジェクトをリターンする。
+
+@var{name}引数は、プロセスオブジェクトの名前を指定する。これは必要に応じて一意になるよう修正される。
+
+@var{buffer}引数は、その接続に関連付けるバッファーである。その接続からの出力は、その出力を処理する独自のフィルター関数を指定していなければ、@var{buffer}が@code{nil}なら、その接続はバッファーに関連付けられない。
+
+引数@var{host}と@var{service}は、どこに接続するかを指定する。@var{host}はホスト名(文字列)、@var{service}は定義済みのネットワークサービス名(文字列)、またはポート番号(数字)である。
+
+残りの引数@var{parameters}は、主に暗号化された接続に関連する、キーワード/引数のペアーである:
+
+@table @code
+
+@item :nowait @var{boolean}
+非@code{nil}なら非同期接続を試みる。
+
+@item :type @var{type}
+接続のタイプ。オプションは以下のとおり:
+
+@table @code
+@item plain
+通常の暗号化されていない接続。
+@item tls
+@itemx ssl
+@acronym{TLS}(``Transport Layer Security'')接続。
+@item nil
+@itemx network
+plain接続を開始して、パラメーター@samp{:success}および@samp{:capability-command}が与えられたら、@acronym{STARTTLS}を通じて暗号化接続への更新を試みる。これが失敗したら、暗号化されていない接続のまま留まる。
+@item starttls
+@code{nil}と同様だが、@acronym{STARTTLS}が失敗したらその接続を切断する。
+@item shell
+shell接続。
+@end table
+
+@item :always-query-capabilities @var{boolean}
+非@code{nil}なら、たとえ@samp{plain}な接続を行っているときでも、常にサーバーの能力を問い合わせる。
+
+@item :capability-command @var{capability-command}
+ホストの能力を問い合わせるためのコマンド文字列。
+
+@item :end-of-command @var{regexp}
+@itemx :end-of-capability @var{regexp}
+コマンドの終端、またはコマンド@var{capability-command}の終端にマッチする正規表現。前者は後者のデフォルトである。
+
+@item :starttls-function @var{function}
+単一の引数(@var{capability-command}にたいする応答)をとり@code{nil}、またはサポートされていれば@acronym{STARTTLS}をアクティブにするコマンドをリターンする関数。
+
+@item :success @var{regexp}
+成功した@acronym{STARTTLS}ネゴシェーションにマッチする正規表現。
+
+@item :use-starttls-if-possible @var{boolean}
+非@code{nil}なら、たとえEmacsがビルトインの@acronym{TLS}サポートをもっていなくても、日和見的(opportunistic)に@acronym{STARTTLS}アップグレードを行う。
+
+@item :client-certificate @var{list-or-t}
+証明書(certificate)のキーと、証明書のファイル自身を命名する@code{(@var{key-file}
+@var{cert-file})}という形式のリスト、またはこの情報にたいして@code{auth-source}を尋ねることを意味する@code{t}のいずれか(@ref{Top,,Overview,
+auth, The Auth-Source
+Manual}を参照)。@acronym{TLS}または@acronym{STARTTLS}にたいしてのみ使用される。
+
+@item :return-list @var{cons-or-nil}
+この関数のリターン値。省略または@code{nil}なら、プロセスオブジェクトをリターンする。それ以外なら、@code{(@var{process-object}
+. @var{plist})}という形式のコンスセルをリターンする。ここで@var{plist}は以下のキーワードである:
+
+@table @code
+@item :greeting @var{string-or-nil}
+非@code{nil}なら、ホストからリターンされたgreeting(挨拶)文字列。
+@item :capabilities @var{string-or-nil}
+非@code{nil}なら、ホストの能力(capability)文字列。
+@item :type @var{symbol}
+接続タイプで、@samp{plain}か@samp{tls}のいずれか。
+@end table
+
+@end table
+
+@end defun
+
+@node Network Servers
+@section Network Servers
+@cindex network servers
+
+  @code{:server
+t}で@code{make-network-process}を呼び出すことによりサーバーが作成されます(@ref{Network
+Processes}を参照)。そのサーバーは、クライアントからの接続リクエストをlistenするでしょう。クライアントの接続リクエストをaccept(受け入れる)する際は、以下のようなパラメーターで、それ自体がプロセスオブジェクトであるようなネットワーク接続を作成します。
+
+@itemize @bullet
+@item
+@c FIXME?  What about IPv6?  Say briefly what the difference is?
+その接続のプロセス名は、サーバープロセスの@var{name}と、クライアント識別文字列を結合して構築される。IPv4接続にたいするクライアント識別文字列は、アドレスとポート番号を表す、@samp{<@var{a}.@var{b}.@var{c}.@var{d}:@var{p}>}のような文字列である。それ以外なら、@samp{<@var{nnn}>}のようにカッコで囲まれた一意な数字である。この数字は、そのEmacsセッション内のそれぞれの接続にたいして一意である。
+
+@item
+サーバーが非デフォルトのフィルターをもつ場合、その接続プロセスは別個にプロセスバッファーを取得しない。それ以外なら、Emacsはその目的のために新たにバッファーを作成する。サーバーのバッファー名またはプロセス名にクライアント識別文字列に結合したものがバッファー名になる。
+
+サーバーのプロセスバッファーの値が直接使用されることは決してないが、log関数はそれを取得して、そこにテキストを挿入することにより、接続のログを記録するために使用することができる。
+
+@item
+通信タイプ(communication
+type)、プロセスフィルター、およびセンチネルはそれぞれ、サーバーのものから継承される。サーバーが直接フィルターとセンチネルを使用することは決してない。それらの唯一の目的は、サーバーへの接続を初期化することである。
+
+@item
+その接続のプロセスコンタクト情報は、クライアントのアドレス情報(通常はIPアドレスとポート番号)に応じてセットされる。この情報は、@code{process-contact}のキーワード@code{:host}、@code{:service}、@code{:remote}に関連付けられる。
+
+@item
+その接続のローカルアドレスは、それが使用するポート番号に応じてセットアップされる。
+
+@item
+クライアントプロセスのplistは、サーバーのplistからインストールされる。
+@end itemize
+
+@node Datagrams
+@section Datagrams
+@cindex datagrams
+
+  @dfn{データグラム(datagram)}接続は、データストリームではなく個別のパッケージで対話します。@code{process-send}を呼び出すたびに1つのデータグラムパケット(@pxref{Input
+to Processes})が送信され、受信されたデータグラムごとに1回フィルター関数が呼び出されます。
+
+  データグラム接続は、毎回同じリモートピア(remote
+peer)と対話する必要はありません。データグラム接続は、データグラムの送信先を指定する、@dfn{リモートピアアドレス(remote peer
+address)}をもちます。フィルター関数にたいして受信されたデータグラムが渡されるたびに、そのデータグラムの送信元アドレスがピアアドレスにセットされます。このように、もしフィルター関数がデータグラムを送信したら、それは元の場所へ戻ることになります。@code{:remote}キーワードを使用してデータグラム接続を作成する際は、リモートピアアドレスを指定できます。@code{set-process-datagram-address}を呼び出すことにより、後からそれを変更できます。
+
+@defun process-datagram-address process
+@var{process}がデータグラム接続またはサーバーなら、この関数はそれのリモートピアアドレスをリターンする。
+@end defun
+
+@defun set-process-datagram-address process address
+@var{process}がデータグラム接続またはサーバーなら、この関数はそのリモートピアアドレスに@var{address}をセットする。
+@end defun
+
+@node Low-Level Network
+@section Low-Level Network Access
+
+  @code{make-network-process}を使用することにより、@code{open-network-stream}より低レベルでの処理により、ネットワーク接続を作成することもできます。
+
+@menu
+* Proc: Network Processes.   @code{make-network-process}の使用。
+* Options: Network Options.  更なるネットワーク接続の制御。
+* Features: Network Feature Testing.  使用中マシン上で動作するネットワーク機能を判断する。
+@end menu
+
+@node Network Processes
+@subsection @code{make-network-process}
+
+   ネットワーク接続およびネットワークサーバーを作成する基本的な関数は、@code{make-network-process}です。これは与えられた引数に応じて、これらの仕事のいずれかを行うことができます。
+
+@defun make-network-process &rest args
+この関数は、ネットワーク接続またはサーバーを作成して、それを表すプロセスオブジェクトをリターンする。引数@var{args}は、キーワード/引数のペアからなるリストである。キーワードの省略は@code{:coding}、@code{:filter-multibyte}、@code{:reuseaddr}を除き、常に値として@code{nil}を指定したのと同じことになる。重要なキーワードを以下に示す(ネットワークオプションに対応するキーワードを、以降のセクションにリストする)。
+
+@table @asis
+@item :name @var{name}
+プロセス名として、文字列@var{name}を使用する。一意にするために、必要に応じて変更され得る。
+
+@item :type @var{type}
+コミュニケーションのタイプを指定する。値@code{nil}はストリーム接続(デフォルト)、@code{datagram}はデータグラム接続、@code{seqpacket}は``シーケンスパケットストリーム(sequenced
+packet stream)''による接続を指定する。接続およびサーバーの両方で、これらのタイプを指定できる。
+
+@item :server @var{server-flag}
+@var{server-flag}が非@code{nil}ならサーバー、それ以外なら接続を作成する。ストリームタイプのサーバーでは、@var{server-flag}はそのサーバーへの保留中の接続キューの長さを指定する、整数を指定できる。キューのデフォルト長は5。
+
+@item :host @var{host}
+接続するホストを指定する。@var{host}は、ホスト名またはインターネットアドレスを表す文字列、またはローカルホストを表すシンボル@code{local}であること。サーバーのときに@var{host}を指定する場合は、有効なローカルホストのアドレスを指定しなければならず、そのアドレスに接続するクライアントだけが受け入れられるだろう。
+
+@item :service @var{service}
+@var{service}は接続先のポート番号、またはサーバーにたいしてはlistenするポート番号である。これはポート番号に変換されるようなサービス名、または直接ポート番号を指定する整数であること。サーバーにたいしては@code{t}も指定でき、これは未使用のポート番号をシステムに選択させることを意味する。
+
+@item :family @var{family}
+@var{family}は、接続のアドレス(またはプロトコル)のファミリーを指定する。@code{nil}は、与えられた@var{host}と@var{service}にたいして、自動的に適切なアドレスファミリーを決定する。@code{local}はUnixのsocketを指定し、この場合@var{host}は無視される。@code{ipv4}と@code{ipv6}はそれぞれ、IPv4とIPv6の使用を指定する。
+
+@item :local @var{local-address}
+サーバープロセスでは、@var{local-address}はlistenするアドレスである。これは@var{family}、@var{host}、@var{service}をオーバーライドするので、これらを指定しないこともできる。
+
+@item :remote @var{remote-address}
+接続プロセスでは、@var{remote-address}は接続先のアドレスである。これは@var{family}、@var{host}、@var{service}をオーバーライドするので、これらを指定しないこともできる。
+
+データグラムサーバーでは、@var{remote-address}はリモートデータグラムアドレスの初期セッティングを指定する。
+
+@var{local-address}と@var{remote-address}のフォーマットは、そのアドレスファミリーに依存する:
+
+@itemize -
+@item
+IPv4アドレスは、4つの8ビット整数と1つの16ビット整数からなる5要素のベクター@code{[@var{a} @var{b} @var{c}
+@var{d}
+@var{p}]}で表され、それぞれ数値的なIPv4アドレス@var{a}.@var{b}.@var{c}.@var{d}、およびポート番号@var{p}に対応する。
+
+@item
+IPv6アドレスは、9要素の16ビット整数ベクター@code{[@var{a} @var{b} @var{c} @var{d} @var{e}
+@var{f} @var{g} @var{h}
+@var{p}]}で表され、それぞれ数値的なIPv６アドレス@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h}、およびポート番号@var{p}に対応する。
+
+@item
+ローカルアドレスは、ローカルアドレススペース内でアドレスを指定する文字列として表される。
+
+@item
+``未サポートファミリー(unsupported family)''のアドレスは、コンスセル@code{(@var{f}
+.
+@var{av})}で表される。ここで@var{f}はファミリー名、@var{av}はアドレスデータバイトごとに1つの要素を使用する、ソケットアドレスを指定するベクターである。可搬性のあるコードでこのフォーマットを信頼してはならない。これは実装定義の定数、データサイズ、データ構造のアライメントに依存する可能性があるからだ。
+@end itemize
+
+@item :nowait @var{bool}
+ストリーム接続にたいして@var{bool}が非@code{nil}なら、その接続の完了を待機せずにリターンする。接続が成功または失敗時には、Emacsは@code{"open"}(成功時)、または@code{"failed"}(失敗時)にマッチするような第2引数により、センチネル関数を呼び出すだろう。デフォルトではwaitせずにblockするので、@code{make-network-process}はその接続が成功または失敗するまで、リターンしない。
+
+@item :stop @var{stopped}
+@var{stopped}が非@code{nil}なら、``stopped''の状態でネットワーク接続、またはサーバーを開始する。
+
+@item :buffer @var{buffer}
+プロセスバッファーとして@var{buffer}を使用する。
+
+@item :coding @var{coding}
+このプロセスにたいするコーディングシステムとして、@var{coding}を使用する。接続からのデータのデコード、および接続への送信データのエンコードに異なるコーディングシステムを指定するには、@var{coding}にたいして@code{(@var{decoding}
+.  @var{encoding})}と指定する。
+
+このキーワードをまったく指定しないかった場合のデフォルトは、そのデータからコーディングシステムを判断する。
+
+@item :noquery @var{query-flag}
+プロセスqueryフラグを@var{query-flag}に初期化する。@ref{Query Before Exit}を参照のこと。
+
+@item :filter @var{filter}
+プロセスフィルターを@var{filter}に初期化する。
+
+@item :filter-multibyte @var{multibyte}
+@var{multibyte}が非@code{nil}ならマルチバイト文字列、それ以外ならユニバイト文字列がプロセスフィルターに与えられるデフォルトは、@code{enable-multibyte-characters}のデフォルト値である。
+
+@item :sentinel @var{sentinel}
+プロセスセンチネルを@var{sentinel}に初期化する。
+
+@item :log @var{log}
+サーバープロセスのlog関数を、@var{log}に初期化する。サーバーがクライアントからネットワーク接続をacceptするたびに、そのlog関数が呼び出される。log関数に渡される引数は@var{server}、@var{connection}、@var{message}である。ここで@var{server}はサーバープロセス、@var{connection}はその接続にたいする新たなプロセス、@var{message}は何が発生したかを説明する文字列である。
+
+@item :plist @var{plist}
+プロセスplistを@var{plist}に初期化する。
+@end table
+
+実際の接続情報で修正されたオリジナルの引数リストは、@code{process-contact}を通じて利用できる。
+@end defun
+
+@node Network Options
+@subsection Network Options
+
+  以下のネットワークオプションは、ネットワークプロセス作成時に指定できます。@code{:reuseaddr}を除き、@code{set-network-process-option}を使用して、これらのオプションを後からセットまたは変更することもできます。
+
+  サーバープロセスにたいしては、@code{make-network-process}で指定されたオプションはクライアントに継承されないので、子接続が作成されるたびに、必要なオプションをセットする必要があるでしょう。
+
+@table @asis
+@item :bindtodevice @var{device-name}
+@var{device-name}が空でないネットワークインターフェースを指定する文字列なら、そのインターフェースで受信したパケットだけを処理する。@var{device-name}が@code{nil}(デフォルト)なら、任意のインターフェースが受信したパケットを処理する。
+
+このオプションの使用にたいして、特別な特権を要求するシステムがいくつかあるかもしれない。
+
+@item :broadcast @var{broadcast-flag}
+データグラムプロセスにたいして@var{broadcast-flag}が非@code{nil}なら、そのプロセスはブロードキャストアドレスに送信されたデータグラムパケットを受信し、ブロードキャストアドレスにパケットを送信できるだろう。これはストリーム接続では無視される。
+
+@item :dontroute @var{dontroute-flag}
+@var{dontroute-flag}が非@code{nil}なら、プロセスはローカルホストと同一ネットワーク上のホストだけに送信することができる。
+
+@item :keepalive @var{keepalive-flag}
+ストリーム接続にたいして@var{keepalive-flag}が非@code{nil}なら、低レベルのkeep-aliveメッセージの交換が有効になる。
+
+@item :linger @var{linger-arg}
+@var{linger-arg}が非@code{nil}なら、接続を削除(@code{delete-process}を参照)する前にキューされたすべてのパケットの送信が成功するまで待機する。@var{linger-arg}が整数なら、接続クローズ前のキュー済みパケット送信のために待機する、最大の秒数を指定する。デフォルトは@code{nil}で、これはプロセス削除時に未送信のキュー済みパケットを破棄することを意味する。
+
+@c FIXME  Where out-of-band data is ...?
+@item :oobinline @var{oobinline-flag}
+ストリーム接続にたいして@var{oobinline-flag}が非@code{nil}なら、通常のデータストリーム内の帯域外(out-of-band)データを受信し、それ以外なら帯域外データは破棄する。
+
+@item :priority @var{priority}
+この接続で送信するパケットの優先順位を、整数@var{priority}にセットする。たとえばこの接続で送信するIPパケットのTOS(type of
+service)フィールドにセットする等、この数字の解釈はプロトコル固有である。また、そのネットワークインターフェース上で特定の出力キューを選択する等、これにはシステム依存の効果もある。
+
+@item :reuseaddr @var{reuseaddr-flag}
+ストリームプロセスサーバーにたいして@var{reuseaddr-flag}が非@code{nil}(デフォルト)なら、そのホスト上の別プロセスがそのポートですでにlistenしていなければ、このサーバーは特定のポート番号(@code{:service}を参照)を再使用できる。@var{reuseaddr-flag}が@code{nil}なら、(そのホスト上の任意のプロセスが)そのポートを最後に使用した後、そのポート上で新たなサーバーを作成するのが不可能となるような、一定の期間が存在するかもしれない。
+@end table
+
+@defun set-network-process-option process option value &optional no-error
+この関数はネットワークプロセス@var{process}にたいして、ネットワークオプションのセットまたは変更を行う。指定できるオプションは@code{make-network-process}と同様。@var{no-error}が非@code{nil}なら、@var{option}がサポートされないオプションの場合に、この関数はエラーをシグナルせずに、@code{nil}をリターンする。この関数が成功裏に完了したら、@code{t}をリターンする。
+
+あるオプションのカレントのセッティングは、@code{process-contact}関数を通じて利用できる。
+@end defun
+
+@node Network Feature Testing
+@subsection Testing Availability of Network Features
+
+  与えられネットワーク機能が▼利用可能かテストするためには、以下のように@code{featurep}を使用します:
+
+@example
+(featurep 'make-network-process '(@var{keyword} @var{value}))
+@end example
+
+@noindent
+このフォームの結果は、@code{make-network-process}内で@var{keyword}に値@var{value}を指定することが機能するなら、@code{t}になります。以下は、この方法でテストできる@var{keyword}/@var{value}ペアーのいくつかです。
+
+@table @code
+@item (:nowait t)
+非ブロッキング接続がサポートされていれば非@code{nil}。
+@item (:type datagram)
+データグラムがサポートされていれば非@code{nil}。
+@item (:family local)
+ローカルsocket(別名``UNIX domain'')がサポートされていれば非@code{nil}。
+@item (:family ipv6)
+IPv6がサポートされていれば非@code{nil}。
+@item (:service t)
+サーバーにたいしてシステムがポートを選択できれば非@code{nil}。
+@end table
+
+  与えられたネットワークオプションが利用可能かテストするためには、以下のように@code{featurep}を使用します:
+
+@example
+(featurep 'make-network-process '@var{keyword})
+@end example
+
+@noindent
+指定できる@var{keyword}の値は@code{:bindtodevice}等です。完全なリストは@ref{Network
+Options}を参照してください。このフォームは、@code{make-network-process}(または@code{set-network-process-option})が特定のネットワークオプションをサポートしていれば、非@code{nil}をリターンする。
+
+@node Misc Network
+@section Misc Network Facilities
+
+  以下の追加の関数は、ネットワーク接続の作成や操作に有用です。これらは、いくつかのシステムでのみサポートされることに注意してください。
+
+@defun network-interface-list
+この関数は、使用しているマシン上のネットワークインターフェースを記述する、リストをリターンする。値は、要素が@code{(@var{name}
+.
+@var{address})}という形式をもつようなalistである。@var{address}は、@code{make-network-process}の引数@var{local-address}および@var{remote-address}と同じ形式をもつ。
+@end defun
+
+@defun network-interface-info ifname
+この関数は、@var{ifname}という名前のネットワークインターフェースに関する情報をリターンする。値は、@code{(@var{addr}
+@var{bcast} @var{netmask} @var{hwaddr} @var{flags})}という形式をもつリストである。
+
+@table @var
+@item addr
+インターネットプロトコルアドレス。
+@item bcast
+ブロードキャストアドレス。
+@item netmask
+ネットワークマスク。
+@item hwaddr
+レイヤー2アドレス(たとえばイーサネットMACアドレス)。
+@item flags
+そのインターフェースのカレントのフラグ。
+@end table
+@end defun
+
+@defun format-network-address address &optional omit-port
+この関数は、ネットワークアドレスのLisp表現を文字列に変換する。
+
+5要素のベクター@code{[@var{a} @var{b} @var{c} @var{d}
+@var{p}]}はIPv4アドレス@var{a}.@var{b}.@var{c}.@var{d}、およびポート番号@var{p}を表す。@code{format-network-address}はこれを、文字列@code{\"@var{a}.@var{b}.@var{c}.@var{d}:@var{p}\"}に変換する。
+
+9要素のベクター@code{[@var{a} @var{b} @var{c} @var{d} @var{e} @var{f} @var{g}
+@var{h}
+@var{p}]}はポート番号とともに、IPv6アドレスを表す。@code{format-network-address}はこれを、文字列@code{"[@var{a}:@var{b}:@var{c}:@var{d}:@var{e}:@var{f}:@var{g}:@var{h}]:@var{p}"}に変換する。
+
+このベクターにポート番号が含まれない、または@var{omit-port}が非@code{nil}なら、結果にサフィックス@code{:@var{p}}は含まれない。
+@end defun
+
+@node Serial Ports
+@section Communicating with Serial Ports
+@cindex @file{/dev/tty}
+@cindex @file{COM1}
+@cindex serial connections
+
+  Emacsはシリアルポートと対話できます。インタラクティブな使用、@kbd{M-x
+serial-term}にたいしては端末ウィンドウをオープンし、Lispプログラム@code{make-serial-process}にたいしてはプロセスオブジェクトを作成します。
+
+  シリアルポートは、クローズと再オープンなして、実行時に設定することができます。関数@code{serial-process-configure}によりスピード、バイトサイズ、およびその他のパラメーターを変更できます。@code{serial-term}で作成された端末ウィンドウでは、モードラインをクリックして設定を行うことができます。
+
+  シリアル接続はプロセスオブジェクトとして表され、サブプロセスやネットワークプロセスと同様の方法で使用できます。これによりデータの送受信や、シリアルポートの設定ができます。しかし、シリアルプロセスオブジェクトにプロセスIDはありません。それにたいしてシグナルの送信はできず、ステータスコードは他のタイプのプロセスオブジェクトとは異なります。プロセスオブジェクトへの@code{delete-process}、またはプロセスバッファーにたいする@code{kill-buffer}は接続をクローズしますが、そのシリアルポートに接続されたデバイスに影響はありません。
+
+  関数@code{process-type}は、シリアルポート接続を表すプロセスオブジェクトにたいする、シンボル@code{serial}をリターンします。
+
+  シリアルポートはGNU/Linux、Unix、およびMS Windowsのシステムで利用できます。
+
+@deffn Command serial-term port speed
+新たなバッファー内で、シリアルポートにたいする端末エミュレーターを開始する。@var{port}は、接続先のシリアルポートの名前である。たとえばUnixでは、これは@file{/dev/ttyS0}のようになるだろう。MS
+Windowsでは、@file{COM1}や@file{\\.\COM10}のようになるかもしれない(Lisp文字列ではバックスラッシュは2重にする)。
+
+@c FIXME is 9600 still the most common value, or is it 115200 now?
+@c (Same value, 9600, appears below as well.)
+@var{speed}は、ビット毎秒でのシリアルポートのスピードである。一般的な値は9600。そのバッファーはTermモードになる。このバッファーで使用するコマンドについては、@ref{Term
+Mode,,, emacs, The GNU Emacs Manual}を参照のこと。モードラインメニューから、スピードと設定を変更できる。
+@end deffn
+
+@defun make-serial-process &rest args
+この関数は、プロセスとバッファーを作成する。引数は、キーワード/引数ペアーで指定する。以下は意味のあるキーワードのリストで、最初の2つ(@var{port}と@var{speed})は必須である:
+
+@table @code
+@item :port @var{port}
+これは、シリアルポートの名前である。UnixおよびGNUシステムでは@file{/dev/ttyS0}のようなファイル名、Windowsでは@file{COM1}、@file{COM9}より高位のポートでは@file{\\.\COM10}のようになるかもしれない(Lisp文字列ではバックスラッシュは2重にする)。
+
+@item :speed @var{speed}
+ビット毎秒でのシリアルポートのスピード。この関数は@code{serial-process-configure}を呼び出すことにより、スピードを操作する。この関数の更なる詳細については、以降のドキュメントを参照されたい。
+
+@item :name @var{name}
+そのプロセスの名前。@var{name}が与えられなければ、@var{port}が同様にプロセス名の役目を果たす。
+
+@item :buffer @var{buffer}
+そのプロセスに関連付けられたバッファー。値はバッファー、またはそれがバッファーの名前であるような文字列かもしれない。出力を処理するために出力ストリーム、あるいはフィルター関数を指定しなければ、プロセス出力はそのバッファーの終端に出力される。@var{buffer}が与えられなければ、そのプロセスバッファーの名前は、@code{:name}キーワードから取得される。
+
+@item :coding @var{coding}
+@var{coding}は、このプロセスにたいする読み書きに使用される、コーディングシステムを指定する。@var{coding}がコンス@code{(@var{decoding}
+.
+@var{encoding})}なら、読み取りに@var{decoding}、書き込みには@var{encoding}が使用される。指定されない場合のデフォルトは、データ自身から判断されるコーディングシステムである。
+
+@item :noquery @var{query-flag}
+プロセスqueryフラグを、@var{query-flag}に初期化する。@ref{Query Before
+Exit}を参照のこと。未指定の場合のフラグのデフォルトは@code{nil}。
+
+@item :stop @var{bool}
+@var{bool}が非@code{nil}なら、``stopped''の状態でプロセスを開始する。stopped状態では、シリアルプロセスは入力データを受け付けないが、出力データの送信は可能。stopped状態のクリアーは@code{continue-process}、セットは@code{stop-process}で行う。
+
+@item :filter @var{filter}
+プロセスフィルターとして、@var{filter}をインストールする。
+
+@item :sentinel @var{sentinel}
+プロセスセンチネルとして、@var{sentinel}をインストールする。
+
+@item :plist @var{plist}
+プロセスの初期plistとして、@var{plist}をインストールする。
+
+@item :bytesize
+@itemx :parity
+@itemx :stopbits
+@itemx :flowcontrol
+これらは、@code{make-serial-process}が呼び出す、@code{serial-process-configure}により処理される。
+@end table
+
+後の設定により変更され得るオリジナルの引数リストは、関数@code{process-contact}を通じて利用可能。
+
+以下に例を示す:
+
+@example
+(make-serial-process :port "/dev/ttyS0" :speed 9600)
+@end example
+@end defun
+
+@defun serial-process-configure &rest args
+@cindex baud, in serial connections
+@cindex bytesize, in serial connections
+@cindex parity, in serial connections
+@cindex stopbits, in serial connections
+@cindex flowcontrol, in serial connections
+
+この関数は、シリアルポート接続を設定する。引数はキーワード/引数ペアーで指定する。与えられない属性は、そのプロセスのカレントの設定(関数@code{process-contact}を通じて利用可能)から再初期化されるか、妥当なデフォルトにセットされる。以下の引数が定義されている:
+
+@table @code
+@item :process @var{process}
+@itemx :name @var{name}
+@itemx :buffer @var{buffer}
+@itemx :port @var{port}
+設定するプロセスを識別するために、これらの引数のいずれかを与えられる。これらの引数が何も与えられなければ、カレントバッファーのプロセスが使用される。
+
+@item :speed @var{speed}
+ビット毎秒、別名@dfn{ボーレート(baud
+rate)}での、シリアルポートのスピード。値には任意の数字が可能だが、ほとんどのシリアルポートは1200から115200の間の数少ない定義済みの値でのみ機能し、もっとも一般的な値は9600である。@var{speed}が@code{nil}なら、この関数は他のすべての引数を無視して、そのポートを設定しない。これは接続を通じて送信された@samp{AT}コマンドでのみ設定可能な、Bluetooth/シリアル変換アダプターのような、特殊なシリアルポートで有用かもしれない。@var{speed}にたいする値@code{nil}は、@code{make-serial-process}または@code{serial-term}の呼び出しにより、すでにオープン済みの接続にたいしてのみ有効である。
+
+@item :bytesize @var{bytesize}
+ビット/バイトでの数値で、7か8を指定できる。@var{bytesize}が与えられない、または@code{nil}の場合のデフォルトは8。
+
+@item :parity @var{parity}
+値には@code{nil}(パリティなし)、シンボル@code{odd}(奇数パリティ)、シンボル@code{even}(偶数パリティ)を指定できる。@var{parity}が与えられない場合のデフォルトはパリティなし。
+
+@item :stopbits @var{stopbits}
+各バイトの送信を終了するために使用されるストップビットの数値。@var{stopbits}には1か2が可能。@var{stopbits}が与えられない、または@code{nil}の場合のデフォルトは1。
+
+@item :flowcontrol @var{flowcontrol}
+この接続にたいして使用するフロー制御のタイプで、@code{nil}(フロー制御を使用しない)、シンボル@code{hw}(RTS/CTSハードウェアフロー制御)、シンボル@code{sw}(XON/XOFFソフトウェアフロー制御)のいずれか。@var{flowcontrol}が与えられない場合のデフォルトは、フロー制御なし。
+@end table
+
+シリアルポートの初期設定のために、@code{make-serial-process}は内部的に@code{serial-process-configure}を呼び出す。
+@end defun
+
+@node Byte Packing
+@section Packing and Unpacking Byte Arrays
+@cindex byte packing and unpacking
+
+@c FIXME?  No multibyte?
+@c It doesn't have any autoloads.
+  このセクションでは、通常はバイナリーのネットワークプロトコル用のバイト配列を、packおよびunpackする朴を説明します。以下の関数は、バイト配列とalistとの間で相互に変換を行います。バイト配列はユニバイト文字列、または整数ベクターとして表現することができます。一方alistはシンボルを固定サイズのオブジェクト、または再帰的な複alistのいずれかに関連付けます。このセクションで参照する関数を使用するためには、@code{bindat}ライブラリーをロードしてください。
+
+@cindex serializing
+@cindex deserializing
+@cindex packing
+@cindex unpacking
+  バイト配列からネストされたalistへの変換は、逆方向への変換が@dfn{シリアライズ化(serializing)}、または@dfn{pack化(packing)}として呼ばれることから、@dfn{非シリアル化【deserializing)}、または@dfn{unpack化(unpacking)}として知られています。
+
+@menu
+* Bindat Spec::              データレイアウトの記述。
+* Bindat Functions::         unpack化とpack化を行う。
+* Bindat Examples::          bindat.elが行えることのサンプル。
+@end menu
+
+@node Bindat Spec
+@subsection Describing Data Layout
+
+  unpackとpackを制御するためには、@dfn{データレイアウト仕様(data layout
+specification)}を記述します。これは名前付きで、かつタイプ付けされた@dfn{フィールド(field)}を記述する、特別なネスト化リストです。これは、処理する各フィールドの長さ、およびそれをpackおよびunpackする方法を制御します。わたしたちは、名前が@samp{-bindat-spec}で終わる変数では、bindatの仕様を遵守します。この類の変数名は、自動的に``risky(危険)''だと認識されます。
+
+@cindex endianness
+@cindex big endian
+@cindex little endian
+@cindex network byte ordering
+  フィールドの@dfn{タイプ(type)}は、そのフィールドが表すオブジェクトのサイズ(バイト単位)、およびそれがマルチバイトフィールドなら、そのフィールがバイトオーダーされる方法を記述します。可能なオーダーは``ビッグエンディアン(big
+endian。ネットワークバイトオーダーとも呼ばれる)''、および``リトルエンディアン(little
+endian)''の2つです。たとえば数字@code{#x23cd}(10進の9165)のビッグエンディアンは@code{#x23}
+@code{#xcd}の2バイト、リトルエンディアンは@code{#xcd} @code{#x23}になるでしょう。以下は可能なタイプの値です:
+
+@table @code
+@item u8
+@itemx byte
+長さ1の符号なしタイプ。
+
+@item u16
+@itemx word
+@itemx short
+長さ2の、ネットワークバイトオーダーによる符号なし整数。
+
+@item u24
+長さ3の、ネットワークバイトオーダーによる符号なし整数。
+
+@item u32
+@itemx dword
+@itemx long
+長さ4の、ネットワークバイトオーダーによる符号なし整数。注意: これらの値はEmacsの整数の実装に制限されるだろう。
+
+@item u16r
+@itemx u24r
+@itemx u32r
+それぞれ長さ2、3、4のリトルエンディアンオーダーによる符号なし整数。
+
+@item str @var{len}
+長さ@var{len}の文字列。
+
+@item strz @var{len}
+長さ@var{len}の固定長フィールド内の、NUL終端された文字列。
+
+@item vec @var{len} [@var{type}]
+タイプ@var{type}(デフォルトはbyte)の@var{len}要素のベクター。@var{type}は上述した単純なタイプのいずれか、あるいは@code{(vec
+@var{len} [@var{type}])}という形式のリストによる別ベクターの指定である。
+
+@item ip
+@c FIXME?  IPv6?
+インターネット 」アドレスを表す、4つのbyteのベクター。たとえばlocalhostは@code{[127 0 0 1]}。
+
+@item bits @var{len}
+@var{len}バイト内のセットされたビット位置のリスト。バイトはビッグエンディアンで、ビット位置は@code{8 * @var{len}
+@minus{} 1}で始まり0で終わるよう番号が付与される。たとえば@code{bits 2}では、@code{#x28}
+@code{#x1c}は@code{(2 3 4 11 13)}、@code{#x1c} @code{#x28}は@code{(3 5 10 11
+12)}にunpackされる。
+
+@item (eval @var{form})
+@var{form}は、フィールドがpackまたはunpackされた瞬間に評価されるLisp式。評価した結果は、上記にリストしたタイプ使用のいずれかであること。
+@end table
+
+固定長フィールドでは長さ@var{len}が、フィールド内のバイト数を指定する整数として与えられます。
+
+フィールド長が固定でない場合、通常は先行するフィールドの値に依存します。この場合、長さ@var{len}は後述の@code{bindat-get-field}のフォーマット指定により@dfn{フィールド名(field
+name)}を指定するリスト@code{(@var{name} ...)}、または式@code{(eval
+@var{form})}(@var{form}はフィールド長を指定する整数に評価されること)のいずれかで与えることもできます。
+
+フィールド仕様は一般的に@code{([@var{name}]
+@var{handler})}という形式をもち、@var{name}はオプションです。紛らわしくなるので、タイプ仕様(上述)やハンドラー仕様(後述)で意味をもつシンボルの名前は使用しないでください。@var{name}はシンボルまたは式@code{(eval
+@var{form})}でもよく、この場合@var{form}はシンボルに評価される必要があります。
+
+@var{handler}はそのフィールドがpackまたはunpackされる方法を記述し、以下のいずれかを指定できます:
+
+@table @code
+@item @var{type}
+タイプ仕様@var{type}に応じてこのフィールドのunpack/packを行う。
+
+@item eval @var{form}
+副作用のためだけにLisp式@var{form}を評価する。フィールド名が指定された場合、値はそのフィールド名にバインドされる。
+
+@item fill @var{len}
+@var{len}バイトをスキップする。pack化ではそれらを未変更のままとし、通常それらは0のままとなることを意味する。unpack化では、それらが無視されることを意味する。
+
+@item align @var{len}
+@var{len}バイトの次の倍数にスキップする。
+
+@item struct @var{spec-name}
+副仕様(sub-specification)として@var{spec-name}を処理する。これは別の構造体内にネストされる構造体を記述する。
+
+@item union @var{form} (@var{tag} @var{spec})@dots{}
+@c ??? I don't see how one would actually  use this.
+@c ??? what kind of expression would be useful for @var{form}?
+Lisp式@var{form}を評価して、それにマッチする最初の@var{tag}を探し、それに関連付けられたレイアウト仕様@var{spec}を処理する。マッチングは以下の3つのいずれかで発生し得る:
+
+@itemize
+@item
+@var{tag}が@code{(eval
+@var{expr})}という形式をもつ場合、変数@code{tag}を動的に@var{form}の値にバインドして、@var{expr}を評価する。結果が非@code{nil}ならマッチを示す。
+
+@item
+@var{tag}が@var{form}の値と@code{equal}ならマッチ。
+
+@item
+@var{tag}が@code{t}なら無条件にマッチ。
+@end itemize
+
+@item repeat @var{count} @var{field-specs}@dots{}
+@var{field-specs}を順次、再帰的に処理した後、最初のものから繰り返して、すべての仕様全体を@var{count}回処理する。@var{count}はフィールド長と同じフォーマットを使用して与えられる。@code{eval}フォームが使用された場合は、1回だけ評価される。正しく処理されるには、@var{field-specs}内の各仕様は名前を含まなければならない。
+@end table
+
+bindat仕様内で仕様される@code{(eval
+@var{form})}フォームでは、評価の間に@var{form}はこれらの動的にバインドされた変数へのアクセスと更新が可能である。
+
+@table @code
+@item last
+最後に処理されたフィールドの値。
+
+@item bindat-raw
+バイト配列のデータ。
+
+@item bindat-idx
+unpack化/pack化にたいする、(@code{bindat-raw}での)カレントインデックス。
+
+@item struct
+これまでにunpackされた構造化データ、またはpackされた構造体全体を含むalist。この構造体の特定のフィールドにアクセスするために、@code{bindat-get-field}を使用できる。
+
+@item count
+@itemx index
+@code{repeat}ブロック内部では、これらは(@var{count}パラメーターで指定された)繰り返しの最大回数、および(0から数えた)カレント繰り返し回数を含む。@code{count}を0にセットすることにより、カレントの繰り返し終了後に、最内繰り返しブロックを終了する。
+@end table
+
+@node Bindat Functions
+@subsection Functions to Unpack and Pack Bytes
+
+  以降のドキュメントでは、@var{spec}はデータレイアウト仕様、@code{bindat-raw}はバイト配列、@var{struct}はunpackされたフィールドデータを表すalistを参照します。
+
+@defun bindat-unpack spec bindat-raw &optional bindat-idx
+@c FIXME?  Again, no multibyte?
+この関数はユニバイト文字列、またはバイト配列@code{bindat-raw}のデータを、@var{spec}に▼応じてunpackする。これは通常はバイト配列の先頭からunpack化を開始するが、@var{bindat-idx}が非@code{nil}なら、それはかわりに使用する0基準の開始位置を指定する。
+
+値は、それぞれの要素がunpackされたフィールドを記述する、alistまたはネストされたalist。
+@end defun
+
+@defun bindat-get-field struct &rest name
+この関数はネストされたalistである@var{struct}から、フィールドのデータを選択する。@var{struct}は通常、@code{bindat-unpack}がリターンしたもの。@var{name}が単一の引数に対応する場合、それはトップレベルのフィールド値を抽出することを意味する。複数の@var{name}引数は、副構造体を繰り返して照合することを指定する。整数の名前は、配列のインデックスとして動作する。
+
+たとえば@var{name}が@code{(a b 2
+c)}なら、それはフィールド@code{a}の副フィールド@code{b}の3番目の要素内のフィールド@code{c}(Cでは@code{struct.a.b[2].c}に相当)を意味する。
+@end defun
+
+  packまたはunpackの処理をすることにより、メモリー内でデータ構造が変化しても、そのデータの全フィールド長の合計バイト数である、@dfn{トータル長(total
+length)}は保たれます。この値は一般的に仕様またはalist単独では、固有ではありません。そのかわり、これら両方の情報が、この計算に役立つのです。同様に、unpackされる文字列や配列の長さは、仕様の記述にしたがい、そのデータのトータル長より長くなるかもしれません。
+
+@defun bindat-length spec struct
+この関数は@var{struct}内のデータの、@var{spec}に応じたトータル長をリターンする。
+@end defun
+
+@defun bindat-pack spec struct &optional bindat-raw bindat-idx
+この関数は、alist
+@var{struct}内のデータから、@var{spec}に応じてpackされたバイト配列をリターンする。これは通常、先頭から充填された、新たなバイト配列を作成する。しかし@var{bindat-raw}が非@code{nil}なら、それはpack先として事前に割り当てられたユニバイト文字列、またはベクターを指定する。@var{bindat-idx}が非@code{nil}なら、それは@code{bindat-raw}へpackする開始オフセットを指定する。
+
+事前に割り当てる際には、out-of-rangeエラーを避けるために、@code{(length
+@var{bindat-raw})}がトータル長またはそれ以上であることを確認すること。
+@end defun
+
+@defun bindat-ip-to-string ip
+@c FIXME?  Does it do IPv6?
+インターネットアドレスのベクター@var{ip}を、通常のドット表記による文字列に変換する。
+
+@example
+(bindat-ip-to-string [127 0 0 1])
+     @result{} "127.0.0.1"
+@end example
+@end defun
+
+@node Bindat Examples
+@subsection Examples of Byte Unpacking and Packing
+@c FIXME?  This seems a very long example for something that is not used
+@c very often.  As of 24.1, gdb-mi.el is the only user of bindat.el in Emacs.
+@c Maybe one or both of these examples should just be moved to the
+@c commentary of bindat.el.
+
+  以下は、バイトにたいしてunpackおよびpackを行う完全な例です:
+
+@lisp
+(require 'bindat)
+
+(defvar fcookie-index-spec
+  '((:version  u32)
+    (:count    u32)
+    (:longest  u32)
+    (:shortest u32)
+    (:flags    u32)
+    (:delim    u8)
+    (:ignored  fill 3)
+    (:offset   repeat (:count) (:foo u32)))
+  "fortuneクッキーのインデックスファイル内容")
+
+(defun fcookie (cookies &optional index)
+  "ファイルCOOKIESからランダムなfortuneクッキーを表示する。
+オプションの第2引数INDEXは関連付けられるインデックス
+ファイル名を指定し、デフォルトは\"COOKIES.dat\"。
+バッファー\"*Fortune Cookie: BASENAME*\"内にクッキーを表示。
+BASENAMEはディレクトリー部分を除いたCOOKIES"
+  (interactive "fCookies file: ")
+  (let* ((info (with-temp-buffer
+                 (insert-file-contents-literally
+                  (or index (concat cookies ".dat")))
+                 (bindat-unpack fcookie-index-spec
+                                (buffer-string))))
+         (sel (random (bindat-get-field info :count)))
+         (beg (cdar (bindat-get-field info :offset sel)))
+         (end (or (cdar (bindat-get-field info
+                                          :offset (1+ sel)))
+                  (nth 7 (file-attributes cookies)))))
+    (switch-to-buffer
+     (get-buffer-create
+      (format "*Fortune Cookie: %s*"
+              (file-name-nondirectory cookies))))
+    (erase-buffer)
+    (insert-file-contents-literally
+     cookies nil beg (- end 3))))
+
+(defun fcookie-create-index (cookies &optional index delim)
+  "ファイルCOOKIESをスキャンしてインデックスファイルに書き込む。
+オプション引数INDEXは、インデックスファイル名を指定。デフォルトは\"COOKIES.dat\"。
+オプション引数DELIMはユニバイト文字で、それがCOOKIES内
+のある行で見つかったら、その行はエントリー間の境界を示す。"
+  (interactive "fCookies file: ")
+  (setq delim (or delim ?%))
+  (let ((delim-line (format "\n%c\n" delim))
+        (count 0)
+        (max 0)
+        min p q len offsets)
+    (unless (= 3 (string-bytes delim-line))
+      (error "Delimiter cannot be represented in one byte"))
+    (with-temp-buffer
+      (insert-file-contents-literally cookies)
+      (while (and (setq p (point))
+                  (search-forward delim-line (point-max) t)
+                  (setq len (- (point) 3 p)))
+        (setq count (1+ count)
+              max (max max len)
+              min (min (or min max) len)
+              offsets (cons (1- p) offsets))))
+    (with-temp-buffer
+      (set-buffer-multibyte nil)
+      (insert
+       (bindat-pack
+        fcookie-index-spec
+        `((:version . 2)
+          (:count . ,count)
+          (:longest . ,max)
+          (:shortest . ,min)
+          (:flags . 0)
+          (:delim . ,delim)
+          (:offset . ,(mapcar (lambda (o)
+                                (list (cons :foo o)))
+                              (nreverse offsets))))))
+      (let ((coding-system-for-write 'raw-text-unix))
+        (write-file (or index (concat cookies ".dat")))))))
+@end lisp
+
+以下は複雑な構造体を定義してunpackする例です。以下のようなCの構造体があるものとします:
+
+@example
+struct header @{
+    unsigned long    dest_ip;
+    unsigned long    src_ip;
+    unsigned short   dest_port;
+    unsigned short   src_port;
+@};
+
+struct data @{
+    unsigned char    type;
+    unsigned char    opcode;
+    unsigned short   length;  /* ネットワークバイトオーダー */
+    unsigned char    id[8];   /* NUL終端文字列 */
+    unsigned char    data[/* (length + 3) & ~3 */];
+@};
+
+struct packet @{
+    struct header    header;
+    unsigned long    counters[2];  /* リトルエンディアンオーダー */
+    unsigned char    items;
+    unsigned char    filler[3];
+    struct data      item[/* items */];
+
+@};
+@end example
+
+対応するデータレイアウト仕様が以下です:
+
+@lisp
+(setq header-spec
+      '((dest-ip   ip)
+        (src-ip    ip)
+        (dest-port u16)
+        (src-port  u16)))
+
+(setq data-spec
+      '((type      u8)
+        (opcode    u8)
+        (length    u16)  ; ネットワークバイトオーダー
+        (id        strz 8)
+        (data      vec (length))
+        (align     4)))
+
+(setq packet-spec
+      '((header    struct header-spec)
+        (counters  vec 2 u32r)   ; リトルエンディアンオーダー
+        (items     u8)
+        (fill      3)
+        (item      repeat (items)
+                   (struct data-spec))))
+@end lisp
+
+バイナリーデータによる表現は:
+
+@lisp
+(setq binary-data
+      [ 192 168 1 100 192 168 1 101 01 28 21 32
+        160 134 1 0 5 1 0 0 2 0 0 0
+        2 3 0 5 ?A ?B ?C ?D ?E ?F 0 0 1 2 3 4 5 0 0 0
+        1 4 0 7 ?B ?C ?D ?E ?F ?G 0 0 6 7 8 9 10 11 12 0 ])
+@end lisp
+
+対応するデコードされた構造体は:
+
+@lisp
+(setq decoded (bindat-unpack packet-spec binary-data))
+     @result{}
+((header
+  (dest-ip   . [192 168 1 100])
+  (src-ip    . [192 168 1 101])
+  (dest-port . 284)
+  (src-port  . 5408))
+ (counters . [100000 261])
+ (items . 2)
+ (item ((data . [1 2 3 4 5])
+        (id . "ABCDEF")
+        (length . 5)
+        (opcode . 3)
+        (type . 2))
+       ((data . [6 7 8 9 10 11 12])
+        (id . "BCDEFG")
+        (length . 7)
+        (opcode . 4)
+        (type . 1))))
+@end lisp
+
+以下はこの構造体からデータを取得する例です:
+
+@lisp
+(bindat-get-field decoded 'item 1 'id)
+     @result{} "BCDEFG"
+@end lisp

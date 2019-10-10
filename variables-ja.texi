@@ -1,0 +1,1550 @@
+@c ===========================================================================
+@c
+@c This file was generated with po4a. Translate the source file.
+@c
+@c ===========================================================================
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990-1995, 1998-2015 Free Software Foundation, Inc.
+@c See the file elisp.texi for copying conditions.
+@node Variables
+@chapter Variables
+@cindex variable
+
+  @dfn{変数(variable)}とは、プログラム内で値を表すために使用される名前です。Lispでは、変数はそれぞれLispシンボルとして表されます(@ref{Symbols}を参照してください)。変数名は単にそのシンボルの名前であり、変数の値はそのシンボルの値セル(value
+cell)に格納されます@footnote{正確に言うと、デフォルトの@dfn{ダイナミックスコープ(dynamic
+scoping)}のルールでは、値セルは常にその変数のカレント値を保持しますが、@dfn{レキシカルスコープ(lexical
+scoping)}では異なります。詳細は、@ref{Variable Scoping}を参照してください。}。@ref{Symbol
+Components}を参照してください。Emacs
+Lispでは、シンボルを変数として使用することは、同じシンボルを関数名として使用することと関係ありません。
+
+  このマニュアル中で前に記したとおり、Lispプログラムはまず第1にLispオブジェクトとして表され、副次的にテキストとして表現されます。Lispプログラムのテキスト的な形式は、そのプログラムを構成するLispオブジェクトの入力構文により与えられます。したがって、Lispプログラム内の変数のテキスト的な形式は、その変数を表すシンボルの入力構文を使用して記述されます。
+
+@menu
+* Global Variables::         どの場所でも永続的に存在する変数の値。
+* Constant Variables::       変更されることのない値を持つ、ある種の"変数"。
+* Local Variables::          一時的にのみ存在する存在する変数の値。
+* Void Variables::           値を持たないシンボル。
+* Defining Variables::       シンボルが変数として使用されていることを宣言する定義。
+* Tips for Defining::        変数を定義するときに考慮すべき事項。
+* Accessing Variables::      実行時に判明する名前をもつ変数の値を確認する。
+* Setting Variables::        変数に新しい値を格納する。
+* Variable Scoping::         Lispがローカル値とグローバル値を選択する方法。
+* Buffer-Local Variables::   1つのバッファーないだけで効果をもつ変数の値。
+* File Local Variables::     ファイル内にリストされたローカル変数の処理。
+* Directory Local Variables::  ディレクトリー内のすべてのファイルで共通のローカル変数。
+* Variable Aliases::         他の変数のエイリアスとなる変数。
+* Variables with Restricted Values::  任意のLispオブジェクトを値とすることが@emph{できない}、定数ではない変数。
+* Generalized Variables::    変数の概念の拡張。
+@end menu
+
+@node Global Variables
+@section Global Variables
+@cindex global variable
+
+  変数を使用するための一番シンプルな方法は、@dfn{グローバル(globally)}に使用する方法です。これは、ある時点でその変数はただ1つの値をもち、その値が(少なくともその時点では)Lispシステム全体で効果をもつことを意味します。あらたな値を指定するまで、その値が効果をもちます。新しい値で古い値を置き換えるとき、古い値を追跡する情報は変数内に残りません。
+
+  シンボルの値は@code{setq}で指定します。たとえば、
+
+@example
+(setq x '(a b))
+@end example
+
+@noindent
+これは、変数@code{x}に値@code{(a
+b)}を与えます。@code{setq}はスペシャルフォームであることに注意してください。これは1番目の引数(変数の名前)は評価しませんが、2番目の引数(新しい値)は評価します。
+
+  変数が1度値をもつと、そのシンボル自身を式として使用することにより、参照することができます。したがって、
+
+@example
+@group
+x @result{} (a b)
+@end group
+@end example
+
+@noindent
+これは上記の@code{setq}フォームが実行された場合です。
+
+  同じ変数を再びセットした場合、新しい値は古い値を置き換えます:
+
+@example
+@group
+x
+     @result{} (a b)
+@end group
+@group
+(setq x 4)
+     @result{} 4
+@end group
+@group
+x
+     @result{} 4
+@end group
+@end example
+
+@node Constant Variables
+@section Variables that Never Change
+@cindex @code{setting-constant} error
+@cindex keyword symbol
+@cindex variable with constant value
+@cindex constant variables
+@cindex symbol that evaluates to itself
+@cindex symbol with constant value
+
+  Emacs
+Lispでは、特定のシンボルは、通常は自分自身に評価されます。これらのシンボルには@code{nil}と@code{t}、同様に名前が@samp{:}で始まる任意のシンボル(これらは@dfn{キーワード}と呼ばれます)が含まれます。これらのシンボルは、リバインドや、値の変更はできません。@code{nil}や@code{t}へのセットやリバインドは、@code{setting-constant}エラーをシグナルします。これはキーワード(名前が@samp{:}で始まるシンボル)についても当てはまります。ただしキーワードが標準のobarrayにinternされている場合、そのようなシンボルを自分自身にセットしてもエラーになりません。
+
+@example
+@group
+nil @equiv{} 'nil
+     @result{} nil
+@end group
+@group
+(setq nil 500)
+@error{} Attempt to set constant symbol: nil
+@end group
+@end example
+
+@defun keywordp object
+この関数は、@var{object}が@samp{:}で始まる名前のシンボルで、標準のobarrayにinternされているの場合は@code{t}、それ以外は@code{nil}をreturnします。
+@end defun
+
+これらの定数はスペシャルフォーム@code{defconst}(@ref{Defining
+Variables}を参照してください)を使用して定義された``定数(constant)''とは、根本的に異なります。@code{defconst}フォームは、人間の読み手に値の変更を意図しない変数であることを知らせる役目は果たしますが、実際にそれを変更しても、Emacsはエラーを起こしません。
+
+@node Local Variables
+@section Local Variables
+@cindex binding local variables
+@cindex local variables
+@cindex local binding
+@cindex global binding
+
+  グローバル変数は、新しい値で明示的に置き換えるまで値が持続します。変数に@dfn{ローカル値(local value)} ---
+Lispプログラム内の特定の部分で効果をもつを与えると便利なときがあります。変数がローカル値をもつとき、わたしたちは変数がその値に@dfn{ローカルにバインド(locally
+bound)}と言い、その変数を@dfn{ローカル変数(local variable)}と呼びます。
+
+  たとえば、関数が呼び出されるとき、関数の引数となる変数はローカル値(その関数の呼び出しにおいて実際の引数に与えられた値)を受け取ります。これらのローカルバインディングは、その関数のbody内で効果をもちます。他にも、たとえばスペシャルフォーム@code{let}は特定の変数にたいして明示的にローカルなバインディングを確立し、これは@code{let}フォームのbody内で効果を持ちます。
+
+  これにたいして@dfn{グローバルなバインディング(global binding)}とは、(概念的には)グローバルな値が保持される場所です。
+
+@cindex shadowing of variables
+  ローカルバインディングを確立すると、その変数の以前の値は他の場所に保存されます(または失われます)。わたしたちはこれを、以前の値が@dfn{シャドーされた(shadowed)}と言います。シャドーはグローバル変数とローカル変数の両方で発生し得ます。ローカルバインディングが効果を持つとき、ローカル変数に@code{setq}を使用することにより、ローカルバインディングに指定された値を格納します。ローカルバインディングが効果を持たなくなったとき、以前にシャドーされた値が復元されます(または失われます)。
+
+@cindex current binding
+  変数は同時に複数のローカルバインディングを持つことができます(たとえばその変数をバインドするネストされた@code{let})。@dfn{カレントバインディング(current
+binding)}とは、実際に効果を持つローカルバインディングのことです。カレントバインディングは、その変数の評価によりreturnされる値を決定し、@code{setq}により影響を受けるバインディングです。
+
+  ほとんどの用途において、``最内(innermost)''のローカルバインディング、ローカルバインディングがないときはグローバルバインディングを、カレントバインディングと考えることができます。より正確に言うと、@dfn{スコープルール(scoping
+rule)}と呼ばれるルールは、プログラム内でローカルバインディングが効果を持つ任意の与えられた場所を決定します。Emacs
+Lispのスコープルールは@dfn{ダイナミックスコープ(dynamic
+scoping)}と呼ばれ、これは単に実行中のプログラム内の与えられた位置でのカレントバインディングを示し、その変数がまだ存在する場合は、その変数にたいしてもっとも最近作成されたバインディングです。ダイナミックスコープについての詳細と、その代替である@dfn{レキシカルスコープ(lexical
+scoping)}と呼ばれるスコープルールについては、@ref{Variable Scoping}を参照してください。
+
+  スペシャルフォーム@code{let}および@code{let*}は、ローカルバインディングを作成するために存在します:
+
+@defspec let (bindings@dots{}) forms@dots{}
+このスペシャルフォームは、@var{bindings}により指定される特定の変数セットにたいするローカルバインディングをセットアップしてから、@var{forms}のすべてをテキスト順に評価します。これは@var{forms}内の最後のフォームの値をreturnします。
+
+@var{bindings}の各バインディングは2つの形式のどちらかです。@w{(i)}
+シンボルの場合。この場合、そのシンボルは@code{nil}にローカルにバインドされます。@w{(ii)}
+フォーム@code{(@var{symbol}
+@var{value-form})}のリストの場合。この場合@var{symbol}は@var{value-form}を評価した結果にローカルにバインドされます。@var{value-form}が省略された場合は、@code{nil}が使用されます。
+
+@var{bindings}内のすべての@var{value-form}は、シンボルがそれらにバインドされる@emph{前}に、記述された順番に評価されます。以下は例では、@code{z}は@code{y}の新しい場合(つまり1)にではなく、古い値(つまり2)にバインドされます。
+
+@example
+@group
+(setq y 2)
+     @result{} 2
+@end group
+
+@group
+(let ((y 1)
+      (z y))
+  (list y z))
+     @result{} (1 2)
+@end group
+@end example
+@end defspec
+
+@defspec let* (bindings@dots{}) forms@dots{}
+このスペシャルフォームは@code{let}と似ていますが、次の変数値にたいするローカル値を計算する前に、ローカル値を計算してそれを変数にバインドします。したがて、@var{bindings}内の式は、この@code{let*}フォーム内の前のシンボルのバインドを参照できます。以下の例を、上記@code{let}の例と比較してください。
+
+@example
+@group
+(setq y 2)
+     @result{} 2
+@end group
+
+@group
+(let* ((y 1)
+       (z y))    ; @r{@code{y}の値に今計算されたばかりの値を使用する。}
+  (list y z))
+     @result{} (1 1)
+@end group
+@end example
+@end defspec
+
+  以下は、ローカルバインディングを作成する、他の機能のリストです:
+
+@itemize @bullet
+@item
+関数呼び出し(@ref{Functions}を参照してください)。
+
+@item
+マクロ呼び出し(@ref{Macros}を参照してください)。
+
+@item
+@code{condition-case} (@ref{Errors}を参照してください)。
+@end itemize
+
+  変数はバッファーローカルなバインディングを持つこともできます(@ref{Buffer-Local
+Variables}を参照してください)。数は多くありませんが、端末ローカル(terminal-local)なバインディングをもつ変数もあります(@ref{Multiple
+Terminals}を参照してください)これらの種類のバインディングは、通常のローカルバインディングのように機能することもありますが、これらはEmacs内の``どこ''であるかに依存してローカライズされます。
+
+@defopt max-specpdl-size
+@anchor{Definition of max-specpdl-size}
+@cindex variable limit error
+@cindex evaluation error
+@cindex infinite recursion
+この変数は、ローカルな変数バインディングと、@code{unwind-protect}にゆるクリーンアップ(@ref{Cleanups,,
+Cleaning Up from Nonlocal
+Exits}の総数にたいする制限を定義し、この変数を越えるとEmacsはエラー(データに関するエラー@code{"Variable binding
+depth exceeds max-specpdl-size"})をシグナルします。
+
+このリミットは、もし超過したときにエラーが関連付けられている場合には、誤って定義された関数による無限再起を避けるための1つの方法になります。ネストの深さにたいする他の制限としては、@code{max-lisp-eval-depth}があります。@ref{Definition
+of max-lisp-eval-depth,, Eval}を参照してください。
+
+デフォルト値は1300です。Lispデバッガーのエントリーしたとき、もし残りが少ないときは、デバッガーを実行するための空きを作るために、値は増加されます。
+@end defopt
+
+@node Void Variables
+@section When a Variable is ``Void''
+@cindex @code{void-variable} error
+@cindex void variable
+
+  シンボルの値セル(@ref{Symbol
+Components}を参照してください)に値が割り当てられていない場合、その変数はvoid(空)であると言います。
+
+  Emacs Lispのデフォルトであるダイナミックスコープルール(@pxref{Variable
+Scoping})の下では、値セルはその変数のカレント値(ローカルまたはグローバル)を保持します。値が割り当てられていない値セルは、値セルに@code{nil}をもつのとは@emph{異なる}ことに注意してください。シンボル@code{nil}はLispオブジェクトであり、他のオブジェクトと同様に変数の値となることができます。@code{nil}は値なのです。変数がvoidの場合、その変数の評価を試みると、値をreturnするかわりに、@code{void-variable}エラーがシグナルされます。
+
+  オプションであるレキシカルスコープルール(lexical scoping rule)の下では、値セル保持できるのは、その変数のグローバル値 ---
+任意のレキシカルバインディング構造の外側の値だけです。変数がレキシカルにバインドされている場合、ローカル値はそのレキシカル環境により決定されます。したがって、これらのシンボルの値セルに値が割り当てられていなくても、変数はローカル値を持つことができます。
+
+@defun makunbound symbol
+この関数は、@var{symbol}の値セルを空にして、その変数をvoidにします。この関数は@var{symbol}をreturnします。
+
+@var{symbol}がダイナミックなローカルバインディングを持つ場合、@code{makunbound}はカレントのバインディングをvoidにし、そのローカルバインディングが効果を持つ限りvoidにします。その後、前にシャドーされたローカル値(またはグローバル値)が再び有効になり、再び有効になった値がvoidでなければ、その変数はvoidでなくなります。
+
+いくつか例を示します(ダイナミックバインディングが有効だとします):
+
+@smallexample
+@group
+(setq x 1)               ; @r{グローバルバインディングに値をセットする。}
+     @result{} 1
+(let ((x 2))             ; @r{それをローカルにバインドする。}
+  (makunbound 'x)        ; @r{ローカルバインディングをvoidにする。}
+  x)
+@error{} Symbol's value as variable is void: x
+@end group
+@group
+x                        ; @r{グローバルバインディングは変更されない。}
+     @result{} 1
+
+(let ((x 2))             ; @r{ローカルにバインドする。}
+  (let ((x 3))           ; @r{もう1度。}
+    (makunbound 'x)      ; @r{最内のローカルバインディングをvoidにする。}
+    x))                  ; @r{それを参照すると、void。}
+@error{} Symbol's value as variable is void: x
+@end group
+
+@group
+(let ((x 2))
+  (let ((x 3))
+    (makunbound 'x))     ; @r{内側のバインディングをvoidにしてから取り除く。}
+  x)                     ; @r{外側の@code{let}バインディングが有効になる。}
+     @result{} 2
+@end group
+@end smallexample
+@end defun
+
+@defun boundp variable
+この関数は@var{variable}(シンボル)がvoidでなければ@code{t}をreturnし、voidのときは@code{nil}をreturnします。
+
+いくつか例を示します(ダイナミックバインディングが有効だとします):
+
+@smallexample
+@group
+(boundp 'abracadabra)          ; @r{最初はvoid。}
+     @result{} nil
+@end group
+@group
+(let ((abracadabra 5))         ; @r{ローカルにバインドする。}
+  (boundp 'abracadabra))
+     @result{} t
+@end group
+@group
+(boundp 'abracadabra)          ; @r{グローバルではまだvoid。}
+     @result{} nil
+@end group
+@group
+(setq abracadabra 5)           ; @r{グローバルで非voidにする。}
+     @result{} 5
+@end group
+@group
+(boundp 'abracadabra)
+     @result{} t
+@end group
+@end smallexample
+@end defun
+
+@node Defining Variables
+@section Defining Global Variables
+@cindex variable definition
+
+  @dfn{変数定義(variable
+definition)}とは、そのシンボルをグローバル変数として使用する意図を表明する構成です。これには以下で説明するスペシャルフォーム@code{defvar}や@code{defconst}が使用されます。
+
+  変数宣言は3つの目的をもちます。1番目は、コードを読む人にたいして、そのシンボルが特定の方法(変数として)使用されることを@emph{意図}したものだと知らせることです。2番目は、Lispシステムにたいして、オプションで初期値とドキュメント文字列を与えて、これを知らせることです。3番目は、@command{etags}のようなプログラミングツールにたいして、その変数が定義されている場所を見つけられるように、情報を提供することです。
+
+  @code{defconst}と@code{defvar}の違いは主に、人間の読み手に、値が変更されるかどうかを知らせることにあります。Emacs
+Lispは実際、@code{defconst}で定義された変数の値の変更を妨げません。この2つのフォームの特筆すべき違いは、@code{defconst}は無条件で変数を初期化し、@code{defvar}は変数が元々voidのときだけ初期化することです。
+
+  マスタマイズ可能な変数を定義する場合は、@code{defcustom}を使用するべきです(これはサブルーチンとして@code{defvar}を呼び出します)。@ref{Variable
+Definitions}を参照してください。
+
+@defspec defvar symbol [value [doc-string]]
+このスペシャルフォームは、変数として@var{symbol}を定義します。@var{symbol}は評価されないことに注意してください。シンボルは@code{defvar}フォーム内に明示的に表記して定義される必要があります。この変数は@dfn{特別}だとマークされ、これは常にそれがダイナミックにバインドされることを意味します(@ref{Variable
+Scoping}を参照してください)。
+
+@var{value}が指定されていて@var{symbol}がvoid(たとえばこのシンボルがダイナミックにバインドされた値を持たないとき。@ref{Void
+Variables}を参照してください)、@var{value}が評価されて、その結果が@var{symbol}にセットされます。しかし@var{symbol}がvoidでな場合、@var{value}は評価されず、@var{symbol}の値は変更されません。@var{value}が省略された場合、いかなる場合も@var{symbol}の値は変更されません。
+
+@var{symbol}がカレントバッファー内でバッファーローカルなバインディングをもつ場合、@code{defvar}はデフォルト値に作用します。デフォルト値はバッファーローカルなバインディングではなく、バッファーにたいして独立しています。デフォルト値がvoidのときはデフォルト値をセットします。@ref{Buffer-Local
+Variables}を参照してください。
+
+すでに@var{symbol}がレキシカルにバインドされている場合(たとえばレキシカルバインドが有効な状態で@code{let}フォーム内に@code{defvar}があるような場合)、@code{defvar}はダイナミックな値をセットします。バインディング構造を抜けるまで、レキシカルバインディングは効果をもちます。@ref{Variable
+Scoping}を参照してください。
+
+Emacs
+Lispモード(@code{eval-defun})でトップレベルの@code{defvar}を評価するとき、@code{eval-defun}の特別な機能は、その値がvoidであるかテストすることなく、その変数を無条件にセットします。
+
+引数@var{doc-string}が与えられた場合、それは変数にたいするドキュメント文字列を指定します(そのシンボルの@code{variable-documentation}プロパティーに格納されます)。@ref{Documentation}を参照してください。
+
+以下にいくつか例を示します。これは@code{foo}を定義しますが、初期化は行いません:
+
+@example
+@group
+(defvar foo)
+     @result{} foo
+@end group
+@end example
+
+この例は@code{bar}の値を@code{23}に初期化して、ドキュメント文字列を与えます:
+
+@example
+@group
+(defvar bar 23
+  "The normal weight of a bar.")
+     @result{} bar
+@end group
+@end example
+
+@code{defvar}フォームは@var{symbol}をreturnしますが、通常これは値が問題にならないファイル内のトップレベルで使用されます。
+@end defspec
+
+@cindex constant variables
+@defspec defconst symbol value [doc-string]
+このスペシャルフォームは、ある値として@var{symbol}を定義して、それを初期化します。これはコードを読む人に、@var{symbol}がここで設定される標準的なグローバル値をもち、ユーザーや他のプログラムがそれを変更すべきではないことを知らせます。@var{symbol}は評価されないことに注意してください。このシンボルは、@code{defconst}内に明示的に記されなければなりません。
+
+@code{defvar}と同様、@code{defconst}は、変数を@dfn{特別} ---
+この変数が常にダイナミックにバインドされているという意味 --- だとマークします(@ref{Variable
+Scoping}を参照してください)。加えて、これはその変数を危険であるとマークします(@ref{File Local
+Variables}を参照してください)。
+
+@code{defconst}は常に@var{value}を評価して、その結果を@var{symbol}の値にセットします。カレントバッファー内で@var{symbol}がバッファーローカルなバインディングをもつ場合、@code{defconst}はデフォルト値ではなく、バッファーローカルな値をセットします(しかし、@code{defconst}で定義されたシンボルにたいしてバッファーローカルなバインディングを作るべきではありません)。
+
+@code{defconst}の使い方の例は、Emacsの@code{float-pi} --- (たとえIndiana State
+Legislatureが何を試みようと)何者かにより変更されるべきではない、数学定数@math{pi}にたいする定義です。しかし2番目の@code{defconst}の例のように、これは単にアドバイス的なものです。
+
+@example
+@group
+(defconst float-pi 3.141592653589793 "The value of Pi.")
+     @result{} float-pi
+@end group
+@group
+(setq float-pi 3)
+     @result{} float-pi
+@end group
+@group
+float-pi
+     @result{} 3
+@end group
+@end example
+@end defspec
+
+  @strong{警告:}
+変数がローカルバインディングをもつとき(@code{let}により作成された、または関数の引数の場合)に、スペシャルフォーム@code{defconst}または@code{defvar}を使用すると、これらのフォームはグローバルバインディングではなく、ローカルバインディングをセットします。これは通常、あなたが望むことではないはずです。これを防ぐには、これらのスペシャルフォームをファイル内のトップレベルで使用します。この場所は通常、何のローカルバインディングも効果をもたないので、その変数にたいするローカルバインディングが作成される前にファイルがロードされることが確実だからです。
+
+@node Tips for Defining
+@section Tips for Defining Variables Robustly
+
+  値が関数(または関数のリスト)であるような変数を定義するとき、変数の名前の最後に@samp{-function}(または@samp{-functions})を使います。
+
+  他にも、変数名に関する慣習があります。以下はその完全なリストです:
+
+@table @samp
+@item @dots{}-hook
+変数はノーマルフックです(@ref{Hooks}を参照してください)。
+
+@item @dots{}-function
+値は関数です。
+
+@item @dots{}-functions
+値は関数のリストです。
+
+@item @dots{}-form
+値はフォーム(式)です。
+
+@item @dots{}-forms
+値はフォーム(式)のリストです。
+
+@item @dots{}-predicate
+値は述語(predicate) --- 1つの引数をとる関数 ---
+で、引数が``正しい(good)''"場合は非@code{nil}、``正しくない(bad)''場合は@code{nil}をreturnします。
+
+@item @dots{}-flag
+@code{nil}か、そうでないかだけが意味をもつような値です。そのような変数は結局、やがては多くの値をもつことが多いので、この慣習を強く推奨はしません。
+
+@item @dots{}-program
+値はプログラム名です。
+
+@item @dots{}-command
+値は完全なシェルコマンドです。
+
+@item @dots{}-switches
+値はコマンドにたいして指定するオプションです。
+@end table
+
+  変数を定義するときは、その変数を``安全(safe)''とマークすべきか、それとも``危険(risky)''とマークすべきかを常に考慮してください。@ref{File
+Local Variables}を参照してください。
+
+  複雑な値を保持する変数(バインディングをもつkeymapなど)を定義、または初期化するとき、以下のように値の計算をすべて@code{defvar}の中に配置するのが最良です:
+
+@example
+(defvar my-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-a" 'my-command)
+    @dots{}
+    map)
+  @var{docstring})
+@end example
+
+@noindent
+この方法にはいくつかの利点があります。1つ目は、ファールをロード中にユーザーが中断した場合、変数はまだ初期化されていないか、初期化されているかのどちらかで、その中間ということはありません。まだ初期化されていない場合、ファイルをリロードすれば正しく初期化されます。2つ目は、1度初期化された変数は、ファイルをリロードしても変更されないことです。コンテンツの一部を変更(たとえばキーのリバインド)するフックをユーザーが実行した場合などに、これは重要です。3つ目は、@kbd{C-M-x}で@code{defvar}を評価すると、そのマップは完全に再初期化されることです。
+
+  @code{defvar}フォーム内に多すぎるコードを配置することには不利な点が1つあります。ドキュメント文字列が変数の名前から離れた場所に配置されることです。これを避ける安全な方法は以下の方法です:
+
+@example
+(defvar my-mode-map nil
+  @var{docstring})
+(unless my-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-a" 'my-command)
+    @dots{}
+    (setq my-mode-map map)))
+@end example
+
+@noindent
+これは初期化を@code{defvar}の内側に配置した場合とまったく同じ利点をもちますが、変数を再度初期化したい場合は、各フォームにたいして1回ずつ、2度@kbd{C-M-x}をタイプしなければならない点が異なります。
+
+@node Accessing Variables
+@section Accessing Variable Values
+
+  変数を参照する通常の方法は、それに名前をつけるシンボルを記述する方法です。The usual way to reference a variable
+is to write the symbol which names it.  @ref{Symbol Forms}を参照してください。
+
+  時には、実行時にのみ決定される変数を参照したいときがあるかもしれません。そのような場合、プログラム中のテキストで、変数名を指定することはできません。その値を抽出するために、@code{symbol-value}を使うことができます。
+
+@defun symbol-value symbol
+この関数は、@var{symbol}の値セルに格納された値をreturnします。これには、その変数の(ダイナミックな)カレント値が格納された場所です。その変数がローカルバインディングをもたない場合は、単にその変数のグローバル値になります。変数がvoidの場合、@code{void-variable}はエラーをシグナルします。
+
+その変数がレキシカルにバインドされている場合、@code{symbol-value}により報告される値は、その変数のレキシカル値と同じである必要はありません。レキシカル値はそのシンボルの値セルではなく、レキシカル環境により決定されます。@ref{Variable
+Scoping}を参照してください。
+
+@example
+@group
+(setq abracadabra 5)
+     @result{} 5
+@end group
+@group
+(setq foo 9)
+     @result{} 9
+@end group
+
+@group
+;; @r{ここでシンボル@code{abracadabra}は}
+;;   @r{値がテストされるシンボル。}
+(let ((abracadabra 'foo))
+  (symbol-value 'abracadabra))
+     @result{} foo
+@end group
+
+@group
+;; @r{ここでは、@code{abracadabra}の値、}
+;;   @r{つまり@code{foo}が、}
+;;   @r{値をテストされるシンボル。}
+(let ((abracadabra 'foo))
+  (symbol-value abracadabra))
+     @result{} 9
+@end group
+
+@group
+(symbol-value 'abracadabra)
+     @result{} 5
+@end group
+@end example
+@end defun
+
+@node Setting Variables
+@section Setting Variable Values
+
+  ある変数の値を変更する通常の方法は、スペシャルフォーム@code{setq}を使用する方法です。実行時に変数選択を計算する必要がある場合は、関数@code{set}を使用します。
+
+@defspec setq [symbol form]@dots{}
+このスペシャルフォームは、変数の値を変更するための、もっとも一般的な方法です。@var{symbol}にはそれぞれ、新しい値(対応する@var{form}が評価された結果)を与えられます。そのシンボルのカレントバインディングは変更されます。
+
+@code{setq}は@var{symbol}を評価せず、記述されたシンボルをセットします。この引数のことを、@dfn{自動的にクォートされた(automatically
+quoted)}と呼びます。@code{setq}の@samp{q}は、``quoted(クォートされた)''が由来です。
+
+@code{setq}フォームの値は、最後の@var{form}の値となります。
+
+@example
+@group
+(setq x (1+ 2))
+     @result{} 3
+@end group
+x                   ; @r{ここで@code{x}はグローバル値をもつ。}
+     @result{} 3
+@group
+(let ((x 5))
+  (setq x 6)        ; @r{@code{x}のローカルバインディングをセット。}
+  x)
+     @result{} 6
+@end group
+x                   ; @r{グローバル値は変更されない。}
+     @result{} 3
+@end example
+
+1番目の@var{form}が評価されてから1番目の@var{symbol}がセットされ、次に2番目の@var{form}が評価されてから@var{symbol}が評価されて、...となることに注意してください:
+
+@example
+@group
+(setq x 10          ; @r{ここで、@code{x}がセットされるのは}
+      y (1+ x))     ;   @r{@code{y}の計算前であることに注目。}
+     @result{} 11
+@end group
+@end example
+@end defspec
+
+@defun set symbol value
+この関数は、@var{symbol}の値セルに@var{value}を配置します。これはスペシャルフォームではなく関数なので、シンボルにセットするために、@var{symbol}に記述された式は評価されます。return値は@var{value}です。
+
+ダイナミックな変数バインドが有効な場合(デフォルト)、@code{set}は自身の引数@var{symbol}を評価しますが、@code{setq}は評価しないという点を除き、@code{set}は@code{setq}と同じ効果をもちます。しかし、変数がレキシカルバインドの場合、@code{set}は変数の@emph{ダイナミック}な値に影響し、@code{setq}は変数のカレント値(レキシカル値)に影響します。@ref{Variable
+Scoping}を参照してください。
+
+@example
+@group
+(set one 1)
+@error{} Symbol's value as variable is void: one
+@end group
+@group
+(set 'one 1)
+     @result{} 1
+@end group
+@group
+(set 'two 'one)
+     @result{} one
+@end group
+@group
+(set two 2)         ; @r{@code{two}は、シンボル@code{one}に評価される。}
+     @result{} 2
+@end group
+@group
+one                 ; @r{したがって@code{one}がセットされる。}
+     @result{} 2
+(let ((one 1))      ; @r{@code{one}のこのバインディングがセットされるのであって}
+  (set 'one 3)      ;   @r{グローバル値はセットされない。}
+  one)
+     @result{} 3
+@end group
+@group
+one
+     @result{} 2
+@end group
+@end example
+
+@var{symbol}が実際のシンボルでない場合、@code{wrong-type-argument}エラーがシグナルされます。
+
+@example
+(set '(x y) 'z)
+@error{} Wrong type argument: symbolp, (x y)
+@end example
+@end defun
+
+@node Variable Scoping
+@section Scoping Rules for Variable Bindings
+@cindex scoping rule
+
+  ある変数にたいするローカルバインディングを作成するとき、そのバインディングはプログラムの限られた一部だけに効果をもちます(@pxref{Local
+Variables})。このセクションでは、これが正確には何を意味するかについて説明します。
+
+@cindex scope
+@cindex extent
+  ローカルバインディングはそれぞれ、個別に@dfn{スコープ(scope: 範囲という意味)}と@dfn{エクステント(extent:
+これも範囲を意味する)}をもちます。@dfn{スコープ}は、そのバインディングにアクセスできるのが、テキストのソースコードの@emph{どこ(where)}であるかを示します。@dfn{エクステント}は、プログラムの実行中に、そのバインディングが存在するのが@emph{いつ(when)}であるかを示します。
+
+@cindex dynamic binding
+@cindex dynamic scope
+@cindex dynamic extent
+  デフォルトでは、Emacsが作成したローカルバインディングは、@dfn{ダイナミックバインディング(dynamic
+binding)}です。このようなバインディングは、@dfn{ダイナミックスコープ(dynamic
+scope)}をもち、それはプログラムの任意の範囲が、その変数バインディングにアクセスするかもしれないことを意味します。これは@dfn{ダイナミックエクステント(dynamic
+extent)}ももちます。これはそのバインディング構造(@code{let}フォームのbodyなど)が実行される間だけ、そのバインディングが存続することを意味します。
+
+@cindex lexical binding
+@cindex lexical scope
+@cindex indefinite extent
+  Emacsはオプションで@dfn{レキシカルバインディング(lexical
+binding)}を作成することができます。レキシカルバインディングは@dfn{レキシカルスコープ(lexical
+scope)}をもち、これはその変数にたいする任意の参照が、バインディング構造内にテキスト的に配置されなければならないことを意味します@footnote{これには、いくつか例外があります。たとえば、レキシカルバインディングは、Lispデバッガーからもアクセスできます。}。レキシカルバインディングは@dfn{不定エクステント(indefinite
+extent)}ももちます。これは、ある状況下において、@dfn{クロージャー(closures)}と呼ばれるスペシャルオブジェクトにより、バインディング構造が実行を終えた後でさえも、存続を続けることを意味します。
+
+  以降のサブセクションでは、ダイナミックバインディングとレキシカルバインディング、およびEmacs
+Lispプログラムでレキシカルバインディングを有効にする方法について、より詳細に説明します。
+
+@menu
+* Dynamic Binding::          Emacs内でのローカル変数にたいするデフォルトのバインディング。
+* Dynamic Binding Tips::     ダイナミックバインディングによる問題を回避する。
+* Lexical Binding::          ローカル変数にたいする他の種類のバインディング。
+* Using Lexical Binding::    レキシカルバインディングを有効にする方法。
+@end menu
+
+@node Dynamic Binding
+@subsection Dynamic Binding
+
+  デフォルトでは、Emacsにより作成されるローカル変数のバインディングは、ダイナミックバインディングです。ある変数がダイナミックにバインドされていると、Lispプログラムの実行における任意のポイントでのカレントバインディングは、単にそのシンボルにたいしてもっとも最近作成されたダイナミックなローカルバインディングか、そのようなローカルバインディングが存在しない場合はグローバルバインディングになります。
+
+  以下の例のように、ダイナミックバインディングはダイナミックスコープとダイナミック<エクステントをもちます:
+
+@example
+@group
+(defvar x -99)  ; @r{@code{x}は初期値として@minus{}99を受け取る。}
+
+(defun getx ()
+  x)            ; @r{この関数内では、@code{x}は``自由''に使用される。}
+
+(let ((x 1))    ; @r{@code{x}はダイナミックにバインドされている。}
+  (getx))
+     @result{} 1
+
+;; @r{@code{let}フォームが終了した後、}
+;; @r{@code{x}は前の値@minus{}99にリバートされる。}
+
+(getx)
+     @result{} -99
+@end group
+@end example
+
+@noindent
+関数@code{getx}は@code{x}を参照します。@code{defun}構造自体の中に@code{x}にたいするバインディングが存在しないと意味において、これは``自由''な参照です。@code{x}が(ダイナミックに)バインドされている@code{let}フォーム内から@code{getx}を呼び出すと、ローカル値(つまり1)が取得されます。しかし、その後@code{let}フォームの外側から@code{getx}を呼び出すと、グローバル値(つまり@minus{}99)が取得されます。
+
+  以下は、@code{setq}を使用してダイナミックに変数をバインドする、例をです:
+
+@example
+@group
+(defvar x -99)      ; @r{@code{x}は初期値として@minus{}99を受け取る。}
+
+(defun addx ()
+  (setq x (1+ x)))  ; @r{@code{x}に1追加して、新しい値をreturnする。}
+
+(let ((x 1))
+  (addx)
+  (addx))
+     @result{} 3           ; @r{@code{addx}を2回呼び出すと、@code{x}に2回追加される。}
+
+;; @r{@code{let}フォームが終了した後、}
+;; @r{@code{x}は前の値@minus{}99にリバートされる。}
+
+(addx)
+     @result{} -98
+@end group
+@end example
+
+  Emacs
+Lispでは、ダイナミックバインディングは、シンプルな方法で実装されています。それぞれのシンボルは、シンボルのカレントのダイナミック値(または値の不在)を指定する値セルをもちます。@ref{Symbol
+Components}を参照してください。あるシンボルがダイナミックなローカル値を与えられたとき、Emacsは値セルの内容(または値の不在)をスタックに記録し、新しいローカル値を値セルに格納します。バインディング構造が実行を終えたとき、Emacsはスタックから古い値をpopして、値セルにそれを置きます。
+
+@node Dynamic Binding Tips
+@subsection Proper Use of Dynamic Binding
+
+  ダイナミックバインディングは、プログラムにたいしてテキスト的なローカルスコープ内で定義されていない変数を参照することを許す、強力な機能です。しかし、無制限に使用した場合は、プログラムの理解しにくくしてしまうこともあります。このテクニックを使用するために、2つの明解な方法があります:
+
+@itemize @bullet
+@item
+ある変数がグローバルな定義をもたない場合は、ローカル変数としてバインディング構造内だけ(その変数がバインドされる@code{let}フォームのbodyなどの場所)でそれを使用します。プログラムでこの慣習に一貫してしたがえば、プログラム内の他の場所の同じ変数シンボルの任意の使用が、その変数の値に影響を与えたり、影響を受けることがなくなります。
+
+@item
+それ以外では、@code{defvar}、@code{defconst}、@code{defcustom}で変数を定義します。@ref{Defining
+Variables}を参照してください。この定義は通常、Emacs
+Lispファイル内のトップレベルにあるべきです。この定義には可能な限り、変数の意味と目的を説明するドキュメント文字列を含めるべきです。名前の衝突を避けるように、変数を命名することも行うべきです(@ref{Coding
+Conventions}を参照してください)。
+
+その後は、プログラム内のどこか別の場所で、それが何に影響するか確信をもって、変数をバインドすることができます。その変数にどこで出会っても、(たとえば、変数の定義がEmacsにロードされていれば、@kbd{C-h
+v}コマンドを通じて)定義を参照するのが簡単になります。@ref{Name Help,,, emacs, The GNU Emacs
+Manual}を参照してください。
+
+たとえば、@code{case-fold-search}のようなカスタマイズ可能な変数にたいしてローカルバインディングを使用するのは一般的です:
+
+@example
+@group
+(defun search-for-abc ()
+  "Search for the string \"abc\", ignoring case differences."
+  (let ((case-fold-search nil))
+    (re-search-forward "abc")))
+@end group
+@end example
+@end itemize
+
+@node Lexical Binding
+@subsection Lexical Binding
+
+  Emacsのバージョン24.1から、オプションの機能としてレキシカルバインディングが導入されました。わたしたちは、この機能の重要さが、将来において重要になることを期待します。レキシカルバインディングは最適化の機会をより広げるので、この機能を使用するプログラムはおそらく、将来のEmacsバージョンで高速に実行されるようになるでしょう。レキシカルバインディングは、わたしたちがEmacsに将来追加したいと考える並列性(concurrency)とも互換をもっています。
+
+  レキシカルにバインドされた変数は@dfn{レキシカルスコープ(lexical scope)}をもいます。
+これは、その変数にたいする参照は、そのバインディング構造内にテキスト的に配置されなければならないことを意味します。以下は例です
+@iftex
+(実際にレキシカルバインディングを有功にする方法は、次のサブセクションを参照してください):
+@end iftex
+@ifnottex
+(実際にレキシカルバインディングを有功にする方法は、@ref{Using Lexical Binding}を参照してください):
+@end ifnottex
+
+@example
+@group
+(let ((x 1))    ; @r{@code{x}はレキシカルにバインドされる。}
+  (+ x 3))
+     @result{} 4
+
+(defun getx ()
+  x)            ; @r{この関数内では、@code{x}は``自由''に使用される。}
+
+(let ((x 1))    ; @r{@code{x}はレキシカルにバインドされる。}
+  (getx))
+@error{} Symbol's value as variable is void: x
+@end group
+@end example
+
+@noindent
+ここでは、@code{x}はグローバル値をもちません。@code{let}フォーム内でレキシカルにバインドされたとき、この変数は@code{let}のテキスト境界内で使用できます。しかし、この@code{let}内から呼び出される@code{getx}関数からは、@code{getx}の関数定義が@code{let}フォームの外側にあるので、使用することが@emph{できません}。
+
+@cindex lexical environment
+  レキシカルバインディングが機能する方法を説明します。各バインディング構造は、その構造および構造のローカル値でバインドされるシンボルを指定することにより、@dfn{レキシカル環境(lexical
+environment)}を定義します。Lispの評価機能(Lisp
+evaluator)がある変数のカレント値を得たいときは、最初にレキシカル環境内を探します。そこで変数が指定されていなければ、ダイナミック値が格納されるシンボルの値セルを探します。
+
+  (内部的には、レキシカル環境はシンボルと値がペアになったalistで、alistの最後の要素はコンスセルではなく、シンボル@code{t}です。そのようなalistは、フォームを評価するためのレキシカル環境を指定するために、@code{eval}関数の2番目の引数として渡すことができます。@ref{Eval}を参照してください。しかし、ほとんどのEmacs
+Lispプログラムは、この方法で直接レキシカル環境を使用するべきではありません。デバッガーのような特化されたプログラムだけが使用すべきです。)
+
+@cindex closures, example of using
+  レキシカルバインディングは、不定エクステント(indefinite
+extent)をもちます。バインディング構造が終了した後でも、そのレキシカル環境は@dfn{クロージャー(closures)}と呼ばれるLispオブジェクト内に``保持''されます。クロージャーは、レキシカルバインディングが有効な、名前つきまたは無名(anonymous)の関数が作成されたときに作成されます。詳細は、@ref{Closures}を参照してください。
+
+  クロージャーが関数として呼び出されたとき、その関数の定義内のレキシカル変数にたいする任意の参照は、レキシカル環境を維持するために使用されます。以下は例です:
+
+@example
+(defvar my-ticker nil)   ; @r{クロージャーを格納するために}
+                         ; @r{この変数を使用する。}
+
+(let ((x 0))             ; @r{@code{x}はレキシカルにバインドされる。}
+  (setq my-ticker (lambda ()
+                    (setq x (1+ x)))))
+    @result{} (closure ((x . 0) t) ()
+          (setq x (1+ x)))
+
+(funcall my-ticker)
+    @result{} 1
+
+(funcall my-ticker)
+    @result{} 2
+
+(funcall my-ticker)
+    @result{} 3
+
+x                        ; @r{@code{x}はグローバル値をもたないことに注意。}
+@error{} Symbol's value as variable is void: x
+@end example
+
+@noindent
+@code{let}バインディングは、内部に変数@code{x}をもつレキシカル環境を定義し、これは0にローカルにバインドされます。このバインディング構造内で、@code{x}を1層化し、増加された値をreturnするクロージャーを定義しています。このラムダ式は自動的にクロージャーになり、たとえ@code{let}構造を抜けた後でも、その内部ではレキシカル環境が存続します。クロージャーを評価するときは毎回、レキシカル環境内の@code{x}のバインディングが使用され、@code{x}が増加されます。
+
+  @code{symbol-value}、@code{boundp}、@code{set}のような関数は、変数のダイナミックバインディング(つまりそのシンボルの値セル)だけを取得(または変更)することに注意してください。@code{defun}(または@code{defmacro})のbody内のコードも、周囲のレキシカル変数は参照できません。
+
+@node Using Lexical Binding
+@subsection Using Lexical Binding
+
+  Emacs
+Lispファイルをロードしたり、Lispバッファーを評価するとき、バッファーローカルな変数@code{lexical-binding}が非@code{nil}の場合は、レキシカルバインディングが有効になります:
+
+@defvar lexical-binding
+このバッファーローカルな変数が非@code{nil}の場合、Emacs
+Lispファイルおよびバッファーは、ダイナミックバインディングではなくレキシカルバインディングを使用して評価されます(しかし、特別な変数はダイナミックにバインドされたままです。以下を参照してください)。@code{nil}の場合、すべてのローカル変数にたいしてダイナミックバインディングが使用されます。この変数は通常、ファイルローカル変数として、Emacs
+Lispファイル全体にたいしてセットされます(@ref{File Local
+Variables}を参照してください)。他のファイルローカル変数などとは異なり、ファイルの最初の行でセットされなければならないことに注意してください。
+@end defvar
+
+@noindent
+@code{eval}呼び出しを使用して、Emacs
+Lispコードを直接評価するとき、@code{eval}の@var{lexical}引数が非@code{nil}の場合は、レキシカルバインディングが有効になります。@ref{Eval}を参照してください。
+
+@cindex special variables
+  レキシカルバインディングが有効な場合でも、特定の変数はダイナミックにバインドされたままです。これらは@dfn{スペシャル変数(special
+variable)}と呼ばれます。@code{defvar}、@code{defcustom}、@code{defconst}で定義されたすべての変数は、スペシャル変数です(@ref{Defining
+Variables}を参照してください)。その他のすべての変数はレキシカルバインディングの対象になります。
+
+@defun special-variable-p symbol
+この関数は、@var{symbol}がスペシャル変数(つまり変数が@code{defvar}、@code{defcustom}、@code{defconst}による定義をもつ)の場合は非@code{nil}をreturnします。それ以外では、return値は@code{nil}になります。
+@end defun
+
+  関数内での通常の引数としてスペシャル変数を使用することは、推奨されません。レキシカルバインディングモードが有効なときにこれを行うと、不定な動作が起こります(あるときはレキシカルバインディング、またあるときはダイナミックバインディングのように)。
+
+  Emacs Lispプログラムをレキシカルバインディングに変換するのは簡単です。最初にEmacs
+Lispソースファイルのヘッダー行で@code{lexical-binding}を@code{t}して、ファイルローカル変数を追加します(@ref{File
+Local
+Variables}を参照してください)。次に、意図せずレキシカルにバインドしてしまわないように、ダイナミックなバインドをもつ必要がある変数が変数定義をもつことを、各変数ごとにチェックします。
+
+@cindex free variable
+@cindex unused lexical variable
+  どの変数が変数定義をもつ必要があるか見つけるシンプルな方法は、ソースファイルをバイトコンパイルすることです。@ref{Byte
+Compilation}を参照してください。@code{let}フォームの外で非スペシャル変数が使用されている場合、バイトコンパイラーは``free
+variable''にたいする参照または割り当てについて警告するでしょう。非スペシャル変数がバインドされているが、@code{let}フォーム内で使用されていない場合、バイトコンパイラーは``unused
+lexical
+variable''に関して警告するでしょう。バイトコンパイラーは、スペシャル変数を関数の引数として使用している場合も、問題を警告します。
+
+  (使用されていない変数についての警告を抑制するためには、単に変数名をアンダースコアーで開始します。そうすれば、バイトコンパイラーはこれを、変数が使用されないことを示すと解釈します。)
+
+@node Buffer-Local Variables
+@section Buffer-Local Variables
+@cindex variable, buffer-local
+@cindex buffer-local variables
+
+  グローバルおよびボーカルな変数バインディングは、1つの形式、または別の形式で、ほとんどのプログラミング言語で見つけることができます。しかしEmacsは、1つのバッファーだけに適用される@dfn{バッファーローカル(buffer-local)}なバインディングの用に、普通にはない種類の変数バインディングもサポートします。ある変数にたいして異なるバッファーごとに別の亜Q体をもつのは、重要なカスタマイズ方法です(変数は端末ごとにローカルなバインディングをもつこともできます。@ref{Multiple
+Terminals}を参照してください)。
+
+@menu
+* Intro to Buffer-Local::    イントロダクションと概念。
+* Creating Buffer-Local::    バッファーローカルなバインディングの作成と削除。
+* Default Value::            自身ではバッファーローカルな値をもたないバッファーで参照されるデフォルト値。
+@end menu
+
+@node Intro to Buffer-Local
+@subsection Introduction to Buffer-Local Variables
+
+  バッファーローカル変数は、特定のバッファーに関連づけられた、バッファーローカルなバインディングをもちます。このバインディングは、そのバッファーがカレントのときに効果をもち、カレントでないときは効果がありません。バッファーローカルなバインディングが効力をもつときにその変数をセットした場合、そのバインディングは新しい値をもちますが、他のバインディングは変更されません。これは、バッファーローカルなバインディングを作成したバッファーだけで変更が見えることを意味します。
+
+  その変数にたいする特定のバッファーに関連づけられていない通常のバインディングは、@dfn{デフォルトバインディング(default
+binding)}と呼ばれます。ほとんどの場合、これはグローバルバインディングです。
+
+  変数は、あるバッファーではバッファーローカルなバインディングをもつことができ、他のバッファーではもたないことができます。デフォルトバインディングは、その変数にたいして自身のバインディングをもたない、すべてのバッファーで共有されます(これには、新たに作成されたバッファーが含まれます)。ある変数にたいしてバッファーローカルなバインディングをもたないバッファーでその変数をセットすると、デフォルトバインディングがセットされるので、それはデフォルトバインディングを参照するすべてのバッファーで新しい値を見ることができます。
+
+  バッファーローカルなバインディングのもっとも一般的な使用は、目はーモードがコマンドの動作を制御するために変数を変更する場合です。たとえばCモードやLispモードは、空行だけがパラグラフの区切りになるように、変数@code{paragraph-start}をセットします。これらのモードは、CモードやLispモードになるようなバッファー内でこの変数をバッファーローカルにすることによりこれを行い、その後そのモードにたいして新しい値をセットします。@ref{Major
+Modes}を参照してください。
+
+  バッファーローカルなバインディングを作成する通常の方法は、@code{make-local-variable}による方法で、これは通常メジャーモードが使用します。これはカレントバッファーだけに効果があります。その他すべてのバッファー(まだ作成されていないバッファーを含む)は、それらのバッファー自身が明示的にバッファーローカルなバインディングを与えられるまで、デフォルト値の共有を続けます。
+
+@cindex automatically buffer-local
+  変数を@dfn{自動的にバッファーローカルになる}ようにマークする、より強力な操作は、@code{make-variable-buffer-local}を呼び出すことにより行われます。これは、たとえその変数がまだ作成されていなくても、変数をすべてのバッファーにたいしてローカルにすると考えることができます。より正確には、変数を自動的にセットすることにより、その変数がカレントバッファーにたいしてローカルでなくても、変数をローカルにする効果があります。すべてのバッファーは最初は通常のようにデフォルト値を共有しますが、この変数をセットすることによりカレントバッファーにたいしてバッファーローカルなバインディングを作成します。新たな値はバッファーローカルなバインディングに格納され、デフォルトバインディングは変更されずに残ります。これは、任意のバッファーで@code{setq}によりデフォルト値を変更できないことを意味します。変更する唯一の方法は、@code{setq-default}だけです。
+
+  @strong{警告:}
+ある変数が1つ以上のバッファーでバッファーローカルなバインディングをもつとき、@code{let}はそのとき効果をもつ変数のバインディングをリバインドします。たとえばq、カレントバッファーがバッファーローカルな値をもつ場合、@code{let}は一時的にそれをリバインドします。効果をもつバッファーローカルなバインディングが存在しない場合、@code{let}はデフォルト値をリバインドします。@code{let}の内部で、別のバインディングが効力をもつ別のバッファーをカレントバッファーにすると、それ以上@code{let}バインディングを参照できなくなります。他のバッファーにいる間に@code{let}を抜けると、(たとえそれが正しくても)バインディングの解消を見ることはできません。以下にこれを示します:
+
+@example
+@group
+(setq foo 'g)
+(set-buffer "a")
+(make-local-variable 'foo)
+@end group
+(setq foo 'a)
+(let ((foo 'temp))
+  ;; foo @result{} 'temp  ; @r{バッファー@samp{a}内でのletバインディング}
+  (set-buffer "b")
+  ;; foo @result{} 'g     ; @r{fooは@samp{b}にたいしてローカルではないためグローバル値}
+  @var{body}@dots{})
+@group
+foo @result{} 'g        ; @r{exitによりバッファー@samp{a}のローカル値が復元されるが、}
+                 ; @r{バッファー@samp{b}では見ることができない}
+@end group
+@group
+(set-buffer "a") ; @r{ローカル値が復元されたことを確認}
+foo @result{} 'a
+@end group
+@end example
+
+@noindent
+@var{body}内の@code{foo}にたいする参照は、バッファー@samp{b}のバッファーローカルなバインディングにアクセスすることに注意してください。
+
+  あるファイルがローカル変数の値をセットする場合、これらの変数はファイルをvisitするときバッファーローカルな値になります。@ref{File
+Variables,,, emacs, The GNU Emacs Manual}を参照してください。
+
+  バッファーローカル変数を、端末ローカル(terminal-local)にすることはできません(@ref{Multiple
+Terminals}を参照してください)。
+
+@node Creating Buffer-Local
+@subsection Creating and Deleting Buffer-Local Bindings
+
+@deffn Command make-local-variable variable
+この関数はカレントバッファー内で、@var{variable}(シンボル)にたいして、バッファーローカルなバインディングを作成します。他のバッファーは影響を受けません。returnされる値は、@var{variable}です。
+
+@var{variable}のバッファーローカルな値は最初、以前に@var{variable}がもっていた値と同じ値をもちます。@var{variable}がvoidのときは、voidのままです。
+
+@example
+@group
+;; @r{バッファー@samp{b1}で行う:}
+(setq foo 5)                ; @r{すべてのバッファーに影響する。}
+     @result{} 5
+@end group
+@group
+(make-local-variable 'foo)  ; @r{@samp{b1}内でローカルになった。}
+     @result{} foo
+@end group
+@group
+foo                         ; @r{値は変更されない。}
+     @result{} 5
+@end group
+@group
+(setq foo 6)                ; @r{@samp{b1}内で値を変更。}
+     @result{} 6
+@end group
+@group
+foo
+     @result{} 6
+@end group
+
+@group
+;; @r{バッファー@samp{b2}では、値は変更されていない。}
+(with-current-buffer "b2"
+  foo)
+     @result{} 5
+@end group
+@end example
+
+変数を@code{let}バインディングでバッファーローカルにしても、@code{let}への出入り時の両方で、これを行うバッファーがカレントでない場合は、信頼性がありません。これは@code{let}がバインディングの種類を区別しないからです。@code{let}はバインディングを作成される変数だけを知るからです。
+
+変数が端末ローカル(@ref{Multiple
+Terminals}を参照してください)の場合、この関数はエラーをシグナルします。そのような変数は、バッファーローカルなバインディングをもつことができません。
+
+@strong{警告:}
+フック変数にたいして@code{make-local-variable}を使用しないでください。フック変数は、@code{add-hook}または@code{remove-hook}の@var{local}引数を使用した場合、必要に応じて自動的にバッファーローカルになります。
+@end deffn
+
+@defmac setq-local variable value
+このマクロはカレントバッファー内で@var{variable}にたいしてバッファーローカルなバインディングを作成して、それにバッファーローカルな値@var{value}を与えます。このマクロは@code{make-local-variable}に続けて@code{setq}を呼び出すのと同じです。@var{variable}はクォートされていないシンボルです。
+@end defmac
+
+@deffn Command make-variable-buffer-local variable
+このコマンドは、@var{variable}(シンボル)が自動的にバッファーローカルになるようにマークするので、それ以降にその変数へのセットを試みると、その時点でカレントのバッファーにローカルになります。しばしば混乱を招く@code{make-local-variable}とは異なり、これが取り消されることはなく、すべてのバッファー内での変数の挙動に影響します。
+
+この機能に特有の欠点は、(@code{let}またはその他のバインディング構造による)変数のバインディングが、その変数にたいするバッファーローカルなバインディングを作成しないことです。(@code{set}または@code{setq}による)変数のセットだけは、その変数がカレントバッファーで作成された@code{let}スタイルのバインディングをもたないので、ローカルなバインディングを作成します。
+
+@var{variable}がデフォルト値をもたない場合、このコマンドの呼び出しは@code{nil}のデフォルト値を与えます。@var{variable}がすでにデフォルト値をもつ場合、その値は変更されずに残ります。それ以降に@var{variable}にたいして@code{makunbound}を呼び出すと、バッファーローカル値をvoidにして、デフォルト値は影響を受けずに残ります。
+
+return値は@var{variable}です。
+
+@strong{警告:}
+ユーザーオプション変数にたいしては、ユーザーは異なるバッファーにたいして異なるカスタマイズを望む@emph{かもしれない}ので、@code{make-variable-buffer-local}を使うべきだと決め込むべきではありません。ユーザーは、望むなら任意の変数をローカルにできます。それらの選択の余地を残すほうがよいでしょう。
+
+@code{make-variable-buffer-local}を使用すべきときは、複数のバッファーが同じバインディングを共有しないことが自明な場合です。たとえば、バッファーごとに個別な値をもつことに依存するLispプログラム内の内部プロセスにたいして変数が使用されるときは、@code{make-variable-buffer-local}の使用が最善の解決策になるかもしれません。
+@end deffn
+
+@defmac defvar-local variable value &optional docstring
+このマクロは@var{variable}を、初期値@var{value}および@var{docstring}の変数として定義して、それを自動的にバッファーローカルとマークします。これは@code{defvar}の後につづけて@code{make-variable-buffer-local}を呼び出すのと同じです。@var{variable}はクォートされていないシンボルです。
+@end defmac
+
+@defun local-variable-p variable &optional buffer
+これは@var{variable}がバッファー@var{buffer}(デフォルトはカレントバッファー)内でバッファーローカルのときは@code{t}、それ以外は@code{nil}をreturnします。
+@end defun
+
+@defun local-variable-if-set-p variable &optional buffer
+これは@var{variable}がバッファー@var{buffer}内でバッファーローカル値をもつか、自動的にバッファーローカルになる場合は、@code{t}をreturnします。それ以外は@code{nil}をreturnします。@var{buffer}が省略または@code{nil}の場合のデフォルトは、カレントバッファーです。
+@end defun
+
+@defun buffer-local-value variable buffer
+この関数は、バッファー@var{buffer}内の、@var{variable}(シンボル)のバッファーローカルなバインディングをreturnします。@var{variable}がバッファー@var{buffer}内でバッファーローカルなバインディングをもたない場合は、かわりに@var{variable}のデフォルト値(@ref{Default
+Value})をreturnします。
+@end defun
+
+@defun buffer-local-variables &optional buffer
+この関数はバッファー@var{buffer}内のバッファーローカル変数を表すリストをreturnします(@var{buffer}が省略された場合はカレントバッファーが使用されます)。リストの各要素は通常、@w{@code{(@var{sym}
+.
+@var{val})}}という形式をもちます。ここで@var{sym}はバッファーローカル変数(シンボル)、@var{val}はバッファーローカル値です。しかし@var{buffer}内の、ある変数のバッファーローカルなバインディングがvoidのtきは、その変数に対応するリスト要素は単に@var{sym}になります。
+
+@example
+@group
+(make-local-variable 'foobar)
+(makunbound 'foobar)
+(make-local-variable 'bind-me)
+(setq bind-me 69)
+@end group
+(setq lcl (buffer-local-variables))
+    ;; @r{最初はすべてのバッファー内でローカルなビルトイン変数:}
+@result{} ((mark-active . nil)
+    (buffer-undo-list . nil)
+    (mode-name . "Fundamental")
+    @dots{}
+@group
+    ;; @r{次にビルトインでないバッファーローカル変数。}
+    ;; @r{This one is buffer-local and void:}
+    foobar
+    ;; @r{これはバッファーローカルでvoidではない:}
+    (bind-me . 69))
+@end group
+@end example
+
+このリスト内のコンスセルの@sc{cdr}に新たな値を格納しても、その変数のバッファーローカル値は変化@emph{しない}ことに注意してください。
+@end defun
+
+@deffn Command kill-local-variable variable
+この関数はカレントバッファー内の@var{variable}(シンボル)にたいするバッファーローカルなバインディング(もしあれば)を削除します。その結果として、このバッファー内で@var{variable}のデフォルトバインディングが可視になります。これは通常、@var{variable}の値を変更します。デフォルト値は削除されたバッファーローカル値とは異なるのが普通だからです。
+
+セットしたとき自動的にバッファーローカルになる変数のバッファーローカルなバインディングをkillした場合は、これによりカレントバッファーな意でデフォルト値が可視になります。しかし、変数を再度セットすると、その変数にたいするバッファーローカルなバインディングが再作成されます。
+
+@code{kill-local-variable}は@var{variable}をreturnします。
+
+この関数はコマンドです。なぜなら、バッファーローカル変数のインタラクティブな作成が有用な場合があるように、あるバッファーローカル変数のインタラクティブなkillが有用な場合があるからです。
+@end deffn
+
+@cindex local variables, killed by major mode
+@defun kill-all-local-variables
+この関数は、``permanent(永続的)''とマークされた変数、および@code{permanent-local-hook}プロパティーに非@code{nil}をもつローカルフック関数(@ref{Setting
+Hooks})を除き、カレントバッファーのすべてのバッファーローカルなバインディングを解消します。結果として、そのバッファーはほとんどの変数のデフォルト値を参照するようになります。
+
+この関数は、そのバッファーに関係のあるその他の特定の情報もリセットします。これはローカルキーマップ(local
+keymap)を@code{nil}、構文テーブル(syntax
+table)を@code{(standard-syntax-table)}の値、大文字小文字テーブル(case
+table)を@code{(standard-case-table)}、abbrevテーブル(abbrev
+table)を@code{fundamental-mode-abbrev-table}の値にセットします。
+
+この関数が1番最初に行うのは、ノーマルフック@code{change-major-mode-hook}(以下参照)の実行です。
+
+各メジャーモードコマンドは、Fundamentalモードにスイッチする効果をもち、以前のメジャーモードのほとんどの効果を消去する、この関数を呼び出すことにより開始されます。この関数が処理を行うのを確実にするために、メジャーモードがセットする変数はpermanentとマークすべきではありません。
+
+@code{kill-all-local-variables} returns @code{nil}.
+@end defun
+
+@defvar change-major-mode-hook
+関数@code{kill-all-local-variables}は、何か他のことを行う前に、まずこのノーマルフックを実行します。この関数はメジャーモードにたいして、ユーザーが他のメジャーモードにスイッチした場合に行われる、何か特別なことを準備する方法を与えます。この関数は、ユーザーがメジャーモードを変更した場合に忘れられるべき、バッファー固有のマイナーモードにたいしても有用です。
+
+最善の結果を得るために、この変数をバッファーローカルにすれば、処理が終了したときに消えるので、以降のメジャーモードに干渉しなくなります。@ref{Hooks}を参照してください。
+@end defvar
+
+@cindex permanent local variable
+変数名(シンボル)が非@code{nil}の@code{permanent-local}プロパティーをもつ場合、バッファーローカル変数は@dfn{permanent(永続的)}です。そのような変数は@code{kill-all-local-variables}の影響を受けず、したがってメジャーモードの変更によりそれらのローカルバインディングは作成されません。permanentなローカル変数は、ファイルの内容を編集する方法などより、どこから読み込んだファイルか、あるいはどのように保存するかといったことに関連するデータに適しています。
+
+@node Default Value
+@subsection The Default Value of a Buffer-Local Variable
+@cindex default value
+
+  バッファーローカルなバインディングをもつ変数のグローバル値も、@dfn{デフォルト値(default)}値と呼ばれます。なぜなら、その変数にたいしてカレントバッファーも選択されたフレームもバインディングをもたない場合には、その値が常に効果をもつからです。
+
+  関数@code{default-value}および@code{setq-default}は、カレントバッファーがバッファーローカルなバインディングをもつかどうかに関わらず、その変数のデフォルト値にアクセスまたは変更します。たとえば、ほとんどのバッファーにたいして、@code{paragraph-start}のデフォルトのセッティングを変更するために、@code{setq-default}を使用できます。そして、この変数にたいするバッファーローカルな値をもつCモードやLispモードにいるときでさえ、これは機能します。
+
+@c Emacs 19 feature
+  スペシャルフォーム@code{defvar}および@code{defconst}も、バッファーローカルな値ではなく、(もし変数にセットする場合は)デフォルト値をセットします。
+
+@defun default-value symbol
+この関数は、@var{symbol}のデフォルト値をreturnします。これは、この変数にたいして独自の値をもたないバッファーやフレームから参照される値です。@var{symbol}がバッファーローカルでない場合、これは@code{symbol-value}(@ref{Accessing
+Variables}を参照してください)と同じです。
+@end defun
+
+@c Emacs 19 feature
+@defun default-boundp symbol
+関数@code{default-boundp}は、@var{symbol}のデフォルト値がvoidでないか報告します。@code{(default-boundp
+'foo)}が@code{nil}をreturnした場合、@code{(default-value 'foo)}はエラーになります。
+
+@code{default-boundp}は@code{default-value}んびたいして、@code{boundp}は@code{symbol-value}にたいする述語です。
+@end defun
+
+@defspec setq-default [symbol form]@dots{}
+このスペシャルフォームは、各@var{symbol}に、対応する@var{form}を評価した結果を新たなデフォルト値として与えます。これは@var{symbol}を評価しませんが、@var{form}は評価します。@code{setq-default}フォームの値は、最後の@var{form}の値です。
+
+カレントバッファーにたいして@var{symbol}がバッファーローカルでなく、自動的にバッファーローカルにマークされない場合、@code{setq-default}は@code{setq}と同じ効果をもちます。カレントバッファーにたいして@var{symbol}がバッファーローカルな場合、これは他のバッファーから参照できる値を変更します(それらのバッファーがバッファーローカルな値をもたない限り)が、それはカレントバッファーから参照される値ではありません。
+
+@example
+@group
+;; @r{バッファー@samp{foo}で行う:}
+(make-local-variable 'buffer-local)
+     @result{} buffer-local
+@end group
+@group
+(setq buffer-local 'value-in-foo)
+     @result{} value-in-foo
+@end group
+@group
+(setq-default buffer-local 'new-default)
+     @result{} new-default
+@end group
+@group
+buffer-local
+     @result{} value-in-foo
+@end group
+@group
+(default-value 'buffer-local)
+     @result{} new-default
+@end group
+
+@group
+;; @r{(新しい)バッファー@samp{bar}で行う:}
+buffer-local
+     @result{} new-default
+@end group
+@group
+(default-value 'buffer-local)
+     @result{} new-default
+@end group
+@group
+(setq buffer-local 'another-default)
+     @result{} another-default
+@end group
+@group
+(default-value 'buffer-local)
+     @result{} another-default
+@end group
+
+@group
+;; @r{バッファー@samp{foo}に戻って行う:}
+buffer-local
+     @result{} value-in-foo
+(default-value 'buffer-local)
+     @result{} another-default
+@end group
+@end example
+@end defspec
+
+@defun set-default symbol value
+この関数は@code{setq-default}と似ていますが、@var{symbol}は通常の引数として評価されます。
+
+@example
+@group
+(set-default (car '(a b c)) 23)
+     @result{} 23
+@end group
+@group
+(default-value 'a)
+     @result{} 23
+@end group
+@end example
+@end defun
+
+@node File Local Variables
+@section File Local Variables
+@cindex file local variables
+
+  ファイルにローカル変数の値を指定できます。そのファイルをvisitしているバッファー内で、これらの変数にたいしてバッファーローカルなバインディングを作成するために、Emacsはこれらを使用します。ファイルローカル変数の基本的な情報については、@ref{File
+Variables, , Local Variables in Files, emacs, The GNU Emacs
+Manual}を参照してください。このセクションはファイルローカル変数が処理される方法に影響する関数と変数を説明します。
+
+  ファイルローカル変数が勝手に関数や、後で呼び出されるLisp式を指定できる場合、ファイルのvisitによりEmacsが乗っ取られてしまうかもしれません。Emacsは、指定された値が安全だと既知のファイルローカル変数だけを自動的にセットすることにより、この危険から保護します。これ以外のファイルローカル変数は、ユーザーが同意した場合のみセットされます。
+
+  追加の安全策として、Emacsがファイルローカル変数を読み込むとき、一時的に@code{read-circle}が@code{nil}にバインドされます(@ref{Input
+Functions}を参照してください)。これはLispリーダー循環および共有されたLisp構造(@ref{Circular
+Objects}を参照してください)を認識することを防ぎます。
+
+@defopt enable-local-variables
+この変数はファイルローカル変数を処理するかどうかを制御します。以下の値が利用できます:
+
+@table @asis
+@item @code{t}(デフォルト)
+安全な変数をセットして、安全でない変数については問い合わせます(1回)。
+@item @code{:safe}
+安全な変数だけをセットして、問い合わせはしません。
+@item @code{:all}
+問い合わせをせずに、すべての変数をセットします。
+@item @code{nil}
+変数をセットしません。
+@item その他
+すべての変数にたいして問い合わせます(1回)。
+@end table
+@end defopt
+
+@defvar inhibit-local-variables-regexps
+これは正規表現のリストです。ファイルがこのリストの要素にマッチする名前をもつ場合、任意のファイルローカル変数のフォームはスキャンされません。どんなときにこれを使いたいかの例は、@xref{Auto
+Major Mode}を参照してください。
+@end defvar
+
+@defun hack-local-variables &optional mode-only
+この関数は、カレントバッファーの内容により指定された任意のローカル変数として、必要に応じてバインドと評価を行います。変数@code{enable-local-variables}は、ここでも効果をもちます。しかし、この関数は@w{@samp{-*-}}行の、@samp{mode:}ローカル変数を探しません。@code{set-auto-mode}はこれを行い、@code{enable-local-variables}も考慮されます(@ref{Auto
+Major Mode}を参照してください)。
+
+この関数は、@code{file-local-variables-alist}内に格納されたalistを調べて、各ローカル変数を順に適用することにより機能します。この関数は、変数に適用する前(または後)に、@code{before-hack-local-variables-hook}(または@code{hack-local-variables-hook})を呼び出します。alistが非@code{nil}の場合のみ、事前のフック(before-hook)を呼び出し、その他のフックは常に呼び出します。この関数は、そのバッファーがすでにもつメジャーモードと同じメジャーモードが指定された場合には、@samp{mode}要素を無視します。
+
+オプションの引数@var{mode-only}が非@code{nil}の場合、この関数が行うのはメジャーモードを指定するシンボルをreturnするのがすべてで、@w{@samp{-*-}}行またはローカル変数リストがメジャーモードを指定していればそのモード、それ以外は@code{nil}をreturnします。この関数はモードや他のファイルローカル変数をセットしません。
+@end defun
+
+@defvar file-local-variables-alist
+このバッファーローカルな変数は、ファイルローカル変数のセッティングのalistを保持します。alistの各要素は@w{@code{(@var{var}
+.
+@var{value})}}という形式で、@var{var}はローカル変数のシンボル、@var{value}はその値です。Emacsがファイルをvisitするとき、最初にすべてのファイルローカル変数をこのalistに収集して、その後に変数1つずつに関数@code{hack-local-variables}を適用します。
+@end defvar
+
+@defvar before-hack-local-variables-hook
+Emacsは、@code{file-local-variables-alist}に格納されたファイルローカル変数を適用する直前に、このフックを呼び出します。
+@end defvar
+
+@defvar hack-local-variables-hook
+Emacsは、@code{file-local-variables-alist}に格納されたファイルローカル変数を適用し終えた直後に、このフックを呼び出します。
+@end defvar
+
+@cindex safe local variable
+  ある変数にたいして@code{safe-local-variable}プロパティーにより、安全な値を指定できます。このプロパティーは引数を1つとる関数です。与えられた値にたいして、その関数が非@code{nil}をreturnした場合、その値は安全です。一般的に目にするファイル変数の多くは、@code{safe-local-variable}プロパティーをもちます。これらのファイル変数には、@code{fill-column}、@code{fill-prefix}、@code{indent-tabs-mode}が含まれます。ブーリーン値の変数にたいしては、プロパティーの値に@code{booleanp}を使用します。
+
+  @code{defcustom}を使用してユーザーオプションを定義するとき、@code{defcustom}に引数@code{:safe
+@var{function}}を追加することにより、@code{safe-local-variable}プロパティーをセットできます(@ref{Variable
+Definitions}を参照してください)。
+
+@defopt safe-local-variable-values
+この変数は、ある変数の値が安全であることをマークする、別の方法を提供します。これはコンスセル@code{(@var{var}
+. @var{val})}のリストで、@var{var}は変数名、@var{val}はその変数にたいして安全な値です。
+
+Emacsが一連のファイルローカル変数にしたがうかどうかユーザーに尋ねるとき、ユーザーはそれらの変数が安全だとマークすることができます。安全だとマークすると@code{safe-local-variable-values}にこれらのvariable/valueペアーが追加され、ユーザーのカスタムファイルに保存します。
+@end defopt
+
+@defun safe-local-variable-p sym val
+この関数は、上記の条件に基づき、@var{sym}に値@var{val}を与えても安全な場合は、非@code{nil}をreturnします。
+@end defun
+
+@c @cindex risky local variable   Duplicates risky-local-variable
+  いくつかの変数は@dfn{危険(risky)}だと判断されます。ある変数が危険な場合、その変数が自動的に@code{safe-local-variable-values}に追加されることはありません。ユーザーが@code{safe-local-variable-values}を直接カスタマイズすることにより、明示的に値を許さない限り、危険な変数をセットする前にEmacsは常に確認を求めます。
+
+  名前が非@code{nil}の@code{risky-local-variable}プロパティーをもつ任意の変数は、危険だと判断されます。@code{defcustom}を使用してユーザーオプションを定義するとき、@code{defcustom}に引数@code{:risky
+@var{value}}を追加することにより、ユーザーオプションに@code{risky-local-variable}プロパティーをセットできます。それに加えて名前が@samp{-command}、@samp{-frame-alist}、@samp{-function}、@samp{-functions}、@samp{-hook}、@samp{-hooks}、@samp{-form}、@samp{-forms}、@samp{-map}、@samp{-map-alist}、@samp{-mode-alist}、@samp{-program}、@samp{-predicate}で終わる任意の変数は、自動的に危険だと判断されます。後に数字をともなう変数@samp{font-lock-keywords}および@samp{font-lock-keywords}、さらに@samp{font-lock-syntactic-keywords}も危険だと判断されます。
+
+@defun risky-local-variable-p sym
+この関数は、@var{sym}が上記の条件にもとづき危険な変数の場合は、非非@code{nil}をreturnします。
+@end defun
+
+@defvar ignored-local-variables
+この変数はファイルによりローカル値を与えられるべきではない変数のリストを保持します。これらの変数に指定された任意の値は、完全に無視されます。
+@end defvar
+
+  @samp{Eval:}``変数''も抜け道になる可能性があるので、Emacsは通常、それを処理する前に確認を求めます。
+
+@defopt enable-local-eval
+この変数は@samp{-*-}行中、またはvisitされるファイル内のローカル変数リストの、@samp{Eval:}にたいする処理を制御します。値@code{t}は、無条件に実行することを意味します。@code{nil}は、それらを無視することを意味します。それ以外は、各ファイルにたいして何を行うか、ユーザーに確認を求めることを意味します。デフォルト値は、@code{maybe}です。
+@end defopt
+
+@defopt safe-local-eval-forms
+この変数は、ファイルローカル変数リスト内の@samp{Eval:}``変数''の中、評価しても安全な式のリストを保持します。
+@end defopt
+
+  その式が関数呼び出しで、その関数が@code{safe-local-eval-function}プロパティーをもつ場合、そのプロパティー値はその式の評価が安全かどうかを決定します。プロパティー値は、その式をテストするための述語(predicate)、そのような述語のリスト(成功した述語があれば安全)、または@code{t}(引数が定数である限り常に安全)を指定できます。
+
+  テキストプロパティーは、それらの値に関数呼び出しを含めることができるので、抜け道になる可能性があります。したがって、Emacsはファイルローカル変数にたいして指定された文字列値から、テキストプロパティーを取り除きます。
+
+@node Directory Local Variables
+@section Directory Local Variables
+@cindex directory local variables
+
+  ディレクトリーは、そのディレクトリー内のすべてのファイルに共通なローカル変数値を指定することができます。Emacsは、そのディレクトリー内の任意のファイルをvisitしているバッファー内で、それらの変数にたいするバッファーローカルなバインディングを作成するために、これを使用します。これは、そのディレクトリー内のファイルが何らかの@dfn{プロジェクト}に属していて、同じローカル変数を共有するときなどに有用です。
+
+  ディレクトリーローカル変数を指定するために、2つの異なる方法があります:
+1つは特別なファイルにそれを記述する方法、もう1つはそのディレクトリーに@dfn{プロジェクトクラス(project class)}を定義する方法です。
+
+@defvr Constant dir-locals-file
+この定数は、Emacsがディレクトリーローカル変数が見つけることができる期待する、ファイルの名前です。ファイル名は、@file{.dir-locals.el}@footnote{MS-DOS版のEmacsは、DOSファイルシステムの制限により、かわりに@file{_dir-locals.el}という名前を使用します。}です。ディレクトリー内でその名前をもつファイルにより、Emacsはディレクトリー内の任意のファイル、または任意のサブディレクトリー(オプションでサブディレクトリーを除外できます。以下を参照してください)にセッティングを適用します。独自に@file{.dir-locals.el}をもつサブディレクトリーがある場合、Emacsはサブディレクトリーで見つかった1番深いファイルのディレクトリーからディレクトリーツリーを上方に移動しながら、1番深いファイルのセッティングを使用します。このファイルは、ローカル変数をフォーマットされたリストとして指定します。詳細は、@ref{Directory
+Variables, , Per-directory Local Variables, emacs, The GNU Emacs
+Manual}を参照してください。
+@end defvr
+
+@defun hack-dir-local-variables
+この関数は@code{.dir-locals.el}ファイルを読み込み、そのディレクトリー内の任意のファイルをvisitしているバッファーにたいしてローカルな@code{file-local-variables-alist}内に、それらを適用することなくディレクトリーローカル変数を格納します。この関数はディレクトリーローカルなセッティングも@code{dir-locals-class-alist}(@file{.dir-locals.el}ファイルが見つかったディレクトリーにたいする特別なクラスを定義する)内に格納します。この関数は、以下で説明するように、@code{dir-locals-set-class-variables}および@code{dir-locals-set-directory-class}を呼び出すことにより機能します。
+@end defun
+
+@defun hack-dir-local-variables-non-file-buffer
+この関数はディレクトリーローカル変数を探して、即座にそれらをカレントバッファーに適用します。これはDiredバッファーのような、非ファイルバッファーをディレクトリーローカル変数のセッティングにしたがわせるために、モードコマンド呼び出しの中から呼び出されることを意図したものです。非ファイルバッファーにたいしては、Emacsは@code{default-directory}と、その親ディレクトリーの中から、ディレクトリーローカル変数を探します。
+@end defun
+
+@defun dir-locals-set-class-variables class variables
+この関数は、@var{class}という名前がつけられたシンボルにたいして、一連の変数セッティングを定義します。その後このクラスを1つ以上のディレクトリーに割り当てることができ、するとEmacsはこれらの変数セッティングを、それらのディレクトリー内のすべてのファイルに適用します。@var{variables}内のリストは、2つの形式
+--- @code{(@var{major-mode} . @var{alist})}または@code{(@var{directory}
+. @var{list})} ---
+のうち1つをもつことができます。1番目の形式では、そのファイルのバッファーが@var{major-mode}を継承するモードに切り替わるときに、連想リスト@var{alist}内のすべての変数が適用されます。@var{alist}は、@code{(@var{name}
+.
+@var{value})}という形式です。@var{major-mode}にたいする特別な値@code{nil}は、そのセッティングが任意のモードに適用できることを意味します。@var{alist}内では、特別な@var{name}として、@code{subdirs}を使用することができます。連想値が@code{nil}の場合、alistは関連するディレクトリー内のファイルだけに適用され、それらのサブディレクトリーには適用されません。
+
+@var{variables}の2番目の形式では、@var{directory}がそのファイルのディレクトリーの最初のサブディレクトリーの場合、上記のルールにしたがって、@var{list}が再帰的に適用されます。@var{list}は、この関数の@var{variables}で指定できる2つの形式のうち、1つを指定します。
+@end defun
+
+@defun dir-locals-set-directory-class directory class &optional mtime
+この関数は@code{directory}およびサブディレクトリー内のすべてのファイルに@var{class}を割り当てます。その後、@var{class}にたいして指定されたすべての変数セッティングは、@var{directory}およびその子ディレクトリー内でvisitされた任意のファイルに適用されます。@var{class}は事前に@code{dir-locals-set-class-variables}で定義されていなければなりません。
+
+Emacsは、@code{.dir-locals.el}ファイルからディレクトリー変数をロードするとき、内部的にこの関数を使用します。その場合、オプションの引数@var{mtime}は、ファイルの修正日時(modification
+time。@code{file-attributes}によりreturnされる)を保持します。Emacsは、記憶されたローカル変数がまだ有効化チェックするために、この日時を使用します。ファイルを通じ手ではなく直接クラスを割り当てる場合、この引数は@code{nil}になります。
+@end defun
+
+@defvar dir-locals-class-alist
+このalistはクラスシンボル(class symbol)と連想変数セッティング(associated variable
+settings)を保持します。これは@code{dir-locals-set-class-variables}により更新されます。
+@end defvar
+
+@defvar dir-locals-directory-cache
+このalistはディレクトリー名、それらに割り当てられたクラス名、およびこのエントリーに関連するディレクトリーローカル変数ファイルの修正日時を保持します。関数@code{dir-locals-set-directory-class}は、このlistを更新します。
+@end defvar
+
+@defvar enable-dir-local-variables
+@code{nil}の場合、ディレクトリーローカル変数は無視されます。この変数は、ファイルローカル変数(@ref{File Local
+Variables}を参照してください)にしたがい、ディレクトリーローカル変数は無視したいモードにたいして有用かもしれません。
+@end defvar
+
+@node Variable Aliases
+@section Variable Aliases
+@cindex variable aliases
+@cindex alias, for variables
+
+  シノニムとして2つの変数を作成するのが有用なときがあります。2つの変数は常に同じ値をもち、、どちらか一方を変更すると、もう一方も変更されます。変数の名前を変更
+--- 古い名前はよく考慮して選択されたものではなかった、あるいは変数の意味が部分的に変更された等の理由で ---
+するとき、互換性のために新しい名前の@emph{エイリアス(alias)}として古い名前を維持するのが有用なときがあるかもしれません。@code{defvaralias}により、これを行うことができます。
+
+@defun defvaralias new-alias base-variable &optional docstring
+この関数はシンボル@var{base-variable}のエイリアスとして、シンボル@var{new-alias}を定義します。これは@var{new-alias}から値を取得すると、@var{base-variable}の値がreturnされ、@var{new-alias}の値を変更すると、@var{base-variable}の値が変更されることを意味します。エイリアスされた2つの変数名は、常に同じ値と同じバインディングを共有します。
+
+@var{docstring}引数が非@code{nil}の場合、それは@var{new-alias}のドキュメント文字列を指定します。それ以外では、エイリアスは(もしあれば)@var{base-variable}と同じドキュメント文字列となります。ただし、それは@var{base-variable}自体がエイリアスではない場合で、エイリアスの場合、@var{new-alias}はエイリアスチェーンの最後の変数のドキュメント文字列になります。
+
+この関数は@var{base-variable}をreturnします。
+@end defun
+
+  変数のエイリアスは、変数にたいする古い名前を新しい名前に置き換える、便利な方法です。@code{make-obsolete-variable}は古い名前を陳腐化(obsolete)していると宣言し。それが将来のある時点で削除されるかもしれないことを宣言します。
+
+@defun make-obsolete-variable obsolete-name current-name when &optional access-type
+この関数は、倍とコンパイラーに変数@var{obsolete-name}が陳腐化していると警告させます。@var{current-name}がシンボルの場合、それはこの変数の新たな名前です。その後、@var{obsolete-name}のかわりに@var{current-name}を使用するよう、警告メッセージを伝えます。@var{current-name}が文字列の場合、これはメッセージで、置き換えられる変数はありません。@var{when}は、その変数が最初に陳腐化するのがいつかを示す文字列です(通常はバージョン番号文字列)。
+
+オプションの引数@var{access-type}は、非@code{nil}の場合は陳腐化の警告を引き起こすアクセスの種類を指定します。@code{get}または@code{set}を指定できます。
+@end defun
+
+  2つの変数シノニムを作成して、マクロ@code{define-obsolete-variable-alias}を使用することにより同時に1つが陳腐化していると宣言できます。
+
+@defmac define-obsolete-variable-alias obsolete-name current-name &optional when docstring
+このマクロは変数@var{obsolete-name}が陳腐化しているとマークして、それを変数@var{current-name}にたいするエイリアスにします。これは以下と等価です:
+
+@example
+(defvaralias @var{obsolete-name} @var{current-name} @var{docstring})
+(make-obsolete-variable @var{obsolete-name} @var{current-name} @var{when})
+@end example
+@end defmac
+
+@defun indirect-variable variable
+この関数は、@var{variable}のエイリアスチェーンの最後の変数をreturnします。@var{variable}がシンボルでない場合、または@var{variable}がエイリアスとして定義されていない場合、この関数は@var{variable}をreturnします。
+
+この関数は、シンボルのチェーンがループしているときは、@code{cyclic-variable-indirection}エラーをシグナルします。
+@end defun
+
+@example
+(defvaralias 'foo 'bar)
+(indirect-variable 'foo)
+     @result{} bar
+(indirect-variable 'bar)
+     @result{} bar
+(setq bar 2)
+bar
+     @result{} 2
+@group
+foo
+     @result{} 2
+@end group
+(setq foo 0)
+bar
+     @result{} 0
+foo
+     @result{} 0
+@end example
+
+@node Variables with Restricted Values
+@section Variables with Restricted Values
+@cindex lisp variables defined in C, restrictions
+
+  通常のLisp変数には、有効なLispオブジェクトである任意の値を割り当てることができます。しかし、LispではなくCで定義されたLisp変数もあります。これらの変数のほとんどは、@code{DEFVAR_LISP}を使用してCコードで定義されています。Lispで定義された変数と同様、これらは任意の値をとることができます。しかし、いくつかの変数は@code{DEFVAR_INT}や@code{DEFVAR_BOOL}を使用して定義されています。C実装の概要的な議論は、@ref{Defining
+Lisp variables in C,, Writing Emacs
+Primitives}、特にタイプ@code{syms_of_@var{filename}}の関数の説明を参照してください。
+
+  タイプが@code{DEFVAR_BOOL}の変数は、値に@code{nil}か@code{t}しかとることができません。他の値の割り当てを試みると、@code{t}はセットされます:
+
+@example
+(let ((display-hourglass 5))
+  display-hourglass)
+     @result{} t
+@end example
+
+@defvar byte-boolean-vars
+この変数は、タイプ@code{DEFVAR_BOOL}のすべての変数のリストを保持します。
+@end defvar
+
+  タイプが@code{DEFVAR_INT}の変数は、整数値だけをとることができます。他の値の割り当てを試みると、結果はエラーになります:
+
+@example
+(setq undo-limit 1000.0)
+@error{} Wrong type argument: integerp, 1000.0
+@end example
+
+@node Generalized Variables
+@section Generalized Variables
+
+@cindex generalized variable
+@cindex place form
+@dfn{ジェネリック変数(generalized variable： 汎変数)}または@dfn{place
+form}は、値が格納されるLispメモリー内の多くの場所のうちの1つです。1番シンプルなplace
+formは、通常のLisp変数です。しかし、リストの@sc{car}と@sc{cdr}、配列の要素、シンボルのプロパティー、その他多くのロケーション(location)も、Lisp値が格納される場所です。
+
+ジェネリック変数は、C言語の``lvalues(左辺値)''と類似しています。C言語のlvalueでは、@samp{x =
+a[i]}で配列から要素を取得し、同じ表記を使用して、@samp{a[i] =
+x}で要素を格納します。@code{a[i]}のような特定のフォームが、Cではlvalueになれるように、Lispでジェネリック変数になることができる一連のフォームが存在します。
+
+@menu
+* Setting Generalized Variables::  @code{setf}マクロ。
+* Adding Generalized Variables::  新たな@code{setf}フォームの定義。
+@end menu
+
+@node Setting Generalized Variables
+@subsection The @code{setf} Macro
+
+@code{setf}マクロは、ジェネリック変数を操作する、もっとも基本的な方法です。@code{setf}フォームは@code{setq}と似ていますが、シンボルだけでなく、左辺の任意のplace
+formを受け入れます。たとえば@code{(setf (car a)
+b)}は@code{a}のcarを@code{b}にセットして、@code{(setcar a
+b)}と同じ操作を行いますが、すべてのplaceのタイプにセットおよびアクセスするために2つの別個の関数を覚える必要はありません。
+
+@defmac setf [place form]@dots{}
+このマクロは@var{form}を評価して、それを@var{place}に格納します。@var{place}は有効なジェネリック変数フォームでなければなりません。複数の@var{place}/@var{form}ペアーがある場合、割り当ては@code{setq}のときと同様です。@code{setf}は最後の@var{form}の値をreturnします。
+@end defmac
+
+以下のLispフォームはジェネリック変数として機能するので、@code{setf}の@var{place}引数にすることができます:
+
+@itemize
+@item
+変数を命名するシンボル。他の言い方をすると、@code{(setf x y)}は完全に@code{(setq x
+y)}と等しく、厳密に言うと@code{setq}自体は@code{setf}が存在するので冗長です。これは純粋にスタイルと歴史的な理由によりますが、多くのプログラマーは依然として単純な変数へのセットには@code{setq}の方を好みます。マクロ@code{(setf
+x y)}は、実際には@code{(setq x
+y)}に展開されるので、コンパイルされたコードでこれを使用することにパフォーマンス的な不利はありません。
+
+@item
+以下の標準的なLisp関数の呼び出し:
+
+@smallexample
+aref      cddr      symbol-function
+car       elt       symbol-plist
+caar      get       symbol-value
+cadr      gethash
+cdr       nth
+cdar      nthcdr
+@end smallexample
+
+@item
+以下のEmacs特有な関数の呼び出し:
+
+@smallexample
+default-value                 process-get
+frame-parameter               process-sentinel
+terminal-parameter            window-buffer
+keymap-parent                 window-display-table
+match-data                    window-dedicated-p
+overlay-get                   window-hscroll
+overlay-start                 window-parameter
+overlay-end                   window-point
+process-buffer                window-start
+process-filter
+@end smallexample
+@end itemize
+
+@noindent
+どのように処理すれば良いか知られていない@var{place}フォームを渡した場合、@code{setf}はエラーをシグナルします。
+
+@c And for cl-lib's cl-getf.
+@c The use of @code{nthcdr} as a @var{place} form is an extension
+@c to standard Common Lisp.
+@code{nthcdr}の場合、関数のリスト引数は、それ自体が有効な@var{place}フォームでなければならないことに注意してください。たとえば、@code{(setf
+(nthcdr 0 foo) 7)}は、@code{foo}自体に7をセットするでしょう。
+
+@c FIXME I don't think is a particularly good way to do it,
+@c but these macros are introduced before generalized variables are.
+マクロ@code{push}(@ref{List Variables}を参照してください)、および@code{pop}(@ref{List
+Elements}を参照してください)は、リストだけでなくジェネリック変数を操作できます。@code{(pop
+@var{place})}は、@var{place}内に格納されたリストの最初の要素を削除してreturnします。これは@code{(prog1
+(car @var{place}) (setf @var{place} (cdr
+@var{place})))}と類似していますが、すべてのサブフォームを1度だけ評価します。@code{(push @var{x}
+@var{place})}は、@var{place}内に格納されたリストの1番前に、@var{x}を挿入します。これは@code{(setf
+@var{place} (cons @var{x}
+@var{place}))}と類似していますが、サブフォームの評価を除きます。@code{nthcdr}
+placeへの@code{push}および@code{pop}は、リスト内の任意の位置での挿入および削除に使用できることに注意してください。
+
+@file{cl-lib}ライブラリーは、追加の@code{setf}
+placeを含む、ジェネリック変数ニタイスルサマザマナ拡張を定義します。@ref{Generalized Variables,,, cl, Common
+Lisp Extensions}を参照してください。
+
+
+@node Adding Generalized Variables
+@subsection Defining new @code{setf} forms
+
+このセクションでは、@code{setf}が操作できる新たなフォームを定義する方法を説明します。
+
+@defmac gv-define-simple-setter name setter &optional fix-return
+このマクロは、単純なケースにたいして@code{setf}メソッドを簡単に定義することを可能にします。@var{name}は、関数、マクロ、スペシャルフォームの名前です。@var{name}が、それを更新するための対応する@var{setter}関数をもつときは、このマクロを使用できます(たとえば@code{(gv-define-simple-setter
+car setcar)})。
+
+このマクロをフォーム以下の呼び出しを
+
+@example
+(setf (@var{name} @var{args}@dots{}) @var{value})
+@end example
+
+以下のように変換します。
+@example
+(@var{setter} @var{args}@dots{} @var{value})
+@end example
+
+@noindent
+@code{setf}のような呼び出しは、@var{value}をreturnするようにドキュメントされます。これに問題はありません。たとえば@code{car}と@code{setcar}では、@code{setcar}はそれがセットする値をreturnするからです。@var{setter}関数が@var{value}をreturnしない場合は、@code{gv-define-simple-setter}の@var{fix-return}引数に、非@code{nil}値を使用してください。これは以下のようなものに展開されます
+@example
+(let ((temp @var{value}))
+  (@var{setter} @var{args}@dots{} temp)
+  temp)
+@end example
+これで正しい結果がreturnされることが保証されます。
+@end defmac
+
+
+@defmac gv-define-setter name arglist &rest body
+このマクロは、上述のフォームより複雑な@code{setf}展開を可能にします。たとえば、呼び出すべきシンプルなsetter関数が存在しないときや、もしそれが存在してもplace
+formとは異なる引数を要求する場合には、このフォームを使う必要があるかもしれません。
+
+このマクロは最初に@code{setf}引数フォーム@code{(@var{value}
+@var{args}@dots{})}を@var{arglist}にバインドして、その後@var{body}を実行することにより、フォーム@code{(setf
+(@var{name} @var{args}@dots{})
+@var{value})}を展開します。@var{body}は割り当てを行うLispフォームをreturnし、最後にセットされた値をreturnするべきです。以下はこのマクロの使用例です:
+
+@example
+(gv-define-setter caar (val x) `(setcar (car ,x) ,val))
+@end example
+@end defmac
+
+@findex gv-define-expander
+@findex gv-letplace
+@c FIXME?  Not sure what or how much to say about these.
+@c See cl.texi for an example of using gv-letplace.
+展開をさらに制御するには、マクロ@code{gv-define-expander}を参照してください。マクロ@code{gv-letplace}は、@code{setf}のように処理を行うマクロを定義するのに有用です。詳細は、@file{gv.el}のソースファイルを参照してください。
+
+@cindex CL note---no @code{setf} functions
+@quotation
+@b{Common Lispに関する注意:} Common
+Lispは関数の@code{setf}、すなわち``@code{setf}関数''の挙動を指定するための別の方法を定義します。@code{setf}関数の名前はシンボルではなく。リスト@code{(setf
+@var{name})}です。たとえば@code{(defun (setf foo)
+@dots{})}は、@code{setf}が@code{foo}に適用されるときに使用される関数を定義します。Emacsはこれをサポートしません。適切な展開が定義されていないフォームに@code{setf}を使用すると、コンパイル時にエラーとなります。Common
+Lispでは、関数@code{(setf @var{func})}が後で定義されるので、エラーにはなりません。
+@end quotation

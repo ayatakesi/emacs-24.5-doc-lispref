@@ -29,6 +29,7 @@ epub: elisp-ja.epub
 texinfo-js: elisp-ja-html/index.html
 
 TEXIS := \
+elisp.texi \
 control.texi \
 functions.texi \
 lists.texi \
@@ -74,7 +75,11 @@ tips.texi \
 internals.texi \
 errors.texi \
 maps.texi \
-hooks.texi
+hooks.texi \
+emacsver.texi \
+doclicense.texi \
+gpl.texi \
+index.texi
 
 JA_SUFFIX := "-ja"
 
