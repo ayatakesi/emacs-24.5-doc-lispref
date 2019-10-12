@@ -8,7 +8,7 @@
 @c Copyright (C) 1990-1995, 1998-2015 Free Software Foundation, Inc.
 @c See the file elisp.texi for copying conditions.
 @node Variables
-@chapter Variables
+@chapter 変数
 @cindex variable
 
   @dfn{変数(variable)}とは、プログラム内で値を表すために使用される名前です。Lispでは、変数はそれぞれLispシンボルとして表されます(@ref{Symbols}を参照してください)。変数名は単にそのシンボルの名前であり、変数の値はそのシンボルの値セル(value
@@ -39,7 +39,7 @@ Lispでは、シンボルを変数として使用することは、同じシン�
 @end menu
 
 @node Global Variables
-@section Global Variables
+@section グローバル変数
 @cindex global variable
 
   変数を使用するための一番シンプルな方法は、@dfn{グローバル(globally)}に使用する方法です。これは、ある時点でその変数はただ1つの値をもち、その値が(少なくともその時点では)Lispシステム全体で効果をもつことを意味します。あらたな値を指定するまで、その値が効果をもちます。新しい値で古い値を置き換えるとき、古い値を追跡する情報は変数内に残りません。
@@ -83,7 +83,7 @@ x
 @end example
 
 @node Constant Variables
-@section Variables that Never Change
+@section 変更不可な変数
 @cindex @code{setting-constant} error
 @cindex keyword symbol
 @cindex variable with constant value
@@ -113,7 +113,7 @@ nil @equiv{} 'nil
 Variables}を参照してください)を使用して定義された``定数(constant)''とは、根本的に異なります。@code{defconst}フォームは、人間の読み手に値の変更を意図しない変数であることを知らせる役目は果たしますが、実際にそれを変更しても、Emacsはエラーを起こしません。
 
 @node Local Variables
-@section Local Variables
+@section ローカル変数
 @cindex binding local variables
 @cindex local variables
 @cindex local binding
@@ -219,7 +219,7 @@ of max-lisp-eval-depth,, Eval}を参照してください。
 @end defopt
 
 @node Void Variables
-@section When a Variable is ``Void''
+@section 変数が``void''のとき
 @cindex @code{void-variable} error
 @cindex void variable
 
@@ -300,7 +300,7 @@ x                        ; @r{グローバルバインディングは変更さ�
 @end defun
 
 @node Defining Variables
-@section Defining Global Variables
+@section グローバル変数の定義
 @cindex variable definition
 
   @dfn{変数定義(variable
@@ -388,7 +388,7 @@ float-pi
 変数がローカルバインディングをもつとき(@code{let}により作成された、または関数の引数の場合)に、スペシャルフォーム@code{defconst}または@code{defvar}を使用すると、これらのフォームはグローバルバインディングではなく、ローカルバインディングをセットします。これは通常、あなたが望むことではないはずです。これを防ぐには、これらのスペシャルフォームをファイル内のトップレベルで使用します。この場所は通常、何のローカルバインディングも効果をもたないので、その変数にたいするローカルバインディングが作成される前にファイルがロードされることが確実だからです。
 
 @node Tips for Defining
-@section Tips for Defining Variables Robustly
+@section 堅牢な変数定義のためのヒント
 
   値が関数(または関数のリスト)であるような変数を定義するとき、変数の名前の最後に@samp{-function}(または@samp{-functions})を使います。
 
@@ -460,7 +460,7 @@ Local Variables}を参照してください。
 これは初期化を@code{defvar}の内側に配置した場合とまったく同じ利点をもちますが、変数を再度初期化したい場合は、各フォームにたいして1回ずつ、2度@kbd{C-M-x}をタイプしなければならない点が異なります。
 
 @node Accessing Variables
-@section Accessing Variable Values
+@section 変数の値へのアクセス
 
   変数を参照する通常の方法は、それに名前をつけるシンボルを記述する方法です。The usual way to reference a variable
 is to write the symbol which names it.  @ref{Symbol Forms}を参照してください。
@@ -508,7 +508,7 @@ Scoping}を参照してください。
 @end defun
 
 @node Setting Variables
-@section Setting Variable Values
+@section 変数の値のセット
 
   ある変数の値を変更する通常の方法は、スペシャルフォーム@code{setq}を使用する方法です。実行時に変数選択を計算する必要がある場合は、関数@code{set}を使用します。
 
@@ -594,7 +594,7 @@ one
 @end defun
 
 @node Variable Scoping
-@section Scoping Rules for Variable Bindings
+@section 変数のバインディングのスコーピングルール
 @cindex scoping rule
 
   ある変数にたいするローカルバインディングを作成するとき、そのバインディングはプログラムの限られた一部だけに効果をもちます(@pxref{Local
@@ -632,7 +632,7 @@ Lispプログラムでレキシカルバインディングを有効にする方�
 @end menu
 
 @node Dynamic Binding
-@subsection Dynamic Binding
+@subsection ダイナミックバインディング
 
   デフォルトでは、Emacsにより作成されるローカル変数のバインディングは、ダイナミックバインディングです。ある変数がダイナミックにバインドされていると、Lispプログラムの実行における任意のポイントでのカレントバインディングは、単にそのシンボルにたいしてもっとも最近作成されたダイナミックなローカルバインディングか、そのようなローカルバインディングが存在しない場合はグローバルバインディングになります。
 
@@ -687,7 +687,7 @@ Lispでは、ダイナミックバインディングは、シンプルな方法�
 Components}を参照してください。あるシンボルがダイナミックなローカル値を与えられたとき、Emacsは値セルの内容(または値の不在)をスタックに記録し、新しいローカル値を値セルに格納します。バインディング構造が実行を終えたとき、Emacsはスタックから古い値をpopして、値セルにそれを置きます。
 
 @node Dynamic Binding Tips
-@subsection Proper Use of Dynamic Binding
+@subsection ダイナミックバインディングの正しい使用
 
   ダイナミックバインディングは、プログラムにたいしてテキスト的なローカルスコープ内で定義されていない変数を参照することを許す、強力な機能です。しかし、無制限に使用した場合は、プログラムの理解しにくくしてしまうこともあります。このテクニックを使用するために、2つの明解な方法があります:
 
@@ -718,7 +718,7 @@ Manual}を参照してください。
 @end itemize
 
 @node Lexical Binding
-@subsection Lexical Binding
+@subsection レキシカルバインディング
 
   Emacsのバージョン24.1から、オプションの機能としてレキシカルバインディングが導入されました。わたしたちは、この機能の重要さが、将来において重要になることを期待します。レキシカルバインディングは最適化の機会をより広げるので、この機能を使用するプログラムはおそらく、将来のEmacsバージョンで高速に実行されるようになるでしょう。レキシカルバインディングは、わたしたちがEmacsに将来追加したいと考える並列性(concurrency)とも互換をもっています。
 
@@ -792,7 +792,7 @@ x                        ; @r{@code{x}はグローバル値をもたないこと
   @code{symbol-value}、@code{boundp}、@code{set}のような関数は、変数のダイナミックバインディング(つまりそのシンボルの値セル)だけを取得(または変更)することに注意してください。@code{defun}(または@code{defmacro})のbody内のコードも、周囲のレキシカル変数は参照できません。
 
 @node Using Lexical Binding
-@subsection Using Lexical Binding
+@subsection レキシカルバインディングの使用
 
   Emacs
 Lispファイルをロードしたり、Lispバッファーを評価するとき、バッファーローカルな変数@code{lexical-binding}が非@code{nil}の場合は、レキシカルバインディングが有効になります:
@@ -835,7 +835,7 @@ variable''に関して警告するでしょう。バイトコンパイラーは�
   (使用されていない変数についての警告を抑制するためには、単に変数名をアンダースコアーで開始します。そうすれば、バイトコンパイラーはこれを、変数が使用されないことを示すと解釈します。)
 
 @node Buffer-Local Variables
-@section Buffer-Local Variables
+@section バッファーローカル変数
 @cindex variable, buffer-local
 @cindex buffer-local variables
 
@@ -849,7 +849,7 @@ Terminals}を参照してください)。
 @end menu
 
 @node Intro to Buffer-Local
-@subsection Introduction to Buffer-Local Variables
+@subsection バッファーローカル変数の概要
 
   バッファーローカル変数は、特定のバッファーに関連づけられた、バッファーローカルなバインディングをもちます。このバインディングは、そのバッファーがカレントのときに効果をもち、カレントでないときは効果がありません。バッファーローカルなバインディングが効力をもつときにその変数をセットした場合、そのバインディングは新しい値をもちますが、他のバインディングは変更されません。これは、バッファーローカルなバインディングを作成したバッファーだけで変更が見えることを意味します。
 
@@ -901,7 +901,7 @@ Variables,,, emacs, The GNU Emacs Manual}を参照してください。
 Terminals}を参照してください)。
 
 @node Creating Buffer-Local
-@subsection Creating and Deleting Buffer-Local Bindings
+@subsection バッファーローカルなバインディングの作成と削除
 
 @deffn Command make-local-variable variable
 この関数はカレントバッファー内で、@var{variable}(シンボル)にたいして、バッファーローカルなバインディングを作成します。他のバッファーは影響を受けません。returnされる値は、@var{variable}です。
@@ -1052,7 +1052,7 @@ table)を@code{fundamental-mode-abbrev-table}の値にセットします。
 変数名(シンボル)が非@code{nil}の@code{permanent-local}プロパティーをもつ場合、バッファーローカル変数は@dfn{permanent(永続的)}です。そのような変数は@code{kill-all-local-variables}の影響を受けず、したがってメジャーモードの変更によりそれらのローカルバインディングは作成されません。permanentなローカル変数は、ファイルの内容を編集する方法などより、どこから読み込んだファイルか、あるいはどのように保存するかといったことに関連するデータに適しています。
 
 @node Default Value
-@subsection The Default Value of a Buffer-Local Variable
+@subsection バッファーローカル変数のデフォルト値
 @cindex default value
 
   バッファーローカルなバインディングをもつ変数のグローバル値も、@dfn{デフォルト値(default)}値と呼ばれます。なぜなら、その変数にたいしてカレントバッファーも選択されたフレームもバインディングをもたない場合には、その値が常に効果をもつからです。
@@ -1147,7 +1147,7 @@ buffer-local
 @end defun
 
 @node File Local Variables
-@section File Local Variables
+@section ファイルローカル変数
 @cindex file local variables
 
   ファイルにローカル変数の値を指定できます。そのファイルをvisitしているバッファー内で、これらの変数にたいしてバッファーローカルなバインディングを作成するために、Emacsはこれらを使用します。ファイルローカル変数の基本的な情報については、@ref{File
@@ -1252,7 +1252,7 @@ Emacsが一連のファイルローカル変数にしたがうかどうかユー
   テキストプロパティーは、それらの値に関数呼び出しを含めることができるので、抜け道になる可能性があります。したがって、Emacsはファイルローカル変数にたいして指定された文字列値から、テキストプロパティーを取り除きます。
 
 @node Directory Local Variables
-@section Directory Local Variables
+@section ディレクトリーローカル変数
 @cindex directory local variables
 
   ディレクトリーは、そのディレクトリー内のすべてのファイルに共通なローカル変数値を指定することができます。Emacsは、そのディレクトリー内の任意のファイルをvisitしているバッファー内で、それらの変数にたいするバッファーローカルなバインディングを作成するために、これを使用します。これは、そのディレクトリー内のファイルが何らかの@dfn{プロジェクト}に属していて、同じローカル変数を共有するときなどに有用です。
@@ -1307,7 +1307,7 @@ Variables}を参照してください)にしたがい、ディレクトリーロ
 @end defvar
 
 @node Variable Aliases
-@section Variable Aliases
+@section 変数のエイリアス
 @cindex variable aliases
 @cindex alias, for variables
 
@@ -1369,7 +1369,7 @@ foo
 @end example
 
 @node Variables with Restricted Values
-@section Variables with Restricted Values
+@section 値を制限された変数
 @cindex lisp variables defined in C, restrictions
 
   通常のLisp変数には、有効なLispオブジェクトである任意の値を割り当てることができます。しかし、LispではなくCで定義されたLisp変数もあります。これらの変数のほとんどは、@code{DEFVAR_LISP}を使用してCコードで定義されています。Lispで定義された変数と同様、これらは任意の値をとることができます。しかし、いくつかの変数は@code{DEFVAR_INT}や@code{DEFVAR_BOOL}を使用して定義されています。C実装の概要的な議論は、@ref{Defining
@@ -1396,7 +1396,7 @@ Primitives}、特にタイプ@code{syms_of_@var{filename}}の関数の説明を�
 @end example
 
 @node Generalized Variables
-@section Generalized Variables
+@section ジェネリック変数
 
 @cindex generalized variable
 @cindex place form
@@ -1414,7 +1414,7 @@ x}で要素を格納します。@code{a[i]}のような特定のフォームが�
 @end menu
 
 @node Setting Generalized Variables
-@subsection The @code{setf} Macro
+@subsection @code{setf}マクロ
 
 @code{setf}マクロは、ジェネリック変数を操作する、もっとも基本的な方法です。@code{setf}フォームは@code{setq}と似ていますが、シンボルだけでなく、左辺の任意のplace
 formを受け入れます。たとえば@code{(setf (car a)
@@ -1490,7 +1490,7 @@ Lisp Extensions}を参照してください。
 
 
 @node Adding Generalized Variables
-@subsection Defining new @code{setf} forms
+@subsection 新たな@code{setf}フォーム
 
 このセクションでは、@code{setf}が操作できる新たなフォームを定義する方法を説明します。
 
