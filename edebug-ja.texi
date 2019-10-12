@@ -78,7 +78,7 @@ Edebug自身のフレームを除外してbacktraceを表示する。
 @end menu
 
 @node Using Edebug
-@subsection Using Edebug
+@subsection Edebugの使用
 
   EdebugでLispプログラムをデバッグするには、最初にデバッグしたいLispコードを@dfn{インストルメント(instrument:
 計装)}しなければなりません。これを行なうもっともシンプルな方法は、関数またはマクロの定義に移動して、@kbd{C-u
@@ -128,7 +128,7 @@ Lispモードのコマンドに加えて、ソースコードバッファーで�
 他にも頻繁に使用されるコマンドとして、ストップポイントにbreakpointをセットする@kbd{b}、breakpointに達するまで実行する@kbd{g}、Edebugをexitしてトップレベルのコマンドループにリターンする@kbd{q}があります。また、@kbd{?}とタイプするとすべてのEdebugコマンドがリストされます。
 
 @node Instrumenting
-@subsection Instrumenting for Edebug
+@subsection Edebugのためのインストルメント
 @cindex instrumenting for Edebug
 
   LispコードのデバッグにEdebugを使用するためには、最初にそのコードを@dfn{インストルメント(instrument:
@@ -169,7 +169,7 @@ and Macros}を参照してください。
   Edebug内で利用可能な他の評価関数については、@ref{Edebug Eval}を参照してください。
 
 @node Edebug Execution Modes
-@subsection Edebug Execution Modes
+@subsection Edebugの実行モード
 
 @cindex Edebug execution modes
 Edebugは、デバッグするプログラムの実行にたいして、いくつかの実行モードをサポートします。これらの実行モードを、@dfn{Edebug実行モード(Edebug
@@ -233,7 +233,7 @@ Options}を参照)。デフォルトでこれはstepモードを指定します�
 @end defopt
 
 @node Jumping
-@subsection Jumping
+@subsection ジャンプ
 
   このセクションで説明するコマンドは、指定された場所に達するまで実行を続けます。@kbd{i}を除くすべてのコマンドは、ストップ場所を確立するために一時的なbreakpointを作成してから、goモードにスイッチします。意図されたストップポイントの前にある他のストップポイントに達した場合も、実行はストップします。breakpointの詳細は、@ref{Breakpoints}を参照してください。
 
@@ -271,7 +271,7 @@ S式)を超えた場所に一時的なbreakpointをセットします。ポイ�
 @kbd{i}コマンドは、ステップインしようとしている関数またはマクロがまだインストルメントされていない場合は、それらをインストルメントします。これは便利かもしれませんが、それらを明示的に非インストルメントしない場合、その関数またはマクロはインストルメントされたままになることを覚えておいてください。
 
 @node Edebug Misc
-@subsection Miscellaneous Edebug Commands
+@subsection その他のEdebugコマンド
 
   ここでは、その他のEdebugコマンドを説明します。
 
@@ -302,7 +302,7 @@ Edebugのbacktraceバッファーでは、標準デバッガ内のようにバ�
 Edebugから再帰的にEdebugをアクティブにするコマンドを呼び出すことができます。Edebugがアクティブなときは常に、@kbd{q}によトップレベルの終了、または@kbd{C-]}による再帰編集1レベルの中断ができます。@kbd{d}により、すべての未解決な評価のbacktraceを表示できます。
 
 @node Breaks
-@subsection Breaks
+@subsection ブレーク
 
 Edebugのstepモードは、次のストップポイントに達したときに、実行をストップします。一度開始されたEdebugの実行をストップするには、他に3つの方法があります。それはbreakpoint、グローバルbreak条件、およびソースbreakpointです。
 
@@ -313,7 +313,7 @@ Edebugのstepモードは、次のストップポイントに達したときに�
 @end menu
 
 @node Breakpoints
-@subsubsection Edebug Breakpoints
+@subsubsection Edebugのブレークポイント
 
 @cindex breakpoints (Edebug)
 Edebugを使用しているときは、テスト中のプログラム内に@dfn{breakpoint}を指定できます。breakpointとは、実行がストップされる場所のことです。@ref{Using
@@ -347,7 +347,7 @@ Go-nonstopモードを除き、Edebugは常にbreakpointでストップ、また
 breakpointがどこにあるか探すには、@kbd{B}コマンドを使用します。このコマンドは同じ関数内から、ポイント以降にある次のbreakpoint(ポイント以降にbreakpointが存在しない場合は最初のbreakpoint)にポイントを移動します。このコマンドは実行を継続せず、単にバッファー内のポイントを移動します。
 
 @node Global Break Condition
-@subsubsection Global Break Condition
+@subsubsection グローバルなブレーク条件
 
 @cindex stopping on events
 @cindex global break condition
@@ -361,7 +361,7 @@ X X}(@code{edebug-set-global-break-condition})を使用することにより新�
   グローバルbreak条件は、コード内のどこでイベントが発生したかを見つけるもっともシンプルな方法ですが、コードの実行は遅くなります。そのため、使用しないときは条件を@code{nil}にリセットするべきです。
 
 @node Source Breakpoints
-@subsubsection Source Breakpoints
+@subsubsection ソースブレークポイント
 
 @findex edebug
 @cindex source breakpoints
@@ -382,7 +382,7 @@ breakpoint)}を記述できます。もちろん、そのような呼び出し�
   @code{edebug}が呼び出されたときにインストルメント済みのコードが実行されていなければ、この関数は@code{debug}を呼び出します。
 
 @node Trapping Errors
-@subsection Trapping Errors
+@subsection エラーのトラップ
 
   エラーがシグナルされて、それが@code{condition-case}でハンドルされていないとき、Emacsは通常エラーメッセージを表示します。Edebugがアクティブでインストルメント済みのコードを実行中は、ハンドルされていないエラーには通常Edebugが対応します。オプション@code{edebug-on-error}および@code{edebug-on-quit}で、これをカスタマイズできます。@ref{Edebug
 Options}を参照してください。
@@ -394,7 +394,7 @@ Misc}を参照)。
   Edebugがアクティブの間に@code{debug-on-error}、または@code{debug-on-quit}を変更した場合、それらの変更はEdebugが非アクティブになったとき失われます。さらに、Edebugの再帰編集の間、これらの変数はEdebugの外部でもっていた値にバインドされます。
 
 @node Edebug Views
-@subsection Edebug Views
+@subsection Edebugのビュー
 
   これらのEdebugコマンドは、Edebugにエントリーする前のバッファーの外観と、ウィンドウの状態を調べるコマンドです。外部のウィンドウ構成は、ウィンドウのコレクションとその内容であり、これらは実際にEdebugの外部にあります。
 
@@ -427,7 +427,7 @@ X w}を使用すれば、ソースコードバッファー内のストップポ�
   保存を@emph{オフ}にするために@kbd{W}を使用するたびに、Edebugは外部のウィンドウ構成を忘れます。そのため、たとえ保存を@emph{オン}に戻しても、(プログラムを実行することにより)次にEdebugをexitしたとき、カレントウィンドウ構成は変更されないまま残ります。しかし、十分な数のウィンドウをオープンしていない場合は、@file{*edebug*}と@file{*edebug-trace*}の再表示が、あなたが見たいバッファーと競合するかもしれません。
 
 @node Edebug Eval
-@subsection Evaluation
+@subsection 評価
 
   Edebug内では、まるでEdebugが実行されていないかのように、式を評価できます。式の評価とプリントに際して、Edebugが不可視になるよう試みます。。副作用をもつ式の評価は、Edebugが明示的に保存とリストアを行うデータへの変更を除き、期待したとおり機能するでしょう。このプロセスの詳細は、@ref{The
 Outside Context}を参照してください。
@@ -448,7 +448,7 @@ Edebugのコンテキスト外で、ポイントの前の式を評価する(@cod
   Edebugは、@file{cl.el}内の構文(@code{lexical-let}、@code{macrolet}、@code{symbol-macrolet})により作成された、レキシカル(lexical)にバインドされたシンボルへの参照を含む式の評価をサポートします。
 
 @node Eval List
-@subsection Evaluation List Buffer
+@subsection 評価 List Buffer
 
   式をインタラクティブに評価するために、@file{*edebug*}と呼ばれる@dfn{評価リストバッファー(evaluation list
 buffer)}を使用できます。Edebugがディスプレイを更新するたびに自動的に評価される、式の@dfn{評価リスト(evaluation
@@ -527,7 +527,7 @@ C-u}をタイプします。コメント行にダッシュを挿入する必要�
 C-w}でソースコードバッファーにリターンできます。@file{*edebug*}は実行を継続したときkillされ、次回必要なとき再作成されます。
 
 @node Printing in Edebug
-@subsection Printing in Edebug
+@subsection Edebugでのプリント
 
 @cindex printing (Edebug)
 @cindex printing circular structures
@@ -566,7 +566,7 @@ y)}のようにプリントします。@samp{#1=}という表記はその後の�
   他にプログラムもカスタムプリントを使用できます。詳細は@file{cust-print.el}を参照してください。
 
 @node Trace Buffer
-@subsection Trace Buffer
+@subsection トレースバッファー
 @cindex trace buffer
 
   Edebugは実行トレースを@file{*edebug-trace*}という名前のバッファーに格納して記録できます。実行トレースとは関数呼び出しよリターンのログのことで、関数名と引数、および値が確認できます。トレースレコードを有効にするには、@code{edebug-trace}を非@code{nil}値にセットしてください。
@@ -593,7 +593,7 @@ y)}のようにプリントします。@samp{#1=}という表記はその後の�
   @code{edebug-tracing}および@code{edebug-trace}は、たとえEdebugが非アクティブでも、呼び出されたときは常にトレースバッファーに行を挿入します。トレースバッファーへのテキストの追加により、挿入された最後の行が見えるようにウィンドウもスクロールします。
 
 @node Coverage Testing
-@subsection Coverage Testing
+@subsection カバレッジテスト
 
 @cindex coverage testing (Edebug)
 @cindex frequency counts
@@ -639,7 +639,7 @@ count)は、たとえ実行モードがGo-nonstopでも、カバレッジテス�
 
 
 @node The Outside Context
-@subsection The Outside Context
+@subsection コンテキスト外部
 
 Edebugはデバッグ中のプログラムにたいして透過的であろうと努めますが、完全には達成されません。Edebugは、@kbd{e}や評価リストバッファーで式を評価するときも、一時的に外部のコンテキストをリストアして、透明化を試みます。このセクションではEdebugがリストアするコンテキストと、Edebugがいかにして完全に透過的になるのに失敗するかを正確に説明します。
 
@@ -650,7 +650,7 @@ Edebugはデバッグ中のプログラムにたいして透過的であろう�
 @end menu
 
 @node Checking Whether to Stop
-@subsubsection Checking Whether to Stop
+@subsubsection 停止するかどうかのチェック
 
 Edebugにエンターするときは常に特定のデータの保存とリストアを行なう必要があり、それはトレース情報を作成するか、あるいはプログラムを停止するかを決定する前に行なう必要があります。
 
@@ -664,7 +664,7 @@ Edebugにエンターするときは常に特定のデータの保存とリス�
 
 
 @node Edebug Display Update
-@subsubsection Edebug Display Update
+@subsubsection Edebugの表示の更新
 
 @c This paragraph is not filled, because LaLiberte's conversion script
 @c needs an xref to be on just one line.
@@ -700,7 +700,7 @@ Options}を参照)。
 @end itemize
 
 @node Edebug Recursive Edit
-@subsubsection Edebug Recursive Edit
+@subsubsection Edebugの再帰編集
 
 Edebugにエンターしてユーザーのコマンドが実際に読み取られるとき、Edebugは以下の追加データを保存(そして後でリストア)します:
 
@@ -729,7 +729,7 @@ Edebug内では、再帰深さがEdebug外部の再帰深さより1つ深くな�
 @end itemize
 
 @node Edebug and Macros
-@subsection Edebug and Macros
+@subsection Edebugとマクロ
 
 Edebugが正しくマクロを呼び出す式をインストルメントするには、いくつかの特定な配慮が必要になります。このサブセクションでは、その詳細を説明します。
 
@@ -741,7 +741,7 @@ Edebugが正しくマクロを呼び出す式をインストルメントする�
 @end menu
 
 @node Instrumenting Macro Calls
-@subsubsection Instrumenting Macro Calls
+@subsubsection マクロ呼び出しのインストルメント
 
   EdebugがLispマクロを呼び出す式をインストルメントするときは、正しくインストルメントを行なうために、そのマクロに関して追加の情報が必要になります。これは、マクロ呼び出しのどの部分式(subexpression)が評価されるフォームなのか推測する方法がないからです。(評価はマクロのbodyで明示的に発生するかもしれないし、展開結果が評価されるとき、または任意のタイミングで行われるかもしれません。)
 
@@ -797,7 +797,7 @@ Macros}を参照してください。
 @end defopt
 
 @node Specification List
-@subsubsection Specification List
+@subsubsection 仕様リスト
 
 @cindex Edebug specification list
 あるマクロ呼び出しにおいて、いくつかの引数は評価されるが、それ以外の引数は評価されないような場合には、Edebug仕様のために@dfn{仕様リスト(specification
@@ -936,7 +936,7 @@ sublist-elements@dots{})}と等価であることに注意。
 @end table
 
 @node Backtracking
-@subsubsection Backtracking in Specifications
+@subsubsection 仕様でのバックトレース
 
 @cindex backtracking
 @cindex syntax error (Edebug)
@@ -953,7 +953,7 @@ sublist-elements@dots{})}と等価であることに注意。
 ほとんどのニーズは、バックトラックを自動的に無効にする、これら2つの方法で満足させることができますが、@code{gate}仕様を使用して明示的にバックトラックを無効にするほうが便利なときもあります。これは、高位に適用可能な選択肢が存在しないことが分かっている場合に有用です。@code{let}仕様の例を参照してください。
 
 @node Specification Examples
-@subsubsection Specification Examples
+@subsubsection 仕様の例
 
 以下で提供する例から学ぶことにより、Edebug仕様の理解が容易になるかもしれません。
 
@@ -1008,7 +1008,7 @@ Edebugは@code{defun}および関連する引数リスト、@code{interactive}�
 
 
 @node Edebug Options
-@subsection Edebug Options
+@subsection Edebugのオプション
 
 @c Previously defopt'd:
 @c edebug-sit-for-seconds, edebug-print-length, edebug-print-level

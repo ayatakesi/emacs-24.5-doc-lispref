@@ -9,7 +9,7 @@
 @c Foundation, Inc.
 @c See the file elisp.texi for copying conditions.
 @node Command Loop
-@chapter Command Loop
+@chapter コマンドループ
 @cindex editor command loop
 @cindex command loop
 
@@ -36,7 +36,7 @@ loop)}にエンターします。このループはキーシーケンスを読�
 @end menu
 
 @node Command Overview
-@section Command Loop Overview
+@section コマンドループの概要
 
   コマンドループが最初に行わなければならないのはキーシーケンスの読み取りです。キーシーケンスほコマンドに変換される入力イベントのシーケンスです。これは関数@code{read-key-sequence}を呼び出すことにより行われます。Lispプログラムもこの関数を呼び出すことができます(@ref{Key
 Sequence
@@ -77,7 +77,7 @@ Info}を参照のこと。
 Manual}を参照)に届くリクエストは、キーボードコマンドが行うのと同じように、これらの2つのフックを実行します。
 
 @node Defining Commands
-@section Defining Commands
+@section コマンドの定義
 @cindex defining commands
 @cindex commands, defining
 @cindex functions, making them interactive
@@ -102,7 +102,7 @@ Functions}を参照)の両方を受け入れます。このフォームは、そ
 @end menu
 
 @node Using Interactive
-@subsection Using @code{interactive}
+@subsection @code{interactive}の使用
 @cindex arguments, interactive entry
 @cindex interactive spec, using
 
@@ -201,7 +201,7 @@ Call}を参照)の場合、値はそのコマンドの引数を計算する方�
 @end defun
 
 @node Interactive Codes
-@subsection Code Characters for @code{interactive}
+@subsection @code{interactive}にたいするコード文字
 @cindex interactive code description
 @cindex description for interactive codes
 @cindex codes, interactive, description of
@@ -365,7 +365,7 @@ Systems}を参照のこと。[Completion]、[Existing]、[Prompt]
 @end table
 
 @node Interactive Examples
-@subsection Examples of Using @code{interactive}
+@subsection @code{interactive}の使用例
 @cindex examples of using @code{interactive}
 @cindex @code{interactive}, examples of using
 
@@ -417,7 +417,7 @@ Put them into three windows, selecting the last one."
 @end example
 
 @node Generic Commands
-@subsection Select among Command Alternatives
+@subsection コマンド候補からの選択
 @cindex generic commands
 @cindex alternatives, defining
 
@@ -436,7 +436,7 @@ command)}を定義するために使用できます。これらはユーザー�
 @end defmac
 
 @node Interactive Call
-@section Interactive Call
+@section interactiveな呼び出し
 @cindex interactive call
 
   コマンドループはキーシーケンスをコマンドに翻訳した後、関数@code{command-execute}を使用してその関数を呼び出します。そのコマンドが関数の場合、@code{command-execute}は引数を読み取りコマンドを呼び出す@code{call-interactively}を呼び出します。自分でこれらの関数を呼び出すこともできます。
@@ -520,7 +520,7 @@ Events}を参照)を実行する場合に使用される。
 @end deffn
 
 @node Distinguish Interactive
-@section Distinguish Interactive Calls
+@section interactiveな呼び出しの区別
 @cindex distinguish interactive calls
 @cindex is this call interactive
 
@@ -592,7 +592,7 @@ Lisp評価(または@code{apply}や@code{funcall}))を通じて呼び出され�
 @end example
 
 @node Command Loop Info
-@section Information from the Command Loop
+@section コマンドループからの情報
 @cindex command loop variables
 
 エディターコマンドループは、自分自身と実行するコマンドのために、いくつかのLisp変数にステータス記録を保持します。@code{this-command}および@code{last-command}以外は、一般的にこれらの変数をLispプログラム内で変更するのは、良いアイデアではありません。
@@ -700,7 +700,7 @@ Focus}を参照のこと。
 @end defvar
 
 @node Adjusting Point
-@section Adjusting Point After Commands
+@section コマンド後のポイントの調整
 @cindex adjusting point
 @cindex invisible/intangible text, and point
 @cindex @code{display} property, and point display
@@ -721,7 +721,7 @@ Focus}を参照のこと。
 @end defvar
 
 @node Input Events
-@section Input Events
+@section 入力イベント
 @cindex events
 @cindex input events
 
@@ -755,7 +755,7 @@ events)}のシーケンスを読み取ります。入力イベントとは、キ
 @end menu
 
 @node Keyboard Events
-@subsection Keyboard Events
+@subsection キーボードイベント
 @cindex keyboard events
 
 キーボードから取得できる入力には2つの種類があります。それは通常のキーとファンクションキーです。通常のキーは文字に対応し、それらが生成するイベントはLisp内では文字で表現されます。文字イベントのイベント型は文字自身(整数)です。@ref{Classifying
@@ -864,7 +864,7 @@ Bindings}を参照)。関数@code{event-convert-list}は、そのようなリス
 Events}を参照)。
 
 @node Function Keys
-@subsection Function Keys
+@subsection ファンクションキー
 
 @cindex function keys
 ほとんどのキーボードには@dfn{ファンクションキー(function
@@ -920,7 +920,7 @@ Keymaps}を参照)は@code{tab}を9にマップするようセットアップさ
 したがって、@key{META}を押下した場合の@key{F3}キーにたいするシンボルは@code{M-f3}になります。複雑のプレフィクスを使用する場合は、アルファベット順に記述することを推奨します。とはいえ、キーバインディングが修飾されたファンクションキーを探す際、引数の順序は関係ありません。
 
 @node Mouse Events
-@subsection Mouse Events
+@subsection マウスイベント
 
 Emacsは4つの種類のマウスイベントをサポートします。それはクリックイベント、ドラッグイベント、ボタンダウンイベント、モーションイベントです。すべてのマウスイベントはリストで表現されます。このリストの@sc{car}はイベント型です。イベント型はどのマウスボタンが関与するのか、それにたいしてどの修飾キーが使用されたかを示します。イベント型によりダブル、あるいはトリプルでボタンが押されたかを区別することもできます(@ref{Repeat
 Events}を参照)。残りのリスト要素は、位置と時間の情報を提供します。
@@ -931,7 +931,7 @@ Codes}を参照してください。
 マウスイベントで開始されたキーシーケンスはカレントバッファーではなく、マウスのあったウィンドウ内のバッファーのキーマップを使用して読み取られます。これはウィンドウ内でクリックすることによりそのウィンドウやそのウィンドウのバッファーが選択されることを意味しません。つまり、それは完全にそのキーシーケンスのコマンドバインディングの制御下にあるのです。
 
 @node Click Events
-@subsection Click Events
+@subsection クリックイベント
 @cindex click event
 @cindex mouse click event
 
@@ -1048,7 +1048,7 @@ border)では、@var{x}な有意なデータをもたない。フリンジ、マ
 
 
 @node Drag Events
-@subsection Drag Events
+@subsection ドラッグイベント
 @cindex drag event
 @cindex mouse drag event
 
@@ -1069,7 +1069,7 @@ Events}を参照)としてドラッグの開始と終了の位置を与えます
 @code{read-key-sequence}がキーバインディングをもたず、対応するクリックイベントにキーバインディングがあるようなドラッグイベントを受け取った場合、この関数はそのドラッグイベントをドラッグ開始位置でのクリックイベントに変更します。これは、もし望まなければクリックイベントとドラッグイベントを区別する必要がないことを意味します。
 
 @node Button-Down Events
-@subsection Button-Down Events
+@subsection ボタンダウンイベント
 @cindex button-down event
 
 クリックイベントとドラッグイベントは、ユーザーがマウスボタンをリリースしたときに発生します。ボタンがリリースされるまでクリックとドラッグを区別することはできないので、リリース前にイベントが発生することはありません。
@@ -1082,7 +1082,7 @@ drag.''。ボタンダウンを着るような人種と麻薬を対比させた�
 Events}を参照してください。
 
 @node Repeat Events
-@subsection Repeat Events
+@subsection リピートイベント
 @cindex repeat events
 @cindex double-click events
 @cindex triple-click events
@@ -1125,7 +1125,7 @@ Events}を参照してください。
 @end defopt
 
 @node Motion Events
-@subsection Motion Events
+@subsection モーションイベント
 @cindex motion event
 @cindex mouse motion events
 
@@ -1144,7 +1144,7 @@ Events})です。ドラッグイベントの終了位置のように、この位
 Tracking}を参照してください。
 
 @node Focus Events
-@subsection Focus Events
+@subsection フォーカスイベント
 @cindex focus event
 
 ウィンドウシステムは、ユーザーにたいしてどのウィンドウがキーボード入力を受け取るか制御するための、一般的な方法を提供します。このウィンドウ選択は@dfn{フォーカス(focus)}と呼ばれます。Emacsのフレームを切り替えるためにユーザーが何かを行うと、それは@dfn{フォーカスイベント(focus
@@ -1165,7 +1165,7 @@ Xウィンドウマネージャーには、あるウィンドウにマウスを�
 キーシーケンスの途中におけるフォーカスイベントは、そのシーケンスを誤ったものにするかもしれません。そのため、Emacsは決してキーシーケンスの途中でフォーカスイベントを生成しません。ユーザーがキーシーケンスの途中(つまりプレフィクス引数の後)でフォーカスを変更した場合、複数イベントキーシーケンスの前か後にフォーカスイベントが到着するように、Emacsはフォーカスイベントを記録しておきます。
 
 @node Misc Events
-@subsection Miscellaneous System Events
+@subsection その他のシステムイベント
 
 他にもシステム内での出来事を表現するイベント型が少数あります。
 
@@ -1268,7 +1268,7 @@ Systems}を参照)は、@code{cp@var{codepage}}または@code{windows-@var{codep
   キーシーケンスの途中、つまりプレフィクスキーの後にこれらのイベントの1つが到着した場合、複数イベントキー内ではなくその前または後にそのイベントが到着するように、Emacsはそのイベントを記録する。
 
 @node Event Examples
-@subsection Event Examples
+@subsection イベントの例
 
 ユーザーが同じ場所でマウス左ボタンを押して離した場合、それは以下のようなイベントシーケンスを生成します:
 
@@ -1310,7 +1310,7 @@ SIGUSR1シグナルを処理するためにはインタラクティブ関数を�
 @end smallexample
 
 @node Classifying Events
-@subsection Classifying Events
+@subsection イベントの分類
 @cindex event type
 @cindex classifying events
 
@@ -1398,7 +1398,7 @@ type)を、それらすべてを指定するイベント型に変換する。基
 @end defun
 
 @node Accessing Mouse
-@subsection Accessing Mouse Events
+@subsection マウスイベントへのアクセス
 @cindex mouse events, data in
 @cindex keyboard events, data in
 
@@ -1517,7 +1517,7 @@ Events}を参照のこと。@var{position}が実際のポジション値を含�
 @end defun
 
 @node Accessing Scroll
-@subsection Accessing Scroll Bar Events
+@subsection スクロールバーイベントへのアクセス
 @cindex scroll bar events, data in
 
   以下の関数は、スクロールバーイベントの解析に役立ちます。
@@ -1544,7 +1544,7 @@ Events}を参照のこと。@var{position}が実際のポジション値を含�
 @end defun
 
 @node Strings of Events
-@subsection Putting Keyboard Events in Strings
+@subsection 文字列内へのキーボードイベントの配置
 @cindex keyboard events in strings
 @cindex strings with keyboard events
 
@@ -1629,7 +1629,7 @@ Emacsの初期のバージョンでは、メタ文字を128から255のコード
   しかし、ほとんどのプログラムはこのセクションの冒頭の推奨にしたがって、これらの問題を避けるほうがよいでしょう。
 
 @node Reading Input
-@section Reading Input
+@section 入力の読み取り
 @cindex read input
 @cindex keyboard input
 
@@ -1649,7 +1649,7 @@ Input}を参照してください。
 @end menu
 
 @node Key Sequence Input
-@subsection Key Sequence Input
+@subsection キーシーケンス入力
 @cindex key sequence input
 
   コマンドループは@code{read-key-sequence}を呼び出すことにより、キーシーケンスの入力を一度に読み取ります。Lisp関数もこの関数を呼び出すことができます。たとえば@code{describe-key}はキーを説明するためにこの関数を使用します。
@@ -1728,7 +1728,7 @@ Mark, handle-shift-selection}を参照)。
 @end defvar
 
 @node Reading One Event
-@subsection Reading One Event
+@subsection 単一イベントの読み取り
 @cindex reading a single event
 @cindex event, reading only one
 
@@ -1817,7 +1817,7 @@ Functions}を参照)を非@code{nil}値にバインドした場合、@code{help-
 @end defun
 
 @node Event Mod
-@subsection Modifying and Translating Input Events
+@subsection 入力イベントの変更と変換
 @cindex modifiers of events
 @cindex translating input events
 @cindex event translation
@@ -1867,7 +1867,7 @@ of Characters}を参照)を使用すること。
 Keymaps}を参照してください。
 
 @node Invoking the Input Method
-@subsection Invoking the Input Method
+@subsection 入力メソッドの呼び出し
 @cindex invoking input method
 
   イベント読み取り関数は、もしあればカレント入力メソッドを呼び出します(@ref{Input
@@ -1889,7 +1889,7 @@ Misc}を参照)内のイベントの前に処理されます。入力メソッ�
   キーシーケンスの2つ目および後続のイベントを読み取るときは、入力メソッド関数は呼び出されません。したがって、それらの文字は入力メソッドの処理対象ではありません。入力メソッド関数は@code{overriding-local-map}と@code{overriding-terminal-local-map}の値をテストするべきです。これらの変数のいずれかが非@code{nil}の場合、入力メソッドは引数をリストにputして、それ以上の処理を行わずにそのリストをリターンするべきです。
 
 @node Quoted Character Input
-@subsection Quoted Character Input
+@subsection クォートされた文字の入力
 @cindex quoted character input
 
   ユーザーが手軽にコントロール文字やメタ文字。リテラルや8進文字コードを指定できるように、文字の指定をもとめることができます。コマンド@code{quoted-insert}この関数を使用します。
@@ -1922,7 +1922,7 @@ What character @kbd{1 7 7}-
 
 @need 2000
 @node Event Input Misc
-@subsection Miscellaneous Event Input Features
+@subsection その他のイベント入力の機能
 
 このセクションでは、イベントを使い切ることなく``先読み''する方法、および入力の保留や保留の破棄の方法について説明します。@ref{Reading a
 Password}の関数@code{read-passwd}も参照してください。
@@ -2004,7 +2004,7 @@ C-e}は式を評価するコマンドとする)が@code{last-command-event}に�
 @end defun
 
 @node Special Events
-@section Special Events
+@section スペシャルイベント
 
 @cindex special events
 特定の@dfn{スペシャルイベント(special
@@ -2018,7 +2018,7 @@ event)}は、読み取られると即座に非常に低レベルで処理され�
 Keymaps}を参照)の中にあります。
 
 @node Waiting
-@section Waiting for Elapsed Time or Input
+@section 時間の経過や入力の待機
 @cindex waiting
 
   待機関数(wait
@@ -2055,7 +2055,7 @@ Mode}を参照)では、たとえ標準入力ディスクリプタからの入�
   現在時刻を取得する関数については、@ref{Time of Day}を参照してください。
 
 @node Quitting
-@section Quitting
+@section quit
 @cindex @kbd{C-g}
 @cindex quitting
 @cindex interrupt Lisp functions
@@ -2117,7 +2117,7 @@ nil)}により@code{quit}条件をシグナルする。これはquitが行うこ
 Modes}内の関数@code{set-input-mode}を参照してください。
 
 @node Prefix Command Arguments
-@section Prefix Command Arguments
+@section プレフィクスコマンド引数
 @cindex prefix argument
 @cindex raw prefix argument
 @cindex numeric prefix argument
@@ -2215,7 +2215,7 @@ rawプレフィクス引数の値は、前のコマンドにより使用され�
 @end deffn
 
 @node Recursive Editing
-@section Recursive Editing
+@section 再帰編集
 @cindex recursive command loop
 @cindex recursive editing level
 @cindex command loop, recursive
@@ -2283,7 +2283,7 @@ q}(@code{kbd-macro-query})を使用したときも、再帰編集レベルが使
 @end defun
 
 @node Disabling Commands
-@section Disabling Commands
+@section コマンドの無効化
 @cindex disabled command
 
   @dfn{コマンドを無効化(disabling a
@@ -2329,7 +2329,7 @@ File}を参照)も修正するので、将来のセッションにもこれが�
 @end defvar
 
 @node Command History
-@section Command History
+@section コマンドのヒストリー
 @cindex command history
 @cindex complex command
 @cindex history of commands
@@ -2359,7 +2359,7 @@ command-history
 emacs, The GNU Emacs Manual}を参照)。ミニバッファー内では、通常のミニバッファーヒストリーコマンドが理由できます。
 
 @node Keyboard Macros
-@section Keyboard Macros
+@section キーボードマクロ
 @cindex keyboard macros
 
   @dfn{キーボードマクロ(keyboard

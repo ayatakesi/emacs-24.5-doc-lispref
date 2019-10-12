@@ -9,7 +9,7 @@
 @c Foundation, Inc.
 @c See the file elisp.texi for copying conditions.
 @node Debugging
-@chapter Debugging Lisp Programs
+@chapter Lispプログラムのデバッグ
 @cindex debugging lisp programs
 
   Emacs Lispプログラム内の問題を見つけて詳細に調べる方法が、いくつかあります。
@@ -53,7 +53,7 @@ Input}を参照)と、@code{open-termscript}関数(@ref{Terminal Output})があ�
 @end menu
 
 @node Debugger
-@section The Lisp Debugger
+@section Lispデバッガ
 @cindex debugger for Emacs Lisp
 @cindex Lisp debugger
 @cindex break
@@ -75,7 +75,7 @@ Editing}を参照してください。
 @end menu
 
 @node Error Debugging
-@subsection Entering the Debugger on an Error
+@subsection エラーによるデバッガへのエンター
 @cindex error debugging
 @cindex debugging errors
 
@@ -131,7 +131,7 @@ Events}を参照)にセットした場合は、Emacsは@code{special-event-map}�
   initファイルロード中に発生したエラーをデバッグするには、オプション@samp{--debug-init}を使用します。これはinitファイルロードの間に@code{debug-on-error}を@code{t}にバインドして、通常はinitファイル内のエラーをキャッチする@code{condition-case}をバイパスします。
 
 @node Infinite Loops
-@subsection Debugging Infinite Loops
+@subsection 無限ループのデバッグ
 @cindex infinite loops
 @cindex loops, infinite
 @cindex quitting from infinite loop
@@ -148,7 +148,7 @@ Events}を参照)にセットした場合は、Emacsは@code{special-event-map}�
 @end defopt
 
 @node Function Debugging
-@subsection Entering the Debugger on a Function Call
+@subsection 関数呼び出しによるデバッガへのエンター
 @cindex function call debugging
 @cindex debugging specific functions
 
@@ -197,7 +197,7 @@ Debugger entered--entering a function:
 @end deffn
 
 @node Explicit Debug
-@subsection Explicit Entry to the Debugger
+@subsection 明示的なデバッガへのエントリー
 @cindex debugger, explicit entry
 @cindex force entry to debugger
 
@@ -210,7 +210,7 @@ Debugger entered--entering a function:
   デバッグ命令を配したいソースコード中の正確な箇所がわからないが、特定のメッセージが表示されたときにバックトレースを表示したい場合は、意図するメッセージにマッチする正規表現を@code{debug-on-message}にセットできます。
 
 @node Using Debugger
-@subsection Using the Debugger
+@subsection デバッガの使用
 
   デバッガにエンターすると、その前に選択されていたウィンドウを1つのウィンドウに表示し、他のウィンドウに@file{*Backtrace*}という名前のバッファーを表示します。backtraceバッファーには、現在実行されているLisp関数の各レベルが1行ずつ含まれます。このバッファーの先頭は、デバッガが呼び出された理由を説明するメッセージ(デバッガがエラーにより呼び出された場合はエラーメッセージや関連するデータなど)です。
 
@@ -231,7 +231,7 @@ frame)}となります。デバッガコマンドのいくつかは、カレン�
   デバッガはデバッガ自身のスタックフレーム数を想定するため、バイトコンパイルされて実行されなければなりません。デバッガがインタープリターに解釈されて実行されているとき、これらの想定は正しくなくなります。
 
 @node Debugger Commands
-@subsection Debugger Commands
+@subsection デバッガのコマンド
 @cindex debugger command list
 
   (Debuggerモードの)debuggerバッファーでは、通常のEmacsコマンドに加えて、特別なコマンドが提供されます。デバッガでもっとも重要な使い方をするのは、制御フローを見ることができるコードをステップ実行するコマンドです。デバッガはインタープリターにより解釈された制御構造のステップ実行はできますが、バイトコンパイル済みの関数ではできません。バイトコンパイル済み関数をステップ実行したい場合は、同じ関数の解釈された定義に置き換えてください。(これを行なうには、その関数のソースをvisitして、関数の定義で@kbd{C-M-x}とタイプしてください。)
@@ -284,7 +284,7 @@ frame)}となります。デバッガコマンドのいくつかは、カレン�
 @end table
 
 @node Invoking the Debugger
-@subsection Invoking the Debugger
+@subsection デバッガの呼び出し
 @cindex invoking lisp debugger
 
   以下では、デバッガを呼び出すために使用される関数@code{debug}の完全な詳細を説明します。
@@ -347,7 +347,7 @@ Debugger entered--Lisp error: (arith-error)
 @end deffn
 
 @node Internals of Debugger
-@subsection Internals of the Debugger
+@subsection デバッガの内部
 
   このセクションでは、デバッガ内部で使用される関数と変数について説明します。
 
@@ -438,7 +438,7 @@ backtraceの各行は、1つの関数呼び出しを表します。関数の引�
 @include edebug-ja.texi
 
 @node Syntax Errors
-@section Debugging Invalid Lisp Syntax
+@section 無効なLisp構文のデバッグ
 @cindex debugging invalid Lisp syntax
 
   Lispリーダーは無効な構文(invalid
@@ -461,7 +461,7 @@ Parenモードを有効にしてコードにポイントを移動するだけで
 @end menu
 
 @node Excess Open
-@subsection Excess Open Parentheses
+@subsection 過剰な開カッコ
 @cindex excess open parentheses
 
   カッコがマッチしないdefunを探すのが、最初のステップです。過剰な開カッコが存在する場合は、ファイルの終端に移動して@kbd{C-u
@@ -478,7 +478,7 @@ C-M-u}とタイプします。これにより、カッコがマッチしない�
   問題をfixできたと思った後に、再度@kbd{C-M-q}を使用します。実際に元のインデントが意図したカッコのネストに適合していて、足りないカッコを追加していたら、@kbd{C-M-q}は何も変更しないはずです。
 
 @node Excess Close
-@subsection Excess Close Parentheses
+@subsection 過剰な閉カッコ
 @cindex excess close parentheses
 
   過剰な閉カッコへの対処は、まずファイルの先頭に移動してから、カッコのマッチしないdefunを探すために@kbd{C-u -1
@@ -492,7 +492,7 @@ C-M-u}をタイプします。
   問題をfixできたと思った後に、再度@kbd{C-M-q}を使用します。実際に元のインデントが意図したカッコのネストに適合していて、足りないカッコを追加していたら、@kbd{C-M-q}は何も変更しないはずです。
 
 @node Test Coverage
-@section Test Coverage
+@section カバレッジテスト
 @cindex coverage testing
 
 @findex testcover-start
@@ -522,7 +522,7 @@ Testing}を参照)。これらの機能は部分的に重複しており、組�
 
 
 @node Profiling
-@section Profiling
+@section プロファイリング
 @cindex profiling
 @cindex measuring resource usage
 @cindex memory usage
