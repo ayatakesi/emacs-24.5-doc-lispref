@@ -9,7 +9,7 @@
 @c Foundation, Inc.
 @c See the file elisp.texi for copying conditions.
 @node Control Structures
-@chapter Control Structures
+@chapter 制御構造
 @cindex special forms for control structures
 @cindex control structures
 
@@ -36,7 +36,7 @@ Lispは、他の様々な順序づけ、条件、繰り返し、(制御された
 @end menu
 
 @node Sequencing
-@section Sequencing
+@section 順序
 @cindex sequencing
 @cindex sequential execution
 
@@ -113,7 +113,7 @@ Lispは、他の様々な順序づけ、条件、繰り返し、(制御された
 @end defspec
 
 @node Conditionals
-@section Conditionals
+@section 条件
 @cindex conditional evaluation
 
   条件による制御構造は、候補の中から選択を行ないます。Emacs
@@ -235,7 +235,7 @@ Lispは4つの条件フォームをもちます。@code{if}は他の言語のも
 @end menu
 
 @node Pattern matching case statement
-@subsection Pattern matching case statement
+@subsection パターンマッチングによるcase文
 @cindex pcase
 @cindex pattern matching
 
@@ -320,7 +320,7 @@ x (guard (< x 10)))}は10より小さい任意の数字にマッチして、そ�
 @end table
 
 @node Combining Conditions
-@section Constructs for Combining Conditions
+@section 条件の組み合わせ
 @cindex combining conditions
 
   このセクションは、複雑な条件を表現するために、@code{if}や@code{cond}とともによく使用される3つの構成を記述します。@code{and}と@code{or}の構成は、ある種の複数条件の構成として、個別に使用することもできます。
@@ -414,7 +414,7 @@ foo)}は実行されないので、エラーにならないことに注意して
 @end defspec
 
 @node Iteration
-@section Iteration
+@section 繰り返し
 @cindex iteration
 @cindex recursion
 
@@ -483,7 +483,7 @@ Exits}を参照してください)まで計測されるでしょう
 @end defmac
 
 @node Nonlocal Exits
-@section Nonlocal Exits
+@section 非ローカル脱出
 @cindex nonlocal exits
 
   @dfn{非ローカル脱出(nonlocal exit)}とは、プログラム内のある位置から、別の離れた位置へ、制御を移します。Emacs
@@ -491,13 +491,13 @@ Lispでは、エラーの結果として非ローカル脱出が発生するこ�
 
 @menu
 * Catch and Throw::          プログラム自身の目的による非ローカル脱出。
-* Examples of Catch::        このような非ローカル脱出が記述される方法を示します。
+* Examples of Catch::        このような非ローカル脱出が記述される方法。
 * Errors::                   エラーがシグナル・処理される方法。
 * Cleanups::                 エラーが発生した場合のクリーンアップフォーム実行のアレンジ。
 @end menu
 
 @node Catch and Throw
-@subsection Explicit Nonlocal Exits: @code{catch} and @code{throw}
+@subsection 明示的な非ローカル脱出: @code{catch}と@code{throw}
 
   ほとんどの制御構造は、そのコンストラクト自身内部の制御フローだけに影響します。関数@code{throw}は、通常のプログラム実行でのこのルールの例外です。これは、リクエストにより非ローカル脱出を行ないます(他にも例外はありますが、それらはエラー処理だけのものです)。@code{throw}は@code{catch}の内部で試用され、@code{catch}に制御を戻します。たとえば:
 
@@ -554,7 +554,7 @@ return位置が効果をもつことにより、@code{catch}は@var{body}のフ�
 @end defun
 
 @node Examples of Catch
-@subsection Examples of @code{catch} and @code{throw}
+@subsection @code{catch}と@code{throw}の例
 
   2重にネストされたループから脱出する1つの方法は、@code{catch}と@code{throw}を使うことです(ほとんどの言語では、これは``goto''により行なわれるでしょう)。ここでは、@var{i}と@var{j}を、0から9に変化させて@code{(foo
 @var{i} @var{j})}を計算します:
@@ -614,7 +614,7 @@ return位置が効果をもつことにより、@code{catch}は@var{body}のフ�
 この場合も2つのreturn位置がありますが、今回は外側だけがタグ@code{hack}をもち、内側のものは、かわりにタグ@code{quux}をもちます。したがって、@code{throw}により、外側の@code{catch}が値@code{yes}をreturnします。関数@code{print}が呼び出されることはなく、bodyのフォーム@code{'no}も決して評価されません。
 
 @node Errors
-@subsection Errors
+@subsection エラー
 @cindex errors
 
   Emacs
@@ -637,7 +637,7 @@ and Throw}を参照してください。
 @end menu
 
 @node Signaling Errors
-@subsubsection How to Signal an Error
+@subsubsection エラーをシグナルする方法
 @cindex signaling errors
 
    エラーの@dfn{シグナリング(signaling)}とは、エラーの処理を開始することを意味します。エラー処理は通常、実行中のプログラムのすべて、または一部をアボート(abort)して、エラーをハンドルするためにセットアップされた位置にreturnします。ここでは、エラーをシグナルする方法を記述します。
@@ -723,7 +723,7 @@ Debugging}を参照してください。
 @end quotation
 
 @node Processing of Errors
-@subsubsection How Emacs Processes Errors
+@subsubsection Emacsがエラーを処理する方法
 @cindex processing of errors
 
 エラーがシグナルされたとき、@code{signal}は、そのエラーにたいするアクティブな@dfn{ハンドラー(handler)}を検索します。ハンドラーとは、Lispプログラムの一部でエラーが発生したときに実行するよう意図された、Lisp式のシーケンスです。そのエラーが適切なハンドラーをもつ場合、そのハンドラーが実行され、そのハンドラーの後から実行が再開されます。ハンドラーは、そのハンドラーが設定された@code{condition-case}の環境内で実行されます。@code{condition-case}内のすべての関数呼び出しはすでに終了しているので、ハンドラーがそれらにreturnすることはありません。
@@ -739,7 +739,7 @@ Debugging}を参照してください。
 Debugging}を参照してください)が非@code{nil}の場合、デバッガーが有効です。エラーハンドラーとは異なり、デバッガーはそのエラーの環境内で実行されるので、エラー時の変数の値を正確に調べることができます。
 
 @node Handling Errors
-@subsubsection Writing Code to Handle Errors
+@subsubsection エラーを処理するコードの記述
 @cindex error handler
 @cindex handling errors
 
@@ -921,7 +921,7 @@ of signal}を参照してください。
 @end defmac
 
 @node Error Symbols
-@subsubsection Error Symbols and Condition Names
+@subsubsection エラーシンボルとエラー条件
 @cindex error symbol
 @cindex error name
 @cindex condition name
@@ -988,7 +988,7 @@ of signal}を参照してください)を呼び出すことにより、これを
   主要なエラーシンボルと、それらのコンディションについては、@ref{Standard Errors}を参照してください。
 
 @node Cleanups
-@subsection Cleaning Up from Nonlocal Exits
+@subsection 非ローカル脱出のクリーンアップ
 @cindex nonlocal exits, cleaning up
 
   @code{unwind-protect}構成は、データ構造を一時的に不整合な状態に置くときは、重要です。これはエラーやthrouのイベントにより、再びデータを整合された状態にすることができます(バッファー内容の変更だけに使用される、他のクリーンアップ構成は、アトミックな変更グループです。@ref{Atomic

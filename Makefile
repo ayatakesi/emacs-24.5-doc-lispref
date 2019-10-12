@@ -89,7 +89,7 @@ clean:
 	rm -fR html/
 	rm -f *.info
 	rm -f *.pdf
-	rm -f *.txt
+	rm -f *-ja.txt
 	rm -f *.tar.gz
 	rm -fR elisp-ja.texis/
 	rm -fR *.epub *.docbook mimetype META-INF OEBPS
@@ -101,7 +101,7 @@ clean:
 		JA_TEXI=$$(printf "%s%s%s" $* ${JA_SUFFIX} .texi); \
 		./_convert.sh; \
 		po4a-translate -f texinfo -k 0 -M utf8 -m original_texis/$@ -p $@.po -l $${JA_TEXI}; \
-		./replace.sh ; \
+		./replace.sh $${JA_TEXI}; \
 	else \
 		cp -pf original_texis/$@ $@; \
 	fi; \
