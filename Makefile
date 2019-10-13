@@ -84,15 +84,15 @@ index.texi
 JA_SUFFIX := "-ja"
 
 clean:
-	rm -f *.texi
-	rm -f *.bak
-	rm -f *.html
-	rm -fR html/
-	rm -f *.info
-	rm -fR *.pdf elisp-ja.t2d/
-	rm -f *.txt
-	rm -fR *.tar.gz elisp-ja.texis/
-	rm -fR *.epub *.docbook mimetype META-INF OEBPS
+	rm -f *.texi; \
+	rm -f *.bak; \
+	rm -f *.html; \
+	rm -fR html/; \
+	rm -f *.info; \
+	rm -fR *.pdf elisp-ja.t2d/; \
+	rm -f *.txt; \
+	rm -fR *.tar.gz elisp-ja.texis/; \
+	rm -fR *.epub *.docbook mimetype META-INF OEBPS; \
 	rm -fR elisp-ja-html/
 
 %.texi:
@@ -120,7 +120,7 @@ elisp-ja.pdf: $(TEXIS)
 	dvipdfmx elisp-ja.dvi
 	rm -f elisp-ja.dvi
 
-elisp-ja.txt: $(TEXI)
+elisp-ja.txt: $(TEXIS)
 	texi2any --plaintext elisp-ja.texi > elisp-ja.txt
 
 elisp-ja.texis.tar.gz: $(TEXIS)
