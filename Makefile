@@ -85,13 +85,13 @@ JA_SUFFIX := "-ja"
 
 clean:
 	rm -f *.texi
+	rm -f *.bak
 	rm -f *.html
 	rm -fR html/
 	rm -f *.info
-	rm -f *.pdf
-	rm -f *-ja.txt
-	rm -f *.tar.gz
-	rm -fR elisp-ja.texis/
+	rm -fR *.pdf elisp-ja.t2d/
+	rm -f *.txt
+	rm -fR *.tar.gz elisp-ja.texis/
 	rm -fR *.epub *.docbook mimetype META-INF OEBPS
 	rm -fR elisp-ja-html/
 
