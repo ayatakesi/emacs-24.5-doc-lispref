@@ -440,7 +440,7 @@ case ${1} in
 	perl -pe 's/\@subsection Running Hooks/\@subsection フックの実行/' -i modes-ja.texi;
 	perl -pe 's/\@subsection Setting Hooks/\@subsection フックのセットSetting Hooks/' -i modes-ja.texi;
 	perl -pe 's/\@section Major Modes/\@section メジャーモード/' -i modes-ja.texi;
-	perl -pe 's/\@subsection Major Mode Conventions/\@subsection Major Mode Conventions/' -i modes-ja.texi;
+	perl -pe 's/\@subsection Major Mode Conventions/\@subsection メジャーモードの慣習/' -i modes-ja.texi;
 	perl -pe 's/\@subsection How Emacs Chooses a Major Mode/\@subsection Emacsがメジャーモードを選択する方法/' -i modes-ja.texi;
 	perl -pe 's/\@subsection Getting Help about a Major Mode/\@subsection メジャーモードでのヘルプ入手/' -i modes-ja.texi;
 	perl -pe 's/\@subsection Defining Derived Modes/\@subsection 派生モードの定義/' -i modes-ja.texi;
