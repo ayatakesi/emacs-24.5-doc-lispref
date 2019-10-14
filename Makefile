@@ -107,21 +107,41 @@ clean:
 	fi; \
 
 elisp-ja.html: $(TEXIS)
-	texi2any --set-customization-variable TEXI2HTML=1 elisp-ja.texi
+	texi2any -c TEXI2HTML=1 elisp-ja.texi
 
 html/index.html: $(TEXIS)
-	makeinfo -o html/ --html elisp-ja.texi
+	makeinfo -o html/ --html \
+-c NODE_NAME_IN_INDEX=0 \
+-c NODE_NAME_IN_MENU=0 \
+-c USE_NODES=0 \
+-c USE_NODE_TARGET=0 \
+elisp-ja.texi
 
 elisp-ja.info: $(TEXIS)
-	makeinfo --no-split -o elisp-ja.info elisp-ja.texi
+	makeinfo --no-split -o elisp-ja.info \
+-c NODE_NAME_IN_INDEX=0 \
+-c NODE_NAME_IN_MENU=0 \
+-c USE_NODES=0 \
+-c USE_NODE_TARGET=0 \
+elisp-ja.texi
 
 elisp-ja.pdf: $(TEXIS)
-	TEX=ptex texi2dvi -c elisp-ja.texi
+	TEX=ptex texi2any --dvi \
+-c NODE_NAME_IN_INDEX=0 \
+-c NODE_NAME_IN_MENU=0 \
+-c USE_NODES=0 \
+-c USE_NODE_TARGET=0 \
+elisp-ja.texi
 	dvipdfmx elisp-ja.dvi
 	rm -f elisp-ja.dvi
 
 elisp-ja.txt: $(TEXIS)
-	texi2any --plaintext elisp-ja.texi > elisp-ja.txt
+	texi2any --plaintext \
+-c NODE_NAME_IN_INDEX=0 \
+-c NODE_NAME_IN_MENU=0 \
+-c USE_NODES=0 \
+-c USE_NODE_TARGET=0 \
+elisp-ja.texi > elisp-ja.txt
 
 elisp-ja.texis.tar.gz: $(TEXIS)
 	if [ ! -d elisp-ja.texis ]; \
@@ -135,7 +155,13 @@ elisp-ja.texis.tar.gz: $(TEXIS)
 # EXPERIMENTAL
 # REQUIRES: xsltproc, zip
 elisp-ja.epub: $(TEXIS)
-	makeinfo --docbook elisp-ja.texi -o elisp-ja.docbook
+	texi2any --docbook -v -o elisp-ja.docbook \
+-c NODE_NAME_IN_INDEX=0 \
+-c NODE_NAME_IN_MENU=0 \
+-c USE_NODES=0 \
+-c USE_NODE_TARGET=0 \
+elisp-ja.texi
+#	makeinfo --docbook elisp-ja.texi -o elisp-ja.docbook
 	xsltproc http://docbook.sourceforge.net/release/xsl/current/epub/docbook.xsl elisp-ja.docbook
 	echo "application/epub+zip" > mimetype
 	zip -0Xq elisp-ja.epub mimetype
