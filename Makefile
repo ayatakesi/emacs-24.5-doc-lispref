@@ -126,12 +126,13 @@ elisp-ja.info: $(TEXIS)
 elisp-ja.texi
 
 elisp-ja.pdf: $(TEXIS)
-	TEX=ptex texi2any --dvi \
--c NODE_NAME_IN_INDEX=0 \
--c NODE_NAME_IN_MENU=0 \
--c USE_NODES=0 \
--c USE_NODE_TARGET=0 \
-elisp-ja.texi
+	TEX=ptex texi2dvi --clean elisp-ja.texi
+# 	TEX=ptex texi2any --dvi \
+# -c NODE_NAME_IN_INDEX=0 \
+# -c NODE_NAME_IN_MENU=0 \
+# -c USE_NODES=0 \
+# -c USE_NODE_TARGET=0 \
+# elisp-ja.texi
 	dvipdfmx elisp-ja.dvi
 	rm -f elisp-ja.dvi
 
@@ -155,13 +156,13 @@ elisp-ja.texis.tar.gz: $(TEXIS)
 # EXPERIMENTAL
 # REQUIRES: xsltproc, zip
 elisp-ja.epub: $(TEXIS)
+#	makeinfo --docbook elisp-ja.texi -o elisp-ja.docbook
 	texi2any --docbook -v -o elisp-ja.docbook \
 -c NODE_NAME_IN_INDEX=0 \
 -c NODE_NAME_IN_MENU=0 \
 -c USE_NODES=0 \
 -c USE_NODE_TARGET=0 \
 elisp-ja.texi
-#	makeinfo --docbook elisp-ja.texi -o elisp-ja.docbook
 	xsltproc http://docbook.sourceforge.net/release/xsl/current/epub/docbook.xsl elisp-ja.docbook
 	echo "application/epub+zip" > mimetype
 	zip -0Xq elisp-ja.epub mimetype
@@ -171,4 +172,8 @@ elisp-ja.texi
 # REQUIRES: tesinfo-js
 #           (in texinfo distribution's js/ subdir)
 elisp-ja-html/index.html: $(TEXIS)
-	texinfo-js elisp-ja.texi
+	texinfo-js elisp-ja.texi \
+-c NODE_NAME_IN_INDEX=0 \
+-c NODE_NAME_IN_MENU=0 \
+-c USE_NODES=0 \
+-c USE_NODE_TARGET=0
