@@ -113,16 +113,12 @@ html/index.html: $(TEXIS)
 	makeinfo -o html/ --html \
 -c NODE_NAME_IN_INDEX=0 \
 -c NODE_NAME_IN_MENU=0 \
--c USE_NODES=0 \
--c USE_NODE_TARGET=0 \
 elisp-ja.texi
 
 elisp-ja.info: $(TEXIS)
 	makeinfo --no-split -o elisp-ja.info \
 -c NODE_NAME_IN_INDEX=0 \
 -c NODE_NAME_IN_MENU=0 \
--c USE_NODES=0 \
--c USE_NODE_TARGET=0 \
 elisp-ja.texi
 
 elisp-ja.pdf: $(TEXIS)
@@ -140,8 +136,6 @@ elisp-ja.txt: $(TEXIS)
 	texi2any --plaintext \
 -c NODE_NAME_IN_INDEX=0 \
 -c NODE_NAME_IN_MENU=0 \
--c USE_NODES=0 \
--c USE_NODE_TARGET=0 \
 elisp-ja.texi > elisp-ja.txt
 
 elisp-ja.texis.tar.gz: $(TEXIS)
@@ -160,8 +154,6 @@ elisp-ja.epub: $(TEXIS)
 	texi2any --docbook -v -o elisp-ja.docbook \
 -c NODE_NAME_IN_INDEX=0 \
 -c NODE_NAME_IN_MENU=0 \
--c USE_NODES=0 \
--c USE_NODE_TARGET=0 \
 elisp-ja.texi
 	xsltproc http://docbook.sourceforge.net/release/xsl/current/epub/docbook.xsl elisp-ja.docbook
 	echo "application/epub+zip" > mimetype
@@ -174,6 +166,4 @@ elisp-ja.texi
 elisp-ja-html/index.html: $(TEXIS)
 	texinfo-js elisp-ja.texi \
 -c NODE_NAME_IN_INDEX=0 \
--c NODE_NAME_IN_MENU=0 \
--c USE_NODES=0 \
--c USE_NODE_TARGET=0
+-c NODE_NAME_IN_MENU=0
